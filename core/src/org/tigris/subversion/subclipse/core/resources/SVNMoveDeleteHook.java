@@ -112,7 +112,14 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 
             try {
                 OperationManager.getInstance().beginOperation(svnClient);
-			    svnClient.move(source.getLocation().toFile(), destination.getLocation().toFile());
+			    
+                // force is set to true because when we rename (refactor) a
+                // java class, the file is modified before being moved
+                // A modified file cannot be moved without force 
+                svnClient.move(
+                    source.getLocation().toFile(), 
+                    destination.getLocation().toFile(),
+                    true);
                 
                 // movedFile must be done before endOperation because 
                 // destination file must not already exist in the workspace 
@@ -161,7 +168,10 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 
             try {
                 OperationManager.getInstance().beginOperation(svnClient);
-			    svnClient.move(source.getLocation().toFile(), destination.getLocation().toFile());
+			    svnClient.move(
+                    source.getLocation().toFile(), 
+                    destination.getLocation().toFile(),
+                    true);
                 tree.movedFolderSubtree(source, destination);
             } catch (ClientException e) {
                 throw SVNException.wrapException(e); 
