@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.eclipse.core.runtime.IStatus;
@@ -351,6 +352,15 @@ public class ConsoleView extends ViewPart {
 		return new Color(display, rgb);
 	}
 
+    /**
+     * Appends lines to the console if any views are open.
+     */
+    private static void appendConsoleLines(int type, String lines) {
+        StringTokenizer st = new StringTokenizer(lines,"\n");
+        while (st.hasMoreTokens())
+            appendConsoleLine(type,st.nextToken());
+    }
+
 	/**
 	 * Appends a line to the console if any views are open.
 	 */
@@ -452,14 +462,14 @@ public class ConsoleView extends ViewPart {
 		
 		public void commandInvoked(String line) {
 			commandStarted = System.currentTimeMillis();
-			appendConsoleLine(ConsoleDocument.DELIMITER, Policy.bind("Console.preExecutionDelimiter")); //$NON-NLS-1$
-			appendConsoleLine(ConsoleDocument.COMMAND, line);
+			appendConsoleLines(ConsoleDocument.DELIMITER, Policy.bind("Console.preExecutionDelimiter")); //$NON-NLS-1$
+			appendConsoleLines(ConsoleDocument.COMMAND, line);
 		}
 		public void messageLineReceived(String line) {
-			appendConsoleLine(ConsoleDocument.MESSAGE, "  " + line); //$NON-NLS-1$
+			appendConsoleLines(ConsoleDocument.MESSAGE, "  " + line); //$NON-NLS-1$
 		}
 		public void errorLineReceived(String line) {
-			appendConsoleLine(ConsoleDocument.ERROR, "  " + line); //$NON-NLS-1$
+			appendConsoleLines(ConsoleDocument.ERROR, "  " + line); //$NON-NLS-1$
 		}
 		public void commandCompleted(IStatus status, Exception exception) {
 			long commandRuntime = System.currentTimeMillis() - commandStarted;
@@ -477,7 +487,7 @@ public class ConsoleView extends ViewPart {
 				} else {
 					statusText = Policy.bind("Console.resultOk", time); //$NON-NLS-1$
 				}
-				appendConsoleLine(ConsoleDocument.STATUS, statusText);
+				appendConsoleLines(ConsoleDocument.STATUS, statusText);
 				IStatus[] children = status.getChildren();
 				if (children.length == 0) {
 					if (!status.isOK())
