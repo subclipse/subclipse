@@ -38,6 +38,12 @@ public interface ISVNListener {
     /**
      * called when a remote resource has been created
      */
-    public void remoteResourceCreated(ISVNRemoteFolder parent,String resourceName);    
+    public void remoteResourceCreated(ISVNRemoteFolder parent,String resourceName);
+
+    /**
+     * called when a remote resource has been copied 
+     */    
+    public void remoteResourceCopied(ISVNRemoteResource source, ISVNRemoteFolder destination);
+        
 }
 

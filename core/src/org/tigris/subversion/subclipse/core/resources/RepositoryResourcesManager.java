@@ -26,6 +26,7 @@ import org.tigris.subversion.subclipse.core.repo.ISVNListener;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
 
 import com.qintsoft.jsvn.jni.ClientException;
+import com.qintsoft.jsvn.jni.Revision;
 
 /**
  * provides some static methods to handle repository management 
@@ -93,6 +94,18 @@ public class RepositoryResourcesManager {
             listener.remoteResourceDeleted(resource);
         }    
     } 
+
+    /**
+     * signals all listener that a remote resource has been copied 
+     */
+    public void remoteResourceCopied(ISVNRemoteResource source, ISVNRemoteFolder destination) {
+        Iterator it = repositoryListeners.iterator();
+        while (it.hasNext()) {
+            ISVNListener listener = (ISVNListener)it.next();
+            listener.remoteResourceCopied(source, destination);
+        }    
+    } 
+
     
     /**
      * Creates a remote folder 
@@ -152,6 +165,26 @@ public class RepositoryResourcesManager {
             progress.done();
         }
     }
+
+
+    /**
+     * copy the remote resource to the given remote folder  
+     */
+    public void copyRemoteResource(ISVNRemoteResource resource, ISVNRemoteFolder destinationFolder, String message,IProgressMonitor monitor) throws SVNException {
+        IProgressMonitor progress = Policy.monitorFor(monitor);
+        progress.beginTask(Policy.bind("RepositoryResourcesManager.copyRemoteResources"), 100); //$NON-NLS-1$
+
+        try {        
+            SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+            svnClient.copy(resource.getUrl(),destinationFolder.getUrl(),message,Revision.HEAD);
+            destinationFolder.refresh();
+            remoteResourceCopied(resource, destinationFolder);
+        } catch (ClientException e) {
+            throw SVNException.wrapException(e);
+        } finally {
+            progress.done();
+        }
+    } 
 
 
 }
