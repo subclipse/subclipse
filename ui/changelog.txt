@@ -1,4 +1,4 @@
-* 0.x.x
+* 0.8.6
 
 Eclipse 3 Branch
 
@@ -12,14 +12,14 @@ Eclipse 2.1 Branch
 - The user can choose the dirty flag and the added flag
 - bug currected. last changed date was not parsed correctly here in France.
 - Morever two formats are possible for last changed date (the two are now supported)
-- svnjavahl compiled using svn 0.32.1 and db 4.0.14
+- svnjavahl compiled using svn 0.35.1 and db 4.2.52
 - Moved notificationHandler routines into CommandLine. normal messages and errors show up now in the SVN Console view.
 - added https to the list of recognized protocols we now ignore case for protocol
 - Added some classes to allow adding of keywords on managed files
 - added a filter on IContainer so that "Show pending operations" is not available for projects that are not shared using subversion
 - added a default value for no author
 - added Help files
-
+- command line interface to svn improved
 
 
 
@@ -64,4 +64,3 @@ Eclipse 2.1 Branch
 - Add 
 - Move/Delete (file and folders) 
 - Authentication 
-- Compare 
