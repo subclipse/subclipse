@@ -221,7 +221,7 @@ public class SVNLightweightDecorator
 			ISVNStatus status = svnResource.getStatus();
 			if (status.getUrl() != null)
 				bindings.put(
-					SVNDecoratorConfiguration.REMOTELOCATION_URL,
+					SVNDecoratorConfiguration.RESOURCE_URL,
 					status.getUrl().toString());
 			if (status.isAdded()) {
 				bindings.put(

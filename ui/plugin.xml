@@ -359,15 +359,15 @@
       </page>
    </extension>
 
-   <!--extension
+   <extension
          point="org.eclipse.ui.preferencePages">
       <page
             name="%DecoratorPreferencePage.name"
-            category="org.eclipse.team.ui.TeamPreferences"
+            category="org.tigris.subversion.subclipse.ui.SVNPreferences"
             class="org.tigris.subversion.subclipse.ui.decorator.SVNDecoratorPreferencesPage"
             id="org.tigris.subversion.subclipse.ui.SVNDecoratorPreferences">
       </page>
-   </extension-->
+   </extension>
 <!-- **************** Markers ******************* -->
    <extension
          point="org.eclipse.ui.markerResolution">
