@@ -319,6 +319,10 @@
             objectClass="org.eclipse.core.resources.IContainer"
             adaptable="true"
             id="org.tigris.subversion.subclipse.ui.IContainerContributions">      
+         <filter
+               name="projectPersistentProperty"
+               value="org.eclipse.team.core.repository=org.tigris.subversion.subclipse.core.svnnature">
+         </filter>
          <action
                label="%ShowPendingOperationsAction.label"
                tooltip="%ShowPendingOperationsAction.tooltip"
