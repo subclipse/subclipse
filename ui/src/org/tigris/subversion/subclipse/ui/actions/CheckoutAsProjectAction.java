@@ -93,7 +93,6 @@ public class CheckoutAsProjectAction extends SVNAction {
 						}	
 						catch (Exception e) {
 						  // no .project exists ... that's ok
-                          e.printStackTrace();
 						}
 
 						IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
