@@ -1,0 +1,22 @@
+* 0.6.0 - Initial Release
+
+- Share 
+- Checkout 
+- Update 
+- Commit 
+- History 
+- Add 
+- Move/Delete (file and folders) 
+- Authentication 
+- Compare 
+
+* 0.7.0
+
+- copy/paste/move/rename remote resources in repos view (for branching and tagging)
+- fixed cancel button in some actions
+- pending operations view added (with drag and drop)
+- fixed some line colours in console view
+- switches to console view in an svn error occurs
+- added --force for refactoring
+- jsvnjni.dll linked with subversion 0.26.0 and db 4.0.14
+
