@@ -12,5 +12,7 @@
         path="ECLIPSE_HOME/plugins/org.eclipse.ui_2.1.0/ui.jar" sourcepath="ORG_ECLIPSE_PLATFORM_SOURCE_SRC/org.eclipse.ui_2.1.0/uisrc.zip"/>
     <classpathentry kind="var"
         path="ECLIPSE_HOME/plugins/org.eclipse.core.runtime_2.1.0/runtime.jar" sourcepath="ORG_ECLIPSE_PLATFORM_SOURCE_SRC/org.eclipse.core.runtime_2.1.0/runtimesrc.zip"/>
+    <classpathentry kind="var"
+        path="ECLIPSE_HOME/plugins/org.eclipse.swt.win32_2.1.0/ws/win32/swt.jar" sourcepath="ORG_ECLIPSE_PLATFORM_WIN32_SOURCE_SRC/org.eclipse.swt.win32_2.1.0/ws/win32/swtsrc.zip"/>
     <classpathentry kind="output" path="classes"/>
 </classpath>
