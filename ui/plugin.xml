@@ -2,7 +2,7 @@
 <plugin
    id="org.tigris.subversion.subclipse.ui"
    name="%pluginName"
-   version="0.8.1"
+   version="0.8.6"
    provider-name="%providerName"
    class="org.tigris.subversion.subclipse.ui.SVNUIPlugin">
 
@@ -146,6 +146,13 @@
                class="org.tigris.subversion.subclipse.ui.actions.ShowHistoryAction"
                id="org.tigris.subversion.subclipse.ui.showHistory">
          </action>
+<!--		<action
+               label="%BlameAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.blame_action_context"
+               tooltip="%BlameAction.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.BlameAction"
+               id="org.tigris.subversion.subclipse.ui.blame">
+         </action>          -->
       </objectContribution>
 <!-- contribution for ISVNRemoteFolder -->
       <objectContribution
