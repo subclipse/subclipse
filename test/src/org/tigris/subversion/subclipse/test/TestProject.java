@@ -50,9 +50,9 @@ import org.eclipse.jdt.launching.JavaRuntime;
   	private IJavaProject javaProject;
   	private IPackageFragmentRoot sourceFolder;
   
-  	public TestProject() throws CoreException {
+  	public TestProject(String projectName) throws CoreException {
   		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-  		project = root.getProject("TestProject");
+  		project = root.getProject(projectName);
   		project.create(null);
   		project.open(null);
   		javaProject = JavaCore.create(project);
@@ -173,7 +173,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
   		return new Path(localJarURL.getPath());
   	}
   
-  	private void waitForIndexer() throws JavaModelException {
+  	public static void waitForIndexer() throws JavaModelException {
   		new SearchEngine()
   			.searchAllTypeNames(
   				ResourcesPlugin.getWorkspace(),

@@ -19,8 +19,10 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.test.SubclipseTest;
+import org.tigris.subversion.subclipse.test.TestProject;
 
 
 
@@ -31,7 +33,8 @@ public class LocalResourceTest extends SubclipseTest {
 	}
 
 	public void testUrl() throws Exception {
-		shareProject();
+		TestProject testProject = new TestProject("testProject");
+		shareProject(testProject.getProject());
 		
 		// create a file
 		IPackageFragment package1 = testProject.createPackage("pack1");
@@ -47,14 +50,15 @@ public class LocalResourceTest extends SubclipseTest {
 		assertEquals(getRepositoryLocation().getUrl().toString()+"/"+testProject.getProject().getName()+"/src/pack1/AClass.java",svnResource.getUrl().toString());
 		
 		// add it to repository
-		provider.add(new IResource[] {resource},IResource.DEPTH_ZERO, null);
+		getProvider(testProject.getProject()).add(new IResource[] {resource},IResource.DEPTH_ZERO, null);
 		
 		// get the url : this should be direct as the resource is managed
 		assertEquals(getRepositoryLocation().getUrl().toString()+"/"+testProject.getProject().getName()+"/src/pack1/AClass.java",svnResource.getUrl().toString());
 	}
 	
 	public void testGetRemote() throws Exception {
-			shareProject();
+			TestProject testProject = new TestProject("testProject");
+			shareProject(testProject.getProject());
 		
 			// create a file
 			IPackageFragment package1 = testProject.createPackage("pack1");
@@ -66,6 +70,8 @@ public class LocalResourceTest extends SubclipseTest {
 			IFile resource = testProject.getProject().getFile(new Path("src/pack1/AClass.java"));
 			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 			InputStream isLocal = resource.getContents();
+		
+			SVNTeamProvider provider = getProvider(testProject.getProject());
 		
 			// add it to repository
 			provider.add(new IResource[] {resource},IResource.DEPTH_ZERO, null);

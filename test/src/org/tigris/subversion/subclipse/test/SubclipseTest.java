@@ -14,6 +14,9 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -24,10 +27,8 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 
 
 public abstract class SubclipseTest extends TestCase {
-	protected TestProject testProject;
 	protected SVNRepositories repositories;
 	protected ISVNRepositoryLocation repositoryLocation;
-	protected SVNTeamProvider provider = null;
 	protected BuildFile buildFile = new BuildFile();
 
 	public SubclipseTest(String name) {
@@ -43,9 +44,6 @@ public abstract class SubclipseTest extends TestCase {
 		// create the repository, set the properties (urlRepos)
 		buildFile.executeTarget("init");
 		
-		// create a project in the workspace
-		testProject = new TestProject();
-		
 		// get the ISVNRepositoryLocation corresponding to our repository
 		SVNProviderPlugin plugin = SVNProviderPlugin.getPlugin();
 		repositories = plugin.getRepositories();
@@ -58,16 +56,28 @@ public abstract class SubclipseTest extends TestCase {
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		unshareProject();
+		TestProject.waitForIndexer();
+
+		// delete all the projects we created in the test		
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IProject[] projects = root.getProjects();
+		for (int i = 0; i < projects.length;i++) {
+			IProject project = projects[i];
+			SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());
+			
+			if (teamProvider != null) {			
+				unshareProject(project);
+			}
 		
-		Exception e = null;
-		int retry = 0;
+			Exception e = null;
+			int retry = 0;
 		
-		try {
-			// delete the project
-			testProject.dispose();
-		} catch(Exception ex) {
-			e = ex;
+			try {
+				// delete the project
+				project.delete(true, true, null);
+			} catch(Exception ex) {
+				e = ex;
+			}			
 		}
 		
 		// remove all the repositories
@@ -81,18 +91,16 @@ public abstract class SubclipseTest extends TestCase {
 	 * share the project using svn
 	 * @throws Exception
 	 */
-	protected void shareProject() throws TeamException {
-		SVNWorkspaceRoot.shareProject(repositoryLocation,testProject.getProject(),null,null);
-		
-		provider = (SVNTeamProvider)RepositoryProvider.getProvider(testProject.getProject(), SVNProviderPlugin.getTypeId());		
+	protected void shareProject(IProject project) throws TeamException {
+		SVNWorkspaceRoot.shareProject(repositoryLocation,project,null,null);
 	}
 
 	/**
 	 * unshare the project (do not delete .svn directories)
 	 * @throws TeamException
 	 */
-	protected void unshareProject() throws TeamException {
-		RepositoryProvider.unmap(testProject.getProject());
+	protected void unshareProject(IProject project) throws TeamException {
+		RepositoryProvider.unmap(project);
 	}
 
 	/**
@@ -105,22 +113,12 @@ public abstract class SubclipseTest extends TestCase {
 	/**
 	 * @return
 	 */
-	public SVNTeamProvider getProvider() {
-		return provider;
-	}
-
-	/**
-	 * @return
-	 */
 	public ISVNRepositoryLocation getRepositoryLocation() {
 		return repositoryLocation;
 	}
 
-	/**
-	 * @return
-	 */
-	public TestProject getTestProject() {
-		return testProject;
+	public SVNTeamProvider getProvider(IProject project) {
+		return (SVNTeamProvider)RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());
 	}
 
 }
