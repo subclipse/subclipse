@@ -17,7 +17,6 @@ import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
-import org.tigris.subversion.subclipse.core.resourcesListeners.AddDeleteMoveListener;
 import org.tigris.subversion.subclipse.ui.decorator.SVNDecoratorConfiguration;
 
 /**
@@ -61,19 +60,7 @@ private IPreferenceStore store;
      * @see IPropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent event) {
-        try {
-            String property = event.getProperty();
-            if (property.equals(ISVNUIConstants.PREF_SHOW_MARKERS)) {
-                boolean b = store.getBoolean(ISVNUIConstants.PREF_SHOW_MARKERS);
-                if (b) {
-                    AddDeleteMoveListener.refreshAllMarkers();
-                } else {
-                    AddDeleteMoveListener.clearAllSVNMarkers();
-                }
-            }
-        } catch (CoreException e) {
-            SVNUIPlugin.log(e.getStatus());
-        }
+        String property = event.getProperty();
     }
 
 
