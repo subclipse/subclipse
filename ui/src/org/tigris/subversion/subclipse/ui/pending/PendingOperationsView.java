@@ -58,7 +58,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ViewPart;
-import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.javahl.NodeKind;
 import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
@@ -69,7 +68,9 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * 
@@ -183,7 +184,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
                 return null;
             ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor((IResource)element); 
             
-            Status status = null; 
+            ISVNStatus status = null; 
             try {
                 status = svnResource.getStatus();
             } catch (SVNException e) {
@@ -218,7 +219,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
 			if (element == null)
 				return ""; //$NON-NLS-1$
             ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor((IResource)element); 
-            Status status = null; 
+            ISVNStatus status = null; 
             try {
                 status = svnResource.getStatus();
             } catch (SVNException e) {
@@ -502,13 +503,13 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
         tableViewer.setInput(getStatus());
     }
 
-    private Status[] getStatus() throws SVNException {
-        Status[] status = null;
+    private ISVNStatus[] getStatus() throws SVNException {
+        ISVNStatus[] status = null;
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
         SVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
         try { 
-            status = svnClient.getStatusRecursively(parent.getLocation().toFile());
-        } catch (ClientException e) {
+            status = svnClient.getStatusRecursively(parent.getLocation().toFile(),false);
+        } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         }
         return status;

@@ -39,6 +39,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.wizards.ConfigurationWizardMainPage;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
 
 /**
  * This wizard helps the user to import a new project in their workspace
@@ -166,7 +167,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 						if (autoconnectPage != null && doesSVNDirectoryExist()) {
 							// Autoconnect to the repository using svn/ directories
 							
-							Status info = autoconnectPage.getFolderStatus();
+							ISVNStatus info = autoconnectPage.getFolderStatus();
 							if (info == null) {
 								// Error!
 								return;
@@ -365,7 +366,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
         boolean isSVNFolder = false;
 		try {
 		  ISVNLocalFolder folder = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(project);
-		  Status info = folder.getStatus();
+		  ISVNStatus info = folder.getStatus();
 		  isSVNFolder = info.hasRemote();
           
 		} catch (final TeamException e) {

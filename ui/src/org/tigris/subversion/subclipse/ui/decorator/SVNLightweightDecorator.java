@@ -44,6 +44,7 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
 
 /**
  * The decorator for svn resources 
@@ -218,7 +219,7 @@ public class SVNLightweightDecorator
 
 			ISVNLocalResource svnResource =
 				SVNWorkspaceRoot.getSVNResourceFor(resource);
-			Status status = svnResource.getStatus();
+			ISVNStatus status = svnResource.getStatus();
 			if (status.getUrl() != null)
 				bindings.put(
 					SVNDecoratorConfiguration.REMOTELOCATION_URL,
@@ -295,14 +296,14 @@ public class SVNLightweightDecorator
         // show added icon
 		if (showAdded) {
 			try {
-                Status status = svnResource.getStatus();
+                ISVNStatus status = svnResource.getStatus();
                 
            		// show merged icon if file has been merged but has not been edited (e.g. on commit it will be ignored)
 //				if (info != null && info.isNeedsMerge(svnFile.getTimeStamp())) {
 //			     return merged;
 				// show added icon if file has been added locally.
 //				} else 
-                if (status.getTextStatus() == Status.Kind.added)
+                if (status.getTextStatus() == ISVNStatus.Kind.ADDED)
     				return added;
 			} catch (SVNException e) {
 				SVNUIPlugin.log(e.getStatus());
@@ -316,7 +317,7 @@ public class SVNLightweightDecorator
 		// Simplest is that is has remote.
 		if (showHasRemote) {
             try {
-                Status status = svnResource.getStatus();
+                ISVNStatus status = svnResource.getStatus();
                 if (svnResource.hasRemote())
                     return checkedIn;
             } catch (SVNException e) {

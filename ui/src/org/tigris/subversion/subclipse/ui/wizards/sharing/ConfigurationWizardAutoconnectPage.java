@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.help.WorkbenchHelp;
-import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositoryLocation;
@@ -32,6 +31,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.wizards.SVNWizardPage;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
 
 /**
  * This configuration page explains to the user that .svn/ directories already exists and
@@ -41,7 +41,7 @@ import org.tigris.subversion.subclipse.ui.wizards.SVNWizardPage;
  */
 public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 	private boolean validate = true;
-	private Status status;               // the status of the project directory
+	private ISVNStatus status;               // the status of the project directory
 	ISVNRepositoryLocation location;     // the repository location of the project directory
 
 	public ConfigurationWizardAutoconnectPage(String pageName, String title, ImageDescriptor titleImage) {
@@ -92,7 +92,7 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 		check.setSelection(true);		
 	}
 	
-	public Status getFolderStatus() {
+	public ISVNStatus getFolderStatus() {
 		return status;
 	}
     
@@ -106,7 +106,7 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 	public void setProject(IProject project) {
 		try {
 			ISVNLocalFolder folder = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(project);
-			status = folder.getStatus();
+            status = folder.getStatus();
 			if (status == null) {
 				// This should never happen
 				SVNUIPlugin.openError(null, Policy.bind("ConfigurationWizardAutoconnectPage.noSyncInfo"), Policy.bind("ConfigurationWizardAutoconnectPage.noSVNDirectory"), null); //$NON-NLS-1$ //$NON-NLS-2$
@@ -121,7 +121,7 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 	/**
      * gets the status of the directory corresponding to the project 
 	 */
-	public Status getSharingStatus() {
+	public ISVNStatus getSharingStatus() {
 		return status;
 	}
 	/**

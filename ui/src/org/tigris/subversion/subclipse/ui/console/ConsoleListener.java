@@ -23,6 +23,7 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
  * The console listener
@@ -31,18 +32,22 @@ class ConsoleListener implements IConsoleListener {
     private long commandStarted = 0;
     private static final DateFormat TIME_FORMAT = new SimpleDateFormat(Policy.bind("Console.resultTimeFormat")); //$NON-NLS-1$
         
-    public void commandInvoked(String line) {
+    public void logCommandLine(String commandLine) {
         commandStarted = System.currentTimeMillis();
         ConsoleView.appendConsoleLines(ConsoleDocument.DELIMITER, Policy.bind("Console.preExecutionDelimiter")); //$NON-NLS-1$
-        ConsoleView.appendConsoleLines(ConsoleDocument.COMMAND, line);
+        ConsoleView.appendConsoleLines(ConsoleDocument.COMMAND, commandLine);
     }
     
-    public void messageLineReceived(String line) {
-        ConsoleView.appendConsoleLines(ConsoleDocument.MESSAGE, "  " + line); //$NON-NLS-1$
+    public void logMessage(String message) {
+        ConsoleView.appendConsoleLines(ConsoleDocument.MESSAGE, "  " + message); //$NON-NLS-1$
+    }
+
+    public void logCompleted(String message) {
+        ConsoleView.appendConsoleLines(ConsoleDocument.MESSAGE, "  " + message); //$NON-NLS-1$
     }
     
-    public void errorLineReceived(String line) {
-        ConsoleView.appendConsoleLines(ConsoleDocument.ERROR, "  " + line); //$NON-NLS-1$
+    public void logError(String message) {
+        ConsoleView.appendConsoleLines(ConsoleDocument.ERROR, "  " + message); //$NON-NLS-1$
         
         // we show the console view if something goes wrong
         // findInActivePerspective must be called from the UI thread
@@ -56,7 +61,8 @@ class ConsoleListener implements IConsoleListener {
             }
         });
     }
-    
+
+/*    
     public void commandCompleted(IStatus status, Exception exception) {
         long commandRuntime = System.currentTimeMillis() - commandStarted;
         String time;
@@ -98,7 +104,8 @@ class ConsoleListener implements IConsoleListener {
         ConsoleView.appendConsoleLines(ConsoleDocument.DELIMITER, ""); //$NON-NLS-1$
         ConsoleView.flushConsoleBuffer();
     }
-    
+*/
+        
     /**
      * Method messageLineForStatus.
      * @param status
@@ -113,4 +120,12 @@ class ConsoleListener implements IConsoleListener {
         }
         return status.getMessage();
     }
+
+
+	public void onNotify(String path, SVNNodeKind kind) {
+	}
+
+	public void setCommand(int command) {
+	}
+
 }
