@@ -44,6 +44,8 @@ import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
 
 import com.qintsoft.jsvn.jni.ClientException;
+import com.qintsoft.jsvn.jni.DirEntry;
+import com.qintsoft.jsvn.jni.NodeKind;
 import com.qintsoft.jsvn.jni.Revision;
 import com.qintsoft.jsvn.jni.Status;
 
@@ -159,17 +161,34 @@ public class SVNWorkspaceRoot {
                             RemoteFolder resource = (RemoteFolder) resources[i];
 
 							project = projects[i];
-
+							boolean deleteDotProject = false;
 						    // Perform the checkout
                             SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
-                            
+
+							// check if the remote project has a .project file
+							DirEntry[] rootFiles = svnClient.getList(resource.getUrl(), Revision.HEAD, false);
+							for (int j = 0; j < rootFiles.length; j++) {
+								if ((rootFiles[j].getNodeKind() == NodeKind.file) && (".project".equals(rootFiles[j].getPath()))) {
+										deleteDotProject = true;
+								}
+							}							
+
                             File destPath;
 							if (project.getLocation() == null) {
                                 // project.getLocation is null if the project does not exist in the workspace
 								destPath = new File(root.getIResource().getLocation().toFile(),project.getName());
                                 // we create the directory corresponding to the project and we open it 
                                 project.create(null);
-                                project.open(null);     
+                                project.open(null);
+
+								if(deleteDotProject){
+									
+									IFile projectFile = project.getFile(".project");
+									if (projectFile != null) {
+										// delete the project file, force, no history, without progress monitor
+										projectFile.delete(true, false, null);
+									}
+								}     
 							} else {
 								destPath = project.getLocation().toFile();
 							}
@@ -193,6 +212,8 @@ public class SVNWorkspaceRoot {
 					} catch (TeamException e) {
 						// Pass it outside the workspace runnable
 						eHolder[0] = e;
+					} catch (ClientException ce) {
+						eHolder[0] = new TeamException("Error Getting Dir list", ce);
 					} finally {
 						pm.done();
 					}
