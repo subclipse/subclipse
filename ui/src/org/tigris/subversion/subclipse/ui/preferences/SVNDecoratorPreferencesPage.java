@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
  *******************************************************************************/
-package org.tigris.subversion.subclipse.ui.decorator;
+package org.tigris.subversion.subclipse.ui.preferences;
 
 
 import java.text.DateFormat;
@@ -49,6 +49,8 @@ import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.decorator.SVNDecoratorConfiguration;
+import org.tigris.subversion.subclipse.ui.decorator.SVNLightweightDecorator;
 
 /**
  * The preference page for decoration
