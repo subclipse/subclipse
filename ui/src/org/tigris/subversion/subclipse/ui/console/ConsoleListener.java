@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.console;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -117,7 +118,7 @@ class ConsoleListener implements IConsoleListener {
     }
 
 
-	public void onNotify(String path, SVNNodeKind kind) {
+	public void onNotify(File path, SVNNodeKind kind) {
 	}
 
 	public void setCommand(int command) {
