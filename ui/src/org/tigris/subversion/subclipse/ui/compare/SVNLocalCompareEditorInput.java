@@ -11,7 +11,6 @@
 package org.tigris.subversion.subclipse.ui.compare;
 
 
-import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.Viewer;
@@ -31,13 +30,20 @@ public class SVNLocalCompareEditorInput extends SVNSyncCompareInput {
 		super(resources);
 	}
 	
-	
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.compare.CompareEditorInput#createDiffViewer(org.eclipse.swt.widgets.Composite)
+	 */
 	public Viewer createDiffViewer(Composite parent) {
 		Viewer viewer = super.createDiffViewer(parent);
 		getViewer().syncModeChanged(SyncView.SYNC_COMPARE);
 		return viewer;
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.team.internal.ui.sync.SyncCompareInput#createSyncElements(org.eclipse.core.runtime.IProgressMonitor)
+	 */	
 	protected IRemoteSyncElement[] createSyncElements(IProgressMonitor monitor) throws TeamException {
 		IResource[] resources = getResources();
 		IRemoteSyncElement[] trees = new IRemoteSyncElement[resources.length];
@@ -48,7 +54,6 @@ public class SVNLocalCompareEditorInput extends SVNSyncCompareInput {
 				IResource resource = resources[i];	
 
                 IRemoteResource remote = SVNWorkspaceRoot.getLatestResourceFor(resource);
-//				IRemoteResource remote = SVNWorkspaceRoot.getRemoteTree(resource, Policy.subMonitorFor(monitor, 50));
 				trees[i] = new SVNRemoteSyncElement(false /* two-way */, resource, null, remote);				 
 			}
 		} finally {
@@ -58,14 +63,20 @@ public class SVNLocalCompareEditorInput extends SVNSyncCompareInput {
 		return trees;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.compare.CompareEditorInput#getTitle()
+	 */
 	public String getTitle() {
-		return Policy.bind("SVNLocalCompareEditorInput.title" /* , tags[0].getName() */); //$NON-NLS-1$
-	}
-	
-	protected void contentsChanged(ICompareInput source) {
+		StringBuffer title = new StringBuffer();
+		IResource[] resources = getResources();
+		for (int i = 0; i < resources.length; i++) {
+			if (i != 0) {
+				title.append(" - ");
+			}
+			title.append(resources[i].getName());
+		}
+		return Policy.bind("SVNLocalCompareEditorInput.title", title.toString()); //$NON-NLS-1$
 	}
 
-	public String getToolTipText() {
-		return getTitle();
-	}
 }
