@@ -17,7 +17,11 @@ import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResourceVisitor;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNKeywords;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -89,6 +93,70 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
     public void accept(ISVNResourceVisitor visitor) throws SVNException {
         visitor.visitFile(this);
     }
+    
+    /*
+     *  (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFile#setKeywords(org.tigris.subversion.svnclientadapter.SVNKeywords)
+     */
+    public void setKeywords(SVNKeywords svnKeywords) throws SVNException {
+        try {
+            ISVNClientAdapter svnClient = getRepository().getSVNClient();
+            OperationManager.getInstance().beginOperation(svnClient);
+            svnClient.setKeywords(getFile(),svnKeywords,false);
+        } catch (SVNClientException e) {
+            throw SVNException.wrapException(e); 
+        } finally {
+            OperationManager.getInstance().endOperation();
+        }
+    }
+    
+    /*
+     *  (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFile#addKeywords(org.tigris.subversion.svnclientadapter.SVNKeywords)
+     */
+    public void addKeywords(SVNKeywords svnKeywords) throws SVNException {
+        try {
+            ISVNClientAdapter svnClient = getRepository().getSVNClient();
+            OperationManager.getInstance().beginOperation(svnClient);
+            svnClient.addKeywords(getFile(),svnKeywords);
+        } catch (SVNClientException e) {
+            throw SVNException.wrapException(e); 
+        } finally {
+            OperationManager.getInstance().endOperation();
+        }        
+    }
+    
+    /*
+     *  (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFile#removeKeywords(org.tigris.subversion.svnclientadapter.SVNKeywords)
+     */
+    public void removeKeywords(SVNKeywords svnKeywords) throws SVNException {
+        try {
+            ISVNClientAdapter svnClient = getRepository().getSVNClient();
+            OperationManager.getInstance().beginOperation(svnClient);
+            svnClient.removeKeywords(getFile(),svnKeywords);
+        } catch (SVNClientException e) {
+            throw SVNException.wrapException(e); 
+        } finally {
+            OperationManager.getInstance().endOperation();
+        }        
+    }
+    
+    /*
+     *  (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFile#getKeywords()
+     */
+    public SVNKeywords getKeywords() throws SVNException {
+    try {
+        ISVNClientAdapter svnClient = getRepository().getSVNClient();
+        OperationManager.getInstance().beginOperation(svnClient);
+        return svnClient.getKeywords(getFile());
+    } catch (SVNClientException e) {
+        throw SVNException.wrapException(e); 
+    } finally {
+        OperationManager.getInstance().endOperation();
+    }        
+}
 
 }
 

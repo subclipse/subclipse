@@ -185,7 +185,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
 	}
 
     /**
-     * @see ISVNFolder#acceptChildren(ICVSResourceVisitor)
+     * @see ISVNFolder#acceptChildren(ISVNResourceVisitor)
      */
     public void acceptChildren(ISVNResourceVisitor visitor) throws SVNException {
         

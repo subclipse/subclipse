@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core;
 
+import org.tigris.subversion.svnclientadapter.SVNKeywords;
+
 /**
  * SVN local file. SVN files have access to synchronization information
  * that describes their association with the SVN repository. 
@@ -19,4 +21,31 @@ package org.tigris.subversion.subclipse.core;
  */
 public interface ISVNLocalFile extends ISVNLocalResource, ISVNFile {
 
+    /**
+     * set the keywords for this file
+     * @param svnKeywords
+     * @throws SVNException
+     */
+    void setKeywords(SVNKeywords svnKeywords) throws SVNException;
+    
+    /**
+     * add given keywords to this file
+     * @param svnKeywords
+     * @throws SVNException
+     */
+    void addKeywords(SVNKeywords svnKeywords) throws SVNException;
+    
+    /**
+     * remove given keywords for this file
+     * @param svnKeywords
+     * @throws SVNException
+     */
+    void removeKeywords(SVNKeywords svnKeywords) throws SVNException;
+    
+    /**
+     * get the keywords for this file
+     * @return
+     * @throws SVNException
+     */
+    SVNKeywords getKeywords() throws SVNException;
 }
