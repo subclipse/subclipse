@@ -30,10 +30,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * @author cedric
- *
- * To change the template for this generated type comment go to
- * Window>Preferences>Java>Code Generation>Code and Comments
+ * the comments manager : holds previous comments 
  */
 public class CommentsManager {
     // The previously remembered comment

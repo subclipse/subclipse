@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.repository;
 
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 
 /**
@@ -20,5 +22,7 @@ public interface IRepositoryListener {
 	public void repositoryAdded(ISVNRepositoryLocation root);
 	public void repositoryRemoved(ISVNRepositoryLocation root);
 	public void repositoriesChanged(ISVNRepositoryLocation[] roots);
+    public void remoteResourceDeleted(ISVNRemoteResource resource);
+    public void remoteResourceCreated(ISVNRemoteFolder parent,String resourceName);    
 }
 

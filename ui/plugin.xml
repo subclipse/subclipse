@@ -90,6 +90,14 @@
                menubarPath="group.add/additions"               
                id="org.tigris.subversion.subclipse.ui.createRemoteFolder">
          </action>
+         <action
+               label="%DeleteRemoteAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.delete_remote_resource_action_context"
+               tooltip="%DeleteRemoteAction.tooltip"
+               icon="icons/full/ctool16/delete.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.DeleteRemoteResourceAction"
+               id="org.tigris.subversion.subclipse.ui.deleteRemoteResource">
+         </action>         
       </objectContribution>
 <!-- contribution for ISVNRemoteFile -->
       <objectContribution

@@ -96,22 +96,29 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 		public void repositoryAdded(final ISVNRepositoryLocation root) {
 			getViewer().getControl().getDisplay().syncExec(new Runnable() {
 				public void run() {
-					refreshViewer();
+					refreshViewer(false);
 					getViewer().setSelection(new StructuredSelection(root));
 				}
 			});
 		}
 		public void repositoryRemoved(ISVNRepositoryLocation root) {
-			refresh();
+			refresh(false);
 		}
 		public void repositoriesChanged(ISVNRepositoryLocation[] roots) {
-			refresh();
+			refresh(false);
 		}
-		private void refresh() {
+        public void remoteResourceDeleted(ISVNRemoteResource resource) {
+            refresh(false);
+        }
+        public void remoteResourceCreated(ISVNRemoteFolder parent,String resourceName) {
+            refresh(false);  
+        }
+		private void refresh(boolean refreshRepositoriesFolders) {
+            final boolean finalRefreshReposFolders = refreshRepositoriesFolders;
 			Display display = getViewer().getControl().getDisplay();
 			display.syncExec(new Runnable() {
 				public void run() {
-					RepositoriesView.this.refreshViewer();
+					RepositoriesView.this.refreshViewer(finalRefreshReposFolders);
 				}
 			});
 		}
@@ -172,7 +179,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
         refreshAction = new Action(Policy.bind("RepositoriesView.refresh"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REFRESH_ENABLED)) { //$NON-NLS-1$
             public void run() {
-                refreshViewer();
+                refreshViewer(true);
             }
         };
         refreshAction.setToolTipText(Policy.bind("RepositoriesView.refreshTooltip")); //$NON-NLS-1$
@@ -383,9 +390,10 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
      * this is called whenever a new repository location is added for example
      * or when user wants to refresh
      */
-    protected void refreshViewer() {
+    protected void refreshViewer(boolean refreshRepositoriesFolders) {
         if (treeViewer == null) return;
-        SVNProviderPlugin.getPlugin().getRepositories().refreshRepositoriesFolders();
+        if (refreshRepositoriesFolders)
+            SVNProviderPlugin.getPlugin().getRepositories().refreshRepositoriesFolders();
         treeViewer.refresh(); 
     }
     

@@ -28,6 +28,8 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
@@ -69,7 +71,6 @@ public class RepositoryManager {
 	
 	/**
 	 * A repository root has been removed.
-	 * Remove the tags defined for this root and notify any listeners
 	 */
 	public void rootRemoved(ISVNRepositoryLocation root) {
         Iterator it = listeners.iterator();
@@ -80,19 +81,50 @@ public class RepositoryManager {
     }
 
     /**
+     * A resource has been deleted
+     */
+    public void resourceDeleted(ISVNRemoteResource resource) {
+        Iterator it = listeners.iterator();
+        while (it.hasNext()) {
+            IRepositoryListener listener = (IRepositoryListener)it.next();
+            listener.remoteResourceDeleted(resource);
+        }
+    }
+
+    /**
+     * A resource has been deleted
+     */
+    public void resourceCreated(ISVNRemoteFolder parent, String resourceName) {
+        Iterator it = listeners.iterator();
+        while (it.hasNext()) {
+            IRepositoryListener listener = (IRepositoryListener)it.next();
+            listener.remoteResourceCreated(parent,resourceName);
+        }
+    }
+
+
+    /**
      * called when plugin is started
      */	
 	public void startup() throws TeamException {
         commentsManager.loadCommentHistory();
 		
         // we listen to changes to repository so that we can advise concerned views
-        SVNProviderPlugin.getPlugin().getRepositories().addRepositoryListener(new ISVNListener() {
+        SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().addRepositoryListener(new ISVNListener() {
 			public void repositoryAdded(ISVNRepositoryLocation root) {
 				rootAdded(root);
 			}
 			public void repositoryRemoved(ISVNRepositoryLocation root) {
 				rootRemoved(root);
 			}
+            public void remoteResourceDeleted(ISVNRemoteResource resource) {
+                resourceDeleted(resource);
+            }
+    
+            public void remoteResourceCreated(ISVNRemoteFolder parent, String resourceName) {
+                resourceCreated(parent, resourceName);
+            }
+           
 		});
 	}
 	
