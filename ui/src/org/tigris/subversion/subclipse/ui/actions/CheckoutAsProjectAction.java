@@ -31,11 +31,15 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.team.internal.ui.IPromptCondition;
 import org.eclipse.team.internal.ui.PromptingDialog;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNFolder;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -77,19 +81,27 @@ public class CheckoutAsProjectAction extends SVNAction {
 						
 						// Check for a better name for the project
 						try {
-							ISVNRemoteResource dotProject = folders[i].getRepository().getRemoteFile("/" + name + "/.project");							
-							InputStream is = dotProject.getContents(monitor);
-							DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-							org.w3c.dom.Document doc = db.parse(is);
-							is.close();
-							NodeList nl = doc.getDocumentElement().getChildNodes();
-							for (int j = 0; j < nl.getLength(); ++j) {
-								Node child = nl.item(j);
-								if (child instanceof Element && "name".equals(child.getNodeName())) {
-									Node grandChild = child.getFirstChild();
-									if (grandChild instanceof Text) name = ((Text)grandChild).getData(); 	
+							ISVNResource[] children = folders[i].members(monitor, ISVNFolder.FILE_MEMBERS);
+							for (int k = 0; k < children.length; k++) {
+								ISVNResource resource = children[k];
+								if(".project".equals(resource.getName())){
+									ISVNRemoteFile dotProject = folders[0].getRepository().getRemoteFile(new SVNUrl(Util.appendPath(folders[i].getUrl().get(), ".project")));
+																
+									InputStream is = dotProject.getContents(monitor);
+									DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+									org.w3c.dom.Document doc = db.parse(is);
+									is.close();
+									NodeList nl = doc.getDocumentElement().getChildNodes();
+									for (int j = 0; j < nl.getLength(); ++j) {
+										Node child = nl.item(j);
+										if (child instanceof Element && "name".equals(child.getNodeName())) {
+											Node grandChild = child.getFirstChild();
+											if (grandChild instanceof Text) name = ((Text)grandChild).getData(); 	
+										}
+									}									
 								}
 							}
+
 						}	
 						catch (Exception e) {
 						  // no .project exists ... that's ok
