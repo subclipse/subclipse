@@ -34,8 +34,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.ui.ISharedImages;
 import org.eclipse.team.ui.TeamImages;
-import org.tigris.subversion.javahl.Revision;
-import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -45,6 +43,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * The decorator for svn resources 
@@ -229,7 +228,7 @@ public class SVNLightweightDecorator
 					SVNDecoratorConfiguration.ADDED_FLAG,
 					   store.getString(ISVNUIConstants.PREF_ADDED_FLAG));
 			} else {
-                if ((status.getRevision().getNumber() != Revision.SVN_INVALID_REVNUM) &&
+                if ((status.getRevision().getNumber() != SVNRevision.SVN_INVALID_REVNUM) &&
                     (status.getRevision().getNumber() != 0))
                 {
 				    bindings.put(

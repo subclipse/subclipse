@@ -58,8 +58,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ViewPart;
-import org.tigris.subversion.javahl.NodeKind;
-import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -71,6 +69,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
  * 
@@ -109,7 +108,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
 		 * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
 		 */
 		public Object[] getElements(Object inputElement) {
-            Status[] status = (Status[]) inputElement;
+            ISVNStatus[] status = (ISVNStatus[]) inputElement;
             IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
                     
             List resourceList = new ArrayList();
@@ -129,10 +128,10 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
                     }
         
                     IResource resource = null;
-                    if (status[i].getNodeKind()  == NodeKind.dir)       
+                    if (status[i].getNodeKind()  == SVNNodeKind.DIR)       
                         resource = workspaceRoot.getContainerForLocation(pathEclipse);
                     else
-                    if (status[i].getNodeKind() == NodeKind.file)
+                    if (status[i].getNodeKind() == SVNNodeKind.FILE)
                         resource =  workspaceRoot.getFileForLocation(pathEclipse);
                 
                     resourceList.add(resource);
@@ -405,7 +404,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
         tableViewer.addDropSupport(ops, transfers, new PendingDropAdapter(tableViewer, this));
     }
     
-	public void setInput(Status[] status) {
+	public void setInput(ISVNStatus[] status) {
 		tableViewer.setInput(status);
 	}
 
