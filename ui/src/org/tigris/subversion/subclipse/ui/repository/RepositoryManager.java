@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -31,6 +32,7 @@ import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
@@ -176,7 +178,18 @@ public class RepositoryManager {
 	 * This schedules the resources for addition; they still need to be committed.
 	 */
 	public void add(IResource[] resources, IProgressMonitor monitor) throws TeamException {
+		
+		if (monitor == null) {
+			monitor = new NullProgressMonitor();
+		}
 		Map table = getProviderMapping(resources);
+		
+		// some of the resources are not associated with shared projects
+		if (table.get(null) != null) {
+			throw new SVNException(Policy.bind("RepositoryManager.addErrorNotAssociated")); 
+		}
+		
+		// iterate through the svn providers
 		Set keySet = table.keySet();
 		monitor.beginTask("", keySet.size() * 1000); //$NON-NLS-1$
 		monitor.setTaskName(Policy.bind("RepositoryManager.adding")); //$NON-NLS-1$
@@ -295,6 +308,9 @@ public class RepositoryManager {
 	 * @param monitor  the progress monitor
 	 */
 	public void commit(IResource[] resources, String comment, IProgressMonitor monitor) throws TeamException {
+		if (monitor == null) {
+			monitor = new NullProgressMonitor();
+		}
 		Map table = getProviderMapping(resources);
 		Set keySet = table.keySet();
 		monitor.beginTask("", keySet.size() * 1000); //$NON-NLS-1$
@@ -312,6 +328,7 @@ public class RepositoryManager {
 	/**
 	 * Helper method. Return a Map mapping provider to a list of resources
 	 * shared with that provider.
+	 * If a resource is not associated with a provider, the key is null
 	 */
 	private Map getProviderMapping(IResource[] resources) {
 		Map result = new HashMap();
