@@ -15,15 +15,12 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.svnproperties.SetSvnPropertyDialog;
-import org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView;
 
 /**
  * Set a new svn property on a given resource 
@@ -44,24 +41,12 @@ public class SetSvnPropertyAction extends WorkspaceAction {
 					} else {
 						svnResource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyFile(),dialog.getRecurse());
 					}
-					refreshSvnPropertiesView();
-					
+				
 				} catch (SVNException e) {
 					throw new InvocationTargetException(e);
 				}
 			} 
 		}, false /* cancelable */, PROGRESS_BUSYCURSOR);
-	}
-
-	private void refreshSvnPropertiesView() {
-		// refresh the svn property view
-		IWorkbenchPage page = SVNUIPlugin.getActivePage();
-		if (page != null) {
-			SvnPropertiesView propertiesView = (SvnPropertiesView)page.findView(SvnPropertiesView.VIEW_ID);
-			if (propertiesView != null) {
-				propertiesView.refresh();
-			}
-		}		
 	}
 
 	/*

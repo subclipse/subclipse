@@ -527,7 +527,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
         ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
         try { 
-            statuses = svnClient.getStatus(parent.getLocation().toFile(),true);
+            statuses = svnClient.getStatus(parent.getLocation().toFile(),true,true);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         }

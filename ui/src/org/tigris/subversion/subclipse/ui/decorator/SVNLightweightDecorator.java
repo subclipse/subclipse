@@ -96,7 +96,8 @@ public class SVNLightweightDecorator
      */
 	public static boolean isDirty(final ISVNLocalResource svnResource) {
 		try {
-			return !svnResource.isIgnored() && svnResource.isModified();
+			return !svnResource.isIgnored() && 
+				(svnResource.isModified() || svnResource.getStatus().getPropStatus() == ISVNStatus.Kind.MODIFIED);
 		} catch (SVNException e) {
 			//if we get an error report it to the log but assume dirty
 			SVNUIPlugin.log(e.getStatus());

@@ -39,8 +39,10 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -59,13 +61,14 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.SVNPropertyDeleteAction;
 import org.tigris.subversion.subclipse.ui.actions.SVNPropertyModifyAction;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
 
 /**
  * 
  * The <code>SvnPropertiesView</code> shows the svn properties for a svn local resource 
  * 
  */
-public class SvnPropertiesView extends ViewPart implements IResourceStateChangeListener {
+public class SvnPropertiesView extends ViewPart {
 
 	public static final String VIEW_ID = "org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView"; //$NON-NLS-1$
 
@@ -76,11 +79,31 @@ public class SvnPropertiesView extends ViewPart implements IResourceStateChangeL
 	private Action addPropertyAction;
 	private Action modifyPropertyAction;
 	private Action deletePropertyAction;
-	
+	private Label statusLabel;
 	private ISelectionListener pageSelectionListener;
+	private IResourceStateChangeListener resourceStateChangeListener;
+
+	class ResourceStateChangeListener implements IResourceStateChangeListener {
+		/**
+		 * the svn status of some resources changed. Refresh if we are concerned
+		 */
+		public void resourceSyncInfoChanged(IResource[] changedResources) {
+			for (int i = 0; i < changedResources.length;i++) {
+				if (changedResources[i].equals(resource.getIResource())) {
+					refresh();
+				}
+			}
+		}
+
+		public void resourceModified(IResource[] changedResources) {}
+    
+		public void projectConfigured(IProject project) {}
+    
+		public void projectDeconfigured(IProject project) {}
+	}
+
 
 	public SvnPropertiesView() {
-		SVNProviderPlugin.addResourceStateChangeListener(this);
 	}
     
 	/*
@@ -88,7 +111,8 @@ public class SvnPropertiesView extends ViewPart implements IResourceStateChangeL
 	 * @see org.eclipse.ui.IWorkbenchPart#dispose()
 	 */
 	public void dispose() {
-		SVNProviderPlugin.removeResourceStateChangeListener(this);
+		SVNProviderPlugin.removeResourceStateChangeListener(resourceStateChangeListener);
+		resourceStateChangeListener = null;
 		getSite().getPage().removePostSelectionListener(pageSelectionListener);
 		super.dispose();
 	}
@@ -157,7 +181,7 @@ public class SvnPropertiesView extends ViewPart implements IResourceStateChangeL
 
 
 	private TableViewer createTable(Composite parent) {
-		Table table =	new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
+		Table table =	new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
@@ -186,6 +210,14 @@ public class SvnPropertiesView extends ViewPart implements IResourceStateChangeL
 	 * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
 	public void createPartControl(Composite parent) {
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		parent.setLayout(layout);		
+		statusLabel = new Label(parent,SWT.LEFT);
+		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+		gridData.grabExcessHorizontalSpace = true;
+		statusLabel.setLayoutData(gridData);
+
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
 		sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
 		tableViewer = createTable(sashForm);
@@ -201,6 +233,9 @@ public class SvnPropertiesView extends ViewPart implements IResourceStateChangeL
         };
         
         getSite().getPage().addPostSelectionListener(pageSelectionListener);
+        
+		resourceStateChangeListener = new ResourceStateChangeListener();
+		SVNProviderPlugin.addResourceStateChangeListener(resourceStateChangeListener);
 	}
 
 	/**
@@ -256,7 +291,6 @@ public class SvnPropertiesView extends ViewPart implements IResourceStateChangeL
 						} else {
 							resource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyFile(),dialog.getRecurse());
 						}
-						refresh();
 					} catch (SVNException e) {
 						SVNUIPlugin.openError(
 							getSite().getShell(), 
@@ -369,7 +403,15 @@ public class SvnPropertiesView extends ViewPart implements IResourceStateChangeL
 	 */
 	private void fillTableMenu(IMenuManager manager) {
 		manager.add(getRefreshAction());
-		manager.add(getAddPropertyAction());
+
+		Action action = getAddPropertyAction();
+		try { 		
+			action.setEnabled(resource.isManaged());
+		} catch (SVNException e) {
+			action.setEnabled(false);
+		}
+
+		manager.add(action);
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
     
@@ -410,6 +452,7 @@ public class SvnPropertiesView extends ViewPart implements IResourceStateChangeL
 		Display.getDefault().syncExec(new Runnable() {
 			public void run() {
 				try {
+					updateStatus();
 					tableViewer.setInput(getSvnProperties());
 					tableViewer.refresh();
 				} catch (SVNException e) {
@@ -419,24 +462,43 @@ public class SvnPropertiesView extends ViewPart implements IResourceStateChangeL
 		});
 	}
 
-	public void resourceSyncInfoChanged(IResource[] changedResources) {
-		refresh();
+	/**
+	 * update the status text
+	 *
+	 */
+	private void updateStatus() {
+		if (resource == null) {
+			statusLabel.setText("");
+			return;
+		}
+		try {
+			ISVNStatus status = resource.getStatus();
+			if (!status.isManaged()) {
+				statusLabel.setText("Resource is not managed");
+			} else 
+			if (status.getPropStatus().equals(ISVNStatus.Kind.MODIFIED))
+			{
+				statusLabel.setText("Some properties have been modified since last commit");
+			} else
+			if (status.getPropStatus().equals(ISVNStatus.Kind.NORMAL)) {
+				statusLabel.setText("No properties have been modified since last commit");
+			} else
+			if (status.getPropStatus().equals(ISVNStatus.Kind.CONFLICTED))
+			{
+				statusLabel.setText("Conflict on one or more properties ");
+			}
+		} catch (SVNException e) {
+			statusLabel.setText("Error while getting resource status");		
+		}
 	}
 
-	public void resourceModified(IResource[] changedResources) {}
-    
-	public void projectConfigured(IProject project) {}
-    
-	public void projectDeconfigured(IProject project) {}
-    
-    
 	/**
 	 * Shows the properties for the given resource 
 	 */
 	public void showSvnProperties(ISVNLocalResource resource) throws SVNException {
 		this.resource = resource;
 		setTitle(Policy.bind("SvnPropertiesView.titleWithArgument", resource.getName())); //$NON-NLS-1$
-		tableViewer.setInput(getSvnProperties());
+		refresh();
 	}
 
 	private ISVNProperty[] getSvnProperties() throws SVNException {

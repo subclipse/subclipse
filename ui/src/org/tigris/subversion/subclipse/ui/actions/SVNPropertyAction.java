@@ -22,12 +22,8 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.team.core.TeamException;
-import org.eclipse.ui.IWorkbenchPage;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
 /**
@@ -95,26 +91,5 @@ abstract public class SVNPropertyAction extends SVNAction {
 		}
 		return new ISVNProperty[0];
 	}
-
-	protected void endExecution() throws TeamException {
-		super.endExecution();
-		refreshSvnPropertiesView();
-	}
-
-	/**
-	 * refresh the svn properties view
-	 *
-	 */
-	protected void refreshSvnPropertiesView() {
-		// refresh the svn property view
-		IWorkbenchPage page = SVNUIPlugin.getActivePage();
-		if (page != null) {
-			SvnPropertiesView propertiesView = (SvnPropertiesView)page.findView(SvnPropertiesView.VIEW_ID);
-			if (propertiesView != null) {
-				propertiesView.refresh();
-			}
-		}		
-	}
-
 
 }
