@@ -13,16 +13,11 @@ package org.tigris.subversion.subclipse.ui.console;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
-import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
