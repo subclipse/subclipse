@@ -523,15 +523,15 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
     	// can be a null parent if we have the view open before we select anything
     	if(parent == null)
     		return null;
-        ISVNStatus[] status = null;
+        ISVNStatus[] statuses = null;
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
         ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
         try { 
-            status = svnClient.getStatusRecursively(parent.getLocation().toFile(),false);
+            statuses = svnClient.getStatus(parent.getLocation().toFile(),true);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         }
-        return status;
+        return statuses;
     }
 
     /**
