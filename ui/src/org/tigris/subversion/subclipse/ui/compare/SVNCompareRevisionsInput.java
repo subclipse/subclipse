@@ -60,8 +60,6 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.history.HistoryTableProvider;
 
-import com.qintsoft.jsvn.jni.Revision;
-
 /**
  * A compare input for comparing local resource with remote ones 
  * Used by CompareWithRevisionAction

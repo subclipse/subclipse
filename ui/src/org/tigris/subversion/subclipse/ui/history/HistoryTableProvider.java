@@ -37,8 +37,6 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.Policy;
 
-import com.qintsoft.jsvn.jni.Revision;
-
 /**
  * This class provides the table and it's required components for a file's revision
  * history

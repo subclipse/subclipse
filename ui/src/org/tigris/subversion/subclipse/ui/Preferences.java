@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.IPropertyChangeListener;

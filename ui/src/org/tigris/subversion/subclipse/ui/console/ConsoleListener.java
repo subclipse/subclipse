@@ -18,8 +18,6 @@ import java.util.Date;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.team.internal.ui.TeamUIPlugin;
-import org.eclipse.ui.PartInitException;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.ui.Policy;

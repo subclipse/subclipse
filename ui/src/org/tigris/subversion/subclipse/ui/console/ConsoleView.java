@@ -11,17 +11,11 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.console;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -60,8 +54,6 @@ import org.eclipse.ui.help.WorkbenchHelp;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.SVNStatus;
-import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;

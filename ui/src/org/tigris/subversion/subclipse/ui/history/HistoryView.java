@@ -76,8 +76,6 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
 
-import com.qintsoft.jsvn.jni.Revision;
-
 
 /**
  * The history view allows browsing of an array of resource revisions
