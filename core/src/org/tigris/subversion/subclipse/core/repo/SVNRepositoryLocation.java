@@ -36,7 +36,6 @@ import org.tigris.subversion.subclipse.core.client.NotificationListener;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
