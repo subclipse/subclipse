@@ -108,7 +108,8 @@ public class RemoveRootAction extends SelectionListenerAction {
 					provider.getRepositories().disposeRepository(roots[i]);
 				}
 			} catch (SVNException e) {
-				SVNUIPlugin.log(e);
+				SVNUIPlugin.openError(shell,null,null,e);
+                SVNUIPlugin.log(e);
 			}
 		}
 	}
