@@ -15,11 +15,13 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
@@ -102,6 +104,22 @@ public abstract class SubclipseTest extends TestCase {
 	protected void unshareProject(IProject project) throws TeamException {
 		RepositoryProvider.unmap(project);
 	}
+
+	/**
+	 * add and commit a resource
+	 * @param resource
+	 * @param comment
+	 */
+	protected void addAndCommit(IProject project,IResource resource, String comment) throws SVNException, TeamException {
+		SVNTeamProvider provider = getProvider(project);
+		
+		// add it to repository
+		provider.add(new IResource[] {resource},IResource.DEPTH_ZERO, null);
+		
+		// commit it
+		provider.checkin(new IResource[] {resource},comment,IResource.DEPTH_ZERO,null);
+	}
+
 
 	/**
 	 * @return

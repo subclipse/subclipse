@@ -11,7 +11,7 @@
 package org.tigris.subversion.subclipse.test.core;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
@@ -41,13 +41,8 @@ public class RefactorTest extends SubclipseTest {
 			
 		IFile resource = testProject.getProject().getFile(new Path("src/pack1/AClass.java"));
 		
-		SVNTeamProvider provider = getProvider(testProject.getProject());
-		
-		// add it to repository
-		provider.add(new IResource[] {resource},IResource.DEPTH_ZERO, null);
-			
-		// commit it
-		provider.checkin(new IResource[] {resource},"committed",IResource.DEPTH_ZERO,null);
+		// add and commit it
+		addAndCommit(testProject.getProject(),resource,"committed");
 
 		// let's rename the resource
 		resource.move(new Path("AClassRenamed.java"),false, null);
@@ -56,8 +51,7 @@ public class RefactorTest extends SubclipseTest {
 		assertFalse(resource.exists());
 		
 		// the initial resource should have "DELETED" status
-		ISVNLocalResource svnResource;
-		svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		assertEquals(svnResource.getStatus().getTextStatus(), Kind.DELETED);
 		
 		// the renamed resource should exist now
@@ -67,6 +61,36 @@ public class RefactorTest extends SubclipseTest {
 		// and should have "ADDED" status
 		svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		assertEquals(svnResource.getStatus().getTextStatus(), Kind.ADDED);
+	}
+	
+	public void testPackageRename() throws Exception {
+		TestProject testProject = new TestProject("testProject");
+		shareProject(testProject.getProject());
+		
+		// create a file
+		IPackageFragment package1 = testProject.createPackage("pack1");
+		IType type = testProject.createJavaType(package1,"AClass.java",
+			"public class AClass { \n" +
+			"  public void m() {}\n" +
+			"}");
+
+		SVNTeamProvider provider = getProvider(testProject.getProject());
+		
+		IFile resource = testProject.getProject().getFile(new Path("src/pack1/AClass.java"));
+		
+		// add and commit it
+		addAndCommit(testProject.getProject(),resource,"committed");
+		
+		// let's rename the package
+		IFolder folder =  testProject.getProject().getFolder(new Path("src/pack1"));
+		folder.move(new Path("pack2"),false, null);
+		
+		// make sure the initial resource is not there anymore
+//		assertFalse(folder.exists());
+		
+		// the renamed package should exist now
+		folder = testProject.getProject().getFolder(new Path("src/pack2"));
+		assertTrue(folder.exists());
 	}
 
 }
