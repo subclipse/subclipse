@@ -18,6 +18,7 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.SVNException;
 
 public class RemoteFolderElement extends SVNModelElement {
 
@@ -55,7 +56,16 @@ public class RemoteFolderElement extends SVNModelElement {
      * Return null.
      */
     public Object getParent(Object o) {
-        return null;
+        if (!(o instanceof ISVNRemoteFolder)) return null;
+        ISVNRemoteFolder folder = (ISVNRemoteFolder)o;
+        
+        ISVNRemoteFolder parentFolder = folder.getParent();
+        if (parentFolder != null)
+            return parentFolder;
+        else 
+        {
+            return folder.getRepository();
+        }
     } 
 
 }

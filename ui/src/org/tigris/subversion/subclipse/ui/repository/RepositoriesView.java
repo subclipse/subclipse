@@ -44,10 +44,12 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -72,12 +74,11 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 	
 	// Actions
 	private Action newAction;
-    private Action newRemoteFolderAction;
 	private PropertyDialogAction propertiesAction;
 	private RemoveRootAction removeRootAction;
 
     // The tree viewer
-    protected TreeViewer viewer;
+    protected TreeViewer treeViewer;
 
     // Drill down adapter
     private DrillDownAdapter drillPart; // Home, back, and "drill into"
@@ -91,7 +92,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 
 
 	// this listener is used when a repository is added, removed or changed
-	IRepositoryListener listener = new IRepositoryListener() {
+	IRepositoryListener repositoryListener = new IRepositoryListener() {
 		public void repositoryAdded(final ISVNRepositoryLocation root) {
 			getViewer().getControl().getDisplay().syncExec(new Runnable() {
 				public void run() {
@@ -134,7 +135,8 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 		// Create actions
 
 		// New Repository (popup)
-		newAction = new Action(Policy.bind("RepositoriesView.new"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_NEWLOCATION)) { //$NON-NLS-1$
+		newAction = new Action(Policy.bind("RepositoriesView.new"), 
+            SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_NEWLOCATION)) { //$NON-NLS-1$
 			public void run() {
 				NewLocationWizard wizard = new NewLocationWizard();
 				WizardDialog dialog = new WizardDialog(shell, wizard);
@@ -143,17 +145,6 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 		};
 		WorkbenchHelp.setHelp(newAction, IHelpContextIds.NEW_REPOSITORY_LOCATION_ACTION);
 		
-        newRemoteFolderAction = new Action("New folder", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_NEWLOCATION)) { //$NON-NLS-1$
-            public void run() {
-                NewRemoteFolderWizard wizard = new NewRemoteFolderWizard();
-                WizardDialog dialog = new WizardDialog(shell, wizard);
-                dialog.open();
-            }
-        };
-        //WorkbenchHelp.setHelp(newAction, IHelpContextIds.NEW_REPOSITORY_LOCATION_ACTION);
-        
-        
-        
 /*		// Properties
 		propertiesAction = new PropertyDialogAction(shell, getViewer());
 		getViewSite().getActionBars().setGlobalActionHandler(IWorkbenchActionConstants.PROPERTIES, propertiesAction);		
@@ -170,15 +161,13 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 				propertiesAction.setEnabled(enabled);
 			}
 		}); */
-		removeRootAction = new RemoveRootAction(viewer.getControl().getShell());
+		removeRootAction = new RemoveRootAction(treeViewer.getControl().getShell());
 		removeRootAction.selectionChanged((IStructuredSelection)null);
 		WorkbenchHelp.setHelp(removeRootAction, IHelpContextIds.REMOVE_REPOSITORY_LOCATION_ACTION);
 		
 		IActionBars bars = getViewSite().getActionBars();
 		bars.setGlobalActionHandler(IWorkbenchActionConstants.DELETE, removeRootAction);
 		
-//      final Shell shell = getShell();
-        
         // Refresh action (toolbar)
         SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
         refreshAction = new Action(Policy.bind("RepositoriesView.refresh"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REFRESH_ENABLED)) { //$NON-NLS-1$
@@ -203,7 +192,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 
         // Create the popup menu
         MenuManager menuMgr = new MenuManager();
-        Tree tree = viewer.getTree();
+        Tree tree = treeViewer.getTree();
         Menu menu = menuMgr.createContextMenu(tree);
         menuMgr.addMenuListener(new IMenuListener() {
             public void menuAboutToShow(IMenuManager manager) {
@@ -213,7 +202,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         });
         menuMgr.setRemoveAllWhenShown(true);
         tree.setMenu(menu);
-        getSite().registerContextMenu(menuMgr, viewer);
+        getSite().registerContextMenu(menuMgr, treeViewer);
 
         // Create the local tool bar
         IToolBarManager tbm = bars.getToolBarManager();
@@ -262,31 +251,30 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 			manager.add(propertiesAction);
 		} */
 		sub.add(newAction);
-//        sub.add(newRemoteFolderAction);
 	}
 	
 	/*
 	 * @see WorkbenchPart#createPartControl
 	 */
 	public void createPartControl(Composite parent) {
-        viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+        treeViewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
         contentProvider = new RemoteContentProvider();
-        viewer.setContentProvider(contentProvider);
-        viewer.setLabelProvider(new WorkbenchLabelProvider());
-        getSite().setSelectionProvider(viewer);
+        treeViewer.setContentProvider(contentProvider);
+        treeViewer.setLabelProvider(new WorkbenchLabelProvider());
+        getSite().setSelectionProvider(treeViewer);
         root = new AllRootsElement();
-        viewer.setInput(root);
+        treeViewer.setInput(root);
 //      viewer.setSorter(new RepositorySorter());
-        drillPart = new DrillDownAdapter(viewer);
+        drillPart = new DrillDownAdapter(treeViewer);
         
         contributeActions(); 
 
         // F1 Help
         String helpID = getHelpContextId();
         if (helpID != null)
-            WorkbenchHelp.setHelp(viewer.getControl(), helpID);
+            WorkbenchHelp.setHelp(treeViewer.getControl(), helpID);
         initializeListeners();
-		SVNUIPlugin.getPlugin().getRepositoryManager().addRepositoryListener(listener);
+		SVNUIPlugin.getPlugin().getRepositoryManager().addRepositoryListener(repositoryListener);
 	}
 	
     /**
@@ -294,10 +282,10 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
      */
 	protected void initializeListeners() {
         getSite().getWorkbenchWindow().getSelectionService().addPostSelectionListener(this);
-		viewer.addSelectionChangedListener(removeRootAction);
+		treeViewer.addSelectionChangedListener(removeRootAction);
         
         // when F5 is pressed, refresh this view
-        viewer.getControl().addKeyListener(new KeyAdapter() {
+        treeViewer.getControl().addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent event) {
                 if (event.keyCode == SWT.F5) {
 /*                    IStructuredSelection selection = (IStructuredSelection)getViewer().getSelection();
@@ -311,14 +299,14 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
             }
         });
         
-        viewer.addDoubleClickListener(new IDoubleClickListener() {
+        treeViewer.addDoubleClickListener(new IDoubleClickListener() {
             public void doubleClick(DoubleClickEvent e) {
                 handleDoubleClick(e);
             }
         });        
        
         // when DEL is pressed, we remove the selected repository
-		viewer.getControl().addKeyListener(new KeyListener() {
+		treeViewer.getControl().addKeyListener(new KeyListener() {
 			public void keyPressed(KeyEvent event) {
                 if (event.character == SWT.DEL && event.stateMask == 0) {
                     removeRootAction.run();
@@ -355,10 +343,8 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 			} else { 
 					name = res.getRepositoryRelativePath() + " " + ((ISVNRemoteFile)res).getRevision(); //$NON-NLS-1$
 			}
-            try {
-			     return Policy.bind("RepositoriesView.ResourceInRepository", name, res.getRepository().getLocation()); //$NON-NLS-1$
-            } catch (SVNException e) {
-            }
+	        return Policy.bind("RepositoriesView.ResourceInRepository", name, res.getRepository().getLocation()); //$NON-NLS-1$
+
 		}
 		return Policy.bind("RepositoriesView.OneItemSelected"); //$NON-NLS-1$
 	}
@@ -374,7 +360,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
      * @see WorkbenchPart#setFocus
      */
     public void setFocus() {
-        viewer.getControl().setFocus();
+        treeViewer.getControl().setFocus();
     }
     
     /**
@@ -382,7 +368,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
      * @return Shell
      */
     protected Shell getShell() {
-        return viewer.getTree().getShell();
+        return treeViewer.getTree().getShell();
     }
 
     /**
@@ -390,7 +376,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
      * @return TreeViewer
      */
     protected TreeViewer getViewer() {
-        return viewer;
+        return treeViewer;
     }
 
     /**
@@ -398,15 +384,16 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
      * or when user wants to refresh
      */
     protected void refreshViewer() {
-        if (viewer == null) return;
-        viewer.refresh(); 
+        if (treeViewer == null) return;
+        SVNProviderPlugin.getPlugin().getRepositories().refreshRepositoriesFolders();
+        treeViewer.refresh(); 
     }
     
     public void collapseAll() {
-        if (viewer == null) return;
-        viewer.getControl().setRedraw(false);       
-        viewer.collapseToLevel(viewer.getInput(), TreeViewer.ALL_LEVELS);
-        viewer.getControl().setRedraw(true);
+        if (treeViewer == null) return;
+        treeViewer.getControl().setRedraw(false);       
+        treeViewer.collapseToLevel(treeViewer.getInput(), TreeViewer.ALL_LEVELS);
+        treeViewer.getControl().setRedraw(true);
     }
     
     /**
@@ -426,7 +413,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
                     openAction.run(null);
                 } else {
                     // Try to expand/contract
-                    viewer.setExpandedState(first, !viewer.getExpandedState(first));
+                    treeViewer.setExpandedState(first, !treeViewer.getExpandedState(first));
                 }
             }
         } 
@@ -438,7 +425,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
     public void dispose() {
 //      SVNUIPlugin.getPlugin().getRepositoryManager().removeRepositoryListener(listener);
         super.dispose();
-        viewer = null;
+        treeViewer = null;
     }
 
 }

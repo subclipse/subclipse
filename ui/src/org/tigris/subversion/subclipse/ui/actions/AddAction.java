@@ -73,7 +73,7 @@ public class AddAction extends WorkspaceAction {
 		IResource[] resources = getSelectedResources();
 		boolean prompt = false;
 		for (int i = 0; i < resources.length; i++) {
-			ISVNResource resource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
+			ISVNLocalResource resource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
 			try {
 				if (resource.isIgnored()) {
 					prompt = true;
