@@ -18,6 +18,7 @@ import java.util.Date;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -44,7 +45,16 @@ class ConsoleListener implements IConsoleListener {
         ConsoleView.appendConsoleLines(ConsoleDocument.ERROR, "  " + line); //$NON-NLS-1$
         
         // we show the console view if something goes wrong
-        ConsoleView.findInActivePerspective();
+        // findInActivePerspective must be called from the UI thread
+        Display display = Display.getCurrent();
+        if (display == null) {
+            display = Display.getDefault();
+        }
+        display.syncExec(new Runnable() {
+            public void run() {
+                ConsoleView.findInActivePerspective();                
+            }
+        });
     }
     
     public void commandCompleted(IStatus status, Exception exception) {

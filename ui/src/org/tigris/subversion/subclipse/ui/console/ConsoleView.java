@@ -426,6 +426,9 @@ public class ConsoleView extends ViewPart {
 	public static ConsoleView findInActivePerspective() {
 		try {
 			IWorkbenchPage page = SVNUIPlugin.getActivePage();
+            if (page == null)
+                return null;
+            
 			IViewPart consolePart = page.findView(CONSOLE_ID);
 			if (consolePart == null) {
 				IWorkbenchPart activePart = page.getActivePart();
