@@ -113,7 +113,10 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         }
         public void remoteResourceCopied(ISVNRemoteResource source,ISVNRemoteFolder destination) {
             refresh(false);  
-        }        
+        }
+        public void remoteResourceMoved(ISVNRemoteResource resource, ISVNRemoteFolder destinationFolder,String destinationResourceName) {
+            refresh(false);
+        }
 		private void refresh(boolean refreshRepositoriesFolders) {
             final boolean finalRefreshReposFolders = refreshRepositoriesFolders;
 			Display display = getViewer().getControl().getDisplay();

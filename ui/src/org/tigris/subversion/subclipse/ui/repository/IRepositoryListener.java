@@ -25,5 +25,6 @@ public interface IRepositoryListener {
     public void remoteResourceDeleted(ISVNRemoteResource resource);
     public void remoteResourceCreated(ISVNRemoteFolder parent,String resourceName);
     public void remoteResourceCopied(ISVNRemoteResource source,ISVNRemoteFolder destination);
+    public void remoteResourceMoved(ISVNRemoteResource resource, ISVNRemoteFolder destinationFolder,String destinationResourceName);
 }
 

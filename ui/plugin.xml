@@ -114,6 +114,13 @@
                class="org.tigris.subversion.subclipse.ui.actions.PasteRemoteResourceAction"
                id="org.tigris.subversion.subclipse.ui.pasteRemoteResource">
          </action>         
+         <action
+               label="%MoveRemoteAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.move_remote_resource_action_context"
+               tooltip="%MoveRemoteAction.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.MoveRemoteResourceAction"
+               id="org.tigris.subversion.subclipse.ui.moveRemoteResource">
+         </action>         
       </objectContribution>
 <!-- contribution for ISVNRemoteFile -->
       <objectContribution
