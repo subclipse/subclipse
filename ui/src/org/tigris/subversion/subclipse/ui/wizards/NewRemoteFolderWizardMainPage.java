@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.wizards;
 
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -37,6 +36,7 @@ import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * the main wizard page for creating a new remote folder on repository
@@ -174,7 +174,7 @@ public class NewRemoteFolderWizardMainPage extends SVNWizardPage {
 			return;
 		}
 		try {
-			new URL(Util.appendPath(urlParentText.getText(), folderNameText.getText()));
+			new SVNUrl(Util.appendPath(urlParentText.getText(), folderNameText.getText()));
 		} catch (MalformedURLException e) {
 			setErrorMessage(Policy.bind("NewRemoteFolderWizardMainPage.invalidUrl")); //$NON-NLS-1$);
 			setPageComplete(false);			

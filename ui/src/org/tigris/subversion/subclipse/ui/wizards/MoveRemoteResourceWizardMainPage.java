@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.wizards;
 
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -38,6 +37,7 @@ import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * the main wizard page for moving or renaming a remote resource on repository
@@ -179,7 +179,7 @@ public class MoveRemoteResourceWizardMainPage extends SVNWizardPage {
 			return;
 		}
 		try {
-			new URL(Util.appendPath(urlParentText.getText(), resourceNameText.getText()));
+			new SVNUrl(Util.appendPath(urlParentText.getText(), resourceNameText.getText()));
 		} catch (MalformedURLException e) {
 			setErrorMessage(Policy.bind("MoveRemoteResourceWizardMainPage.invalidUrl")); //$NON-NLS-1$);
 			setPageComplete(false);			
