@@ -18,6 +18,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -102,6 +105,25 @@ public abstract class SubclipseTest extends TestCase {
 		for (int i = 0; i < svnRepositoryLocations.length;i++) {
 			repositories.disposeRepository(svnRepositoryLocations[i]);			
 		}
+	}
+
+	/**
+	 * create a project with a Class
+	 * @param projectName
+	 * @return
+	 * @throws CoreException
+	 */
+	protected TestProject createProjectWithAClass(String projectName) throws CoreException {
+		TestProject testProject = new TestProject(projectName);
+		
+		// create a file
+		IPackageFragment package1 = testProject.createPackage("pack1");
+		IType type = testProject.createJavaType(package1,"AClass.java",
+			"public class AClass { \n" +
+			"  public void m() {}\n" +
+			"}");
+		
+		return testProject;
 	}
 
 	/**
