@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.client;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -101,16 +102,14 @@ public class OperationManager implements ISVNNotifyListener {
 		}
 	}
 
-    public void onNotify(String path, SVNNodeKind kind) {
+    public void onNotify(File path, SVNNodeKind kind) {
         		
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		
-        // path is sometimes absolute, sometimes relative.
-        // here we make sure it is absolute
-        IPath pathEclipse = null;
+        IPath pathEclipse; 
         try {
-            pathEclipse = new Path( (new Path(path)).toFile().getCanonicalPath());
+            pathEclipse = new Path(path.getCanonicalPath());
         } catch (IOException e)
         {
             // should never occur ...

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.client;
 
+import java.io.File;
+
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
@@ -70,7 +72,7 @@ public class NotificationListener implements ISVNNotifyListener {
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#onNotify(java.lang.String, org.tigris.subversion.svnclientadapter.SVNNodeKind)
 	 */
-	public void onNotify(String path, SVNNodeKind kind) {
+	public void onNotify(File path, SVNNodeKind kind) {
 		consoleListener.onNotify(path,kind);
 	}
 
