@@ -354,7 +354,13 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
                 refresh();                
             }
         };
-        toggleAddedAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_ADDED_RESOURCES));
+        
+        // we want the default to be true if it doesn't exist in store. getBoolean will return false as a default.
+        if(store.contains(ISVNUIConstants.PREF_SHOW_ADDED_RESOURCES))
+        	toggleAddedAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_ADDED_RESOURCES));
+        else
+			toggleAddedAction.setChecked(true);
+			
 //        WorkbenchHelp.setHelp(toggleTextAction, IHelpContextIds.SHOW_COMMENT_IN_HISTORY_ACTION);    
     
         // Toggle show deleted resources action
@@ -364,7 +370,12 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
                 refresh();                
             }
         };
-        toggleDeletedAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_DELETED_RESOURCES));
+
+		if(store.contains(ISVNUIConstants.PREF_SHOW_DELETED_RESOURCES))
+			toggleDeletedAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_DELETED_RESOURCES));
+		else
+			toggleDeletedAction.setChecked(true);
+        
 //        WorkbenchHelp.setHelp(toggleTextAction, IHelpContextIds.SHOW_COMMENT_IN_HISTORY_ACTION);    
 
         // Toggle show modified resources action
@@ -374,7 +385,13 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
                 refresh();                
             }
         };
-        toggleModifiedAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_MODIFIED_RESOURCES));
+
+		if(store.contains(ISVNUIConstants.PREF_SHOW_MODIFIED_RESOURCES))
+			toggleModifiedAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_MODIFIED_RESOURCES));
+		else
+			toggleModifiedAction.setChecked(true);
+
+        
 //        WorkbenchHelp.setHelp(toggleTextAction, IHelpContextIds.SHOW_COMMENT_IN_HISTORY_ACTION);
         
         // Contribute toggle text visible to the toolbar drop-down
@@ -503,6 +520,9 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
     }
 
     private ISVNStatus[] getStatus() throws SVNException {
+    	// can be a null parent if we have the view open before we select anything
+    	if(parent == null)
+    		return null;
         ISVNStatus[] status = null;
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
         ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
