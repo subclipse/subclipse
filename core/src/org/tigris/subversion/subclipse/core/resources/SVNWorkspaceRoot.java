@@ -13,7 +13,6 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -59,7 +58,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 public class SVNWorkspaceRoot {
 
 	private ISVNLocalFolder localRoot;
-    private URL url;
+    private SVNUrl url;
 	
 	public SVNWorkspaceRoot(IContainer resource){
 		this.localRoot = getSVNFolderFor(resource);
@@ -390,15 +389,15 @@ public class SVNWorkspaceRoot {
 	public ISVNRepositoryLocation getRepository() throws SVNException {
 		if (url == null)
         {
+            Status status = localRoot.getStatus();
+            if (!status.isManaged()) {
+                throw new SVNException(Policy.bind("SVNWorkspaceRoot.notSVNFolder", localRoot.getName()));  //$NON-NLS-1$
+            }
             try {
-                Status status = localRoot.getStatus();
-                if (!status.isManaged()) {
-                    throw new SVNException(Policy.bind("SVNWorkspaceRoot.notSVNFolder", localRoot.getName()));  //$NON-NLS-1$
-                }
-                url = SVNClientAdapter.svnUrlToJavaUrl(status.getUrl());
-            } catch (SVNException e1) { 
-                throw SVNException.wrapException(e1);
-            } 
+                url = new SVNUrl(status.getUrl());
+            } catch (MalformedURLException e) {
+                throw SVNException.wrapException(e);
+            }
         }
 		return SVNProviderPlugin.getPlugin().getRepository(url.toString());
 	}
