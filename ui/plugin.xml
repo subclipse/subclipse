@@ -366,5 +366,20 @@
             class="org.tigris.subversion.subclipse.ui.markers.SVNRemoveResolutionGenerator">
       </markerResolutionGenerator>
    </extension>
+   
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            objectClass="org.eclipse.core.resources.IResource"
+            name="Subversion"
+            class="org.tigris.subversion.subclipse.ui.properties.SVNPropertyPage"
+            id="org.tigris.subversion.subclipse.ui.properties.SVNPropertyPage">
+         <filter
+               name="projectPersistentProperty"
+               value="org.eclipse.team.core.repository=org.tigris.subversion.subclipse.core.svnnature">
+         </filter>
+      </page>
+   </extension>
+   
 
 </plugin>
