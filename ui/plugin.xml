@@ -349,6 +349,16 @@
       </wizard>
    </extension>
 <!-- ******************* Preferences ****************** -->
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="%PreferencePage.name"
+            category="org.eclipse.team.ui.TeamPreferences"
+            class="org.tigris.subversion.subclipse.ui.preferences.SVNPreferencesPage"
+            id="org.tigris.subversion.subclipse.ui.SVNPreferences">
+      </page>
+   </extension>
+
    <!--extension
          point="org.eclipse.ui.preferencePages">
       <page
