@@ -28,7 +28,7 @@ public class RefactorTest extends SubclipseTest {
 		super(name);
 	}
 
-	public void testRename() throws Exception {
+	public void testClassRename() throws Exception {
 		TestProject testProject = new TestProject("testProject");
 		shareProject(testProject.getProject());
 		
@@ -85,8 +85,7 @@ public class RefactorTest extends SubclipseTest {
 		IFolder folder =  testProject.getProject().getFolder(new Path("src/pack1"));
 		folder.move(new Path("pack2"),false, null);
 		
-		// make sure the initial resource is not there anymore
-//		assertFalse(folder.exists());
+		// note that the initial folder still exist after package renaming
 		
 		// the renamed package should exist now
 		folder = testProject.getProject().getFolder(new Path("src/pack2"));

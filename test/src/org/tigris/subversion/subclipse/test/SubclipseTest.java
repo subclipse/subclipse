@@ -26,6 +26,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 
 
 public abstract class SubclipseTest extends TestCase {
@@ -45,12 +46,26 @@ public abstract class SubclipseTest extends TestCase {
 		
 		// create the repository, set the properties (urlRepos)
 		buildFile.executeTarget("init");
-		
-		// get the ISVNRepositoryLocation corresponding to our repository
+
 		SVNProviderPlugin plugin = SVNProviderPlugin.getPlugin();
+		// do we use javahl or command line ?		
+		if (buildFile.getProject().getProperty("javahl").equalsIgnoreCase("true")) {
+			plugin.setSvnClientInterface(SVNClientAdapterFactory.JAVAHL_CLIENT);
+			if (plugin.getSvnClientInterface() != SVNClientAdapterFactory.JAVAHL_CLIENT) {
+				System.out.println("Warning : Can't use Javahl");
+			}
+		} else {
+			plugin.setSvnClientInterface(SVNClientAdapterFactory.COMMANDLINE_CLIENT);
+			if (plugin.getSvnClientInterface() != SVNClientAdapterFactory.JAVAHL_CLIENT) {
+				System.out.println("Warning : Can't use command line interface");
+			}			
+		}
+	
+		// get the ISVNRepositoryLocation corresponding to our repository
 		repositories = plugin.getRepositories();
 		Properties properties = new Properties();
 		properties.setProperty("url",buildFile.getProject().getProperty("urlRepos"));
+		
 		repositoryLocation = repositories.createRepository(properties);
 	}
 
