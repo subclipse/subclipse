@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Status;
@@ -131,18 +132,26 @@ public class SVNRepositories
         return location;
     }
 
-    /**
-     * Get the repository instance which matches the given String. 
-     * The format of the String is an url
-     */
-    public ISVNRepositoryLocation getRepository(String location) throws SVNException {
-        ISVNRepositoryLocation repository = (ISVNRepositoryLocation)repositories.get(location);
-        if (repository == null) {
-            repository = SVNRepositoryLocation.fromString(location);
-            addToRepositoriesCache(repository);
-        }
-        return repository;
-    }
+	/**
+	 * Get the repository instance which matches the given String. 
+	 * The format of the String is an url
+	 */
+	public ISVNRepositoryLocation getRepository(String location) throws SVNException {
+        
+        
+		Set keys = repositories.keySet();
+		for(Iterator iter = keys.iterator();iter.hasNext();){
+			String url = (String)iter.next();
+			if(location.indexOf(url)!=-1){
+				return (ISVNRepositoryLocation) repositories.get(url);
+			}
+        	
+		}//else we couldn't find it, fall through to adding new repo.
+		ISVNRepositoryLocation repository = SVNRepositoryLocation.fromString(location);
+		addToRepositoriesCache(repository);
+        
+		return repository;
+	}
 
     /**
      * load the state of the plugin, ie the repositories locations 
@@ -243,6 +252,8 @@ public class SVNRepositories
             SVNRepositoryLocation root = (SVNRepositoryLocation)it.next();
             dos.writeUTF(root.getLocation());
         }
+		dos.flush();
+		dos.close();
     }
 
     public void startup() {
@@ -253,12 +264,19 @@ public class SVNRepositories
         saveState();
     }
 
-    /**
-     * Answer whether the provided repository location is known by the provider or not.
-     * The location string corresponds to the Strin returned by ICVSRepositoryLocation#getLocation()
-     */
-    public boolean isKnownRepository(String location) {
-        return repositories.get(location) != null;
-    }
+	/**
+	 * Answer whether the provided repository location is known by the provider or not.
+	 * The location string corresponds to the Strin returned by ICVSRepositoryLocation#getLocation()
+	 */
+	public boolean isKnownRepository(String location) {
+		Set keys = repositories.keySet();
+		for(Iterator iter = keys.iterator();iter.hasNext();){
+			if(location.indexOf((String)iter.next())!=-1){
+				return true;
+			}
+    		
+		}
+		return false;
+	}
 
 }

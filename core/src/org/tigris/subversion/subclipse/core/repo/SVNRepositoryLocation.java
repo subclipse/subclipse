@@ -467,4 +467,18 @@ public Object getAdapter(Class adapter) {
 		return Platform.getAdapterManager().getAdapter(this, adapter);
 }
 
+ /*
+ *  this should be made more robust --mml 11/27/03
+ * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#pathExists()
+ */
+public boolean pathExists(){
+	ISVNClientAdapter svnClient = getSVNClient();
+	try{
+		svnClient.getList(getUrl(), SVNRevision.HEAD, false);
+	}catch(SVNClientException e){
+		return false;
+	}
+	return true;
+}
+
 }

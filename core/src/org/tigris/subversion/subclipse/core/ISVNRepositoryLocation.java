@@ -111,5 +111,12 @@ public interface ISVNRepositoryLocation  extends IAdaptable {
 	 * @param monitor the progress monitor used while validating
 	 */
 	public void validateConnection(IProgressMonitor monitor) throws SVNException;
+	
+		
+		/**
+		 * Verify that said location contains said path.
+		 *
+		 */
+		public boolean pathExists();	
 }
 
