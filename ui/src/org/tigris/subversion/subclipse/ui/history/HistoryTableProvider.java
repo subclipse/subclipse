@@ -82,18 +82,22 @@ public class HistoryTableProvider {
 					if (date == null) return Policy.bind("notAvailable"); //$NON-NLS-1$
 					return DateFormat.getInstance().format(date);
 				case COL_AUTHOR:
+					if(entry.getAuthor() == null) return Policy.bind("noauthor"); //$NON-NLS-1$
 					return entry.getAuthor();
 				case COL_COMMENT:
 					String comment = entry.getComment();
-					int index = comment.indexOf("\n"); //$NON-NLS-1$
-					switch (index) {
-						case -1:
-							return comment;
-						case 0:
-							return Policy.bind("HistoryView.[...]_4"); //$NON-NLS-1$
-						default:
-							return Policy.bind("SVNCompareRevisionsInput.truncate", comment.substring(0, index)); //$NON-NLS-1$
-					}
+					int rIndex = comment.indexOf("\r"); 
+					int nIndex = comment.indexOf("\n");	
+					if( (rIndex == -1) && (nIndex == -1) )
+						return comment;
+						
+					if( (rIndex == 0) || (nIndex == 0) )
+						return Policy.bind("HistoryView.[...]_4"); //$NON-NLS-1$
+						
+					if(rIndex != -1)
+						return Policy.bind("SVNCompareRevisionsInput.truncate", comment.substring(0, rIndex));
+					else
+						return Policy.bind("SVNCompareRevisionsInput.truncate", comment.substring(0, nIndex));
 			}
 			return ""; //$NON-NLS-1$
 		}
