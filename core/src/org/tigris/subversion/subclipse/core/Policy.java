@@ -27,7 +27,12 @@ public class Policy {
 	protected static ResourceBundle bundle = null;
 	
 	//debug constants
-	public static boolean DEBUG_METAFILE_CHANGES = true; //false;
+	// You can enable debugging in the .options file :
+	//   org.tigris.subversion.subclipse.core/debug=true
+	//   org.tigris.subversion.subclipse.core/metafiles=true
+    //   org.tigris.subversion.subclipse.core/threading=true
+    // You can also enable tracing in the PDE target run-time tab 
+	public static boolean DEBUG_METAFILE_CHANGES = false; 
 	public static boolean DEBUG_THREADING = false; // used in ReetrantLock
 
 	static {
