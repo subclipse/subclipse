@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
+import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -160,7 +161,10 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 tree.movedFile(source, destination);
             } catch (SVNClientException e) {
                 throw SVNException.wrapException(e); 
-            } finally {
+            } catch (TeamException te) {
+				throw SVNException.wrapException(te); 
+			}  
+            finally {
                 OperationManager.getInstance().endOperation();
             }
 
@@ -225,7 +229,9 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 tree.movedFolderSubtree(source, destination);
             } catch (SVNClientException e) {
                 throw SVNException.wrapException(e); 
-            } finally {
+			} catch (TeamException te) {
+				throw SVNException.wrapException(te); 
+			} finally {
                 OperationManager.getInstance().endOperation();
             }
 
