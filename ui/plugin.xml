@@ -180,13 +180,6 @@
             objectClass="org.tigris.subversion.subclipse.core.history.LogEntry"
             id="org.tigris.subversion.subclipse.ui.LogEntryContributions">
          <action
-               label="%OpenLogEntryAction.label"
-               helpContextId="org.tigris.subversion.subclipse.ui.open_remote_file_action_context"
-               tooltip="%OpenLogEntryAction.tooltip"
-               class="org.tigris.subversion.subclipse.ui.actions.OpenLogEntryAction"
-               id="org.tigris.subversion.subclipse.ui.openLogEntry">
-         </action>
-         <action
                label="%CompareRemoteResourcesAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.compare_remote_resources_action_context"
                tooltip="%CompareRemoteResourcesAction.tooltip"
