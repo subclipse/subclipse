@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Text;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
 /**
@@ -286,7 +287,7 @@ public class SetSvnPropertyDialog extends Dialog {
 	}
 
 	private void validate() {
-		// update the properties
+		// update the properties from the controls
 		updateProperties();
 		
 		// verify property name
@@ -296,6 +297,10 @@ public class SetSvnPropertyDialog extends Dialog {
 		} else {
 			if (isNewProperty()) {
 				try {
+					// validate will be called each time the property name is changed (each time propertyNameText is changed)
+					// we don't want the command to be written on the console ... 
+					SVNUIPlugin.getPlugin().disableConsoleListener();
+					
 					// if we are setting a new property, make sure the property does not exist
 					if (svnResource.getSvnProperty(getPropertyName()) != null) {
 						setError(Policy.bind("SetSvnPropertyDialog.anotherPropertyHasSameName")); //$NON-NLS-1$
@@ -303,6 +308,8 @@ public class SetSvnPropertyDialog extends Dialog {
 					}
 				} catch (SVNException e) {
 					// we ignore the exception, we can't do much more ...
+				} finally {
+					SVNUIPlugin.getPlugin().enableConsoleListener();
 				}
 			}
 		}

@@ -77,6 +77,7 @@ public class ConsoleView extends ViewPart {
 	private TextViewerAction copyAction;
 	private TextViewerAction selectAllAction;
 	private Action clearOutputAction;
+	private static ConsoleListener consoleListener;
 
 	//For buffering console content prior to flushing to view
 	private static class PendingConsoleLine {
@@ -97,7 +98,8 @@ public class ConsoleView extends ViewPart {
 	 */
 	public static void startup() {
 		instances = new ArrayList();
-		SVNProviderPlugin.getPlugin().setConsoleListener(new ConsoleListener());
+		consoleListener = new ConsoleListener();
+		SVNProviderPlugin.getPlugin().setConsoleListener(consoleListener);
 	}
 	
 	/*
@@ -107,6 +109,23 @@ public class ConsoleView extends ViewPart {
 	 	document = null;
 	 	instances = null;
 		SVNProviderPlugin.getPlugin().setConsoleListener(null);
+		consoleListener = null;
+	}
+	
+	/**
+	 * disable the console listener. There will be no output on the console for the svn commands
+	 * executed until enableConsoleListener is called
+	 * 
+	 */
+	public static void disableConsoleListener() {
+		SVNProviderPlugin.getPlugin().setConsoleListener(null);
+	}
+	
+	/**
+	 * enable the console listener. There will be some output for each svn command executed 
+	 */
+	public static void enableConsoleListener() {
+		SVNProviderPlugin.getPlugin().setConsoleListener(consoleListener);
 	}
 	
 	public ConsoleView() {
