@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Implements the ISVNLocalFolder interface on top of an 
@@ -60,10 +62,16 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
 		if (!isManaged())
 			return null;
 		Status status = getStatus();
+        SVNUrl url;
+        try {
+            url = new SVNUrl(status.getUrl());
+        } catch (MalformedURLException e) {
+            throw new SVNException(e.getMessage());
+        }
 		return new RemoteFolder(
 			null, // parent : we don't know it 
 			getRepository(),
-			status.getUrl(), // url
+            url, 
             Revision.BASE,
 			false, // hasProps
 			status.getLastChangedRevision(),

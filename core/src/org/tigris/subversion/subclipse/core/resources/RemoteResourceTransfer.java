@@ -16,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.text.ParseException;
 
 import org.eclipse.swt.dnd.ByteArrayTransfer;
@@ -27,6 +26,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.svnclientadapter.RevisionUtils;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * This class is used when copying and pasting remote resources to/from clipboard
@@ -100,7 +100,7 @@ public class RemoteResourceTransfer extends ByteArrayTransfer {
     			int size = readIn.readInt();
     			byte[] name = new byte[size];
     			readIn.read(name);
-    			URL urlResource = new URL(new String(name));
+    			SVNUrl urlResource = new SVNUrl(new String(name));
                     
                 // then we read the url of the repository
     			size = readIn.readInt();

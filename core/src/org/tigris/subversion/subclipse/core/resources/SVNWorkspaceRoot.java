@@ -47,6 +47,7 @@ import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.sync.SVNRemoteSyncElement;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 
 /**
@@ -264,7 +265,7 @@ public class SVNWorkspaceRoot {
                             
                             try {
                                 // create the remote dir
-                                URL url = new URL(Util.appendPath(location.getUrl().toString(),dirName));
+                                SVNUrl url = new SVNUrl(Util.appendPath(location.getUrl().toString(),dirName));
                                 svnClient.mkdir(url,message);
                                 
                                 // checkout it so that we have .svn
@@ -389,17 +390,13 @@ public class SVNWorkspaceRoot {
 	public ISVNRepositoryLocation getRepository() throws SVNException {
 		if (url == null)
         {
-            // we don't need any password to get the status ...
-            SVNClientAdapter svnClient = new SVNClientAdapter();
             try {
-                Status status = svnClient.getSingleStatus(localRoot.getIResource().getLocation().toFile());
-
+                Status status = localRoot.getStatus();
                 if (!status.isManaged()) {
                     throw new SVNException(Policy.bind("SVNWorkspaceRoot.notSVNFolder", localRoot.getName()));  //$NON-NLS-1$
                 }
-                
-                url = status.getUrl();
-            } catch (ClientException e1) {
+                url = SVNClientAdapter.svnUrlToJavaUrl(status.getUrl());
+            } catch (SVNException e1) { 
                 throw SVNException.wrapException(e1);
             } 
         }

@@ -14,7 +14,6 @@ package org.tigris.subversion.subclipse.core.resources;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Date;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,6 +26,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * This class provides the implementation of ISVNRemoteFile and IManagedFile for
@@ -40,7 +40,7 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile  {
 
     public RemoteFile(RemoteFolder parent, 
                       ISVNRepositoryLocation repository,
-                      URL url,
+                      SVNUrl url,
                       Revision revision,
                       boolean hasProps,
                       Revision.Number lastChangedRevision,
@@ -50,7 +50,7 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile  {
 		super(parent,repository,url,revision,hasProps,lastChangedRevision,date,author);
 	}
 
-    public RemoteFile(ISVNRepositoryLocation repository, URL url, Revision revision) {
+    public RemoteFile(ISVNRepositoryLocation repository, SVNUrl url, Revision revision) {
         super(repository, url, revision);
     }
 

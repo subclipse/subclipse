@@ -11,11 +11,10 @@
 package org.tigris.subversion.subclipse.core;
 
  
-import java.net.URL;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * This interface provides access to the specific portions of
@@ -42,7 +41,7 @@ public interface ISVNRepositoryLocation  extends IAdaptable {
 	/**
 	 * Returns the host where the repository is located
 	 */
-	public URL getUrl();
+	public SVNUrl getUrl();
 	
 
 	/**

@@ -14,7 +14,6 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -38,6 +37,7 @@ import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Represents handles to SVN resource on the local file system. Synchronization
@@ -50,6 +50,9 @@ import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
  * @see LocalFile
  */
 abstract class LocalResource implements ISVNResource, Comparable {
+    // this is the SVNClientAdapter we use to get the status of a local resource
+    // we can use the same for each resource as we don't need to login     
+    private static SVNClientAdapter svnClientAdapterStatus = new SVNClientAdapter();
 
 	protected static final String SEPARATOR = "/"; //$NON-NLS-1$
 	protected static final String CURRENT_LOCAL_FOLDER = "."; //$NON-NLS-1$
@@ -168,9 +171,8 @@ abstract class LocalResource implements ISVNResource, Comparable {
             // don't do getRepository().getSVNClient() as we can ask the status of a file
             // that is not associated with a known repository
             // we don't need login & password so this is not a problem   
-            SVNClientAdapter svnClient = new SVNClientAdapter();
             try {
-				status = svnClient.getSingleStatus(resource.getLocation().toFile());
+				status = svnClientAdapterStatus.getSingleStatus(resource.getLocation().toFile());
                 resource.setSessionProperty(RESOURCE_SYNC_KEY, status);
             } catch (ClientException e1) {
                 throw SVNException.wrapException(e1);
@@ -221,11 +223,11 @@ abstract class LocalResource implements ISVNResource, Comparable {
      * @return
      * @throws SVNException
      */
-    public URL getUrl() throws SVNException
+    public SVNUrl getUrl() throws SVNException
     {
         
         try {
-			return new URL(Util.appendPath(getRepository().getUrl().toString(),resource.getProjectRelativePath().toString()));
+			return new SVNUrl(Util.appendPath(getRepository().getUrl().toString(),resource.getProjectRelativePath().toString()));
 		} catch (MalformedURLException e) {
 			throw new SVNException("Can't get url for resource "+resource.toString());
 		} 
@@ -240,7 +242,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
         // even if file is not managed, there can be a corresponding resource
         
         // first we get the url of the resource
-        URL url = getUrl();
+        SVNUrl url = getUrl();
         
         SVNClientAdapter svnClient = getRepository().getSVNClient();
         DirEntry[] dirEntry = null;

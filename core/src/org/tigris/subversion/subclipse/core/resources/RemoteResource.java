@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.net.URL;
 import java.util.Date;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,6 +27,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * The purpose of this class and its subclasses is to implement the corresponding
@@ -41,7 +41,7 @@ public abstract class RemoteResource
 
 	protected RemoteFolder parent;
 	// null when this is the repository location 
-	protected URL url;
+	protected SVNUrl url;
 	protected ISVNRepositoryLocation repository;
 	protected boolean hasProps;
     private Revision revision;
@@ -55,7 +55,7 @@ public abstract class RemoteResource
 	public RemoteResource(
 		RemoteFolder parent,
 		ISVNRepositoryLocation repository,
-		URL url,
+		SVNUrl url,
         Revision revision,
 		boolean hasProps,
 		Revision.Number lastChangedRevision,
@@ -76,7 +76,7 @@ public abstract class RemoteResource
     /**
      * this constructor is used for the folder corresponding to repository location
      */
-    public RemoteResource(ISVNRepositoryLocation repository, URL url, Revision revision) {
+    public RemoteResource(ISVNRepositoryLocation repository, SVNUrl url, Revision revision) {
         this.parent = null;
         this.repository = repository;
         this.url = url;
@@ -135,7 +135,7 @@ public abstract class RemoteResource
     /**
      * get the url of this remote resource
      */
-    public URL getUrl() {
+    public SVNUrl getUrl() {
         return url;
     }
 

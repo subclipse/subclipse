@@ -38,6 +38,7 @@ import org.tigris.subversion.subclipse.core.client.NotificationListener;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * This class manages a SVN repository location.
@@ -54,7 +55,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 
 	private String user;
 	private String password;
-	private URL url;
+	private SVNUrl url;
 	private RemoteFolder rootFolder; // the folder corresponding to this repository location
 	
 	// fields needed for caching the password
@@ -84,7 +85,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 	/*
 	 * Create a SVNRepositoryLocation from its composite parts.
 	 */
-	private SVNRepositoryLocation(String user, String password, URL url) {
+	private SVNRepositoryLocation(String user, String password, SVNUrl url) {
         this.user = user;
 		this.password = password;
 		this.url = url;
@@ -112,7 +113,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 	/*
 	 * @see ISVNRepositoryLocation#getUrl()
 	 */
-	public URL getUrl() {
+	public SVNUrl getUrl() {
 		return url;
 	}
 
@@ -152,7 +153,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 	 */
 	public ISVNRemoteFolder getRemoteFolder(String remotePath) {
         try {
-		  return new RemoteFolder(this, new URL(Util.appendPath(getUrl().toString(),remotePath)),Revision.HEAD);
+		  return new RemoteFolder(this, new SVNUrl(Util.appendPath(getUrl().toString(),remotePath)),Revision.HEAD);
         } catch (MalformedURLException e) {
           return null;     		
         }
@@ -307,10 +308,12 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 			throw new SVNException(new Status(IStatus.ERROR, SVNProviderPlugin.ID, TeamException.UNABLE, Policy.bind("SVNRepositoryLocation.hostRequired"), null));//$NON-NLS-1$ 
 		
 		
-		URL urlURL = null;
+		SVNUrl urlURL = null;
 		try {
-            urlURL = new URL(url);
-		} catch (MalformedURLException e) {}
+            urlURL = new SVNUrl(url);
+		} catch (MalformedURLException e) {
+            throw new SVNException(e.getMessage());
+        }
 
 		return new SVNRepositoryLocation(user, password, urlURL);
 	}
@@ -347,7 +350,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 		try {
 			String user = null;
 			String password = null;
-			URL url = new URL(location);
+			SVNUrl url = new SVNUrl(location);
 			
 						
 			if (validateOnly)

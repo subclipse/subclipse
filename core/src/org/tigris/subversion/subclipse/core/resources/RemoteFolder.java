@@ -14,7 +14,6 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +36,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * This class provides the implementation of ISVNRemoteFolder
@@ -51,7 +51,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 	 */
 	public RemoteFolder(RemoteFolder parent, 
         ISVNRepositoryLocation repository,
-        URL url,
+        SVNUrl url,
         Revision revision,
         boolean hasProps,
         Revision.Number lastChangedRevision,
@@ -60,7 +60,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 		super(parent, repository, url, revision,hasProps, lastChangedRevision, date, author);
 	}
 
-    public RemoteFolder(ISVNRepositoryLocation repository, URL url, Revision revision) {
+    public RemoteFolder(ISVNRepositoryLocation repository, SVNUrl url, Revision revision) {
         super(repository, url,revision);
     }
 	
@@ -138,7 +138,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
                 if (entry.getNodeKind() == NodeKind.dir)
 				{
 				    result.add(new RemoteFolder(this, getRepository(),
-					   new URL(Util.appendPath(url.toString(),entry.getPath())),
+					   new SVNUrl(Util.appendPath(url.toString(),entry.getPath())),
                        getRevision(),
                        entry.getHasProps(),
                        entry.getLastChangedRevision(),
@@ -154,7 +154,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 				if (entry.getNodeKind() == NodeKind.file)
 				{
 					result.add(new RemoteFile(this, getRepository(),
-                        new URL(Util.appendPath(url.toString(),entry.getPath())),
+                        new SVNUrl(Util.appendPath(url.toString(),entry.getPath())),
                         getRevision(),
                         entry.getHasProps(),
                         entry.getLastChangedRevision(),
@@ -243,7 +243,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
         
         try {
             SVNClientAdapter svnClient = getRepository().getSVNClient();
-            svnClient.mkdir(new URL(Util.appendPath(getUrl().toString(),folderName)),message);
+            svnClient.mkdir(new SVNUrl(Util.appendPath(getUrl().toString(),folderName)),message);
             refresh();
             SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().remoteResourceCreated(this,folderName);
         } catch (MalformedURLException e) {

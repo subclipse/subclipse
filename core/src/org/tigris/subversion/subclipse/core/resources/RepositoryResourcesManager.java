@@ -11,7 +11,6 @@
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,6 +27,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * provides some static methods to handle repository management 
@@ -153,7 +153,7 @@ public class RepositoryResourcesManager {
             for (Iterator it = mapRepositories.values().iterator(); it.hasNext();) {
                 List resources = (List)it.next();
                 SVNClientAdapter svnClient = ((ISVNRemoteResource)resources.get(0)).getRepository().getSVNClient();
-                URL urls[] = new URL[resources.size()];
+                SVNUrl urls[] = new SVNUrl[resources.size()];
                 for (int i = 0; i < resources.size();i++) {
                     ISVNRemoteResource resource = (ISVNRemoteResource)resources.get(i); 
                     urls[i] = resource.getUrl();
@@ -206,7 +206,7 @@ public class RepositoryResourcesManager {
         
         try {        
             SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
-            URL destUrl = new URL(Util.appendPath(destinationFolder.getUrl().toString(),destinationResourceName));
+            SVNUrl destUrl = new SVNUrl(Util.appendPath(destinationFolder.getUrl().toString(),destinationResourceName));
             
             svnClient.move(resource.getUrl(),destUrl,message,Revision.HEAD);
             resource.getParent().refresh();

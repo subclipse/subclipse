@@ -11,10 +11,10 @@
 package org.tigris.subversion.subclipse.core;
 
 import java.io.File;
-import java.net.URL;
 
 import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.javahl.Status;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * SVN Local resource
@@ -89,7 +89,7 @@ public interface ISVNLocalResource extends ISVNResource {
    * @return
    * @throws SVNException
    */
-  public URL getUrl() throws SVNException;
+  public SVNUrl getUrl() throws SVNException;
   
   /**
    * Method isModified.

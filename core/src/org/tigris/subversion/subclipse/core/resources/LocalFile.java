@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
+import java.net.MalformedURLException;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.tigris.subversion.javahl.Revision;
@@ -19,6 +21,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResourceVisitor;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Represents handles to SVN resource on the local file system. Synchronization
@@ -41,10 +44,16 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
 		if (!isManaged())
 			return null;
 		Status status = getStatus();
+        SVNUrl url = null;
+        try {
+            url = new SVNUrl(status.getUrl());
+        } catch (MalformedURLException e) {
+            throw new SVNException(e.getMessage());
+        }
 		return new RemoteFile(
 			null, // parent : we don't know it 
 			getRepository(),
-			status.getUrl(), // url
+            url,
             Revision.BASE,
 			false, // hasProps
 			status.getLastChangedRevision(),
