@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.Team;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.ISVNResource;
@@ -191,17 +192,27 @@ abstract class LocalResource implements ISVNResource, Comparable {
     /**
      * get the url of the resource in the repository
      * The resource does not need to exist in repository 
-     * @return
+     * @return the url or null if cannot get the url (when project is not managed) 
      * @throws SVNException
      */
     public SVNUrl getUrl() throws SVNException
     {
-        
-        try {
-			return new SVNUrl(Util.appendPath(getRepository().getUrl().toString(),resource.getProjectRelativePath().toString()));
-		} catch (MalformedURLException e) {
-			throw new SVNException("Can't get url for resource "+resource.toString());
-		} 
+        if (isManaged()) {
+        	// if the resource is managed, get the url directly
+        	return getStatus().getUrl();
+        } else {
+        	// otherwise, get the url of the parent
+			ISVNLocalResource parent = getParent();
+			if (parent == null) {
+				return null; // we cannot find the url
+			}
+			SVNUrl urlParent = getParent().getUrl();
+			try {
+				return new SVNUrl(Util.appendPath(urlParent.toString(),resource.getName()));	
+			} catch (MalformedURLException e) {
+				return null;
+			} 
+        }
     }
 
     /**
