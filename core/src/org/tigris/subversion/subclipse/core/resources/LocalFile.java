@@ -13,13 +13,12 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.tigris.subversion.javahl.Revision;
+import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResourceVisitor;
 import org.tigris.subversion.subclipse.core.SVNException;
-
-import com.qintsoft.jsvn.jni.Revision;
-import com.qintsoft.jsvn.jni.Status;
 
 /**
  * Represents handles to SVN resource on the local file system. Synchronization

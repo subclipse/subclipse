@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.team.core.RepositoryProvider;
+import org.tigris.subversion.javahl.Revision;
+import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -33,12 +34,6 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
-import org.tigris.subversion.subclipse.core.client.OperationManager;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
-
-import com.qintsoft.jsvn.jni.ClientException;
-import com.qintsoft.jsvn.jni.Revision;
-import com.qintsoft.jsvn.jni.Status;
 
 /**
  * Implements the ISVNLocalFolder interface on top of an 

@@ -22,6 +22,10 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteResource;
+import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.DirEntry;
+import org.tigris.subversion.javahl.NodeKind;
+import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -33,11 +37,6 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
-
-import com.qintsoft.jsvn.jni.ClientException;
-import com.qintsoft.jsvn.jni.DirEntry;
-import com.qintsoft.jsvn.jni.NodeKind;
-import com.qintsoft.jsvn.jni.Revision;
 
 /**
  * This class provides the implementation of ISVNRemoteFolder

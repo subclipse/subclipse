@@ -30,13 +30,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.SVNMoveDeleteHook;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
-
-import com.qintsoft.jsvn.jni.ClientException;
-import com.qintsoft.jsvn.jni.Revision;
 
 /**
  * This class is responsible for configuring a project for repository management

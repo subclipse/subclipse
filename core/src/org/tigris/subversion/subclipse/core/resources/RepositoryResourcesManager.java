@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -26,9 +28,6 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
-
-import com.qintsoft.jsvn.jni.ClientException;
-import com.qintsoft.jsvn.jni.Revision;
 
 /**
  * provides some static methods to handle repository management 

@@ -27,6 +27,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteSyncElement;
+import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.DirEntry;
+import org.tigris.subversion.javahl.NodeKind;
+import org.tigris.subversion.javahl.Revision;
+import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -42,12 +47,6 @@ import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.sync.SVNRemoteSyncElement;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
-
-import com.qintsoft.jsvn.jni.ClientException;
-import com.qintsoft.jsvn.jni.DirEntry;
-import com.qintsoft.jsvn.jni.NodeKind;
-import com.qintsoft.jsvn.jni.Revision;
-import com.qintsoft.jsvn.jni.Status;
 
 
 /**

@@ -18,14 +18,12 @@ import org.eclipse.team.core.sync.ILocalSyncElement;
 import org.eclipse.team.core.sync.IRemoteResource;
 import org.eclipse.team.core.sync.IRemoteSyncElement;
 import org.eclipse.team.core.sync.RemoteSyncElement;
+import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-
-import com.qintsoft.jsvn.jni.Revision;
-import com.qintsoft.jsvn.jni.Status;
 
 /**
  * A <code>IRemoteSyncElement</code> describes the relative synchronization of a <b>local</b> 

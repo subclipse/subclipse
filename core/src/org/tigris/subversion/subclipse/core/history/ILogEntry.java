@@ -15,9 +15,8 @@ package org.tigris.subversion.subclipse.core.history;
 import java.util.Date;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
-
-import com.qintsoft.jsvn.jni.Revision;
 
 /**
  * Instances of ILogEntry represent an entry for a SVN file that results

@@ -23,14 +23,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.NodeKind;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.util.ReentrantLock;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
 
-import com.qintsoft.jsvn.jni.ClientException;
-import com.qintsoft.jsvn.jni.NodeKind;
-import com.qintsoft.jsvn.jni.Notify;
+
 
 /**
  * This class manages jsvn operations.

@@ -15,12 +15,11 @@ package org.tigris.subversion.subclipse.core.history;
 import java.util.Date;
 
 import org.eclipse.core.runtime.PlatformObject;
+import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.RemoteResource;
-
-import com.qintsoft.jsvn.jni.Revision;
 
 /**
  * represent an entry for a SVN file that results

@@ -14,8 +14,7 @@ import java.io.File;
 import java.net.URL;
 
 import org.eclipse.core.resources.IResource;
-
-import com.qintsoft.jsvn.jni.Status;
+import org.tigris.subversion.javahl.Status;
 
 /**
  * SVN Local resource

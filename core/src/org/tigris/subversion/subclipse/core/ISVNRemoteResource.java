@@ -18,9 +18,8 @@ import java.util.Date;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteResource;
+import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
-
-import com.qintsoft.jsvn.jni.Revision;
 
 /**
  * The interface represents a resource that exists in a CVS repository.

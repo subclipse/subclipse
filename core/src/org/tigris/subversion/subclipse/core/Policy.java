@@ -27,7 +27,7 @@ public class Policy {
 	protected static ResourceBundle bundle = null;
 	
 	//debug constants
-	public static boolean DEBUG_METAFILE_CHANGES = false;
+	public static boolean DEBUG_METAFILE_CHANGES = true; //false;
 	public static boolean DEBUG_THREADING = false; // used in ReetrantLock
 
 	static {
