@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -37,8 +36,10 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.NotificationListener;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.util.Util;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This class manages a SVN repository location.
@@ -90,7 +91,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 		this.password = password;
 		this.url = url;
 			
-		rootFolder = new RemoteFolder(this, url, Revision.HEAD);
+		rootFolder = new RemoteFolder(this, url, SVNRevision.HEAD);
 	}
 	
 	/*
@@ -153,7 +154,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 	 */
 	public ISVNRemoteFolder getRemoteFolder(String remotePath) {
         try {
-		  return new RemoteFolder(this, new SVNUrl(Util.appendPath(getUrl().toString(),remotePath)),Revision.HEAD);
+		  return new RemoteFolder(this, new SVNUrl(Util.appendPath(getUrl().toString(),remotePath)),SVNRevision.HEAD);
         } catch (MalformedURLException e) {
           return null;     		
         }
@@ -279,8 +280,8 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
         SVNClientAdapter svnClient = getSVNClient();
         try {
             // we try to get the list of directories and files using the connection
-			svnClient.getList(getUrl(),Revision.HEAD, false);
-		} catch (ClientException e) {
+			svnClient.getList(getUrl(),SVNRevision.HEAD, false);
+		} catch (SVNClientException e) {
             // If the validation failed, dispose of any cached info
             dispose();
             throw SVNException.wrapException(e);

@@ -19,14 +19,14 @@ import java.util.Date;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteResource;
-import org.tigris.subversion.javahl.ClientException;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This class provides the implementation of ISVNRemoteFile and IManagedFile for
@@ -41,16 +41,16 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile  {
     public RemoteFile(RemoteFolder parent, 
                       ISVNRepositoryLocation repository,
                       SVNUrl url,
-                      Revision revision,
+                      SVNRevision revision,
                       boolean hasProps,
-                      Revision.Number lastChangedRevision,
+                      SVNRevision.Number lastChangedRevision,
                       Date date,
                       String author)
 	{
 		super(parent,repository,url,revision,hasProps,lastChangedRevision,date,author);
 	}
 
-    public RemoteFile(ISVNRepositoryLocation repository, SVNUrl url, Revision revision) {
+    public RemoteFile(ISVNRepositoryLocation repository, SVNUrl url, SVNRevision revision) {
         super(repository, url, revision);
     }
 
@@ -72,7 +72,7 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile  {
                     contents = new byte[inputStream.available()];
                     inputStream.read(contents);
                 } catch (IOException e) {
-		        } catch (ClientException e) {
+		        } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
 		        }
                 monitor.done();

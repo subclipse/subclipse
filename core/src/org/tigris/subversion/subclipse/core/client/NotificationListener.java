@@ -11,12 +11,13 @@
 package org.tigris.subversion.subclipse.core.client;
 
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.svnclientadapter.StandardNotificationHandler;
+import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
  * This class listen to notifications from jsvn and redirect them to the console listener
  */
-public class NotificationListener extends StandardNotificationHandler {
+public class NotificationListener implements ISVNNotifyListener {
 
 	private IConsoleListener consoleListener;
     private static NotificationListener instance;
@@ -38,17 +39,46 @@ public class NotificationListener extends StandardNotificationHandler {
         return instance;
     }
 
-	public void setCommandLine(String commandLine) {
-		super.setCommandLine(commandLine);
-		consoleListener.commandInvoked(commandLine);
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logCommandLine(java.lang.String)
+	 */
+	public void logCommandLine(String commandLine) {
+        consoleListener.logCommandLine(commandLine);
 	}
 
-	protected void log(int logType, String message) {
-		switch (logType) {
-			case NotificationListener.LOG_MESSAGE : consoleListener.messageLineReceived(message); break;
-			case NotificationListener.LOG_ERROR : consoleListener.errorLineReceived(message); break;
-			case NotificationListener.LOG_COMPLETED : consoleListener.messageLineReceived(message);  break;
-		}
-	}	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logCompleted(java.lang.String)
+	 */
+	public void logCompleted(String message) {
+        consoleListener.logCompleted(message);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logError(java.lang.String)
+	 */
+	public void logError(String message) {
+        consoleListener.logError(message);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logMessage(java.lang.String)
+	 */
+	public void logMessage(String message) {
+		consoleListener.logMessage(message);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#onNotify(java.lang.String, org.tigris.subversion.svnclientadapter.SVNNodeKind)
+	 */
+	public void onNotify(String path, SVNNodeKind kind) {
+		consoleListener.onNotify(path,kind);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#setCommand(int)
+	 */
+	public void setCommand(int command) {
+        consoleListener.setCommand(command);
+	}
 
 }

@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +22,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.team.core.RepositoryProvider;
-import org.tigris.subversion.javahl.Revision;
-import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -35,6 +32,8 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -61,18 +60,13 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
 	public ISVNRemoteResource getRemoteResource() throws SVNException {
 		if (!isManaged())
 			return null;
-		Status status = getStatus();
-        SVNUrl url;
-        try {
-            url = new SVNUrl(status.getUrl());
-        } catch (MalformedURLException e) {
-            throw new SVNException(e.getMessage());
-        }
+		ISVNStatus status = getStatus();
+        SVNUrl url = status.getUrl();
 		return new RemoteFolder(
 			null, // parent : we don't know it 
 			getRepository(),
             url, 
-            Revision.BASE,
+            SVNRevision.BASE,
 			false, // hasProps
 			status.getLastChangedRevision(),
 			status.getLastChangedDate(),

@@ -16,8 +16,6 @@ import java.util.Date;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.javahl.ClientException;
-import org.tigris.subversion.javahl.LogMessage;
 import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -26,8 +24,11 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.util.Util;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * The purpose of this class and its subclasses is to implement the corresponding
@@ -44,8 +45,8 @@ public abstract class RemoteResource
 	protected SVNUrl url;
 	protected ISVNRepositoryLocation repository;
 	protected boolean hasProps;
-    private Revision revision;
-	private Revision.Number lastChangedRevision;
+    private SVNRevision revision;
+	private SVNRevision.Number lastChangedRevision;
 	private Date date;
 	private String author;
 
@@ -56,9 +57,9 @@ public abstract class RemoteResource
 		RemoteFolder parent,
 		ISVNRepositoryLocation repository,
 		SVNUrl url,
-        Revision revision,
+        SVNRevision revision,
 		boolean hasProps,
-		Revision.Number lastChangedRevision,
+		SVNRevision.Number lastChangedRevision,
 		Date date,
 		String author) {
 
@@ -76,7 +77,7 @@ public abstract class RemoteResource
     /**
      * this constructor is used for the folder corresponding to repository location
      */
-    public RemoteResource(ISVNRepositoryLocation repository, SVNUrl url, Revision revision) {
+    public RemoteResource(ISVNRepositoryLocation repository, SVNUrl url, SVNRevision revision) {
         this.parent = null;
         this.repository = repository;
         this.url = url;
@@ -149,14 +150,14 @@ public abstract class RemoteResource
     /**
      * get the lastChangedRevision
      */
-	public Revision.Number getLastChangedRevision() {
+	public SVNRevision.Number getLastChangedRevision() {
 		return lastChangedRevision;
 	}
 
     /**
      * get the revision
      */
-    public Revision getRevision() {
+    public SVNRevision getRevision() {
         return revision;
     }
 
@@ -182,14 +183,14 @@ public abstract class RemoteResource
         monitor = Policy.monitorFor(monitor);
         monitor.beginTask(Policy.bind("RemoteFile.getLogEntries"), 100); //$NON-NLS-1$
         
-        LogMessage[] logMessages;
+        ISVNLogMessage[] logMessages;
 		try {
 			logMessages =
 				client.getLogMessages(
 					getUrl(),
-					new Revision.Number(0),
-					Revision.HEAD);
-		} catch (ClientException e) {
+					new SVNRevision.Number(0),
+					SVNRevision.HEAD);
+		} catch (SVNClientException e) {
             throw SVNException.wrapException(e);
 		}
         

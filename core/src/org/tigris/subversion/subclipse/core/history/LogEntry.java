@@ -15,11 +15,11 @@ package org.tigris.subversion.subclipse.core.history;
 import java.util.Date;
 
 import org.eclipse.core.runtime.PlatformObject;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.RemoteResource;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * represent an entry for a SVN file that results
@@ -31,9 +31,9 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	private String author;
 	private Date date;
 	private String comment;
-    private Revision.Number revision;
+    private SVNRevision.Number revision;
 
-	public LogEntry(RemoteResource resource, Revision.Number revision, String author, Date date, String comment) {
+	public LogEntry(RemoteResource resource, SVNRevision.Number revision, String author, Date date, String comment) {
 		
         if (resource.isFolder()) {
             this.resource = new RemoteFolder(null,resource.getRepository(), resource.getUrl(), revision, resource.getHasProps(),
@@ -53,7 +53,7 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	/**
 	 * @see ILogEntry#getRevision()
 	 */
-	public Revision.Number getRevision() {
+	public SVNRevision.Number getRevision() {
 		return revision;
 	}
 

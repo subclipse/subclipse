@@ -11,16 +11,14 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.net.MalformedURLException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.tigris.subversion.javahl.Revision;
-import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResourceVisitor;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -43,18 +41,13 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
 	public ISVNRemoteResource getRemoteResource() throws SVNException {
 		if (!isManaged())
 			return null;
-		Status status = getStatus();
-        SVNUrl url = null;
-        try {
-            url = new SVNUrl(status.getUrl());
-        } catch (MalformedURLException e) {
-            throw new SVNException(e.getMessage());
-        }
+		ISVNStatus status = getStatus();
+        SVNUrl url = status.getUrl();
 		return new RemoteFile(
 			null, // parent : we don't know it 
 			getRepository(),
             url,
-            Revision.BASE,
+            SVNRevision.BASE,
 			false, // hasProps
 			status.getLastChangedRevision(),
 			status.getLastChangedDate(),
@@ -86,8 +79,8 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
 	public boolean isModified() throws SVNException {
 		if (!exists()) return true;
 		
-		Status status = getStatus();
-		return status.getTextStatus() == Status.Kind.modified;
+		ISVNStatus status = getStatus();
+		return status.getTextStatus() == ISVNStatus.Kind.MODIFIED;
 	}
 
     /*

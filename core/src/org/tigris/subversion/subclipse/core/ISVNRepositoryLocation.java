@@ -13,8 +13,8 @@ package org.tigris.subversion.subclipse.core;
  
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This interface provides access to the specific portions of

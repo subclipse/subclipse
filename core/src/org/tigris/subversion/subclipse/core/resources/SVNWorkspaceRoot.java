@@ -26,11 +26,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteSyncElement;
-import org.tigris.subversion.javahl.ClientException;
-import org.tigris.subversion.javahl.DirEntry;
-import org.tigris.subversion.javahl.NodeKind;
-import org.tigris.subversion.javahl.Revision;
-import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -45,8 +40,13 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.sync.SVNRemoteSyncElement;
 import org.tigris.subversion.subclipse.core.util.Util;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 
 /**
@@ -165,9 +165,9 @@ public class SVNWorkspaceRoot {
                             SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 
 							// check if the remote project has a .project file
-							DirEntry[] rootFiles = svnClient.getList(resource.getUrl(), Revision.HEAD, false);
+							ISVNDirEntry[] rootFiles = svnClient.getList(resource.getUrl(), SVNRevision.HEAD, false);
 							for (int j = 0; j < rootFiles.length; j++) {
-								if ((rootFiles[j].getNodeKind() == NodeKind.file) && (".project".equals(rootFiles[j].getPath()))) {
+								if ((rootFiles[j].getNodeKind() == SVNNodeKind.FILE) && (".project".equals(rootFiles[j].getPath()))) {
 										deleteDotProject = true;
 								}
 							}							
@@ -195,9 +195,9 @@ public class SVNWorkspaceRoot {
                             OperationManager operationHandler = OperationManager.getInstance();
 							try {
 								operationHandler.beginOperation(svnClient);
-								svnClient.checkout(resource.getUrl(), destPath, Revision.HEAD, true);
+								svnClient.checkout(resource.getUrl(), destPath, SVNRevision.HEAD, true);
                                 pm.worked(800); 
-							} catch (ClientException e) {
+							} catch (SVNClientException e) {
 								throw new SVNException("cannot checkout");
 							} finally {
 								operationHandler.endOperation(); 
@@ -211,7 +211,7 @@ public class SVNWorkspaceRoot {
 					} catch (TeamException e) {
 						// Pass it outside the workspace runnable
 						eHolder[0] = e;
-					} catch (ClientException ce) {
+					} catch (SVNClientException ce) {
 						eHolder[0] = new TeamException("Error Getting Dir list", ce);
 					} finally {
 						pm.done();
@@ -268,8 +268,8 @@ public class SVNWorkspaceRoot {
                                 svnClient.mkdir(url,message);
                                 
                                 // checkout it so that we have .svn
-                                svnClient.checkout(url,project.getLocation().toFile(),Revision.HEAD,false);
-                            } catch (ClientException e) {
+                                svnClient.checkout(url,project.getLocation().toFile(),SVNRevision.HEAD,false);
+                            } catch (SVNClientException e) {
                                 throw new SVNException("Error while creating module");  
                             } catch (MalformedURLException e) {
                                 throw new SVNException("Error while creating module");
@@ -308,7 +308,7 @@ public class SVNWorkspaceRoot {
 		
 		// Ensure provided info matches that of the project
 		ISVNLocalFolder folder = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(project);
-		Status status = folder.getStatus();
+		ISVNStatus status = folder.getStatus();
         
         // this folder needs to be managed but also to have a remote counter-part
         // because we need to know its url
@@ -389,15 +389,11 @@ public class SVNWorkspaceRoot {
 	public ISVNRepositoryLocation getRepository() throws SVNException {
 		if (url == null)
         {
-            Status status = localRoot.getStatus();
+            ISVNStatus status = localRoot.getStatus();
             if (!status.isManaged()) {
                 throw new SVNException(Policy.bind("SVNWorkspaceRoot.notSVNFolder", localRoot.getName()));  //$NON-NLS-1$
             }
-            try {
-                url = new SVNUrl(status.getUrl());
-            } catch (MalformedURLException e) {
-                throw SVNException.wrapException(e);
-            }
+            url = status.getUrl();
         }
 		return SVNProviderPlugin.getPlugin().getRepository(url.toString());
 	}

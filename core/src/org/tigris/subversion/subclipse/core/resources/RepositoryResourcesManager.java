@@ -17,8 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.tigris.subversion.javahl.ClientException;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -26,8 +24,10 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
 import org.tigris.subversion.subclipse.core.util.Util;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * provides some static methods to handle repository management 
@@ -171,7 +171,7 @@ public class RepositoryResourcesManager {
                 
                 progress.worked(100*urls.length);
             }
-        } catch (ClientException e) {
+        } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
             progress.done();
@@ -188,10 +188,10 @@ public class RepositoryResourcesManager {
 
         try {        
             SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
-            svnClient.copy(resource.getUrl(),destinationFolder.getUrl(),message,Revision.HEAD);
+            svnClient.copy(resource.getUrl(),destinationFolder.getUrl(),message,SVNRevision.HEAD);
             destinationFolder.refresh();
             remoteResourceCopied(resource, destinationFolder);
-        } catch (ClientException e) {
+        } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
             progress.done();
@@ -208,13 +208,13 @@ public class RepositoryResourcesManager {
             SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
             SVNUrl destUrl = new SVNUrl(Util.appendPath(destinationFolder.getUrl().toString(),destinationResourceName));
             
-            svnClient.move(resource.getUrl(),destUrl,message,Revision.HEAD);
+            svnClient.move(resource.getUrl(),destUrl,message,SVNRevision.HEAD);
             resource.getParent().refresh();
             destinationFolder.refresh();
             remoteResourceMoved(resource, destinationFolder, destinationResourceName);
         } catch (MalformedURLException e) {
             throw SVNException.wrapException(e);
-        } catch (ClientException e) {
+        } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
             progress.done();

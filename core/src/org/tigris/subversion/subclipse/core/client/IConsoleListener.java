@@ -11,31 +11,14 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.client;
 
-import org.eclipse.core.runtime.IStatus;
+import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 
-public interface IConsoleListener {
-	/**
-	 * Called when a command is invoked.
-	 * @param line the command invocation string
-	 */
-	public void commandInvoked(String line);
-	
-	/**
-	 * Called when a line of message text has been received.
-	 * @param line the line of text
-	 */
-	public void messageLineReceived(String line);
-	
-	/**
-	 * Called when a line of error text has been received.
-	 * @param line the line of text
-	 */
-	public void errorLineReceived(String line);
-	
-	/**
-	 * Called when a command has been completed.
-	 * @param status the status code, or null if not applicable
-	 * @param exception an exception, or null if not applicable
-	 */
-	public void commandCompleted(IStatus status, Exception exception);
+/**
+ * For now this interface is exactly ISVNNotifyListener but we can add new methods
+ * in the future
+ * 
+ */
+public interface IConsoleListener extends ISVNNotifyListener {
+
+
 }

@@ -13,7 +13,7 @@ package org.tigris.subversion.subclipse.core;
 import java.io.File;
 
 import org.eclipse.core.resources.IResource;
-import org.tigris.subversion.javahl.Status;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -31,7 +31,7 @@ public interface ISVNLocalResource extends ISVNResource {
    * @return the synchronization information for this resource, or <code>null</code>
    * if the resource does not have synchronization information available.
    */
-  public Status getStatus() throws SVNException;
+  public ISVNStatus getStatus() throws SVNException;
 
   /**
    * refresh the status of the resource (which is cached) 

@@ -28,7 +28,8 @@ import org.tigris.subversion.javahl.NodeKind;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.util.ReentrantLock;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 
 
@@ -37,7 +38,6 @@ import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
  * beginOperation must be called before a batch of svn operations
  * and endOperation after
  * 
- * All notifications from jsvn are redirected to console
  * All changed resources are refreshed using resource.refreshLocal
  */
 public class OperationManager implements ISVNNotifyListener {
@@ -103,28 +103,8 @@ public class OperationManager implements ISVNNotifyListener {
 		}
 	}
 
-	public void setCommand(int command) {
-	}
-    
-	public void setCommandLine(String commandLine) {
-	}
-
-    public void setException(ClientException e) {
-        
-    }
-
-	/* (non-Javadoc)
-	 * @see com.qintsoft.jsvn.jni.Notify#onNotify(java.lang.String, int, int, java.lang.String, int, int, long)
-	 */
-	public void onNotify(
-		String path,
-		int action,
-		int kind,
-		String mimeType,
-		int contentState,
-		int propState,
-		long revision) {
-		
+    public void onNotify(String path, SVNNodeKind kind) {
+        		
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		
@@ -139,7 +119,7 @@ public class OperationManager implements ISVNNotifyListener {
             return;
         }
 
-        if (kind == NodeKind.unknown)  { // delete, revert 
+        if (kind == SVNNodeKind.UNKNOWN)  { // delete, revert 
             IPath pathEntries = pathEclipse.removeLastSegments(1).append(".svn/entries");
             IResource entries = workspaceRoot.getFileForLocation(pathEntries);
             changedResources.add(entries);
@@ -147,10 +127,10 @@ public class OperationManager implements ISVNNotifyListener {
         else
         {
             IResource resource = null;
-    		if (kind == NodeKind.dir)		
+    		if (kind == SVNNodeKind.DIR)		
                 resource = workspaceRoot.getContainerForLocation(pathEclipse);
     		else
-            if (kind == NodeKind.file)
+            if (kind == SVNNodeKind.FILE)
                 resource =  workspaceRoot.getFileForLocation(pathEclipse);
             
             IResource entries = null;
@@ -166,6 +146,21 @@ public class OperationManager implements ISVNNotifyListener {
             if (entries != null)
                 changedResources.add(entries);
         }
+	}
+
+	public void logCommandLine(String commandLine) {
+	}
+
+	public void logCompleted(String message) {
+	}
+
+	public void logError(String message) {
+	}
+
+	public void logMessage(String message) {
+	}
+
+	public void setCommand(int command) {
 	}
 
 }

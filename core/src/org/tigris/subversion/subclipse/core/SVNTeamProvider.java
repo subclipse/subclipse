@@ -30,12 +30,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.SVNMoveDeleteHook;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This class is responsible for configuring a project for repository management
@@ -168,7 +169,7 @@ public class SVNTeamProvider extends RepositoryProvider {
    				try {
 					svnClient.addDirectory(localResource.getIResource().getLocation().toFile(),false);
                     localResource.refreshStatus();
-				} catch (ClientException e) {
+				} catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 }
             }
@@ -179,7 +180,7 @@ public class SVNTeamProvider extends RepositoryProvider {
                 try {
                     svnClient.addFile(localResource.getIResource().getLocation().toFile());
                     localResource.refreshStatus();
-                } catch (ClientException e) {
+                } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 }    
             }
@@ -235,7 +236,7 @@ public class SVNTeamProvider extends RepositoryProvider {
                     
                     // then the resources the user has requested to commit
                     svnClient.commit(resourceFiles,comment,depth == IResource.DEPTH_INFINITE);
-                } catch (ClientException e) {
+                } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 } finally {
                     OperationManager.getInstance().endOperation();
@@ -248,7 +249,7 @@ public class SVNTeamProvider extends RepositoryProvider {
     /**
      * Update to given revision
      */
-    public void update(final IResource[] resources, final Revision revision, IProgressMonitor progress) throws TeamException {
+    public void update(final IResource[] resources, final SVNRevision revision, IProgressMonitor progress) throws TeamException {
     
         SVNProviderPlugin.run(new ISVNRunnable() {
             public void run(IProgressMonitor monitor) throws SVNException {
@@ -258,7 +259,7 @@ public class SVNTeamProvider extends RepositoryProvider {
                     OperationManager.getInstance().beginOperation(svnClient);
                     for (int i = 0; i < resources.length;i++)
                         svnClient.update(resources[i].getLocation().toFile(),revision,true);
-                } catch (ClientException e) {
+                } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 } finally {
                     OperationManager.getInstance().endOperation();
@@ -273,7 +274,7 @@ public class SVNTeamProvider extends RepositoryProvider {
      * update to HEAD revision
      */
     public void update(final IResource[] resources, IProgressMonitor progress) throws TeamException {
-        update(resources, Revision.HEAD, progress);
+        update(resources, SVNRevision.HEAD, progress);
     }
 
 
@@ -317,7 +318,7 @@ public class SVNTeamProvider extends RepositoryProvider {
                 folder.refreshStatus(IResource.DEPTH_ONE);
                 SVNProviderPlugin.broadcastSyncInfoChanges(possiblesIgnores);
             }
-            catch (ClientException e) {
+            catch (SVNClientException e) {
                 throw SVNException.wrapException(e);
             }
 

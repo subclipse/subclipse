@@ -22,9 +22,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteResource;
 import org.tigris.subversion.javahl.ClientException;
-import org.tigris.subversion.javahl.DirEntry;
-import org.tigris.subversion.javahl.NodeKind;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -35,8 +32,12 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.util.Util;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This class provides the implementation of ISVNRemoteFolder
@@ -52,15 +53,15 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 	public RemoteFolder(RemoteFolder parent, 
         ISVNRepositoryLocation repository,
         SVNUrl url,
-        Revision revision,
+        SVNRevision revision,
         boolean hasProps,
-        Revision.Number lastChangedRevision,
+        SVNRevision.Number lastChangedRevision,
         Date date,
         String author) {
 		super(parent, repository, url, revision,hasProps, lastChangedRevision, date, author);
 	}
 
-    public RemoteFolder(ISVNRepositoryLocation repository, SVNUrl url, Revision revision) {
+    public RemoteFolder(ISVNRepositoryLocation repository, SVNUrl url, SVNRevision revision) {
         super(repository, url,revision);
     }
 	
@@ -126,45 +127,45 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 		try {
             SVNClientAdapter client = getRepository().getSVNClient();
 				
-			DirEntry[] list = client.getList(url,getRevision(),false);
+			ISVNDirEntry[] list = client.getList(url,getRevision(),false);
 			List result = new ArrayList();
 
 			// directories first				
 			for (int i=0;i<list.length;i++)
 			{
-                DirEntry entry = list[i];
-                if (entry.getNodeKind() == NodeKind.dir)
+                ISVNDirEntry entry = list[i];
+                if (entry.getNodeKind() == SVNNodeKind.DIR)
 				{
 				    result.add(new RemoteFolder(this, getRepository(),
 					   new SVNUrl(Util.appendPath(url.toString(),entry.getPath())),
                        getRevision(),
                        entry.getHasProps(),
                        entry.getLastChangedRevision(),
-                       entry.getLastChanged(),
-                       entry.getLastAuthor()));
+                       entry.getLastChangedDate(),
+                       entry.getLastCommitAuthor()));
 				}
 			}
 
 			// files then				
 			for (int i=0;i<list.length;i++)
 			{
-				DirEntry entry = list[i];
-				if (entry.getNodeKind() == NodeKind.file)
+				ISVNDirEntry entry = list[i];
+				if (entry.getNodeKind() == SVNNodeKind.FILE)
 				{
 					result.add(new RemoteFile(this, getRepository(),
                         new SVNUrl(Util.appendPath(url.toString(),entry.getPath())),
                         getRevision(),
                         entry.getHasProps(),
                         entry.getLastChangedRevision(),
-                        entry.getLastChanged(),
-                    entry.getLastAuthor()));
+                        entry.getLastChangedDate(),
+                        entry.getLastCommitAuthor()));
 			     }
 					 	
 			}
 
 			children = (ISVNRemoteResource[])result.toArray(new ISVNRemoteResource[0]);
             return children;
-        } catch (ClientException e)
+        } catch (SVNClientException e)
 		{
             throw new SVNException(new SVNStatus(SVNStatus.ERROR, SVNStatus.DOES_NOT_EXIST, Policy.bind("RemoteFolder.doesNotExist", getRepositoryRelativePath()))); //$NON-NLS-1$
 		} catch (MalformedURLException e)
@@ -246,7 +247,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
             SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().remoteResourceCreated(this,folderName);
         } catch (MalformedURLException e) {
             throw SVNException.wrapException(e);
-        } catch (ClientException e) {
+        } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
             progress.done();

@@ -22,12 +22,12 @@ import org.eclipse.core.resources.team.IMoveDeleteHook;
 import org.eclipse.core.resources.team.IResourceTree;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 public class SVNMoveDeleteHook implements IMoveDeleteHook {
 
@@ -148,7 +148,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 // destination file must not already exist in the workspace 
                 // resource tree.
                 tree.movedFile(source, destination);
-            } catch (ClientException e) {
+            } catch (SVNClientException e) {
                 throw SVNException.wrapException(e); 
             } finally {
                 OperationManager.getInstance().endOperation();
@@ -205,7 +205,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                     destination.getLocation().toFile(),
                     true);
                 tree.movedFolderSubtree(source, destination);
-            } catch (ClientException e) {
+            } catch (SVNClientException e) {
                 throw SVNException.wrapException(e); 
             } finally {
                 OperationManager.getInstance().endOperation();

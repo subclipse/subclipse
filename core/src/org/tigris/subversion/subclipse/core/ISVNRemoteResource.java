@@ -17,8 +17,8 @@ import java.util.Date;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteResource;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -65,12 +65,12 @@ public interface ISVNRemoteResource extends IRemoteResource, ISVNResource {
     /**
      * @return the last changed revision of this remote resource
      */
-    public Revision.Number getLastChangedRevision();
+    public SVNRevision.Number getLastChangedRevision();
 
     /**
      * @return the revision of this remote resource
      */
-    public Revision getRevision();
+    public SVNRevision getRevision();
 
     /**
      * @return the date of modification for this remote resource

@@ -15,8 +15,8 @@ package org.tigris.subversion.subclipse.core.history;
 import java.util.Date;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * Instances of ILogEntry represent an entry for a SVN file that results
@@ -28,7 +28,7 @@ public interface ILogEntry extends IAdaptable {
 	/**
 	 * Get the revision for the entry
 	 */
-	public Revision.Number getRevision();
+	public SVNRevision.Number getRevision();
 	
 	/**
 	 * Get the author of the revision

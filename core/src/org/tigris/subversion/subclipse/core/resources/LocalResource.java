@@ -22,10 +22,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.Team;
 import org.tigris.subversion.javahl.ClientException;
-import org.tigris.subversion.javahl.DirEntry;
-import org.tigris.subversion.javahl.NodeKind;
 import org.tigris.subversion.javahl.Revision;
-import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -36,8 +33,14 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.core.util.Util;
-import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * Represents handles to SVN resource on the local file system. Synchronization
@@ -156,11 +159,11 @@ abstract class LocalResource implements ISVNResource, Comparable {
     /**
      * get the status of the given resource
      */
-    public Status getStatus() throws SVNException {
-        Status status = null;
+    public ISVNStatus getStatus() throws SVNException {
+        ISVNStatus status = null;
         
         try {
-            status = (Status) resource.getSessionProperty(RESOURCE_SYNC_KEY);
+            status = (ISVNStatus) resource.getSessionProperty(RESOURCE_SYNC_KEY);
         } catch (CoreException e) {
             // the resource does not exist
             // we ignore the exception
@@ -174,7 +177,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
             try {
 				status = svnClientAdapterStatus.getSingleStatus(resource.getLocation().toFile());
                 resource.setSessionProperty(RESOURCE_SYNC_KEY, status);
-            } catch (ClientException e1) {
+            } catch (SVNClientException e1) {
                 throw SVNException.wrapException(e1);
             } catch (CoreException e) {
                 // the resource does not exist
@@ -244,11 +247,11 @@ abstract class LocalResource implements ISVNResource, Comparable {
         // first we get the url of the resource
         SVNUrl url = getUrl();
         
-        SVNClientAdapter svnClient = getRepository().getSVNClient();
-        DirEntry[] dirEntry = null;
+        ISVNClientAdapter svnClient = getRepository().getSVNClient();
+        ISVNDirEntry[] dirEntry = null;
         try {
-            dirEntry = svnClient.getList(url,Revision.HEAD,false);
-        } catch (ClientException e) {
+            dirEntry = svnClient.getList(url,SVNRevision.HEAD,false);
+        } catch (SVNClientException e) {
             throw new SVNException("Can't get latest remote resource for "+resource.toString());   
         }
         
@@ -256,27 +259,27 @@ abstract class LocalResource implements ISVNResource, Comparable {
             return null; // no remote file
         else
         {
-            if (dirEntry[0].getNodeKind() == NodeKind.file)
+            if (dirEntry[0].getNodeKind() == SVNNodeKind.FILE)
                 return new RemoteFile(
                     null,  // we don't know its parent
                     getRepository(),
                     url,
-                    Revision.HEAD,
+                    SVNRevision.HEAD,
                     dirEntry[0].getHasProps(),
                     dirEntry[0].getLastChangedRevision(),
-                    dirEntry[0].getLastChanged(),
-                    dirEntry[0].getLastAuthor()
+                    dirEntry[0].getLastChangedDate(),
+                    dirEntry[0].getLastCommitAuthor()
                 );
              else
                 return new RemoteFolder(
                     null,  // we don't know its parent
                     getRepository(),
                     url,
-                    Revision.HEAD,
+                    SVNRevision.HEAD,
                     dirEntry[0].getHasProps(),
                     dirEntry[0].getLastChangedRevision(),
-                    dirEntry[0].getLastChanged(),
-                    dirEntry[0].getLastAuthor()
+                    dirEntry[0].getLastChangedDate(),
+                    dirEntry[0].getLastCommitAuthor()
                 );                
         }
     }
@@ -289,7 +292,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
             SVNClientAdapter svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
             svnClient.remove(new File[] { getFile() }, false);
-        } catch (ClientException e) {
+        } catch (SVNClientException e) {
             throw SVNException.wrapException(e); 
         } finally {
             OperationManager.getInstance().endOperation();
@@ -304,7 +307,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
             SVNClientAdapter svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
             svnClient.revert(getFile(), false);
-        } catch (ClientException e) {
+        } catch (SVNClientException e) {
             throw SVNException.wrapException(e); 
         } finally {
             OperationManager.getInstance().endOperation();
