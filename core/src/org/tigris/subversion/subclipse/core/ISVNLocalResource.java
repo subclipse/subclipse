@@ -113,5 +113,14 @@ public interface ISVNLocalResource extends ISVNResource {
    */
   public boolean isIgnored() throws SVNException;
 
+  /**
+   * Remove file or directory from version control.
+   */
+  public void delete() throws SVNException;
+
+  /**
+   * Restore pristine working copy file (undo all local edits) 
+   */
+  public void revert() throws SVNException;
 
 }

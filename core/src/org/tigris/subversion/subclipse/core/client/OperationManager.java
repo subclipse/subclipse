@@ -30,6 +30,7 @@ import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
 
 import com.qintsoft.jsvn.jni.ClientException;
 import com.qintsoft.jsvn.jni.NodeKind;
+import com.qintsoft.jsvn.jni.Notify;
 
 /**
  * This class manages jsvn operations.
@@ -137,23 +138,34 @@ public class OperationManager implements ISVNNotifyListener {
             // should never occur ...
             return;
         }
-		
-        IResource resource = null;
-		if (kind == NodeKind.dir)		
-            resource = workspaceRoot.getContainerForLocation(pathEclipse);
-		else
-        if (kind == NodeKind.file)
-            resource =  workspaceRoot.getFileForLocation(pathEclipse);
-        
-        IResource entries = null;
-        if (resource != null) 
-            entries = resource.getParent().getFile(new Path(".svn/entries")); 
-       
-        if (resource != null)
-            changedResources.add(resource);
-        
-        if (entries != null)
+
+        if (kind == NodeKind.unknown)  { // delete, revert 
+            IPath pathEntries = pathEclipse.removeLastSegments(1).append(".svn/entries");
+            IResource entries = workspaceRoot.getFileForLocation(pathEntries);
             changedResources.add(entries);
+        }
+        else
+        {
+            IResource resource = null;
+    		if (kind == NodeKind.dir)		
+                resource = workspaceRoot.getContainerForLocation(pathEclipse);
+    		else
+            if (kind == NodeKind.file)
+                resource =  workspaceRoot.getFileForLocation(pathEclipse);
+            
+            IResource entries = null;
+            if (resource != null) 
+                entries = resource.getParent().getFile(new Path(".svn/entries")); 
+           
+            if (resource != null) {
+                // this is not really necessary because as .svn/entries is added, the 
+                // corresponding directory will be refreshed
+                changedResources.add(resource);
+            } 
+            
+            if (entries != null)
+                changedResources.add(entries);
+        }
 	}
 
 }

@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.Policy;
@@ -38,11 +39,11 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 	
 	// consider the following changes types and ignore the others (e.g. marker and description changes are ignored)
 	protected int INTERESTING_CHANGES = 	IResourceDelta.CONTENT | 
-																	IResourceDelta.MOVED_FROM | 
-																	IResourceDelta.MOVED_TO |
-																	IResourceDelta.OPEN | 
-																	IResourceDelta.REPLACED |
-																	IResourceDelta.TYPE;
+											IResourceDelta.MOVED_FROM | 
+											IResourceDelta.MOVED_TO |
+											IResourceDelta.OPEN | 
+											IResourceDelta.REPLACED |
+											IResourceDelta.TYPE;
 	
     public static final String SVN_DIRNAME = ".svn"; //$NON-NLS-1$
     public static final String SVN_ENTRIES = "entries"; //$NON-NLS-1$
@@ -111,6 +112,9 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 			if(!changedContainers.isEmpty()) {
                 for (Iterator it = changedContainers.iterator(); it.hasNext();){
                     IContainer container = (IContainer)it.next();
+                    
+                    // we update the members. Refresh can be useful in case of revert etc ...
+                    container.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
                     ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
                     svnContainer.refreshStatus(IResource.DEPTH_ONE);
                     SVNProviderPlugin.broadcastSyncInfoChanges(container.members());

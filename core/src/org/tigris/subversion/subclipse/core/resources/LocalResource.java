@@ -29,6 +29,7 @@ import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
@@ -170,7 +171,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
             // we don't need login & password so this is not a problem   
             SVNClientAdapter svnClient = new SVNClientAdapter();
             try {
-				status = svnClient.getStatus(resource.getLocation().toFile());
+				status = svnClient.getSingleStatus(resource.getLocation().toFile());
                 resource.setSessionProperty(RESOURCE_SYNC_KEY, status);
             } catch (ClientException e1) {
                 throw SVNException.wrapException(e1);
@@ -276,6 +277,36 @@ abstract class LocalResource implements ISVNResource, Comparable {
                     dirEntry[0].getLastChanged(),
                     dirEntry[0].getLastAuthor()
                 );                
+        }
+    }
+
+    /**
+     * Remove file or directory from version control.
+     */
+    public void delete() throws SVNException {
+        try {
+            SVNClientAdapter svnClient = getRepository().getSVNClient();
+            OperationManager.getInstance().beginOperation(svnClient);
+            svnClient.remove(new File[] { getFile() }, false);
+        } catch (ClientException e) {
+            throw SVNException.wrapException(e); 
+        } finally {
+            OperationManager.getInstance().endOperation();
+        }
+    }
+
+    /**
+     * Restore pristine working copy file (undo all local edits) 
+     */
+    public void revert() throws SVNException {
+        try {
+            SVNClientAdapter svnClient = getRepository().getSVNClient();
+            OperationManager.getInstance().beginOperation(svnClient);
+            svnClient.revert(getFile(), false);
+        } catch (ClientException e) {
+            throw SVNException.wrapException(e); 
+        } finally {
+            OperationManager.getInstance().endOperation();
         }
     }
 

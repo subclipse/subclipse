@@ -393,7 +393,7 @@ public class SVNWorkspaceRoot {
             // we don't need any password to get the status ...
             SVNClientAdapter svnClient = new SVNClientAdapter();
             try {
-                Status status = svnClient.getStatus(localRoot.getIResource().getLocation().toFile());
+                Status status = svnClient.getSingleStatus(localRoot.getIResource().getLocation().toFile());
 
                 if (!status.isManaged()) {
                     throw new SVNException(Policy.bind("SVNWorkspaceRoot.notSVNFolder", localRoot.getName()));  //$NON-NLS-1$

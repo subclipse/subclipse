@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,10 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
 
+import com.qintsoft.jsvn.jni.ClientException;
 import com.qintsoft.jsvn.jni.Revision;
 import com.qintsoft.jsvn.jni.Status;
 
@@ -256,5 +260,6 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
             }
         }, null);
     }    
+    
     
 }
