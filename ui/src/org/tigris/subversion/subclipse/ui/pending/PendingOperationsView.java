@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -30,8 +31,12 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
@@ -47,7 +52,10 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ViewPart;
 import org.tigris.subversion.javahl.ClientException;
@@ -378,6 +386,13 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
         
 		// set F1 help
 //		WorkbenchHelp.setHelp(tableViewer.getControl(), IHelpContextIds.CVS_EDITORS_VIEW);
+
+        tableViewer.addDoubleClickListener(new IDoubleClickListener() {
+            public void doubleClick(DoubleClickEvent e) {
+                handleDoubleClick(e);
+            }
+        }); 
+
 	}
 
     /**
@@ -499,6 +514,31 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
         return status;
     }
 
-
+    /**
+     * The mouse has been double-clicked in the table, open the file
+     */
+    private void handleDoubleClick(DoubleClickEvent e) {
+        // Only act on single selection
+        ISelection selection = e.getSelection();
+        if (selection instanceof IStructuredSelection) {
+            IStructuredSelection structured = (IStructuredSelection)selection;
+            if (structured.size() == 1) {
+                Object first = structured.getFirstElement();
+                ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor((IResource)first);
+                try {
+                    // don't open file for directory or deleted files                 
+                    if ((!svnResource.getStatus().isDeleted()) && (!svnResource.isFolder())) {                
+                        IWorkbench workbench = SVNUIPlugin.getPlugin().getWorkbench();
+                        IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+                        page.openEditor((IFile)svnResource.getIResource());
+                    }
+                } catch (SVNException ex) {
+                    SVNUIPlugin.log(ex);
+                } catch (PartInitException ex) {
+                    SVNUIPlugin.log(SVNException.wrapException(ex));
+                }
+            }
+        } 
+    }
 
 }
