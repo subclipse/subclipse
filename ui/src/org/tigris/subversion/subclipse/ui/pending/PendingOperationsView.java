@@ -223,8 +223,10 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
     				result = ""; //status.getPath();
 					break;
                 case 1 : // description
-                    if (status.isCopied())
-                        result = Policy.bind("PendingOperationsView.hasBeenCopied",svnResource.getName());
+                    if (status.isCopied()) {
+                        result = Policy.bind("PendingOperationsView.hasBeenCopied",svnResource.getName(),
+                            status.getUrlCopiedFrom());
+                    }    
                     else
                     if (status.isAdded())
                         result = Policy.bind("PendingOperationsView.hasBeenAdded",svnResource.getName());
