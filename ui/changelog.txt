@@ -1,3 +1,28 @@
+* 0.x.x
+
+Eclipse 3 Branch
+
+- rebuilt as eclipse java project fixed url parsing bug which threw npe for null svn url. fixed case sensitivity for http svnurls, made https:// a legal protocol for svnurl
+- added punctuation, made parameter quoting consistent.
+
+Eclipse 2.1 Branch
+
+- Added the decorator preferences page. 
+- Variables to appear can be chosen for files, folders and projects
+- The user can choose the dirty flag and the added flag
+- bug currected. last changed date was not parsed correctly here in France.
+- Morever two formats are possible for last changed date (the two are now supported)
+- svnjavahl compiled using svn 0.32.1 and db 4.0.14
+- Moved notificationHandler routines into CommandLine. normal messages and errors show up now in the SVN Console view.
+- added https to the list of recognized protocols we now ignore case for protocol
+- Added some classes to allow adding of keywords on managed files
+- added a filter on IContainer so that "Show pending operations" is not available for projects that are not shared using subversion
+- added a default value for no author
+- added Help files
+
+
+
+
 * 0.8.1
 
 - Bug #15 corrected.  We now add the destination directory to revision control if necessary before moving the file or directory
