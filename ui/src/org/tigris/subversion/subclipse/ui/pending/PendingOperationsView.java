@@ -37,6 +37,8 @@ import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -46,6 +48,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ViewPart;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -299,6 +302,8 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
 		tableViewer.setContentProvider(new EditorsContentProvider());
 		tableViewer.setLabelProvider(new EditorsLabelProvider());
         contributeActions();
+        
+        initDragAndDrop();        
     }
 
     /**
@@ -373,6 +378,15 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
 		// set F1 help
 //		WorkbenchHelp.setHelp(tableViewer.getControl(), IHelpContextIds.CVS_EDITORS_VIEW);
 	}
+
+    /**
+     * Adds drag and drop support to the pending operations view.
+     */
+    void initDragAndDrop() {
+        int ops = DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK;
+        Transfer[] transfers = new Transfer[] {ResourceTransfer.getInstance()};
+        tableViewer.addDropSupport(ops, transfers, new PendingDropAdapter(tableViewer, this));
+    }
     
 	public void setInput(Status[] status) {
 		tableViewer.setInput(status);
