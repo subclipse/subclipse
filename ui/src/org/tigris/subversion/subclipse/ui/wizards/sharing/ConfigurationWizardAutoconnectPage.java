@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.help.WorkbenchHelp;
+import org.tigris.subversion.javahl.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositoryLocation;
@@ -31,8 +32,6 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.wizards.SVNWizardPage;
-
-import com.qintsoft.jsvn.jni.Status;
 
 /**
  * This configuration page explains to the user that .svn/ directories already exists and

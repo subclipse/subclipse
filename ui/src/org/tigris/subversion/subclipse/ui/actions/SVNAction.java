@@ -247,7 +247,7 @@ abstract public class SVNAction extends TeamAction {
 				break;
 			case PROGRESS_DIALOG :
 			default :
-				new ProgressMonitorDialog(getShell()).run(cancelable, true, innerRunnable);	
+				new ProgressMonitorDialog(getShell()).run(true, cancelable,/*cancelable, true, */innerRunnable);	
 				break;
 		}
 		if (exceptions[0] != null) {
