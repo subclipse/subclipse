@@ -16,7 +16,9 @@ import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.decorator.SVNDecoratorConfiguration;
+import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 
 /**
  * Initializes preferences and updates markers when preferences are changed
@@ -53,6 +55,10 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_PROMPT_ON_MIXED_TAGS, true);
         store.setDefault(ISVNUIConstants.PREF_PROMPT_ON_SAVING_IN_SYNC, true);
         store.setDefault(ISVNUIConstants.PREF_SAVE_DIRTY_EDITORS, ISVNUIConstants.OPTION_PROMPT);
+        
+        store.setDefault(ISVNUIConstants.PREF_SVNINTERFACE, SVNClientAdapterFactory.JAVAHL_CLIENT);
+        
+        SVNProviderPlugin.getPlugin().setSvnClientInterface(store.getInt(ISVNUIConstants.PREF_SVNINTERFACE));
     }
 
     /**
@@ -60,6 +66,11 @@ private IPreferenceStore store;
      */
     public void propertyChange(PropertyChangeEvent event) {
         String property = event.getProperty();
+        if (property == ISVNUIConstants.PREF_SVNINTERFACE) {
+            Integer newValue = (Integer)event.getNewValue();
+            SVNProviderPlugin.getPlugin().setSvnClientInterface(newValue.intValue());
+        }
+            
     }
 
 

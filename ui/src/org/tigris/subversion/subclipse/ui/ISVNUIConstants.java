@@ -110,6 +110,9 @@ public interface ISVNUIConstants {
 	
 	// Repositories view preferences
 	public final String PREF_GROUP_VERSIONS_BY_PROJECT = "pref_group_versions_by_project"; //$NON-NLS-1$
+
+    // svn client interface or svnjavahl
+    public final String PREF_SVNINTERFACE = "pref_svninterface"; //$NON-NLS-1$
 	
 	// Wizard banners
 	public final String IMG_WIZBAN_SHARE = "wizban/newconnect_wizban.gif";	 //$NON-NLS-1$
