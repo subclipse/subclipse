@@ -59,6 +59,7 @@ public class SVNLightweightDecorator
 	private static ImageDescriptor added;
 	private static ImageDescriptor merged;
 	private static ImageDescriptor newResource;
+	private static ImageDescriptor conflicted;
 
 	/*
 	 * Define a cached image descriptor which only creates the image data once
@@ -84,6 +85,7 @@ public class SVNLightweightDecorator
 		merged = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MERGED));
 		newResource = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_QUESTIONABLE));
 		noRemoteDir = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_NO_REMOTEDIR));
+		conflicted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_CONFLICTED));
 	}
 
 	public SVNLightweightDecorator() {
@@ -259,7 +261,6 @@ public class SVNLightweightDecorator
 	 * Return null if no overlay is to be used.
 	 */	
 	public static ImageDescriptor getOverlay(IResource resource, boolean isDirty, SVNTeamProvider provider) {
-		
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         
         // for efficiency don't look up a pref until its needed
@@ -298,13 +299,16 @@ public class SVNLightweightDecorator
 			try {
                 ISVNStatus status = svnResource.getStatus();
                 
-           		// show merged icon if file has been merged but has not been edited (e.g. on commit it will be ignored)
-//				if (info != null && info.isNeedsMerge(svnFile.getTimeStamp())) {
-//			     return merged;
-				// show added icon if file has been added locally.
-//				} else 
-                if (status.getTextStatus() == ISVNStatus.Kind.ADDED)
-    				return added;
+				// The changes did not intersect 
+           		if (status.isMerged()) {
+           			return merged;
+           		}
+                if (status.getTextStatus() == ISVNStatus.Kind.ADDED) {
+					return added;
+                }
+                if (status.getTextStatus() == ISVNStatus.Kind.CONFLICTED) {
+                	return conflicted;
+                }
 			} catch (SVNException e) {
 				SVNUIPlugin.log(e.getStatus());
 				return null;
