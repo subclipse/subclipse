@@ -144,7 +144,7 @@ abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see ISVNLocalResource#isManaged()
 	 */
 	public boolean isManaged() throws SVNException {
-		return getStatus().isManaged();
+		return !this.resource.isDerived() && getStatus().isManaged();
 	}
     
     public boolean hasRemote() throws SVNException {
