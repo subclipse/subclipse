@@ -49,6 +49,7 @@
             id="org.tigris.subversion.subclipse.ui.console.ConsoleView">
       </view>
       <view
+            icon="icons/full/clcl16/pending.png"      
             name="%PendingOperationsView.name"
             category="org.tigris.subversion.subclipse"
             class="org.tigris.subversion.subclipse.ui.pending.PendingOperationsView"
@@ -56,6 +57,7 @@
       </view>      
       <view
             name="%SvnPropertiesView.name"
+            icon="icons/full/clcl16/properties.png"            
             category="org.tigris.subversion.subclipse"
             class="org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView"
             id="org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView">
