@@ -168,6 +168,7 @@ public class SVNTeamProvider extends RepositoryProvider {
   
    				try {
 					svnClient.addDirectory(localResource.getIResource().getLocation().toFile(),false);
+                    localResource.refreshStatus();
 				} catch (ClientException e) {
                     throw SVNException.wrapException(e);
                 }
@@ -178,6 +179,7 @@ public class SVNTeamProvider extends RepositoryProvider {
   
                 try {
                     svnClient.addFile(localResource.getIResource().getLocation().toFile());
+                    localResource.refreshStatus();
                 } catch (ClientException e) {
                     throw SVNException.wrapException(e);
                 }    
@@ -235,7 +237,7 @@ public class SVNTeamProvider extends RepositoryProvider {
                     // then the resources the user has requested to commit
                     svnClient.commit(resourceFiles,comment,depth == IResource.DEPTH_INFINITE);
                 } catch (ClientException e) {
-                    throw new SVNException("cannot checkin file");
+                    throw SVNException.wrapException(e);
                 } finally {
                     OperationManager.getInstance().endOperation();
                     monitor.done();
@@ -258,7 +260,7 @@ public class SVNTeamProvider extends RepositoryProvider {
                     for (int i = 0; i < resources.length;i++)
                         svnClient.update(resources[i].getLocation().toFile(),revision,true);
                 } catch (ClientException e) {
-                    throw new SVNException("cannot update file");
+                    throw SVNException.wrapException(e);
                 } finally {
                     OperationManager.getInstance().endOperation();
                     monitor.done();
