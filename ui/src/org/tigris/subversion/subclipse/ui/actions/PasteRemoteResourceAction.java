@@ -38,6 +38,9 @@ public class PasteRemoteResourceAction extends SVNAction {
             RepositoryManager manager = SVNUIPlugin.getPlugin().getRepositoryManager();
             final String message = manager.promptForComment(getShell(), new IResource[]{});
 
+            if (message == null)
+                return; // canceled
+
             Clipboard clipboard = new Clipboard(getShell().getDisplay());
             final ISVNRemoteResource resource = (ISVNRemoteResource)clipboard.getContents(RemoteResourceTransfer.getInstance());
             clipboard.dispose();

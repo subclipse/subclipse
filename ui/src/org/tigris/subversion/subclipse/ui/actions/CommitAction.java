@@ -64,7 +64,7 @@ public class CommitAction extends WorkspaceAction {
 			}
 		}, true /* cancelable */, PROGRESS_BUSYCURSOR); //$NON-NLS-1$
 		
-		if (comment[0] == null) return;
+		if (comment[0] == null) return; // user canceled
 		
 		run(new WorkspaceModifyOperation() {
 			public void execute(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {

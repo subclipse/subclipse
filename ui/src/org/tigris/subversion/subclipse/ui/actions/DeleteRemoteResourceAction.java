@@ -33,6 +33,8 @@ public class DeleteRemoteResourceAction extends SVNAction {
         RepositoryManager manager = SVNUIPlugin.getPlugin().getRepositoryManager();
         final String message = manager.promptForComment(getShell(), new IResource[]{});
         
+        if (message == null)
+            return; // cancel
         
         run(new IRunnableWithProgress() {
             public void run(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
