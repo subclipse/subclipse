@@ -60,8 +60,13 @@ public abstract class RemoteResource
 		boolean hasProps,
 		SVNRevision.Number lastChangedRevision,
 		Date date,
-		String author) {
+		String author) throws SVNException {
 
+        if ( (revision.getKind() == SVNRevision.Kind.base) ||
+             (revision.getKind() == SVNRevision.Kind.committed) ||
+             (revision.getKind() == SVNRevision.Kind.previous) ) {
+            throw new SVNException("A remote resource cannot have a base, committed or previous revision ");        
+        }
 		this.parent = parent;
 		this.repository = repository;
 		this.url = url;

@@ -22,7 +22,6 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNKeywords;
-import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -51,7 +50,7 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
 			null, // parent : we don't know it 
 			getRepository(),
             url,
-            SVNRevision.BASE,
+            status.getRevision(), // can't use BASE for remote resources
 			false, // hasProps
 			status.getLastChangedRevision(),
 			status.getLastChangedDate(),

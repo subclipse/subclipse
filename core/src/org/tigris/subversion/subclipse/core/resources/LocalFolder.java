@@ -33,7 +33,6 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
-import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -55,7 +54,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
 	}
 
     /**
-     * @return the remote resource
+     * @return the remote resource (with the same revision as local one) corresponding to this folder
      */
 	public ISVNRemoteResource getRemoteResource() throws SVNException {
 		if (!isManaged())
@@ -66,7 +65,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
 			null, // parent : we don't know it 
 			getRepository(),
             url, 
-            SVNRevision.BASE,
+            status.getRevision(), // we can't use BASE for remote folders ...
 			false, // hasProps
 			status.getLastChangedRevision(),
 			status.getLastChangedDate(),

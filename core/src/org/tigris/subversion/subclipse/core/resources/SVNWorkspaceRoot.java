@@ -365,11 +365,28 @@ public class SVNWorkspaceRoot {
 			return getSVNFolderFor((IContainer) resource);
 	}
 	
+    /**
+     * get the remote resource (same revision) corresponding to the local one
+     * @param resource
+     * @return
+     * @throws SVNException
+     */
 	public static ISVNRemoteResource getRemoteResourceFor(IResource resource) throws SVNException {
 		ISVNLocalResource managed = getSVNResourceFor(resource);
 		return managed.getRemoteResource();
 	}
 	
+    /**
+     * get the latest remote resource corresponding to the local one
+     * @param resource
+     * @return
+     * @throws SVNException
+     */
+    public static ISVNRemoteResource getLatestResourceFor(IResource resource) throws SVNException {
+        ISVNLocalResource managed = getSVNResourceFor(resource);
+        return managed.getLatestRemoteResource();        
+    }
+    
     /**
      * get the remotesync for the given resource.
      * A remotesync element is (managed,base,remote)  

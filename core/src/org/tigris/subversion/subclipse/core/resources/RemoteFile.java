@@ -45,7 +45,7 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile  {
                       boolean hasProps,
                       SVNRevision.Number lastChangedRevision,
                       Date date,
-                      String author)
+                      String author) throws SVNException
 	{
 		super(parent,repository,url,revision,hasProps,lastChangedRevision,date,author);
 	}
