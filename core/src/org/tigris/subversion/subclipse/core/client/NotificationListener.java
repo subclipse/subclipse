@@ -17,7 +17,7 @@ import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
- * This class listen to notifications from jsvn and redirect them to the console listener
+ * This class listen to notifications from svnClientAdapter and redirect them to the console listener
  */
 public class NotificationListener implements ISVNNotifyListener {
 
@@ -45,42 +45,54 @@ public class NotificationListener implements ISVNNotifyListener {
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logCommandLine(java.lang.String)
 	 */
 	public void logCommandLine(String commandLine) {
-        consoleListener.logCommandLine(commandLine);
+        if (consoleListener != null) {
+	        consoleListener.logCommandLine(commandLine);
+        }
 	}
 
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logCompleted(java.lang.String)
 	 */
 	public void logCompleted(String message) {
-        consoleListener.logCompleted(message);
+		if (consoleListener != null) {
+        	consoleListener.logCompleted(message);
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logError(java.lang.String)
 	 */
 	public void logError(String message) {
-        consoleListener.logError(message);
+		if (consoleListener != null) {
+        	consoleListener.logError(message);
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logMessage(java.lang.String)
 	 */
 	public void logMessage(String message) {
-		consoleListener.logMessage(message);
+		if (consoleListener != null) {
+			consoleListener.logMessage(message);
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#onNotify(java.lang.String, org.tigris.subversion.svnclientadapter.SVNNodeKind)
 	 */
 	public void onNotify(File path, SVNNodeKind kind) {
-		consoleListener.onNotify(path,kind);
+		if (consoleListener != null) {
+			consoleListener.onNotify(path,kind);
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#setCommand(int)
 	 */
 	public void setCommand(int command) {
-        consoleListener.setCommand(command);
+		if (consoleListener != null) {
+        	consoleListener.setCommand(command);
+		}
 	}
 
 }
