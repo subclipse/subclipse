@@ -33,6 +33,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 
+import com.qintsoft.jsvn.jni.Revision;
 import com.qintsoft.jsvn.jni.Status;
 
 /**
@@ -64,6 +65,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
 			null, // parent : we don't know it 
 			getRepository(),
 			status.getUrl(), // url
+            Revision.BASE,
 			false, // hasProps
 			status.getLastChangedRevision(),
 			status.getLastChangedDate(),

@@ -45,7 +45,8 @@ public abstract class RemoteResource
 	protected URL url;
 	protected ISVNRepositoryLocation repository;
 	protected boolean hasProps;
-	private long revision;
+    private Revision revision;
+	private Revision.Number lastChangedRevision;
 	private Date date;
 	private String author;
 
@@ -56,16 +57,19 @@ public abstract class RemoteResource
 		RemoteFolder parent,
 		ISVNRepositoryLocation repository,
 		URL url,
+        Revision revision,
 		boolean hasProps,
-		long revision,
+		Revision.Number lastChangedRevision,
 		Date date,
 		String author) {
 
 		this.parent = parent;
 		this.repository = repository;
 		this.url = url;
+        this.revision = revision;
+        
 		this.hasProps = hasProps;
-		this.revision = revision;
+		this.lastChangedRevision = lastChangedRevision;
 		this.date = date;
 		this.author = author;
 	}
@@ -73,19 +77,22 @@ public abstract class RemoteResource
     /**
      * this constructor is used for the folder corresponding to repository location
      */
-    public RemoteResource(ISVNRepositoryLocation repository, URL url) {
+    public RemoteResource(ISVNRepositoryLocation repository, URL url, Revision revision) {
         this.parent = null;
         this.repository = repository;
         this.url = url;
+        this.revision = revision;
+        
+        // we don't know the following properties
         this.hasProps = false;
-        this.revision = -1;
+        this.lastChangedRevision = null;
         this.date = null;
         this.author = null;
     }
 
 
 	/*
-	 * @see ICVSRemoteResource#getName()
+	 * @see ISVNRemoteResource#getName()
 	 */
 	public String getName() {
 		return Util.getLastSegment(url.toString());
@@ -141,11 +148,18 @@ public abstract class RemoteResource
     }
 
     /**
+     * get the lastChangedRevision
+     */
+	public Revision.Number getLastChangedRevision() {
+		return lastChangedRevision;
+	}
+
+    /**
      * get the revision
      */
-	public long getRevision() {
-		return revision;
-	}
+    public Revision getRevision() {
+        return revision;
+    }
 
     /**
      * get the date 

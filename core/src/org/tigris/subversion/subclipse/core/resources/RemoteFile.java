@@ -42,20 +42,21 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile  {
     public RemoteFile(RemoteFolder parent, 
                       ISVNRepositoryLocation repository,
                       URL url,
+                      Revision revision,
                       boolean hasProps,
-                      long revision,
+                      Revision.Number lastChangedRevision,
                       Date date,
                       String author)
 	{
-		super(parent,repository,url,hasProps,revision,date,author);
+		super(parent,repository,url,revision,hasProps,lastChangedRevision,date,author);
 	}
 
-    public RemoteFile(ISVNRepositoryLocation repository, URL url) {
-        super(repository, url);
+    public RemoteFile(ISVNRepositoryLocation repository, URL url, Revision revision) {
+        super(repository, url, revision);
     }
 
 	/**
-	 * @see ICVSRemoteFile#getContents()
+	 * @see ISVNRemoteFile#getContents()
 	 */
 	public InputStream getContents(IProgressMonitor monitor) throws SVNException {
         // we cache the contents as getContents can be called several times
@@ -68,7 +69,7 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile  {
                 SVNClientAdapter svnClient = repository.getSVNClient();
                 InputStream inputStream;
                 try {
-                    inputStream = svnClient.getContent(url, new Revision.Number(getRevision()));
+                    inputStream = svnClient.getContent(url, getLastChangedRevision());
                     contents = new byte[inputStream.available()];
                     inputStream.read(contents);
                 } catch (IOException e) {
@@ -111,6 +112,6 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile  {
 		if (!(target instanceof RemoteFile))
 			return false;
 		RemoteFile remote = (RemoteFile) target;
-		return super.equals(target) && remote.getRevision() == getRevision();
+		return super.equals(target) && remote.getLastChangedRevision() == getLastChangedRevision();
 	}
 }

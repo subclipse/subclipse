@@ -17,6 +17,8 @@ import java.util.Date;
 import org.eclipse.core.runtime.IAdaptable;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 
+import com.qintsoft.jsvn.jni.Revision;
+
 /**
  * Instances of ILogEntry represent an entry for a SVN file that results
  * from the svn log command.
@@ -27,7 +29,7 @@ public interface ILogEntry extends IAdaptable {
 	/**
 	 * Get the revision for the entry
 	 */
-	public long getRevision();
+	public Revision.Number getRevision();
 	
 	/**
 	 * Get the author of the revision

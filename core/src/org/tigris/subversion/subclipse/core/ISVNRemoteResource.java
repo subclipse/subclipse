@@ -20,6 +20,8 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteResource;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 
+import com.qintsoft.jsvn.jni.Revision;
+
 /**
  * The interface represents a resource that exists in a CVS repository.
  * It purpose is to provide information about the remote resource from
@@ -62,9 +64,14 @@ public interface ISVNRemoteResource extends IRemoteResource, ISVNResource {
     public boolean getHasProps();
 
     /**
+     * @return the last changed revision of this remote resource
+     */
+    public Revision.Number getLastChangedRevision();
+
+    /**
      * @return the revision of this remote resource
      */
-    public long getRevision();
+    public Revision getRevision();
 
     /**
      * @return the date of modification for this remote resource

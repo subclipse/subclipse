@@ -24,6 +24,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 
+import com.qintsoft.jsvn.jni.Revision;
 import com.qintsoft.jsvn.jni.Status;
 
 /**
@@ -131,7 +132,8 @@ public class SVNRemoteSyncElement extends RemoteSyncElement {
             if (status != null) {
                 if (status.isDeleted() || status.isMerged() || status.isModified())
                     return false;
-                return status.getLastChangedRevision() == svnRemoteResource.getRevision();
+                
+                return svnRemoteResource.getLastChangedRevision().equals(status.getLastChangedRevision());
             }
         
             return false;

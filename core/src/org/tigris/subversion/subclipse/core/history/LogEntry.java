@@ -20,25 +20,32 @@ import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 
+import com.qintsoft.jsvn.jni.Revision;
+
+/**
+ * represent an entry for a SVN file that results
+ * from the svn log command.
+ */
 public class LogEntry extends PlatformObject implements ILogEntry {
 
 	private RemoteResource resource; // the corresponding remote resource
 	private String author;
 	private Date date;
 	private String comment;
+    private Revision.Number revision;
 
-	public LogEntry(RemoteResource resource, long revision, String author, Date date, String comment) {
+	public LogEntry(RemoteResource resource, Revision.Number revision, String author, Date date, String comment) {
 		
         if (resource.isFolder()) {
-            this.resource = new RemoteFolder(null,resource.getRepository(), resource.getUrl(), resource.getHasProps(),
+            this.resource = new RemoteFolder(null,resource.getRepository(), resource.getUrl(), revision, resource.getHasProps(),
                 revision, date, author);
         } 
         else
         {
-            this.resource = new RemoteFile(null,resource.getRepository(), resource.getUrl(), resource.getHasProps(),
-                                       revision, date, author);  
+            this.resource = new RemoteFile(null,resource.getRepository(), resource.getUrl(), revision, resource.getHasProps(),
+                revision, date, author);  
         }
-
+        this.revision = revision;
 		this.author = author;
 		this.date = date;
 		this.comment = comment;
@@ -47,8 +54,8 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	/**
 	 * @see ILogEntry#getRevision()
 	 */
-	public long getRevision() {
-		return resource.getRevision();
+	public Revision.Number getRevision() {
+		return revision;
 	}
 
 	/**

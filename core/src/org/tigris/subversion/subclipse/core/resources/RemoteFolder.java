@@ -53,15 +53,16 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 	public RemoteFolder(RemoteFolder parent, 
         ISVNRepositoryLocation repository,
         URL url,
+        Revision revision,
         boolean hasProps,
-        long revision,
+        Revision.Number lastChangedRevision,
         Date date,
         String author) {
-		super(parent, repository, url, hasProps, revision, date, author);
+		super(parent, repository, url, revision,hasProps, lastChangedRevision, date, author);
 	}
 
-    public RemoteFolder(ISVNRepositoryLocation repository, URL url) {
-        super(repository, url);
+    public RemoteFolder(ISVNRepositoryLocation repository, URL url, Revision revision) {
+        super(repository, url,revision);
     }
 	
 	/*
@@ -128,7 +129,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 		try {
             SVNClientAdapter client = getRepository().getSVNClient();
 				
-			DirEntry[] list = client.getList(url,Revision.HEAD,false);
+			DirEntry[] list = client.getList(url,getRevision(),false);
 			List result = new ArrayList();
 
 			// directories first				
@@ -139,6 +140,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 				{
 				    result.add(new RemoteFolder(this, getRepository(),
 					   new URL(Util.appendPath(url.toString(),entry.getPath())),
+                       getRevision(),
                        entry.getHasProps(),
                        entry.getLastChangedRevision(),
                        entry.getLastChanged(),
@@ -154,6 +156,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 				{
 					result.add(new RemoteFile(this, getRepository(),
                         new URL(Util.appendPath(url.toString(),entry.getPath())),
+                        getRevision(),
                         entry.getHasProps(),
                         entry.getLastChangedRevision(),
                         entry.getLastChanged(),

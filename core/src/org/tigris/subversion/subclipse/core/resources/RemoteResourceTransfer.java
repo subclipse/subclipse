@@ -17,6 +17,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
 
 import org.eclipse.swt.dnd.ByteArrayTransfer;
 import org.eclipse.swt.dnd.TransferData;
@@ -24,6 +25,9 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.svnclientadapter.RevisionUtils;
+
+import com.qintsoft.jsvn.jni.Revision;
 
 /**
  * This class is used when copying and pasting remote resources to/from clipboard
@@ -63,6 +67,11 @@ public class RemoteResourceTransfer extends ByteArrayTransfer {
     			writeOut.writeInt(buffer.length);
     			writeOut.write(buffer);
     		    
+                // we write the revision
+                buffer = remoteResource.getRevision().toString().getBytes();
+                writeOut.writeInt(buffer.length);
+                writeOut.write(buffer);
+                
                 buffer = out.toByteArray();
     		    writeOut.close();
     
@@ -99,14 +108,20 @@ public class RemoteResourceTransfer extends ByteArrayTransfer {
     			name = new byte[size];
     			readIn.read(name);
                 String location = new String(name);
+                
+                // we read the revision
+                size = readIn.readInt();
+                name = new byte[size];
+                readIn.read(name);
+                Revision revision = RevisionUtils.getRevision(new String(name));
                     
                 ISVNRepositoryLocation repositoryLocation = SVNProviderPlugin.getPlugin().getRepository(location);
                     
                 ISVNRemoteResource remoteResource;
                 if (isFolder == 1)
-                    remoteResource = new RemoteFolder(repositoryLocation,urlResource);
+                    remoteResource = new RemoteFolder(repositoryLocation,urlResource, revision);
                 else
-                    remoteResource = new RemoteFile(repositoryLocation,urlResource);
+                    remoteResource = new RemoteFile(repositoryLocation,urlResource, revision);
     				
                 ISVNRemoteResource[] temp = new ISVNRemoteResource[remoteResources.length + 1];
     			System.arraycopy(remoteResources, 0, temp, 0, remoteResources.length);
@@ -114,9 +129,11 @@ public class RemoteResourceTransfer extends ByteArrayTransfer {
                 remoteResources = temp;
 
     			readIn.close();
-            } catch (SVNException e1) {
+            } catch (ParseException e) {
+                return null;
+            } catch (SVNException e) {
                 return null; 
-    		} catch (IOException e2) {
+    		} catch (IOException e) {
     			return null;
     		}
     		return remoteResources[0];

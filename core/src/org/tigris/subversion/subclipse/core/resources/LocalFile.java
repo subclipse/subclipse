@@ -18,6 +18,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResourceVisitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 
+import com.qintsoft.jsvn.jni.Revision;
 import com.qintsoft.jsvn.jni.Status;
 
 /**
@@ -45,6 +46,7 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
 			null, // parent : we don't know it 
 			getRepository(),
 			status.getUrl(), // url
+            Revision.BASE,
 			false, // hasProps
 			status.getLastChangedRevision(),
 			status.getLastChangedDate(),

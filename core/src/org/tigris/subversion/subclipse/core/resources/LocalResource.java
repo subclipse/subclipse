@@ -259,6 +259,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
                     null,  // we don't know its parent
                     getRepository(),
                     url,
+                    Revision.HEAD,
                     dirEntry[0].getHasProps(),
                     dirEntry[0].getLastChangedRevision(),
                     dirEntry[0].getLastChanged(),
@@ -269,6 +270,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
                     null,  // we don't know its parent
                     getRepository(),
                     url,
+                    Revision.HEAD,
                     dirEntry[0].getHasProps(),
                     dirEntry[0].getLastChangedRevision(),
                     dirEntry[0].getLastChanged(),

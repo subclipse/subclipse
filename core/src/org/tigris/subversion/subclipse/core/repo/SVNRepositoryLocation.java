@@ -90,7 +90,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 		this.password = password;
 		this.url = url;
 			
-		rootFolder = new RemoteFolder(this, url);
+		rootFolder = new RemoteFolder(this, url, Revision.HEAD);
 	}
 	
 	/*
@@ -153,7 +153,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 	 */
 	public ISVNRemoteFolder getRemoteFolder(String remotePath) {
         try {
-		  return new RemoteFolder(this, new URL(Util.appendPath(getUrl().toString(),remotePath)));
+		  return new RemoteFolder(this, new URL(Util.appendPath(getUrl().toString(),remotePath)),Revision.HEAD);
         } catch (MalformedURLException e) {
           return null;     		
         }
