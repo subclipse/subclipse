@@ -21,14 +21,17 @@ import org.tigris.subversion.svnclientadapter.SVNNodeKind;
  */
 public class NotificationListener implements ISVNNotifyListener {
 
-	private IConsoleListener consoleListener;
     private static NotificationListener instance;
 
     /*
      * private contructor 
      */
     private NotificationListener() {
-        consoleListener = SVNProviderPlugin.getPlugin().getConsoleListener();     
+     
+    }
+    
+    private IConsoleListener getConsoleListener() {
+    	return SVNProviderPlugin.getPlugin().getConsoleListener();
     }
     
     /**
@@ -45,8 +48,9 @@ public class NotificationListener implements ISVNNotifyListener {
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logCommandLine(java.lang.String)
 	 */
 	public void logCommandLine(String commandLine) {
+		IConsoleListener consoleListener = getConsoleListener();		
         if (consoleListener != null) {
-	        consoleListener.logCommandLine(commandLine);
+			consoleListener.logCommandLine(commandLine);
         }
 	}
 
@@ -54,6 +58,7 @@ public class NotificationListener implements ISVNNotifyListener {
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logCompleted(java.lang.String)
 	 */
 	public void logCompleted(String message) {
+		IConsoleListener consoleListener = getConsoleListener();
 		if (consoleListener != null) {
         	consoleListener.logCompleted(message);
 		}
@@ -63,6 +68,7 @@ public class NotificationListener implements ISVNNotifyListener {
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logError(java.lang.String)
 	 */
 	public void logError(String message) {
+		IConsoleListener consoleListener = getConsoleListener();
 		if (consoleListener != null) {
         	consoleListener.logError(message);
 		}
@@ -72,6 +78,7 @@ public class NotificationListener implements ISVNNotifyListener {
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logMessage(java.lang.String)
 	 */
 	public void logMessage(String message) {
+		IConsoleListener consoleListener = getConsoleListener();		
 		if (consoleListener != null) {
 			consoleListener.logMessage(message);
 		}
@@ -81,6 +88,7 @@ public class NotificationListener implements ISVNNotifyListener {
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#onNotify(java.lang.String, org.tigris.subversion.svnclientadapter.SVNNodeKind)
 	 */
 	public void onNotify(File path, SVNNodeKind kind) {
+		IConsoleListener consoleListener = getConsoleListener();		
 		if (consoleListener != null) {
 			consoleListener.onNotify(path,kind);
 		}
@@ -90,6 +98,7 @@ public class NotificationListener implements ISVNNotifyListener {
 	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#setCommand(int)
 	 */
 	public void setCommand(int command) {
+		IConsoleListener consoleListener = getConsoleListener();
 		if (consoleListener != null) {
         	consoleListener.setCommand(command);
 		}
