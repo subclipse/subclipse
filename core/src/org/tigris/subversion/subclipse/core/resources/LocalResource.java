@@ -13,10 +13,12 @@ package org.tigris.subversion.subclipse.core.resources;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.Team;
@@ -24,7 +26,6 @@ import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
-import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
@@ -33,6 +34,7 @@ import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
+import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
@@ -49,7 +51,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * @see LocalFolder
  * @see LocalFile
  */
-abstract class LocalResource implements ISVNResource, Comparable {
+abstract class LocalResource implements ISVNLocalResource, Comparable {
 	protected static final String SEPARATOR = "/"; //$NON-NLS-1$
 	protected static final String CURRENT_LOCAL_FOLDER = "."; //$NON-NLS-1$
 
@@ -292,5 +294,91 @@ abstract class LocalResource implements ISVNResource, Comparable {
             OperationManager.getInstance().endOperation();
         }
     }
+    
+	/**
+	 * Set a svn property 
+	 */
+	public void setSvnProperty(String name,String value, boolean recurse) throws SVNException {
+		try {
+			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+			OperationManager.getInstance().beginOperation(svnClient);
+			svnClient.propertySet(getFile(),name,value,recurse);
+		} catch (SVNClientException e) {
+			throw SVNException.wrapException(e); 
+		} finally {
+			OperationManager.getInstance().endOperation();
+		}
+	}
+
+	/**
+	 * Set a svn property 
+	 */
+	public void setSvnProperty(String name,File value, boolean recurse) throws SVNException {
+		try {
+			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+			OperationManager.getInstance().beginOperation(svnClient);
+			svnClient.propertySet(getFile(),name,value,recurse);
+			
+			// there are no events sent from SVNClientAdapter when a property is set
+		} catch (IOException e) {
+			throw SVNException.wrapException(e);
+		} catch (SVNClientException e) {
+			throw SVNException.wrapException(e); 
+		} finally {
+			OperationManager.getInstance().endOperation();
+		}
+	}
+
+	/**
+	 * Delete a svn property 
+	 */
+	public void deleteSvnProperty(String name,boolean recurse) throws SVNException {
+		try {
+			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+			OperationManager.getInstance().beginOperation(svnClient);
+			svnClient.propertyDel(getFile(),name,recurse);
+		} catch (SVNClientException e) {
+			throw SVNException.wrapException(e); 
+		} finally {
+			OperationManager.getInstance().endOperation();
+		}
+	}
+
+	/**
+	 * Get a svn property
+	 */
+	public ISVNProperty getSvnProperty(String name) throws SVNException {
+		try {
+			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+			return svnClient.propertyGet(getFile(),name);
+		} catch (SVNClientException e) {
+			throw SVNException.wrapException(e); 
+		}
+	}
+
+	/**
+	 * Get the svn properties for this resource
+	 */
+	public ISVNProperty[] getSvnProperties() throws SVNException {
+		try {
+			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+			ISVNProperty[] properties = svnClient.getProperties(getFile());
+			return properties;
+		} catch (SVNClientException e) {
+			throw SVNException.wrapException(e); 
+		}
+		
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
+	 */
+	public Object getAdapter(Class adapter) {
+		if (adapter.isInstance(getIResource())) {
+			return getIResource();
+		}
+		return Platform.getAdapterManager().getAdapter(this,adapter);
+	}
 
 }

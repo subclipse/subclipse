@@ -13,6 +13,8 @@ package org.tigris.subversion.subclipse.core;
 import java.io.File;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
+import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -21,7 +23,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * @see ISVNLocalFile
  * @see ISVNLocalFolder
  */ 
-public interface ISVNLocalResource extends ISVNResource {
+public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 
 
   /**
@@ -121,5 +123,31 @@ public interface ISVNLocalResource extends ISVNResource {
    * Restore pristine working copy file (undo all local edits) 
    */
   public void revert() throws SVNException;
+
+  /**
+   * Set a svn property 
+   */
+  public void setSvnProperty(String name,String value, boolean recurse) throws SVNException;
+  
+  /**
+   * Set a svn property 
+   */
+  public void setSvnProperty(String name,File value, boolean recurse) throws SVNException;
+  
+  /**
+   * Get a svn property
+   */
+  public ISVNProperty getSvnProperty(String name) throws SVNException;
+
+  /**
+   * Get the svn properties for this resource
+   */
+  public ISVNProperty[] getSvnProperties() throws SVNException;  
+
+  /**
+   * Delete a svn property 
+   */
+  public void deleteSvnProperty(String name,boolean recurse) throws SVNException;
+
 
 }
