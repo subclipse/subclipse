@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
+ * Contributors:
+ *     Daniel Bradby 
+ *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
@@ -9,9 +19,14 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.team.IMoveDeleteHook;
 import org.eclipse.core.resources.team.IResourceTree;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.subclipse.core.ISVNLocalFile;
+import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNResource;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
 
+import com.qintsoft.jsvn.jni.ClientException;
 import com.qintsoft.jsvn.jni.Status;
 
 public class SVNMoveDeleteHook implements IMoveDeleteHook {
@@ -22,15 +37,14 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 			return false;
 
 		try {
-			ISVNResource resource = new LocalFile(file);
+			ISVNLocalFile resource = new LocalFile(file);
 			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
-			svnClient.remove(new File[] { file.getLocation().toFile()}, false);
-
+            resource.delete();
 			tree.deletedFile(file);
 
-		} catch (Exception e) {
+		} catch (SVNException e) {
 			tree.failed(
 				new org.eclipse.core.runtime.Status(
 					org.eclipse.core.runtime.Status.ERROR,
@@ -49,7 +63,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 
 	public boolean deleteFolder(IResourceTree tree, IFolder folder, int updateFlags, IProgressMonitor monitor) {
 
-		ISVNResource resource = new LocalFolder(folder);
+		ISVNLocalFolder resource = new LocalFolder(folder);
 
 		if (!isMoveable(folder))
 			return false;
@@ -58,11 +72,9 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
-			svnClient.remove(new File[] { folder.getLocation().toFile()}, false);
-
+            resource.delete();
 			tree.deletedFolder(folder);
-
-		} catch (Exception e) {
+		} catch (SVNException e) {
 			tree.failed(
 				new org.eclipse.core.runtime.Status(
 					org.eclipse.core.runtime.Status.ERROR,
@@ -98,11 +110,23 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
 
-			svnClient.move(source.getLocation().toFile(), destination.getLocation().toFile());
+            try {
+                OperationManager.getInstance().beginOperation(svnClient);
+			    svnClient.move(source.getLocation().toFile(), destination.getLocation().toFile());
+                
+                // movedFile must be done before endOperation because 
+                // destination file must not already exist in the workspace 
+                // resource tree.
+                tree.movedFile(source, destination);
+            } catch (ClientException e) {
+                throw SVNException.wrapException(e); 
+            } finally {
+                OperationManager.getInstance().endOperation();
+            }
 
-			tree.movedFile(source, destination);
+			
 
-		} catch (Exception e) {
+		} catch (SVNException e) {
 			tree.failed(
 				new org.eclipse.core.runtime.Status(
 					org.eclipse.core.runtime.Status.ERROR,
@@ -135,10 +159,17 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 			ISVNResource resource = new LocalFolder(source);
 			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 
-			svnClient.move(source.getLocation().toFile(), destination.getLocation().toFile());
-			tree.movedFolderSubtree(source, destination);
+            try {
+                OperationManager.getInstance().beginOperation(svnClient);
+			    svnClient.move(source.getLocation().toFile(), destination.getLocation().toFile());
+                tree.movedFolderSubtree(source, destination);
+            } catch (ClientException e) {
+                throw SVNException.wrapException(e); 
+            } finally {
+                OperationManager.getInstance().endOperation();
+            }
 
-		} catch (Exception e) {
+		} catch (SVNException e) {
 			tree.failed(
 				new org.eclipse.core.runtime.Status(
 					org.eclipse.core.runtime.Status.ERROR,
@@ -184,7 +215,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 		try {
 			LocalResource svnResource = (LocalResource) resource;
 			SVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
-			Status status = svnClient.getStatus(svnResource.getFile());
+			Status status = svnClient.getSingleStatus(svnResource.getFile());
 
 			if (!status.isManaged())
 				return false;
