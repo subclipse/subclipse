@@ -33,7 +33,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.repository.RepositoryManager;
 
 /**
- * Action for checking in files to a subversion provider.
+ * Action for checking in files to a subversion provider
  * Prompts the user for a release comment.
  */
 public class CommitAction extends WorkspaceAction {
@@ -106,9 +106,10 @@ public class CommitAction extends WorkspaceAction {
 		final SVNException[] exception = new SVNException[] { null };
 		for (int i = 0; i < resources.length; i++) {
 			IResource resource = resources[i];
-			// visit each resource deeply
-			try {
-				resource.accept(new IResourceVisitor() {
+            if (resource.exists()) {
+			    // visit each resource deeply
+			    try {
+				    resource.accept(new IResourceVisitor() {
 					public boolean visit(IResource resource) throws CoreException {
 						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 						// skip ignored resources and their children
@@ -130,10 +131,11 @@ public class CommitAction extends WorkspaceAction {
 						return false;
 					}
 				}, IResource.DEPTH_INFINITE, false /* include phantoms */);
-			} catch (CoreException e) {
-				throw SVNException.wrapException(e);
-			}
-			if (exception[0] != null) throw exception[0];
+			    } catch (CoreException e) {
+				    throw SVNException.wrapException(e);
+			    }
+			    if (exception[0] != null) throw exception[0];
+            }
 		}
 		return (IResource[]) unadded.toArray(new IResource[unadded.size()]);
 	}
@@ -184,4 +186,12 @@ public class CommitAction extends WorkspaceAction {
 	protected boolean isEnabledForUnmanagedResources() {
 		return true;
 	}
+    
+    /*
+     *  (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForInaccessibleResources()
+     */
+    protected boolean isEnabledForInaccessibleResources() {
+        return true;
+    }
 }

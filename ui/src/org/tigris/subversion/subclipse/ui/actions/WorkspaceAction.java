@@ -76,7 +76,8 @@ public abstract class WorkspaceAction extends SVNAction {
 			IResource resource = resources[i];
 			
 			// only enable for accessible resources
-			if (! resource.isAccessible()) return false;
+			if ((! resource.isAccessible()) && (!isEnabledForInaccessibleResources()))
+                return false;
 			
 			// no SVN actions are enabled if the selection contains a linked resource
 			if (SVNWorkspaceRoot.isLinkedResource(resource)) return false;
@@ -116,6 +117,14 @@ public abstract class WorkspaceAction extends SVNAction {
 		return true;
 	}
 	
+    /**
+     * Normally, actions are not availables for inaccessible resources 
+     * (files or folder which do not exist ...) 
+     */
+    protected boolean isEnabledForInaccessibleResources() {
+        return false;
+    }
+    
 	/**
 	 * Method isEnabledForSVNResource.
 	 * @param svnResource

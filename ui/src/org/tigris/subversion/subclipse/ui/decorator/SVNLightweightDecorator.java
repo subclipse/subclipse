@@ -445,6 +445,7 @@ public class SVNLightweightDecorator
 	 */
 	public void dispose() {
 		super.dispose();
+        SVNProviderPlugin.removeResourceStateChangeListener(this);        
 //		SVNProviderPlugin.broadcastDecoratorEnablementChanged(false /* disabled */);
 	}
 }

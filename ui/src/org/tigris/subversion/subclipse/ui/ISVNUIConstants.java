@@ -50,6 +50,14 @@ public interface ISVNUIConstants {
 	public final String IMG_NEWLOCATION = "wizards/newlocation_wiz.gif"; //$NON-NLS-1$
     public final String IMG_NEWFOLDER = "wizards/newfolder_wiz.gif"; //$NON-NLS-1$
     
+    // pending
+    public final String IMG_FILEADD_PENDING = "pending16/fileadd_pending.gif"; //$NON-NLS-1$
+    public final String IMG_FILEDELETE_PENDING = "pending16/filedelete_pending.gif"; //$NON-NLS-1$    
+    public final String IMG_FOLDERADD_PENDING = "pending16/folderadd_pending.gif"; //$NON-NLS-1$
+    public final String IMG_FOLDERDELETE_PENDING = "pending16/folderdelete_pending.gif"; //$NON-NLS-1$    
+    public final String IMG_FILEMODIFIED_PENDING = "pending16/filemodified_pending.gif"; //$NON-NLS-1$
+    public final String IMG_FOLDERMODIFIED_PENDING = "pending16/foldermodified_pending.gif"; //$NON-NLS-1$
+    
 	
 	// preferences
 	public final String PREF_SHOW_COMMENTS = "pref_show_comments"; //$NON-NLS-1$
@@ -69,7 +77,10 @@ public interface ISVNUIConstants {
 	public final String PREF_PROMPT_ON_CHANGE_GRANULARITY = "pref_prompt_on_change_granularity"; //$NON-NLS-1$
 	public final String PREF_REPOSITORIES_ARE_BINARY = "pref_repositories_are_binary"; //$NON-NLS-1$
 	public final String PREF_DETERMINE_SERVER_VERSION = "pref_determine_server_version"; //$NON-NLS-1$
-	
+    public final String PREF_SHOW_ADDED_RESOURCES = "pref_show_added_resources"; //$NON-NLS-1$
+    public final String PREF_SHOW_DELETED_RESOURCES = "pref_show_deleted_resources"; //$NON-NLS-1$
+    public final String PREF_SHOW_MODIFIED_RESOURCES = "pref_show_modified_resources"; //$NON-NLS-1$
+    
 	// console preferences
 	public final String PREF_CONSOLE_COMMAND_COLOR = "pref_console_command_color"; //$NON-NLS-1$
 	public final String PREF_CONSOLE_MESSAGE_COLOR = "pref_console_message_color"; //$NON-NLS-1$

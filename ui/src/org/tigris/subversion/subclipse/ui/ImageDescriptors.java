@@ -87,6 +87,13 @@ public class ImageDescriptors {
         createImageDescriptor("glyphs/glyph6.gif", baseURL);  //$NON-NLS-1$
         createImageDescriptor("glyphs/glyph7.gif", baseURL);  //$NON-NLS-1$
         createImageDescriptor("glyphs/glyph8.gif", baseURL);  //$NON-NLS-1$
+        
+        createImageDescriptor(ISVNUIConstants.IMG_FILEADD_PENDING,baseURL); 
+        createImageDescriptor(ISVNUIConstants.IMG_FILEDELETE_PENDING,baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_FOLDERADD_PENDING,baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_FOLDERDELETE_PENDING,baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_FILEMODIFIED_PENDING,baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_FOLDERMODIFIED_PENDING,baseURL);
     }    
     
 }
