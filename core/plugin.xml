@@ -42,5 +42,9 @@
 		<attribute name="name"/>
 		<persistent value="true"/>
 	</extension>
+	
+   <extension point="org.eclipse.core.runtime.urlHandlers"> 
+      <handler protocol="svn" class="org.tigris.subversion.subclipse.core.util.SvnURLHandler"/> 
+   </extension> 	
 
 </plugin>
