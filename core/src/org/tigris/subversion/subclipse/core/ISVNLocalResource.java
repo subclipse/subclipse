@@ -105,4 +105,13 @@ public interface ISVNLocalResource extends ISVNResource {
    */
   public void setIgnored() throws SVNException;
 
+  /**
+   * Answer whether the resource could be ignored.
+   * Even if a resource is ignored, it can still be added to a repository, at which 
+   * time it should never be ignored by the SVN client.
+   * 
+   */
+  public boolean isIgnored() throws SVNException;
+
+
 }

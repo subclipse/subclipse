@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -25,6 +26,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -51,7 +53,7 @@ import com.qintsoft.jsvn.jni.Revision;
  * notify the authenticator so cached properties can be cleared
  * 
  */
-public class SVNRepositoryLocation extends PlatformObject implements ISVNRepositoryLocation, IUserInfo {
+public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo, IAdaptable {
 
 	private String user;
 	private String password;
@@ -86,7 +88,7 @@ public class SVNRepositoryLocation extends PlatformObject implements ISVNReposit
 	 * Create a SVNRepositoryLocation from its composite parts.
 	 */
 	private SVNRepositoryLocation(String user, String password, URL url) {
-		this.user = user;
+        this.user = user;
 		this.password = password;
 		this.url = url;
 			
@@ -126,9 +128,13 @@ public class SVNRepositoryLocation extends PlatformObject implements ISVNReposit
 	
     
     public ISVNRemoteFolder getRootFolder() {
-        // refresh it so that members don't return always the same remote resources ...
-        rootFolder.refresh();
+//        // refresh it so that members don't return always the same remote resources ...
+//        rootFolder.refresh();
         return rootFolder;
+    }
+    
+    public void refreshRootFolder() {
+        rootFolder.refresh();
     }
     
     
@@ -403,6 +409,12 @@ public class SVNRepositoryLocation extends PlatformObject implements ISVNReposit
 //			return null;
 //		}
 //	}
-	
+
+    public Object getAdapter(Class adapter) {
+        if (adapter == ISVNRemoteFolder.class)
+            return rootFolder;
+        else
+            return Platform.getAdapterManager().getAdapter(this, adapter);
+    }
 
 }

@@ -190,15 +190,11 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 		boolean includeFolders = (((flags & FOLDER_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
 		boolean includeManaged = (((flags & MANAGED_MEMBERS) != 0) || ((flags & (MANAGED_MEMBERS | UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
 		boolean includeUnmanaged = (((flags & UNMANAGED_MEMBERS) != 0) || ((flags & (MANAGED_MEMBERS | UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
-		boolean includeIgnored = ((flags & IGNORED_MEMBERS) != 0);
 		for (int i = 0; i < resources.length; i++) {
 			ISVNResource svnResource = resources[i];
 			if ((includeFiles && ( ! svnResource.isFolder())) 
 					|| (includeFolders && (svnResource.isFolder()))) {
-				boolean isManaged = true; //svnResource.isManaged();
-				boolean isIgnored = svnResource.isIgnored();
-				if ((isManaged && includeManaged)|| (isIgnored && includeIgnored)
-						|| ( ! isManaged && ! isIgnored && includeUnmanaged)) {
+				if (includeManaged) {
 					result.add(svnResource);
 				}
 						
@@ -234,4 +230,25 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 	public InputStream getContents(IProgressMonitor progress) throws TeamException {
 		return null;
 	}
+    
+    /**
+     * creates a new remote folder 
+     */
+    public void createRemoteFolder(String folderName, String message,IProgressMonitor monitor) throws SVNException {
+        IProgressMonitor progress = Policy.monitorFor(monitor);
+        progress.beginTask(Policy.bind("RemoteFolder.createRemoteFolder"), 100); //$NON-NLS-1$
+        
+        try {
+            SVNClientAdapter svnClient = getRepository().getSVNClient();
+            svnClient.mkdir(new URL(Util.appendPath(getUrl().toString(),folderName)),message);
+            refresh();
+        } catch (MalformedURLException e) {
+            throw SVNException.wrapException(e);
+        } catch (ClientException e) {
+            throw SVNException.wrapException(e);
+        } finally {
+            progress.done();
+        }
+    }    
+    
 }

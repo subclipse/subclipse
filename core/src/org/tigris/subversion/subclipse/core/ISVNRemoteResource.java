@@ -83,5 +83,8 @@ public interface ISVNRemoteResource extends IRemoteResource, ISVNResource {
      */
     public LogEntry[] getLogEntries(IProgressMonitor monitor) throws TeamException;
 
+    public ISVNRemoteFolder getParent();
+    
+    public ISVNRepositoryLocation getRepository();
 
 }

@@ -17,6 +17,7 @@ import java.util.Date;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
@@ -104,20 +105,13 @@ public abstract class RemoteResource
 		return parent.exists(this, monitor);
 	}
 	
-	//	/*
-	//	 * @see ISVNResource#getParent()
-	//	 */
-	//	public ISVNFolder getParent() {
-	//		return parent;
-	// 	}
-	//
 	/*
-	 * @see ISVNResource#isIgnored()
+	 * @see ISVNRemoteResource#getParent()
 	 */
-	public boolean isIgnored() {
-		return false;
+	public ISVNRemoteFolder getParent() {
+		return parent;
 	}
-
+	
 	public boolean equals(Object target) {
 		if (this == target)
 			return true;

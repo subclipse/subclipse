@@ -87,7 +87,10 @@ public interface ISVNRepositoryLocation  extends IAdaptable {
 	
 	public SVNClientAdapter getSVNClient();	
 	
-	
+    public ISVNRemoteFolder getRootFolder();
+    
+    public void refreshRootFolder();
+    
 	/**
 	 * Returns the user information for the location.
 	 */

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -123,6 +125,13 @@ public class SVNRepositories
         return (ISVNRepositoryLocation[])repositories.values().toArray(new ISVNRepositoryLocation[repositories.size()]);
     }
 
+    public void refreshRepositoriesFolders() {
+        ISVNRepositoryLocation[] repositories = getKnownRepositories();
+        for (int i = 0; i < repositories.length;i++) {
+            repositories[i].refreshRootFolder();
+        }
+    }
+
     /**
      * Create a repository instance from the given properties.
      * The supported properties are:
@@ -152,27 +161,8 @@ public class SVNRepositories
     }
 
     /**
-     * Get the repository instance which matches the given String. The format of the String is
-     * the same as that returned by ICVSRepositoryLocation#getLocation().
-     * The format is:
-     * 
-     *   connection:user[:password]@host[#port]:root
-     * 
-     * where [] indicates optional and the identier meanings are:
-     * 
-     *   connection The connection method to be used
-     *   user The username for the connection
-     *   password The password used for the connection (optional)
-     *   host The host where the repository resides
-     *   port The port to connect to (optional)
-     *   root The server directory where the repository is located
-     * 
-     * It is expected that the instance requested by using this method exists.
-     * If the repository location does not exist, it will be automatically created
-     * and cached with the provider.
-     * 
-     * WARNING: Providing the password as part of the String will result in the password being part
-     * of the location permanently. This means that it cannot be modified by the authenticator. 
+     * Get the repository instance which matches the given String. 
+     * The format of the String is an url
      */
     public ISVNRepositoryLocation getRepository(String location) throws SVNException {
         ISVNRepositoryLocation repository = (ISVNRepositoryLocation)repositories.get(location);
@@ -299,6 +289,5 @@ public class SVNRepositories
     public boolean isKnownRepository(String location) {
         return repositories.get(location) != null;
     }
-  
 
 }

@@ -39,14 +39,6 @@ public interface ISVNResource {
 	public String getName();
 	
 	/**
-	 * Answer whether the resource could be ignored.
-     * Even if a resource is ignored, it can still be added to a repository, at which 
-     * time it should never be ignored by the SVN client.
-	 * 
-	 */
-	public boolean isIgnored() throws SVNException;
-	
-	/**
 	 * Answers if the handle is a file or a folder handle.
 	 * 
 	 * @return <code>true</code> if this is a folder handle and <code>false</code> if

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
  
 
  /**
@@ -20,6 +22,7 @@ package org.tigris.subversion.subclipse.core;
   * Clients are not expected to implement this interface.
   */
 public interface ISVNRemoteFolder extends ISVNRemoteResource, ISVNFolder {
-	
+
+    public void createRemoteFolder(String folderName, String message,IProgressMonitor monitor) throws SVNException;	
 	
 }
