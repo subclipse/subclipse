@@ -13,7 +13,7 @@
       <library name="svnClientAdapter.jar">
          <export name="*"/>
       </library>
-      <library name="jsvn.jar">
+      <library name="javahl.jar">
          <export name="*"/>
       </library>
    </runtime>
