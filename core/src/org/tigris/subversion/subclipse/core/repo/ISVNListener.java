@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.repo;
 
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 
 
@@ -27,5 +29,15 @@ public interface ISVNListener {
      * called when a repository is removed from the list of repositories 
      */
 	public void repositoryRemoved(ISVNRepositoryLocation root);
+    
+    /**
+     * called when a remote resource has been deleted
+     */
+    public void remoteResourceDeleted(ISVNRemoteResource resource);
+    
+    /**
+     * called when a remote resource has been created
+     */
+    public void remoteResourceCreated(ISVNRemoteFolder parent,String resourceName);    
 }
 

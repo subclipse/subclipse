@@ -29,6 +29,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
@@ -242,6 +243,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
             SVNClientAdapter svnClient = getRepository().getSVNClient();
             svnClient.mkdir(new URL(Util.appendPath(getUrl().toString(),folderName)),message);
             refresh();
+            SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().remoteResourceCreated(this,folderName);
         } catch (MalformedURLException e) {
             throw SVNException.wrapException(e);
         } catch (ClientException e) {

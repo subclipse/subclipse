@@ -44,7 +44,6 @@ import org.tigris.subversion.subclipse.core.util.Util;
 public class SVNRepositories 
 {
     private Map repositories = new HashMap();
-    private List repositoryListeners = new ArrayList();
     private static final String REPOSITORIES_STATE_FILE = ".svnProviderState"; //$NON-NLS-1$
     
     // version numbers for the state file (a positive number indicates version 1)
@@ -55,11 +54,7 @@ public class SVNRepositories
      */
     private void addToRepositoriesCache(ISVNRepositoryLocation repository) {
         repositories.put(repository.getLocation(), repository);
-        Iterator it = repositoryListeners.iterator();
-        while (it.hasNext()) {
-            ISVNListener listener = (ISVNListener)it.next();
-            listener.repositoryAdded(repository);
-        }
+        SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().repositoryAdded(repository);
     }
     
     /*
@@ -67,29 +62,9 @@ public class SVNRepositories
      */
     private void removeFromRepositoriesCache(ISVNRepositoryLocation repository) {
         if (repositories.remove(repository.getLocation()) != null) {
-            Iterator it = repositoryListeners.iterator();
-            while (it.hasNext()) {
-                ISVNListener listener = (ISVNListener)it.next();
-                listener.repositoryRemoved(repository);
-            }
+            SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().repositoryRemoved(repository);
         }
     }
-
-    /**
-     * Register to receive notification of repository creation and disposal
-     */
-    public void addRepositoryListener(ISVNListener listener) {
-        repositoryListeners.add(listener);
-    }
-
-
-    /**
-     * De-register a listener
-     */
-  public void removeRepositoryListener(ISVNListener listener) {
-        repositoryListeners.remove(listener);
-    }
-  
 
     /**
      * Add the repository to the receiver's list of known repositories. Doing this will enable

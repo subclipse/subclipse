@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
+import org.tigris.subversion.subclipse.core.resources.RepositoryResourcesManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.AddDeleteMoveListener;
 import org.tigris.subversion.subclipse.core.resourcesListeners.FileModificationManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.SyncFileChangeListener;
@@ -61,6 +62,7 @@ public class SVNProviderPlugin extends Plugin {
     // the list of all repositories currently handled by this provider
     private SVNRepositories repositories;
 
+    private RepositoryResourcesManager repositoryResourcesManager = new RepositoryResourcesManager(); 
   
 	
 	/**
@@ -361,5 +363,12 @@ public class SVNProviderPlugin extends Plugin {
         }
     }
 
+
+	/**
+	 * @return the repository resources Manager
+	 */
+	public RepositoryResourcesManager getRepositoryResourcesManager() {
+		return repositoryResourcesManager;
+	}
 
 }
