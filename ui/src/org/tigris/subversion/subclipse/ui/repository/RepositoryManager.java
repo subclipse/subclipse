@@ -102,6 +102,17 @@ public class RepositoryManager {
         }
     }
 
+    /**
+     * A resource has been copied
+     */
+    public void resourceCopied(ISVNRemoteResource source, ISVNRemoteFolder destination) {
+        Iterator it = listeners.iterator();
+        while (it.hasNext()) {
+            IRepositoryListener listener = (IRepositoryListener)it.next();
+            listener.remoteResourceCopied(source, destination);
+        }
+    }
+
 
     /**
      * called when plugin is started
@@ -120,11 +131,12 @@ public class RepositoryManager {
             public void remoteResourceDeleted(ISVNRemoteResource resource) {
                 resourceDeleted(resource);
             }
-    
             public void remoteResourceCreated(ISVNRemoteFolder parent, String resourceName) {
                 resourceCreated(parent, resourceName);
             }
-           
+            public void remoteResourceCopied(ISVNRemoteResource source, ISVNRemoteFolder destination) {
+                resourceCopied(source, destination);
+            }           
 		});
 	}
 	

@@ -23,6 +23,7 @@ public interface IRepositoryListener {
 	public void repositoryRemoved(ISVNRepositoryLocation root);
 	public void repositoriesChanged(ISVNRepositoryLocation[] roots);
     public void remoteResourceDeleted(ISVNRemoteResource resource);
-    public void remoteResourceCreated(ISVNRemoteFolder parent,String resourceName);    
+    public void remoteResourceCreated(ISVNRemoteFolder parent,String resourceName);
+    public void remoteResourceCopied(ISVNRemoteResource source,ISVNRemoteFolder destination);
 }
 

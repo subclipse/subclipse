@@ -97,6 +97,22 @@
                icon="icons/full/ctool16/delete.gif"
                class="org.tigris.subversion.subclipse.ui.actions.DeleteRemoteResourceAction"
                id="org.tigris.subversion.subclipse.ui.deleteRemoteResource">
+         </action>
+         <action
+               label="%CopyRemoteAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.copy_remote_resource_action_context"
+               tooltip="%CopyRemoteAction.tooltip"
+               icon="icons/full/ctool16/copy_edit.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.CopyRemoteResourceAction"
+               id="org.tigris.subversion.subclipse.ui.copyRemoteResource">
+         </action>
+         <action
+               label="%PasteRemoteAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.paste_remote_resource_action_context"
+               tooltip="%PasteRemoteAction.tooltip"
+               icon="icons/full/ctool16/paste_edit.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.PasteRemoteResourceAction"
+               id="org.tigris.subversion.subclipse.ui.pasteRemoteResource">
          </action>         
       </objectContribution>
 <!-- contribution for ISVNRemoteFile -->
