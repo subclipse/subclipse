@@ -318,8 +318,6 @@ abstract class LocalResource implements ISVNLocalResource, Comparable {
 			ISVNClientAdapter svnClient = getRepository().getSVNClient();
 			OperationManager.getInstance().beginOperation(svnClient);
 			svnClient.propertySet(getFile(),name,value,recurse);
-			
-			// there are no events sent from SVNClientAdapter when a property is set
 		} catch (IOException e) {
 			throw SVNException.wrapException(e);
 		} catch (SVNClientException e) {

@@ -32,8 +32,18 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 
 /*
- * Listens to subversion meta-file changes 
+ * Listens to subversion meta-file changes :
+ * - .svn/entries
+ * - .svn/dir-props
+ * - files in .svn/props
+ * When a change occurs in one of these files :
+ * - all files in the directory (.svn/..) are refreshed
+ * - the svn status of all files in the directory (.svn/..) is refreshed 
+ * - a message is sent to all listeners to tell them that all files in the directory (.svn/..) could have
+ * changed 
  * 
+ * we treat all files in the directory (.svn/..) because we don't want to parse .svn/entries to know 
+ * which changes occured
  */
 public class SyncFileChangeListener implements IResourceChangeListener {
 	
@@ -47,7 +57,8 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 	
     public static final String SVN_DIRNAME = ".svn"; //$NON-NLS-1$
     public static final String SVN_ENTRIES = "entries"; //$NON-NLS-1$
-
+	public static final String SVN_DIRPROPS = "dir-props"; //$NON-NLS-1$
+	public static final String SVN_PROPS = "props"; //$NON-NLS-1$
 				
 	
 	/*
@@ -89,12 +100,16 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 						handleSVNDir((IContainer)resource, kind);
 					}
 										
-					if(isMetaFile(resource)) {
-						toBeNotified = handleChangedMetaFile(resource, kind);
-//					} else if(name.equals(SyncFileWriter.IGNORE_FILE)) {
-//						toBeNotified = handleChangedIgnoreFile(resource, kind);
+					if(isEntries(resource)) {
+						toBeNotified = handleChangedEntries(resource, kind);
+					} else
+					if(isDirProps(resource)) {
+						toBeNotified = handleChangedDirProps(resource, kind);
+					} else
+					if(isPropFile(resource)) {
+						toBeNotified = handleChangedPropFile(resource, kind);
 					}
-										
+					
                     if(toBeNotified.length>0) {    
 						for (int i = 0; i < toBeNotified.length; i++) {
 							changedContainers.add(toBeNotified[i]);							
@@ -117,7 +132,15 @@ public class SyncFileChangeListener implements IResourceChangeListener {
                     container.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
                     ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
                     svnContainer.refreshStatus(IResource.DEPTH_ONE);
-                    SVNProviderPlugin.broadcastSyncInfoChanges(container.members());
+                    
+                    // the resources that have potentially changed are the members of the folder
+                    // and the folder itself
+                    IResource[] members = container.members();
+                    IResource[] resources = new IResource[members.length+1];
+                    resources[0] = container;
+                    System.arraycopy(members,0,resources,1,members.length);
+                    
+                    SVNProviderPlugin.broadcastSyncInfoChanges(resources);
                 }
                 
 			}			
@@ -149,25 +172,75 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 			}
 		}
 	}
-	
+
 	/*
-	 * It's a meta file if it's parent is a team-private .svn folder.
-	 */
-	protected boolean isMetaFile(IResource resource) {
+	 * Tells if this resource is a subversion "entries" file 
+	 */	
+	protected boolean isEntries(IResource resource) {
 		IContainer parent = resource.getParent();		
-		return resource.getType() == IResource.FILE &&
-               resource.getName().equals(SVN_ENTRIES) &&     
-				   parent!=null && 
-				   parent.getName().equals(SVN_DIRNAME) &&
-				   (parent.isTeamPrivateMember() || !parent.exists());
+		
+		if ((parent == null) || 
+		    (!parent.getName().equals(SVN_DIRNAME)) || 
+		    (!parent.isTeamPrivateMember() && parent.exists()) ) {
+			return false;
+		}
+		
+		if (resource.getType() == IResource.FILE &&
+            resource.getName().equals(SVN_ENTRIES)) {    
+        	return true;
+        }
+		return false;
 	}
-	
+
 	/*
-	 * This is a meta file (.svn/entries), notify that 'folder' and it's immediate children 
-	 * may have their svn sync state changed. If the 'folder' is deleted then no notification is
-	 * required.
-	 */
-	protected IContainer[] handleChangedMetaFile(IResource resource, int kind) {		
+	 * Tells if this resource is a subversion "dir-props" file 
+	 */	
+	protected boolean isDirProps(IResource resource) {
+		IContainer parent = resource.getParent();		
+		
+		if ((parent == null) || 
+			(!parent.getName().equals(SVN_DIRNAME)) || 
+			(!parent.isTeamPrivateMember() && parent.exists()) ) {
+			return false;
+		}
+		
+		if (resource.getType() == IResource.FILE &&
+			resource.getName().equals(SVN_DIRPROPS)) {     
+			return true;
+		}
+		return false;
+		
+	}
+
+	/*
+	 * Tells if this resource is a subversion prop file 
+	 */	
+	protected boolean isPropFile(IResource resource) {
+		// we first verify that parent is props
+		IContainer parent = resource.getParent();		
+		if ((parent == null)  || 
+		    (!parent.getName().equals(SVN_PROPS)) ) {
+			return false;
+		}
+		parent = parent.getParent();
+		
+		// we then verify that grand-father is svn
+		if ((parent == null) || 
+			(!parent.getName().equals(SVN_DIRNAME)) || 
+			(!parent.isTeamPrivateMember() && parent.exists()) ) {
+			return false;
+		}
+		
+		// ok this is a property file
+		if (resource.getType() == IResource.FILE) {
+			return true;
+		}
+		return false;
+		
+	}
+
+	
+	protected IContainer[] handleChangedEntries(IResource resource, int kind) {		
 		IContainer changedContainer = resource.getParent().getParent();
 		if(changedContainer.exists()) {
 			return new IContainer[] {changedContainer};
@@ -176,17 +249,23 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 		}
 	}
 
-//	/*
-//	 * This is an ignore file (e.g. folder/.cvsignore), notify that 'folder' and it's immediate children 
-//	 *  may have their CVS sync state changed.
-//	 */
-//	protected IContainer[] handleChangedIgnoreFile(IResource resource, int kind) {
-//		IContainer changedContainer = resource.getParent();
-//		if(changedContainer.exists()) {
-//			return new IContainer[] {changedContainer};
-//		} else {
-//			return new IContainer[0];
-//		}
-//	}
+	protected IContainer[] handleChangedDirProps(IResource resource, int kind) {		
+		IContainer changedContainer = resource.getParent().getParent();
+		if(changedContainer.exists()) {
+			return new IContainer[] {changedContainer};
+		} else {
+			return new IContainer[0];
+		}
+	}
+
+	protected IContainer[] handleChangedPropFile(IResource resource, int kind) {		
+		IContainer changedContainer = resource.getParent().getParent().getParent();
+		if(changedContainer.exists()) {
+			return new IContainer[] {changedContainer};
+		} else {
+			return new IContainer[0];
+		}
+	}
+
 
 }
