@@ -226,7 +226,6 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                     source.getLocation().toFile(), 
                     destination.getLocation().toFile(),
                     true);
-                tree.movedFolderSubtree(source, destination);
             } catch (SVNClientException e) {
                 throw SVNException.wrapException(e); 
 			} catch (TeamException te) {
@@ -234,7 +233,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 			} finally {
                 OperationManager.getInstance().endOperation();
             }
-
+			tree.movedFolderSubtree(source, destination);
 		} catch (SVNException e) {
 			tree.failed(
 				new org.eclipse.core.runtime.Status(

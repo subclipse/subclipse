@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.util.ReentrantLock;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -91,7 +92,10 @@ public class OperationManager implements ISVNNotifyListener {
                 for (Iterator it = changedResources.iterator();it.hasNext(); ) {
                     IResource resource = (IResource)it.next();
                     try {
-                        resource.refreshLocal(IResource.DEPTH_ZERO,new NullProgressMonitor());
+                        resource.refreshLocal(IResource.DEPTH_INFINITE,new NullProgressMonitor());
+						if(Policy.DEBUG_METAFILE_CHANGES) {
+							System.out.println("[svn] file refreshed : " + resource.getFullPath()); //$NON-NLS-1$
+						}
                     } catch (CoreException e) {
                         throw SVNException.wrapException(e);             
                     }
@@ -117,8 +121,8 @@ public class OperationManager implements ISVNNotifyListener {
         }
 
         if (kind == SVNNodeKind.UNKNOWN)  { // delete, revert 
-            IPath pathEntries = pathEclipse.removeLastSegments(1).append(".svn/entries");
-            IResource entries = workspaceRoot.getFileForLocation(pathEntries);
+            IPath pathEntries = pathEclipse.removeLastSegments(1).append(".svn");
+            IResource entries = workspaceRoot.getFolder(pathEntries);
             changedResources.add(entries);
         }
         else
@@ -132,14 +136,11 @@ public class OperationManager implements ISVNNotifyListener {
             
             IResource entries = null;
             if (resource != null) 
-                entries = resource.getParent().getFile(new Path(".svn/entries")); 
+                entries = resource.getParent().getFolder(new Path(".svn")); 
+
+			// .svn directory will be refreshed so all files in the directory including resource will
+			// be refreshed 
            
-            if (resource != null) {
-                // this is not really necessary because as .svn/entries is added, the 
-                // corresponding directory will be refreshed
-                changedResources.add(resource);
-            } 
-            
             if (entries != null)
                 changedResources.add(entries);
         }

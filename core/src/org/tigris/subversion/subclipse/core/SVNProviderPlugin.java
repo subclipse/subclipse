@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
@@ -37,6 +38,7 @@ import org.tigris.subversion.subclipse.core.resourcesListeners.FileModificationM
 import org.tigris.subversion.subclipse.core.resourcesListeners.SyncFileChangeListener;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 /**
  * The plugin itself 
@@ -64,7 +66,7 @@ public class SVNProviderPlugin extends Plugin {
 
     private RepositoryResourcesManager repositoryResourcesManager = new RepositoryResourcesManager(); 
 
-    private int svnClientInterface = SVNClientAdapterFactory.JAVAHL_CLIENT;  
+    private int svnClientInterface;  
 	
 	/**
 	 * Constructor for SVNProviderPlugin. Called by the platform in the course of plug-in
@@ -113,7 +115,14 @@ public class SVNProviderPlugin extends Plugin {
 	public void startup() throws CoreException {
 		super.startup();
         
-        // this will use org/chabanois/svn/eclipse/core/messages.properties if it has not
+        // by default, we set the svn client interface to the best available (JNI if available or command line interface)
+        try {
+			svnClientInterface = SVNClientAdapterFactory.getBestSVNClientType();
+        } catch (SVNClientException e) {
+        	throw new CoreException(new Status(Status.ERROR, ID, IStatus.OK, e.getMessage(), e));		
+        }
+        
+        // this will use org/tigris/subversion/subclipse/core/messages.properties if it has not
         // been localized
 		Policy.localize("org.tigris.subversion.subclipse.core.messages"); //$NON-NLS-1$
 
@@ -327,7 +336,9 @@ public class SVNProviderPlugin extends Plugin {
      * @param svnClientInterface
      */
     public void setSvnClientInterface(int svnClientInterface) {
-        this.svnClientInterface = svnClientInterface;
+        if (SVNClientAdapterFactory.isSVNClientAvailable(svnClientInterface)) {
+        	this.svnClientInterface = svnClientInterface;
+        }
     }
 
     public int getSvnClientInterface() {
