@@ -33,7 +33,6 @@ import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
 import org.tigris.subversion.subclipse.core.resources.RepositoryResourcesManager;
-import org.tigris.subversion.subclipse.core.resourcesListeners.AddDeleteMoveListener;
 import org.tigris.subversion.subclipse.core.resourcesListeners.FileModificationManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.SyncFileChangeListener;
 
@@ -55,7 +54,6 @@ public class SVNProviderPlugin extends Plugin {
 	private IConsoleListener consoleListener;
 		
 	// SVN specific resource delta listeners
-	private AddDeleteMoveListener addDeleteMoveListener;
 	private FileModificationManager fileModificationManager;
     private SyncFileChangeListener metaFileSyncListener;
 
@@ -123,9 +121,6 @@ public class SVNProviderPlugin extends Plugin {
 		// Initialize SVN change listeners. Note tha the report type is important.
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		
-        // this listener will listen addition and deletion
-        addDeleteMoveListener = new AddDeleteMoveListener();
-        
         // this listener will listen to modifications to files
 		fileModificationManager = new FileModificationManager();
 
@@ -133,13 +128,9 @@ public class SVNProviderPlugin extends Plugin {
 		metaFileSyncListener = new SyncFileChangeListener();
 		
 		workspace.addResourceChangeListener(metaFileSyncListener, IResourceChangeEvent.PRE_AUTO_BUILD);
-		workspace.addResourceChangeListener(addDeleteMoveListener, IResourceChangeEvent.POST_AUTO_BUILD);
 		workspace.addResourceChangeListener(fileModificationManager, IResourceChangeEvent.POST_CHANGE);
 		fileModificationManager.registerSaveParticipant();
 		
-        // also add addDeleteMoveListener as a stateChangeListener so that it can 
-        // add or remove delete markers using projectConfigured and projectDeconfigured
-        SVNProviderPlugin.addResourceStateChangeListener(addDeleteMoveListener);
 	}
 	
 	/**
@@ -158,7 +149,6 @@ public class SVNProviderPlugin extends Plugin {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.removeResourceChangeListener(metaFileSyncListener);
 		workspace.removeResourceChangeListener(fileModificationManager);
-		workspace.removeResourceChangeListener(addDeleteMoveListener);
 		
 		// remove all of this plugin's save participants. This is easier than having
 		// each class that added itself as a participant to have to listen to shutdown.
