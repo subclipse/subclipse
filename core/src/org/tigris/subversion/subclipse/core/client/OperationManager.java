@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -135,9 +136,16 @@ public class OperationManager implements ISVNNotifyListener {
                 resource =  workspaceRoot.getFileForLocation(pathEclipse);
             
             IResource entries = null;
-            if (resource != null) 
-                entries = resource.getParent().getFolder(new Path(".svn")); 
-
+			
+			if (resource != null) {
+            	if (resource.getProject() == resource) {
+            		// resource is a project. We can't refresh ../.svn
+					entries = ((IProject)resource).getFolder(new Path(".svn"));
+            	} else
+            	if (resource != null) { 
+                	entries = resource.getParent().getFolder(new Path(".svn")); 
+				}
+			}
 			// .svn directory will be refreshed so all files in the directory including resource will
 			// be refreshed 
            

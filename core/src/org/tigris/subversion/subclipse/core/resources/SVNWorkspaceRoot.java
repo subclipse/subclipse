@@ -12,7 +12,11 @@
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -26,12 +30,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteSyncElement;
+import org.tigris.subversion.subclipse.core.ISVNFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -47,6 +54,10 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 
 /**
@@ -128,9 +139,53 @@ public class SVNWorkspaceRoot {
         resource.delete();
     }
 
+	/**
+	 * get a project for the remote folder. The name is either the name of the 
+	 * remote folder or the name in .project if this file exists.
+	 * Project is not created. There is no check to see if the project already exists
+	 * @param folder
+	 * @param monitor
+	 * @return
+	 */
+	public static IProject getProject(ISVNRemoteFolder folder,IProgressMonitor monitor) {
+		String name = folder.getName();
+						
+		// Check for a better name for the project
+		try {
+			ISVNResource[] children = folder.members(monitor, ISVNFolder.FILE_MEMBERS);
+			for (int k = 0; k < children.length; k++) {
+				ISVNResource resource = children[k];
+				if(".project".equals(resource.getName())){
+					ISVNRemoteFile dotProject = folder.getRepository().getRemoteFile(new SVNUrl(Util.appendPath(folder.getUrl().get(), ".project")));
+																
+					InputStream is = dotProject.getContents(monitor);
+					DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+					org.w3c.dom.Document doc = db.parse(is);
+					is.close();
+					NodeList nl = doc.getDocumentElement().getChildNodes();
+					for (int j = 0; j < nl.getLength(); ++j) {
+						Node child = nl.item(j);
+						if (child instanceof Element && "name".equals(child.getNodeName())) {
+							Node grandChild = child.getFirstChild();
+							if (grandChild instanceof Text) name = ((Text)grandChild).getData(); 	
+						}
+					}									
+				}
+			}
+
+		}	
+		catch (Exception e) {
+		  // no .project exists ... that's ok
+		  // or an error occured while parsing .project (not valid ?)
+		}
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
+		return project;		
+	}
+
     /**
-	 * Checkout the remote resources into the local workspace. Each resource will 
-	 * be checked out into the corresponding project. 
+	 * Checkout the remote resources into the local workspace as projects. 
+	 * Each resource will be checked out into the corresponding project.
+	 * You can use getProject to get a project for a given remote Folder 
 	 * 
 	 * Resources existing in the local file system at the target project location but now 
 	 * known to the workbench will be overwritten.
