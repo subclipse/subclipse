@@ -165,17 +165,8 @@ public class SVNRepositoryLocation
 			return null;
 		}
 	}
-
-	public ISVNRemoteFile getRemoteFile(String remotePath) throws SVNException{
-		SVNUrl url;
-		try {
-			url = new SVNUrl(Util.appendPath(getUrl().toString(), remotePath));
-		} catch (MalformedURLException e1) {
-			throw new SVNException(
-				"Can't get latest remote resource for "
-					+ remotePath.toString());
-		}
-
+	
+	public ISVNRemoteFile getRemoteFile(SVNUrl url) throws SVNException{
 		ISVNClientAdapter svnClient = getSVNClient();
 		ISVNDirEntry[] dirEntry = null;
 		try {
@@ -183,7 +174,7 @@ public class SVNRepositoryLocation
 		} catch (SVNClientException e) {
 			throw new SVNException(
 				"Can't get latest remote resource for "
-					+ remotePath.toString());
+					+ url);
 		}
 
 		if (dirEntry.length == 0)
@@ -197,7 +188,19 @@ public class SVNRepositoryLocation
 				dirEntry[0].getLastChangedRevision(),
 				dirEntry[0].getLastChangedDate(),
 				dirEntry[0].getLastCommitAuthor());
+		}		
+	}
+
+	public ISVNRemoteFile getRemoteFile(String remotePath) throws SVNException{
+		SVNUrl url;
+		try {
+			url = new SVNUrl(Util.appendPath(getUrl().toString(), remotePath));
+		} catch (MalformedURLException e1) {
+			throw new SVNException(
+				"Can't get latest remote resource for "
+					+ remotePath.toString());
 		}
+		return getRemoteFile(url);
 	}
 
 /*

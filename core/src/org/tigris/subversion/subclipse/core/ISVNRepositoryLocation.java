@@ -74,6 +74,8 @@ public interface ISVNRepositoryLocation  extends IAdaptable {
     public ISVNRemoteFolder getRemoteFolder(String remotePath);
 	
 	public ISVNRemoteFile getRemoteFile(String remotePath)  throws SVNException;
+	
+	public ISVNRemoteFile getRemoteFile(SVNUrl url)  throws SVNException;	
 
 	/**
 	 * Return the conection timeout value in milliseconds.
