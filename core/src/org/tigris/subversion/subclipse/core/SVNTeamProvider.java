@@ -27,6 +27,7 @@ import org.eclipse.core.resources.team.IMoveDeleteHook;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
@@ -40,6 +41,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 /**
  * This class is responsible for configuring a project for repository management
  * and providing the necessary hooks for resource modification
+ * This class is created for each project that is associated with a repository provider
  */
 public class SVNTeamProvider extends RepositoryProvider {
 	private SVNWorkspaceRoot workspaceRoot;
@@ -77,7 +79,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 	 * @see IProjectNature#setProject(IProject)
 	 */
 	public void setProject(IProject project) {
-		this.project = project;
+		super.setProject(project);
 		try {
 			this.workspaceRoot = new SVNWorkspaceRoot(project);
 			// Ensure that the project has SVN info
@@ -98,6 +100,9 @@ public class SVNTeamProvider extends RepositoryProvider {
 	 * </p>
 	 */
 	public void add(IResource[] resources, int depth, IProgressMonitor progress) throws SVNException {	
+		
+		if (progress == null)
+			progress = new NullProgressMonitor();
 		
 		// Visit the children of the resources using the depth in order to
 		// determine which folders, text files and binary files need to be added
@@ -322,6 +327,10 @@ public class SVNTeamProvider extends RepositoryProvider {
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.team.core.RepositoryProvider#getMoveDeleteHook()
+     */
 	public IMoveDeleteHook getMoveDeleteHook() {
 		return new SVNMoveDeleteHook();
 	}
