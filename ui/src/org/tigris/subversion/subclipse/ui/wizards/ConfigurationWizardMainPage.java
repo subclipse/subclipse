@@ -325,7 +325,7 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 		try {
 			new URL(url);
 		} catch (MalformedURLException e) {
-			setErrorMessage(Policy.bind("ConfigurationWizardMainPage.invalidUrl")); //$NON-NLS-1$);
+			setErrorMessage(Policy.bind("ConfigurationWizardMainPage.invalidUrl", e.getMessage())); //$NON-NLS-1$);
 			setPageComplete(false);			
 			return;
 		}
