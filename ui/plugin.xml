@@ -2,7 +2,7 @@
 <plugin
    id="org.tigris.subversion.subclipse.ui"
    name="%pluginName"
-   version="0.6.0"
+   version="0.7.0"
    provider-name="%providerName"
    class="org.tigris.subversion.subclipse.ui.SVNUIPlugin">
 
@@ -231,14 +231,14 @@
                menubarPath="team.main/group1"
                id="org.tigris.subversion.subclipse.ui.update">
          </action>
-         <action
+         <!--action
                label="%Synchronize.label"
                tooltip="%Synchronize.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.SyncAction"
                menubarPath="team.main/group1"
                helpContextId="org.tigris.subversion.subclipse.ui.team_synchronize_action_context"
                id="org.tigris.subversion.subclipse.ui.sync">
-         </action>          
+         </action-->          
          <action
                label="%AddAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.team_add_action_context"
@@ -341,7 +341,7 @@
       </wizard>
    </extension>
 <!-- ******************* Preferences ****************** -->
-   <extension
+   <!--extension
          point="org.eclipse.ui.preferencePages">
       <page
             name="%DecoratorPreferencePage.name"
@@ -349,7 +349,7 @@
             class="org.tigris.subversion.subclipse.ui.decorator.SVNDecoratorPreferencesPage"
             id="org.tigris.subversion.subclipse.ui.SVNDecoratorPreferences">
       </page>
-   </extension>
+   </extension-->
 <!-- **************** Markers ******************* -->
    <extension
          point="org.eclipse.ui.markerResolution">
