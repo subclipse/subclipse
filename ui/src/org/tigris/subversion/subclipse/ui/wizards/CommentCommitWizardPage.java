@@ -15,8 +15,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 
 public class CommentCommitWizardPage extends SVNWizardPage {

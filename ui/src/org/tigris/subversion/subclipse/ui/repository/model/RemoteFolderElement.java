@@ -18,7 +18,6 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
-import org.tigris.subversion.subclipse.core.SVNException;
 
 public class RemoteFolderElement extends SVNModelElement {
 
