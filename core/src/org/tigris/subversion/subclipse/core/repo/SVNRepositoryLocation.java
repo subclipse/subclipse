@@ -70,7 +70,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 	public static final String HOST_VARIABLE = "{host}"; //$NON-NLS-1$
 	public static final String PORT_VARIABLE = "{port}"; //$NON-NLS-1$
 	
-	private ISVNClientAdapter svnClient; 
+//	private ISVNClientAdapter svnClient; 
 	
 	
 	static {
@@ -185,9 +185,9 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
      */
 	public ISVNClientAdapter getSVNClient()
 	{
-		if (svnClient != null)
-			return svnClient;
-		svnClient = SVNClientAdapterFactory.createSVNClient(SVNClientAdapterFactory.JAVAHL_CLIENT);
+//		if (svnClient != null)
+//			return svnClient;
+        ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().createSVNClient();
         
         svnClient.addNotifyListener(NotificationListener.getInstance());
         

@@ -97,7 +97,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 	 * are created remotely on the next commit. 
 	 * </p>
 	 */
-	public void add(IResource[] resources, int depth, IProgressMonitor progress) throws TeamException {	
+	public void add(IResource[] resources, int depth, IProgressMonitor progress) throws SVNException {	
 		
 		// Visit the children of the resources using the depth in order to
 		// determine which folders, text files and binary files need to be added
@@ -106,8 +106,6 @@ public class SVNTeamProvider extends RepositoryProvider {
 		// Sets are required for the files to ensure that files will not appear twice if there parent was added as well
 		// and the depth isn't zero
 		final HashSet files = new HashSet();
-		final TeamException[] eHolder = new TeamException[1];
-		
         
         for (int i=0; i<resources.length; i++) {
 			
@@ -124,7 +122,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 				}
 					
 				// Auto-add children accordingly to depth
-				final TeamException[] exception = new TeamException[] { null };
+				final SVNException[] exception = new SVNException[] { null };
 				currentResource.accept(new IResourceVisitor() {
 					public boolean visit(IResource resource) {
 						try {
@@ -154,8 +152,6 @@ public class SVNTeamProvider extends RepositoryProvider {
 			}
 		} // for
 		// If an exception occured during the visit, throw it here
-		if (eHolder[0] != null)
-			throw eHolder[0];
 
 		// Add the folders, followed by files!
         ISVNClientAdapter svnClient = getSVNWorkspaceRoot().getRepository().getSVNClient();

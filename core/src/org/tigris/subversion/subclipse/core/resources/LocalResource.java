@@ -51,11 +51,6 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * @see LocalFile
  */
 abstract class LocalResource implements ISVNResource, Comparable {
-    // this is the SVNClientAdapter we use to get the status of a local resource
-    // we can use the same for each resource as we don't need to login     
-    private static ISVNClientAdapter svnClientAdapterStatus = 
-        SVNClientAdapterFactory.createSVNClient(SVNClientAdapterFactory.JAVAHL_CLIENT);
-
 	protected static final String SEPARATOR = "/"; //$NON-NLS-1$
 	protected static final String CURRENT_LOCAL_FOLDER = "."; //$NON-NLS-1$
 
@@ -174,6 +169,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
             // that is not associated with a known repository
             // we don't need login & password so this is not a problem   
             try {
+                ISVNClientAdapter svnClientAdapterStatus = SVNProviderPlugin.getPlugin().createSVNClient();
 				status = svnClientAdapterStatus.getSingleStatus(resource.getLocation().toFile());
                 resource.setSessionProperty(RESOURCE_SYNC_KEY, status);
             } catch (SVNClientException e1) {

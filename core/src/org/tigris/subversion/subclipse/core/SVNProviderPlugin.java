@@ -35,6 +35,8 @@ import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
 import org.tigris.subversion.subclipse.core.resources.RepositoryResourcesManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.FileModificationManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.SyncFileChangeListener;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 
 /**
  * The plugin itself 
@@ -61,7 +63,8 @@ public class SVNProviderPlugin extends Plugin {
     private SVNRepositories repositories;
 
     private RepositoryResourcesManager repositoryResourcesManager = new RepositoryResourcesManager(); 
-  
+
+    private int svnClientInterface = SVNClientAdapterFactory.JAVAHL_CLIENT;  
 	
 	/**
 	 * Constructor for SVNProviderPlugin. Called by the platform in the course of plug-in
@@ -317,6 +320,26 @@ public class SVNProviderPlugin extends Plugin {
 	public IConsoleListener getConsoleListener() {
 		return consoleListener;
 	}
+
+    /**
+     * set the client interface to use, either SVNClientAdapterFactory.JAVAHL_CLIENT 
+     * or SVNClientAdapterFactory.SVNCOMMANDLINE_CLIENT 
+     * @param svnClientInterface
+     */
+    public void setSvnClientInterface(int svnClientInterface) {
+        this.svnClientInterface = svnClientInterface;
+    }
+
+    public int getSvnClientInterface() {
+        return svnClientInterface;
+    }
+
+    /**
+     * @return a new ISVNClientAdapter depending on the client interface
+     */
+    public ISVNClientAdapter createSVNClient() {
+        return SVNClientAdapterFactory.createSVNClient(svnClientInterface);
+    }
 
     /**
     * Answers the repository provider type id for the svn plugin
