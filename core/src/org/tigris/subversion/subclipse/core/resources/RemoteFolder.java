@@ -77,8 +77,6 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 			} else {
 				throw e;
 			}
-		} catch (Exception e) {
-            throw (TeamException)e;
 		}
 	}
 
