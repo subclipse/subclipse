@@ -39,10 +39,14 @@ public class AddAction extends WorkspaceAction {
 	 * @see SVNAction#execute()
 	 */
 	public void execute(IAction action) throws InterruptedException, InvocationTargetException {
-		if (!promptForAddOfIgnored()) return;
+		// first we ask the user if he really want to add the selected resources if some of them are marked as ignored
+        if (!promptForAddOfIgnored()) { 
+            return;
+        }
 		run(new WorkspaceModifyOperation() {
 			public void execute(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
-				try {					
+				try {
+                    // associate the resources with their respective RepositoryProvider					
 					Hashtable table = getProviderMapping();
 					Set keySet = table.keySet();
 					monitor.beginTask("", keySet.size() * 1000); //$NON-NLS-1$
@@ -66,7 +70,8 @@ public class AddAction extends WorkspaceAction {
 	}
 	
 	/**
-	 * Method promptForAddOfIgnored.
+	 * asks the user if he wants to add the resources if some of them are ignored
+     * @return false if he answered no
 	 */
 	private boolean promptForAddOfIgnored() {
 		IResource[] resources = getSelectedResources();
