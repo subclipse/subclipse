@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapter;
 
 import com.qintsoft.jsvn.jni.ClientException;
@@ -106,6 +108,17 @@ public class RepositoryResourcesManager {
         }    
     } 
 
+    /**
+     * signals all listener that a remote resource has been moved 
+     */
+    public void remoteResourceMoved(ISVNRemoteResource resource, ISVNRemoteFolder destinationFolder, String destinationResourceName) {
+        Iterator it = repositoryListeners.iterator();
+        while (it.hasNext()) {
+            ISVNListener listener = (ISVNListener)it.next();
+            listener.remoteResourceMoved(resource, destinationFolder, destinationResourceName);
+        }    
+    } 
+
     
     /**
      * Creates a remote folder 
@@ -185,6 +198,29 @@ public class RepositoryResourcesManager {
             progress.done();
         }
     } 
+
+    public void moveRemoteResource(ISVNRemoteResource resource,ISVNRemoteFolder destinationFolder, String destinationResourceName, 
+                                   String message,IProgressMonitor monitor) throws SVNException {
+        
+        IProgressMonitor progress = Policy.monitorFor(monitor);
+        progress.beginTask(Policy.bind("RepositoryResourcesManager.moveRemoteResources"), 100); //$NON-NLS-1$
+        
+        try {        
+            SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+            URL destUrl = new URL(Util.appendPath(destinationFolder.getUrl().toString(),destinationResourceName));
+            
+            svnClient.move(resource.getUrl(),destUrl,message,Revision.HEAD);
+            resource.getParent().refresh();
+            destinationFolder.refresh();
+            remoteResourceMoved(resource, destinationFolder, destinationResourceName);
+        } catch (MalformedURLException e) {
+            throw SVNException.wrapException(e);
+        } catch (ClientException e) {
+            throw SVNException.wrapException(e);
+        } finally {
+            progress.done();
+        }        
+    }
 
 
 }

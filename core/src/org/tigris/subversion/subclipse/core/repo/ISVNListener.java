@@ -44,6 +44,11 @@ public interface ISVNListener {
      * called when a remote resource has been copied 
      */    
     public void remoteResourceCopied(ISVNRemoteResource source, ISVNRemoteFolder destination);
+
+    /**
+     * called when a remote resource has been moved 
+     */
+    public void remoteResourceMoved(ISVNRemoteResource resource, ISVNRemoteFolder destinationFolder, String destinationResourceName);
         
 }
 
