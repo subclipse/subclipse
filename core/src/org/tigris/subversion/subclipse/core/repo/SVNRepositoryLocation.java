@@ -168,26 +168,26 @@ public class SVNRepositoryLocation
 	
 	public ISVNRemoteFile getRemoteFile(SVNUrl url) throws SVNException{
 		ISVNClientAdapter svnClient = getSVNClient();
-		ISVNDirEntry[] dirEntry = null;
+		ISVNDirEntry dirEntry = null;
 		try {
-			dirEntry = svnClient.getList(url, SVNRevision.HEAD, false);
+			dirEntry = svnClient.getDirEntry(url, SVNRevision.HEAD);
 		} catch (SVNClientException e) {
 			throw new SVNException(
 				"Can't get latest remote resource for "
 					+ url);
 		}
 
-		if (dirEntry.length == 0)
+		if (dirEntry == null)
 			return null; // no remote file
 		else {
 			return new RemoteFile(null, // we don't know its parent
 			this,
 				url,
 				SVNRevision.HEAD,
-				dirEntry[0].getHasProps(),
-				dirEntry[0].getLastChangedRevision(),
-				dirEntry[0].getLastChangedDate(),
-				dirEntry[0].getLastCommitAuthor());
+				dirEntry.getHasProps(),
+				dirEntry.getLastChangedRevision(),
+				dirEntry.getLastChangedDate(),
+				dirEntry.getLastCommitAuthor());
 		}		
 	}
 

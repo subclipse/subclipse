@@ -227,27 +227,27 @@ abstract class LocalResource implements ISVNResource, Comparable {
         SVNUrl url = getUrl();
         
         ISVNClientAdapter svnClient = getRepository().getSVNClient();
-        ISVNDirEntry[] dirEntry = null;
-        try {
-            dirEntry = svnClient.getList(url,SVNRevision.HEAD,false);
+		ISVNDirEntry dirEntry;
+		try {
+        	dirEntry = svnClient.getDirEntry(url,SVNRevision.HEAD);
         } catch (SVNClientException e) {
-            throw new SVNException("Can't get latest remote resource for "+resource.toString());   
+            throw new SVNException("Can't get latest remote resource for "+resource.toString(),e);   
         }
         
-        if (dirEntry.length == 0)
+        if (dirEntry == null)
             return null; // no remote file
         else
         {
-            if (dirEntry[0].getNodeKind() == SVNNodeKind.FILE)
+            if (dirEntry.getNodeKind() == SVNNodeKind.FILE)
                 return new RemoteFile(
                     null,  // we don't know its parent
                     getRepository(),
                     url,
                     SVNRevision.HEAD,
-                    dirEntry[0].getHasProps(),
-                    dirEntry[0].getLastChangedRevision(),
-                    dirEntry[0].getLastChangedDate(),
-                    dirEntry[0].getLastCommitAuthor()
+                    dirEntry.getHasProps(),
+                    dirEntry.getLastChangedRevision(),
+                    dirEntry.getLastChangedDate(),
+                    dirEntry.getLastCommitAuthor()
                 );
              else
                 return new RemoteFolder(
@@ -255,10 +255,10 @@ abstract class LocalResource implements ISVNResource, Comparable {
                     getRepository(),
                     url,
                     SVNRevision.HEAD,
-                    dirEntry[0].getHasProps(),
-                    dirEntry[0].getLastChangedRevision(),
-                    dirEntry[0].getLastChangedDate(),
-                    dirEntry[0].getLastCommitAuthor()
+                    dirEntry.getHasProps(),
+                    dirEntry.getLastChangedRevision(),
+                    dirEntry.getLastChangedDate(),
+                    dirEntry.getLastCommitAuthor()
                 );                
         }
     }

@@ -45,7 +45,6 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  */
 public class SVNTeamProvider extends RepositoryProvider {
 	private SVNWorkspaceRoot workspaceRoot;
-	private IProject project;
 	
 	/**
 	 * No-arg Constructor for IProjectNature conformance
@@ -67,13 +66,6 @@ public class SVNTeamProvider extends RepositoryProvider {
 		SVNProviderPlugin.broadcastProjectDeconfigured(getProject());
 	}
 
-
-	/**
-	 * @see IProjectNature#getProject()
-	 */
-	public IProject getProject() {
-		return project;
-	}
 
 	/**
 	 * @see IProjectNature#setProject(IProject)
