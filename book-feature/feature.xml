@@ -2,8 +2,9 @@
 <feature
       id="org.tigris.subversion.book"
       label="Version Control with Subversion"
-      version="1.1.0"
-      provider-name="tigris.org">
+      version="1.1.1"
+      provider-name="tigris.org"
+      colocation-affinity="org.tigris.subversion.book">
 
    <install-handler/>
 
@@ -38,6 +39,6 @@ above.
          id="org.tigris.subversion.book"
          download-size="540"
          install-size="541"
-         version="1.1.0"/>
+         version="1.1.1"/>
 
 </feature>
