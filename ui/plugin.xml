@@ -244,7 +244,7 @@
                helpContextId="org.tigris.subversion.subclipse.ui.team_add_action_context"
                tooltip="%AddAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.AddAction"
-               menubarPath="team.main/group3"
+               menubarPath="team.main/group1"
                id="org.tigris.subversion.subclipse.ui.add">
          </action>
         <action
@@ -267,7 +267,7 @@
                label="%RevertAction.label"
                tooltip="%RevertAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.RevertAction"
-               menubarPath="team.main/group3"
+               menubarPath="team.main/group1"
                helpContextId="org.tigris.subversion.subclipse.ui.team_revert_action_context"
                id="org.tigris.subversion.subclipse.ui.revert">
          </action> 
@@ -278,7 +278,15 @@
                menubarPath="team.main/group1"
                helpContextId="org.tigris.subversion.subclipse.ui.team_create_patch_action_context"
                id="org.tigris.subversion.subclipse.ui.GenerateDiff">
-         </action>                 
+         </action>
+         <action
+               label="%AddKeywords.label"
+               tooltip="%AddKeywords.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.AddKeywordsAction"
+               menubarPath="team.main/group3"
+               helpContextId="org.tigris.subversion.subclipse.ui.team_add_keywords_action_context"
+               id="org.tigris.subversion.subclipse.ui.AddKeywords">
+         </action>         
       </objectContribution>
 <!-- contribution for IFile -->
       <objectContribution
