@@ -2,7 +2,6 @@
 <classpath>
     <classpathentry kind="src" path="src/"/>
     <classpathentry exported="true" kind="lib" path="svnClientAdapter.jar"/>
-    <classpathentry exported="true" kind="lib" path="javahl.jar"/>
     <classpathentry kind="var"
         path="ECLIPSE_HOME/plugins/org.eclipse.core.resources_2.1.1/resources.jar" sourcepath="ORG_ECLIPSE_PLATFORM_SOURCE_SRC/org.eclipse.core.resources_2.1.1/resourcessrc.zip"/>
     <classpathentry kind="var"
@@ -34,5 +33,6 @@
     <classpathentry kind="var"
         path="ECLIPSE_HOME/plugins/org.eclipse.core.runtime_2.1.1/runtime.jar" sourcepath="ORG_ECLIPSE_PLATFORM_SOURCE_SRC/org.eclipse.core.runtime_2.1.1/runtimesrc.zip"/>
     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry exported="true" kind="lib" path="svnjavahl.jar"/>
     <classpathentry kind="output" path="classes"/>
 </classpath>
