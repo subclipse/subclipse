@@ -38,7 +38,7 @@ public class Util {
 	}
 	
 	/**
-	 * Append the prefix and suffix to form a valid CVS path.
+	 * Append the prefix and suffix to form a valid SVN path.
 	 */
 	public static String appendPath(String prefix, String suffix) {
 		if (prefix.length() == 0 || prefix.equals(CURRENT_LOCAL_FOLDER)) {
