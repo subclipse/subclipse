@@ -41,11 +41,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.help.WorkbenchHelp;
-import org.eclipse.ui.internal.misc.ContainerContentProvider;
-import org.eclipse.ui.internal.misc.ResourceAndContainerGroup;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.util.ContainerContentProvider;
 
 
 /**
@@ -54,7 +53,6 @@ import org.tigris.subversion.subclipse.ui.Policy;
  */
 class PatchFileSelectionPage extends WizardPage {
 	private IStructuredSelection currentSelection;
-	private ResourceAndContainerGroup resourceGroup;
 	private Text filenameCombo;
 	private Button browseButton;
 	

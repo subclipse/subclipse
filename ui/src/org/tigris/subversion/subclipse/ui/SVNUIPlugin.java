@@ -18,16 +18,17 @@ import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
-import org.eclipse.team.internal.ui.TeamUIPlugin;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -84,15 +85,17 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 
 
 	/**
-	 * Returns the active workbench page. Note that the active page may not be
-	 * the one that the usr perceives as active in some situations so this
-	 * method of obtaining the activae page should only be used if no other
-	 * method is available.
+	 * Convenience method to get the currently active workbench page. Note that
+	 * the active page may not be the one that the usr perceives as active in
+	 * some situations so this method of obtaining the activae page should only
+	 * be used if no other method is available.
 	 * 
 	 * @return the active workbench page
 	 */
 	public static IWorkbenchPage getActivePage() {
-		return TeamUIPlugin.getActivePage();
+		IWorkbenchWindow window = getPlugin().getWorkbench().getActiveWorkbenchWindow();
+		if (window == null) return null;
+		return window.getActivePage();
 	}
 	
 	/**
@@ -106,11 +109,50 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	 * @exception InvocationTargetException when an exception is thrown from the runnable
 	 * @exception InterruptedException when the progress monitor is cancelled
 	 */
-
+	
 	public static void runWithProgress(Shell parent, boolean cancelable,
 		final IRunnableWithProgress runnable) throws InvocationTargetException, InterruptedException {
-		TeamUIPlugin.runWithProgress(parent, cancelable, runnable);
-	}
+		boolean createdShell = false;
+		try {
+			if (parent == null || parent.isDisposed()) {
+				Display display = Display.getCurrent();
+				if (display == null) {
+					// cannot provide progress (not in UI thread)
+					runnable.run(new NullProgressMonitor());
+					return;
+				}
+				// get the active shell or a suitable top-level shell
+				parent = display.getActiveShell();
+				if (parent == null) {
+					parent = new Shell(display);
+					createdShell = true;
+				}
+			}
+			// pop up progress dialog after a short delay
+			final Exception[] holder = new Exception[1];
+			BusyIndicator.showWhile(parent.getDisplay(), new Runnable() {
+				public void run() {
+					try {
+						runnable.run(new NullProgressMonitor());
+					} catch (InvocationTargetException e) {
+						holder[0] = e;
+					} catch (InterruptedException e) {
+						holder[0] = e;
+					}
+				}
+			});
+			if (holder[0] != null) {
+				if (holder[0] instanceof InvocationTargetException) {
+					throw (InvocationTargetException) holder[0];
+				} else {
+					throw (InterruptedException) holder[0];
+				}
+			}
+			//new TimeoutProgressMonitorDialog(parent, TIMEOUT).run(true /*fork*/, cancelable, runnable);
+		} finally {
+			if (createdShell) parent.dispose();
+		}
+	}	
 	
 	
 	/**
@@ -157,6 +199,10 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	public static void log(IStatus status) {
 		getPlugin().getLog().log(status);
 	}
+	
+	public static void log(String msg) {
+		getPlugin().getLog().log(new Status(IStatus.INFO, SVNUIPlugin.ID, 0, msg, null));
+	}	
 
 	public static void log(TeamException e) {
 		getPlugin().getLog().log(new Status(e.getStatus().getSeverity(), SVNUIPlugin.ID, 0, Policy.bind("simpleInternal"), e));; //$NON-NLS-1$
