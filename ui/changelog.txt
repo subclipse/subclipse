@@ -1,3 +1,14 @@
+* 0.8.1
+
+- Bug #15 corrected.  We now add the destination directory to revision control if necessary before moving the file or directory
+- users can now create a patch using "team/create patch" menu
+- added the missing icons
+- action added to plugin.xml for generating diff
+- added subversion properties page
+- svnjavahl updated from subversion 0.31
+- Svn Command line or svnjavahl can be chosen as interface to subversion via preferences
+
+
 * 0.8.0
 
 - now use javahl instead of svnup
