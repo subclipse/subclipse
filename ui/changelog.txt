@@ -5,12 +5,24 @@
 - Issue 29 - Sharing a project needing a refresh
 - Issue 38 - Force delete so remotely removed files can be removed locally as well
 - Issue 42 - Fix assumption of single depth project dirs on checkout when finding the .project file
+- Issue 21 - Fixed extra repo location creation on checkout (and share)
 - stopped printing stack trace when .project file cannot be found
 - action org.tigris.subversion.subclipse.ui.openLogEntry does not exist and is causing some errors in the logs
 - CommandLine adapter refactoring
 - Added caching of Local Resource status
 - Removed use of internal Eclipse APIs and tested support of single binary for Eclipse 2.1.x and 3M7
 - Included documentation as part of the package (Help->Help Contents)
+
+Known Issues
+
+- When using the JNI bindings log information will not currently follow copies. 
+  Waiting for patch to be applied to Subversion bindings. 
+  Meanwhile use CommandLine bindings to see complete log (Window->Preferences->Team->SVN->SVN Interface)
+  
+- Compare won't work with a recently moved file.
+  Subversion List also stops on copy and we use this information to determine the most current revision. 
+  If the last revision was the file being moved then svn list ignores this. 
+  While Subversion fixes this or we come up with another way to get the current revision, do a dummy commit on the file so SVN List will see the latest revision
 
 
 * 0.8.6
