@@ -406,6 +406,22 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	}
 	
 
+	/**
+	 * disable the console listener. There will be no output on the console for the svn commands
+	 * executed until enableConsoleListener is called
+	 */	
+	public void disableConsoleListener() {
+		ConsoleView.disableConsoleListener();
+	}
+
+	/**
+	 * enable the console listener. There will be some output for each svn command executed 
+	 */	
+	public void enableConsoleListener() {
+		ConsoleView.enableConsoleListener();
+	}
+
+
     /**
      * Returns the image descriptor for the given image ID.
      * Returns null if there is no such image.
