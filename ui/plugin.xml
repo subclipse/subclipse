@@ -20,7 +20,6 @@
       <import plugin="org.tigris.subversion.subclipse.core"/>
    </requires>
 
-
 <!-- ************** Views *************** -->
    <extension
          point="org.eclipse.ui.views">
