@@ -37,6 +37,8 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.Policy;
 
+import com.qintsoft.jsvn.jni.Revision;
+
 /**
  * This class provides the table and it's required components for a file's revision
  * history
@@ -72,8 +74,8 @@ public class HistoryTableProvider {
 			if (entry == null) return ""; //$NON-NLS-1$
 			switch (columnIndex) {
 				case COL_REVISION:
-					String revision = Long.toString(entry.getRevision());
-					if (currentFile.getRevision() == entry.getRevision()) {
+					String revision = entry.getRevision().toString();
+					if (currentFile.getLastChangedRevision().equals(entry.getRevision())) {
 						revision = Policy.bind("currentRevision", revision); //$NON-NLS-1$
 					}
 					return revision;
@@ -150,7 +152,7 @@ public class HistoryTableProvider {
 		int compareColumnValue(int columnNumber, ILogEntry e1, ILogEntry e2) {
 			switch (columnNumber) {
 				case COL_REVISION: /* revision */
-                    return (e1.getRevision()<e2.getRevision() ? -1 : (e1.getRevision()==e2.getRevision() ? 0 : 1));
+                    return (e1.getRevision().getNumber()<e2.getRevision().getNumber() ? -1 : (e1.getRevision()==e2.getRevision() ? 0 : 1));
 				case COL_DATE: /* date */
 					Date date1 = e1.getDate();
 					Date date2 = e2.getDate();

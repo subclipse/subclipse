@@ -133,12 +133,12 @@ public class SVNCompareEditorInput extends CompareEditorInput {
 		if (element instanceof ResourceEditionNode) {
 			ISVNRemoteResource edition = ((ResourceEditionNode)element).getRemoteResource();
 			if (edition instanceof ISVNRemoteFile) {
-				return Policy.bind("nameAndRevision", edition.getName(), Long.toString(edition.getRevision())); //$NON-NLS-1$
+				return Policy.bind("nameAndRevision", edition.getName(), edition.getLastChangedRevision().toString()); //$NON-NLS-1$
 			}
 			if (edition.isContainer()) {
 				return Policy.bind("SVNCompareEditorInput.inHead", edition.getName()); //$NON-NLS-1$
 			} else {
-				return Policy.bind("SVNCompareEditorInput.repository", new Object[] {edition.getName(), Long.toString(edition.getRevision())}); //$NON-NLS-1$
+				return Policy.bind("SVNCompareEditorInput.repository", new Object[] {edition.getName(), edition.getLastChangedRevision().toString()}); //$NON-NLS-1$
 			}
 		}
 		return element.getName();
@@ -154,7 +154,7 @@ public class SVNCompareEditorInput extends CompareEditorInput {
 			if (edition.isContainer()) {
 				return Policy.bind("SVNCompareEditorInput.headLabel"); //$NON-NLS-1$
 			} else {
-				return Long.toString(edition.getRevision());
+				return edition.getLastChangedRevision().toString();
 			}
 		}
 		return element.getName();
@@ -325,7 +325,7 @@ public class SVNCompareEditorInput extends CompareEditorInput {
 		}
 
 		if (leftEdition.getUrl().equals(rightEdition.getUrl()) &&
-            leftEdition.getRevision() == rightEdition.getRevision()) {
+            leftEdition.getLastChangedRevision().equals(rightEdition.getLastChangedRevision())) {
 			return NODE_EQUAL;
 	   } else {
 //				if(considerContentIfRevisionOrPathDiffers()) {

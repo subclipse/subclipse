@@ -200,7 +200,7 @@ public class HistoryView extends ViewPart {
 				try {
 					if(confirmOverwrite()) {
 						SVNTeamProvider provider = (SVNTeamProvider)RepositoryProvider.getProvider(file.getProject());
-                        provider.update(new IResource[] {file}, new Revision.Number(remoteFile.getRevision()), monitor);					 
+                        provider.update(new IResource[] {file}, remoteFile.getLastChangedRevision(), monitor);					 
 						historyTableProvider.setFile(remoteFile);
 						tableViewer.refresh();
 					}

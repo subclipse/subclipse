@@ -140,10 +140,10 @@ public class SVNCompareRevisionsInput extends CompareEditorInput {
 			IResource resource = SVNCompareRevisionsInput.this.resource;
 			try {
 				ISVNRemoteFile currentEdition = (ISVNRemoteFile) SVNWorkspaceRoot.getRemoteResourceFor(resource);
-				if (currentEdition != null && currentEdition.getRevision() == entry.getRevision()) {
-					Policy.bind("currentRevision", Long.toString(entry.getRevision())); //$NON-NLS-1$
+				if (currentEdition != null && currentEdition.getLastChangedRevision().equals(entry.getRevision())) {
+					Policy.bind("currentRevision", entry.getRevision().toString()); //$NON-NLS-1$
 				} else {
-					return Long.toString(entry.getRevision());
+					return entry.getRevision().toString();
 				}
 			} catch (TeamException e) {
 				handle(e);
@@ -316,7 +316,7 @@ public class SVNCompareRevisionsInput extends CompareEditorInput {
 							// actually want to change the base.
 							try {
 								SVNTeamProvider provider = (SVNTeamProvider)RepositoryProvider.getProvider(resource.getProject());
-                                provider.update(new IResource[] {resource},new Revision.Number(edition.getRevision()),monitor);
+                                provider.update(new IResource[] {resource},edition.getLastChangedRevision(),monitor);
 								getHistoryTableProvider().setFile(edition);
 							} catch (TeamException e) {
 								throw new InvocationTargetException(e);

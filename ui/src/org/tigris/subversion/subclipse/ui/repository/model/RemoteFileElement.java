@@ -38,7 +38,7 @@ public class RemoteFileElement extends SVNModelElement {
 	public String getLabel(Object o) {
 		if (!(o instanceof ISVNRemoteFile)) return null;
 		ISVNRemoteFile file = (ISVNRemoteFile)o;
-		return Policy.bind("nameAndRevision", file.getName(),Long.toString(file.getRevision())); //$NON-NLS-1$
+		return Policy.bind("nameAndRevision", file.getName(),file.getLastChangedRevision().toString()); //$NON-NLS-1$
 	}
     
     /**

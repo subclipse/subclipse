@@ -84,7 +84,7 @@ public class SVNRemoteResourcePropertySource implements IPropertySource {
 			return resource.getName();
 		}
 		if (id.equals(ISVNUIConstants.PROP_REVISION)) {
-			return Long.toString(resource.getRevision());
+			return resource.getLastChangedRevision().toString();
 		}
 		if (id.equals(ISVNUIConstants.PROP_DATE)) {
 			return resource.getDate();

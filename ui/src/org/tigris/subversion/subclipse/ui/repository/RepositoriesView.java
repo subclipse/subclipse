@@ -352,7 +352,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 			if (res.isContainer()) {
 				name = res.getRepositoryRelativePath();
 			} else { 
-					name = res.getRepositoryRelativePath() + " " + ((ISVNRemoteFile)res).getRevision(); //$NON-NLS-1$
+					name = res.getRepositoryRelativePath() + " " + ((ISVNRemoteFile)res).getLastChangedRevision(); //$NON-NLS-1$
 			}
 	        return Policy.bind("RepositoriesView.ResourceInRepository", name, res.getRepository().getLocation()); //$NON-NLS-1$
 

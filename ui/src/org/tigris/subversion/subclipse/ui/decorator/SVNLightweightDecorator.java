@@ -229,12 +229,12 @@ public class SVNLightweightDecorator
 					SVNDecoratorConfiguration.ADDED_FLAG,
 					   store.getString(ISVNUIConstants.PREF_ADDED_FLAG));
 			} else {
-                if ((status.getRevision() != Revision.SVN_INVALID_REVNUM) &&
-                    (status.getRevision() != 0))
+                if ((status.getRevision().getNumber() != Revision.SVN_INVALID_REVNUM) &&
+                    (status.getRevision().getNumber() != 0))
                 {
 				    bindings.put(
 					   SVNDecoratorConfiguration.RESOURCE_REVISION,
-					   Long.toString(status.getLastChangedRevision()));
+					   status.getLastChangedRevision().toString());
 				    bindings.put(
 					   SVNDecoratorConfiguration.RESOURCE_AUTHOR,
 					   status.getLastCommitAuthor());

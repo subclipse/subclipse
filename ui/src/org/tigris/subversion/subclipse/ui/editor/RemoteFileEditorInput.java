@@ -124,7 +124,7 @@ public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorI
 	 */
 	public String getName() {
 		String name = file.getName();
-		return Policy.bind("nameAndRevision", name, Long.toString(file.getRevision())); //$NON-NLS-1$
+		return Policy.bind("nameAndRevision", name, file.getLastChangedRevision().toString()); //$NON-NLS-1$
 	}
 	/**
 	 * Returns the logical parent of the given object in its tree.
