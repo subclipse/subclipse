@@ -71,8 +71,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
  * Console is a view that displays the communication with the Subversion server
  */
 public class ConsoleView extends ViewPart {
-	public static final String CONSOLE_ID = "org.tigris.subversion.subclipse.ui.console"; //$NON-NLS-1$
-	private static final DateFormat TIME_FORMAT = new SimpleDateFormat(Policy.bind("Console.resultTimeFormat")); //$NON-NLS-1$
+	public static final String CONSOLE_ID = "org.tigris.subversion.subclipse.ui.console.ConsoleView"; //$NON-NLS-1$
 	private static ConsoleDocument document;
 	private static List /* of Console */ instances;
 	
@@ -355,7 +354,7 @@ public class ConsoleView extends ViewPart {
     /**
      * Appends lines to the console if any views are open.
      */
-    private static void appendConsoleLines(int type, String lines) {
+    public static void appendConsoleLines(int type, String lines) {
         StringTokenizer st = new StringTokenizer(lines,"\n");
         while (st.hasMoreTokens())
             appendConsoleLine(type,st.nextToken());
@@ -392,7 +391,7 @@ public class ConsoleView extends ViewPart {
 	 * Flush the buffered console data to the console.
 	 * Safe to call even if console isn't open (does nothing).
 	 */
-	private static void flushConsoleBuffer() {		
+	public static void flushConsoleBuffer() {		
 		if(document == null) return;
 	
 		Display display = Display.getCurrent();
@@ -432,7 +431,7 @@ public class ConsoleView extends ViewPart {
 	 * 
 	 * Must be called from the UI thread.
 	 */
-	private static ConsoleView findInActivePerspective() {
+	public static ConsoleView findInActivePerspective() {
 		try {
 			IWorkbenchPage page = SVNUIPlugin.getActivePage();
 			IViewPart consolePart = page.findView(CONSOLE_ID);
@@ -457,74 +456,5 @@ public class ConsoleView extends ViewPart {
 		return SVNUIPlugin.getPlugin().getPreferenceStore();
 	}
 
-	private static class ConsoleListener implements IConsoleListener {
-		private long commandStarted = 0;
-		
-		public void commandInvoked(String line) {
-			commandStarted = System.currentTimeMillis();
-			appendConsoleLines(ConsoleDocument.DELIMITER, Policy.bind("Console.preExecutionDelimiter")); //$NON-NLS-1$
-			appendConsoleLines(ConsoleDocument.COMMAND, line);
-		}
-		public void messageLineReceived(String line) {
-			appendConsoleLines(ConsoleDocument.MESSAGE, "  " + line); //$NON-NLS-1$
-		}
-		public void errorLineReceived(String line) {
-			appendConsoleLines(ConsoleDocument.ERROR, "  " + line); //$NON-NLS-1$
-		}
-		public void commandCompleted(IStatus status, Exception exception) {
-			long commandRuntime = System.currentTimeMillis() - commandStarted;
-			String time;
-			try {
-				time = TIME_FORMAT.format(new Date(commandRuntime));
-			} catch (RuntimeException e) {
-				SVNUIPlugin.log(new Status(IStatus.ERROR, SVNUIPlugin.ID, 0, Policy.bind("Console.couldNotFormatTime"), e)); //$NON-NLS-1$
-				time = ""; //$NON-NLS-1$
-			}
-			String statusText;
-			if (status != null) {
-				if (status.getCode() == SVNStatus.SERVER_ERROR) {
-					statusText = Policy.bind("Console.resultServerError", status.getMessage(), time); //$NON-NLS-1$
-				} else {
-					statusText = Policy.bind("Console.resultOk", time); //$NON-NLS-1$
-				}
-				appendConsoleLines(ConsoleDocument.STATUS, statusText);
-				IStatus[] children = status.getChildren();
-				if (children.length == 0) {
-					if (!status.isOK())
-						appendConsoleLine(ConsoleDocument.STATUS, messageLineForStatus(status));
-				} else {
-					for (int i = 0; i < children.length; i++) {
-						if (!children[i].isOK())
-							appendConsoleLine(ConsoleDocument.STATUS, messageLineForStatus(children[i]));
-					}
-				}
-			} else if (exception != null) {
-				if (exception instanceof OperationCanceledException) {
-					statusText = Policy.bind("Console.resultAborted", time); //$NON-NLS-1$
-				} else {
-					statusText = Policy.bind("Console.resultException", time); //$NON-NLS-1$
-				}
-				appendConsoleLine(ConsoleDocument.STATUS, statusText);
-			} else {
-				statusText = Policy.bind("Console.resultOk", time); //$NON-NLS-1$
-			}
-			appendConsoleLine(ConsoleDocument.DELIMITER, Policy.bind("Console.postExecutionDelimiter")); //$NON-NLS-1$
-			appendConsoleLine(ConsoleDocument.DELIMITER, ""); //$NON-NLS-1$
-			flushConsoleBuffer();
-		}
-		/**
-		 * Method messageLineForStatus.
-		 * @param status
-		 */
-		private String messageLineForStatus(IStatus status) {
-			if (status.getSeverity() == IStatus.ERROR) {
-				return Policy.bind("Console.error", status.getMessage()); //$NON-NLS-1$
-			} else if (status.getSeverity() == IStatus.WARNING) {
-				return Policy.bind("Console.warning", status.getMessage()); //$NON-NLS-1$
-			} else if (status.getSeverity() == IStatus.INFO) {
-				return Policy.bind("Console.info", status.getMessage()); //$NON-NLS-1$
-			}
-			return status.getMessage();
-		}
-	}
+
 }
