@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.team.internal.ui.DetailsDialog;
+import org.eclipse.team.internal.ui.dialogs.DetailsDialog;
 
 /**
  * Display a message with a details that can contain a list of projects

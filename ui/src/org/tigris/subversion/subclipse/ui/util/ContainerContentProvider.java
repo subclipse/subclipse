@@ -17,10 +17,16 @@ package org.tigris.subversion.subclipse.ui.util;
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-import org.eclipse.core.resources.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.viewers.*;
-import java.util.*;
+import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.Viewer;
 /**
  * Provides content for a tree viewer that shows only containers.
  */
