@@ -69,6 +69,8 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	
 	private Text dirtyFlag;
 	private Text addedFlag;
+
+	private Button showDirty;
 	
 	class StringPair {
 		String s1;
@@ -89,6 +91,29 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	 */
 	public SVNDecoratorPreferencesPage() {
 		setDescription(Policy.bind("SVNDecoratorPreferencesPage.description")); //$NON-NLS-1$;
+	}
+
+	private Button createCheckBox(Composite group, String label) {
+		Button button = new Button(group, SWT.CHECK);
+		button.setText(label);
+		return button;
+	}
+
+	/**
+	 * create the Label Decoration/general page 
+	 * @param parent
+	 * @return
+	 */
+	private Control createGeneralDecoratorPage(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NULL);
+		GridLayout layout = new GridLayout();
+		composite.setLayout(layout);
+		GridData data = new GridData();
+		data.horizontalAlignment = GridData.FILL;
+		composite.setLayoutData(data);
+		createLabel(composite, Policy.bind("SVNDecoratorPreferencesPage.generalDescription"), 1); //$NON-NLS-1$		
+		showDirty = createCheckBox(composite, Policy.bind("SVNDecoratorPreferencesPage.computeDeep")); //$NON-NLS-1$		
+		return composite;
 	}
 
     /**
@@ -172,6 +197,11 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText(Policy.bind("SVNDecoratorPreferencesPage.textLabel"));//$NON-NLS-1$		
 		tabItem.setControl(createTextDecoratorPage(tabFolder));
+
+		// general decoration options
+		tabItem = new TabItem(tabFolder, SWT.NONE);
+		tabItem.setText(Policy.bind("SVNDecoratorPreferencesPage.generalTabFolder"));//$NON-NLS-1$
+		tabItem.setControl(createGeneralDecoratorPage(tabFolder));
 		
 		initializeValues();
 //		WorkbenchHelp.setHelp(tabFolder, IHelpContextIds.DECORATORS_PREFERENCE_PAGE);
@@ -259,6 +289,8 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		addedFlag.setText(store.getString(ISVNUIConstants.PREF_ADDED_FLAG));
 		dirtyFlag.setText(store.getString(ISVNUIConstants.PREF_DIRTY_FLAG));
 		
+		showDirty.setSelection(store.getBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
+		
 		setValid(true);
 	}
 
@@ -281,6 +313,8 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		
 		store.setValue(ISVNUIConstants.PREF_ADDED_FLAG, addedFlag.getText());
 		store.setValue(ISVNUIConstants.PREF_DIRTY_FLAG, dirtyFlag.getText());
+		
+		store.setValue(ISVNUIConstants.PREF_CALCULATE_DIRTY, showDirty.getSelection());
 		
 		SVNLightweightDecorator.refresh();
 		
