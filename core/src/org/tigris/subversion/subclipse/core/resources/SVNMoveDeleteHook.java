@@ -6,19 +6,22 @@
  * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
- *     Daniel Bradby 
+ *     Daniel Bradby
+ *     Cédric Chabanois (cchabanois@ifrance.com) 
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.io.File;
-
+import org.eclipse.core.internal.resources.ResourceStatus;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.team.IMoveDeleteHook;
 import org.eclipse.core.resources.team.IResourceTree;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNResource;
@@ -33,11 +36,11 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 
 	public boolean deleteFile(IResourceTree tree, IFile file, int updateFlags, IProgressMonitor monitor) {
 
-		if (!isMoveable(file))
-			return false;
+        ISVNLocalFile resource = new LocalFile(file);
+        try {
+		    if (!resource.isManaged())
+			  return false;
 
-		try {
-			ISVNLocalFile resource = new LocalFile(file);
 			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
@@ -53,7 +56,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 					"Error removing file",
 					e));
 			e.printStackTrace();
-			return false;
+			return true; // we attempted
 		} finally {
 			monitor.done();
 		}
@@ -65,10 +68,11 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 
 		ISVNLocalFolder resource = new LocalFolder(folder);
 
-		if (!isMoveable(folder))
-			return false;
+        try {
+		    if (!resource.isManaged())
+			    return false;
 
-		try {
+
 			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
@@ -83,7 +87,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 					"Error removing folder",
 					e));
 			e.printStackTrace();
-			return false;
+			return true; // we attempted
 		} finally {
 			monitor.done();
 		}
@@ -94,6 +98,10 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 		return false;
 	}
 
+    /*
+     *  (non-Javadoc)
+     * @see org.eclipse.core.resources.team.IMoveDeleteHook#moveFile(org.eclipse.core.resources.team.IResourceTree, org.eclipse.core.resources.IFile, org.eclipse.core.resources.IFile, int, org.eclipse.core.runtime.IProgressMonitor)
+     */
 	public boolean moveFile(
 		IResourceTree tree,
 		IFile source,
@@ -101,14 +109,32 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 		int updateFlags,
 		IProgressMonitor monitor) {
 
-		if (!isMoveable(source))
-			return false;
-
 		try {
-			ISVNResource resource = new LocalFile(source);
+			ISVNLocalFile resource = new LocalFile(source);
+            
+            if (!resource.isManaged())
+                return false; // pass
+            
 			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
+
+            boolean force = (updateFlags & IResource.FORCE) != 0;
+            boolean keepHistory = (updateFlags & IResource.KEEP_HISTORY) != 0;
+            boolean isDeep = (updateFlags & IResource.SHALLOW) == 0;
+            
+            // If the file is not in sync with the local file system and force is false,
+            // then signal that we have an error.
+            if (!force && !tree.isSynchronized(source, IResource.DEPTH_INFINITE)) {
+                String message = org.eclipse.core.internal.utils.Policy.bind("localstore.resourceIsOutOfSync", source.getFullPath().toString()); //$NON-NLS-1$
+                IStatus status = new ResourceStatus(IResourceStatus.OUT_OF_SYNC_LOCAL, source.getFullPath(), message);
+                tree.failed(status);
+                return true; // we attempted even if we failed 
+            }
+            
+            // Add the file contents to the local history if requested by the user. 
+            if (keepHistory)
+                tree.addToLocalHistory(source);
 
             try {
                 OperationManager.getInstance().beginOperation(svnClient);
@@ -131,8 +157,6 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 OperationManager.getInstance().endOperation();
             }
 
-			
-
 		} catch (SVNException e) {
 			tree.failed(
 				new org.eclipse.core.runtime.Status(
@@ -142,7 +166,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 					"Error move file",
 					e));
 			e.printStackTrace();
-			return false;
+			return true; // we attempted 
 		} finally {
 			monitor.done();
 		}
@@ -156,14 +180,25 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 		int updateFlags,
 		IProgressMonitor monitor) {
 
-		if (!isMoveable(source))
-			return false;
-
 		try {
+            ISVNLocalFolder resource = new LocalFolder(source);
+            if (!resource.isManaged())
+                return false;            
+            
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
 
-			ISVNResource resource = new LocalFolder(source);
+            // Check to see if we are synchronized with the local file system. If we are in sync then we can
+            // short circuit this method and do a file system only move. Otherwise we have to recursively
+            // try and move all resources, doing it in a best-effort manner.
+            boolean force = (updateFlags & IResource.FORCE) != 0;
+            if (!force && !tree.isSynchronized(source, IResource.DEPTH_INFINITE)) {
+                String message = org.eclipse.core.internal.utils.Policy.bind("localstore.resourceIsOutOfSync", source.getFullPath().toString());//$NON-NLS-1$
+                IStatus status = new ResourceStatus(IResourceStatus.ERROR, source.getFullPath(), message);
+                tree.failed(status);
+                return true;
+            }
+
 			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 
             try {
@@ -188,7 +223,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 					"Error move Folder " + source.getLocation(),
 					e));
 			e.printStackTrace();
-			return false;
+			return true; // we attempted
 		} finally {
 			monitor.done();
 		}
@@ -204,37 +239,5 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 		return false;
 	}
 
-	private boolean isMoveable(IFile file)
-	{
-		if (file.isTeamPrivateMember())
-			return false;
-		
-		return isMoveable(new LocalFile(file));
-	}
 	
-	private boolean isMoveable(IFolder folder)
-	{
-		if (folder.isTeamPrivateMember())
-			return false;		
-		
-		return isMoveable(new LocalFolder(folder));	
-	}
-	
-
-	private boolean isMoveable(LocalResource resource) {
-		try {
-			LocalResource svnResource = (LocalResource) resource;
-			SVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
-			Status status = svnClient.getSingleStatus(svnResource.getFile());
-
-			if (!status.isManaged())
-				return false;
-
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			return false;
-		}
-
-		return true;
-	}
 }
