@@ -11,7 +11,7 @@
 
 	<target name="init" depends="properties">
 		<property name="core.plugin" value="org.tigris.subversion.subclipse.core"/>
-		<property name="version.suffix" value="_0.8.0"/>
+		<property name="version.suffix" value="_0.8.1"/>
 		<property name="core.full.name" value="${core.plugin}${version.suffix}"/>
 		<property name="temp.folder" value="${basedir}/temp.folder"/>
 		<property name="core.basedir" value="${basedir}"/>		
