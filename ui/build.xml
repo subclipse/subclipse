@@ -11,7 +11,7 @@
 
 	<target name="init" depends="properties">
 		<property name="ui.plugin" value="org.tigris.subversion.subclipse.ui"/>
-		<property name="version.suffix" value="_0.8.0"/>
+		<property name="version.suffix" value="_0.8.1"/>
 		<property name="ui.full.name" value="${ui.plugin}${version.suffix}"/>
 		<property name="core.temp.folder" value="${basedir}/temp.folder"/>
 		<property name="plugin.destination" value="${basedir}"/>
