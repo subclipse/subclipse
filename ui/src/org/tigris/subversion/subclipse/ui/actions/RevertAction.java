@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.ui.actions;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
@@ -36,12 +37,16 @@ public class RevertAction extends WorkspaceAction {
 						
                         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
                         svnResource.revert();
+						resources[i].refreshLocal(0, monitor);                        
 					}
 					// fix the action enablement
 					if (action != null) action.setEnabled(isEnabled());
 				} catch (TeamException e) {
 					throw new InvocationTargetException(e);
 				}
+				catch (CoreException e) {
+					throw new InvocationTargetException(e);
+				}				
 			}
 		}, false /* cancelable */, PROGRESS_BUSYCURSOR);
 	}
