@@ -285,7 +285,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
         try {
             ISVNClientAdapter svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
-            svnClient.remove(new File[] { getFile() }, false);
+            svnClient.remove(new File[] { getFile() }, true);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e); 
         } finally {
