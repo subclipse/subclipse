@@ -68,9 +68,9 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * 
@@ -506,7 +506,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
     private ISVNStatus[] getStatus() throws SVNException {
         ISVNStatus[] status = null;
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
-        SVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+        ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
         try { 
             status = svnClient.getStatusRecursively(parent.getLocation().toFile(),false);
         } catch (SVNClientException e) {
