@@ -3,15 +3,15 @@
 <plugin
    id="org.tigris.subversion.book"
    name="Version Control with Subversion"
-   version="1.1.0"
+   version="1.1.1"
    provider-name="tigris.org">
 
-<!-- ============================================================================= -->
-<!-- Define primary TOC                                                            -->
-<!-- ============================================================================= -->
-
-   <extension point="org.eclipse.help.toc">
-       <toc file="toc.xml" primary="true" />
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml"
+            primary="true">
+      </toc>
    </extension>
-   
+
 </plugin>
