@@ -214,7 +214,13 @@
                class="org.tigris.subversion.subclipse.ui.actions.SVNPropertyDeleteAction"
                id="org.tigris.subversion.subclipse.ui.deleteSVNProperty">
          </action>
-
+         <action
+               label="%SaveSVNPropertyAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.save_svnProperty_action_context"
+               tooltip="%SaveSVNPropertyAction.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.SVNPropertySaveAction"
+               id="org.tigris.subversion.subclipse.ui.saveSVNProperty">
+         </action>         
       </objectContribution>
 <!-- contribution for IProject -->
       <objectContribution
