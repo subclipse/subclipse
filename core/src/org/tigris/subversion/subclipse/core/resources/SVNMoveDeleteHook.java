@@ -22,9 +22,12 @@ import org.eclipse.core.resources.team.IMoveDeleteHook;
 import org.eclipse.core.resources.team.IResourceTree;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.team.core.RepositoryProvider;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -136,6 +139,13 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             try {
                 OperationManager.getInstance().beginOperation(svnClient);
 			    
+                // add destination directory to version control if necessary
+                // see bug #15
+                if (!SVNWorkspaceRoot.getSVNFolderFor(destination.getParent()).isManaged()) {
+                    SVNTeamProvider provider = (SVNTeamProvider)RepositoryProvider.getProvider(destination.getProject());
+                    provider.add(new IResource[] {destination.getParent()},IResource.DEPTH_ZERO,new NullProgressMonitor());
+                }
+                
                 // force is set to true because when we rename (refactor) a
                 // java class, the file is modified before being moved
                 // A modified file cannot be moved without force 
@@ -200,6 +210,14 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 
             try {
                 OperationManager.getInstance().beginOperation(svnClient);
+
+                // add destination directory to version control if necessary
+                // see bug #15
+                if (!SVNWorkspaceRoot.getSVNFolderFor(destination.getParent()).isManaged()) {
+                    SVNTeamProvider provider = (SVNTeamProvider)RepositoryProvider.getProvider(destination.getProject());
+                    provider.add(new IResource[] {destination.getParent()},IResource.DEPTH_ZERO,new NullProgressMonitor());
+                }
+                
 			    svnClient.move(
                     source.getLocation().toFile(), 
                     destination.getLocation().toFile(),
