@@ -16,7 +16,6 @@ import java.util.Date;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -24,11 +23,11 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * The purpose of this class and its subclasses is to implement the corresponding
@@ -179,7 +178,7 @@ public abstract class RemoteResource
      * @see ISVNRemoteResource#getLogEntries()
      */
     public LogEntry[] getLogEntries(IProgressMonitor monitor) throws SVNException {
-        SVNClientAdapter client = getRepository().getSVNClient();
+        ISVNClientAdapter client = getRepository().getSVNClient();
         monitor = Policy.monitorFor(monitor);
         monitor.beginTask(Policy.bind("RemoteFile.getLogEntries"), 100); //$NON-NLS-1$
         

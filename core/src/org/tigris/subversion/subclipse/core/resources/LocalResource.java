@@ -21,8 +21,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.Team;
-import org.tigris.subversion.javahl.ClientException;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -36,11 +34,11 @@ import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * Represents handles to SVN resource on the local file system. Synchronization
@@ -55,7 +53,8 @@ import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 abstract class LocalResource implements ISVNResource, Comparable {
     // this is the SVNClientAdapter we use to get the status of a local resource
     // we can use the same for each resource as we don't need to login     
-    private static SVNClientAdapter svnClientAdapterStatus = new SVNClientAdapter();
+    private static ISVNClientAdapter svnClientAdapterStatus = 
+        SVNClientAdapterFactory.createSVNClient(SVNClientAdapterFactory.JAVAHL_CLIENT);
 
 	protected static final String SEPARATOR = "/"; //$NON-NLS-1$
 	protected static final String CURRENT_LOCAL_FOLDER = "."; //$NON-NLS-1$
@@ -289,7 +288,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
      */
     public void delete() throws SVNException {
         try {
-            SVNClientAdapter svnClient = getRepository().getSVNClient();
+            ISVNClientAdapter svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
             svnClient.remove(new File[] { getFile() }, false);
         } catch (SVNClientException e) {
@@ -304,7 +303,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
      */
     public void revert() throws SVNException {
         try {
-            SVNClientAdapter svnClient = getRepository().getSVNClient();
+            ISVNClientAdapter svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
             svnClient.revert(getFile(), false);
         } catch (SVNClientException e) {

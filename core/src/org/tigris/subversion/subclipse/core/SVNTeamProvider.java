@@ -30,13 +30,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.SVNMoveDeleteHook;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This class is responsible for configuring a project for repository management
@@ -159,7 +158,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 			throw eHolder[0];
 
 		// Add the folders, followed by files!
-        SVNClientAdapter svnClient = getSVNWorkspaceRoot().getRepository().getSVNClient();
+        ISVNClientAdapter svnClient = getSVNWorkspaceRoot().getRepository().getSVNClient();
 		progress.beginTask(null, files.size() * 10 + (folders.isEmpty() ? 0 : 10));
         OperationManager.getInstance().beginOperation(svnClient);
 		try {
@@ -197,7 +196,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 	 * 
 	 */
 	public void checkin(IResource[] resources, final String comment, final int depth, IProgressMonitor progress) throws TeamException {
-		final SVNClientAdapter svnClient = getSVNWorkspaceRoot().getRepository().getSVNClient();
+		final ISVNClientAdapter svnClient = getSVNWorkspaceRoot().getRepository().getSVNClient();
         
         // Prepare the parents list
         // we will Auto-commit parents if they are not already commited
@@ -255,7 +254,7 @@ public class SVNTeamProvider extends RepositoryProvider {
             public void run(IProgressMonitor monitor) throws SVNException {
                 try {
                     monitor.beginTask(null, 100);                    
-                    SVNClientAdapter svnClient = getSVNWorkspaceRoot().getRepository().getSVNClient();
+                    ISVNClientAdapter svnClient = getSVNWorkspaceRoot().getRepository().getSVNClient();
                     OperationManager.getInstance().beginOperation(svnClient);
                     for (int i = 0; i < resources.length;i++)
                         svnClient.update(resources[i].getLocation().toFile(),revision,true);
@@ -302,7 +301,7 @@ public class SVNTeamProvider extends RepositoryProvider {
         if (!folder.getStatus().isManaged())
             throw new SVNException(IStatus.ERROR, SVNException.UNABLE,
                 Policy.bind("SVNTeamProvider.ErrorSettingIgnorePattern", folder.getIResource().getFullPath().toString())); //$NON-NLS-1$
-        SVNClientAdapter svnClient = getSVNWorkspaceRoot().getRepository().getSVNClient();
+        ISVNClientAdapter svnClient = getSVNWorkspaceRoot().getRepository().getSVNClient();
         try {
             OperationManager.getInstance().beginOperation(svnClient);
             

@@ -23,13 +23,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.tigris.subversion.javahl.ClientException;
-import org.tigris.subversion.javahl.NodeKind;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.util.ReentrantLock;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 
 
@@ -46,7 +44,7 @@ public class OperationManager implements ISVNNotifyListener {
 	private ReentrantLock lock = new ReentrantLock();
 	
 	private Set changedResources = new HashSet();
-    private SVNClientAdapter svnClient = null;
+    private ISVNClientAdapter svnClient = null;
 
 	private static OperationManager instance;
 	
@@ -71,7 +69,7 @@ public class OperationManager implements ISVNNotifyListener {
 	/**
 	 * Begins a batch of operations.
 	 */
-	public void beginOperation(SVNClientAdapter svnClient) {
+	public void beginOperation(ISVNClientAdapter svnClient) {
 		lock.acquire();
         this.svnClient = svnClient;
 		svnClient.addNotifyListener(this);

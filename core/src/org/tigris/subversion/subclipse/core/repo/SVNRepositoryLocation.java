@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.javahl.Revision;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -36,10 +35,11 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.NotificationListener;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This class manages a SVN repository location.
@@ -70,7 +70,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 	public static final String HOST_VARIABLE = "{host}"; //$NON-NLS-1$
 	public static final String PORT_VARIABLE = "{port}"; //$NON-NLS-1$
 	
-	private SVNClientAdapter svnClient; 
+	private ISVNClientAdapter svnClient; 
 	
 	
 	static {
@@ -183,11 +183,11 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
     /**
      * get the svn client corresponding to the repository
      */
-	public SVNClientAdapter getSVNClient()
+	public ISVNClientAdapter getSVNClient()
 	{
 		if (svnClient != null)
 			return svnClient;
-		svnClient = new SVNClientAdapter();
+		svnClient = SVNClientAdapterFactory.createSVNClient(SVNClientAdapterFactory.JAVAHL_CLIENT);
         
         svnClient.addNotifyListener(NotificationListener.getInstance());
         
@@ -277,7 +277,7 @@ public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo,
 	 * indicating the problem is throw.
 	 */
 	public void validateConnection(IProgressMonitor monitor) throws SVNException {
-        SVNClientAdapter svnClient = getSVNClient();
+        ISVNClientAdapter svnClient = getSVNClient();
         try {
             // we try to get the list of directories and files using the connection
 			svnClient.getList(getUrl(),SVNRevision.HEAD, false);

@@ -23,10 +23,10 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This class provides the implementation of ISVNRemoteFile and IManagedFile for
@@ -65,7 +65,7 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile  {
         {
             if (contents == null)
             {
-                SVNClientAdapter svnClient = repository.getSVNClient();
+                ISVNClientAdapter svnClient = repository.getSVNClient();
                 InputStream inputStream;
                 try {
                     inputStream = svnClient.getContent(url, getLastChangedRevision());

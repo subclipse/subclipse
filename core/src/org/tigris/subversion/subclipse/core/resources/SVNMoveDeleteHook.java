@@ -26,8 +26,8 @@ import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 public class SVNMoveDeleteHook implements IMoveDeleteHook {
 
@@ -38,7 +38,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 		    if (!resource.isManaged())
 			  return false;
 
-			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+			ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
             resource.delete();
@@ -70,7 +70,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 			    return false;
 
 
-			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+			ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
             resource.delete();
@@ -112,7 +112,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             if (!resource.isManaged())
                 return false; // pass
             
-			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+			ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 			monitor.beginTask(null, 1000);
 			monitor.setTaskName("Working..");
 
@@ -196,7 +196,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 return true;
             }
 
-			SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+			ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 
             try {
                 OperationManager.getInstance().beginOperation(svnClient);

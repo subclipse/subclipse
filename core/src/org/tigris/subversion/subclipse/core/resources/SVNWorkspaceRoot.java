@@ -40,13 +40,13 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.sync.SVNRemoteSyncElement;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 
 /**
@@ -162,7 +162,7 @@ public class SVNWorkspaceRoot {
 							project = projects[i];
 							boolean deleteDotProject = false;
 						    // Perform the checkout
-                            SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+                            ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
 
 							// check if the remote project has a .project file
 							ISVNDirEntry[] rootFiles = svnClient.getList(resource.getUrl(), SVNRevision.HEAD, false);
@@ -251,7 +251,7 @@ public class SVNWorkspaceRoot {
 				remoteDirName = projectName;
 
 
-            final SVNClientAdapter svnClient = location.getSVNClient();
+            final ISVNClientAdapter svnClient = location.getSVNClient();
 		
 			// perform the workspace modifications in a runnable
 			try {

@@ -13,8 +13,8 @@ package org.tigris.subversion.subclipse.core;
  
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This interface provides access to the specific portions of
@@ -84,7 +84,7 @@ public interface ISVNRepositoryLocation  extends IAdaptable {
 	 */
 	public String getUsername();
 	
-	public SVNClientAdapter getSVNClient();	
+	public ISVNClientAdapter getSVNClient();	
 	
     public ISVNRemoteFolder getRootFolder();
     

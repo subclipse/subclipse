@@ -21,7 +21,6 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.sync.IRemoteResource;
-import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -32,12 +31,12 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * This class provides the implementation of ISVNRemoteFolder
@@ -125,7 +124,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
         }
 		
 		try {
-            SVNClientAdapter client = getRepository().getSVNClient();
+            ISVNClientAdapter client = getRepository().getSVNClient();
 				
 			ISVNDirEntry[] list = client.getList(url,getRevision(),false);
 			List result = new ArrayList();
@@ -241,7 +240,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
         progress.beginTask(Policy.bind("RemoteFolder.createRemoteFolder"), 100); //$NON-NLS-1$
         
         try {
-            SVNClientAdapter svnClient = getRepository().getSVNClient();
+            ISVNClientAdapter svnClient = getRepository().getSVNClient();
             svnClient.mkdir(new SVNUrl(Util.appendPath(getUrl().toString(),folderName)),message);
             refresh();
             SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().remoteResourceCreated(this,folderName);

@@ -24,10 +24,10 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.javahl.SVNClientAdapter;
 
 /**
  * provides some static methods to handle repository management 
@@ -152,7 +152,7 @@ public class RepositoryResourcesManager {
         try {        
             for (Iterator it = mapRepositories.values().iterator(); it.hasNext();) {
                 List resources = (List)it.next();
-                SVNClientAdapter svnClient = ((ISVNRemoteResource)resources.get(0)).getRepository().getSVNClient();
+                ISVNClientAdapter svnClient = ((ISVNRemoteResource)resources.get(0)).getRepository().getSVNClient();
                 SVNUrl urls[] = new SVNUrl[resources.size()];
                 for (int i = 0; i < resources.size();i++) {
                     ISVNRemoteResource resource = (ISVNRemoteResource)resources.get(i); 
@@ -187,7 +187,7 @@ public class RepositoryResourcesManager {
         progress.beginTask(Policy.bind("RepositoryResourcesManager.copyRemoteResources"), 100); //$NON-NLS-1$
 
         try {        
-            SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+            ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
             svnClient.copy(resource.getUrl(),destinationFolder.getUrl(),message,SVNRevision.HEAD);
             destinationFolder.refresh();
             remoteResourceCopied(resource, destinationFolder);
@@ -205,7 +205,7 @@ public class RepositoryResourcesManager {
         progress.beginTask(Policy.bind("RepositoryResourcesManager.moveRemoteResources"), 100); //$NON-NLS-1$
         
         try {        
-            SVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+            ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
             SVNUrl destUrl = new SVNUrl(Util.appendPath(destinationFolder.getUrl().toString(),destinationResourceName));
             
             svnClient.move(resource.getUrl(),destUrl,message,SVNRevision.HEAD);
