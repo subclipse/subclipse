@@ -12,8 +12,6 @@
 package org.tigris.subversion.subclipse.ui.editor;
 
  
-import java.net.URL;
-
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -22,6 +20,7 @@ import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * An editor input for a file in a repository.
@@ -169,7 +168,7 @@ public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorI
 	 * @return the tool tip text
 	 */
 	public String getToolTipText() {
-        URL url = file.getUrl();
+        SVNUrl url = file.getUrl();
         return url.toString();
 	}
 }

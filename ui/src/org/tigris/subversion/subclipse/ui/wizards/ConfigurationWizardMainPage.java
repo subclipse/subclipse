@@ -13,7 +13,6 @@ package org.tigris.subversion.subclipse.ui.wizards;
 
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
@@ -36,6 +35,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Wizard page for entering information about a SVN repository location.
@@ -323,7 +323,7 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 			return;
 		}
 		try {
-			new URL(url);
+			new SVNUrl(url);
 		} catch (MalformedURLException e) {
 			setErrorMessage(Policy.bind("ConfigurationWizardMainPage.invalidUrl", e.getMessage())); //$NON-NLS-1$);
 			setPageComplete(false);			
