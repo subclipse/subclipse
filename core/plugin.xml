@@ -2,7 +2,7 @@
 <plugin
    id="org.tigris.subversion.subclipse.core"
    name="%pluginName"
-   version="0.8.1"
+   version="0.8.6"
    provider-name="%providerName"
    class="org.tigris.subversion.subclipse.core.SVNProviderPlugin">
 
@@ -13,7 +13,7 @@
       <library name="svnClientAdapter.jar">
          <export name="*"/>
       </library>
-      <library name="javahl.jar">
+      <library name="svnjavahl.jar">
          <export name="*"/>
       </library>
    </runtime>
