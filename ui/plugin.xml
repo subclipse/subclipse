@@ -270,7 +270,15 @@
                menubarPath="team.main/group3"
                helpContextId="org.tigris.subversion.subclipse.ui.team_revert_action_context"
                id="org.tigris.subversion.subclipse.ui.revert">
-         </action>         
+         </action> 
+         <action
+               label="%GenerateDiff.label"
+               tooltip="%GenerateDiff.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.GenerateDiffFileAction"
+               menubarPath="team.main/group1"
+               helpContextId="org.tigris.subversion.subclipse.ui.team_create_patch_action_context"
+               id="org.tigris.subversion.subclipse.ui.GenerateDiff">
+         </action>                 
       </objectContribution>
 <!-- contribution for IFile -->
       <objectContribution
