@@ -179,6 +179,23 @@ public class LocalResourceStatusCache {
                 // we ignore the exception
             }            
         }
+        // if status is STILL null then do a bit of ol skool on it because it's prob a deleted file
+        if(status == null){
+				// don't do getRepository().getSVNClient() as we can ask the status of a file
+				// that is not associated with a known repository
+				// we don't need login & password so this is not a problem   
+				try {
+					ISVNClientAdapter svnClientAdapterStatus = SVNProviderPlugin.getPlugin().createSVNClient();
+					status = svnClientAdapterStatus.getSingleStatus(resource.getLocation().toFile());
+					resource.setSessionProperty(RESOURCE_SYNC_KEY, status);
+				} catch (SVNClientException e1) {
+					throw SVNException.wrapException(e1);
+				} catch (CoreException e) {
+					// the resource does not exist
+					// we ignore the exception
+				}
+        	
+        }
         return status;
     }
 
