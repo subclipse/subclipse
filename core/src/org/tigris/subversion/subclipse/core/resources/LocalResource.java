@@ -17,7 +17,6 @@ import java.net.MalformedURLException;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.Team;
@@ -153,32 +152,7 @@ abstract class LocalResource implements ISVNResource, Comparable {
      * get the status of the given resource
      */
     public ISVNStatus getStatus() throws SVNException {
-        ISVNStatus status = null;
-        
-        try {
-            status = (ISVNStatus) resource.getSessionProperty(RESOURCE_SYNC_KEY);
-        } catch (CoreException e) {
-            // the resource does not exist
-            // we ignore the exception
-        }
-       
-        if (status == null)
-        {
-            // don't do getRepository().getSVNClient() as we can ask the status of a file
-            // that is not associated with a known repository
-            // we don't need login & password so this is not a problem   
-            try {
-                ISVNClientAdapter svnClientAdapterStatus = SVNProviderPlugin.getPlugin().createSVNClient();
-				status = svnClientAdapterStatus.getSingleStatus(resource.getLocation().toFile());
-                resource.setSessionProperty(RESOURCE_SYNC_KEY, status);
-            } catch (SVNClientException e1) {
-                throw SVNException.wrapException(e1);
-            } catch (CoreException e) {
-                // the resource does not exist
-                // we ignore the exception
-            }
-        }
-        return status;
+        return LocalResourceStatusCache.getStatus(resource);
     }
 
 	/*

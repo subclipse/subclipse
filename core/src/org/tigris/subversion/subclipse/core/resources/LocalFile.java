@@ -62,6 +62,8 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
      */
     public void refreshStatus() {
         try {
+            // by removing the session property we force LocalFile to refresh its
+            // status next time getStatus is called
             resource.setSessionProperty(RESOURCE_SYNC_KEY, null);
         } catch (CoreException e) {
             // the resource does not exist, we ignore the exception
