@@ -63,6 +63,34 @@
 <!-- ************** Popup menus *************** -->
    <extension
          point="org.eclipse.ui.popupMenus">
+<!-- contribution for ISVNRepositoryLocation -->
+      <objectContribution
+            objectClass="org.tigris.subversion.subclipse.core.ISVNRepositoryLocation"
+            id="org.tigris.subversion.subclipse.ui.RepositoryLocationContributions">
+         <action
+               label="%CreateRemoteFolderAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.create_remote_folder_action_context"
+               tooltip="%CreateRemoteFolderAction.tooltip"
+               icon="icons/full/wizards/newfolder_wiz.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.CreateRemoteFolderAction"
+               menubarPath="group.add/additions"               
+               id="org.tigris.subversion.subclipse.ui.createRemoteFolder">
+         </action>
+      </objectContribution>
+<!-- contribution for ISVNRemoteResource -->
+      <objectContribution
+            objectClass="org.tigris.subversion.subclipse.core.ISVNRemoteResource"
+            id="org.tigris.subversion.subclipse.ui.RemoteResourceContributions">
+         <action
+               label="%CreateRemoteFolderAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.create_remote_folder_action_context"
+               tooltip="%CreateRemoteFolderAction.tooltip"
+               icon="icons/full/wizards/newfolder_wiz.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.CreateRemoteFolderAction"
+               menubarPath="group.add/additions"               
+               id="org.tigris.subversion.subclipse.ui.createRemoteFolder">
+         </action>
+      </objectContribution>
 <!-- contribution for ISVNRemoteFile -->
       <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.ISVNRemoteFile"

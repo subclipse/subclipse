@@ -318,26 +318,21 @@ public class SVNCompareEditorInput extends CompareEditorInput {
 			return NODE_NOT_EQUAL;
 		}
 		
-		try {
-			String leftLocation = leftEdition.getRepository().getLocation();
-			String rightLocation = rightEdition.getRepository().getLocation();
-			if (!leftLocation.equals(rightLocation)) {
-				return NODE_UNKNOWN;
-			}
+		String leftLocation = leftEdition.getRepository().getLocation();
+		String rightLocation = rightEdition.getRepository().getLocation();
+		if (!leftLocation.equals(rightLocation)) {
+			return NODE_UNKNOWN;
+		}
 
-			if (leftEdition.getUrl().equals(rightEdition.getUrl()) &&
-                leftEdition.getRevision() == rightEdition.getRevision()) {
-				return NODE_EQUAL;
-			} else {
+		if (leftEdition.getUrl().equals(rightEdition.getUrl()) &&
+            leftEdition.getRevision() == rightEdition.getRevision()) {
+			return NODE_EQUAL;
+	   } else {
 //				if(considerContentIfRevisionOrPathDiffers()) {
-					return NODE_UNKNOWN;
+			return NODE_UNKNOWN;
 //				} else {
 //					return NODE_NOT_EQUAL;
 //				}
-			}
-		} catch (TeamException e) {
-			handle(e);
-			return NODE_UNKNOWN;
 		}
 	}
 	

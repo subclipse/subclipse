@@ -135,17 +135,7 @@ public class CommitCommentArea extends DialogArea {
 		// (see bug 32078: http://bugs.eclipse.org/bugs/show_bug.cgi?id=32078)
 		previousCommentsCombo.setText(""); //$NON-NLS-1$
 		
-		// determine the initial comment text
-		String initialComment;
-		try {
-			initialComment = getCommitTemplate();
-		} catch (SVNException e) {
-			SVNUIPlugin.log(e);
-			initialComment = null;
-		}
-		if (initialComment != null && initialComment.length() != 0) {
-			text.setText(initialComment);
-		}
+		text.setText("");
 	}
 
 	/*
@@ -181,18 +171,10 @@ public class CommitCommentArea extends DialogArea {
 	 * Method clearCommitText.
 	 */
 	private void clearCommitText() {
-		try {
-			text.setText(getCommitTemplate());
-			previousCommentsCombo.deselectAll();
-		} catch (SVNException e) {
-			SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.PERFORM_SYNC_EXEC);
-		}
+		text.setText("");
+		previousCommentsCombo.deselectAll();
 	}
 
-	private String getCommitTemplate() throws SVNException {
-		return "";
-	}
-	
 	/**
 	 * Method getProvider.
 	 */
@@ -207,14 +189,7 @@ public class CommitCommentArea extends DialogArea {
 	 */
 	private String getSelectedComment() {
 		if (comments.length == 0) {
-			// There are no previous comments so use the template
-			try {
-				return getCommitTemplate();
-			} catch (SVNException e) {
-				// log the exception for now. 
-				// The user can surface the problem by trying to reset the comment
-				SVNUIPlugin.log(e);
-			}
+			return "";
 		} else {
 			int index = previousCommentsCombo.getSelectionIndex();
 			if (index != -1)
@@ -250,15 +225,6 @@ public class CommitCommentArea extends DialogArea {
 	}
 	
 	private void finished() {
-		// if the comment is the same as the template, ignore it
-		try {
-			if (comment.equals(getCommitTemplate())) {
-				comment = ""; //$NON-NLS-1$
-			}
-		} catch (SVNException e) {
-			// we couldn't get the commit template. Log the error and continue
-			SVNUIPlugin.log(e);
-		}
 		// if there is still a comment, remember it
 		if (comment.length() > 0) {
 			SVNUIPlugin.getPlugin().getRepositoryManager().getCommentsManager().addComment(comment);

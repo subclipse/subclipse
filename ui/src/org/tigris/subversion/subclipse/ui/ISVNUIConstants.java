@@ -48,6 +48,8 @@ public interface ISVNUIConstants {
 	
 	// wizards
 	public final String IMG_NEWLOCATION = "wizards/newlocation_wiz.gif"; //$NON-NLS-1$
+    public final String IMG_NEWFOLDER = "wizards/newfolder_wiz.gif"; //$NON-NLS-1$
+    
 	
 	// preferences
 	public final String PREF_SHOW_COMMENTS = "pref_show_comments"; //$NON-NLS-1$
@@ -104,6 +106,8 @@ public interface ISVNUIConstants {
 	public final String IMG_WIZBAN_DIFF = "wizban/createpatch_wizban.gif";   //$NON-NLS-1$
 	public final String IMG_WIZBAN_KEYWORD = "wizban/keywordsub_wizban.gif"; //$NON-NLS-1$
 	public final String IMG_WIZBAN_NEW_LOCATION = "wizban/newlocation_wizban.gif"; //$NON-NLS-1$
+    public final String IMG_WIZBAN_NEW_FOLDER = "wizban/newfolder_wizban.gif"; //$NON-NLS-1$
+    
 	// XXX checkout is same as ne connect. If it changes, it must be initialized
 	public final String IMG_WIZBAN_CHECKOUT = "wizban/newconnect_wizban.gif";	 //$NON-NLS-1$
 	

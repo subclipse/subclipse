@@ -11,37 +11,72 @@
 package org.tigris.subversion.subclipse.ui.wizards;
 
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-import org.eclipse.ui.part.DrillDownAdapter;
+import org.eclipse.ui.part.DrillDownComposite;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
 
 /**
+ * the main wizard page for creating a new remote folder on repository
  */
 public class NewRemoteFolderWizardMainPage extends SVNWizardPage {
+
+    private static final int LIST_WIDTH = 250;
+    private static final int LIST_HEIGHT = 300;
 
     private Text urlParentText;
     private Text folderNameText;
 
     private TreeViewer viewer;
 
-    // Drill down adapter
-    private DrillDownAdapter drillPart; // Home, back, and "drill into"
-
-    private AllRootsElement root;
-    private RemoteContentProvider contentProvider;
+    private ISVNRemoteFolder parentFolder; 
 	
+    private ISelectionChangedListener treeSelectionChangedListener = new ISelectionChangedListener() {
+        public void selectionChanged(SelectionChangedEvent event) {
+            Object selection = ((IStructuredSelection)event.getSelection()).getFirstElement();
+            
+            if (selection instanceof ISVNRemoteFolder) {
+                parentFolder = (ISVNRemoteFolder)selection;
+    
+            }
+            else
+            if (selection instanceof IAdaptable) {
+                // ISVNRepositoryLocation is adaptable to ISVNRemoteFolder
+                IAdaptable a = (IAdaptable) selection;
+                Object adapter = a.getAdapter(ISVNRemoteFolder.class);
+                parentFolder = (ISVNRemoteFolder)adapter;
+            }            
+
+            if (parentFolder != null)
+                urlParentText.setText(parentFolder.getUrl().toString());
+        }
+
+    };
+    
+    
 	/**
 	 * NewRemoteFolderWizardMainPage constructor.
 	 * 
@@ -55,7 +90,7 @@ public class NewRemoteFolderWizardMainPage extends SVNWizardPage {
         ImageDescriptor titleImage) {
 		super(pageName, title, titleImage);
 	}
-    
+
 	/**
 	 * Creates the UI part of the page.
 	 * 
@@ -71,91 +106,103 @@ public class NewRemoteFolderWizardMainPage extends SVNWizardPage {
 				validateFields();
 			}
 		};
-		
-	//	Group g = createGroup(composite, Policy.bind("ConfigurationWizardMainPage.Location_1")); //$NON-NLS-1$
-		
-		createLabel(composite, "Url of remote directory to create :"); // Policy.bind("ConfigurationWizardMainPage.password")); //$NON-NLS-1$
+
+        // the text field for the parent folder
+		createLabel(composite, Policy.bind("NewRemoteFolderWizardMainPage.selectParentUrl")); //$NON-NLS-1$
+
         urlParentText = createTextField(composite);
         urlParentText.addListener(SWT.Selection, listener);
         urlParentText.addListener(SWT.Modify, listener);
-        
-        viewer = new TreeViewer(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-        contentProvider = new RemoteContentProvider();
-        viewer.setLabelProvider(new WorkbenchLabelProvider());
-//        getSite().setSelectionProvider(viewer);
-        root = new AllRootsElement();
-        viewer.setInput(root);
-        drillPart = new DrillDownAdapter(viewer);
+        urlParentText.setEditable(false);
 
-        createLabel(composite, "Folder name :"); // Policy.bind("ConfigurationWizardMainPage.password")); //$NON-NLS-1$
+
+        // Create drill down.
+        DrillDownComposite drillDown = new DrillDownComposite(composite, SWT.BORDER);
+        GridData spec = new GridData(GridData.FILL_BOTH);
+        spec.widthHint = LIST_WIDTH;
+        spec.heightHint = LIST_HEIGHT;
+        drillDown.setLayoutData(spec);
+ 
+        // Create tree viewer inside drill down.
+        viewer = new TreeViewer(drillDown, SWT.H_SCROLL | SWT.V_SCROLL);
+        drillDown.setChildTree(viewer);
+        viewer.setLabelProvider(new WorkbenchLabelProvider());
+        viewer.setContentProvider(new RemoteContentProvider());
+        viewer.setInput(new AllRootsElement());
+        viewer.addFilter(new ViewerFilter() {
+            public boolean select(Viewer viewer, Object parentElement, Object element) {
+                return !(element instanceof ISVNRemoteFile);                      
+            }          
+        });
+        viewer.addSelectionChangedListener(treeSelectionChangedListener);
+
+        // the text field for the folder name
+        createLabel(composite, Policy.bind("NewRemoteFolderWizardMainPage.folderName")); //$NON-NLS-1$
+        
         folderNameText = createTextField(composite);
         folderNameText.addListener(SWT.Selection, listener);
         folderNameText.addListener(SWT.Modify, listener);
-
-
-		initializeValues();
+            
 		validateFields();
-        urlParentText.setFocus();
-		
+        folderNameText.setFocus();
+	
 		setControl(composite);
+        
+        // set the initial selection in the tree
+        if (parentFolder != null) {
+            Object toSelect = null;
+            if (parentFolder.getParent() == null) {
+                // the root folder : select the repository
+                toSelect = parentFolder.getRepository();
+            }
+            else
+                toSelect = parentFolder; 
+            viewer.expandToLevel(toSelect,0);
+            viewer.setSelection(new StructuredSelection(toSelect),true);
+        }        
+        
 	}
-	
-	protected Group createGroup(Composite parent, String text) {
-		Group group = new Group(parent, SWT.NULL);
-		group.setText(text);
-		GridData data = new GridData(GridData.FILL_HORIZONTAL);
-		data.horizontalSpan = 2;
-		//data.widthHint = GROUP_WIDTH;
-		
-		group.setLayoutData(data);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		group.setLayout(layout);
-		return group;
-	}
-	
-	/**
-	 * @see SVNWizardPage#finish
-	 */
-	public boolean finish(IProgressMonitor monitor) {
-
-		return true;
-	}
-
-	/**
-	 * Initializes states of the controls.
-	 */
-	private void initializeValues() {
-	}
-
 	
 	/**
 	 * Validates the contents of the editable fields and set page completion 
-	 * and error messages appropriately. Call each time url or username is modified 
+	 * and error messages appropriately. Call each time folder name or parent url
+     * is modified 
 	 */
 	private void validateFields() {
-/*		String url = urlCombo.getText();
-		if (url.length() == 0) {
+		if (folderNameText.getText().length() == 0) {
 			setErrorMessage(null);
 			setPageComplete(false);
 			return;
 		}
 		try {
-			new URL(url);
+			new URL(Util.appendPath(urlParentText.getText(), folderNameText.getText()));
 		} catch (MalformedURLException e) {
-			setErrorMessage(Policy.bind("ConfigurationWizardMainPage.invalidUrl")); //$NON-NLS-1$);
+			setErrorMessage(Policy.bind("NewRemoteFolderWizardMainPage.invalidUrl")); //$NON-NLS-1$);
 			setPageComplete(false);			
 			return;
 		}
 		setErrorMessage(null);
-		setPageComplete(true); */
+		setPageComplete(true); 
 	}
 	
    
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		if (visible) {
-			urlParentText.setFocus();
+            folderNameText.setFocus();
 		}
 	}
+    
+    public String getFolderName() {
+        return folderNameText.getText();
+    }
+    
+    public ISVNRemoteFolder getParentFolder() {
+        return parentFolder;
+    }
+    
+    public void setParentFolder(ISVNRemoteFolder parentFolder) {
+        this.parentFolder = parentFolder;
+    }
+    
 }

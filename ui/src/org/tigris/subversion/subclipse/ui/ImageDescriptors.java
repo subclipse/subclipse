@@ -57,6 +57,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_COLLAPSE_ALL, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_COLLAPSE_ALL_ENABLED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_NEWLOCATION, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_NEWFOLDER, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_TAG, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_MODULE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_CLEAR, baseURL);
@@ -70,6 +71,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_DIFF, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_KEYWORD, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_NEW_LOCATION, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_NEW_FOLDER, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_MERGEABLE_CONFLICT, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_QUESTIONABLE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_MERGED, baseURL);

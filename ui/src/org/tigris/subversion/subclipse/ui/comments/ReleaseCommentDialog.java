@@ -44,7 +44,7 @@ public class ReleaseCommentDialog extends Dialog {
 		commitCommentArea = new CommitCommentArea(this, null);
 		// Get a project from which the commit template can be obtained
 		if (resourcesToCommit.length > 0) 
-		commitCommentArea.setProject(resourcesToCommit[0].getProject());
+		  commitCommentArea.setProject(resourcesToCommit[0].getProject());
 	}
 	
 	/*
