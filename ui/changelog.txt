@@ -1,14 +1,12 @@
-* 0.6.0 - Initial Release
+* 0.8.0
 
-- Share 
-- Checkout 
-- Update 
-- Commit 
-- History 
-- Add 
-- Move/Delete (file and folders) 
-- Authentication 
-- Compare 
+- now use javahl instead of svnup
+- Handle SVN URLS (svn://)
+- we now know the url from where the local resource was copied so display it in pending operations view
+- corrected bug : could not discard a repository anymore
+- handle double-click in PendingOperationsView
+- Bug 13 corrected. ConsoleView.findInActivePerspective was not executed in UI thread
+- start using update site manager (http://subclipse.tigris.org/update)
 
 * 0.7.0
 
@@ -20,3 +18,14 @@
 - added --force for refactoring
 - jsvnjni.dll linked with subversion 0.26.0 and db 4.0.14
 
+* 0.6.0 - Initial Release
+
+- Share 
+- Checkout 
+- Update 
+- Commit 
+- History 
+- Add 
+- Move/Delete (file and folders) 
+- Authentication 
+- Compare 

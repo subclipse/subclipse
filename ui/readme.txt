@@ -4,7 +4,7 @@ An initial release has been made that supports most of the major Subversion feat
 
 * Current Release
 
-Download the current release of 0.7.0 which supports the following and more ...
+Download the current release of 0.8.0 which supports the following and more ...
 
 Share 
 Checkout 
@@ -16,11 +16,11 @@ Move/Delete (file and folders)
 Authentication 
 Compare 
 
-Linked against subversion 0.26.0 and db 4.0.14
+Linked against subversion 0.28.2 and db 4.0.14
 
 * Installation
 
-Download the subclipse-0.7.0.zip file 
+Download the subclipse-0.8.0.zip file 
 
 Unzip the file into the Eclipse home directory. 
 

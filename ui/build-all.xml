@@ -13,7 +13,7 @@
 		<property name="plugin" value="org.tigris.subversion.subclipse"/>	
 		<property name="ui-plugin" value="org.tigris.subversion.subclipse.ui"/>
 		<property name="core-plugin" value="org.tigris.subversion.subclipse.core"/>		
-		<property name="version.suffix" value="_0.7.0"/>
+		<property name="version.suffix" value="_0.8.0"/>
 		<property name="full.name" value="${plugin}${version.suffix}"/>
 		<property name="temp.folder" value="${basedir}/temp.folder"/>
 		<property name="plugins.folder" value="${temp.folder}/eclipse/plugins"/>		
