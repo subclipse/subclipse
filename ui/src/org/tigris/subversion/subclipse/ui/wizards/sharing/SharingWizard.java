@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -258,6 +259,14 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 							
 							// Create the remote module for the project
 							SVNWorkspaceRoot.shareProject(location, project, getRemoteDirectoryName(), new SubProgressMonitor(monitor, 50));
+							
+							try{
+								project.refreshLocal(IProject.DEPTH_INFINITE, new SubProgressMonitor(monitor, 50));
+							}
+							catch(CoreException ce){
+								throw new TeamException(ce.getStatus());
+							}
+							
 						}
 					} catch (TeamException e) {
 						throw new InvocationTargetException(e);
