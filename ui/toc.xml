@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<!--
+  Convention is: Omit prefixes for "SVN" (as in "SVN Resource History View") and don't use
+  menu qualifiers (such as "Team -> Foo". Just put "Foo".) We have enough context.
+-->
+
+<toc label="Subclipse - Subversion Eclipse Plugin" topic="html/toc.html">
+   <topic label="Getting Started">
+      <anchor id="gettingstarted"/>
+   </topic>
+   <topic label="Tasks">
+      <anchor id="dailywork"/>
+   </topic>
+   <topic label="Reference">
+      <anchor id="reference"/>
+   </topic>
+   <topic label="Subclipse for Subversion Users" href="html/faq/subversion-mapping.html"/>
+   <topic label="Glossary" href="html/faq/glossary.html"/>
+   <topic label="Tips and Tricks" href="html/faq/tips-and-tricks.html"/>
+   <topic label="FAQ" href="html/faq/faq.html"/>
+</toc>

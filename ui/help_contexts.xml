@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.contexts"?>
+
+<!--
+  The topics are labelled so that the user can choose the "process" help (Tasks, Getting Started),
+  or see the "Reference" sections. Also, the links are given in context, so that e.g. menu items
+  are shown with menu ("Team -> Foo", not "Foo"), and SVN prefixes are always included
+  ("SVN Resource History View", not "History View").
+
+  The space should be adequate, since the pop-up can be as large as required. This is in contrast to the
+  TOC files, where context is given already.
+-->
+
+<contexts>
+
+	<!-- Views -->
+
+	<context id="resource_history_view_context">
+		<description>This view shows you the different versions of the selected file or folder as they are found in the Subversion repository.</description>
+		<topic href="html/dailywork/diffing.html" label="Tasks: Comparing, QuickDiff and Restoring" />
+		<topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
+		<topic href="html/reference/show-in-history.html" label="Reference: Team -> Show in Resource History"/>
+	</context>
+
+	<context id="console_view_context">
+		<description>The Subclipse console view lists the command line equivalents of the actions you perform using the command line client. You can turn the console off in the Preference page (found in Window -> Preferences -> Team -> SVN -> Console -> Show SVN output in the Console view), and control whether or not the SVN console tab is brought to the front on every SVN event.</description>
+		<topic href="html/reference/svn-console.html" label="Reference: SVN Console View"/>
+		<topic href="html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
+	</context>
+
+	<context id="repositories_view_context">
+		<description>This view contains the Subversion repository locations known in this workspace. Using the context menu, you can add and remove locations, browse repository contents and check out projects to work with them, as well as viewing resource histories (log), creating new folders, moving and renaming resources.</description>
+		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Connecting to a Subversion Repository"/>
+		<topic href="html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+	</context>
+
+	<context id="compare_revision_view_context">
+		<description>TODO - compare_revision_view_context - how did you make this text appear?</description>
+		<topic href="html/reference/compare.html" label="Reference: Compare Menu"/>
+	</context>
+
+	<context id="annotations_view_context">
+		<description>This shows the revision and committer of the different sections of the selected text file and works together with the resource history view to show which revisions contributed which lines of text in the file (you can select each section and the history view will be updated). Using this information, you can see which revision is to 'blame' for a specific line of the text file examined (or where praise is due.)</description>
+		<topic href="html/reference/svn-annotations.html" label="Reference: Team -> SVN Annotation View"/>
+		<topic href="html/reference/show-annotation.html" label="Reference: Team -> Show Annotation"/>
+		<topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
+	</context>
+
+	<context id="properties_view_context">
+		<description>The active Subversion properties for the resource currently shown in the editor (if it is managed by Subversion, that is). You can even see special Subversion properties (prefixed by 'svn:')</description>
+		<topic href="html/reference/svn-properties-view.html" label="Reference: SVN Properties View"/>
+		<topic href="html/reference/svn-ignore.html" label="Refernce: Team -> Add to svn:ignore" />
+		<topic href="html/reference/add-keywords.html" label="Reference: Team -> Add keywords" />
+	</context>
+
+	<context id="pending_operations_view_context">
+		<description>This view contains the selected projects' pending operations against the known state of the remote repository, i.e. the outgoing changes. You may also use the 'Team Synchronization' to see both incoming and outgoing changes.</description>
+		<topic href="html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit"/>
+		<topic href="html/reference/pending-operations-view.html" label="Reference: Pending Operations View"/>
+	</context>
+
+	<!-- Dialogs -->
+
+	<context id="release_comment_dialog_context">
+		<description>This dialog box is used for entering the "commit message" or "log message", the text associated with the revision number that you are comitting. This is the text that will also be shown in SVN History view for the changed resource(s).</description>
+		<topic href="html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit" />
+		<topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
+		<topic href="html/reference/svn-repository.html" label="Reference: SVN Repository Exploring Perspective" />
+	</context>
+
+	<context id="switch_dialog_context">
+		<description>You can enter the URL of the repository location that you wish to switch to directly, or use the "Choose..." button to bring up a repository browser enabling you to choose the location by point-and-click. Usually, you want the HEAD revision of the selected location, but if you specify a specific revision number, ensure that the chosen repository location did indeed exist at that revision.</description>
+		<topic href="html/reference/switch.html" label="Reference: Team -> Switch"/>
+	</context>
+
+	<context id="branch_tag_dialog_context">
+		<description>Branching and tagging copies the current repository state (e.g. under 'trunk' to a new location under e.g. 'tags' or 'branches'.</description>
+		<topic href="html/reference/branch-tag.html" label="Reference: Team -> Branch/Tag"/>
+	</context>
+
+	<context id="merge_dialog_context">
+		<description>Using this dialog, you can merge a set of differences between two different revisions of a repository location, OR merge the difference between two separate repository locations.</description>
+		<topic href="html/reference/merge.html" label="Reference: Team -> Merge"/>
+		<topic href="html/reference/merge.html" label="Reference: Team -> Merge"/>
+	</context>
+
+	<context id="revert_dialog_context">
+		<description>You may chose which changes you wish to revert to the pristine state (this may differ from the state currently found in the Subversion repository). Reverting doesn't connect to the repository, all the pristine data are stored within your working copy.</description>
+		<topic href="html/reference/revert.html" label="Reference: Team -> Revert"/>
+	</context>
+
+	<!-- Wizards -->
+
+	<context id="sharing_autoconnect_page_context">
+		<description>Subclipse has detected that this project is already a part of a Subversion workspace (a.k.a. "working copy"). Perhaps you already checked the project out a different Subversion client, such as the command line client 'svn'. Once you finish this dialog, you can use the Subversion features that are part of Subclipse.</description>
+		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
+		<topic href="html/faq/subversion-mapping.html" label="Subclipse for Subversion Users" />
+		<topic href="html/faq/glossary.html" label="Subversion Glossary" />
+	</context>
+
+	<context id="sharing_select_repository_page_context">
+		<description>In this dialog you should choose the relevant repository location for the project you wish to share, or choose a new one.</description>
+		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Connecting to a Subversion Repository" />
+		<topic href="html/faq/subversion-mapping.html" label="Subclipse for Subversion Users" />
+		<topic href="html/faq/glossary.html" label="Subversion Glossary" />
+		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
+	</context>
+
+	<!-- Preference Pages -->
+
+	<context id="console_preference_page_context">
+		<description>These controls determine whether or not the Subversion Console output is generated, as well as how.</description>
+		<topic href="html/reference/svn-console.html" label="Reference: SVN Console View"/>
+		<topic href="html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
+	</context>
+
+	<context id="disconnect_action_context">
+		<description>You can choose between erasing the Subversion "housekeeping" information or to keep them. Should you choose to keep the Subversion directories, you may reconnect by choosing "Share" in the Team menu and selecting the "SVN" repository type. If you are in doubt, keep the '.svn' directories so you can continue tracking the contents against the repository.</description>
+		<topic href="html/reference/disconnect.html" label="Reference: Team -> Disconnect"/>
+	</context>
+
+	<context id="add_to_svnignore_dialog_context">
+		<description>You can choose between three ways of choosing which resources to ignore. If you are in doubt, leave the setting as it is, this will only ignore the files you specifically selected.</description>
+		<topic href="html/reference/add-to-svn-ignore.html" label="Reference: Team -> Add to svn:ignore..."/>
+	</context>
+
+	<context id="add_keywords_dialog_context">
+		<description>Choose one or more keywords to activate for the selected resource(s). When keywords are used the text contents (enclosed in $-signs), Subversion will replace the keyword with its expansion text on every update of the resource.</description>
+		<topic href="html/reference/add-keywords.html" label="Reference: Team -> Add keywords..."/>
+	</context>
+
+	<!-- Property page -->
+	<context id="svn_resource_properties_page_context">
+		<description>This resource is under Subversion's version control. This page lists the information currently available about the resource in the current version of your working copy.</description>
+		<topic href="html/reference/properties.html" label="Reference: Properties"/>
+	</context>
+
+
+	<!-- 
+		Here's a typical example of the text you need.
+		
+		<context id="">
+		<description></description>
+		<topic href="html/dailywork/.html" label=""/>
+		<topic href="html/reference/.html" label=""/>
+		</context>
+		
+		TODO: Remaining ID's to take care of, or to eliminate
+			
+		"sharing_new_repository_page_context"
+		"sharing_module_page_context"
+		"sharing_finish_page_context"
+		"patch_selection_page_context"
+		"patch_options_page_context"
+		
+		"get_file_revision_action_context"
+		"get_file_contents_action_context"
+		"new_repository_location_action_context"
+		"remove_root_action_context"
+		
+		"svn_preference_page_context"
+		"decorators_preference_page_context"
+		"diff_merge_preferences_page_context"
+
+		Seemingly dead contexts ID:
+
+		"add_to_version_control_dialog_context" - The dialog in question is never used
+
+	-->
+
+</contexts>

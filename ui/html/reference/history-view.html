@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
+	<title>SVN Resource History View</title>
+</head>
+
+<body>
+
+<h1>SVN Resource History View</h1>
+
+<p>This view shows the history of a resource, as it exists in the Subversion repository.
+In Subversion, both files and directories are versioned and have a history.
+<p>If the resource selected is in a working copy, the revision currently checked out is highlighted (in boldface).
+<p>The view itself consists of three areas:
+<ul>
+<li>The revision table - showing revision numbers, date/time of revision, the name of the committer, as well as the first line of the commit message. You can click on any revision to show its details.</li>
+<li>The commit message for the selected revision.</li>
+<li>The list of resources affected by this revision (that is: modified, added, deleted or changed properties)</li>
+</ul>
+<p>The SVN Resource History View can be linked with the current editor or not. If linked, the contents changes when you switch
+which resource is being edited. If not linked, you must <a href="show-in-history.html">manually ask</a> to show the selected resource.
+<p>
+<em>Note</em>: Showing the history may be a longer running operation since it must retrieve the history from the repository.
+If working with a remote repository on a WAN or on the internet, you might want to turn off the "Link with editor" button, or
+explicitly close or hide the view when switching between resources in the editor.
+</body>
+</html>

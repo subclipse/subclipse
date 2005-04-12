@@ -1,0 +1,96 @@
+* 0.9.13
+- Small optimization to decorator performance (issue 102)
+- RevertAction fixed to refresh at the correct depth (issue 101)
+
+* 0.9.12
+- new svnclientadapter doesn't get base by mucking in .svn dirs manually
+- new update-site location
+
+* 0.9.11
+- updated changelog
+- decoration massively sped up
+- compare with remote, base and history work
+- svn icon now says svn instead of cvs (take THAT cvs!)
+- base rev stuff built into svn resource hierarchy
+
+* 0.9.0
+
+- updated for svn 0.37.0
+- Issue 48 - Pending Operations View default show values are true and also fixed NPE when trying to refresh view without anything selected
+- Issue 29 - Sharing a project needing a refresh
+- Issue 38 - Force delete so remotely removed files can be removed locally as well
+- Issue 42 - Fix assumption of single depth project dirs on checkout when finding the .project file
+- Issue 21 - Fixed extra repo location creation on checkout (and share)
+- stopped printing stack trace when .project file cannot be found
+- action org.tigris.subversion.subclipse.ui.openLogEntry does not exist and is causing some errors in the logs
+- CommandLine adapter refactoring
+- Added caching of Local Resource status
+- Removed use of internal Eclipse APIs and tested support of single binary for Eclipse 2.1.x and 3M7
+- Included documentation as part of the package (Help->Help Contents)
+
+* 0.8.6
+
+Eclipse 3 Branch
+
+- rebuilt as eclipse java project fixed url parsing bug which threw npe for null svn url. fixed case sensitivity for http svnurls, made https:// a legal protocol for svnurl
+- added punctuation, made parameter quoting consistent.
+
+Eclipse 2.1 Branch
+
+- Added the decorator preferences page. 
+- Variables to appear can be chosen for files, folders and projects
+- The user can choose the dirty flag and the added flag
+- bug currected. last changed date was not parsed correctly here in France.
+- Morever two formats are possible for last changed date (the two are now supported)
+- svnjavahl compiled using svn 0.35.1 and db 4.2.52
+- Moved notificationHandler routines into CommandLine. normal messages and errors show up now in the SVN Console view.
+- added https to the list of recognized protocols we now ignore case for protocol
+- Added some classes to allow adding of keywords on managed files
+- added a filter on IContainer so that "Show pending operations" is not available for projects that are not shared using subversion
+- added a default value for no author
+- added Help files
+- command line interface to svn improved
+
+
+
+* 0.8.1
+
+- Bug #15 corrected.  We now add the destination directory to revision control if necessary before moving the file or directory
+- users can now create a patch using "team/create patch" menu
+- added the missing icons
+- action added to plugin.xml for generating diff
+- added subversion properties page
+- svnjavahl updated from subversion 0.31
+- Svn Command line or svnjavahl can be chosen as interface to subversion via preferences
+
+
+* 0.8.0
+
+- now use javahl instead of svnup
+- Handle SVN URLS (svn://)
+- we now know the url from where the local resource was copied so display it in pending operations view
+- corrected bug : could not discard a repository anymore
+- handle double-click in PendingOperationsView
+- Bug 13 corrected. ConsoleView.findInActivePerspective was not executed in UI thread
+- start using update site manager (http://subclipse.tigris.org/update)
+
+* 0.7.0
+
+- copy/paste/move/rename remote resources in repos view (for branching and tagging)
+- fixed cancel button in some actions
+- pending operations view added (with drag and drop)
+- fixed some line colours in console view
+- switches to console view in an svn error occurs
+- added --force for refactoring
+- jsvnjni.dll linked with subversion 0.26.0 and db 4.0.14
+
+* 0.6.0 - Initial Release
+
+- Share 
+- Checkout 
+- Update 
+- Commit 
+- History 
+- Add 
+- Move/Delete (file and folders) 
+- Authentication 

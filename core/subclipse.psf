@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+	<provider id="org.tigris.subversion.subclipse.core.svnnature">
+		<project reference="0.9.3,http://svn.collab.net/repos/subclipse/branches/subclipse-3/ui,ui"/>
+		<project reference="0.9.3,http://svn.collab.net/repos/subclipse/branches/subclipse-3/core,core"/>
+		<project reference="0.9.3,http://svn.collab.net/repos/subclipse/branches/subclipse-3/feature-linux,feature-linux"/>
+		<project reference="0.9.3,http://svn.collab.net/repos/subclipse/branches/subclipse-3/feature-osx,feature-osx"/>
+		<project reference="0.9.3,http://svn.collab.net/repos/subclipse/branches/subclipse-3/feature-win32,feature-win32"/>
+		<project reference="0.9.3,http://svn.collab.net/repos/subclipse/branches/subclipse-3/javahl-linux,javahl-linux"/>
+		<project reference="0.9.3,http://svn.collab.net/repos/subclipse/branches/subclipse-3/javahl-osx,javahl-osx"/>
+		<project reference="0.9.3,http://svn.collab.net/repos/subclipse/branches/subclipse-3/javahl-win32,javahl-win32"/>
+		<project reference="0.9.3,http://svn.collab.net/repos/subclipse/branches/subclipse-3/update-site,update-site"/>
+	</provider>
+</psf>

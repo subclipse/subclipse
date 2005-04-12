@@ -1,0 +1,13 @@
+# Debugging options for the org.tigris.subversion.subclipse.core plugin.
+
+# Turn on debugging for the plugin.
+org.tigris.subversion.subclipse.core/debug=true
+
+# Shows when meta-files are modified by a 3rd party
+org.tigris.subversion.subclipse.core/metafiles=true
+
+# Shows stream debugging information
+org.tigris.subversion.subclipse.core/threading=false
+
+# 
+org.tigris.subversion.subclipse.core/status=true

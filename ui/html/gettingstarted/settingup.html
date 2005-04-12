@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">			
+	<title>Setting up a Subversion Repository</title>
+</head>
+
+<body>
+<h1>Setting up a Subversion Repository</h1>
+If you don't already have a Subversion Repository set up
+you will need to create one using the Subversion admin command. 
+For the purposes of this quick start guide we will use file
+based access to the repository
+<ol>
+	<li>Download and install the latest Subversion from <a target="new"
+        href="http://subversion.tigris.org/project_packages.html"
+        >http://subversion.tigris.org/project_packages.html</a></il>
+	<li>From the command line (and with the Subversion install in your
+	    path) run <tt>svnadmin create <i>path/to/repos</i></tt> (e.g.
+	    <tt>g:\>svnadmin create <b>g:/newrepos</b></tt> will create a new
+	    directory and repository on your G drive, named <tt>newrepos</tt>.)</li>
+</ol>
+<p>
+You should now have a repository structure similar to this ...
+</p>
+<p align="center"><img src="../images/repos-layout.jpg"/></p>
+
+Check out the book <a target="new" href="http://svnbook.red-bean.com/"><em>Version
+Control with Subversion</em></a> for more details on setting up HTTP and other
+types of repository access. The book is also available in print.
+
+</body>
+</html>

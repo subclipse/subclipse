@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
+<title>Team > Branch/Tag...</title>
+</head>
+
+<body>
+
+<h1>Team > Branch/Tag...</h1>
+
+<p>You can use Branch/Tag for several different purposes:</p>
+<ol>
+  <li>To create a snapshot copy of the current repository state (version) for later retrieval. This is usually called tagging</li>
+  <li>To create a place for a new variation of the project as is exists in the repository. This is usually called branching.</li> 
+  <li>To save the state of the current working copy as a new branch of the project. This is also called branching.</li> 
+</ol>
+
+<p>Creating a tag (first option above) or a branch (second option) off the repository state is covered by the same functionality
+is Subversion, namely copying (since trunks, tags, and branches are merely a repository layout
+<a href="../dailywork/branches.html">convention</a>.)
+<ul>
+  <li>First, choose the project (or folder) which you want to copy.</li>
+  <li>Choose Branch/Tag... in the Team menu.</li>
+  <li>Enter the desired location for the copy (branch or tag). You can use the browse button to browse the structure of your repository.</li>
+  <li>Enter the appropriate commit message. This will be the initial message found on the new location.</li>
+  <li>The chosen repository tree is copied to a new location (within the same repository.)</li>
+  <li>Click 'OK'</li>
+</ul>
+<p>Subclipse will create the copy.</p>
+<blockquote><strong>Note:</strong> By leaving <em>Create the branch/tag directly on the server</em> selected,
+you tell Subclipse to just copy the repository as it exists on the server (in the latest version). If you deselect 
+this option, the current changes currently found in your working copy are copied to the new location as well,
+corresponding to the changes found in the <a href="../reference/pending-operations-view.html">Pending
+Operations View</a>. In effect, this enables you to save you work off to a repository location. This is te third option above, and
+is likely to be useful if you started working on a change which you later decide to change into a branch of its own.
+Another use is when you need to move really big changes between working copies (e.g. home and work machines), and
+when moving patch files becomes impractical.</blockquote>
+<p>After creating a branch, remember to <a href="../reference/switch.html">switch</a> to it to start working on it.
+<h3>Tasks:</h3>
+<p><a href="../dailywork/branches.html">Maintaining branches with Subclipse</a></p>
+<h3>Reference:</h3>
+<p><a href="../reference/switch.html">Team > Switch...</a><br>
+<a href="../reference/merge.html">Team > Merge...</a></p>
+<h3>See also (CVS equivalents):</h3>
+<p><a href="../../../org.eclipse.platform.doc.user/concepts/concepts-27.htm">Team programming with CVS > Versons</a><br>
+<a href="../../../org.eclipse.platform.doc.user/concepts/concepts-27b.htm">Team programming with CVS > Branches</a></p>
+</body>
+</html>
+
+

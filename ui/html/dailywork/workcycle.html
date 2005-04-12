@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
+	<title>Edit, Update, Commit</title>
+</head>
+
+<body>
+	<h1>Typical work cycle: Edit, Update, Commit</h1>
+	
+	Often with Subversion (or most other SCM systems), once you have
+	<a href="../gettingstarted/checkout.html">checked out</a> your project,
+	or <a href="../gettingstarted/sharing.html">shared it</a>, you work in a simple cycle:
+
+	<ol>
+		<li>Edit</li>
+		<li>Update</li>
+		<li>Commit</li>
+	</ol>
+
+	Subclipse makes working with this cycle easy by combining the Team features in Eclipse
+	with the special features in Subversion.
+	
+	<h2>Editing your working copy</h2>
+	When editing your working copy, you can observe the markings on the resource
+	(i.e. file, folder, etc.) found in the <em>Navigator</em> view (and views that are based on
+	the same information, like the Java Development Tools' <em>Package Explorer</em>.)
+	
+	<p>
+	Eclipse will catch your changes and refactorings, as long as you use
+	Eclipse to work with your working copy. You may contrast this with working with the Subversion
+	command line tool which need to be told about every rename, delete and move operation that
+	you do in the working copy. Subclipse does this for you.
+
+	<p>One exception from this is adding resources: The new file(s) or folder(s) you create
+	must be added to your working copy, using the command <a href="html/reference/add.html">Add to Source Control</a> found in the
+	"Team" menu available in the context menu for the added resource(s).
+	If you do not do this, Subclipse will display a question mark (?) next to the resource,
+	meaning that an unknown file is present in your working copy.
+	Once added however, the resource is marked with an asterisk (*)
+
+	<p>Eventually, when you commit your changes, this marking will disappear.
+		
+	<h2>Updating your working copy with other people's committed changes</h2>
+	
+	<p>While your are working, editing, debugging, etc., others (if you are working in a team)
+	may commit changes to the project. To keep up, you have to update whenever you are ready
+	to do so, e.g. when your changes are stable. You should also always update immediately
+	before your commit your work.
+	
+	<p>Should an update concern one of the resources that you had modified, Subversion will try to
+	merge those changes. This will work if your changes do not overlap the changes made in the
+	repository, but in case of a conflicting change, the affected resources in your working copy
+	are marked as being conflicted, and some text markings are placed, citing the differences between the
+	repository and your changes. These conflicts can be mended manually, or by using the
+	<a href="../reference/edit-conflicts.html">Edit conflicts</a> command found in the Team menu.
+	If you resolve the changes by editing the text, you need
+	to <a href="../reference/mark-resolved.html">mark the conflict as resolved</a>.
+	<p>In extreme cases it may be simpler to <a href="../reference/revert.html">revert</a> your own changes and start over.
+	
+	<h2>Committing your changes to the repository</h2>
+	
+	<p>Once you are pleased with all your changes, it is time to <a href="html/reference/commit.html">commit</a> them to the repository.
+	Subversion will never let you commit changes that are out-of-sync, and will force you to
+	update in the event of a collision (TODO: get new image of this), but this only covers the cases when the affected
+	resources require updating. However, if a dependent resource (for instance, a program file which is required by your change) is updated,
+	this will not be detected when committing. This is why you need to update first and review your change.
+
+	<hr>
+	<h3>Reference:</h3>
+	<p><a href="../reference/update.html">Team > Update</a><br>
+	<a href="../reference/commit.html">Team > Commit</a><br>
+	<a href="../reference/add.html">Team > Add to Version Control</a><br>
+	<a href="../reference/edit-conflicts.html">Team > Edit conflicts</a><br>
+	<a href="../reference/revert.html">Team > Edit conflicts</a><br>
+	<a href="../reference/mark-resolved.html">Team > Mark Resolved</a><br>
+	
+</body>
+</html>

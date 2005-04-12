@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
+	<title>Import a Project into a Subversion Repository</title>
+</head>
+
+<body>
+<h1>Import a Project into a Subversion Repository</h1>
+<p>
+Create a simple project that contains a few files so they can be stored in the Subversion Repository. 
+A good test is to create a sample plug-in project by selecting <b>File>New>Project..</b> and <b>Plug-in Development>Plug-in Project</b>
+Give the project a name and click through to finish on the wizard.
+</p>
+<p>
+Next select the project you want to import and right click to select <b>Team > Share Project...</b>. 
+This will bring the share project wizard dialog. Select <b>SVN</b> as the repository type and click <b>next</b>. 
+Then use the <b>existing repository location</b> and click <b>next</b> again. Select <b>Use project name as module name</b> and click <b>finish</b>
+This will make a remote directory in the repository and checkout that into the project to create all the .svn metadata directories
+</p>
+<p>
+You should now see the project decorated with the repository URL
+Then select the lop level files and directories to be added and <b>Right Click>Team > Add to Version Control</b>. 
+You should see the <b>*</b> decoration to indicate an added but not commited resource.
+With the same resources still selected <b>Right click>Team > Commit..</b>. 
+You will prompted with a dialog that you can enter a commit comment (eg initial commit) and click <b>OK</b>
+The project has now been imported into the Subversion repository!
+</p> 
+</body>
+</html>

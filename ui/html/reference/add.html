@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
+<title>Team > Add To Version Control</title>
+</head>
+
+<body>
+
+<h1>Team > Add To Version Control</h1>
+
+<p>When you share a project for the first time, or when you add or import new
+resources to a project, you need to tell Subversion to keep it (or them) under version control.
+To do this, use the <img src="../../icons/full/tortoise/add.gif">Add command.</p>
+
+<h2>Using this command</h2>
+<p>First, find and select the unversioned resource(s) that you want to add.
+These will typically be decorated by a little question mark in the Navigator view. <img src="../images/add-resource.jpg" alt="Added.java is an unversioned resource">
+<br>You should only select unversioned resources currently not under Subversion's control, or this command will not be available.
+Then, select "Add To Version Control" from the Team menu. The decoration will change to a tidy blue plus.<img src="../images/added-status.jpg" alt="Added.java is now added but not comitted yet">
+Now your resource is scheduled for addition to the repository, and committing it will make it accessible to the other Team members. This operation does not contact the repository.
+
+<p>Note: If the resources parent folder is not under version control either, it will be added as well (all the way up to the
+project root, as needed).
+<h2>If something goes wrong...</h2>
+If you add something you didn't want to add anyway, don't panic. You can always undo (revert) your changes, by
+selecting <a href="revert.html">Revert</a> in the Team menu. This is often prefferred over deleting the resource, since
+if is only the 'added'-state that you revert, not the creation of the file itself. In other words, the file isn't deleted.
+</p>
+<blockquote>TIP: When you commit your changes back to the repository, you can short-cut the 'Add' command by simply selecting the
+unversioned builds in the <a href="commit.html">commit</a> dialog.
+</blockquote>
+
+	<h3>See also:</h3>
+	<p>The <a href="commit.html">commit</a> process.
+
+</body>
+</html>

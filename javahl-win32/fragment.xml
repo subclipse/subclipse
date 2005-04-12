@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<fragment
+   id="org.tigris.subversion.javahl.win32"
+   name="Win32 Fragment"
+   version="0.9.30"
+   provider-name="tigris.org"
+   plugin-id="org.tigris.subversion.subclipse.core"
+   plugin-version="0.9.30"
+   match="perfect">
+
+   <runtime>
+      <library name="win32.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+</fragment>

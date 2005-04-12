@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="org.tigris.subversion.subclipse"
+   name="Subclipse"
+   version="0.9.30"
+   provider-name="tigris.org">
+
+</plugin>

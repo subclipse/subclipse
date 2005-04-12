@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
+<title>Team > Synchronize</title>
+</head>
+
+<body>
+
+<h1>Team > Synchronize</h1>
+
+<p>When you are working with complex projects in a team, it may be extremely hard to grasp the impact of your changes and interaction with 
+the changes committed by others. For this, Eclipse offers the <em>Team Synchronizing Perspective</em>, which Subclipse extends to support Subversion
+repositories. It can be switched to like any other perspective in Eclipse, or invoked directly by selecting 'Team > Synchronize...'</p>
+<p>Note that invoking this action does not entail any changes being synchronized without your approval!</p>
+<h2>Working with the Team Synchronizing Perspective</h2>
+<p>Most of the documentation on synchronization in the <a href="../../../org.eclipse.platform.doc.user/reference/ref-33.htm'>main Eclipse documentation</a>
+applies to Subclipse's sync support.
+
+<h2>Synchronization compared to Subversion terminology</h2>
+<p>The concept is that of a cross-resource three way merge in which you may consider all changes at once, and filter the information as
+needed before doing any <em>updates</em> or <em>commits</em>, with your existing working copy being the focal point. Thus, your own changes are
+called <em>outgoing</em> and the changes that have happened in the repository since your last update are called <em>incoming</em>.
+In the 'sync' perspective, both incoming and outgoing changes are analyzed before they are <em>synchronized</em>, that is:
+For incoming changes, synchronization means that your working copy is updated (corresponds to 'Team > Update') and for outgoing changes,
+synchronization means that your changes are commited.</p>
+<p>The 'Team Synchronizing Perspective' as a whole can be considered analogous to the output of <tt>svn status -u</tt>.</p>
+
+<!-- TODO: Mabye write more? -->
+</body>
+</html>

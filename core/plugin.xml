@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="org.tigris.subversion.subclipse.core"
+   name="%pluginName"
+   version="0.9.30"
+   provider-name="%providerName"
+   class="org.tigris.subversion.subclipse.core.SVNProviderPlugin">
+
+   <runtime>
+      <library name="svnClientAdapter.jar">
+         <export name="*"/>
+      </library>
+      <library name="svnjavahl.jar">
+         <export name="*"/>
+      </library>
+      <library name="SVNPluginCore.jar">
+         <export name="*"/>
+      </library>
+      <library name="commons-logging-1.0.4.jar">
+         <export name="*"/>
+      </library>
+      <library name="jakarta-regexp-1.3.jar">
+         <export name="*"/>
+      </library>
+      <library name="commons-lang-2.0.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.team.core"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.osgi"/>
+   </requires>
+   <extension-point id="svnPropertyTypes" name="SVN Property Type Definitions" schema="schema/svnPropertyTypes.exsd"/>
+
+   <extension
+         point="org.eclipse.team.core.repository">
+      <repository
+            typeClass="org.tigris.subversion.subclipse.core.SVNTeamProviderType"
+            class="org.tigris.subversion.subclipse.core.SVNTeamProvider"
+            id="org.tigris.subversion.subclipse.core.svnnature"
+            metaFilePaths=".svn/entries,.project">
+      </repository>
+   </extension>
+   <extension
+         id="svnremove"
+         name="%svnRemove"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <super
+            type="org.tigris.subversion.subclipse.core.svnmarker">
+      </super>
+      <attribute
+            name="name">
+      </attribute>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.team.core.ignore">
+      <ignore
+            enabled="true"
+            pattern="RCS">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="RCSLOG">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="SCCS">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="CVS.adm">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="tags">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="TAGS">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern=".make.state">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern=".nse_depinfo">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*~">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="#*">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern=".#*">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern=",*">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="_$*">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*$">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.old">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.bak">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.BAK">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.orig">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.rej">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern=".del-*">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.a">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.olb">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.obj">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.so">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.exe">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.Z">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.elc">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.ln">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern=".DS_Store">
+      </ignore>
+      <ignore
+            enabled="false"
+            pattern="core">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern=".svn">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="_svn">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="svn-commit*.tmp">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.merge-right*">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.merge-left*">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="*.working">
+      </ignore>
+   </extension>
+   <extension
+         point="org.tigris.subversion.subclipse.core.svnPropertyTypes">
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
+            name="svn:executable">
+         <description>
+svn:executable
+If present, make the file executable.  The value you enter for this property will
+be canonicalized to *, so just enter *.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
+            name="svn:mime-type">
+         <description>
+svn:mime-type
+The mimetype of the file. Used to determine whether to merge the file, and how
+to serve it from Apache. A mimetype beginning with &apos;text/&apos; (or an absent mimetype)
+is treated as text. Anything else is treated as binary.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="folder"
+            name="svn:ignore">
+         <description>
+svn:ignore
+A newline separated list of file patterns to ignore.  This property is set
+automatically when you use the Add to svn:ignore option.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
+            name="svn:keywords">
+         <description>
+svn:keywords
+Keywords to be expanded. Valid keywords are:
+
+URL, HeadURL               The URL for the head version of the object.
+Author, LastChangedBy      The last person to modify the file.
+Date, LastChangedDate      The date/time the object was last modified.
+Rev, LastChangedRevision   The last revision the object changed.
+Id                         A compressed summary of the previous 4 keywords.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
+            name="svn:eol-style">
+         <description>
+svn:eol-style
+One of &apos;native&apos;, &apos;LF&apos;, &apos;CR&apos;, &apos;CRLF&apos;.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="folder"
+            name="svn:externals">
+         <description>
+svn:externals
+A newline separated list of module specifiers, each of which consists of a relative
+directory path, optional revision flags, and an URL.
+
+For example:
+
+foo      http://example.com/repos/zig
+foo/bar  -r 1234  http://example.com/repos/zag
+        </description>
+      </svnPropertyTypes>
+ </extension>
+</plugin>

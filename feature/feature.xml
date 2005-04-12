@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.tigris.subversion.subclipse"
+      label="Subclipse"
+      version="0.9.30"
+      provider-name="tigris.org"
+      colocation-affinity="org.tigris.subversion.subclipse">
+
+   <install-handler/>
+
+   <description>
+      %description
+   </description>
+
+   <copyright url="http://subclipse.tigris.org/">
+      http://subclipse.tigris.org/
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update"/>
+      <discovery label="%updateSiteName" url="http://subclipse.tigris.org/update"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.team.core"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.osgi"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.team.ui"/>
+      <import plugin="org.eclipse.compare"/>
+   </requires>
+
+   <plugin
+         id="org.tigris.subversion.javahl.win32"
+         os="win32"
+         download-size="0"
+         install-size="0"
+         version="0.9.30"
+         fragment="true"/>
+
+   <plugin
+         id="org.tigris.subversion.subclipse.core"
+         download-size="0"
+         install-size="0"
+         version="0.9.30"/>
+
+   <plugin
+         id="org.tigris.subversion.subclipse.ui"
+         download-size="0"
+         install-size="0"
+         version="0.9.30"/>
+
+   <plugin
+         id="org.tigris.subversion.subclipse"
+         download-size="0"
+         install-size="0"
+         version="0.9.30"/>
+
+</feature>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site-build
+      autobuild="false"
+      scrub-output="false"
+      use-console="true">
+   <feature id="org.tigris.subversion.book" version="1.1.1"/>
+   <feature id="org.tigris.subversion.subclipse" version="0.9.30"/>
+</site-build>
