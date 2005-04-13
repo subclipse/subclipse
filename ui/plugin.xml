@@ -384,6 +384,15 @@
                id="org.tigris.subversion.subclipse.ui.compareWithBase">
          </action>
          <action
+               label="%ResolveAction.label"
+               icon="icons/full/tortoise/resolve.gif"
+               helpContextId="org.tigris.subversion.subclipse.ui.team_resolve_action_context"
+               tooltip="%ResolveAction.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.ResolveAction"
+               menubarPath="team.main/group5"
+               id="org.tigris.subversion.subclipse.ui.resolve">
+         </action>
+         <action
                label="%RevertAction.label"
                icon="icons/full/tortoise/revert.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.team_revert_action_context"
@@ -493,15 +502,6 @@
                name="projectPersistentProperty"
                value="org.eclipse.team.core.repository=org.tigris.subversion.subclipse.core.svnnature">
          </filter>
-         <action
-               label="%ResolveAction.label"
-               icon="icons/full/tortoise/resolve.gif"
-               helpContextId="org.tigris.subversion.subclipse.ui.team_resolve_action_context"
-               tooltip="%ResolveAction.tooltip"
-               class="org.tigris.subversion.subclipse.ui.actions.ResolveAction"
-               menubarPath="team.main/group5"
-               id="org.tigris.subversion.subclipse.ui.resolve">
-         </action>
          <action
                label="%CompareWithRevisionAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.compare_with_revision_action_context"
