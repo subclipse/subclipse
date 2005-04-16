@@ -717,7 +717,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
      * Create the TextViewer for the logEntry comments 
      */
 	protected TextViewer createText(Composite parent) {
-		TextViewer result = new TextViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER | SWT.READ_ONLY);
+		TextViewer result = new TextViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
 		result.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				copyAction.update();
