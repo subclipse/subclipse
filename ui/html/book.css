@@ -55,3 +55,10 @@ span.name {
 span.code {
   font-family: monospace;
 }
+
+blockquote {
+  background-color: #e8e8e8;
+  border: 1pt black;
+  margin: 2em; border: 1px solid black;
+  padding: 1em;
+}

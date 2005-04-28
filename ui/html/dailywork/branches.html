@@ -30,7 +30,6 @@
 				another branch). This is useful when working out a (big) change that needs to be
 				coordinated in a team or when using a single working-copy for the work with the
 				changeproject is not feasible.</li>
-			</li>
 		</ul>While this convention roughly matches the equivalent CVS constructs used for tagging (versioning)
 		and branching, the interpretation is entirely up to you (and your team), and the process of defining and
 		setting up your repository should take this into account.
@@ -59,21 +58,21 @@
 			 
 	<h2>Branching</h2>
 	<p>Creating a branch is the same as creating a tag, a basic repository copy. If you need to work on the branch directly
-	afterwards, using the same working copy (i.e. your Eclipse project), use the 'Team > Switch' command to switch to the new
+	afterwards, using the same working copy (i.e. your Eclipse project), use the 'Team &gt; Switch' command to switch to the new
 	location.</p>
 	<p>If you are working with a number of changes that you wish to put into a branch in one operation, be sure to clear the
 	"create a copy on the server" check box (as explained in the command's <a href="../reference/branch-tag.html">documentation</a>:
 	Your local modifications will then we applied to the base revision your are copying.</p>
 
 	<h2>Choosing to with with a branch or tag</h2>
-	Creating a branch or a tag does not change your working copy. Instead, you need to <a href="../reference/switch.html">switch</a>
+	<p>Creating a branch or a tag does not change your working copy. Instead, you need to <a href="../reference/switch.html">switch</a>
 	to the newly created repostory location (or a sublocation thereof).</p>
 	<p>Note: You do not need to switch an entire project, you can indeed switch at an arbitrary folder level or even an individual file, but 
 	it might make it harder to analyze outgoing changes before a commit.</p>
 
 	<h2>Merging changes</h2>
 	<p>If working on a branch requires the branch maintainer(s) to keep up with the changes being done in the trunk, these changes
-	can be merged into the branch. This is done using 'Team -> Merge', which can be used to apply the the differences between the trunk
+	can be merged into the branch. This is done using 'Team &gt; Merge', which can be used to apply the the differences between the trunk
 	at two different revisions.</p>
 	<blockquote>
 	<p><strong>Example</strong>: Alice is working on project 'X' with two other team members, Bob and Charlie. Alice needs to
@@ -83,7 +82,7 @@
 	Meanwhile, Bob and Charlie have been working on the the trunk, bringing the revision of the entire repository
 	up to 12 (keep in mind, this revision counter is global).</p>
 	<p>To keep up with the team, Alice needs to add the changes made in the trunk to her branch. This is 
-	done by selecting the project, choosing 'Team > Merge...' from the Team context menu, and entering the proper URL for the project
+	done by selecting the project, choosing 'Team &gt; Merge...' from the Team context menu, and entering the proper URL for the project
 	she wishes to switch to. If the dialog shows <tt>http://svn-server/sw-dev/branches/gui_changes/project-x/</tt>, she would have
 	to edit that to <tt>http://svn-server/sw-dev/trunk/project-x/</tt>, enter '9' as the "from" revision, and enter
 	'12' (or HEAD) as the "to" revision, and merge away. This brings her working copy up to date with the changes done in the
@@ -103,12 +102,12 @@
 
 	<hr>
 	<h3>Reference:</h3>
-	<p><a href="../reference/branch-tag.html">Team > Branch/Tag...</a></p>
-	<p><a href="../reference/switch.html">Team > Switch...</a></p>
-	<p><a href="../reference/merge.html">Team > Merge...</a></p>
-	<p><a href="../reference/commit.html">Team > Commit...</a></p>
-	<p><a href="../reference/edit-conflicts.html">Team > Edit conflicts</a></p>
-	<p><a href="../reference/mark-resolved.html">Team > Mark Resolved</a></p>
+	<p><a href="../reference/branch-tag.html">Team &gt; Branch/Tag...</a></p>
+	<p><a href="../reference/switch.html">Team &gt; Switch...</a></p>
+	<p><a href="../reference/merge.html">Team &gt; Merge...</a></p>
+	<p><a href="../reference/commit.html">Team &gt; Commit...</a></p>
+	<p><a href="../reference/edit-conflicts.html">Team &gt; Edit conflicts</a></p>
+	<p><a href="../reference/mark-resolved.html">Team &gt; Mark Resolved</a></p>
 		
 </body>
 </html>

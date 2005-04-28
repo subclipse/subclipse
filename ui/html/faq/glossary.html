@@ -15,16 +15,60 @@
 	<tr><th>Term</th><th>Definition</th></tr>
 </thead>
 <tbody>
-	<tr> Working copy (or Workspace)<td></td><td> TODO - DEFINITION </td></tr>
-	<tr> Eclipse Team Support<td></td><td> TODO - DEFINITION </td></tr>
-	<tr> 'svn' command line <td></td><td> TODO - DEFINITION </td></tr>
-	<tr> Repository <td></td><td> TODO - DEFINITION </td></tr>
-	<tr> trunk <td></td><td> TODO - DEFINITION </td></tr>
-	<tr> branch <td></td><td> TODO - DEFINITION </td></tr>
-	<tr> tag <td></td><td> TODO - DEFINITION </td></tr>
-	<tr> SVN <td></td><td> TODO - DEFINITION </td></tr>
-	<tr> CVS <td></td><td> TODO - DEFINITION </td></tr>
-	<tr> change set <td></td><td> TODO - DEFINITION </td></tr>
+	<tr>
+		<td>Working copy</td>
+		<td> TODO - DEFINITION </td>
+	</tr>
+	<tr>
+		<td>Workspace</td>
+		<td> TODO - DEFINITION </td>
+	</tr>
+	<tr>
+		<td>Eclipse Team Support</td>
+		<td> TODO - DEFINITION </td>
+	</tr>
+	<tr>
+		<td>'svn' command line</td>
+		<td>The "reference" implementation of the Subversion client is the command line </td>
+	</tr>
+	<tr>
+		<td>Repository</td>
+		<td>This is where your Subversion repository is stored and managed.</td>
+	</tr>
+	<tr>
+		<td>trunk</td>
+		<td>The trunk of the development is by convention where the mainline development takes place.</td>
+	</tr>
+	<tr>	
+		<td>branch</td>
+		<td>Branches (typically from the trunk) are used when a separate line of development must be
+		maintained. For instance, a released version with some occasional hotfixes could be a
+		branch, the the next big version is developed in the trunk.
+		Also, branches are typically used for long-term refactoring of the entire project which must be
+		worked on by separate developers or teams.</td>
+	</tr>
+	<tr>
+		<td>tag</td>
+		<td>A tag is used to mark a specific revision for retrieval later on. Typically, you'd use
+		a tag for every release or other important milestone, achieved by simple copying a repository
+		path (e.g. the HEAD of trunk) to a name under the tags-directory.</td>
+	</tr>
+	<tr>
+		<td>SVN</td>
+		<td>'SVN' is the official abbreviation of Subversion</td>
+	</tr>
+	<tr>
+		<td>CVS</td>
+		<td><b>C</b>oncurrent <b>V</b>ersions <b>S</b>ystem is the declared predecessor of Subversion.
+		Subclipse is very much inspired by the CVS support in Eclipse</td>
+	</tr>
+	<tr>
+		<td>change set</td>
+		<td>Some SCM systems have a very explicit notion of 'change sets'. In Subversion,
+		a revision (or, typically, a range of revisions) is a change set, since it
+		represents changes from one branch of development that may be applied to (merged with)
+		other branches of development.</td>
+	</tr>
 </tbody>
 </table>
 </body>
