@@ -224,6 +224,18 @@ be canonicalized to *, so just enter *.
       <svnPropertyTypes
             type="String"
             fileOrFolder="file"
+            name="svn:needs-lock">
+         <description>
+svn:needs-lock
+If present, makes the file read-only unless the file is locked.  The purpose of this
+property is to serve as a communication mechanism to let the user know that they should
+lock the file before attempting to edit it.  The value you enter for this property will
+be canonicalized to *, so just enter *.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
             name="svn:mime-type">
          <description>
 svn:mime-type

@@ -63,6 +63,12 @@ public class LocalResourceStatus {
     protected String pathConflictWorking;
 
     protected String pathConflictNew;
+    
+    protected String lockOwner;
+    
+    protected long lockCreationDate;
+    
+    protected boolean readOnly;
 
     public LocalResourceStatus() {
 
@@ -106,6 +112,8 @@ public class LocalResourceStatus {
             this.urlCopiedFrom = status.getUrlCopiedFrom().toString();
         }
         this.path = status.getFile().getAbsolutePath();
+        
+        this.readOnly = !status.getFile().canWrite();
 
         if (status.getConflictNew() == null) {
             this.pathConflictNew = null;
@@ -125,6 +133,12 @@ public class LocalResourceStatus {
             this.pathConflictWorking = status.getConflictWorking()
                     .getAbsolutePath();
         }
+        
+        this.lockOwner = status.getLockOwner();
+        if (status.getLockCreationDate() == null) 
+            this.lockCreationDate = -1;
+        else
+            this.lockCreationDate = status.getLockCreationDate().getTime();
     }
 
     public SVNUrl getUrl() {
@@ -439,6 +453,10 @@ public class LocalResourceStatus {
     public boolean isCopied() {
         return urlCopiedFrom != null;
     }
+    
+    public boolean isLocked() {
+        return lockOwner != null;
+    }
 
     /**
      * the original file without your changes
@@ -477,6 +495,22 @@ public class LocalResourceStatus {
         } else {
             return new File(pathConflictWorking);
         }
+    }
+
+    public Date getLockCreationDate() {
+        if (lockCreationDate == -1) {
+            return null;
+        } else {
+            return new Date(lockCreationDate);
+        }
+    }
+
+    public String getLockOwner() {
+        return lockOwner;
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
     }
 
 }
