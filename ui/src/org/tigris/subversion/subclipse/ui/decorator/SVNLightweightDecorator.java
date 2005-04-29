@@ -68,6 +68,8 @@ public class SVNLightweightDecorator
 	private static ImageDescriptor conflicted;
 	private static ImageDescriptor merged;
     private static ImageDescriptor external;
+    private static ImageDescriptor locked;
+    private static ImageDescriptor needsLock;
 
 	private static IPropertyChangeListener propertyListener;
 
@@ -109,6 +111,8 @@ public class SVNLightweightDecorator
 		merged = new CachedImageDescriptor(TeamImages.getImageDescriptor(ISharedImages.IMG_DIRTY_OVR));
 		newResource = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_QUESTIONABLE));
 		external = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_EXTERNAL));
+		locked = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_LOCKED));
+		needsLock = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_NEEDSLOCK));
 		conflicted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_CONFLICTED));
 	}
 
@@ -387,6 +391,12 @@ public class SVNLightweightDecorator
            		}
                 if (status.isAdded()) {
 					return added;
+                }
+                if (status.isLocked()) {
+                    return locked;
+                }
+                if (status.isReadOnly()) {
+                    return needsLock;
                 }
                 if (status.isTextConflicted()) {
                     try {

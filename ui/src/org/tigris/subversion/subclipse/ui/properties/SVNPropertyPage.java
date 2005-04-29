@@ -51,6 +51,9 @@ public class SVNPropertyPage extends PropertyPage {
     private Text copiedValue;
     private Text urlCopiedFromValue;
     private Text pathValue;
+    private Text lockOwner;
+    private Text lockCreationDate;
+   
 
     public SVNPropertyPage() {
         super();
@@ -139,12 +142,20 @@ public class SVNPropertyPage extends PropertyPage {
         copiedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
 
         label = new Label(composite, SWT.NONE);
-        label.setText(Policy.bind("SVNPropertyPage.path")); //$NON-NLS-1$
+        label.setText(Policy.bind("SVNPropertyPage.lockOwner"));  //$NON-NLS-1$
+        lockOwner = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
 
-        GridData gd = new GridData();
-        gd.horizontalSpan = 2;
-        pathValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
-        pathValue.setLayoutData(gd);
+        label = new Label(composite, SWT.NONE);
+        label.setText(Policy.bind("SVNPropertyPage.lockCreationDate"));  //$NON-NLS-1$
+        lockCreationDate = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+
+//        label = new Label(composite, SWT.NONE);
+//        label.setText(Policy.bind("SVNPropertyPage.path")); //$NON-NLS-1$
+
+//        GridData gd = new GridData();
+//        gd.horizontalSpan = 2;
+//        pathValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+//        pathValue.setLayoutData(gd);
 
         // Populate owner text field
         try {
@@ -186,6 +197,9 @@ public class SVNPropertyPage extends PropertyPage {
             revisionValue.setText(status.getRevision() != null ? status.getRevision().toString()
                     : ""); //$NON-NLS-1$
             copiedValue.setText(new Boolean(status.isCopied()).toString());
+            lockOwner.setText(status.getLockOwner());
+            lockCreationDate.setText(status.getLockCreationDate() != null ? status
+                    .getLockCreationDate().toString() : ""); //$NON-NLS-1$
 //            pathValue.setText(status.getPath() != null ? status.getPath() : "");
 
         } catch (Exception e) {
