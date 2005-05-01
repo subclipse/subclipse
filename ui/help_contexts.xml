@@ -18,7 +18,7 @@
 	<context id="resource_history_view_context">
 		<description>This view shows you the different versions of the selected file or folder as they are found in the Subversion repository.</description>
 		<topic href="html/dailywork/diffing.html" label="Tasks: Comparing, QuickDiff and Restoring" />
-		<topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
+		<topic href="html/reference/svn-history-view.html" label="Reference: SVN Resource History View" />
 		<topic href="html/reference/show-in-history.html" label="Reference: Team -> Show in Resource History"/>
 	</context>
 
