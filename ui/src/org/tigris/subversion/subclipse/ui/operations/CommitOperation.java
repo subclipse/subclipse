@@ -26,13 +26,15 @@ public class CommitOperation extends SVNOperation {
     private IResource[] resourcesToAdd;
     private IResource[] resourcesToCommit;
     private String commitComment;
+    private boolean keepLocks;
 
-    public CommitOperation(IWorkbenchPart part, IResource[] selectedResources, IResource[] resourcesToAdd, IResource[] resourcesToCommit, String commitComment) {
+    public CommitOperation(IWorkbenchPart part, IResource[] selectedResources, IResource[] resourcesToAdd, IResource[] resourcesToCommit, String commitComment, boolean keepLocks) {
         super(part);
         this.selectedResources = selectedResources;
         this.resourcesToAdd = resourcesToAdd;
         this.resourcesToCommit = resourcesToCommit;
         this.commitComment = commitComment;
+        this.keepLocks = keepLocks;
     }
 
     protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
@@ -60,7 +62,7 @@ public class CommitOperation extends SVNOperation {
 				SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
 				List list = (List)table.get(provider);
 				IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
-				provider.checkin(providerResources, commitComment, getDepth(providerResources), null);
+				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), null);
 			}			
 			for (int i = 0; i < selectedResources.length; i++) {
 				IResource projectHandle = selectedResources[i].getProject();

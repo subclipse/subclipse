@@ -321,7 +321,7 @@ public class RepositoryManager {
 	 * @param resources  the resources to commit
 	 * @param monitor  the progress monitor
 	 */
-	public void commit(IResource[] resources, String comment, IProgressMonitor monitor) throws TeamException {
+	public void commit(IResource[] resources, String comment, boolean keepLocks, IProgressMonitor monitor) throws TeamException {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
@@ -335,7 +335,7 @@ public class RepositoryManager {
 			SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
 			List list = (List)table.get(provider);
 			IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
-			provider.checkin(providerResources, comment, IResource.DEPTH_INFINITE, subMonitor);
+			provider.checkin(providerResources, comment, keepLocks, IResource.DEPTH_INFINITE, subMonitor);
 		}
 	}
 	

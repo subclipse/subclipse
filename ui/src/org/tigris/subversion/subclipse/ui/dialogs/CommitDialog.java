@@ -62,6 +62,8 @@ public class CommitDialog extends Dialog {
     private CheckboxTableViewer listViewer;
     private Text issueText;
     private String issue;
+    private Button keepLocksButton;
+    private boolean keepLocks;
     
     private IDialogSettings settings;
     private TableSetter setter;
@@ -216,6 +218,7 @@ public class CommitDialog extends Dialog {
                 }
             }
         }
+        keepLocks = keepLocksButton.getSelection();
         super.okPressed();
     }
     
@@ -327,6 +330,9 @@ public class CommitDialog extends Dialog {
 			}
 		};
 		deselectButton.addSelectionListener(listener);
+		
+		keepLocksButton = new Button(buttonComposite, SWT.CHECK);
+		keepLocksButton.setText(Policy.bind("CommitDialog.keepLocks")); //$NON-NLS-1$
 
 	}
 	
@@ -419,5 +425,8 @@ public class CommitDialog extends Dialog {
             if (!svnResource.isManaged()) items[i].setChecked(false);
            } catch (SVNException e1) {}
         }
+    }
+    public boolean isKeepLocks() {
+        return keepLocks;
     }
 }

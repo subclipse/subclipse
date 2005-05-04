@@ -503,6 +503,24 @@
                value="org.eclipse.team.core.repository=org.tigris.subversion.subclipse.core.svnnature">
          </filter>
          <action
+               label="%UnlockAction.label"
+               icon="icons/full/tortoise/unlock.gif"
+               helpContextId="org.tigris.subversion.subclipse.ui.team_unlock_action_context"
+               class="org.tigris.subversion.subclipse.ui.actions.UnlockAction"
+               tooltip="%UnlockAction.tooltip"
+               menubarPath="team.main/group3"
+               id="org.tigris.subversion.subclipse.ui.unlock">
+         </action>                  
+         <action
+               label="%LockAction.label"
+               icon="icons/full/tortoise/lock.gif"
+               helpContextId="org.tigris.subversion.subclipse.ui.team_lock_action_context"
+               class="org.tigris.subversion.subclipse.ui.actions.LockAction"
+               tooltip="%LockAction.tooltip"
+               menubarPath="team.main/group3"
+               id="org.tigris.subversion.subclipse.ui.lock">
+         </action>         
+         <action
                label="%CompareWithRevisionAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.compare_with_revision_action_context"
                tooltip="%CompareWithRevisionAction.tooltip"

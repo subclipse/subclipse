@@ -55,6 +55,7 @@ public class CommitAction extends WorkspaceAction {
     private String url;
     private boolean unaddedResources;
     private boolean commit;
+    private boolean keepLocks;
 	
 	/*
      * get non added resources and prompts for resources to be added
@@ -104,7 +105,7 @@ public class CommitAction extends WorkspaceAction {
 			return; // user canceled
 		}
 		
-		new CommitOperation(getTargetPart(), resources, resourcesToBeAdded[0], resourcesToCommit, commitComment).run();
+		new CommitOperation(getTargetPart(), resources, resourcesToBeAdded[0], resourcesToCommit, commitComment, keepLocks).run();
 	}
 	
 	/**
@@ -189,6 +190,7 @@ public class CommitAction extends WorkspaceAction {
 	   url = null;
 	   commitComment = dialog.getComment();
 	   resourcesToCommit = dialog.getSelectedResources();
+	   keepLocks = dialog.isKeepLocks();
 	   return commit;
 	}
 

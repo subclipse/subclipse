@@ -100,8 +100,8 @@ public class SVNTeamProvider extends RepositoryProvider {
 	 * Checkin any local changes to given resources
 	 * 
 	 */
-	public void checkin(IResource[] resources, final String comment, final int depth, IProgressMonitor progress) throws TeamException {
-		CheckinResourcesCommand command = new CheckinResourcesCommand(getSVNWorkspaceRoot(), resources, depth, comment);
+	public void checkin(IResource[] resources, final String comment, boolean keepLocks, final int depth, IProgressMonitor progress) throws TeamException {
+		CheckinResourcesCommand command = new CheckinResourcesCommand(getSVNWorkspaceRoot(), resources, depth, comment, keepLocks);
         command.run(progress);
 	}
 	

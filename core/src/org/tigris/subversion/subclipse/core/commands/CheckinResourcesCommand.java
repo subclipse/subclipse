@@ -37,15 +37,18 @@ public class CheckinResourcesCommand implements ISVNCommand {
     
     private String message;
     
+    private boolean keepLocks;
+    
     private int depth;
     
     private SVNWorkspaceRoot root;
 
-    public CheckinResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int depth, String message) {
+    public CheckinResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int depth, String message, boolean keepLocks) {
     	this.resources = resources;
         this.message = message;
         this.depth = depth;
         this.root = root;
+        this.keepLocks = keepLocks;
     }
     
 	/* (non-Javadoc)
@@ -88,10 +91,10 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     
                     // we commit the parents (not recursively)
                     if (parents.length > 0)
-                        svnClient.commit(parents,message,false);
+                        svnClient.commit(parents,message,false,false);
                     
                     // then the resources the user has requested to commit
-                    svnClient.commit(resourceFiles,message,depth == IResource.DEPTH_INFINITE);
+                    svnClient.commit(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks);
                 } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 } finally {

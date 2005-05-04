@@ -41,6 +41,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
     private IResource[] resourcesToCommit;
     private String url;
     private boolean commit;
+    private boolean keepLocks;
 
 	protected CommitSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, String url) {
 		super(configuration, elements);
@@ -63,6 +64,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
         	    if (commit) {
         	        resourcesToCommit = dialog.getSelectedResources();
         	        commitComment = dialog.getComment();
+        	        keepLocks = dialog.isKeepLocks();
         	    }
 	        } catch (SVNException e) {
                 e.printStackTrace();
@@ -173,7 +175,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 		    resourcesToBeAdded[0] = new IResource[toBeAddedList.size()];
 		    toBeAddedList.toArray(resourcesToBeAdded[0]);
 		    try {
-                new CommitOperation(getPart(), resourcesToCommit, resourcesToBeAdded[0], resourcesToCommit, commitComment).run();
+                new CommitOperation(getPart(), resourcesToCommit, resourcesToBeAdded[0], resourcesToCommit, commitComment, keepLocks).run();
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
