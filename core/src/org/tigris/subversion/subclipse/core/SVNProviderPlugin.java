@@ -32,6 +32,7 @@ import org.eclipse.team.core.TeamException;
 import org.osgi.framework.BundleContext;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
+import org.tigris.subversion.subclipse.core.resources.ISVNFileModificationValidatorPrompt;
 import org.tigris.subversion.subclipse.core.resources.RepositoryResourcesManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.FileModificationManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.SyncFileChangeListener;
@@ -80,6 +81,8 @@ public class SVNProviderPlugin extends Plugin {
     private ISVNPromptUserPassword svnPromptUserPassword;
 	
 	private ISimpleDialogsHelper simpleDialogsHelper;
+	
+	private ISVNFileModificationValidatorPrompt svnFileModificationValidatorPrompt;
     
 	/**
 	 * This constructor required by the bundle loader (calls newInstance())
@@ -442,4 +445,11 @@ public class SVNProviderPlugin extends Plugin {
 		this.simpleDialogsHelper = simpleDialogsHelper;
 	}
 	
+    public ISVNFileModificationValidatorPrompt getSvnFileModificationValidatorPrompt() {
+        return svnFileModificationValidatorPrompt;
+    }
+    public void setSvnFileModificationValidatorPrompt(
+            ISVNFileModificationValidatorPrompt svnFileModificationValidatorPrompt) {
+        this.svnFileModificationValidatorPrompt = svnFileModificationValidatorPrompt;
+    }
 }

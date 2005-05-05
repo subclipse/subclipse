@@ -13,10 +13,7 @@ import java.io.File;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.tigris.subversion.subclipse.core.ISVNRunnable;
-import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -50,21 +47,17 @@ public class UnlockResourcesCommand implements ISVNCommand {
         for (int i = 0; i < resources.length;i++)
             resourceFiles[i] = resources[i].getLocation().toFile(); 
         
-        SVNProviderPlugin.run(new ISVNRunnable() {
-            public void run(IProgressMonitor monitor) throws SVNException {
-                try {
-                    monitor.beginTask(null, 100);
-                    OperationManager.getInstance().beginOperation(svnClient);
+        try {
+            monitor.beginTask(null, 100);
+            OperationManager.getInstance().beginOperation(svnClient);
 
-                    svnClient.unlock(resourceFiles, force);
-                } catch (SVNClientException e) {
-                    throw SVNException.wrapException(e);
-                } finally {
-                    OperationManager.getInstance().endOperation();
-                    monitor.done();
-                }
-            }
-        }, Policy.monitorFor(monitor));
-	}
+            svnClient.unlock(resourceFiles, force);
+        } catch (SVNClientException e) {
+            throw SVNException.wrapException(e);
+        } finally {
+            OperationManager.getInstance().endOperation();
+            monitor.done();
+        }
+ 	}
     
 }

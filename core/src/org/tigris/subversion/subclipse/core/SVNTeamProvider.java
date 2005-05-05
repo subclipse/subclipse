@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core;
  
+import org.eclipse.core.resources.IFileModificationValidator;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
@@ -26,6 +27,7 @@ import org.tigris.subversion.subclipse.core.commands.CheckinResourcesCommand;
 import org.tigris.subversion.subclipse.core.commands.SwitchToUrlCommand;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
+import org.tigris.subversion.subclipse.core.resources.SVNFileModificationValidator;
 import org.tigris.subversion.subclipse.core.resources.SVNMoveDeleteHook;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -136,6 +138,9 @@ public class SVNTeamProvider extends RepositoryProvider {
 		return new SVNMoveDeleteHook();
 	}
 
+    public IFileModificationValidator getFileModificationValidator() {
+        return new SVNFileModificationValidator();
+    }
 	public IResourceVariant getResourceVariant(IResource resource) throws SVNException{
 		ISVNLocalResource local = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		return local.getLatestRemoteResource();

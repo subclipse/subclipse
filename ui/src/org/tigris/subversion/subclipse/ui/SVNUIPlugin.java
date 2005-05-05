@@ -392,7 +392,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		console = new SVNOutputConsole();
 		SVNProviderPlugin.getPlugin().setSvnPromptUserPassword(new SVNPromptUserPassword());
 		SVNProviderPlugin.getPlugin().setSimpleDialogsHelper(new SimpleDialogsHelper());
-		
+		SVNProviderPlugin.getPlugin().setSvnFileModificationValidatorPrompt(new SVNFileModificationValidatorPrompt());
 	}
 	
 	/**
