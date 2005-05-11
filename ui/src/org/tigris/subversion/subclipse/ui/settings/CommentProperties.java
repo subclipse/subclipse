@@ -11,6 +11,7 @@ public class CommentProperties {
     private int minimumLogMessageSize;
     private int logWidthMarker;
     private String logTemplate;
+    private int minimumLockMessageSize;
 
     public CommentProperties() {
         super();
@@ -34,6 +35,12 @@ public class CommentProperties {
     public void setMinimumLogMessageSize(int minimumLogMessageSize) {
         this.minimumLogMessageSize = minimumLogMessageSize;
     }
+    public int getMinimumLockMessageSize() {
+        return minimumLockMessageSize;
+    }
+    public void setMinimumLockMessageSize(int minimumLockMessageSize) {
+        this.minimumLockMessageSize = minimumLockMessageSize;
+    }
     
     public static CommentProperties getCommentProperties(IResource resource) throws SVNException {
         IProject project = null;
@@ -51,6 +58,14 @@ public class CommentProperties {
                     } catch (Exception e) {}
                     properties.setMinimumLogMessageSize(minSize);
                 }
+                ISVNProperty lockSizeProperty = svnResource.getSvnProperty("tsvn:lockmsgminsize"); //$NON-NLS-1$
+                if (lockSizeProperty != null) {
+                    int minSize = 0;
+                    try {
+                        minSize = Integer.parseInt(lockSizeProperty.getValue());
+                    } catch (Exception e) {}
+                    properties.setMinimumLockMessageSize(minSize);
+                }                
                 ISVNProperty widthProperty = svnResource.getSvnProperty("tsvn:logwidthmarker"); //$NON-NLS-1$
                 if (widthProperty != null) {
                     int width = 0;

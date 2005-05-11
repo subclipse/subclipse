@@ -867,6 +867,16 @@ tsvn:logminsize
 Minimum size in characters a log message must have before a commit is allowed.
 		</description>
       </svnPropertyTypes>                      
+      <svnPropertyTypes
+            type="Number"
+            fileOrFolder="folder"
+            allowRecurse = "false"
+            name="tsvn:lockmsgminsize">
+         <description>
+tsvn:lockmsgminsize
+Minimum size in characters a lock message must have before a lock is allowed.
+		</description>
+      </svnPropertyTypes>                      
    </extension>	  
 
 </plugin>

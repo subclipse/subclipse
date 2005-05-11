@@ -23,7 +23,7 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
 		       ISVNFileModificationValidatorPrompt svnFileModificationValidatorPrompt = 
 		           SVNProviderPlugin.getPlugin().getSvnFileModificationValidatorPrompt();
 		       if (svnFileModificationValidatorPrompt != null) {
-		           if (!svnFileModificationValidatorPrompt.prompt(context))
+		           if (!svnFileModificationValidatorPrompt.prompt(files, context))
 		               return SVNStatus.CANCEL_STATUS;
 		           comment = svnFileModificationValidatorPrompt.getComment();
 		           stealLock = svnFileModificationValidatorPrompt.isStealLock();

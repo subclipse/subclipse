@@ -21,7 +21,7 @@ public class LockAction extends WorkspaceAction {
 
     protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
         final IResource[] resources = getSelectedResources();
-        LockDialog dialog = new LockDialog(Display.getCurrent().getActiveShell());
+        LockDialog dialog = new LockDialog(Display.getCurrent().getActiveShell(), resources);
         if (dialog.open() == LockDialog.OK) {
             final String comment = dialog.getComment();
             final boolean stealLock = dialog.isStealLock();

@@ -1,8 +1,10 @@
 package org.tigris.subversion.subclipse.core.resources;
 
+import org.eclipse.core.resources.IFile;
+
 public interface ISVNFileModificationValidatorPrompt {
     
-    public boolean prompt(Object context);
+    public boolean prompt(IFile[] files, Object context);
     
     public String getComment();
     
