@@ -386,6 +386,16 @@ public class SVNLightweightDecorator
                 LocalResourceStatus status = svnResource.getStatus();
                 
 				// The changes did not intersect 
+                if (status.isTextConflicted()) {
+                    try {
+                        IMarker marker = resource.createMarker("org.tigris.subversion.subclipse.ui.conflictMarker"); //$NON-NLS-1$
+                        marker.setAttribute(IMarker.MESSAGE, Policy.bind("SVNConflicts")); //$NON-NLS-1$
+                        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+                    } catch (Exception e) {
+                        SVNUIPlugin.log(e.getMessage());
+                    }
+                	return conflicted;
+                }
            		if (status.isTextMerged()) {
            			return merged;
            		}
@@ -397,16 +407,6 @@ public class SVNLightweightDecorator
                 }
                 if (status.isReadOnly()) {
                     return needsLock;
-                }
-                if (status.isTextConflicted()) {
-                    try {
-                        IMarker marker = resource.createMarker("org.tigris.subversion.subclipse.ui.conflictMarker"); //$NON-NLS-1$
-                        marker.setAttribute(IMarker.MESSAGE, Policy.bind("SVNConflicts")); //$NON-NLS-1$
-                        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-                    } catch (Exception e) {
-                        SVNUIPlugin.log(e.getMessage());
-                    }
-                	return conflicted;
                 }
 			} catch (SVNException e) {
 				SVNUIPlugin.log(e.getStatus());
