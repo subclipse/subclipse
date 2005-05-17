@@ -53,6 +53,7 @@ public class SVNPropertyPage extends PropertyPage {
     private Text pathValue;
     private Text lockOwner;
     private Text lockCreationDate;
+    private Text lockComment;
    
 
     public SVNPropertyPage() {
@@ -149,6 +150,10 @@ public class SVNPropertyPage extends PropertyPage {
         label.setText(Policy.bind("SVNPropertyPage.lockCreationDate"));  //$NON-NLS-1$
         lockCreationDate = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
 
+        label = new Label(composite, SWT.NONE);
+        label.setText(Policy.bind("SVNPropertyPage.lockComment"));  //$NON-NLS-1$
+        lockComment = new Text(composite, SWT.MULTI | SWT.READ_ONLY);
+
 //        label = new Label(composite, SWT.NONE);
 //        label.setText(Policy.bind("SVNPropertyPage.path")); //$NON-NLS-1$
 
@@ -200,6 +205,7 @@ public class SVNPropertyPage extends PropertyPage {
             lockOwner.setText(status.getLockOwner());
             lockCreationDate.setText(status.getLockCreationDate() != null ? status
                     .getLockCreationDate().toString() : ""); //$NON-NLS-1$
+            lockComment.setText(status.getLockComment());
 //            pathValue.setText(status.getPath() != null ? status.getPath() : "");
 
         } catch (Exception e) {

@@ -68,6 +68,8 @@ public class LocalResourceStatus {
     
     protected long lockCreationDate;
     
+    protected String lockComment;
+    
     protected boolean readOnly;
 
     public LocalResourceStatus() {
@@ -135,6 +137,7 @@ public class LocalResourceStatus {
         }
         
         this.lockOwner = status.getLockOwner();
+        this.lockComment = status.getLockComment();
         if (status.getLockCreationDate() == null) 
             this.lockCreationDate = -1;
         else
@@ -511,6 +514,10 @@ public class LocalResourceStatus {
 
     public boolean isReadOnly() {
         return readOnly;
+    }
+
+    public String getLockComment() {
+        return lockComment;
     }
 
 }
