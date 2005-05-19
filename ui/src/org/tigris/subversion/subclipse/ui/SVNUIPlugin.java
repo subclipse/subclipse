@@ -75,6 +75,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 //			}
 //		}
 //	};
+    
+    private SVNMarkerListener markerListener;
 	
 	
     public static void log(CoreException e) {
@@ -385,6 +387,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		
         preferences = new Preferences(getPreferenceStore());
 		preferences.initializePreferences();
+		
+		markerListener = new SVNMarkerListener();
 		
 //		// if the global ignores list is changed then update decorators.
 		//TeamUI.getSynchronizeManager().addSynchronizeParticipants(new ISynchronizeParticipant[]{new SVNWorkspaceSynchronizeParticipant()});
