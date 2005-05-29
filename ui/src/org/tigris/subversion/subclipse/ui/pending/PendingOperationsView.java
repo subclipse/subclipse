@@ -507,8 +507,10 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
      */
     private void updateChangedResourcesWith(IResource[] resources) throws SVNException {
         Set set = new HashSet();
-        for (int i = 0; i < this.changedResources.length;i++) {
-            set.add(this.changedResources[i]);
+        if (this.changedResources != null) {
+	        for (int i = 0; i < this.changedResources.length;i++) {
+	            set.add(this.changedResources[i]);
+	        }
         }
         for (int i = 0; i < resources.length;i++) {
             set.add(resources[i]);
