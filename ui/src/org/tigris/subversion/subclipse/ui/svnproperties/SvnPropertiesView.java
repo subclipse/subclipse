@@ -516,7 +516,7 @@ public class SvnPropertiesView extends ViewPart {
 		}
 		try {
 			LocalResourceStatus status = resource.getStatus();
-			if (!status.isManaged()) {
+			if (!resource.isManaged()) {
 				statusLabel.setText(Policy.bind("SvnPropertiesView.resourceNotManaged")); //$NON-NLS-1$
 			} else 
 			if (status.getPropStatus().equals(SVNStatusKind.MODIFIED))
