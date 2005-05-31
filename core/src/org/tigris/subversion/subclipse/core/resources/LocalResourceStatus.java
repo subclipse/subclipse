@@ -16,6 +16,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.Date;
 
@@ -35,7 +36,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
  * 
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  */
-public class LocalResourceStatus {
+public class LocalResourceStatus implements Serializable {
     private static int FORMAT_VERSION_1 = 1;
 
     protected String url;
@@ -71,9 +72,10 @@ public class LocalResourceStatus {
     protected String lockComment;
     
     protected boolean readOnly;
+    
+    static final long serialVersionUID = 1L;
 
     public LocalResourceStatus() {
-
     }
 
     public LocalResourceStatus(ISVNStatus status) {

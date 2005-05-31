@@ -9,6 +9,12 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.status;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.eclipse.core.internal.resources.IManager;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -31,7 +37,8 @@ import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
  * @author cedric chabanois (cchab at tigris.org)
  */
 public class StatusCacheManager implements IManager, Preferences.IPropertyChangeListener {
-    private StatusCacheComposite treeCacheRoot = new StatusCacheComposite();
+//    private StatusCacheComposite treeCacheRoot = new StatusCacheComposite();
+    private StatusCacheComposite treeCacheRoot;
     private StatusUpdateStrategy statusUpdateStrategy;
     
     public StatusCacheManager() {
@@ -40,21 +47,51 @@ public class StatusCacheManager implements IManager, Preferences.IPropertyChange
     /* (non-Javadoc)
      * @see org.eclipse.core.internal.resources.IManager#startup(org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void startup(IProgressMonitor monitor) throws CoreException {
+    public void startup(IProgressMonitor monitor) throws CoreException {     
+        loadStatusCache();
         chooseUpdateStrategy();
+    }
+
+    private void loadStatusCache() {
+        File statusCacheFile = new File(SVNProviderPlugin.getPlugin().getStateLocation() + File.separator + "status.cache");
+        if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_CACHE_STATUS) && statusCacheFile.exists()) {
+            try {
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(statusCacheFile));
+                treeCacheRoot = (StatusCacheComposite)in.readObject();
+                in.close();
+                statusCacheFile.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+                treeCacheRoot = new StatusCacheComposite();
+            }
+        } else treeCacheRoot = new StatusCacheComposite();
     }
 
     private void chooseUpdateStrategy() {
         boolean recursiveStatusUpdate = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE);
         statusUpdateStrategy = recursiveStatusUpdate ? (StatusUpdateStrategy)new RecursiveStatusUpdateStrategy() : (StatusUpdateStrategy)new NonRecursiveStatusUpdateStrategy();
+        statusUpdateStrategy.setTreeCacheRoot(treeCacheRoot);
     }
     
     /* (non-Javadoc)
      * @see org.eclipse.core.internal.resources.IManager#shutdown(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void shutdown(IProgressMonitor monitor) throws CoreException {
+        if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_CACHE_STATUS))
+            saveStatusCache();
     }
     
+    private void saveStatusCache() {
+        File statusCacheFile = new File(SVNProviderPlugin.getPlugin().getStateLocation() + File.separator + "status.cache");
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(statusCacheFile));
+            out.writeObject(treeCacheRoot);
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * A resource which ancestor is not managed is not managed
      * @param resource

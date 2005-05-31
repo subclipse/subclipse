@@ -56,6 +56,7 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_SHOW_DIRTY_DECORATION, false);
         store.setDefault(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION, true);
         store.setDefault(ISVNUIConstants.PREF_CALCULATE_DIRTY, true);
+        store.setDefault(ISVNUIConstants.PREF_CACHE_STATUS, true);
         store.setDefault(ISVNUIConstants.PREF_SHOW_SYNCINFO_AS_TEXT, false);        
         store.setDefault(ISVNUIConstants.PREF_PROMPT_ON_MIXED_TAGS, true);
         store.setDefault(ISVNUIConstants.PREF_PROMPT_ON_SAVING_IN_SYNC, true);

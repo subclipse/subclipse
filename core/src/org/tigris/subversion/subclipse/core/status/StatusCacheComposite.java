@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.status;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,10 +29,11 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
  * 
  * @author cedric chabanois (cchab at tigris.org) 
  */
-public class StatusCacheComposite {
+public class StatusCacheComposite implements Serializable {
 	private String segment;
     private LocalResourceStatus status = null;
     private Map children = null;
+    static final long serialVersionUID = 1L;
 
     /**
      * creates the root of the tree cache

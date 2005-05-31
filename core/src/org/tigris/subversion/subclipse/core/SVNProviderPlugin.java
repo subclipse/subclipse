@@ -194,6 +194,7 @@ public class SVNProviderPlugin extends Plugin {
 	 */
 	protected void initializeDefaultPluginPreferences() {
 	    getPluginPreferences().setDefault(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE, true);
+	    getPluginPreferences().setDefault(ISVNCoreConstants.PREF_CACHE_STATUS, true);
 	}
 
 	private static List listeners = new ArrayList();
