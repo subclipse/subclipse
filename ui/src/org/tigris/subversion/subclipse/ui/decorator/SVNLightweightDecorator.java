@@ -279,6 +279,9 @@ public class SVNLightweightDecorator
 
 			ISVNLocalResource svnResource =
 				SVNWorkspaceRoot.getSVNResourceFor(resource);
+
+            bindings.put( SVNDecoratorConfiguration.RESOURCE_LABEL, svnResource.getRepository().getLabel());
+            
 			LocalResourceStatus status = svnResource.getStatus();
 			if (status.getUrl() != null) {
 				bindings.put(
