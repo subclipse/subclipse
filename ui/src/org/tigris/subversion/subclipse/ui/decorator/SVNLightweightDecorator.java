@@ -59,6 +59,7 @@ public class SVNLightweightDecorator
 	// Images cached for better performance
 	private static ImageDescriptor dirty;
 	private static ImageDescriptor checkedIn;
+    private static ImageDescriptor deleted;
 	
 	private static ImageDescriptor added;
 	
@@ -112,6 +113,7 @@ public class SVNLightweightDecorator
 		locked = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_LOCKED));
 		needsLock = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_NEEDSLOCK));
 		conflicted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_CONFLICTED));
+		deleted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_DELETED));
 	}
 
 	public SVNLightweightDecorator() {
@@ -373,7 +375,21 @@ public class SVNLightweightDecorator
         
 		// show dirty icon
 		if(showDirty && isDirty) {
-			 return dirty;
+		    if (resource.getType() == IResource.FOLDER) {
+				try {
+	                LocalResourceStatus status = svnResource.getStatus();
+	                
+	                if (status.isDeleted()) {
+						return deleted;
+	                } else {
+	                    return dirty;
+	                }
+				} catch (SVNException e) {
+					SVNUIPlugin.log(e.getStatus());
+					return null;
+				}
+		    }
+			return dirty;
 		}
 
         // show added icon
@@ -402,6 +418,21 @@ public class SVNLightweightDecorator
 			}
 		}
 
+		//show deleted icon (on directories only)
+		//ignore preferences use show this sort of overlay allways
+		if (true) {
+			try {
+                LocalResourceStatus status = svnResource.getStatus();
+                
+                if (status.isDeleted()) {
+					return deleted;
+                }
+			} catch (SVNException e) {
+				SVNUIPlugin.log(e.getStatus());
+				return null;
+			}
+		}
+		
 		// Simplest is that is has remote.
 		if (showHasRemote) {
             try {

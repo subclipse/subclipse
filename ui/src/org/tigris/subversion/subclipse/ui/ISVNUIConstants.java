@@ -28,6 +28,7 @@ public interface ISVNUIConstants {
     public final String IMG_EXTERNAL = "ovr16/external_ov.gif"; //$NON-NLS-1$
     public final String IMG_LOCKED = "ovr16/locked_ov.gif"; //$NON-NLS-1$
     public final String IMG_NEEDSLOCK = "ovr16/protected_ov.gif"; //$NON-NLS-1$
+    public final String IMG_DELETED = "ovr16/deleted_ov.gif"; //$NON-NLS-1$
 	
 	// objects
 	public final String IMG_REPOSITORY = "obj16/repository_rep.gif"; //$NON-NLS-1$
