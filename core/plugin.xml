@@ -17,9 +17,6 @@
       <library name="SVNPluginCore.jar">
          <export name="*"/>
       </library>
-      <library name="commons-logging-1.0.4.jar">
-         <export name="*"/>
-      </library>
       <library name="jakarta-regexp-1.3.jar">
          <export name="*"/>
       </library>
