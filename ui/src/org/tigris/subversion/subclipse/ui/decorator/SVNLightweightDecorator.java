@@ -171,7 +171,9 @@ public class SVNLightweightDecorator
      * tells if given svn resource is dirty or not 
      */
 	public static boolean isDirty(final ISVNLocalResource svnResource) {
-		try {
+	    try {
+			if (!svnResource.exists())
+			    return false;
             if (svnResource.getIResource().getType() == IResource.FILE) {
                 // for files, we want that only modified files to be considered as dirty
                 return !svnResource.isIgnored() && 
@@ -238,7 +240,7 @@ public class SVNLightweightDecorator
 		boolean isDirty = false;
 
 		if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
-		    isDirty = SVNLightweightDecorator.isDirty(svnResource);
+	        isDirty = SVNLightweightDecorator.isDirty(svnResource);
 		}
 		
 		decorateTextLabel(resource, decoration, isDirty);
