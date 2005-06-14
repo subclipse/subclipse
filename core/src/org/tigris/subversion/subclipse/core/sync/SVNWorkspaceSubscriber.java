@@ -13,16 +13,18 @@ package org.tigris.subversion.subclipse.core.sync;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.ListIterator;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.ISynchronizer;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -32,6 +34,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
@@ -41,8 +44,8 @@ import org.eclipse.team.core.subscribers.Subscriber;
 import org.eclipse.team.core.subscribers.SubscriberChangeEvent;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariantComparator;
+import org.eclipse.team.core.variants.PersistantResourceVariantByteStore;
 import org.eclipse.team.core.variants.ResourceVariantByteStore;
-import org.eclipse.team.core.variants.SessionResourceVariantByteStore;
 import org.eclipse.team.internal.core.TeamPlugin;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -61,6 +64,9 @@ import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener {
 
+	/** Name used for identifying SVN synchronization data in Resource>ResourceInfo#syncInfo storage */
+	private static final QualifiedName qualifiedName = new QualifiedName(SVNProviderPlugin.ID, "svn-remote-resource-key");
+	
 	private static SVNWorkspaceSubscriber instance; 
 	
 	/**
@@ -76,7 +82,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
 	protected SVNRevisionComparator comparator = new SVNRevisionComparator();
 
-	protected ResourceVariantByteStore remoteSyncStateStore = new SessionResourceVariantByteStore();
+	protected ResourceVariantByteStore remoteSyncStateStore = new PersistantResourceVariantByteStore(qualifiedName);
 
 	public SVNWorkspaceSubscriber() {
 	    SVNProviderPlugin.addResourceStateChangeListener(this);
@@ -175,10 +181,11 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
     public SyncInfo getSyncInfo(IResource resource) throws TeamException {
         if( ! isSupervised( resource ) )
             return null;
+        
         ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         LocalResourceStatus localStatus = localResource.getStatus();
 
-        StatusInfo localStatusInfo = new StatusInfo(localStatus.getLastChangedRevision(), localStatus.getTextStatus());
+        StatusInfo localStatusInfo = new StatusInfo(localStatus.getLastChangedRevision(), localStatus.getTextStatus(), localStatus.getPropStatus());
 
         StatusInfo remoteStatusInfo = null;
         byte[] remoteBytes = remoteSyncStateStore.getBytes( resource );
@@ -186,7 +193,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
             remoteStatusInfo = StatusInfo.fromBytes(remoteBytes);
         else {
             if( localStatus.hasRemote() )
-                remoteStatusInfo = new StatusInfo(localStatus.getLastChangedRevision(), SVNStatusKind.NORMAL);
+                remoteStatusInfo = ensureBaseStatusInfo(resource, localStatus, ResourcesPlugin.getWorkspace().getSynchronizer());
         }
 
         SyncInfo syncInfo = new SVNStatusSyncInfo(resource, localStatusInfo, remoteStatusInfo, comparator);
@@ -226,6 +233,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	
 	private IStatus refresh(IResource resource, int depth) {
 		try {
+			refreshResourceSyncInfo(resource);
 			IResource[] changedResources = findChanges(resource, depth);
 
 			fireTeamResourceChange(SubscriberChangeEvent.asSyncChangedDeltas(this, changedResources));
@@ -235,6 +243,66 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 		} 
 	}
 
+	protected void refreshResourceSyncInfo(IResource resource) throws TeamException	
+	{
+		try {
+			final ISynchronizer synchronizer = ResourcesPlugin.getWorkspace().getSynchronizer();
+			resource.accept(new IResourceVisitor() {
+				public boolean visit(IResource resource) throws CoreException {
+					if (isSupervised(resource))
+					{	
+						LocalResourceStatus status = SVNWorkspaceRoot.getSVNResourceFor( resource ).getStatus();
+						if (status.hasRemote())
+						{
+							ensureBaseStatusInfo(resource, status, synchronizer);
+						}
+					}
+					else
+					{
+						synchronizer.flushSyncInfo(qualifiedName, resource, IResource.DEPTH_ZERO);
+					}
+					return true;
+				}
+			});
+			
+		} catch (CoreException e) {
+			SVNProviderPlugin.log(e.getStatus());
+			throw TeamException.asTeamException(e);
+		}
+
+	}
+
+	/**
+	 * Answer a StatusInfo created from the base(pristine) copy of resource.
+	 * Ensure that this info is present in syncInfo of ResourceInfo of the resource.
+	 * @param resource IResource of status is determined
+	 * @param status prepared LocalResourceStatus of the supplied resource
+	 * @param synchronizer ISynchronizer instance used to store syncInfo data to resource 
+	 * @return	a StatusInfo representing status of the base copy
+	 * @throws TeamException
+	 */
+	protected StatusInfo ensureBaseStatusInfo(IResource resource, LocalResourceStatus status, ISynchronizer synchronizer) throws TeamException
+	{
+		try {
+			StatusInfo baseStatusInfo = null;
+			if( synchronizer.getSyncInfo(qualifiedName, resource) == null ) {
+				if( status.hasRemote() ) {
+					baseStatusInfo = new StatusInfo(status.getLastChangedRevision(), SVNStatusKind.NORMAL);
+					synchronizer.setSyncInfo(qualifiedName, resource, baseStatusInfo.asBytes());
+				}
+				else {
+					baseStatusInfo = new StatusInfo(null, SVNStatusKind.NONE );
+					synchronizer.flushSyncInfo(qualifiedName, resource, IResource.DEPTH_ZERO);
+				}
+			}			
+			return baseStatusInfo;
+		}
+		catch (CoreException e)
+		{
+			throw TeamException.asTeamException(e);
+		}
+	}		
+	
     private IResource[] findChanges(IResource resource, int depth) throws TeamException {
         System.out.println("SVNWorkspaceSubscriber.refresh()"+resource+" "+depth);		
 
@@ -249,25 +317,31 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
         boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
         try {
             List allChanges = new ArrayList();
-            Map syncState = new HashMap();
             Set containerSet = new HashSet();
 
             StatusCommand cmd = new StatusCommand(svnResource.getFile(), descend, false, true );
             cmd.execute( client );
 
-            ISVNStatus[] statuses = cmd.getStatuses(); 
-            for (int i = 0; i < statuses.length; i++) {
+            ISVNStatus[] statuses = cmd.getStatuses();
+            Arrays.sort(statuses, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					return ((ISVNStatus) o1).getPath().compareTo(((ISVNStatus) o2).getPath());
+				}            	
+            });
+
+            //Collect changed resources (in reverse order so dirs are properly identified
+            for (int i = statuses.length - 1; i >= 0; i--) {
                 ISVNStatus status = statuses[i];
                 IPath path = new Path(status.getPath());
 
                 IResource changedResource = null;
-                if ( status.getNodeKind() == SVNNodeKind.DIR ) {
+                if ( SVNNodeKind.DIR == status.getNodeKind() ) {
                     changedResource = workspaceRoot.getContainerForLocation(path);
                 }
-                else if ( status.getNodeKind() == SVNNodeKind.FILE ) {
+                else if ( SVNNodeKind.FILE == status.getNodeKind() ) {
                     changedResource = workspaceRoot.getFileForLocation(path);
                 }
-                else if ( status.getNodeKind() == SVNNodeKind.UNKNOWN ) {
+                else if ( SVNNodeKind.UNKNOWN  == status.getNodeKind() ) {
                     changedResource = workspaceRoot.getContainerForLocation(path);
                     
                     if( changedResource.exists() )
@@ -275,19 +349,28 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
                     else  if( !containerSet.contains( changedResource ) )
                         changedResource = workspaceRoot.getFileForLocation(path);
                 }
-
                 if( changedResource != null ) {
-                    containerSet.add(changedResource.getParent());
-                    
-                    StatusInfo remoteInfo = new StatusInfo(cmd.getRevision(), status.getRepositoryTextStatus() );
-                    remoteSyncStateStore.setBytes( changedResource, remoteInfo.asBytes() );
-
-                    //System.out.println(cmd.getRevision()+" "+changedResource+" R:"+status.getLastChangedRevision()+" L:"+status.getTextStatus()+" R:"+status.getRepositoryTextStatus());
-                    allChanges.add(changedResource);
+                    containerSet.add(changedResource.getParent());                    
+                    allChanges.add(new StatusResourcePair(changedResource, status));
                 }
             }
 
-            return (IResource[]) allChanges.toArray(new IResource[allChanges.size()]);
+            IResource[] result = new IResource[allChanges.size()];
+            int i= 0;
+            //In reverse-reverse order so dir syncInfos are created sooner then files ...
+            for (ListIterator iter = allChanges.listIterator(allChanges.size()); iter.hasPrevious(); i++) {
+            	StatusResourcePair changedResourcePair = (StatusResourcePair) iter.previous();
+            	result[i] = changedResourcePair.getResource();
+				
+                if (isSupervised(changedResourcePair.getResource()))
+                {
+                    StatusInfo remoteInfo = new StatusInfo(cmd.getRevision(), changedResourcePair.getStatus().getRepositoryTextStatus(), changedResourcePair.getStatus().getRepositoryPropStatus() );
+                    remoteSyncStateStore.setBytes( changedResourcePair.getResource(), remoteInfo.asBytes() );
+                }					
+                //System.out.println(cmd.getRevision()+" "+changedResource+" R:"+status.getLastChangedRevision()+" L:"+status.getTextStatus()+" R:"+status.getRepositoryTextStatus());
+			}
+            
+            return result;
         } catch (SVNClientException e) {
             throw new TeamException("Error getting status for resource "+resource, e);
         }
@@ -311,38 +394,6 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
      * @param changedResources
      */
     private void internalResourceChanged(IResource[] changedResources) {
-        for (int i = 0; i < changedResources.length; i++) {
-            IResource resource = changedResources[i];
-            try {
-                if( resource.exists() ) {
-                    ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor( resource );
-                    LocalResourceStatus status = localResource.getStatus();
-
-                    if( remoteSyncStateStore.getBytes( resource ) == null ) {
-                        StatusInfo remoteInfo;
-                        if( localResource.hasRemote() ) {
-                            remoteInfo = new StatusInfo(status.getLastChangedRevision(), SVNStatusKind.NORMAL );
-                        }
-                        else {
-                            remoteInfo = new StatusInfo(null, SVNStatusKind.NONE );
-                        }
-                        remoteSyncStateStore.setBytes( resource, remoteInfo.asBytes() );
-                    }
-                }
-//TODO: catch outgoing deletions
-//                else {
-//                    if( remoteSyncStateStore.getBytes( resource ) == null ) {
-//                        localSyncStateStore.deleteBytes( resource );
-//                    }
-//                    else {
-//                        StatusInfo localInfo = new StatusInfo(null, SVNStatusKind.NONE );
-//                        localSyncStateStore.setBytes( resource,  localInfo.asBytes() );
-//                    }
-//                }
-            } catch (TeamException e) {
-                e.printStackTrace();
-            }
-        }
         fireTeamResourceChange(SubscriberChangeEvent.asSyncChangedDeltas(this, changedResources));
     }
 
@@ -367,6 +418,26 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	        remoteSyncStateStore.flushBytes(resources[i], IResource.DEPTH_INFINITE);
 	    }
 	}
+
+    private static class StatusResourcePair
+    {
+    	private final IResource resource;
+    	private final ISVNStatus status;
+    	
+		protected StatusResourcePair(final IResource resource, final ISVNStatus status) {
+			super();
+			this.resource = resource;
+			this.status = status;
+		}
+		
+		protected IResource getResource() {
+			return resource;
+		}
+
+		protected ISVNStatus getStatus() {
+			return status;
+		}
+    }
 }
 
 class StatusInfo {
@@ -376,6 +447,10 @@ class StatusInfo {
     StatusInfo(SVNRevision.Number revision, SVNStatusKind kind) {
         this.revision = revision;
         this.kind = kind;
+    }
+
+    StatusInfo(SVNRevision.Number revision, SVNStatusKind textStatus, SVNStatusKind propStatus) {
+    	this(revision, StatusInfo.mergeTextAndPropertyStatus(textStatus, propStatus));
     }
 
     StatusInfo(byte[] fromBytes) {
@@ -451,4 +526,32 @@ class StatusInfo {
         
         return new StatusInfo( bytes );
     }
+    
+    /**
+     * Answer a 'merge' of text and property statuses.
+     * The text has priority, i.e. the prop does not override the text status
+     * unless it is harmless - SVNStatusKind.NORMAL
+     * @param textStatus
+     * @param propStatus
+     * @return
+     */
+    protected static SVNStatusKind mergeTextAndPropertyStatus(SVNStatusKind textStatus, SVNStatusKind propStatus)
+    {
+    	if (!SVNStatusKind.NORMAL.equals(textStatus))
+    	{
+    		return textStatus; 
+    	}
+    	else
+    	{
+    		if (SVNStatusKind.MODIFIED.equals(propStatus) || SVNStatusKind.CONFLICTED.equals(propStatus))
+    		{
+    			return propStatus;
+    		}
+    		else
+    		{
+    			return textStatus;
+    		}
+    	}    		
+    }    
 }
+

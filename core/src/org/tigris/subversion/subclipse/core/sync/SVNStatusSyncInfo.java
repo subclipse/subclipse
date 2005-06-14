@@ -44,12 +44,19 @@ public class SVNStatusSyncInfo extends SyncInfo {
         IResource local = getLocal();
         
         if (!local.exists()) {
+        	if (isAddition(repositoryKind)) return SyncInfo.INCOMING | SyncInfo.ADDITION;
             if (localKind == SVNStatusKind.UNVERSIONED) return SyncInfo.IN_SYNC;
             if (isDeletion(repositoryKind)) return SyncInfo.IN_SYNC;
             if (isDeletion(localKind)) {
                 if (isChange(repositoryKind)) return SyncInfo.CONFLICTING | SyncInfo.DELETION;
                 return SyncInfo.OUTGOING | SyncInfo.DELETION;
             } else return SyncInfo.INCOMING | SyncInfo.ADDITION;
+        }
+        //this makes sense for directories only - they still exists when they are being deleted
+        else if ( isDeletion(localKind))
+        {
+        	if ((IResource.FOLDER == local.getType()) 
+        			&& (isNotModified(repositoryKind))) return SyncInfo.OUTGOING | SyncInfo.DELETION;
         }
         else if( isChange(localKind) ) {
             if( isChange( repositoryKind )

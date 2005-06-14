@@ -133,7 +133,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
                     
                     // the resources that have potentially changed are the members of the folder
                     // and the folder itself
-                    IResource[] members = container.members();
+                    IResource[] members = container.members(true);
                     IResource[] resources = new IResource[members.length+1];
                     resources[0] = container;
                     System.arraycopy(members,0,resources,1,members.length);
