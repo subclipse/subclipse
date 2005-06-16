@@ -15,7 +15,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.eclipse.core.internal.resources.IManager;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,7 +35,7 @@ import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
  * 
  * @author cedric chabanois (cchab at tigris.org)
  */
-public class StatusCacheManager implements IManager, Preferences.IPropertyChangeListener {
+public class StatusCacheManager implements Preferences.IPropertyChangeListener {
 //    private StatusCacheComposite treeCacheRoot = new StatusCacheComposite();
     private StatusCacheComposite treeCacheRoot;
     private StatusUpdateStrategy statusUpdateStrategy;

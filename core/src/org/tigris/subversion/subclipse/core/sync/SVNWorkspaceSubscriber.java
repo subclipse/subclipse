@@ -46,7 +46,6 @@ import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariantComparator;
 import org.eclipse.team.core.variants.PersistantResourceVariantByteStore;
 import org.eclipse.team.core.variants.ResourceVariantByteStore;
-import org.eclipse.team.internal.core.TeamPlugin;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
@@ -225,7 +224,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 		} 
 		if (!errors.isEmpty()) {
 			int numSuccess = resources.length - errors.size();
-			throw new TeamException(new MultiStatus(TeamPlugin.ID, 0, 
+			throw new TeamException(new MultiStatus(SVNProviderPlugin.ID, 0, 
 					(IStatus[]) errors.toArray(new IStatus[errors.size()]), 
 					Policy.bind("ResourceVariantTreeSubscriber.1", new Object[] {getName(), Integer.toString(numSuccess), Integer.toString(resources.length)}), null)); //$NON-NLS-1$
 		}
@@ -239,7 +238,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			fireTeamResourceChange(SubscriberChangeEvent.asSyncChangedDeltas(this, changedResources));
 			return Status.OK_STATUS;
 		} catch (TeamException e) {
-			return new TeamStatus(IStatus.ERROR, TeamPlugin.ID, 0, Policy.bind("ResourceVariantTreeSubscriber.2", resource.getFullPath().toString(), e.getMessage()), e, resource); //$NON-NLS-1$
+			return new TeamStatus(IStatus.ERROR, SVNProviderPlugin.ID, 0, Policy.bind("ResourceVariantTreeSubscriber.2", resource.getFullPath().toString(), e.getMessage()), e, resource); //$NON-NLS-1$
 		} 
 	}
 

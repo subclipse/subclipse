@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
+ *     Cï¿½dric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core;
 
@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.team.internal.core.InfiniteSubProgressMonitor;
 
 public class Policy {
     private static final String BUNDLE_NAME = "org.tigris.subversion.subclipse.core.messages"; //$NON-NLS-1$
@@ -138,14 +137,4 @@ public class Policy {
 		return new SubProgressMonitor(monitor, ticks, style);
 	}
 	
-    /**
-     * return a submonitor for monitor 
-     */    
-	public static IProgressMonitor infiniteSubMonitorFor(IProgressMonitor monitor, int ticks) {
-		if (monitor == null)
-			return new NullProgressMonitor();
-		if (monitor instanceof NullProgressMonitor)
-			return monitor;
-		return new InfiniteSubProgressMonitor(monitor, ticks);
-	}
-}
+ }

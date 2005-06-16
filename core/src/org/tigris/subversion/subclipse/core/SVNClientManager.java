@@ -11,7 +11,6 @@ package org.tigris.subversion.subclipse.core;
 
 import java.io.File;
 
-import org.eclipse.core.internal.resources.IManager;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -27,7 +26,7 @@ import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
  * 
  * @author Cedric Chabanois (cchab at tigris.org) 
  */
-public class SVNClientManager implements IManager {
+public class SVNClientManager {
     private SVNAdapterFactories adapterFactories;
     private String svnClientInterface;  
     private File configDir = null;

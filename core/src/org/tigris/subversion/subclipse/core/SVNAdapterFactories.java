@@ -6,11 +6,10 @@
  * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
- *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
+ *     Cï¿½dric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core;
 
-import org.eclipse.core.internal.resources.IManager;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdapterManager;
@@ -21,7 +20,7 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceAdapterFactor
 /**
  * handles all the IAdapterFactory used in the plugin
  */
-public class SVNAdapterFactories implements IManager {
+public class SVNAdapterFactories  {
 	LocalResourceAdapterFactory localResourceAdapterFactory;
 
 	public void startup(IProgressMonitor monitor) throws CoreException {
