@@ -13,10 +13,8 @@ package org.tigris.subversion.subclipse.core.sync;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -29,11 +27,9 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.RepositoryProvider;
@@ -50,16 +46,14 @@ import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.client.StatusCommand;
+import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
+import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand.InformedStatus;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo.StatusInfo;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.tigris.subversion.svnclientadapter.SVNNodeKind;
-import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
-import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener {
 
@@ -154,7 +148,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 		try {
 			Set allMembers = new HashSet();
 			try {
-				allMembers.addAll(Arrays.asList(((IContainer)resource).members()));
+				allMembers.addAll(Arrays.asList(((IContainer)resource).members(true)));
 			} catch (CoreException e) {
 				if (e.getStatus().getCode() == IResourceStatus.RESOURCE_NOT_FOUND) {
 					// The resource is no longer exists so ignore the exception
@@ -164,9 +158,6 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			}
 			//add remote changed resources (they may not exist locally)
 			allMembers.addAll(Arrays.asList( remoteSyncStateStore.members( resource ) ) );
-
-			//TODO: add local changed resources (they may not exist locally)
-			//allMembers.addAll(Arrays.asList( localSyncStateStore.members( resource ) ) );
 
 			return (IResource[]) allMembers.toArray(new IResource[allMembers.size()]);
 		} catch (CoreException e) {
@@ -301,7 +292,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			throw TeamException.asTeamException(e);
 		}
 	}		
-	
+		
     private IResource[] findChanges(IResource resource, int depth) throws TeamException {
         System.out.println("SVNWorkspaceSubscriber.refresh()"+resource+" "+depth);		
 
@@ -315,63 +306,26 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor( resource );
         boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
         try {
-            List allChanges = new ArrayList();
-            Set containerSet = new HashSet();
-
-            StatusCommand cmd = new StatusCommand(svnResource.getFile(), descend, false, true );
+            StatusAndInfoCommand cmd = new StatusAndInfoCommand(svnResource, descend, false, true );
             cmd.execute( client );
 
-            ISVNStatus[] statuses = cmd.getStatuses();
-            Arrays.sort(statuses, new Comparator() {
-				public int compare(Object o1, Object o2) {
-					return ((ISVNStatus) o1).getPath().compareTo(((ISVNStatus) o2).getPath());
-				}            	
-            });
+            InformedStatus[] statuses = cmd.getInformedStatuses();
 
-            //Collect changed resources (in reverse order so dirs are properly identified
-            for (int i = statuses.length - 1; i >= 0; i--) {
-                ISVNStatus status = statuses[i];
-                IPath path = new Path(status.getPath());
-
-                IResource changedResource = null;
-                if ( SVNNodeKind.DIR == status.getNodeKind() ) {
-                    changedResource = workspaceRoot.getContainerForLocation(path);
-                }
-                else if ( SVNNodeKind.FILE == status.getNodeKind() ) {
-                    changedResource = workspaceRoot.getFileForLocation(path);
-                }
-                else if ( SVNNodeKind.UNKNOWN  == status.getNodeKind() ) {
-                    changedResource = workspaceRoot.getContainerForLocation(path);
-                    
-                    if( changedResource.exists() )
-                        containerSet.add( changedResource );
-                    else  if( !containerSet.contains( changedResource ) )
-                        changedResource = workspaceRoot.getFileForLocation(path);
-                }
-                if( changedResource != null ) {
-                    containerSet.add(changedResource.getParent());                    
-                    allChanges.add(new StatusResourcePair(changedResource, status));
-                }
-            }
-
-            IResource[] result = new IResource[allChanges.size()];
-            int i= 0;
-            //In reverse-reverse order so dir syncInfos are created sooner then files ...
-            for (ListIterator iter = allChanges.listIterator(allChanges.size()); iter.hasPrevious(); i++) {
-            	StatusResourcePair changedResourcePair = (StatusResourcePair) iter.previous();
-            	result[i] = changedResourcePair.getResource();
+            IResource[] result = new IResource[statuses.length];
+            for (int i = 0; i < statuses.length; i++) {				
+            	result[i] = statuses[i].getResource();
 				
-                if (isSupervised(changedResourcePair.getResource()))
+                if (isSupervised(statuses[i].getResource()))
                 {
-                    StatusInfo remoteInfo = new StatusInfo(cmd.getRevision(), changedResourcePair.getStatus().getRepositoryTextStatus(), changedResourcePair.getStatus().getRepositoryPropStatus() );
-                    remoteSyncStateStore.setBytes( changedResourcePair.getResource(), remoteInfo.asBytes() );
+                    StatusInfo remoteInfo = new StatusInfo(cmd.getRevision(), statuses[i].getRepositoryTextStatus(), statuses[i].getRepositoryPropStatus() );
+                    remoteSyncStateStore.setBytes( statuses[i].getResource(), remoteInfo.asBytes() );
                 }					
                 //System.out.println(cmd.getRevision()+" "+changedResource+" R:"+status.getLastChangedRevision()+" L:"+status.getTextStatus()+" R:"+status.getRepositoryTextStatus());
 			}
             
             return result;
         } catch (SVNClientException e) {
-            throw new TeamException("Error getting status for resource "+resource, e);
+            throw new TeamException("Error getting status for resource "+resource + " " + e.getMessage(), e);
         }
     }
 
@@ -417,140 +371,4 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	        remoteSyncStateStore.flushBytes(resources[i], IResource.DEPTH_INFINITE);
 	    }
 	}
-
-    private static class StatusResourcePair
-    {
-    	private final IResource resource;
-    	private final ISVNStatus status;
-    	
-		protected StatusResourcePair(final IResource resource, final ISVNStatus status) {
-			super();
-			this.resource = resource;
-			this.status = status;
-		}
-		
-		protected IResource getResource() {
-			return resource;
-		}
-
-		protected ISVNStatus getStatus() {
-			return status;
-		}
-    }
 }
-
-class StatusInfo {
-    private final Number revision;
-    private final SVNStatusKind kind;
-
-    StatusInfo(SVNRevision.Number revision, SVNStatusKind kind) {
-        this.revision = revision;
-        this.kind = kind;
-    }
-
-    StatusInfo(SVNRevision.Number revision, SVNStatusKind textStatus, SVNStatusKind propStatus) {
-    	this(revision, StatusInfo.mergeTextAndPropertyStatus(textStatus, propStatus));
-    }
-
-    StatusInfo(byte[] fromBytes) {
-        String[] segments = new String( fromBytes ).split(";");
-        if( segments[0].length() > 0 )
-            this.revision = new SVNRevision.Number( Long.parseLong( segments[0] ) );
-        else
-            this.revision = null;
-        this.kind = fromString( segments[1] );
-    }
-
-    byte[] asBytes() {
-        return new String( ((revision != null) ? revision.toString() : "" ) + ";"+ kind).getBytes();
-    }
-
-    public SVNStatusKind getKind() {
-        return kind;
-    }
-
-    public Number getRevision() {
-        return revision;
-    }
-
-    private static SVNStatusKind fromString(String kind) {
-        if( kind.equals( "non-svn" ) ) {
-            return SVNStatusKind.NONE;
-        }
-        if( kind.equals( "normal" ) ) {
-            return SVNStatusKind.NORMAL;
-        }
-        if( kind.equals( "added" ) ) {
-            return SVNStatusKind.ADDED;
-        }
-        if( kind.equals( "missing" ) ) {
-            return SVNStatusKind.MISSING;
-        }
-        if( kind.equals( "incomplete" ) ) {
-            return SVNStatusKind.INCOMPLETE;
-        }
-        if( kind.equals( "deleted" ) ) {
-            return SVNStatusKind.DELETED;
-        }
-        if( kind.equals( "replaced" ) ) {
-            return SVNStatusKind.REPLACED;
-        }
-        if( kind.equals( "modified" ) ) {
-            return SVNStatusKind.MODIFIED;
-        }
-        if( kind.equals( "merged" ) ) {
-            return SVNStatusKind.MERGED;
-        }
-        if( kind.equals( "conflicted" ) ) {
-            return SVNStatusKind.CONFLICTED;
-        }
-        if( kind.equals( "obstructed" ) ) {
-            return SVNStatusKind.OBSTRUCTED;
-        }
-        if( kind.equals( "ignored" ) ) {
-            return SVNStatusKind.IGNORED;
-        }
-        if( kind.equals( "external" ) ) {
-            return SVNStatusKind.EXTERNAL;
-        }
-        if( kind.equals( "unversioned" ) ) {
-            return SVNStatusKind.UNVERSIONED;
-        }
-        return SVNStatusKind.NONE;
-    }
-
-    static StatusInfo fromBytes(byte[] bytes) {
-        if( bytes == null )
-            return null;
-        
-        return new StatusInfo( bytes );
-    }
-    
-    /**
-     * Answer a 'merge' of text and property statuses.
-     * The text has priority, i.e. the prop does not override the text status
-     * unless it is harmless - SVNStatusKind.NORMAL
-     * @param textStatus
-     * @param propStatus
-     * @return
-     */
-    protected static SVNStatusKind mergeTextAndPropertyStatus(SVNStatusKind textStatus, SVNStatusKind propStatus)
-    {
-    	if (!SVNStatusKind.NORMAL.equals(textStatus))
-    	{
-    		return textStatus; 
-    	}
-    	else
-    	{
-    		if (SVNStatusKind.MODIFIED.equals(propStatus) || SVNStatusKind.CONFLICTED.equals(propStatus))
-    		{
-    			return propStatus;
-    		}
-    		else
-    		{
-    			return textStatus;
-    		}
-    	}    		
-    }    
-}
-

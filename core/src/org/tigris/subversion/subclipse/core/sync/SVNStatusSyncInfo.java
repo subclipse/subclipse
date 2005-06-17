@@ -13,6 +13,7 @@ import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 /**
  * @author Panagiotis K
@@ -145,5 +146,120 @@ public class SVNStatusSyncInfo extends SyncInfo {
       			  null,
       			  null);
         }
+    }
+
+    protected static class StatusInfo {
+    	private final Number revision;
+    	private final SVNStatusKind kind;
+    	
+    	protected StatusInfo(SVNRevision.Number revision, SVNStatusKind kind) {
+    		this.revision = revision;
+    		this.kind = kind;
+    	}
+    	
+    	protected StatusInfo(SVNRevision.Number revision, SVNStatusKind textStatus, SVNStatusKind propStatus) {
+    		this(revision, StatusInfo.mergeTextAndPropertyStatus(textStatus, propStatus));
+    	}
+    	
+    	private StatusInfo(byte[] fromBytes) {
+    		String[] segments = new String( fromBytes ).split(";");
+    		if( segments[0].length() > 0 )
+    			this.revision = new SVNRevision.Number( Long.parseLong( segments[0] ) );
+    		else
+    			this.revision = null;
+    		this.kind = fromString( segments[1] );
+    	}
+    	
+    	protected byte[] asBytes() {
+    		return new String( ((revision != null) ? revision.toString() : "" ) + ";"+ kind).getBytes();
+    	}
+    	
+    	protected SVNStatusKind getKind() {
+    		return kind;
+    	}
+    	
+    	protected Number getRevision() {
+    		return revision;
+    	}
+    	
+    	private static SVNStatusKind fromString(String kind) {
+    		if( kind.equals( "non-svn" ) ) {
+    			return SVNStatusKind.NONE;
+    		}
+    		if( kind.equals( "normal" ) ) {
+    			return SVNStatusKind.NORMAL;
+    		}
+    		if( kind.equals( "added" ) ) {
+    			return SVNStatusKind.ADDED;
+    		}
+    		if( kind.equals( "missing" ) ) {
+    			return SVNStatusKind.MISSING;
+    		}
+    		if( kind.equals( "incomplete" ) ) {
+    			return SVNStatusKind.INCOMPLETE;
+    		}
+    		if( kind.equals( "deleted" ) ) {
+    			return SVNStatusKind.DELETED;
+    		}
+    		if( kind.equals( "replaced" ) ) {
+    			return SVNStatusKind.REPLACED;
+    		}
+    		if( kind.equals( "modified" ) ) {
+    			return SVNStatusKind.MODIFIED;
+    		}
+    		if( kind.equals( "merged" ) ) {
+    			return SVNStatusKind.MERGED;
+    		}
+    		if( kind.equals( "conflicted" ) ) {
+    			return SVNStatusKind.CONFLICTED;
+    		}
+    		if( kind.equals( "obstructed" ) ) {
+    			return SVNStatusKind.OBSTRUCTED;
+    		}
+    		if( kind.equals( "ignored" ) ) {
+    			return SVNStatusKind.IGNORED;
+    		}
+    		if( kind.equals( "external" ) ) {
+    			return SVNStatusKind.EXTERNAL;
+    		}
+    		if( kind.equals( "unversioned" ) ) {
+    			return SVNStatusKind.UNVERSIONED;
+    		}
+    		return SVNStatusKind.NONE;
+    	}
+    	
+    	protected static StatusInfo fromBytes(byte[] bytes) {
+    		if( bytes == null )
+    			return null;
+    		
+    		return new StatusInfo( bytes );
+    	}
+    	
+    	/**
+    	 * Answer a 'merge' of text and property statuses.
+    	 * The text has priority, i.e. the prop does not override the text status
+    	 * unless it is harmless - SVNStatusKind.NORMAL
+    	 * @param textStatus
+    	 * @param propStatus
+    	 * @return
+    	 */
+    	protected static SVNStatusKind mergeTextAndPropertyStatus(SVNStatusKind textStatus, SVNStatusKind propStatus)
+    	{
+    		if (!SVNStatusKind.NORMAL.equals(textStatus))
+    		{
+    			return textStatus; 
+    		}
+    		else
+    		{
+    			if (SVNStatusKind.MODIFIED.equals(propStatus) || SVNStatusKind.CONFLICTED.equals(propStatus))
+    			{
+    				return propStatus;
+    			}
+    			else
+    			{
+    				return textStatus;
+    			}
+    		}    		
+    	}    
     }
 }
