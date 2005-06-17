@@ -16,14 +16,14 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
-import org.eclipse.compare.internal.BufferedResourceNode;
-import org.eclipse.compare.internal.Utilities;
 import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.compare.internal.BufferedResourceNode;
+import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 
 /**
  * CompareEditorInput to resolve conflicts.

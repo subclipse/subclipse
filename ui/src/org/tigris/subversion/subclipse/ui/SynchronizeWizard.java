@@ -13,13 +13,11 @@ package org.tigris.subversion.subclipse.ui;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.team.internal.ui.ITeamUIImages;
-import org.eclipse.team.internal.ui.synchronize.GlobalRefreshResourceSelectionPage;
-import org.eclipse.team.ui.TeamImages;
 import org.eclipse.team.ui.TeamUI;
 import org.eclipse.team.ui.synchronize.ISynchronizeParticipant;
 import org.eclipse.team.ui.synchronize.SubscriberParticipant;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
+import org.tigris.subversion.subclipse.ui.internal.GlobalRefreshResourceSelectionPage;
 import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
 
 public class SynchronizeWizard extends Wizard {
@@ -27,7 +25,7 @@ public class SynchronizeWizard extends Wizard {
 	private IWizard importWizard;
 	
 	public SynchronizeWizard() {
-		setDefaultPageImageDescriptor(TeamImages.getImageDescriptor(ITeamUIImages.IMG_WIZBAN_SHARE));
+		setDefaultPageImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SYNCH));
 		setNeedsProgressMonitor(false);
 	}
 	

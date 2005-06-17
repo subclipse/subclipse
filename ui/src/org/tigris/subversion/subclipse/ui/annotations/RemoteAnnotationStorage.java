@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.team.internal.core.TeamPlugin;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -58,7 +57,7 @@ public class RemoteAnnotationStorage extends PlatformObject implements IEncodedS
 	public String getCharset() throws CoreException {
 		InputStream contents = getContents();
 		try {
-			String charSet = TeamPlugin.getCharset(getName(), contents);
+			String charSet = SVNUIPlugin.getCharset(getName(), contents);
 			return charSet;
 		} catch (IOException e) {
 			throw new SVNException(new Status(IStatus.ERROR, SVNUIPlugin.ID, IResourceStatus.FAILED_DESCRIBING_CONTENTS, Policy.bind("RemoteAnnotationStorage.1", getFullPath().toString()), e)); //$NON-NLS-1$

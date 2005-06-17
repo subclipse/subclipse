@@ -166,6 +166,7 @@ public interface ISVNUIConstants {
 	public final String IMG_WIZBAN_KEYWORD = "wizban/keywordsub_wizban.gif"; //$NON-NLS-1$
 	public final String IMG_WIZBAN_NEW_LOCATION = "wizban/newlocation_wizban.gif"; //$NON-NLS-1$
     public final String IMG_WIZBAN_NEW_FOLDER = "wizban/newfolder_wizban.gif"; //$NON-NLS-1$
+    public final String IMG_WIZBAN_SYNCH = "wizban/share_wizban.gif"; //$NON-NLS-1$
     
 	// XXX checkout is same as ne connect. If it changes, it must be initialized
 	public final String IMG_WIZBAN_CHECKOUT = "wizban/newconnect_wizban.gif";	 //$NON-NLS-1$

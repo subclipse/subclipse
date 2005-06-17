@@ -12,6 +12,8 @@
 
 package org.tigris.subversion.subclipse.ui;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IResourceStatus;
@@ -20,6 +22,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.content.IContentDescription;
+import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -449,5 +453,26 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	 */
 	public void enableConsoleListener() {
         SVNProviderPlugin.getPlugin().setConsoleListener(console);
+	}
+
+	
+	public static String getCharset(String name, InputStream stream) throws IOException {
+		IContentDescription description = getContentDescription(name, stream);
+		return description == null ? null : description.getCharset();
+
+	}
+	public static IContentDescription getContentDescription(String name, InputStream stream) throws IOException  {
+		// tries to obtain a description for this file contents
+		IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
+		try {
+			return contentTypeManager.getDescriptionFor(stream, name, IContentDescription.ALL);
+		} finally {
+			if (stream != null)
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// Ignore exceptions on close
+				}
+		}
 	}
 }
