@@ -54,6 +54,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.actions.SVNAction;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
@@ -150,6 +151,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 		newAction = new Action(Policy.bind("RepositoriesView.new"), //$NON-NLS-1$
             SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_NEWLOCATION)) { //$NON-NLS-1$
 			public void run() {
+			    if (!WorkspacePathValidator.validateWorkspacePath()) return;
 				NewLocationWizard wizard = new NewLocationWizard();
 				WizardDialog dialog = new WizardDialog(shell, wizard);
 				dialog.open();

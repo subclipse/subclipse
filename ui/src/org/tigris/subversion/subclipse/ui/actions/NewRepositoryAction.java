@@ -18,6 +18,7 @@ import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.wizards.NewLocationWizard;
 
 public class NewRepositoryAction implements IWorkbenchWindowActionDelegate, IViewActionDelegate {
@@ -44,6 +45,7 @@ public class NewRepositoryAction implements IWorkbenchWindowActionDelegate, IVie
 	 * @see IActionDelegate#run(IAction)
 	 */
 	public void run(IAction action) {
+	    if (!WorkspacePathValidator.validateWorkspacePath()) return;
 		NewLocationWizard wizard = new NewLocationWizard();
 		WizardDialog dialog = new WizardDialog(shell, wizard);
 		dialog.open();

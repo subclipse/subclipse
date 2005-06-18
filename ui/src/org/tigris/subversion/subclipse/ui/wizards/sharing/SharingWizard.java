@@ -45,6 +45,7 @@ import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
 import org.tigris.subversion.subclipse.ui.wizards.ConfigurationWizardMainPage;
 
@@ -163,6 +164,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 	 * @see IWizard#performFinish
 	 */
 	public boolean performFinish() {
+		if (!WorkspacePathValidator.validateWorkspacePath()) return true;
 		final boolean[] result = new boolean[] { true };
 		try {
 			final boolean[] doSync = new boolean[] { false };

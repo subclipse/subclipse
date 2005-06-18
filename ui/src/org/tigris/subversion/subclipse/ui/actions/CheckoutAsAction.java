@@ -31,6 +31,7 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.operations.CheckoutAsProjectOperation;
 import org.tigris.subversion.subclipse.ui.util.PromptingDialog;
 
@@ -52,7 +53,8 @@ public class CheckoutAsAction extends SVNAction {
 	 * @see IActionDelegate#run(IAction)
 	 */
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
-		final ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
+		if (!WorkspacePathValidator.validateWorkspacePath()) return;
+	    final ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
 		if (folders.length == 1){
 			checkoutSingleProject(folders[0]);
 		}
