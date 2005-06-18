@@ -28,6 +28,7 @@
 		<topic label="Show Properties" href="html/reference/show-properties.html" />
 		<topic label="Set Property" href="html/reference/set-property.html" />
 		<topic label="Add keywords" href="html/reference/add-keywords.html" />
+		<topic label="Lock" href="html/reference/lock.html" />
 		<topic label="Add to Version Control" href="html/reference/add.html" />
 		<topic label="Add to svn:ignore" href="html/reference/svn-ignore.html" />
 		<topic label="Branch/Tag" href="html/reference/branch-tag.html" />
