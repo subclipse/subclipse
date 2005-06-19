@@ -29,8 +29,8 @@
 	
 	<p>Eclipse will catch your changes and refactorings, as long as you use
 	Eclipse to work with your working copy. You may contrast this with working with the Subversion
-	command line tool which need to be told about every rename, delete and move operation that
-	you do in the working copy. Subclipse does this for you.</p>
+	command line tool which needs to perform about every rename, delete and move operation that
+	you want in the working copy. Subclipse does this for you.</p>
 
 	<p>One exception from this is adding resources: The new file(s) or folder(s) you create
 	must be added to your working copy, using the command <a href="../reference/add.html">Add to Source Control</a> found in the
@@ -39,7 +39,14 @@
 	meaning that an unknown file is present in your working copy.
 	Once added however, the resource is marked with an asterisk (*)</p>
 
-	<p>Eventually, when you commit your changes, this marking will disappear.</p>
+	<p>Eventually, when you commit your changes, this marking will disappear.
+	If you forget to add a resource, it will still be presented in the
+	<a href="../reference/commit.html">commit dialog</a>, but will be de-selected
+	by default.</p>
+
+	<p>To ensure exclusive access when editing a file, you may
+	<a href="../reference/lock.html">lock</a> it if your repository is based on
+	Subversion 1.2 or better.
 		
 	<h2>Updating your working copy with other people's committed changes</h2>
 	
