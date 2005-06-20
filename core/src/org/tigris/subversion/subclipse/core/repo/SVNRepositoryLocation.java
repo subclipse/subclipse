@@ -536,7 +536,12 @@ public class SVNRepositoryLocation
      */
     public SVNUrl getRepositoryRoot() {
         // for now, we can't get it using svn, so user must give it
-        return repositoryRootUrl;
+        // if the user did not provide a value, we will just return
+        // the repository URL.
+        if (repositoryRootUrl == null)
+            return getUrl();
+        else
+            return repositoryRootUrl;
     }
 
     /* (non-Javadoc)
