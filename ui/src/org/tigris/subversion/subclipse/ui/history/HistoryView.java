@@ -103,6 +103,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
+import org.tigris.subversion.subclipse.ui.actions.RemoteResourceTransfer;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
@@ -738,7 +739,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	 */
 	void initDragAndDrop() {
 		int ops = DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK;
-		Transfer[] transfers = new Transfer[] {ResourceTransfer.getInstance()};
+        Transfer[] transfers = new Transfer[] {ResourceTransfer.getInstance(), RemoteResourceTransfer.getInstance()};
 		tableHistoryViewer.addDropSupport(ops, transfers, new HistoryDropAdapter(tableHistoryViewer, this));
 	}
 

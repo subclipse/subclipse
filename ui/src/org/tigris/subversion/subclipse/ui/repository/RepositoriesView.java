@@ -27,6 +27,10 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.widgets.Composite;
@@ -56,6 +60,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
+import org.tigris.subversion.subclipse.ui.actions.RemoteResourceTransfer;
 import org.tigris.subversion.subclipse.ui.actions.SVNAction;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
@@ -129,6 +134,48 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 			refresh(false);
 		}
 	};
+
+
+    private static final class RepositoryDragSourceListener implements DragSourceListener {
+      private IStructuredSelection selection;
+
+      public void dragStart(DragSourceEvent event) {
+          if(selection!=null) {
+              final Object[] array = selection.toArray();
+              // event.doit = Utils.getResources(array).length > 0;
+              for (int i = 0; i < array.length; i++) {
+                  if (array[i] instanceof ISVNRemoteResource) {
+                      event.doit = true;
+                      return;
+                  }
+              }
+              event.doit = false;
+          }
+      }
+
+      public void dragSetData(DragSourceEvent event) {
+          if (selection!=null && RemoteResourceTransfer.getInstance().isSupportedType(event.dataType)) {
+              final Object[] array = selection.toArray();
+              for (int i = 0; i < array.length; i++) {
+                  if (array[i] instanceof ISVNRemoteResource) {
+                      event.data = array[i];
+                      return;
+                  }
+              }
+          }
+      }
+
+      public void dragFinished( DragSourceEvent event) {
+      }
+
+      public void updateSelection( IStructuredSelection selection) {
+          this.selection = selection;
+      }
+    }
+
+
+    RepositoryDragSourceListener repositoryDragSourceListener;
+
 
 	/**
 	 * Constructor for RepositoriesView.
@@ -319,6 +366,17 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
                 handleDoubleClick(e);
             }
         });        
+
+        repositoryDragSourceListener = new RepositoryDragSourceListener();
+        treeViewer.addDragSupport( DND.DROP_LINK | DND.DROP_DEFAULT,
+                new Transfer[] { RemoteResourceTransfer.getInstance()},
+                repositoryDragSourceListener);
+        
+        treeViewer.addSelectionChangedListener( new ISelectionChangedListener() {
+          public void selectionChanged( SelectionChangedEvent event) {
+            repositoryDragSourceListener.updateSelection( (IStructuredSelection) event.getSelection());
+          }
+        });
 	}
     
 	/**

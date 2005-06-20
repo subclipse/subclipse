@@ -20,6 +20,8 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.ui.part.ResourceTransfer;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.ui.actions.RemoteResourceTransfer;
 
 /**
  * Used to perform a drop of a file to HistoryView 
@@ -53,15 +55,23 @@ public class HistoryDropAdapter extends ViewerDropAdapter {
 	}
 	public boolean performDrop(Object data) {
 		if (data == null) return false;
-		IResource[] sources = (IResource[])data;
-		if (sources.length == 0) return false;
-		IResource resource = sources[0];
-		if (!(resource instanceof IFile)) return false;
-		view.showHistory(resource, false);
-		return true;
+        if(data instanceof IResource[]) {
+           IResource[] sources = (IResource[])data;
+           if (sources.length == 0) return false;
+           IResource resource = sources[0];
+           if (!(resource instanceof IFile)) return false;
+           view.showHistory(resource, true /* fetch */);
+           return true;
+        } else if( data instanceof ISVNRemoteResource) {
+            view.showHistory((ISVNRemoteResource) data, null); // true /* fetch */);
+            return true;
+        }
+        return false;        
 	}
 	public boolean validateDrop(Object target, int operation, TransferData transferType) {
-		if (transferType != null && ResourceTransfer.getInstance().isSupportedType(transferType)) {
+		if (transferType != null && 
+            (ResourceTransfer.getInstance().isSupportedType(transferType) ||
+             RemoteResourceTransfer.getInstance().isSupportedType(transferType))) {
 			return true;
 		}
 		return false;
