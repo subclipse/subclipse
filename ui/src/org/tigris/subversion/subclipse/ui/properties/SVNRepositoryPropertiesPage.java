@@ -48,6 +48,7 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
     private Button useCustomLabelButton;
     private boolean passwordChanged;
     private Text repositoryRootText;
+    private Text repositoryUrlText;
     
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.preference.PreferencePage#createContents(org.eclipse.swt.widgets.Composite)
@@ -74,6 +75,7 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
         
         // group for label
 		Composite labelGroup = new Composite(composite, SWT.NONE);
+        labelGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		layout = new GridLayout();
 		layout.numColumns = 2;
 		labelGroup.setLayout(layout);		
@@ -94,8 +96,8 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
 		useCustomLabelButton.setLayoutData(data);
 		customLabelText = new Text(labelGroup, SWT.SINGLE | SWT.BORDER);
         customLabelText.addListener(SWT.Modify, labelListener);
-		data = new GridData();
-        data.widthHint = 200;
+		 		 data = new GridData(GridData.FILL_HORIZONTAL);
+        // data.widthHint = 200;
         customLabelText.setLayoutData(data);
         
         // empty label to separate
@@ -138,6 +140,17 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
         layout = new GridLayout();
         layout.numColumns = 3;
         repositoryRootGroup.setLayout(layout);
+        
+        // url of the repository 
+        label = new Label(repositoryRootGroup, SWT.NONE);
+        label.setText(Policy.bind("SVNRepositoryPropertiesPage.repositoryUrl")); //$NON-NLS-1$
+        repositoryUrlText = new Text(repositoryRootGroup, SWT.SINGLE);
+        repositoryUrlText.setText( "");
+        repositoryUrlText.setEditable(false);
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.grabExcessHorizontalSpace = true;
+        data.horizontalSpan = 2;
+        repositoryUrlText.setLayoutData(data);
         
         // url of the repository root 
         label = new Label(repositoryRootGroup, SWT.NONE);
@@ -232,6 +245,13 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
             label = location.getLocation();
         }
         customLabelText.setText(label);
+        
+        SVNUrl url = location.getUrl();
+        if (url != null) {
+            repositoryUrlText.setText(url.get());
+        } else {
+           repositoryUrlText.setText(""); //$NON-NLS-1$
+        }
         
         SVNUrl repositoryRoot = location.getRepositoryRoot();
         if (repositoryRoot != null) {
