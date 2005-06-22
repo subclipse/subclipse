@@ -1,7 +1,6 @@
 package org.tigris.subversion.subclipse.ui.settings;
 
 import java.util.ArrayList;
-
 import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -96,8 +95,16 @@ public class ProjectProperties {
 			                start = index + 1;
 			                issue = new StringBuffer();
 			            } else {
-			                if (commitMessage.substring(index, index + 1).equals(" ") || commitMessage.substring(index, index + 1).equals("\n")) break; //$NON-NLS-1$ //$NON-NLS-2$
-			            	issue.append(commitMessage.substring(index, index + 1));
+			                if (commitMessage.substring(index, index + 1).equals("\n") || commitMessage.substring(index, index + 1).equals("\r")) break; //$NON-NLS-1$ //$NON-NLS-2$
+			                if (commitMessage.substring(index, index + 1).equals(" ")) {
+			                    int lineIndex = commitMessage.indexOf("\n", index);
+			                    if (lineIndex == -1) lineIndex = commitMessage.indexOf("\r", index);
+			                    if (lineIndex != -1) {
+			                        if (commitMessage.substring(index, lineIndex - 1).trim().length() == 0)
+			                        break;
+			                    }
+			                }
+			                issue.append(commitMessage.substring(index, index + 1));
 			            }
 			            index++;
 			        }  
