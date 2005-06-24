@@ -17,6 +17,7 @@ import java.util.Iterator;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.ui.actions.SelectionListenerAction;
@@ -100,7 +101,7 @@ public class RemoveRootAction extends SelectionListenerAction {
 								Policy.bind("RemoteRootAction.The_projects_that_are_shared_with_the_above_repository_are__4"), //$NON-NLS-1$
 								(IProject[]) shared.toArray(new IProject[shared.size()]),
 								false,
-								DetailsDialogWithProjects.DLG_IMG_ERROR);
+								SVNUIPlugin.getStandardDisplay().getSystemImage(SWT.ICON_ERROR) );
 							dialog.open();
 						}
 					});

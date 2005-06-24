@@ -21,6 +21,7 @@ package org.tigris.subversion.subclipse.ui.util;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -46,9 +47,9 @@ public class DetailsDialogWithProjects extends DetailsDialog {
 	 * @param parentShell
 	 * @param dialogTitle
 	 */
-	public DetailsDialogWithProjects(Shell parentShell, String dialogTitle, String dialogMessage, String detailsTitle, IProject[] projects, boolean includeCancelButton, String imageKey) {
+	public DetailsDialogWithProjects(Shell parentShell, String dialogTitle, String dialogMessage, String detailsTitle, IProject[] projects, boolean includeCancelButton, Image image) {
 		super(parentShell, dialogTitle);
-		setImageKey(imageKey);
+		setImage(image);
 		this.message = dialogMessage;
 		this.detailsTitle = detailsTitle;
 		this.projects = projects;

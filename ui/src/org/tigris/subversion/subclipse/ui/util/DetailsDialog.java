@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.util;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -59,9 +58,9 @@ abstract public class DetailsDialog extends Dialog {
 	private boolean detailsCreated = false;
 	
 	/**
-	 * The key for the image to be displayed (one of the image constants on Dialog)
+	 * The image to be displayed
 	 */
-	private String imageKey = null;
+	private Image image = null;
 	
 	/**
 	 * Creates a details pane dialog.
@@ -131,7 +130,6 @@ abstract public class DetailsDialog extends Dialog {
 		Composite composite = (Composite)super.createDialogArea(parent);
 		
 		// create image
-		Image image = JFaceResources.getImageRegistry().get(getImageKey());
 		if (image != null) {
 			// create a composite to split the dialog area in two
 			Composite top = new Composite(composite, SWT.NONE);
@@ -244,20 +242,11 @@ abstract public class DetailsDialog extends Dialog {
 	}
 	
 	/**
-	 * Returns the imageKey.
-	 * @return String
-	 */
-	protected String getImageKey() {
-		return imageKey;
-	}
-
-
-	/**
 	 * Sets the imageKey.
 	 * @param imageKey The imageKey to set
 	 */
-	protected void setImageKey(String imageKey) {
-		this.imageKey = imageKey;
+	protected void setImage(Image image) {
+		this.image = image;
 	}
 
 
