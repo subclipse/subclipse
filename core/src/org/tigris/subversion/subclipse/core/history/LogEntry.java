@@ -34,7 +34,10 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 
 	private ISVNRemoteResource remoteResource; // the corresponding remote resource
     private ISVNLogMessage logMessage;
-    private ISVNResource resource; // the resource for which we asked the history 
+    private ISVNResource resource; // the resource for which we asked the history
+    
+    private String messageOverride = null; // Log comment may be overridden  
+    private String authorOverride = null; // Author names may be overridden  
 
     /**
      * creates a LogEntry
@@ -64,6 +67,9 @@ public class LogEntry extends PlatformObject implements ILogEntry {
      * @see org.tigris.subversion.subclipse.core.history.ILogEntry#getAuthor()
      */
 	public String getAuthor() {
+		if (authorOverride != null) {
+			return authorOverride;
+		}
 		return logMessage.getAuthor();
 	}
 
@@ -80,6 +86,9 @@ public class LogEntry extends PlatformObject implements ILogEntry {
      * @see org.tigris.subversion.subclipse.core.history.ILogEntry#getComment()
      */
 	public String getComment() {
+		if (messageOverride != null) {
+			return messageOverride;
+		}
 		return logMessage.getMessage();
 	}
 
@@ -139,5 +148,22 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 		}
 		return super.getAdapter(adapter);
 	}
+	
+	/**
+	 * Re-sets the comment after changing it as a revision property.
+	 * @param newComment
+	 */
+	public void setComment(String newComment) {
+		messageOverride = newComment;
+	}
+
+	/**
+	 * Re-sets the author after changing it as a revision property.
+	 * @param newAuthor
+	 */
+	public void setAuthor(String newAuthor) {
+		authorOverride = newAuthor;
+	}
+
 }
 

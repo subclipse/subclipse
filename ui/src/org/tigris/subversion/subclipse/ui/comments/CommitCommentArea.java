@@ -42,6 +42,7 @@ public class CommitCommentArea extends DialogArea {
 	private static final int HEIGHT_HINT = 150;
 	
 	private String enterCommentMessage;
+	private String oldComment;
 	private RuleredText text;
 	private Combo previousCommentsCombo;
 	
@@ -101,7 +102,10 @@ public class CommitCommentArea extends DialogArea {
 		    text = new RuleredText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		else
 		    text = new RuleredText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, widthMarker);
-		if ((commentProperties != null) && (commentProperties.getLogTemplate() != null)) {
+		if (oldComment != null) {
+		    text.setText(oldComment);
+		    text.setCaretOffset(oldComment.length());
+		} else if ((commentProperties != null) && (commentProperties.getLogTemplate() != null)) {
 		    text.setText(commentProperties.getLogTemplate());
 		    text.setCaretOffset(commentProperties.getLogTemplate().length());
 		}
@@ -111,7 +115,7 @@ public class CommitCommentArea extends DialogArea {
 		data.heightHint = HEIGHT_HINT;
 		
 		text.setLayoutData(data);
-		if (commentProperties == null) text.selectAll();
+		if (commentProperties == null && oldComment == null) text.selectAll();
 		text.addTraverseListener(new TraverseListener() {
 			public void keyTraversed(TraverseEvent e) {
 				if (e.detail == SWT.TRAVERSE_RETURN && (e.stateMask & SWT.CTRL) != 0) {
@@ -166,7 +170,7 @@ public class CommitCommentArea extends DialogArea {
 		// (see bug 32078: http://bugs.eclipse.org/bugs/show_bug.cgi?id=32078)
 		previousCommentsCombo.setText(""); //$NON-NLS-1$
 		
-		if (commentProperties == null) text.setText(""); //$NON-NLS-1$
+		if (commentProperties == null && oldComment == null) text.setText(""); //$NON-NLS-1$
 	}
 
 	/*
@@ -229,5 +233,9 @@ public class CommitCommentArea extends DialogArea {
     }
     public void setModifyListener(ModifyListener modifyListener) {
         this.modifyListener = modifyListener;
+    }
+    
+    public void setOldComment(String oldComment) {
+    	this.oldComment = oldComment; 
     }
 }

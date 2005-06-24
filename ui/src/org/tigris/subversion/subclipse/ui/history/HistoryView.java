@@ -91,9 +91,11 @@ import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
+import org.tigris.subversion.subclipse.core.commands.ChangeCommitPropertiesCommand;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
@@ -105,12 +107,15 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.actions.RemoteResourceTransfer;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
+import org.tigris.subversion.subclipse.ui.dialogs.CommitDialog;
+import org.tigris.subversion.subclipse.ui.dialogs.SetCommitPropertiesDialog;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 
 /**
@@ -150,6 +155,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	private Action refreshAction;
 	private Action linkWithEditorAction;
     private Action openChangedPathAction;
+    private Action setCommitPropertiesAction;
 
 	private SashForm sashForm;
 	private SashForm innerSashForm;
@@ -267,7 +273,92 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
             }
         };
     }
-	
+
+    private Action getSetCommitPropertiesAction() {
+    	// set Action (context menu)
+		if (setCommitPropertiesAction == null) {
+	       	setCommitPropertiesAction = new Action(Policy.bind("HistoryView.setCommitProperties")) {
+		        public void run() {
+	    			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
+		        	try {
+		                final ISelection selection = tableHistoryViewer.getSelection();
+		                if (!(selection instanceof IStructuredSelection)) return;
+		                IStructuredSelection ss = (IStructuredSelection)selection;
+		                ILogEntry ourSelection = (ILogEntry)ss.getFirstElement();
+
+						SVNUrl repositoryUrl = null;
+
+    					// Failing that, try the resource originally selected by the user if from the Team menu
+
+    					// TODO: Search all paths from currentSelection and find the shortest path and
+    					// get the resources for that instance (in order to get the 'best' "bugtraq" properties) 
+    					final ProjectProperties projectProperties = (resource != null) ? ProjectProperties.getProjectProperties(resource) : ProjectProperties.getProjectProperties(ourSelection.getRemoteResource()); // will return null!
+    				
+    					final ISVNResource svnResource = ourSelection.getRemoteResource() != null ? ourSelection.getRemoteResource() : 
+    						ourSelection.getResource();
+
+    					if (ourSelection.getResource() != null) {
+    						repositoryUrl = ourSelection.getResource().getUrl();
+    					} else {
+    						repositoryUrl = ourSelection.getRemoteResource().getUrl();
+    					}
+    														
+    					SetCommitPropertiesDialog dialog = new SetCommitPropertiesDialog(getViewSite().getShell(), ourSelection.getRevision(), resource, projectProperties);
+    					// Set previous text - the text to edit
+    					dialog.setOldAuthor(ourSelection.getAuthor());
+    					dialog.setOldComment(ourSelection.getComment());
+    					boolean doCommit = (dialog.open() == CommitDialog.OK);		
+
+    					if (doCommit) {
+    						final String commitComment = dialog.getComment();
+    						final String author = dialog.getAuthor();
+    						final ChangeCommitPropertiesCommand command = new ChangeCommitPropertiesCommand(svnResource.getRepository(), currentSelection.getRevision(), commitComment, author);
+
+			        		PlatformUI.getWorkbench().getProgressService().run(true, true, new IRunnableWithProgress() {
+			        			public void run(IProgressMonitor monitor) throws InvocationTargetException {
+		        					try {
+										command.run(monitor);
+			        					if (currentSelection instanceof LogEntry) {
+			        						LogEntry logEntry = (LogEntry)currentSelection;
+											logEntry.setComment(commitComment);
+			        						logEntry.setAuthor(author);
+			        					}
+			        					getSite().getShell().getDisplay().asyncExec(new Runnable() {
+			        						public void run() {
+			        							tableHistoryViewer.refresh();
+			        							tableHistoryViewer.setSelection(selection, true);						
+			        						}
+			        					});
+									} catch (SVNException e) {
+										throw new InvocationTargetException(e);
+									}
+			        			}
+			        		});
+	    				}
+		            } catch (InvocationTargetException e) {
+		                SVNUIPlugin.openError(getViewSite().getShell(), null, null, e, SVNUIPlugin.LOG_NONTEAM_EXCEPTIONS);
+		            } catch (InterruptedException e) {
+		                // Do nothing
+		            } catch (SVNException e) {
+						// TODO Auto-generated catch block
+		                SVNUIPlugin.openError(getViewSite().getShell(), null, null, e, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
+					}
+		        }
+		        
+		        // we don't allow multiple selection
+		        public boolean isEnabled() {
+		            ISelection selection = tableHistoryViewer.getSelection();
+		            if (!(selection instanceof IStructuredSelection)) return false;
+		            IStructuredSelection ss = (IStructuredSelection)selection;
+		            if(ss.size() != 1) return false;
+		            currentSelection = (ILogEntry)ss.getFirstElement();
+		            return true;
+		        }
+		    };
+    	}
+		return setCommitPropertiesAction;
+	}
+
     // open remote file action (double-click)
 	private Action getOpenRemoteFileAction() {
         if (openAction == null) {
@@ -749,18 +840,16 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	private void fillTableMenu(IMenuManager manager) {
 		// file actions go first (view file)
 		manager.add(new Separator(IWorkbenchActionConstants.GROUP_FILE));
-		if (resource != null) {
-			// Add the "Add to Workspace" action if 1 revision is selected.
-			ISelection sel = tableHistoryViewer.getSelection();
-			if (!sel.isEmpty()) {
-				if (sel instanceof IStructuredSelection) {
-					if (((IStructuredSelection)sel).size() == 1) {
-						if (resource instanceof IFile) {
-							manager.add(getGetContentsAction());
-							manager.add(getUpdateToRevisionAction());
-							manager.add(new Separator());
-						}
+		// Add the "Add to Workspace" action if 1 revision is selected.
+		ISelection sel = tableHistoryViewer.getSelection();
+		if (!sel.isEmpty()) {
+			if (sel instanceof IStructuredSelection) {
+				if (((IStructuredSelection)sel).size() == 1) {
+					if (resource != null && resource instanceof IFile) {
+						manager.add(getGetContentsAction());
+						manager.add(getUpdateToRevisionAction());
 					}
+					manager.add(getSetCommitPropertiesAction());
 				}
 			}
 		}
