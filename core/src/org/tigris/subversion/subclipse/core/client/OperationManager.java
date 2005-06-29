@@ -48,6 +48,9 @@ public class OperationManager implements ISVNNotifyListener {
 
 	private ISVNClientAdapter svnClient = null;
 
+	// notify listener where getMessage notifications should be forwarded
+	private ISVNNotifyListener messageNotifyListener = null;
+	
 	private static OperationManager instance;
 
 	/*
@@ -79,6 +82,15 @@ public class OperationManager implements ISVNNotifyListener {
 	}
 
 	/**
+	 * Begins a batch of operations.
+	 * Forward notifications to messageNotifyListener
+	 */
+	public void beginOperation(ISVNClientAdapter svnClient, ISVNNotifyListener messageNotifyListener) {
+		this.messageNotifyListener = messageNotifyListener;
+		beginOperation(svnClient);
+	}	
+	
+	/**
 	 * Ends a batch of operations. Pending changes are committed only when the
 	 * number of calls to endOperation() balances those to beginOperation().
 	 */
@@ -104,6 +116,7 @@ public class OperationManager implements ISVNNotifyListener {
 			}
 		} finally {
 			lock.release();
+			messageNotifyListener = null;
 		}
 	}
 
@@ -164,6 +177,10 @@ public class OperationManager implements ISVNNotifyListener {
 	}
 
 	public void logMessage(String message) {
+		if (messageNotifyListener != null)
+		{
+			messageNotifyListener.logMessage(message);
+		}
 	}
 
 	public void setCommand(int command) {
