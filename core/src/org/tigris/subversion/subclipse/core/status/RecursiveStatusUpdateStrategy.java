@@ -27,6 +27,11 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  */
 public class RecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
 
+	public RecursiveStatusUpdateStrategy(StatusCacheComposite treeCacheRoot)
+	{
+		super(treeCacheRoot);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.subclipse.core.status.StatusUpdateStrategy#updateStatus(org.eclipse.core.resources.IResource)
 	 */

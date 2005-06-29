@@ -10,15 +10,13 @@
 package org.tigris.subversion.subclipse.core.status;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
-import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
  * When the status of a resource is asked, we don't update a resource at once.
@@ -29,7 +27,13 @@ import org.tigris.subversion.svnclientadapter.SVNNodeKind;
  */
 public abstract class StatusUpdateStrategy {
 	protected StatusCacheComposite treeCacheRoot;
-    
+    	
+	public StatusUpdateStrategy(StatusCacheComposite treeCacheRoot)
+	{
+		super();
+		setTreeCacheRoot(treeCacheRoot);
+	}
+	
 	/**
 	 * @param treeCacheRoot The treeCacheRoot to set.
 	 */
@@ -50,11 +54,10 @@ public abstract class StatusUpdateStrategy {
      * @param statuses
      */
     protected void updateCache(ISVNStatus[] statuses) {
-        LocalResourceStatus[] localResourceStatuses = new LocalResourceStatus[statuses.length];
+        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         for (int i = 0; i < statuses.length;i++) {
-            localResourceStatuses[i] = new LocalResourceStatus(statuses[i]);
+            updateCache(new LocalResourceStatus(statuses[i]), workspaceRoot);
         }
-        updateCache(localResourceStatuses);
     }
     
     /**
@@ -62,28 +65,23 @@ public abstract class StatusUpdateStrategy {
      * @param statuses
      */
     protected void updateCache(LocalResourceStatus[] statuses) {
-        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        IWorkspaceRoot workspaceRoot = workspace.getRoot();
-        
+        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();        
         for (int i = 0; i < statuses.length;i++) {
-            LocalResourceStatus status = statuses[i];
-
-            IPath pathEclipse = new Path(status.getFile().getAbsolutePath());
-                
-            IResource resourceStatus = null;
-            
-            // we can't test using file.isDirectory and file.isFile because both return false when
-            // the resource has been deleted
-            if (status.getNodeKind().equals(SVNNodeKind.DIR)) {
-                resourceStatus = workspaceRoot.getContainerForLocation(pathEclipse);
-            }
-            else {
-                resourceStatus = workspaceRoot.getFileForLocation(pathEclipse);
-            }
-            
-            if (resourceStatus != null) {
-                treeCacheRoot.addStatus(resourceStatus, status);
-            }
+            updateCache(statuses[i], workspaceRoot);
         }
+    }
+
+    /**
+     * update the cache using the given statuses
+     * @param status
+     * @param workspaceRoot
+     */
+    protected void updateCache(LocalResourceStatus status, IWorkspaceRoot workspaceRoot) {
+    	
+    	IPath resourcePath = SVNWorkspaceRoot.pathForLocation(status.getPath());
+    	
+    	if (resourcePath != null) {
+    		treeCacheRoot.addStatus(resourcePath, status);
+    	}
     }
 }

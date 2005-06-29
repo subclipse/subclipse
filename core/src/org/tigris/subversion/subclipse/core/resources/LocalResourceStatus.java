@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.Date;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
@@ -79,71 +81,82 @@ public class LocalResourceStatus implements Serializable {
     }
 
     public LocalResourceStatus(ISVNStatus status) {
-        if (status.getUrl() == null) {
+    	/** a temporary variable serving as immediate cache for various status values */
+    	Object aValue = null;
+    	
+    	aValue = status.getUrl();
+        if (aValue == null) {
             this.url = null;
         } else {
-            this.url = status.getUrl().toString();
+            this.url = ((SVNUrl) aValue).toString();
         }
 
-        if (status.getLastChangedRevision() == null) {
+        aValue = status.getLastChangedRevision();
+        if (aValue == null) {
             this.lastChangedRevision = SVNRevision.SVN_INVALID_REVNUM;
         } else {
-            this.lastChangedRevision = status.getLastChangedRevision()
-                    .getNumber();
+            this.lastChangedRevision = ((SVNRevision.Number) aValue).getNumber();
         }
 
-        if (status.getLastChangedDate() == null) {
+        aValue = status.getLastChangedDate();
+        if (aValue == null) {
             this.lastChangedDate = -1;
         } else {
-            this.lastChangedDate = status.getLastChangedDate().getTime();
+            this.lastChangedDate = ((Date) aValue).getTime();
         }
 
         this.lastCommitAuthor = status.getLastCommitAuthor();
         this.textStatus = status.getTextStatus().toInt();
         this.propStatus = status.getPropStatus().toInt();
 
-        if (status.getRevision() == null) {
+        aValue = status.getRevision();
+        if (aValue == null) {
             this.revision = SVNRevision.SVN_INVALID_REVNUM;
         } else {
-            this.revision = status.getRevision().getNumber();
+            this.revision = ((SVNRevision.Number) aValue).getNumber();
         }
 
         this.nodeKind = status.getNodeKind().toInt();
 
-        if (status.getUrlCopiedFrom() == null) {
+        aValue = status.getUrlCopiedFrom();
+        if (aValue == null) {
             this.urlCopiedFrom = null;
         } else {
-            this.urlCopiedFrom = status.getUrlCopiedFrom().toString();
+            this.urlCopiedFrom = ((SVNUrl) aValue).toString();
         }
-        this.path = status.getFile().getAbsolutePath();
-        
+
+        this.path = status.getFile().getAbsolutePath();        
         this.readOnly = !status.getFile().canWrite();
 
-        if (status.getConflictNew() == null) {
+        aValue = status.getConflictNew();
+        if (aValue == null) {
             this.pathConflictNew = null;
         } else {
-            this.pathConflictNew = status.getConflictNew().getAbsolutePath();
+            this.pathConflictNew = ((File) aValue).getAbsolutePath();
         }
 
-        if (status.getConflictOld() == null) {
+        aValue = status.getConflictOld();
+        if (aValue == null) {
             this.pathConflictOld = null;
         } else {
-            this.pathConflictOld = status.getConflictOld().getAbsolutePath();
+            this.pathConflictOld = ((File) aValue).getAbsolutePath();
         }
 
-        if (status.getConflictWorking() == null) {
+        aValue = status.getConflictWorking();
+        if (aValue == null) {
             this.pathConflictWorking = null;
         } else {
-            this.pathConflictWorking = status.getConflictWorking()
-                    .getAbsolutePath();
+            this.pathConflictWorking = ((File) aValue).getAbsolutePath();
         }
         
         this.lockOwner = status.getLockOwner();
         this.lockComment = status.getLockComment();
-        if (status.getLockCreationDate() == null) 
+        
+        aValue = status.getLockCreationDate();
+        if (aValue == null) 
             this.lockCreationDate = -1;
         else
-            this.lockCreationDate = status.getLockCreationDate().getTime();
+            this.lockCreationDate = ((Date) aValue).getTime();
     }
 
     public SVNUrl getUrl() {
@@ -219,6 +232,14 @@ public class LocalResourceStatus implements Serializable {
      */
     public File getFile() {
         return new File(path);
+    }
+
+    /**
+     * @return Returns the absolute resource path.
+     * (It is absolute since it was constructed as status.getFile().getAbsolutePath())
+     */
+    public IPath getPath() {
+        return new Path(path);
     }
 
     public byte[] getBytes() {

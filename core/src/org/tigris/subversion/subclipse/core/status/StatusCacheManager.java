@@ -24,6 +24,7 @@ import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
 
 /**
@@ -68,8 +69,7 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
 
     private void chooseUpdateStrategy() {
         boolean recursiveStatusUpdate = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE);
-        statusUpdateStrategy = recursiveStatusUpdate ? (StatusUpdateStrategy)new RecursiveStatusUpdateStrategy() : (StatusUpdateStrategy)new NonRecursiveStatusUpdateStrategy();
-        statusUpdateStrategy.setTreeCacheRoot(treeCacheRoot);
+        statusUpdateStrategy = recursiveStatusUpdate ? (StatusUpdateStrategy)new RecursiveStatusUpdateStrategy(treeCacheRoot) : (StatusUpdateStrategy)new NonRecursiveStatusUpdateStrategy(treeCacheRoot);
     }
     
     /* (non-Javadoc)
@@ -117,10 +117,40 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
     }
     
     /**
-     * get the status of the given resource
+     * Get the status of the given resource.
+     * If the status is not present in cache, it will be retrieved using the actual updateStrategy.
+     * If recursive startegy is being used also all child resources would be updated,
+     * otherwise only direct childern
+     * @param resource whose status is required.
+     *   
      * @throws SVNException
      */
     public LocalResourceStatus getStatus(IResource resource) throws SVNException {
+        return getStatus(resource, statusUpdateStrategy);
+    }
+
+    /**
+     * Get the status of the given resource.
+     * If the status is not present in cache, it will be retrieved using the specified updateStrategy.
+     * If recursive startegy is being used also all child resources would be updated,
+     * otherwise only direct childern
+     *
+     * @param resource whose status is required.
+     * @param useRecursiveStartegy when true also children statuses should be recursively updated 
+     * @throws SVNException
+     */
+    public LocalResourceStatus getStatus(IResource resource, boolean useRecursiveStartegy) throws SVNException {
+        return getStatus(resource,
+				useRecursiveStartegy ? 
+						(StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(treeCacheRoot)
+						: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(treeCacheRoot));
+    }
+
+    /**
+     * get the status of the given resource
+     * @throws SVNException
+     */
+    private LocalResourceStatus getStatus(IResource resource, StatusUpdateStrategy strategy) throws SVNException {
         LocalResourceStatus status = null;
 
         status = treeCacheRoot.getStatus(resource);
@@ -133,8 +163,8 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
             	status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false)); 
             } else {
                 // we don't know if resource is managed or not, we must update its status
-            	statusUpdateStrategy.setTreeCacheRoot(treeCacheRoot);
-            	statusUpdateStrategy.updateStatus(resource);
+            	strategy.setTreeCacheRoot(treeCacheRoot);
+            	strategy.updateStatus(resource);
             	status = treeCacheRoot.getStatus(resource);
             }
         }
@@ -157,7 +187,17 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
     public void setStatuses(LocalResourceStatus[] statuses) {
         statusUpdateStrategy.updateCache(statuses);
     }
-    
+
+    /**
+     * The cache manager handles itself the status retrieving. However this method can
+     * be used to update the statuses of some resources  
+     * 
+     * @param statuses
+     */
+    public void setStatuses(ISVNStatus[] statuses) {
+        statusUpdateStrategy.updateCache(statuses);
+    }
+
     /**
      * refresh the status for the given resource
      * @param resource
@@ -166,6 +206,14 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
      */
     public void refreshStatus(IResource resource,int depth) throws SVNException {
         treeCacheRoot.removeStatus(resource,depth);
+        if (depth == IResource.DEPTH_INFINITE)
+        {
+        	getStatus(resource, true);
+        }
+        else if (depth == IResource.DEPTH_ONE)
+        {
+        	getStatus(resource, false);        	
+        }
     }
 
     /* (non-Javadoc)

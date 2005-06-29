@@ -22,7 +22,10 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
@@ -165,7 +168,28 @@ public class SVNWorkspaceRoot {
 		// Register the project with Team
 		RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
 	}
-				
+		
+	
+	/**
+	 * Returns a resource path to the given local location. Returns null if
+	 * it is not under a project's location.
+	 * @see FileSystemResourceManager#pathForLocation(org.eclipse.core.runtime.IPath)
+	 */
+	public static IPath pathForLocation(IPath location) {
+		if (Platform.getLocation().equals(location))
+			return Path.ROOT;
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (int i = 0; i < projects.length; i++) {
+			IProject project = projects[i];
+			IPath projectLocation = project.getLocation();
+			if (projectLocation != null && projectLocation.isPrefixOf(location)) {
+				int segmentsToRemove = projectLocation.segmentCount();
+				return project.getFullPath().append(location.removeFirstSegments(segmentsToRemove));
+			}
+		}
+		return null;
+	}
+
     /**
      * get the SVNLocalFolder for the given resource 
      */           	

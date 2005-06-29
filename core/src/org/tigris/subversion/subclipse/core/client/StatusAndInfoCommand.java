@@ -21,13 +21,11 @@ import java.util.Set;
 
 import org.eclipse.core.internal.resources.ResourceInfo;
 import org.eclipse.core.internal.resources.Workspace;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
@@ -106,25 +104,6 @@ public class StatusAndInfoCommand extends StatusCommand {
     	}
     }    
 
-	/**
-	 * Returns a resource path to the given local location. Returns null if
-	 * it is not under a project's location.
-	 */
-	protected IPath pathForLocation(IPath location) {
-		if (Platform.getLocation().equals(location))
-			return Path.ROOT;
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i = 0; i < projects.length; i++) {
-			IProject project = projects[i];
-			IPath projectLocation = project.getLocation();
-			if (projectLocation != null && projectLocation.isPrefixOf(location)) {
-				int segmentsToRemove = projectLocation.segmentCount();
-				return project.getFullPath().append(location.removeFirstSegments(segmentsToRemove));
-			}
-		}
-		return null;
-	}
-
     private InformedStatus[] collectInformedStatuses(ISVNStatus[] statuses)
     {
         Workspace workspace = (Workspace) ResourcesPlugin.getWorkspace();
@@ -141,7 +120,7 @@ public class StatusAndInfoCommand extends StatusCommand {
         //Collect changed resources (in reverse order so dirs are properly identified
         for (int i = statuses.length - 1; i >= 0; i--) {
             ISVNStatus status = statuses[i];
-            ResourceInfo changedResource = workspace.getResourceInfo(pathForLocation(new Path(status.getPath())), true, false);
+            ResourceInfo changedResource = workspace.getResourceInfo(SVNWorkspaceRoot.pathForLocation(new Path(status.getPath())), true, false);
             InformedStatus informedStatus = new InformedStatus(status, changedResource);
             if ( SVNNodeKind.UNKNOWN  == status.getNodeKind() ) 
             {

@@ -95,7 +95,7 @@ public class StatusCacheComposite implements Serializable {
      * @param path
      * @param status
      */
-    synchronized private void addStatus(IPath path, LocalResourceStatus status) {
+    synchronized public void addStatus(IPath path, LocalResourceStatus status) {
     	if (path.segmentCount() == 0) {
     		return;
     	} else if (path.segmentCount() == 1) {

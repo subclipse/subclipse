@@ -92,7 +92,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 							return true;
 					}
 					
-					IResource[] toBeNotified = new IResource[0];
+					IResource toBeNotified = null;
 										
 					if(name.equals(SVNConstants.SVN_DIRNAME)) {
 						handleSVNDir((IContainer)resource, kind);
@@ -108,10 +108,8 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 						toBeNotified = handleChangedPropFile(resource, kind);
 					}
 					
-                    if(toBeNotified.length>0) {    
-						for (int i = 0; i < toBeNotified.length; i++) {
-							changedContainers.add(toBeNotified[i]);							
-						}
+                    if(toBeNotified != null) {    
+						changedContainers.add(toBeNotified);							
 						if(Policy.DEBUG_METAFILE_CHANGES) {
 							System.out.println("[svn] metafile changed : " + resource.getFullPath()); //$NON-NLS-1$
 						}
@@ -124,10 +122,11 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 				
 			if(!changedContainers.isEmpty()) {
                 for (Iterator it = changedContainers.iterator(); it.hasNext();){
-                    IContainer container = (IContainer)it.next();
+                    IContainer dotSvnContainer = (IContainer)it.next();
+                    IContainer container = dotSvnContainer.getParent();
                     
                     // we update the members. Refresh can be useful in case of revert etc ...
-                    container.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+                    dotSvnContainer.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
                     ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
                     svnContainer.refreshStatus(IResource.DEPTH_ONE);
                     
@@ -175,18 +174,19 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 	 * Tells if this resource is a subversion "entries" file 
 	 */	
 	protected boolean isEntries(IResource resource) {
+		if (resource.getType() != IResource.FILE ||
+	            !resource.getName().equals(SVNConstants.SVN_ENTRIES)) {    
+	        	return false;
+	        }
+
 		IContainer parent = resource.getParent();		
-		
-		if ((parent == null) || 
-		    (!parent.getName().equals(SVNConstants.SVN_DIRNAME)) || 
-		    (!parent.isTeamPrivateMember() && parent.exists()) ) {
-			return false;
+
+		if ((parent != null) && 
+		    (parent.getName().equals(SVNConstants.SVN_DIRNAME)) && 
+		    (parent.isTeamPrivateMember() || !parent.exists()) ) {
+			return true;
 		}
 		
-		if (resource.getType() == IResource.FILE &&
-            resource.getName().equals(SVNConstants.SVN_ENTRIES)) {    
-        	return true;
-        }
 		return false;
 	}
 
@@ -194,74 +194,75 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 	 * Tells if this resource is a subversion "dir-props" file 
 	 */	
 	protected boolean isDirProps(IResource resource) {
+		if (resource.getType() != IResource.FILE ||
+				!resource.getName().equals(SVNConstants.SVN_DIRPROPS)) {     
+				return false;
+			}
+
 		IContainer parent = resource.getParent();		
 		
-		if ((parent == null) || 
-			(!parent.getName().equals(SVNConstants.SVN_DIRNAME)) || 
-			(!parent.isTeamPrivateMember() && parent.exists()) ) {
-			return false;
-		}
-		
-		if (resource.getType() == IResource.FILE &&
-			resource.getName().equals(SVNConstants.SVN_DIRPROPS)) {     
+		if ((parent != null) && 
+			(parent.getName().equals(SVNConstants.SVN_DIRNAME)) && 
+			(parent.isTeamPrivateMember() || !parent.exists()) ) {
 			return true;
 		}
-		return false;
 		
+		return false;		
 	}
 
 	/*
 	 * Tells if this resource is a subversion prop file 
 	 */	
 	protected boolean isPropFile(IResource resource) {
-		// we first verify that parent is props
+		
+		// first we verify this is a file
+		if (resource.getType() != IResource.FILE) {
+			return false;
+		}
+		
+		// we then verify that parent is props
 		IContainer parent = resource.getParent();		
 		if ((parent == null)  || 
 		    (!parent.getName().equals(SVNConstants.SVN_PROPS)) ) {
 			return false;
 		}
-		parent = parent.getParent();
 		
 		// we then verify that grand-father is svn
-		if ((parent == null) || 
-			(!parent.getName().equals(SVNConstants.SVN_DIRNAME)) || 
-			(!parent.isTeamPrivateMember() && parent.exists()) ) {
-			return false;
-		}
-		
-		// ok this is a property file
-		if (resource.getType() == IResource.FILE) {
+		parent = parent.getParent();
+		if ((parent != null) && 
+			(parent.getName().equals(SVNConstants.SVN_DIRNAME)) && 
+			(parent.isTeamPrivateMember() || !parent.exists()) ) {
 			return true;
 		}
-		return false;
 		
+		return false;		
 	}
 
 	
-	protected IContainer[] handleChangedEntries(IResource resource, int kind) {		
-		IContainer changedContainer = resource.getParent().getParent();
+	protected IContainer handleChangedEntries(IResource resource, int kind) {		
+		IContainer changedContainer = resource.getParent();
 		if(changedContainer.exists()) {
-			return new IContainer[] {changedContainer};
+			return changedContainer;
 		} else {
-			return new IContainer[0];
+			return null;
 		}
 	}
 
-	protected IContainer[] handleChangedDirProps(IResource resource, int kind) {		
-		IContainer changedContainer = resource.getParent().getParent();
+	protected IContainer handleChangedDirProps(IResource resource, int kind) {		
+		IContainer changedContainer = resource.getParent();
 		if(changedContainer.exists()) {
-			return new IContainer[] {changedContainer};
+			return changedContainer;
 		} else {
-			return new IContainer[0];
+			return null;
 		}
 	}
 
-	protected IContainer[] handleChangedPropFile(IResource resource, int kind) {		
-		IContainer changedContainer = resource.getParent().getParent().getParent();
+	protected IContainer handleChangedPropFile(IResource resource, int kind) {		
+		IContainer changedContainer = resource.getParent().getParent();
 		if(changedContainer.exists()) {
-			return new IContainer[] {changedContainer};
+			return changedContainer;
 		} else {
-			return new IContainer[0];
+			return null;
 		}
 	}
 

@@ -9,8 +9,11 @@ import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.core.variants.IResourceVariantComparator;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
+import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
@@ -138,7 +141,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
     			  null);
         }
         else {
-            return new RemoteFile( null,
+            return new RemoteFolder( null,
                   svnResource.getRepository(),
                   svnResource.getUrl(),
       			  revision,
@@ -147,20 +150,37 @@ public class SVNStatusSyncInfo extends SyncInfo {
       			  null);
         }
     }
+    
+    public String toString()
+    {
+    	return "L: " + localStatusInfo.toString() + "R: " + remoteStatusInfo.toString();
+    }
 
     protected static class StatusInfo {
+    	
+    	protected static final StatusInfo NONE = new StatusInfo(null, SVNStatusKind.NONE );
     	private final Number revision;
     	private final SVNStatusKind kind;
     	
-    	protected StatusInfo(SVNRevision.Number revision, SVNStatusKind kind) {
+    	private StatusInfo(SVNRevision.Number revision, SVNStatusKind kind) {
     		this.revision = revision;
     		this.kind = kind;
     	}
     	
-    	protected StatusInfo(SVNRevision.Number revision, SVNStatusKind textStatus, SVNStatusKind propStatus) {
+    	private StatusInfo(SVNRevision.Number revision, SVNStatusKind textStatus, SVNStatusKind propStatus) {
     		this(revision, StatusInfo.mergeTextAndPropertyStatus(textStatus, propStatus));
     	}
     	
+    	protected StatusInfo(LocalResourceStatus localStatus)
+    	{
+    		this(localStatus.getLastChangedRevision(), localStatus.getTextStatus(), localStatus.getPropStatus());	
+    	}
+
+    	protected StatusInfo(ISVNStatus svnStatus)
+    	{
+    		this(svnStatus.getRevision(), svnStatus.getRepositoryTextStatus(), svnStatus.getRepositoryPropStatus() );	
+    	}
+
     	private StatusInfo(byte[] fromBytes) {
     		String[] segments = new String( fromBytes ).split(";");
     		if( segments[0].length() > 0 )
