@@ -64,10 +64,10 @@ public class CommitOperation extends SVNOperation {
 				IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
 				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), null);
 			}			
-			for (int i = 0; i < selectedResources.length; i++) {
-				IResource projectHandle = selectedResources[i].getProject();
-				projectHandle.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-			}		
+//			for (int i = 0; i < selectedResources.length; i++) {
+//				IResource projectHandle = selectedResources[i].getProject();
+//				projectHandle.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+//			}		
         } catch (TeamException e) {
 			throw SVNException.wrapException(e);
 		} catch (CoreException e) {
