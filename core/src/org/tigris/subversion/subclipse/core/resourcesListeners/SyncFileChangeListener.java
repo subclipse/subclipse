@@ -122,11 +122,10 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 				
 			if(!changedContainers.isEmpty()) {
                 for (Iterator it = changedContainers.iterator(); it.hasNext();){
-                    IContainer dotSvnContainer = (IContainer)it.next();
-                    IContainer container = dotSvnContainer.getParent();
+                    IContainer container = ((IContainer) it.next()).getParent();
                     
                     // we update the members. Refresh can be useful in case of revert etc ...
-                    dotSvnContainer.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+                    container.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
                     ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
                     svnContainer.refreshStatus(IResource.DEPTH_ONE);
                     

@@ -40,8 +40,8 @@ import org.eclipse.team.core.subscribers.Subscriber;
 import org.eclipse.team.core.subscribers.SubscriberChangeEvent;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariantComparator;
-import org.eclipse.team.core.variants.PersistantResourceVariantByteStore;
 import org.eclipse.team.core.variants.ResourceVariantByteStore;
+import org.eclipse.team.core.variants.SessionResourceVariantByteStore;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
@@ -68,13 +68,14 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	public static synchronized SVNWorkspaceSubscriber getInstance() {
 		if (instance == null) {
 			instance = new SVNWorkspaceSubscriber();
+			ResourcesPlugin.getWorkspace().getSynchronizer().add(qualifiedName);
 		}
 		return instance;
 	}
 
 	protected SVNRevisionComparator comparator = new SVNRevisionComparator();
 
-	protected ResourceVariantByteStore remoteSyncStateStore = new PersistantResourceVariantByteStore(qualifiedName);
+	protected ResourceVariantByteStore remoteSyncStateStore = new SessionResourceVariantByteStore();
 
 	public SVNWorkspaceSubscriber() {
 	    SVNProviderPlugin.addResourceStateChangeListener(this);
@@ -237,6 +238,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	protected void refreshResourceSyncInfo(final IResource resource, final IProgressMonitor monitor) throws TeamException	
 	{
 		try {
+			SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, IResource.DEPTH_INFINITE);
 			final ISynchronizer synchronizer = ResourcesPlugin.getWorkspace().getSynchronizer();
 			resource.accept(new IResourceVisitor() {
 				public boolean visit(IResource resource) throws CoreException {
@@ -331,7 +333,8 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 				
                 if (isSupervised(result[i]))
                 {
-                    remoteSyncStateStore.setBytes(result[i], new StatusInfo(statuses[i]).asBytes());
+                    StatusInfo remoteInfo = new StatusInfo(cmd.getRevision(), statuses[i].getRepositoryTextStatus(), statuses[i].getRepositoryPropStatus() );
+                    remoteSyncStateStore.setBytes( statuses[i].getResource(), remoteInfo.asBytes() );
                 }					
                 //System.out.println(cmd.getRevision()+" "+changedResource+" R:"+status.getLastChangedRevision()+" L:"+status.getTextStatus()+" R:"+status.getRepositoryTextStatus());
 			}

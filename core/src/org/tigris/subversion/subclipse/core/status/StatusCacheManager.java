@@ -210,7 +210,7 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
         {
         	getStatus(resource, true);
         }
-        else if (depth == IResource.DEPTH_ONE)
+        else
         {
         	getStatus(resource, false);        	
         }

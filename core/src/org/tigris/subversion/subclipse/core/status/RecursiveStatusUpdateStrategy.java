@@ -20,8 +20,8 @@ import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 /**
- * A strategy that when asked to get the status of a given resource, get the status of
- * its parent and parent's children recursively
+ * A strategy that when asked to get the status of a given resource, 
+ * get the status of its parent (if not present yet) and parent's children recursively
  * 
  * @author cedric chabanois (cchab at tigris.org)
  */
