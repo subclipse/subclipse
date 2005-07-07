@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
@@ -70,8 +69,8 @@ public class CommitOperation extends SVNOperation {
 //			}		
         } catch (TeamException e) {
 			throw SVNException.wrapException(e);
-		} catch (CoreException e) {
-			throw SVNException.wrapException(e);
+//		} catch (CoreException e) {
+//			throw SVNException.wrapException(e);
 		} finally {
 			monitor.done();
 		}
