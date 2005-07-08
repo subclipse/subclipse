@@ -35,6 +35,7 @@ import org.eclipse.team.core.RepositoryProviderType;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 
 /**
@@ -249,10 +250,10 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 			if (!isProject && container.getType() == IContainer.PROJECT)
 				isProject = true;
 			
-            if (container.getName().equals(".svn")) { //$NON-NLS-1$
+            if (container.getName().equals(SVNConstants.SVN_DIRNAME)) { //$NON-NLS-1$
                 svnDir = container;
             } else {
-                IResource resource = container.findMember(".svn"); //$NON-NLS-1$
+                IResource resource = container.findMember(SVNConstants.SVN_DIRNAME); //$NON-NLS-1$
                 if (resource != null && resource.getType() != IResource.FILE) {
                     svnDir = (IContainer)resource;
                 }
@@ -268,17 +269,19 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 		if (!isProject)
 			return; // Nothing more to do, all remaining operations are on projects
 
-		// Somehow sometimes it doesn't work using project.findMember(".svn") here, this  
-		// could be due to timing issue with workspace addition, so use trusty File instead.
+		 		 // Somehow sometimes it doesn't work using project.findMember(SVNConstants.SVN_DIRNAME) 
+		 		 // here, this could be due to timing issue with workspace addition, so use trusty File 
+		 		 // instead.
 		
-		File svnDir = project.getLocation().append(".svn").toFile(); //$NON-NLS-1$
+		 		 File svnDir = project.getLocation().append(SVNConstants.SVN_DIRNAME).toFile(); //$NON-NLS-1$
 		
 		if (svnDir != null && svnDir.exists() && svnDir.isDirectory()) {
 			// It's a project and has toplevel .svn directory, lets share it!
 			getAutoShareJob().share(project);
 		} else {
 			// It's a project and doesn't have .svn dir, let's see if we can add it!
-			File parentSvnDir = project.getLocation().append("../.svn").toFile(); //$NON-NLS-1$
+		 		 		 File parentSvnDir = project.getLocation().append("../" + SVNConstants.SVN_DIRNAME).
+		 		 		 		 		 toFile(); //$NON-NLS-1$
 			
 			if (parentSvnDir != null && parentSvnDir.exists()
 					&& parentSvnDir.isDirectory()) {

@@ -106,7 +106,7 @@ public class OperationManager implements ISVNNotifyListener {
                         // be refreshed later (@see SyncFileChangeListener)
                         resource.refreshLocal(IResource.DEPTH_INFINITE,new NullProgressMonitor());
                         if(Policy.DEBUG_METAFILE_CHANGES) {
-                            System.out.println("[svn] .svn dir refreshed : " + resource.getFullPath()); //$NON-NLS-1$
+                            System.out.println("[svn]" + SVNConstants.SVN_DIRNAME + " dir refreshed : " + resource.getFullPath()); //$NON-NLS-1$
                         }
                     } catch (CoreException e) {
                         throw SVNException.wrapException(e);
