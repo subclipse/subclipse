@@ -26,15 +26,15 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  */
 public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
 
-	public NonRecursiveStatusUpdateStrategy(StatusCacheComposite treeCacheRoot)
+	public NonRecursiveStatusUpdateStrategy(IStatusCache statusCache)
 	{
-		super(treeCacheRoot);
+		super(statusCache);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.core.status.StatusUpdateStrategy#updateStatus(org.eclipse.core.resources.IResource)
+	 * @see org.tigris.subversion.subclipse.core.status.StatusUpdateStrategy#statusesToUpdate(org.eclipse.core.resources.IResource)
 	 */
-	void updateStatus(IResource resource) throws SVNException {
+	protected ISVNStatus[] statusesToUpdate(IResource resource) throws SVNException {
         // we update the parent and its immediate children 
         IResource resourceToUpdate = resource;
         if ((resource instanceof IFile)) {
@@ -58,8 +58,7 @@ public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
         } catch (SVNClientException e1) {
             throw SVNException.wrapException(e1);
         }
-        updateCache(statuses);
-
+        return statuses;
 	}
 
 }

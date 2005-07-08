@@ -14,16 +14,26 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.status.StatusCacheComposite;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
 
@@ -37,39 +47,48 @@ import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
  * @author cedric chabanois (cchab at tigris.org)
  */
 public class StatusCacheManager implements Preferences.IPropertyChangeListener {
-//    private StatusCacheComposite treeCacheRoot = new StatusCacheComposite();
-    private StatusCacheComposite treeCacheRoot;
+
+	/** Name used for identifying SVN synchronization data in Resource>ResourceInfo#syncInfo storage */
+	public static final QualifiedName SVN_BC_SYNC_KEY = new QualifiedName(SVNProviderPlugin.ID, "svn-bc-sync-key");
+
+    private IStatusCache statusCache;
     private StatusUpdateStrategy statusUpdateStrategy;
     
     public StatusCacheManager() {
+		ResourcesPlugin.getWorkspace().getSynchronizer().add(StatusCacheManager.SVN_BC_SYNC_KEY);
     }
 
     /* (non-Javadoc)
      * @see org.eclipse.core.internal.resources.IManager#startup(org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void startup(IProgressMonitor monitor) throws CoreException {     
-        loadStatusCache();
+    public void startup(IProgressMonitor monitor) throws CoreException {
+    	//TODO originally the cache status preference was used to switch between new and old impl.
+        //loadStatusCache();
+    	statusCache = new SynchronizerSyncInfoCache();
         chooseUpdateStrategy();
     }
 
+    /**
+  	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
+     */
     private void loadStatusCache() {
         File statusCacheFile = new File(SVNProviderPlugin.getPlugin().getStateLocation() + File.separator + "status.cache");
         if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_CACHE_STATUS) && statusCacheFile.exists()) {
             try {
                 ObjectInputStream in = new ObjectInputStream(new FileInputStream(statusCacheFile));
-                treeCacheRoot = (StatusCacheComposite)in.readObject();
+                statusCache = (IStatusCache)in.readObject();
                 in.close();
                 statusCacheFile.delete();
             } catch (Exception e) {
                 e.printStackTrace();
-                treeCacheRoot = new StatusCacheComposite();
+                statusCache = new StatusCacheComposite();
             }
-        } else treeCacheRoot = new StatusCacheComposite();
+        } else statusCache = new SynchronizerSyncInfoCache();
     }
 
     private void chooseUpdateStrategy() {
         boolean recursiveStatusUpdate = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE);
-        statusUpdateStrategy = recursiveStatusUpdate ? (StatusUpdateStrategy)new RecursiveStatusUpdateStrategy(treeCacheRoot) : (StatusUpdateStrategy)new NonRecursiveStatusUpdateStrategy(treeCacheRoot);
+        statusUpdateStrategy = recursiveStatusUpdate ? (StatusUpdateStrategy)new RecursiveStatusUpdateStrategy(statusCache) : (StatusUpdateStrategy)new NonRecursiveStatusUpdateStrategy(statusCache);
     }
     
     /* (non-Javadoc)
@@ -80,11 +99,14 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
             saveStatusCache();
     }
     
+    /**
+  	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
+     */
     private void saveStatusCache() {
         File statusCacheFile = new File(SVNProviderPlugin.getPlugin().getStateLocation() + File.separator + "status.cache");
         try {
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(statusCacheFile));
-            out.writeObject(treeCacheRoot);
+            out.writeObject(statusCache);
             out.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,7 +126,7 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
         }
         
         while (parent != null) {
-            LocalResourceStatus statusParent = treeCacheRoot.getStatus(parent);
+            LocalResourceStatus statusParent = statusCache.getStatus(parent);
             
             if (statusParent != null) {
             	if (!statusParent.isManaged()) {
@@ -116,6 +138,48 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
         return false;
     }
     
+    /**
+     * update the cache using the given statuses
+     * @param statuses
+     */
+    protected IPath[] updateCache(ISVNStatus[] statuses) {
+        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+        IPath[] result = new IPath[statuses.length];
+        for (int i = 0; i < statuses.length;i++) {        	
+        	result[i] = updateCache(new LocalResourceStatus(statuses[i]), workspaceRoot);
+        }
+        return result;
+    }
+    
+    /**
+     * update the cache using the given statuses
+     * @param statuses
+     */
+    protected IPath[] updateCache(LocalResourceStatus[] statuses) {
+        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+        IPath[] result = new IPath[statuses.length];
+        for (int i = 0; i < statuses.length;i++) {
+            result[i] = updateCache(statuses[i], workspaceRoot);
+        }
+        return result;
+    }
+
+    /**
+     * update the cache using the given statuses
+     * @param status
+     * @param workspaceRoot
+     */
+    protected IPath updateCache(LocalResourceStatus status, IWorkspaceRoot workspaceRoot) {
+    	
+    	IPath resourcePath = SVNWorkspaceRoot.pathForLocation(status.getPath());
+    	
+    	if (resourcePath != null) {
+    		statusCache.addStatus(resourcePath, status);
+    	}
+    	
+    	return resourcePath;
+    }
+
     /**
      * Get the status of the given resource.
      * If the status is not present in cache, it will be retrieved using the actual updateStrategy.
@@ -142,8 +206,8 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
     public LocalResourceStatus getStatus(IResource resource, boolean useRecursiveStartegy) throws SVNException {
         return getStatus(resource,
 				useRecursiveStartegy ? 
-						(StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(treeCacheRoot)
-						: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(treeCacheRoot));
+						(StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(statusCache)
+						: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(statusCache));
     }
 
     /**
@@ -153,27 +217,44 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
     private LocalResourceStatus getStatus(IResource resource, StatusUpdateStrategy strategy) throws SVNException {
         LocalResourceStatus status = null;
 
-        status = treeCacheRoot.getStatus(resource);
+        status = statusCache.getStatus(resource);
         
         // we get it using svn 
         if (status == null)
         {
-            if (isAncestorNotManaged(resource)) {
-                // we know the resource is not managed because one of its ancestor is not managed
-            	status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false)); 
-            } else {
-                // we don't know if resource is managed or not, we must update its status
-            	strategy.setTreeCacheRoot(treeCacheRoot);
-            	strategy.updateStatus(resource);
-            	status = treeCacheRoot.getStatus(resource);
-            }
+        	status = basicGetStatus(resource, strategy);
+        }
+        
+        ensureBaseStatusInfo(resource);
+        
+        return status;
+    }
+    
+    /**
+     * Get the statuse(s) from the svn meta files
+     * 
+     * @param resource
+     * @param strategy
+     * @return
+     * @throws SVNException
+     */
+    private LocalResourceStatus basicGetStatus(IResource resource, StatusUpdateStrategy strategy) throws SVNException 
+	{
+        LocalResourceStatus status = null;
+
+        if (isAncestorNotManaged(resource)) {
+            // we know the resource is not managed because one of its ancestor is not managed
+       		status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false)); 
+        } else {
+            // we don't know if resource is managed or not, we must update its status
+        	strategy.setStatusCache(statusCache);
+        	setStatuses(strategy.statusesToUpdate(resource));
+        	status = statusCache.getStatus(resource);
         }
         
         if (status == null) {
             status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false));
-            treeCacheRoot.addStatus(resource, status);
         }
-        
         
         return status;
     }
@@ -185,7 +266,7 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
      * @param statuses
      */
     public void setStatuses(LocalResourceStatus[] statuses) {
-        statusUpdateStrategy.updateCache(statuses);
+        updateCache(statuses);
     }
 
     /**
@@ -195,7 +276,7 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
      * @param statuses
      */
     public void setStatuses(ISVNStatus[] statuses) {
-        statusUpdateStrategy.updateCache(statuses);
+        updateCache(statuses);
     }
 
     /**
@@ -205,17 +286,48 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
      * @throws SVNException
      */
     public void refreshStatus(IResource resource,int depth) throws SVNException {
-        treeCacheRoot.removeStatus(resource,depth);
-        if (depth == IResource.DEPTH_INFINITE)
-        {
-        	getStatus(resource, true);
-        }
-        else
-        {
-        	getStatus(resource, false);        	
-        }
+    	StatusUpdateStrategy strategy = 
+    		(depth == IResource.DEPTH_INFINITE) 
+							? (StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(statusCache)
+							: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(statusCache);
+		try {		
+			Map resourcesToRefresh = resourcesToRefresh(resource, depth);
+			IPath[] refreshedPaths = updateCache(strategy.statusesToUpdate(resource));
+			for (int i = 0; i < refreshedPaths.length; i++) {
+				resourcesToRefresh.remove(refreshedPaths[i]);
+			}
+			//Resources which were not refreshed above (e.g. deleted resources)
+			for (Iterator it = resourcesToRefresh.values().iterator(); it.hasNext();) {
+				statusCache.addStatus((IResource) it.next(), null);
+			}
+		}
+		catch (CoreException e)
+		{
+			throw SVNException.wrapException(e);
+		}
     }
 
+    private Map resourcesToRefresh(IResource resource, int depth) throws CoreException
+    {
+    	final Map resultSet = new HashMap();
+		resource.accept(new IResourceVisitor() {
+			public boolean visit(IResource resource) throws CoreException {
+				resultSet.put(resource.getFullPath(), resource);
+				return true;
+			}
+		}, depth, true);
+		return resultSet;
+    }
+    
+    /**
+ 	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
+     */
+    public void refreshStatusAndBaseInfo(IResource resource) throws SVNException
+    {
+    	refreshStatus(resource, IResource.DEPTH_INFINITE);
+    	statusCache.ensureBaseStatusInfo(resource, IResource.DEPTH_INFINITE);
+    }
+    
     /* (non-Javadoc)
      * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(org.eclipse.core.runtime.Preferences.PropertyChangeEvent)
      */
@@ -224,4 +336,14 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
             chooseUpdateStrategy();
         }
     }
+    
+	/**
+	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#ensureBaseStatusInfo(org.eclipse.core.resources.IResource, org.tigris.subversion.subclipse.core.resources.LocalResourceStatus)
+ 	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
+	 */
+	public void ensureBaseStatusInfo(IResource resource) throws SVNException
+	{
+		this.statusCache.ensureBaseStatusInfo(resource);
+	}		
+
 }

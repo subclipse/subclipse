@@ -143,8 +143,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see ISVNLocalResource#isManaged()
 	 */
 	public boolean isManaged() throws SVNException {
-		// TODO If we had functioning sync functinoality we could just check for sync bytes 
-		return !this.resource.isDerived() && RepositoryProvider.getProvider(this.resource.getProject(), SVNProviderPlugin.getTypeId()) != null && getStatus().isManaged();
+		return !this.resource.isDerived() && getStatus().isManaged();
 	}
     
     public boolean hasRemote() throws SVNException {

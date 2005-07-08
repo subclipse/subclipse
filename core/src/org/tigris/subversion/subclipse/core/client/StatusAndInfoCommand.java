@@ -119,8 +119,8 @@ public class StatusAndInfoCommand extends StatusCommand {
 
         //Collect changed resources (in reverse order so dirs are properly identified
         for (int i = statuses.length - 1; i >= 0; i--) {
-            ISVNStatus status = statuses[i];
-            ResourceInfo changedResource = workspace.getResourceInfo(SVNWorkspaceRoot.pathForLocation(new Path(status.getPath())), true, false);
+            ISVNStatus status = statuses[i];            
+            ResourceInfo changedResource = SVNWorkspaceRoot.getResourceInfoFor(SVNWorkspaceRoot.pathForLocation(new Path(status.getPath())));
             InformedStatus informedStatus = new InformedStatus(status, changedResource);
             if ( SVNNodeKind.UNKNOWN  == status.getNodeKind() ) 
             {

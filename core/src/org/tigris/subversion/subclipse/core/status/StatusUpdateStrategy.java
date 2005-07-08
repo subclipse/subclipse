@@ -10,12 +10,7 @@
 package org.tigris.subversion.subclipse.core.status;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 
 /**
@@ -26,19 +21,19 @@ import org.tigris.subversion.svnclientadapter.ISVNStatus;
  * @author cedric chabanois (cchab at tigris.org)
  */
 public abstract class StatusUpdateStrategy {
-	protected StatusCacheComposite treeCacheRoot;
+	protected IStatusCache statusCache;
     	
-	public StatusUpdateStrategy(StatusCacheComposite treeCacheRoot)
+	public StatusUpdateStrategy(IStatusCache statusCache)
 	{
 		super();
-		setTreeCacheRoot(treeCacheRoot);
+		setStatusCache(statusCache);
 	}
 	
 	/**
 	 * @param treeCacheRoot The treeCacheRoot to set.
 	 */
-	public void setTreeCacheRoot(StatusCacheComposite treeCacheRoot) {
-		this.treeCacheRoot = treeCacheRoot;
+	public void setStatusCache(IStatusCache statusCache) {
+		this.statusCache = statusCache;
 	}
 
     /**
@@ -47,41 +42,6 @@ public abstract class StatusUpdateStrategy {
      * @param resource
      * @throws SVNException
      */
-    abstract void updateStatus(IResource resource) throws SVNException;
+    abstract ISVNStatus[] statusesToUpdate(IResource resource) throws SVNException;
 
-    /**
-     * update the cache using the given statuses
-     * @param statuses
-     */
-    protected void updateCache(ISVNStatus[] statuses) {
-        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-        for (int i = 0; i < statuses.length;i++) {
-            updateCache(new LocalResourceStatus(statuses[i]), workspaceRoot);
-        }
-    }
-    
-    /**
-     * update the cache using the given statuses
-     * @param statuses
-     */
-    protected void updateCache(LocalResourceStatus[] statuses) {
-        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();        
-        for (int i = 0; i < statuses.length;i++) {
-            updateCache(statuses[i], workspaceRoot);
-        }
-    }
-
-    /**
-     * update the cache using the given statuses
-     * @param status
-     * @param workspaceRoot
-     */
-    protected void updateCache(LocalResourceStatus status, IWorkspaceRoot workspaceRoot) {
-    	
-    	IPath resourcePath = SVNWorkspaceRoot.pathForLocation(status.getPath());
-    	
-    	if (resourcePath != null) {
-    		treeCacheRoot.addStatus(resourcePath, status);
-    	}
-    }
 }

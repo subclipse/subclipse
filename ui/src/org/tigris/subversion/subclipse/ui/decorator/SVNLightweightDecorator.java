@@ -503,15 +503,18 @@ public class SVNLightweightDecorator
 		for (int i = 0; i < changedResources.length; i++) {
 			IResource resource = changedResources[i];
 
-			if(computeDeepDirtyCheck) {
-              IResource current = resource;
-              while (current.getType() != IResource.ROOT) {
-                  resourcesToUpdate.add(current);
-                  current = current.getParent();
-              }                
-			} else {
-				resourcesToUpdate.add(resource);
-			}
+	    	if (resource.exists())
+	    	{	
+	    		if(computeDeepDirtyCheck) {
+	    			IResource current = resource;
+	    			while (current.getType() != IResource.ROOT) {
+	    				resourcesToUpdate.add(current);
+	    				current = current.getParent();
+	    			}                
+	    		} else {
+	    			resourcesToUpdate.add(resource);
+	    		}
+	    	}
 		}
 
 		postLabelEvent(new LabelProviderChangedEvent(this, resourcesToUpdate.toArray()));

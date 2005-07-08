@@ -33,18 +33,21 @@ public class SVNMarkerListener implements IResourceStateChangeListener {
     public void resourceSyncInfoChanged(IResource[] changedResources) {
         for (int i = 0; i < changedResources.length; i++) {
     	    try {
-	   	        changedResources[i].deleteMarkers("org.tigris.subversion.subclipse.ui.conflictMarker", true, IResource.DEPTH_ZERO); //$NON-NLS-1$
-	    	    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(changedResources[i]);
-	            LocalResourceStatus status = svnResource.getStatus();
-	            if (status.isTextConflicted()) {
-	                try {
-	                    IMarker marker = changedResources[i].createMarker("org.tigris.subversion.subclipse.ui.conflictMarker"); //$NON-NLS-1$
-	                    marker.setAttribute(IMarker.MESSAGE, Policy.bind("SVNConflicts")); //$NON-NLS-1$
-	                    marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-	                } catch (Exception e) {
-	                    SVNUIPlugin.log(e.getMessage());
-	                }
-	            }
+    	    	if (changedResources[i].exists())
+    	    	{
+    	    		changedResources[i].deleteMarkers("org.tigris.subversion.subclipse.ui.conflictMarker", true, IResource.DEPTH_ZERO); //$NON-NLS-1$
+    	    		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(changedResources[i]);
+    	    		LocalResourceStatus status = svnResource.getStatus();
+    	    		if (status.isTextConflicted()) {
+    	    			try {
+    	    				IMarker marker = changedResources[i].createMarker("org.tigris.subversion.subclipse.ui.conflictMarker"); //$NON-NLS-1$
+    	    				marker.setAttribute(IMarker.MESSAGE, Policy.bind("SVNConflicts")); //$NON-NLS-1$
+    	    				marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+    	    			} catch (Exception e) {
+    	    				SVNUIPlugin.log(e.getMessage());
+    	    			}
+    	    		}
+    	    	}
     	    } catch (Exception e) {
     	        SVNUIPlugin.log(e.getMessage());
     	    }

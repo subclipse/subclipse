@@ -77,9 +77,6 @@ public class LocalResourceStatus implements Serializable {
     
     static final long serialVersionUID = 1L;
 
-    public LocalResourceStatus() {
-    }
-
     public LocalResourceStatus(ISVNStatus status) {
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;
@@ -317,7 +314,12 @@ public class LocalResourceStatus implements Serializable {
         return out.toByteArray();
     }
 
-    public LocalResourceStatus(byte[] bytes) throws SVNException {
+    public static LocalResourceStatus fromBytes(byte[] bytes) throws SVNException
+    {
+    	return ((bytes != null) && (bytes.length > 0)) ? new LocalResourceStatus(bytes) : null;
+    }
+    
+    private LocalResourceStatus(byte[] bytes) throws SVNException {
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         DataInputStream dis = new DataInputStream(in);
         try {
@@ -443,7 +445,11 @@ public class LocalResourceStatus implements Serializable {
     public boolean isDirty() {
         return isTextDirty() || isPropDirty();
     }
-    
+
+    public boolean isUnversioned() {
+        return getTextStatus().equals(SVNStatusKind.UNVERSIONED);
+    }
+
     public boolean isAdded() {
         return getTextStatus().equals(SVNStatusKind.ADDED);
     }
@@ -543,4 +549,8 @@ public class LocalResourceStatus implements Serializable {
         return lockComment;
     }
 
+    public String toString()
+    {
+    	return ((path != null) ? path : "") + " (" + getRevision().toString() + ") " + getTextStatus().toString();
+    }
 }

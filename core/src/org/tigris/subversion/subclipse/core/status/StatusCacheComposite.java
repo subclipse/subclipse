@@ -15,8 +15,17 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.ISynchronizer;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.status.IStatusCache;
+import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
 
 /**
  * We use a tree to cache LocalResourceStatus for each resource
@@ -29,7 +38,7 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
  * 
  * @author cedric chabanois (cchab at tigris.org) 
  */
-public class StatusCacheComposite implements Serializable {
+public class StatusCacheComposite implements IStatusCache, Serializable {
 	private String segment;
     private LocalResourceStatus status = null;
     private Map children = null;
@@ -88,6 +97,7 @@ public class StatusCacheComposite implements Serializable {
      */
     synchronized public void addStatus(IResource resource, LocalResourceStatus status) {
     	addStatus(resource.getFullPath(),status);
+    	setBaseStatusInfo(resource, status);
     }
     
     /**
@@ -136,11 +146,11 @@ public class StatusCacheComposite implements Serializable {
     }
     
     /**
-     * remove a child status
+     * refersh a child status
      * @param segment
      * @param depth
      */
-    synchronized private void removeChildStatus(String segment, int depth) {
+    synchronized private void refreshChildStatus(String segment, int depth) {
     	StatusCacheComposite child = getChild(segment);
         if (child == null) {
         	return;
@@ -166,33 +176,106 @@ public class StatusCacheComposite implements Serializable {
     }
     
     /**
-     * remove the status for the given resource (which does not need to exist)
+     * refresh the status for the given resource (which does not need to exist)
      * @param resource
      * @param depth
      */
-    synchronized public void removeStatus(IResource resource, int depth) {
-    	removeStatus(resource.getFullPath(),depth);
+    synchronized public void refreshStatus(IResource resource, int depth) {
+    	refreshStatus(resource.getFullPath(),depth);
     }
     
     /**
-     * removes the status at the given relative path
+     * refreshes the status at the given relative path
      * @param path
      * @param depth
      */
-    synchronized private void removeStatus(IPath path, int depth) {
+    synchronized private void refreshStatus(IPath path, int depth) {
     	if (path.segmentCount() > 1) {
             StatusCacheComposite child = getChild(path.segment(0));
             if (child == null) {
             	return;
             }
-    		child.removeStatus(path.removeFirstSegments(1),depth);
+    		child.refreshStatus(path.removeFirstSegments(1),depth);
         } else {
             StatusCacheComposite child = getChild(path.segment(0));
             if (child == null) {
                 return;
             } 
-            removeChildStatus(path.segment(0),depth);
+            refreshChildStatus(path.segment(0),depth);
         }
     }
     
+    /**
+     * Set the baseCopy status info to Resource's syncoInfo storage.
+     * (This is necessary for e.g. phantom resources to work properly)  
+     * @param resource
+     */
+	public void setBaseStatusInfo(IResource resource, LocalResourceStatus status)
+	{
+		ISynchronizer synchronizer = ResourcesPlugin.getWorkspace().getSynchronizer();
+		try {
+			if (status.hasRemote()) {
+				synchronizer.setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, resource, status.getBytes());
+			} else {
+				if (synchronizer.getSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, resource) != null)
+				{
+					if (!SVNWorkspaceRoot.isSvnMetaResource(resource))
+					{
+						synchronizer.setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, resource, null);
+					}
+				}
+			}
+		}
+		catch (CoreException e)
+		{
+			SVNProviderPlugin.log(SVNException.wrapException(e));
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#ensureBaseStatusInfo(org.eclipse.core.resources.IResource)
+	 */
+	public void ensureBaseStatusInfo(IResource resource) throws SVNException
+	{
+		ISynchronizer synchronizer = ResourcesPlugin.getWorkspace().getSynchronizer();
+		LocalResourceStatus status = getStatus(resource);
+		try {
+			if( synchronizer.getSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, resource) == null ) {
+				if( (status != null) && status.hasRemote() ) {
+					synchronizer.setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, resource, status.getBytes());
+				}
+			}
+			else
+			{
+				if( (status != null) && !status.hasRemote() && (!SVNWorkspaceRoot.isSvnMetaResource(resource))) 
+				{
+					//This should not normally happen, but just to be sure ...
+					synchronizer.setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, resource, null);
+				}
+			}
+		}
+		catch (CoreException e)
+		{
+			throw SVNException.wrapException(e);
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#ensureBaseStatusInfo(org.eclipse.core.resources.IResource, int)
+	 */
+	public void ensureBaseStatusInfo(IResource resource, int depth) throws SVNException
+	{
+		try {
+			resource.accept(new IResourceVisitor() {
+				public boolean visit(IResource resource) throws CoreException {
+					ensureBaseStatusInfo(resource);
+					return true;
+				}
+			});
+		}		catch (CoreException e)
+		{
+			throw SVNException.wrapException(e);
+		}
+	}
+
 }

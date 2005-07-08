@@ -113,12 +113,15 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
      */
     private void refreshStatus(IResource[] resources) {
         for (int i = 0; i < resources.length;i++) {
-    		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
-    		try {
-				svnResource.refreshStatus();
-			} catch (SVNException e) {
-				e.printStackTrace();
-			}
+        	if (resources[i].exists())
+        	{
+        		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
+        		try {
+        			svnResource.refreshStatus();
+        		} catch (SVNException e) {
+        			e.printStackTrace();
+        		}
+        	}
         }
     }
     

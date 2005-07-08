@@ -21,8 +21,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.ISynchronizer;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -30,7 +28,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
@@ -50,15 +47,13 @@ import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand.InformedStatus;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo.StatusInfo;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener {
 
-	/** Name used for identifying SVN synchronization data in Resource>ResourceInfo#syncInfo storage */
-	private static final QualifiedName qualifiedName = new QualifiedName(SVNProviderPlugin.ID, "svn-remote-resource-key");
-	
 	private static SVNWorkspaceSubscriber instance; 
 	
 	/**
@@ -68,7 +63,6 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	public static synchronized SVNWorkspaceSubscriber getInstance() {
 		if (instance == null) {
 			instance = new SVNWorkspaceSubscriber();
-			ResourcesPlugin.getWorkspace().getSynchronizer().add(qualifiedName);
 		}
 		return instance;
 	}
@@ -77,7 +71,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
 	protected ResourceVariantByteStore remoteSyncStateStore = new SessionResourceVariantByteStore();
 
-	public SVNWorkspaceSubscriber() {
+	private SVNWorkspaceSubscriber() {
 	    SVNProviderPlugin.addResourceStateChangeListener(this);
 	}
 
@@ -179,10 +173,6 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
         byte[] remoteBytes = remoteSyncStateStore.getBytes( resource );
         if( remoteBytes != null )
             remoteStatusInfo = StatusInfo.fromBytes(remoteBytes);
-        else {
-            if( localStatus.hasRemote() )
-                remoteStatusInfo = ensureBaseStatusInfo(resource, localStatus, ResourcesPlugin.getWorkspace().getSynchronizer());
-        }
 
         SyncInfo syncInfo = new SVNStatusSyncInfo(resource, new StatusInfo(localStatus), remoteStatusInfo, comparator);
         syncInfo.init();
@@ -220,7 +210,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	
 	private IStatus refresh(IResource resource, int depth, IProgressMonitor monitor) {
 		try {
-			refreshResourceSyncInfo(resource, monitor);
+			refreshResourceSyncInfo(resource);
 			monitor.worked(300);
 
 			monitor.setTaskName("Retrieving synchronization data");
@@ -235,84 +225,18 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 		} 
 	}
 
-	protected void refreshResourceSyncInfo(final IResource resource, final IProgressMonitor monitor) throws TeamException	
+	protected void refreshResourceSyncInfo(final IResource resource) throws TeamException	
 	{
 		try {
-			SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, IResource.DEPTH_INFINITE);
-			final ISynchronizer synchronizer = ResourcesPlugin.getWorkspace().getSynchronizer();
-			resource.accept(new IResourceVisitor() {
-				public boolean visit(IResource resource) throws CoreException {
-					monitor.subTask(resource.getName());
-					//LocalResourceStatus status = SVNWorkspaceRoot.getSVNResourceFor( resource );
-					LocalResourceStatus status = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatus(resource);
-					ensureBaseStatusInfo(resource, status, synchronizer);
-					return true;
-				}
-			});
-			monitor.subTask(" ");			
+			final StatusCacheManager statusCacheManager = SVNProviderPlugin.getPlugin().getStatusCacheManager();
+			statusCacheManager.refreshStatusAndBaseInfo(resource);
 		} catch (CoreException e) {
 			SVNProviderPlugin.log(e.getStatus());
 			throw TeamException.asTeamException(e);
 		}
-
 	}
 
-	/**
-	 * Answer a StatusInfo created from the base(pristine) copy of resource.
-	 * Ensure that this info is present in syncInfo of ResourceInfo of the resource.
-	 * @param resource IResource of status is determined
-	 * @param status prepared LocalResourceStatus of the supplied resource
-	 * @param synchronizer ISynchronizer instance used to store syncInfo data to resource 
-	 * @return	a StatusInfo representing status of the base copy
-	 * @throws TeamException
-	 */
-	protected StatusInfo ensureBaseStatusInfo(IResource resource, LocalResourceStatus status, ISynchronizer synchronizer) throws TeamException
-	{
-		try {
-			StatusInfo baseStatusInfo = null;
-			if( synchronizer.getSyncInfo(qualifiedName, resource) == null ) {
-				if( status.hasRemote() ) {
-					baseStatusInfo = new StatusInfo(status);
-					synchronizer.setSyncInfo(qualifiedName, resource, baseStatusInfo.asBytes());
-				}
-				else {
-					baseStatusInfo = StatusInfo.NONE;
-				}
-			}
-			else
-			{
-				if( !status.hasRemote() ) 
-				{
-					//This should not normally happen, but just to be sure ...
-					synchronizer.setSyncInfo(qualifiedName, resource, null);
-				}
-			}
-			return baseStatusInfo;
-		}
-		catch (CoreException e)
-		{
-			throw TeamException.asTeamException(e);
-		}
-	}		
-
-	protected void setBaseStatusInfo(IResource resource, LocalResourceStatus status, ISynchronizer synchronizer) throws TeamException
-	{
-		try {
-			if (status.hasRemote()) {
-				synchronizer.setSyncInfo(qualifiedName, resource, new StatusInfo(status).asBytes());
-			} else {
-				synchronizer.flushSyncInfo(qualifiedName, resource,	IResource.DEPTH_ZERO);
-			}
-		}
-		catch (CoreException e)
-		{
-			throw TeamException.asTeamException(e);
-		}
-	}		
-
     private IResource[] findChanges(IResource resource, int depth) throws TeamException {
-        System.out.println("SVNWorkspaceSubscriber.refresh()"+resource+" "+depth);		
-
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         IWorkspaceRoot workspaceRoot = workspace.getRoot();
         
@@ -336,12 +260,11 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
                     StatusInfo remoteInfo = new StatusInfo(cmd.getRevision(), statuses[i].getRepositoryTextStatus(), statuses[i].getRepositoryPropStatus() );
                     remoteSyncStateStore.setBytes( statuses[i].getResource(), remoteInfo.asBytes() );
                 }					
-                //System.out.println(cmd.getRevision()+" "+changedResource+" R:"+status.getLastChangedRevision()+" L:"+status.getTextStatus()+" R:"+status.getRepositoryTextStatus());
 			}
             
             return result;
         } catch (SVNClientException e) {
-            throw new TeamException("Error getting status for resource "+resource + " " + e.getMessage(), e);
+            throw new TeamException("Error getting status for resource " + resource + " " + e.getMessage(), e);
         }
     }
 
@@ -349,19 +272,6 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
      * @see org.tigris.subversion.subclipse.core.IResourceStateChangeListener#resourceSyncInfoChanged(org.eclipse.core.resources.IResource[])
      */
     public void resourceSyncInfoChanged(IResource[] changedResources) {
-    	ISynchronizer synchronizer = ResourcesPlugin.getWorkspace().getSynchronizer();
-    	try
-		{
-    		for (int i = 0; i < changedResources.length; i++) {
-    			//setBaseStatusInfo(changedResources[i], SVNWorkspaceRoot.getSVNResourceFor( changedResources[i] ).getStatus(), synchronizer );
-    			setBaseStatusInfo(changedResources[i], SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatus(changedResources[i]), synchronizer );
-    		}
-	    }
-    	catch (TeamException e)
-		{
-			SVNProviderPlugin.log(e);
-		}    	
-		
         internalResourceChanged(changedResources);
     }
 

@@ -16,6 +16,8 @@ import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.eclipse.core.internal.resources.ResourceInfo;
+import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -43,6 +45,7 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.core.commands.ShareProjectCommand;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.svnclientadapter.SVNConstants;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -293,4 +296,36 @@ public class SVNWorkspaceRoot {
 		return linkedParent.isLinked();
 	}
 	
+	/**
+	 * Return true when a resource is a SVN "meta" resource.
+	 * I.e. .svn dir or any file within it.
+	 * @param resource
+	 * @return
+	 */
+	public static boolean isSvnMetaResource(IResource resource)
+	{
+		if ((resource.getType() == IResource.FOLDER) && (resource.getName().equals(SVNConstants.SVN_DIRNAME)))
+			return true;
+		
+        IResource parent = resource.getParent();
+        if (parent == null) {
+            return false;
+        }
+        else
+        {
+        	return isSvnMetaResource(parent);
+        }
+	}
+	
+	/**
+	 * Get the ResourceInfo object for resource identified by location path.
+	 * @param statusPath - an absolute path relative to workspace root as returned by pathForLocation()
+	 * @return a resourceInfo
+	 */
+	public static ResourceInfo getResourceInfoFor(IPath statusPath)
+	{
+		return ((Workspace) ResourcesPlugin.getWorkspace())
+					.getResourceInfo(statusPath, true, false);
+	}	
 }
+

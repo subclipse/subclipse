@@ -5,7 +5,6 @@ package org.tigris.subversion.subclipse.core.client;
 
 import java.io.File;
 
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
@@ -48,10 +47,6 @@ public class StatusCommand {
         try{
             client.addNotifyListener( revisionListener );
             statuses = client.getStatus( file, descend, getAll, contactServer );
-
-            // we calculated the statuses of some resources. We update the cache manager
-            // so that it does not have to redo the status retrieving itself
-            SVNProviderPlugin.getPlugin().getStatusCacheManager().setStatuses(statuses);
         }
         finally {
             client.removeNotifyListener( revisionListener );

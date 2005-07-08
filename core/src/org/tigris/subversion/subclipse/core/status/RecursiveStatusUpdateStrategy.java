@@ -27,23 +27,22 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  */
 public class RecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
 
-	public RecursiveStatusUpdateStrategy(StatusCacheComposite treeCacheRoot)
+	public RecursiveStatusUpdateStrategy(IStatusCache statusCache)
 	{
-		super(treeCacheRoot);
+		super(statusCache);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.core.status.StatusUpdateStrategy#updateStatus(org.eclipse.core.resources.IResource)
+	 * @see org.tigris.subversion.subclipse.core.status.StatusUpdateStrategy#statusesToUpdate(org.eclipse.core.resources.IResource)
 	 */
-	void updateStatus(IResource resource) throws SVNException {
+	protected ISVNStatus[] statusesToUpdate(IResource resource) throws SVNException {
         if (!(resource instanceof IProject)) {
             // if the status of the resource parent is not known, we
             // recursively update it instead 
             IContainer parent = resource.getParent();
             if (parent != null) {
-                if (treeCacheRoot.getStatus(parent) == null) {
-                    updateStatus(parent);
-                    return;
+                if (statusCache.getStatus(parent) == null) {
+                    return statusesToUpdate(parent);
                 }
             }
         }
@@ -62,7 +61,7 @@ public class RecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
         } catch (SVNClientException e1) {
             throw SVNException.wrapException(e1);
         }
-        updateCache(statuses);
+        return statuses;
 	}
 
 }

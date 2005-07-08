@@ -25,11 +25,9 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 /**
@@ -124,11 +122,6 @@ public class SyncFileChangeListener implements IResourceChangeListener {
                 for (Iterator it = changedContainers.iterator(); it.hasNext();){
                     IContainer container = ((IContainer) it.next()).getParent();
                     
-                    // we update the members. Refresh can be useful in case of revert etc ...
-                    container.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
-                    ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
-                    svnContainer.refreshStatus(IResource.DEPTH_ONE);
-                    
                     // the resources that have potentially changed are the members of the folder
                     // and the folder itself
                     IResource[] members = container.members(true);
@@ -136,9 +129,14 @@ public class SyncFileChangeListener implements IResourceChangeListener {
                     resources[0] = container;
                     System.arraycopy(members,0,resources,1,members.length);
                     
+                    // we update the members. Refresh can be useful in case of revert etc ...
+                    container.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+                    //ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
+                    //svnContainer.refreshStatus(IResource.DEPTH_ONE);
+                    SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(container, IResource.DEPTH_ONE);
+                    
                     SVNProviderPlugin.broadcastSyncInfoChanges(resources);
-                }
-                
+                    }                
 			}			
 		} catch(CoreException e) {
 			SVNProviderPlugin.log(e.getStatus());
