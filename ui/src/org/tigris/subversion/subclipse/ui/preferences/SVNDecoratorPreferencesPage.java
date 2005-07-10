@@ -80,7 +80,6 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
     private Text externalFlag;
 
 	private Button showDirty;
-	private Button cacheStatus;
 	
 	class StringPair {
 		String s1;
@@ -123,7 +122,6 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		composite.setLayoutData(data);
 		createLabel(composite, Policy.bind("SVNDecoratorPreferencesPage.generalDescription"), 1); //$NON-NLS-1$		
 		showDirty = createCheckBox(composite, Policy.bind("SVNDecoratorPreferencesPage.computeDeep")); //$NON-NLS-1$		
-		cacheStatus = createCheckBox(composite, Policy.bind("SVNDecoratorPreferencesPage.cacheStatus")); //$NON-NLS-1$				
 		return composite;
 	}
 
@@ -340,7 +338,6 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowNewResource.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION));
 		
 		showDirty.setSelection(store.getBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
-		cacheStatus.setSelection(store.getBoolean(ISVNUIConstants.PREF_CACHE_STATUS));
 		
 		setValid(true);
 	}
@@ -372,11 +369,9 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		store.setValue(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION, imageShowNewResource.getSelection());
 		
 		store.setValue(ISVNUIConstants.PREF_CALCULATE_DIRTY, showDirty.getSelection());
-		store.setValue(ISVNUIConstants.PREF_CACHE_STATUS, cacheStatus.getSelection());
         
         // Update the strategy used to calculate the dirty state
 		SVNProviderPlugin.getPlugin().getPluginPreferences().setValue(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE, showDirty.getSelection());
-		SVNProviderPlugin.getPlugin().getPluginPreferences().setValue(ISVNCoreConstants.PREF_CACHE_STATUS, cacheStatus.getSelection());
         SVNProviderPlugin.getPlugin().savePluginPreferences();
         
 		SVNLightweightDecorator.refresh();
@@ -407,7 +402,6 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowNewResource.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION));
 		
 		showDirty.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
-		cacheStatus.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_CACHE_STATUS));
     }
 
 	/**

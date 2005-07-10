@@ -137,8 +137,7 @@ public class CommitAction extends WorkspaceAction {
 			     		statuses[j].isTextModified() || statuses[j].isAdded() ||
 						statuses[j].isDeleted() || statuses[j].isPropModified() ||
 						(statuses[j].isTextConflicted() || statuses[j].isPropConflicted())) {
-			         IResource currentResource = null;
-			         currentResource = GetStatusCommand.getResource(statuses[j]);
+			         IResource currentResource = statuses[j].getResource();
 			         if (currentResource != null) {
 			             ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
 			             if (!localResource.isIgnored()) {

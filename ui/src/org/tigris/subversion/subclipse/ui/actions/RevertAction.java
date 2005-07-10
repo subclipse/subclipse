@@ -76,7 +76,7 @@ public class RevertAction extends WorkspaceAction {
 			 for (int j = 0; j < statuses.length; j++) {
 			     if (statuses[j].isTextModified() || statuses[j].isAdded() || statuses[j].isDeleted() || statuses[j].getPropStatus().equals(SVNStatusKind.MODIFIED) || statuses[j].isTextConflicted() || statuses[j].isPropConflicted()) {
 			         IResource currentResource = null;
-			         currentResource = GetStatusCommand.getResource(statuses[j]);
+			         currentResource = statuses[j].getResource();
 			         if (currentResource != null)
 			             modified.add(currentResource);
 			     }

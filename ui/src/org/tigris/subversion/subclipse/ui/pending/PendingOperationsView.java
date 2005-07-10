@@ -657,8 +657,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
                     ((status[i].isDeleted()) && (toggleDeletedAction.isChecked())) ||
                     ((status[i].isTextModified()) && (toggleModifiedAction.isChecked())) ) {
                 
-                IResource resource = GetStatusCommand.getResource(status[i]);
-                resourceSet.add(resource);
+                resourceSet.add(status[i].getResource());
             }
         }
         return (IResource[]) resourceSet.toArray(new IResource[0]);
