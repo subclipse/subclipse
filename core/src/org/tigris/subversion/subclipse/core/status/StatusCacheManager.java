@@ -9,21 +9,17 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.status;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.QualifiedName;
@@ -32,8 +28,6 @@ import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.core.status.StatusCacheComposite;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
 
@@ -56,34 +50,14 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
     
     public StatusCacheManager() {
 		ResourcesPlugin.getWorkspace().getSynchronizer().add(StatusCacheManager.SVN_BC_SYNC_KEY);
+    	statusCache = new SynchronizerSyncInfoCache();
     }
 
     /* (non-Javadoc)
      * @see org.eclipse.core.internal.resources.IManager#startup(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void startup(IProgressMonitor monitor) throws CoreException {
-    	//TODO originally the cache status preference was used to switch between new and old impl.
-        //loadStatusCache();
-    	statusCache = new SynchronizerSyncInfoCache();
         chooseUpdateStrategy();
-    }
-
-    /**
-  	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
-     */
-    private void loadStatusCache() {
-        File statusCacheFile = new File(SVNProviderPlugin.getPlugin().getStateLocation() + File.separator + "status.cache");
-        if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_CACHE_STATUS) && statusCacheFile.exists()) {
-            try {
-                ObjectInputStream in = new ObjectInputStream(new FileInputStream(statusCacheFile));
-                statusCache = (IStatusCache)in.readObject();
-                in.close();
-                statusCacheFile.delete();
-            } catch (Exception e) {
-                e.printStackTrace();
-                statusCache = new StatusCacheComposite();
-            }
-        } else statusCache = new SynchronizerSyncInfoCache();
     }
 
     private void chooseUpdateStrategy() {
@@ -95,22 +69,6 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
      * @see org.eclipse.core.internal.resources.IManager#shutdown(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void shutdown(IProgressMonitor monitor) throws CoreException {
-        if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_CACHE_STATUS))
-            saveStatusCache();
-    }
-    
-    /**
-  	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
-     */
-    private void saveStatusCache() {
-        File statusCacheFile = new File(SVNProviderPlugin.getPlugin().getStateLocation() + File.separator + "status.cache");
-        try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(statusCacheFile));
-            out.writeObject(statusCache);
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -142,11 +100,10 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
      * update the cache using the given statuses
      * @param statuses
      */
-    protected IPath[] updateCache(ISVNStatus[] statuses) {
-        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-        IPath[] result = new IPath[statuses.length];
+    protected List updateCache(ISVNStatus[] statuses) {
+    	List result = new ArrayList(statuses.length);
         for (int i = 0; i < statuses.length;i++) {        	
-        	result[i] = updateCache(new LocalResourceStatus(statuses[i]), workspaceRoot);
+        	result.add(updateCache(new LocalResourceStatus(statuses[i])));
         }
         return result;
     }
@@ -155,11 +112,10 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
      * update the cache using the given statuses
      * @param statuses
      */
-    protected IPath[] updateCache(LocalResourceStatus[] statuses) {
-        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-        IPath[] result = new IPath[statuses.length];
+    protected List updateCache(LocalResourceStatus[] statuses) {
+    	List result = new ArrayList(statuses.length);
         for (int i = 0; i < statuses.length;i++) {
-            result[i] = updateCache(statuses[i], workspaceRoot);
+            result.add(updateCache(statuses[i]));
         }
         return result;
     }
@@ -169,15 +125,8 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
      * @param status
      * @param workspaceRoot
      */
-    protected IPath updateCache(LocalResourceStatus status, IWorkspaceRoot workspaceRoot) {
-    	
-    	IPath resourcePath = SVNWorkspaceRoot.pathForLocation(status.getPath());
-    	
-    	if (resourcePath != null) {
-    		statusCache.addStatus(resourcePath, status);
-    	}
-    	
-    	return resourcePath;
+    protected IResource updateCache(LocalResourceStatus status) {
+   		return statusCache.addStatus(status);
     }
 
     /**
@@ -215,8 +164,11 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
      * @throws SVNException
      */
     private LocalResourceStatus getStatus(IResource resource, StatusUpdateStrategy strategy) throws SVNException {
-        LocalResourceStatus status = null;
-
+    	if (!resource.exists() && !resource.isPhantom())
+    	{
+    		return null;
+    	}
+        LocalResourceStatus status = null;        
         status = statusCache.getStatus(resource);
         
         // we get it using svn 
@@ -224,9 +176,6 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
         {
         	status = basicGetStatus(resource, strategy);
         }
-        
-        ensureBaseStatusInfo(resource);
-        
         return status;
     }
     
@@ -280,26 +229,42 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
     }
 
     /**
-     * refresh the status for the given resource
+     * Refresh the status of the given resource to the give depth.
+     * The depth can be deeper in case of phantom resources.
+     * These have to be traversed to infinite always ...
      * @param resource
      * @param depth
+     * @return array of resources which were refreshed (including all phantoms and their children)
      * @throws SVNException
      */
-    public void refreshStatus(IResource resource,int depth) throws SVNException {
+    public IResource[] refreshStatus(IResource resource,int depth) throws SVNException {
     	StatusUpdateStrategy strategy = 
     		(depth == IResource.DEPTH_INFINITE) 
 							? (StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(statusCache)
 							: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(statusCache);
 		try {		
-			Map resourcesToRefresh = resourcesToRefresh(resource, depth);
-			IPath[] refreshedPaths = updateCache(strategy.statusesToUpdate(resource));
-			for (int i = 0; i < refreshedPaths.length; i++) {
-				resourcesToRefresh.remove(refreshedPaths[i]);
+			List refreshedResources = updateCache(strategy.statusesToUpdate(resource));
+			Set resourcesToRefresh = resourcesToRefresh(resource, depth, IContainer.INCLUDE_PHANTOMS, refreshedResources.size());
+			for (Iterator iter = refreshedResources.iterator(); iter.hasNext();) {
+				resourcesToRefresh.remove((IResource) iter.next());
 			}
 			//Resources which were not refreshed above (e.g. deleted resources)
-			for (Iterator it = resourcesToRefresh.values().iterator(); it.hasNext();) {
-				statusCache.addStatus((IResource) it.next(), null);
+			//We do it with depth = infinite, so the whole deleted trees are refreshed.
+			for (Iterator it = resourcesToRefresh.iterator(); it.hasNext();) {
+				IResource res = (IResource) it.next();
+				if ((res.getType() != IResource.FILE) && res.isPhantom())
+				{
+					Set children = resourcesToRefresh(res, IResource.DEPTH_INFINITE, IContainer.INCLUDE_PHANTOMS | IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS, 0);
+					for (Iterator iter = children.iterator(); iter.hasNext();) {
+						IResource child = (IResource) iter.next();
+						statusCache.removeStatus(child);
+						refreshedResources.add(child);
+					}
+				}
+				statusCache.removeStatus(res);
+				refreshedResources.add(res);
 			}
+			return (IResource[]) refreshedResources.toArray(new IResource[refreshedResources.size()]);
 		}
 		catch (CoreException e)
 		{
@@ -307,25 +272,16 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
 		}
     }
 
-    private Map resourcesToRefresh(IResource resource, int depth) throws CoreException
+    private Set resourcesToRefresh(IResource resource, int depth, int flags, int expectedSize) throws CoreException
     {
-    	final Map resultSet = new HashMap();
+    	final Set resultSet = (expectedSize != 0) ? new HashSet(expectedSize) : new HashSet();
 		resource.accept(new IResourceVisitor() {
 			public boolean visit(IResource resource) throws CoreException {
-				resultSet.put(resource.getFullPath(), resource);
+				resultSet.add(resource);
 				return true;
 			}
-		}, depth, true);
+		}, depth, flags);
 		return resultSet;
-    }
-    
-    /**
- 	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
-     */
-    public void refreshStatusAndBaseInfo(IResource resource) throws SVNException
-    {
-    	refreshStatus(resource, IResource.DEPTH_INFINITE);
-    	statusCache.ensureBaseStatusInfo(resource, IResource.DEPTH_INFINITE);
     }
     
     /* (non-Javadoc)
@@ -336,14 +292,4 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
             chooseUpdateStrategy();
         }
     }
-    
-	/**
-	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#ensureBaseStatusInfo(org.eclipse.core.resources.IResource, org.tigris.subversion.subclipse.core.resources.LocalResourceStatus)
- 	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
-	 */
-	public void ensureBaseStatusInfo(IResource resource) throws SVNException
-	{
-		this.statusCache.ensureBaseStatusInfo(resource);
-	}		
-
 }

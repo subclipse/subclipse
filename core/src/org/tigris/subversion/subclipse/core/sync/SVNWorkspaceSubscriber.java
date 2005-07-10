@@ -47,7 +47,6 @@ import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand.InformedStatus;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo.StatusInfo;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -174,7 +173,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
         if( remoteBytes != null )
             remoteStatusInfo = StatusInfo.fromBytes(remoteBytes);
 
-        SyncInfo syncInfo = new SVNStatusSyncInfo(resource, new StatusInfo(localStatus), remoteStatusInfo, comparator);
+        SyncInfo syncInfo = new SVNStatusSyncInfo(resource, StatusInfo.from(localStatus), remoteStatusInfo, comparator);
         syncInfo.init();
 
         return syncInfo;
@@ -210,7 +209,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	
 	private IStatus refresh(IResource resource, int depth, IProgressMonitor monitor) {
 		try {
-			refreshResourceSyncInfo(resource);
+			SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, IResource.DEPTH_INFINITE);
 			monitor.worked(300);
 
 			monitor.setTaskName("Retrieving synchronization data");
@@ -223,17 +222,6 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 		} catch (TeamException e) {
 			return new TeamStatus(IStatus.ERROR, SVNProviderPlugin.ID, 0, Policy.bind("ResourceVariantTreeSubscriber.2", resource.getFullPath().toString(), e.getMessage()), e, resource); //$NON-NLS-1$
 		} 
-	}
-
-	protected void refreshResourceSyncInfo(final IResource resource) throws TeamException	
-	{
-		try {
-			final StatusCacheManager statusCacheManager = SVNProviderPlugin.getPlugin().getStatusCacheManager();
-			statusCacheManager.refreshStatusAndBaseInfo(resource);
-		} catch (CoreException e) {
-			SVNProviderPlugin.log(e.getStatus());
-			throw TeamException.asTeamException(e);
-		}
 	}
 
     private IResource[] findChanges(IResource resource, int depth) throws TeamException {

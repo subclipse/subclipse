@@ -10,8 +10,6 @@
 package org.tigris.subversion.subclipse.core.status;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
-import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 
 /**
@@ -21,43 +19,23 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 public interface IStatusCache {
 
     /**
-     * get the status of the given resource (which does not need to exist)
+     * Get the status of the given resource (which does not need to exist)
      * @param resource
      * @return LocalResourceStatus
      */
     LocalResourceStatus getStatus(IResource resource);
 
     /**
-     * add a status for the given resource (which does not need to exist)
-     * @param resource
+     * Add a status for its resource (which does not need to exist)
      * @param status - can be null
+     * @return resource for which the status was cached
      */
-    void addStatus(IResource resource, LocalResourceStatus status);
+    IResource addStatus(LocalResourceStatus status);
 
     /**
-     * add a status for the reasource of  the given relative path
-     * @param path
-     * @param status - can be null
+     * Remove status of the given resource from the cache
+     * @param resource
+     * @return
      */
-    void addStatus(IPath path, LocalResourceStatus status);
-
-	/**
-	 * Ensure that base(pristine) copy of resource syncInfo is present in syncInfo of ResourceInfo of the resource.
-	 * 
-	 * @param resource IResource of status is determined
-	 * @throws SVNException
-	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
-	 */
-	void ensureBaseStatusInfo(IResource resource) throws SVNException;
-
-	/**
-	 * Ensure that base(pristine) copy of resource syncInfo is present in syncInfo of ResourceInfo of the resource.
-	 * 
-	 * @param resource IResource of status is determined
-	 * @param depth
-	 * @throws SVNException
-	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
-	 */
-	void ensureBaseStatusInfo(IResource resource, int depth) throws SVNException;
-
+    IResource removeStatus(IResource resource);
 }

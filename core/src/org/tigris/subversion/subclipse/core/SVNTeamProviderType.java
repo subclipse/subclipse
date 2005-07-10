@@ -240,6 +240,9 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 	/* (non-Javadoc)
      * @see org.eclipse.team.core.RepositoryProviderType#metaFilesDetected(org.eclipse.core.resources.IProject, org.eclipse.core.resources.IContainer[])
      */
+	/**
+	 * @deprecated not used in Eclipse 3.0 anymore ?
+	 */
     public void metaFilesDetected(IProject project, IContainer[] containers) {
 		boolean isProject = false;
 		

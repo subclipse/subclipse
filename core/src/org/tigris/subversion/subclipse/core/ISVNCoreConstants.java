@@ -7,9 +7,4 @@ public interface ISVNCoreConstants {
 
     String PREF_RECURSIVE_STATUS_UPDATE = "resursive_status_update";
 
-    /**
-  	 * @deprecated should be removed when StatusCacheComposite will be definitely replaced by SynchronizerSyncInfoCache
-     */
-    String PREF_CACHE_STATUS = "pref_cache_status";
-
 }

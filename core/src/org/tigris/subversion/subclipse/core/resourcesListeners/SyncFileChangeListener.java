@@ -120,22 +120,26 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 				
 			if(!changedContainers.isEmpty()) {
                 for (Iterator it = changedContainers.iterator(); it.hasNext();){
-                    IContainer container = ((IContainer) it.next()).getParent();
+                    IContainer dotSvnContainer = (IContainer)it.next();
+                    IContainer container = dotSvnContainer.getParent();
                     
-                    // the resources that have potentially changed are the members of the folder
-                    // and the folder itself
-                    IResource[] members = container.members(true);
-                    IResource[] resources = new IResource[members.length+1];
-                    resources[0] = container;
-                    System.arraycopy(members,0,resources,1,members.length);
-                    
+//                    IResource[] members = container.members(true);
+//                    dotSvnContainer.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+//                    for (int i = 0; i < members.length; i++) {
+//						if (members[i].getType() != IResource.FILE)
+//						{
+//							IResource childSvnDir = ((IContainer) members[i]).findMember(SVNConstants.SVN_DIRNAME);
+//							childSvnDir.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+//						}
+//					}
+
                     // we update the members. Refresh can be useful in case of revert etc ...
                     container.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
                     //ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
                     //svnContainer.refreshStatus(IResource.DEPTH_ONE);
-                    SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(container, IResource.DEPTH_ONE);
+                    IResource[] refreshed = SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(container, IResource.DEPTH_ONE);
                     
-                    SVNProviderPlugin.broadcastSyncInfoChanges(resources);
+                    SVNProviderPlugin.broadcastSyncInfoChanges(refreshed);
                     }                
 			}			
 		} catch(CoreException e) {

@@ -9,23 +9,14 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.commands;
 
-import java.io.File;
-
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
  * Command to get the statuses of local resources
@@ -79,43 +70,5 @@ public class GetStatusCommand implements ISVNCommand {
      */
     public LocalResourceStatus[] getStatuses() {
         return statuses;
-    }
-
-    /**
-     * get the resource corresponding to the given status
-     * @param status
-     * @return
-     */
-    static public IResource getResource(LocalResourceStatus status) {
-        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-        IPath pathEclipse = new Path(status.getFile().getAbsolutePath());
-        
-        IResource resource = null;
-        if (status.getNodeKind()  == SVNNodeKind.DIR)       
-            resource = workspaceRoot.getContainerForLocation(pathEclipse);
-        else
-            if (status.getNodeKind() == SVNNodeKind.FILE)
-                resource =  workspaceRoot.getFileForLocation(pathEclipse);
-            else {
-                if (status.getNodeKind() == SVNNodeKind.UNKNOWN) {
-	            	File file = pathEclipse.toFile();
-	            	if (file.isDirectory())
-	            		resource = workspaceRoot.getContainerForLocation(pathEclipse);
-	            	else
-	            		resource = workspaceRoot.getFileForLocation(pathEclipse);
-                }
-            }
-       return resource;     
     }    
-    
-    /**
-     * get the ISVNLocalResource corresponding to the given status
-     * @param status
-     * @return
-     */
-    static public ISVNLocalResource getSVNLocalResource(LocalResourceStatus status) {
-        IResource resource = getResource(status);
-        return SVNWorkspaceRoot.getSVNResourceFor(resource);
-    }
-     
 }

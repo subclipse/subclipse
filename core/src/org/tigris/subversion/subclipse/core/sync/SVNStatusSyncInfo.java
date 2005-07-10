@@ -48,7 +48,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
         
         if (!local.exists()) {
         	if (isAddition(repositoryKind)) return SyncInfo.INCOMING | SyncInfo.ADDITION;
-            if (localKind == SVNStatusKind.UNVERSIONED) return SyncInfo.IN_SYNC;
+            if (localKind == SVNStatusKind.UNVERSIONED || localKind == SVNStatusKind.NONE) return SyncInfo.IN_SYNC;
             if (isDeletion(repositoryKind)) return SyncInfo.IN_SYNC;
             if (isDeletion(localKind)) {
                 if (isChange(repositoryKind)) return SyncInfo.CONFLICTING | SyncInfo.DELETION;
@@ -152,7 +152,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
     
     public String toString()
     {
-    	return "L: " + localStatusInfo.toString() + " R: " + remoteStatusInfo.toString();
+    	return SyncInfo.kindToString(this.getKind()) + " L: " + this.localStatusInfo + " R: " + this.remoteStatusInfo;
     }
 
     protected static class StatusInfo {
@@ -170,9 +170,16 @@ public class SVNStatusSyncInfo extends SyncInfo {
     		this(revision, StatusInfo.mergeTextAndPropertyStatus(textStatus, propStatus));
     	}
     	
-    	protected StatusInfo(LocalResourceStatus localStatus)
+    	protected static StatusInfo from(LocalResourceStatus localStatus)
     	{
-    		this(localStatus.getLastChangedRevision(), localStatus.getTextStatus(), localStatus.getPropStatus());	
+    		if (localStatus == null)
+    		{
+    			return StatusInfo.NONE;
+    		}
+    		else
+    		{
+    			return new StatusInfo(localStatus.getLastChangedRevision(), localStatus.getTextStatus(), localStatus.getPropStatus());
+    		}
     	}
 
     	private StatusInfo(byte[] fromBytes) {

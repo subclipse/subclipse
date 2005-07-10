@@ -165,6 +165,11 @@ public class SVNProviderPlugin extends Plugin {
 	public void stop(BundleContext ctxt) throws Exception {
 		super.stop(ctxt);
 
+		// remove listeners
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		workspace.removeResourceChangeListener(metaFileSyncListener);
+		workspace.removeResourceChangeListener(fileModificationManager);
+
 		// save the state which includes the known repositories
         repositories.shutdown();
 		
@@ -175,11 +180,6 @@ public class SVNProviderPlugin extends Plugin {
         // save the plugin preferences
         savePluginPreferences();
 		
-		// remove listeners
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		workspace.removeResourceChangeListener(metaFileSyncListener);
-		workspace.removeResourceChangeListener(fileModificationManager);
-
 		// remove all of this plugin's save participants. This is easier than
 		// having
 		// each class that added itself as a participant to have to listen to
@@ -194,7 +194,6 @@ public class SVNProviderPlugin extends Plugin {
 	 */
 	protected void initializeDefaultPluginPreferences() {
 	    getPluginPreferences().setDefault(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE, true);
-	    getPluginPreferences().setDefault(ISVNCoreConstants.PREF_CACHE_STATUS, true);
 	}
 
 	private static List listeners = new ArrayList();

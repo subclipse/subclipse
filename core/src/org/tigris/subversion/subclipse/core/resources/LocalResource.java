@@ -154,7 +154,8 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
      * get the status of the given resource
      */
     public LocalResourceStatus getStatus() throws SVNException {
-        return SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatus(resource);
+    	LocalResourceStatus aStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatus(resource);
+        return (aStatus != null) ? aStatus : LocalResourceStatus.NONE;
     }
 
 	/*

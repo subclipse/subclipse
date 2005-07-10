@@ -20,8 +20,14 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.Date;
 
+import org.eclipse.core.internal.resources.ResourceInfo;
+import org.eclipse.core.internal.resources.Workspace;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
@@ -39,6 +45,8 @@ import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  */
 public class LocalResourceStatus implements Serializable {
+	public static LocalResourceStatus NONE = new LocalResourceStatusNone();
+	
     private static int FORMAT_VERSION_1 = 1;
 
     protected String url;
@@ -318,7 +326,9 @@ public class LocalResourceStatus implements Serializable {
     {
     	return ((bytes != null) && (bytes.length > 0)) ? new LocalResourceStatus(bytes) : null;
     }
-    
+
+    private LocalResourceStatus() {}
+
     private LocalResourceStatus(byte[] bytes) throws SVNException {
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         DataInputStream dis = new DataInputStream(in);
@@ -551,6 +561,85 @@ public class LocalResourceStatus implements Serializable {
 
     public String toString()
     {
-    	return ((path != null) ? path : "") + " (" + getRevision().toString() + ") " + getTextStatus().toString();
+    	return ((path != null) ? path : "") + " (" + revision + ") " + getTextStatus().toString();
+    }
+    
+    
+    /**
+     * Gets the resource this status is corresponding to.
+     * Use either ResourceInfo.getType() or getNodeKind() to determine the proper kind of resource. 
+     * @return
+     */
+    public IResource getResource()
+    {
+    	if (this.path == null) return null;
+		IPath resourcePath = SVNWorkspaceRoot.pathForLocation(this.getPath());
+
+		Workspace workspace = (Workspace) ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = workspace.getRoot();
+		ResourceInfo resourceInfo = workspace.getResourceInfo(resourcePath, true, false);
+		int kind = (resourceInfo != null) ? ResourceInfo.getType(resourceInfo.getFlags()) : -1;			
+
+		if (kind == IResource.FILE)
+		{
+			return root.getFile(resourcePath);
+		}
+		else if(kind == IResource.FOLDER)
+		{
+			return root.getFolder(resourcePath);
+		}
+		else if (kind == IResource.PROJECT)
+		{
+			return root.getProject(resourcePath.segment(0));
+		}
+		else if (kind == IResource.ROOT)
+		{
+			return root;
+		}
+		else if (this.getNodeKind() == SVNNodeKind.FILE)
+		{
+			return root.getFile(resourcePath);
+		}
+		else
+		{
+			if (resourcePath.isRoot())
+			{
+				return root;
+			}
+			else if (resourcePath.segmentCount() == 1)
+			{
+				return root.getProject(resourcePath.segment(0));
+			}
+		}
+//        if (this.getNodeKind() == SVNNodeKind.UNKNOWN) {
+//        	File file = this.getPath().toFile();
+//        	if (file.isDirectory())
+//        		resource = workspaceRoot.getContainerForLocation(pathEclipse);
+//        	else
+//        		resource = workspaceRoot.getFileForLocation(pathEclipse);
+//        }
+
+		return root.getFolder(resourcePath);
+    }
+    
+    /**
+     * Get the ISVNLocalResource corresponding to the status
+     * @return
+     */
+    public ISVNLocalResource getSVNLocalResource(LocalResourceStatus status) {
+        return SVNWorkspaceRoot.getSVNResourceFor(getResource());
+    }
+    
+    public static class LocalResourceStatusNone extends LocalResourceStatus {    
+    	public LocalResourceStatusNone()
+    	{
+    		super();
+    		this.nodeKind = SVNNodeKind.UNKNOWN.toInt();
+            this.revision = SVNRevision.SVN_INVALID_REVNUM;
+            this.textStatus = SVNStatusKind.NONE.toInt();
+            this.propStatus = SVNStatusKind.NONE.toInt();
+            this.readOnly = true;
+            //this.path = status.getFile().getAbsolutePath();
+    	}
     }
 }
