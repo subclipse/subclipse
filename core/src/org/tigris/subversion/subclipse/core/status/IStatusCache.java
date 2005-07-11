@@ -9,7 +9,9 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.status;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 
 /**
@@ -38,4 +40,13 @@ public interface IStatusCache {
      * @return
      */
     IResource removeStatus(IResource resource);
+    
+    /**
+     * Purge (remove) the status information from the cache.
+     * @param root
+     * @param deep
+     * @throws SVNException
+     */
+	void purgeCache(IContainer root, boolean deep) throws SVNException;
+
 }

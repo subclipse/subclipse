@@ -284,6 +284,15 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
 		return resultSet;
     }
     
+	/**
+	 * Purge the status information from the cache
+	 * @param root
+	 * @param deep
+	 */
+	public void purgeCache(IContainer root, boolean deep) throws SVNException {
+		statusCache.purgeCache(root, deep);
+	}
+
     /* (non-Javadoc)
      * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(org.eclipse.core.runtime.Preferences.PropertyChangeEvent)
      */

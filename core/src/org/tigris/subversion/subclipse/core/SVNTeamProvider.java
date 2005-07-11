@@ -11,13 +11,16 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core;
  
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFileModificationValidator;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceRuleFactory;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.team.IMoveDeleteHook;
 import org.eclipse.core.resources.team.ResourceRuleFactory;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
@@ -30,6 +33,7 @@ import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNFileModificationValidator;
 import org.tigris.subversion.subclipse.core.resources.SVNMoveDeleteHook;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.SVNConstants;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -65,7 +69,68 @@ public class SVNTeamProvider extends RepositoryProvider {
      * @see RepositoryProvider#deconfigured()
      */
 	public void deconfigured() {
+		try {
+			// when a nature is removed from the project, notify the synchronizer that
+			// we no longer need the sync info cached. This does not affect the actual SVN
+			// meta directories on disk, and will remain unless a client calls unmanage().		
+			SVNProviderPlugin.getPlugin().getStatusCacheManager().purgeCache(getProject(), true);
+			deconfigureTeamPrivateResource(getProject());
+		} catch (SVNException e)
+		{
+			SVNProviderPlugin.log(e);
+		}
+
 		SVNProviderPlugin.broadcastProjectDeconfigured(getProject());
+	}
+
+	private void deconfigureTeamPrivateResource(IProject project)
+	{
+		try {
+			project.accept(
+					new IResourceVisitor() {
+						public boolean visit(IResource resource) throws CoreException {
+							if ((resource.getType() == IResource.FOLDER)
+									&& (resource.getName().equals(SVNConstants.SVN_DIRNAME))
+									&& (resource.isTeamPrivateMember()))
+							{
+								resource.setTeamPrivateMember(false);
+								resource.touch(null);
+								return false;
+							}
+							else
+							{
+								return true;
+							}
+						}
+					}, IResource.DEPTH_INFINITE, IContainer.INCLUDE_PHANTOMS | IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS);
+		} catch (CoreException e) {
+			SVNProviderPlugin.log(SVNException.wrapException(e));
+		}
+	}
+
+	private void configureTeamPrivateResource(IProject project)
+	{
+		try {
+			project.accept(
+					new IResourceVisitor() {
+						public boolean visit(IResource resource) throws CoreException {
+							if ((resource.getType() == IResource.FOLDER)
+									&& (resource.getName().equals(SVNConstants.SVN_DIRNAME))
+									&& (!resource.isTeamPrivateMember()))
+							{
+								resource.setTeamPrivateMember(true);
+								resource.touch(null);
+								return false;
+							}
+							else
+							{
+								return true;
+							}
+						}
+					}, IResource.DEPTH_INFINITE, IContainer.INCLUDE_PHANTOMS | IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS);
+		} catch (CoreException e) {
+			SVNProviderPlugin.log(SVNException.wrapException(e));
+		}
 	}
 
 
@@ -121,8 +186,10 @@ public class SVNTeamProvider extends RepositoryProvider {
     }
 
     public void configureProject() {
+    	configureTeamPrivateResource(getProject());
         SVNProviderPlugin.broadcastProjectConfigured(getProject());
     }
+    
     /*
      * @see RepositoryProvider#getID()
      */
@@ -172,10 +239,6 @@ public class SVNTeamProvider extends RepositoryProvider {
 		}else{
 			return null;
 		}
-		
-		
-
-		
 	}
 
 	/* (non-Javadoc)

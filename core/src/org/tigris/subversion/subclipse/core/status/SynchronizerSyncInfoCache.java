@@ -140,9 +140,8 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 		}
 	}
 
-	/**
-	 * @param root
-	 * @param deep
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#purgeCache(org.eclipse.core.resources.IContainer, boolean)
 	 */
 	public void purgeCache(IContainer root, boolean deep) throws SVNException {
 		int depth = deep ? IResource.DEPTH_INFINITE : IResource.DEPTH_ZERO;
