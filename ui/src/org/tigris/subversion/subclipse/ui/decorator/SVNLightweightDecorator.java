@@ -295,8 +295,13 @@ public class SVNLightweightDecorator
                 // short url is the path relative to root url of repository
                 SVNUrl repositoryRoot = svnResource.getRepository().getRepositoryRoot();
                 if (repositoryRoot != null) {
-                    String shortUrl = status.getUrl().toString().substring(
-                            repositoryRoot.toString().length()+1);    
+                    int urlLen =  status.getUrl().toString().length();
+                    int rootLen = repositoryRoot.toString().length()+1;
+                    String shortUrl;
+                    if (urlLen > rootLen)
+                       shortUrl = status.getUrl().toString().substring(rootLen);
+                    else
+                       shortUrl = status.getUrl().toString();
                     bindings.put(
                             SVNDecoratorConfiguration.RESOURCE_URL_SHORT, 
                             shortUrl);
