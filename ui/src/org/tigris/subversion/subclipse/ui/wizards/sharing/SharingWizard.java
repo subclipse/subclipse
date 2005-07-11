@@ -35,10 +35,11 @@ import org.eclipse.team.ui.synchronize.ISynchronizeParticipant;
 import org.eclipse.team.ui.synchronize.ResourceScope;
 import org.eclipse.team.ui.synchronize.SubscriberParticipant;
 import org.eclipse.ui.IWorkbench;
-import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
@@ -72,6 +73,9 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 	// The page that tells the user what's going to happen.
 	private SharingWizardFinishPage finishPage;
 	
+	// The status of the project directory
+	private LocalResourceStatus projectStatus;  
+
 	public SharingWizard() {
 		IDialogSettings workbenchSettings = SVNUIPlugin.getPlugin().getDialogSettings();
 		IDialogSettings section = workbenchSettings.getSection("NewLocationWizard");//$NON-NLS-1$
@@ -90,7 +94,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 		ImageDescriptor sharingImage = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SHARE);
 		if (doesSVNDirectoryExist()) {
             // if .svn directory exists, we add the autoconnect page
-			autoconnectPage = new ConfigurationWizardAutoconnectPage("autoconnectPage", Policy.bind("SharingWizard.autoConnectTitle"), sharingImage); //$NON-NLS-1$ //$NON-NLS-2$
+			autoconnectPage = new ConfigurationWizardAutoconnectPage("autoconnectPage", Policy.bind("SharingWizard.autoConnectTitle"), sharingImage, projectStatus); //$NON-NLS-1$ //$NON-NLS-2$
 			autoconnectPage.setProject(project);
 			autoconnectPage.setDescription(Policy.bind("SharingWizard.autoConnectTitleDescription")); //$NON-NLS-1$
 			addPage(autoconnectPage);
@@ -173,23 +177,17 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 				public void run(IProgressMonitor monitor) throws InvocationTargetException {
 					try {
 						monitor.beginTask("", 100); //$NON-NLS-1$
-						if (autoconnectPage != null && doesSVNDirectoryExist()) {
+						if (autoconnectPage != null && (projectStatus != null)) {
 							// Autoconnect to the repository using svn/ directories
 							
-							LocalResourceStatus info = autoconnectPage.getFolderStatus();
-							if (info == null) {
-								// Error!
-								return;
-							}
-							
 							// Get the repository location (the get will add the locatin to the provider)
-							boolean isPreviouslyKnown = SVNProviderPlugin.getPlugin().getRepositories().isKnownRepository(info.getUrl().toString());
+							boolean isPreviouslyKnown = SVNProviderPlugin.getPlugin().getRepositories().isKnownRepository(projectStatus.getUrl().toString());
 	
 							// Validate the connection if the user wants to
 							boolean validate = autoconnectPage.getValidate();					
 							
                             if (validate && !isPreviouslyKnown) {
-								ISVNRepositoryLocation location = SVNProviderPlugin.getPlugin().getRepository(info.getUrl().toString());                            	
+								ISVNRepositoryLocation location = SVNProviderPlugin.getPlugin().getRepository(projectStatus.getUrl().toString());                            	
 								// Do the validation
 								try {
 									location.validateConnection(new SubProgressMonitor(monitor, 50));
@@ -390,11 +388,12 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 		// information can be retrieved.
         boolean isSVNFolder = false;
 		try {
-		  ISVNLocalFolder folder = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(project);
-		  LocalResourceStatus info = folder.getStatus();
-		  isSVNFolder = info.hasRemote();
+		  PeekStatusCommand command = new PeekStatusCommand(project);
+		  command.execute(SVNProviderPlugin.getPlugin().createSVNClient());
+		  projectStatus = command.getLocalResourceStatus();
+		  isSVNFolder = (projectStatus != null) && projectStatus.hasRemote();
           
-		} catch (final TeamException e) {
+		} catch (final SVNException e) {
 			Shell shell = null;
 			// If this is called before the pages have been added, getContainer will return null
 			if (getContainer() != null) {

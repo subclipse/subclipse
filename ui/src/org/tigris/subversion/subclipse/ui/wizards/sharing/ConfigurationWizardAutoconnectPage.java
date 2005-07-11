@@ -23,11 +23,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.help.WorkbenchHelp;
-import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -44,8 +42,9 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 	private LocalResourceStatus status;  // the status of the project directory
 	ISVNRepositoryLocation location;     // the repository location of the project directory
 
-	public ConfigurationWizardAutoconnectPage(String pageName, String title, ImageDescriptor titleImage) {
+	public ConfigurationWizardAutoconnectPage(String pageName, String title, ImageDescriptor titleImage, LocalResourceStatus status) {
 		super(pageName, title, titleImage);
+		this.status = status;
 	}
 
 	/*
@@ -92,10 +91,6 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 		check.setSelection(true);		
 	}
 	
-	public LocalResourceStatus getFolderStatus() {
-		return status;
-	}
-    
 	public boolean getValidate() {
 		return validate;
 	}
@@ -105,8 +100,6 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
      */
 	public void setProject(IProject project) {
 		try {
-			ISVNLocalFolder folder = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(project);
-            status = folder.getStatus();
 			if (status == null) {
 				// This should never happen
 				SVNUIPlugin.openError(null, Policy.bind("ConfigurationWizardAutoconnectPage.noSyncInfo"), Policy.bind("ConfigurationWizardAutoconnectPage.noSVNDirectory"), null); //$NON-NLS-1$ //$NON-NLS-2$
