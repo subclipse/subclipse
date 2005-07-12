@@ -8,7 +8,7 @@
 
    <install-handler/>
 
-   <description>
+   <description url="%changesURL">
       %description
    </description>
 
@@ -59,7 +59,7 @@
          download-size="0"
          install-size="0"
          version="0.9.31"/>
-
+         
    <plugin
          id="org.tigris.subversion.subclipse"
          download-size="0"
