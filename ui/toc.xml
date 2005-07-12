@@ -20,5 +20,5 @@
    <topic label="Glossary" href="html/faq/glossary.html"/>
    <topic label="Tips and Tricks" href="html/faq/tips-and-tricks.html"/>
    <topic label="FAQ" href="html/faq/faq.html"/>
-   <topic label="Subclipse Changelog" href="../org.tigris.subversion.subclipse/html/changes.html"/>
+   <topic label="Subclipse Changelog" href="html/subclipse/changes.html"/>
 </toc>
