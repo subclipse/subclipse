@@ -82,10 +82,15 @@ public class RemoveRootAction extends SelectionListenerAction {
 				for (int j = 0; j < projects.length; j++) {
 					RepositoryProvider teamProvider = RepositoryProvider.getProvider(projects[j], SVNProviderPlugin.getTypeId());
 					if (teamProvider!=null) {
-						SVNTeamProvider svnProvider = (SVNTeamProvider)teamProvider;
-						if (svnProvider.getSVNWorkspaceRoot().getRepository().equals(roots[i])) {
-							shared.add(projects[j]);
-						}
+					    try {
+							SVNTeamProvider svnProvider = (SVNTeamProvider)teamProvider;
+							if (svnProvider.getSVNWorkspaceRoot().getRepository().equals(roots[i])) {
+								shared.add(projects[j]);
+							}
+					    } catch(Exception e) {
+					        // Don't let any exception prevent from
+					        // continuing
+					    }
 					}
 				}
 			
