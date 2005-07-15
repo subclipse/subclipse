@@ -202,10 +202,10 @@ public class SVNPropertyPage extends PropertyPage {
             revisionValue.setText(status.getRevision() != null ? status.getRevision().toString()
                     : ""); //$NON-NLS-1$
             copiedValue.setText(new Boolean(status.isCopied()).toString());
-            lockOwner.setText(status.getLockOwner());
+            lockOwner.setText(status.getLockOwner() != null ? status.getLockOwner() : ""); //$NON-NLS-1$
             lockCreationDate.setText(status.getLockCreationDate() != null ? status
                     .getLockCreationDate().toString() : ""); //$NON-NLS-1$
-            lockComment.setText(status.getLockComment());
+            lockComment.setText(status.getLockComment() != null ? status.getLockComment() : ""); //$NON-NLS-1$
 //            pathValue.setText(status.getPath() != null ? status.getPath() : "");
 
         } catch (Exception e) {
