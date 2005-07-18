@@ -48,6 +48,7 @@ public class LocalResourceStatus implements Serializable {
 	public static LocalResourceStatus NONE = new LocalResourceStatusNone();
 	
     private static int FORMAT_VERSION_1 = 1;
+    private static int FORMAT_VERSION_2 = 2;
 
     protected String url;
 
@@ -251,7 +252,7 @@ public class LocalResourceStatus implements Serializable {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(out);
         try {
-            dos.writeInt(FORMAT_VERSION_1);
+            dos.writeInt(FORMAT_VERSION_2);
 
             // url
             if (url == null) {
@@ -315,6 +316,24 @@ public class LocalResourceStatus implements Serializable {
             } else {
                 dos.writeUTF(pathConflictWorking);
             }
+            
+            // lock owner
+            if(lockOwner == null)
+                dos.writeUTF("");
+            else
+                dos.writeUTF(lockOwner);
+            
+            // lock creation date
+            dos.writeLong(lockCreationDate);
+            
+            // lock comment
+            if (lockComment == null)
+                dos.writeUTF("");
+            else
+                dos.writeUTF(lockComment);
+            
+            //read only
+            dos.writeBoolean(readOnly);
 
         } catch (IOException e) {
             return null;
@@ -333,7 +352,8 @@ public class LocalResourceStatus implements Serializable {
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         DataInputStream dis = new DataInputStream(in);
         try {
-            if (dis.readInt() != FORMAT_VERSION_1) {
+            int version = dis.readInt();
+            if (version != FORMAT_VERSION_1 && version != FORMAT_VERSION_2) {
                 throw new SVNException("Invalid format");
             }
 
@@ -396,6 +416,22 @@ public class LocalResourceStatus implements Serializable {
             pathConflictWorking = dis.readUTF();
             if (pathConflictWorking.equals(""))
                 pathConflictWorking = null;
+            
+            if (version >= FORMAT_VERSION_2) {
+                lockOwner = dis.readUTF();
+                if (lockOwner.equals(""))
+                    lockOwner = null;
+                lockCreationDate = dis.readLong();
+                lockComment = dis.readUTF();
+                if (lockComment.equals(""))
+                    lockComment = null;
+                readOnly = dis.readBoolean();
+            } else {
+                lockOwner = null;
+                lockCreationDate = 0L;
+                lockComment = null;
+                readOnly = false;
+            }
         } catch (IOException e) {
             throw new SVNException(
                     "cannot create LocalResourceStatus from bytes", e);
@@ -638,7 +674,7 @@ public class LocalResourceStatus implements Serializable {
             this.revision = SVNRevision.SVN_INVALID_REVNUM;
             this.textStatus = SVNStatusKind.NONE.toInt();
             this.propStatus = SVNStatusKind.NONE.toInt();
-            this.readOnly = true;
+            this.readOnly = false;
             //this.path = status.getFile().getAbsolutePath();
     	}
     }
