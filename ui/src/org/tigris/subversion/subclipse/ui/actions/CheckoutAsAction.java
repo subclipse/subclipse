@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.actions;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IProject;
@@ -33,6 +34,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.operations.CheckoutAsProjectOperation;
+import org.tigris.subversion.subclipse.ui.util.IPromptCondition;
 import org.tigris.subversion.subclipse.ui.util.PromptingDialog;
 
 /**
@@ -163,7 +165,7 @@ public class CheckoutAsAction extends SVNAction {
 				// prompt to overwrite
 				PromptingDialog prompt = new PromptingDialog(getShell(), 
 						new IProject[] { project }, 
-						CheckoutAsProjectAction.getOverwriteLocalAndFileSystemPrompt(), 
+						CheckoutAsAction.getOverwriteLocalAndFileSystemPrompt(), 
 						Policy.bind("ReplaceWithAction.confirmOverwrite"));//$NON-NLS-1$
 				try {
 					if (prompt.promptForMultiple().length == 1) return project;
@@ -210,5 +212,27 @@ public class CheckoutAsAction extends SVNAction {
 	protected String getErrorTitle() {
 		return Policy.bind("CheckoutAsAction.checkoutFailed"); //$NON-NLS-1$
 	}
+	
+    /**
+     * get an IPromptCondition 
+     */
+    static public IPromptCondition getOverwriteLocalAndFileSystemPrompt() {
+        return new IPromptCondition() {
+            // prompt if resource in workspace exists or exists in local file system
+            public boolean needsPrompt(IResource resource) {
+                File localLocation  = getFileLocation(resource);
+                if(resource.exists() || localLocation.exists()) {
+                    return true;
+                }
+                return false;
+            }
+            public String promptMessage(IResource resource) {
+                return Policy.bind("CheckoutAsAction.confirmOverwrite", resource.getName());//$NON-NLS-1$
+            }
+            private File getFileLocation(IResource resource) {
+                return new File(resource.getParent().getLocation().toFile(), resource.getName());
+            }
+        };
+    }
 
 }
