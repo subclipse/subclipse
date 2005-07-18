@@ -76,7 +76,7 @@ public class LocalResourceTest extends SubclipseTest {
 		// add it to repository
 		provider.add(new IResource[] { resource }, IResource.DEPTH_ZERO, null);
 		// commit it
-		provider.checkin(new IResource[] { resource }, "committed",
+		provider.checkin(new IResource[] { resource }, "committed", false,
 				IResource.DEPTH_ZERO, null);
 		// get the remote resource
 		RemoteFile svnRemoteResource = (RemoteFile) svnResource

@@ -237,7 +237,7 @@ public abstract class SubclipseTest extends TestCase {
         // add it to repository
         provider.add(new IResource[] { resource }, IResource.DEPTH_ZERO, null);
         // commit it
-        provider.checkin(new IResource[] { resource }, comment,
+        provider.checkin(new IResource[] { resource }, comment, false,
                 IResource.DEPTH_ZERO, null);
         ISVNLocalResource res = SVNWorkspaceRoot.getSVNResourceFor(resource);
         try {

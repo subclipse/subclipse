@@ -38,7 +38,7 @@ public class CheckoutTest extends SubclipseTest {
 		IResource src = project1.getProject().getFolder(new Path("src"));
 		IResource projectFile = project1.getProject().getFile(new Path(".project"));
 		provider.add(new IResource[] { src,projectFile },IResource.DEPTH_INFINITE, null);
-		provider.checkin(new IResource[] { src,projectFile }, "project committed to repository",IResource.DEPTH_INFINITE,null);
+		provider.checkin(new IResource[] { src,projectFile }, "project committed to repository", false, IResource.DEPTH_INFINITE,null);
 		
 		// let's remove it
 		project1.getProject().delete(true,true,null);
