@@ -609,7 +609,7 @@ public class LocalResourceStatus implements Serializable {
     	if (this.path == null) return null;
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IPath resourcePath = SVNWorkspaceRoot.pathForLocation(this.getPath());
-		int kind = SVNWorkspaceRoot.getResourceType(this.getPath());			
+		int kind = SVNWorkspaceRoot.getResourceType(resourcePath);			
 
 		if (kind == IResource.FILE)
 		{
