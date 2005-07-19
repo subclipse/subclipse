@@ -138,7 +138,6 @@ public class SVNProviderPlugin extends Plugin {
 	
         statusCacheManager = new StatusCacheManager();
         getPluginPreferences().addPropertyChangeListener(statusCacheManager);
-        statusCacheManager.startup(null);
         
 		// Initialize SVN change listeners. Note tha the report type is important.
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -150,6 +149,8 @@ public class SVNProviderPlugin extends Plugin {
 		// subdir)
 		metaFileSyncListener = new SyncFileChangeListener();
 
+		workspace.addResourceChangeListener(statusCacheManager,
+				IResourceChangeEvent.PRE_BUILD);
 		workspace.addResourceChangeListener(metaFileSyncListener,
 				IResourceChangeEvent.PRE_BUILD);
 		workspace.addResourceChangeListener(fileModificationManager,
@@ -166,7 +167,8 @@ public class SVNProviderPlugin extends Plugin {
 		super.stop(ctxt);
 
 		// remove listeners
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();		
+		workspace.removeResourceChangeListener(statusCacheManager);
 		workspace.removeResourceChangeListener(metaFileSyncListener);
 		workspace.removeResourceChangeListener(fileModificationManager);
 
@@ -175,7 +177,6 @@ public class SVNProviderPlugin extends Plugin {
 		
 		adapterFactories.shutdown(null);
         getPluginPreferences().removePropertyChangeListener(statusCacheManager);
-        statusCacheManager.shutdown(null);
 		
         // save the plugin preferences
         savePluginPreferences();

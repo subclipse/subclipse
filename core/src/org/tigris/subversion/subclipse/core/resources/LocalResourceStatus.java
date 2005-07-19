@@ -20,8 +20,6 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.Date;
 
-import org.eclipse.core.internal.resources.ResourceInfo;
-import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -609,12 +607,9 @@ public class LocalResourceStatus implements Serializable {
     public IResource getResource()
     {
     	if (this.path == null) return null;
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IPath resourcePath = SVNWorkspaceRoot.pathForLocation(this.getPath());
-
-		Workspace workspace = (Workspace) ResourcesPlugin.getWorkspace();
-		IWorkspaceRoot root = workspace.getRoot();
-		ResourceInfo resourceInfo = workspace.getResourceInfo(resourcePath, true, false);
-		int kind = (resourceInfo != null) ? ResourceInfo.getType(resourceInfo.getFlags()) : -1;			
+		int kind = SVNWorkspaceRoot.getResourceType(this.getPath());			
 
 		if (kind == IResource.FILE)
 		{

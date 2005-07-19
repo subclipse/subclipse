@@ -318,14 +318,26 @@ public class SVNWorkspaceRoot {
 	}
 	
 	/**
-	 * Get the ResourceInfo object for resource identified by location path.
-	 * @param statusPath - an absolute path relative to workspace root as returned by pathForLocation()
-	 * @return a resourceInfo
+	 * Return the resource type (FILE, FOLDER, PROJECT) of the resource specified by an absolute filesystem path
+	 * @param absolutePath a filesystem absolute path 
+	 * @return IResource.FILE, IResource.FOLDER, IResource.PROJECT or IResource.ROOT or 0 if it could not be determined
 	 */
-	public static ResourceInfo getResourceInfoFor(IPath statusPath)
+	public static int getResourceType(String absolutePath)
 	{
-		return ((Workspace) ResourcesPlugin.getWorkspace())
-					.getResourceInfo(statusPath, true, false);
-	}	
+		//TODO This code is using eclipse internal classes !
+		return getResourceType(pathForLocation(new Path(absolutePath)));
+	}
+
+	/**
+	 * Return the resource type (FILE, FOLDER, PROJECT) of the resource specified by an absolute filesystem path
+	 * @param a resource path relative to workspace root as returned by pathForLocation()
+	 * @return IResource.FILE, IResource.FOLDER, IResource.PROJECT or IResource.ROOT or 0 if it could not be determined
+	 */
+	public static int getResourceType(IPath aResourcePath)
+	{
+		//TODO This code is using eclipse internal classes !
+		ResourceInfo resourceInfo = ((Workspace) ResourcesPlugin.getWorkspace()).getResourceInfo(aResourcePath, true, false);
+		return (resourceInfo != null) ? resourceInfo.getType() : 0;
+	}
 }
 

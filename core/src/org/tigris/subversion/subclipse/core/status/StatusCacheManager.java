@@ -17,10 +17,11 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
@@ -40,7 +41,7 @@ import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
  * 
  * @author cedric chabanois (cchab at tigris.org)
  */
-public class StatusCacheManager implements Preferences.IPropertyChangeListener {
+public class StatusCacheManager implements IResourceChangeListener, Preferences.IPropertyChangeListener {
 
 	/** Name used for identifying SVN synchronization data in Resource>ResourceInfo#syncInfo storage */
 	public static final QualifiedName SVN_BC_SYNC_KEY = new QualifiedName(SVNProviderPlugin.ID, "svn-bc-sync-key");
@@ -49,15 +50,9 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
     private StatusUpdateStrategy statusUpdateStrategy;
     
     public StatusCacheManager() {
+    	chooseUpdateStrategy();
 		ResourcesPlugin.getWorkspace().getSynchronizer().add(StatusCacheManager.SVN_BC_SYNC_KEY);
     	statusCache = new SynchronizerSyncInfoCache();
-    }
-
-    /* (non-Javadoc)
-     * @see org.eclipse.core.internal.resources.IManager#startup(org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void startup(IProgressMonitor monitor) throws CoreException {
-        chooseUpdateStrategy();
     }
 
     private void chooseUpdateStrategy() {
@@ -65,12 +60,6 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
         statusUpdateStrategy = recursiveStatusUpdate ? (StatusUpdateStrategy)new RecursiveStatusUpdateStrategy(statusCache) : (StatusUpdateStrategy)new NonRecursiveStatusUpdateStrategy(statusCache);
     }
     
-    /* (non-Javadoc)
-     * @see org.eclipse.core.internal.resources.IManager#shutdown(org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void shutdown(IProgressMonitor monitor) throws CoreException {
-    }
-
     /**
      * A resource which ancestor is not managed is not managed
      * @param resource
@@ -301,4 +290,16 @@ public class StatusCacheManager implements Preferences.IPropertyChangeListener {
             chooseUpdateStrategy();
         }
     }
+    
+	/* (non-Javadoc)
+	 * @see org.eclipse.core.resources.IResourceChangeListener#resourceChanged(org.eclipse.core.resources.IResourceChangeEvent)
+	 * 
+	 * When a resource changes this method will be called in a PRE_BUILD to allow to flush all changes which were not
+	 * saved during previous operations when the workspace was locked.
+     *
+	 */
+	public void resourceChanged(IResourceChangeEvent event) {
+		statusCache.flushPendingStatuses();
+	}
+
 }

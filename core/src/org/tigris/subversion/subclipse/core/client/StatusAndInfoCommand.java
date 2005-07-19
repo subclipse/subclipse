@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-import org.eclipse.core.internal.resources.ResourceInfo;
-import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
@@ -106,8 +104,6 @@ public class StatusAndInfoCommand extends StatusCommand {
 
     private InformedStatus[] collectInformedStatuses(ISVNStatus[] statuses)
     {
-        Workspace workspace = (Workspace) ResourcesPlugin.getWorkspace();
-
         Set containerSet = new HashSet();
         List allStatuses = new ArrayList();
 
@@ -120,17 +116,17 @@ public class StatusAndInfoCommand extends StatusCommand {
         //Collect changed resources (in reverse order so dirs are properly identified
         for (int i = statuses.length - 1; i >= 0; i--) {
             ISVNStatus status = statuses[i];            
-            ResourceInfo changedResource = SVNWorkspaceRoot.getResourceInfoFor(SVNWorkspaceRoot.pathForLocation(new Path(status.getPath())));
-            InformedStatus informedStatus = new InformedStatus(status, changedResource);
+            int resourceType = SVNWorkspaceRoot.getResourceType(status.getPath());
+            InformedStatus informedStatus = new InformedStatus(status);
             if ( SVNNodeKind.UNKNOWN  == status.getNodeKind() ) 
             {
-                if( changedResource != null )
+                if( resourceType != resourceType)
                 {
-                	if (IResource.FILE == changedResource.getType())
+                	if (IResource.FILE == resourceType)
                 	{
                 		informedStatus.setInformedKind(SVNNodeKind.FILE);
                 	}
-                	else if(IResource.FILE == changedResource.getType())
+                	else if(IResource.FOLDER == resourceType)
                 	{
                 		informedStatus.setInformedKind(SVNNodeKind.DIR);                		
                 	}
@@ -181,26 +177,20 @@ public class StatusAndInfoCommand extends StatusCommand {
 	{
     	private SVNNodeKind informedKind;
     	private ISVNStatus realStatus;
-    	private ResourceInfo resourceInfo;
     	
-		protected InformedStatus(ISVNStatus realStatus, ResourceInfo resourceInfo) {
+		protected InformedStatus(ISVNStatus realStatus) {
 			super();
 			this.informedKind = realStatus.getNodeKind();
 			this.realStatus = realStatus;
-			this.resourceInfo = resourceInfo;
 		}
 		
-		public ResourceInfo getResourceInfo() {
-			return resourceInfo;
-		}
-
 		public void setInformedKind(SVNNodeKind informedKind) {
 			this.informedKind = informedKind;
 		}
 		
 		public String toString()
 		{
-			return ((resourceInfo != null) ? resourceInfo.toString() : realStatus.toString()) + " " + getNodeKind().toString();
+			return realStatus.toString() + " " + getNodeKind().toString();
 		}
 		
 		/**

@@ -16,9 +16,11 @@ import java.util.Map;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
@@ -79,7 +81,6 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 	
 	private byte[] getCachedSyncBytes(IResource resource) throws SVNException {
 		try {
-			accessor.flushPendingCacheWrites();
 			byte[] bytes;
 			if (accessor.pendingCacheContains(resource)) {
 				bytes = accessor.readFromPendingCache(resource);
@@ -163,6 +164,25 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 		}		
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#flushPendingStatuses()
+	 */
+	public void flushPendingStatuses()
+	{
+		if (accessor.isFlushFeasible())
+		{
+			try {
+				ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+					public void run(IProgressMonitor monitor) {
+						accessor.flushPendingCacheWrites();
+					}
+				}, null);
+			} catch (CoreException e) {
+				SVNProviderPlugin.log(SVNException.wrapException(e));
+			}
+		}
+	}
+	
 	private static class SyncInfoSynchronizedAccessor
 	{
 		// Map of sync bytes that were set without a scheduling rule
@@ -192,25 +212,32 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 		}
 
 		/**
-		 * Flushes one resource from pending cache write.
-		 * The method is not synchronized intentionally to prevent deadlocks.
-		 * One resource at a time is flushed due to same reason.
+		 * Flushes statuses from pending cache.
+		 * The method is not synchronized intentionally.
 		 */
 		protected void flushPendingCacheWrites()
 		{
 			if ((pendingCacheWrites.size() > 0) && (!ResourcesPlugin.getWorkspace().isTreeLocked()))
 			{
-				Map.Entry cachedEntry = nextFromPendingCache();
-				if (cachedEntry != null)
-				{
-					try {
-						ResourcesPlugin.getWorkspace().getSynchronizer().setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, (IResource) cachedEntry.getKey(), (byte []) cachedEntry.getValue());
-						removeFromPendingCacheIfEqual((IResource) cachedEntry.getKey(), (byte []) cachedEntry.getValue());
-					} catch (CoreException e) {
-						SVNProviderPlugin.log(SVNException.wrapException(e));
+				int count = pendingCacheWrites.size();
+				for (int i = 0; i < count; i++) {
+					Map.Entry cachedEntry = nextFromPendingCache();
+					if (cachedEntry != null)
+					{
+						try {
+							ResourcesPlugin.getWorkspace().getSynchronizer().setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, (IResource) cachedEntry.getKey(), (byte []) cachedEntry.getValue());
+							removeFromPendingCacheIfEqual((IResource) cachedEntry.getKey(), (byte []) cachedEntry.getValue());
+						} catch (CoreException e) {
+							SVNProviderPlugin.log(SVNException.wrapException(e));
+						}
 					}
 				}
 			}
+		}
+
+		protected boolean isFlushFeasible()
+		{
+			return (pendingCacheWrites.size() > 0) && (!ResourcesPlugin.getWorkspace().isTreeLocked());
 		}
 		
 		synchronized private Map.Entry nextFromPendingCache()
@@ -251,14 +278,17 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 		 * was modified, do not remove the resource ...
 		 * @param resource
 		 * @param syncBytes
+		 * @return true when the status was equal and removed from pendingCache  
 		 */
-		synchronized protected void removeFromPendingCacheIfEqual(IResource resource, byte[] syncBytes)
+		synchronized protected boolean removeFromPendingCacheIfEqual(IResource resource, byte[] syncBytes)
 		{
 			byte[] old = (byte[]) pendingCacheWrites.get(resource);
 			if (equals(old, syncBytes))
 			{
 				pendingCacheWrites.remove(resource);
+				return true;
 			}
+			return false;
 		}
 
 		synchronized protected void removeRecursiveFromPendingCache(IResource resource)

@@ -49,4 +49,8 @@ public interface IStatusCache {
      */
 	void purgeCache(IContainer root, boolean deep) throws SVNException;
 
+	/**
+	 * Flush (pending) statuses which were not saved yet due to e.g. locked workspace
+	 */
+	void flushPendingStatuses();
 }
