@@ -92,11 +92,16 @@ public class StatusAndInfoCommand extends StatusCommand {
      * @param statuse - InformedStatuses which nodeKinds we want to get and set
      * @throws SVNClientException
      */
-    private void fetchNodeKind(ISVNClientAdapter client, InformedStatus status) throws SVNClientException
+    private void fetchNodeKind(ISVNClientAdapter client, InformedStatus status)
     {
     	SVNUrl url = SVNUrlUtils.getUrlFromLocalFileName(status.getPath(), svnResource.getUrl(), svnResource.getFile().getAbsolutePath());
-    	ISVNInfo info = client.getInfo(url);
-    	if (info != null)
+    	ISVNInfo info;
+        try {
+            info = client.getInfo(url);
+        } catch (SVNClientException e) {
+            info = null;
+        }
+        if (info != null)
     	{
     		status.setInformedKind(info.getNodeKind());
     	}
