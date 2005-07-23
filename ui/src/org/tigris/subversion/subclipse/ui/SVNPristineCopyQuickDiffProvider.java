@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -25,6 +26,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.team.core.TeamException;
+import org.eclipse.team.core.subscribers.ISubscriberChangeEvent;
+import org.eclipse.team.core.subscribers.ISubscriberChangeListener;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
@@ -33,10 +37,12 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IElementStateListener;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.quickdiff.IQuickDiffReferenceProvider;
+import org.tigris.subversion.subclipse.core.ISVNFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
-import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 
 /**
 
@@ -83,32 +89,32 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 	private String id;
 	
 	// A handle to the remote SVN file for this provider. 
-//	private SyncInfo fLastSyncState;
+	private SyncInfo fLastSyncState;
 
 	// Job that re-creates the reference document.
 	private Job fUpdateJob;
 	
 	private boolean DEBUG = false;
 	
-//	/**
-//	 * Updates the document if a sync changes occurs to the associated SVN file.
-//	 */
-//	private ISubscriberChangeListener teamChangeListener = new ISubscriberChangeListener() {
-//		public void subscriberResourceChanged(ISubscriberChangeEvent[] deltas) {
-//			if(fReferenceInitialized) {
-//				for (int i = 0; i < deltas.length; i++) {
-//					ISubscriberChangeEvent delta = deltas[i];
-//					IResource resource = delta.getResource();
-//					if(resource.getType() == IResource.FILE && 
-//					   fLastSyncState != null && resource.equals(fLastSyncState.getLocal())) {
-//						if(delta.getFlags() == ISubscriberChangeEvent.SYNC_CHANGED) {
-//							fetchContentsInJob();
-//						}
-//					} 
-//				}
-//			}
-//		}
-//	};
+	/**
+	 * Updates the document if a sync changes occurs to the associated SVN file.
+	 */
+	private ISubscriberChangeListener teamChangeListener = new ISubscriberChangeListener() {
+		public void subscriberResourceChanged(ISubscriberChangeEvent[] deltas) {
+			if(isReferenceInitialized) {
+				for (int i = 0; i < deltas.length; i++) {
+					ISubscriberChangeEvent delta = deltas[i];
+					IResource resource = delta.getResource();
+					if(resource.getType() == IResource.FILE && 
+					   fLastSyncState != null && resource.equals(fLastSyncState.getLocal())) {
+						if(delta.getFlags() == ISubscriberChangeEvent.SYNC_CHANGED) {
+							fetchContentsInJob();
+						}
+					} 
+				}
+			}
+		}
+	};
 
 	/**
 	 * Updates the document if the document is changed (e.g. replace with)
@@ -134,7 +140,7 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 	};
 
 	/*
-	 * @see org.eclipse.test.quickdiff.DocumentLineDiffer.IQuickDiffReferenceProvider#getReference()
+	 * @see org.eclipse.test.quickdiff.DocumentLineDiffer.IQuickDifreferenceDocumentProvider#getReference()
 	 */
 	public IDocument getReference(IProgressMonitor monitor) throws CoreException {
 		if(! isReferenceInitialized) return null;
@@ -153,7 +159,7 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 		documentProvider= editor.getDocumentProvider();
 		
 		if(documentProvider != null) {
-//			SVNProviderPlugin.getPlugin().getSVNWorkspaceSubscriber().addListener(teamChangeListener);
+			SVNWorkspaceSubscriber.getInstance().addListener(teamChangeListener);
 			((IDocumentProvider)documentProvider).addElementStateListener(documentListener);
 		}	
 		isReferenceInitialized= true;
@@ -173,7 +179,7 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 	}
 
 	/*
-	 * @see org.eclipse.jface.text.source.diff.DocumentLineDiffer.IQuickDiffReferenceProvider#dispose()
+	 * @see org.eclipse.jface.text.source.diff.DocumentLineDiffer.IQuickDifreferenceDocumentProvider#dispose()
 	 */
 	public void dispose() {
 		isReferenceInitialized = false;
@@ -197,38 +203,38 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 	}
 
 	/*
-	 * @see org.eclipse.jface.text.source.diff.DocumentLineDiffer.IQuickDiffReferenceProvider#getId()
+	 * @see org.eclipse.jface.text.source.diff.DocumentLineDiffer.IQuickDifreferenceDocumentProvider#getId()
 	 */
 	public String getId() {
 		return id;
 	}
 	
-//	/**
-//	 * Determine if the file represented by this quickdiff provider has changed with
-//	 * respect to it's remote state. Return true if the remote contents should be
-//	 * refreshed, and false if not.
-//	 */
-//	private boolean computeChange(IProgressMonitor monitor) throws TeamException {
-//		boolean needToUpdateReferenceDocument = false;
-//		if(fReferenceInitialized) {
-//			SyncInfo info = getSyncState(getFileFromEditor());	
-//			if(info == null && fLastSyncState != null) {
-//				return true;
-//			} else if(info == null) {
-//				return false;
-//			}
-//			
-//			int kind = info.getKind();			
-//			if(fLastSyncState == null) {
-//				needToUpdateReferenceDocument = true;
-//			} else if(! fLastSyncState.equals(info)) {
-//				needToUpdateReferenceDocument = true; 
-//			}
-//			if(DEBUG) debug(fLastSyncState, info);
-//			fLastSyncState = info;
-//		}		
-//		return needToUpdateReferenceDocument;		
-//	}
+	/**
+	 * Determine if the file represented by this quickdiff provider has changed with
+	 * respect to it's remote state. Return true if the remote contents should be
+	 * refreshed, and false if not.
+	 */
+	private boolean computeChange(IProgressMonitor monitor) throws TeamException {
+		boolean needToUpdateReferenceDocument = false;
+		if(isReferenceInitialized) {
+			SyncInfo info = getSyncState(getFileFromEditor());	
+			if(info == null && fLastSyncState != null) {
+				return true;
+			} else if(info == null) {
+				return false;
+			}
+			
+			int kind = info.getKind();			
+			if(fLastSyncState == null) {
+				needToUpdateReferenceDocument = true;
+			} else if(! fLastSyncState.equals(info)) {
+				needToUpdateReferenceDocument = true; 
+			}
+			if(DEBUG) debug(fLastSyncState, info);
+			fLastSyncState = info;
+		}		
+		return needToUpdateReferenceDocument;		
+	}
 	
 	private void debug(SyncInfo lastSyncState, SyncInfo info) {
 		String last = "[none]"; //$NON-NLS-1$
@@ -238,45 +244,12 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 		System.out.println("+ SVNQuickDiff: was " + last + " is " + info.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-//	private SyncInfo getSyncState(IResource resource) throws TeamException {
-//		if (resource == null) return null;
-//		ISVNFile SVNFile = getManagedSVNFile();
-//		return SVNProviderPlugin.getPlugin().getSVNWorkspaceSubscriber().getSyncInfo(resource);
-//	}
+	private SyncInfo getSyncState(IResource resource) throws TeamException {
+		if (resource == null) return null;
+		ISVNFile SVNFile = getManagedSVNFile();
+		return SVNWorkspaceSubscriber.getInstance().getSyncInfo(resource);
+	}
 	
-//	/**
-//	 * Creates a document and initializes it with the contents of a SVN remote
-//	 * resource.
-//	 * @param monitor the progress monitor
-//	 * @throws CoreException
-//	 */
-//	private void readDocument(IProgressMonitor monitor) throws CoreException {
-//		if(! fReferenceInitialized) return;
-//		if(fReference == null)
-//			fReference = new Document();
-//		if(computeChange(monitor)) {
-//			ISVNRemoteFile remoteFile = (ISVNRemoteFile)fLastSyncState.getRemote(); 
-//			if (fLastSyncState.getRemote() != null && fDocumentProvider instanceof IStorageDocumentProvider) {
-//				IStorageDocumentProvider provider= (IStorageDocumentProvider) fDocumentProvider;			
-//				String encoding= provider.getEncoding(fEditor.getEditorInput());
-//				if (encoding == null) {
-//					encoding= provider.getDefaultEncoding();
-//				}
-//				if(monitor.isCanceled()) return;
-//				InputStream stream= remoteFile.getContents(monitor);
-//				if (stream == null || monitor.isCanceled() || ! fReferenceInitialized) {
-//					return;
-//				}
-//				setDocumentContent(fReference, stream, encoding);
-//			} else {
-//				// the remote is null, so ensure that the document is null
-//				if(monitor.isCanceled()) return;
-//				fReference.set(""); //$NON-NLS-1$
-//			}
-//			if(DEBUG) System.out.println("+ SVNQuickDiff: updating document " + (fReference!=null ? "remote found" : "remote empty")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-//		}
-//	}
-
 	/**
 	 * Creates a document and initializes it with the contents of a SVN remote
 	 * resource.
@@ -287,29 +260,62 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 		if(! isReferenceInitialized) return;
 		if(referenceDocument == null)
 			referenceDocument = new Document();
-		
-		ISVNLocalFile localFile = getManagedSVNFile();
-
-		// TODO shouldn't have to defend against base revisions not existing for added files
-		if (!localFile.getStatus().isAdded() && documentProvider instanceof IStorageDocumentProvider) {
-			IStorageDocumentProvider provider= (IStorageDocumentProvider) documentProvider;            
-			String encoding= provider.getEncoding(editor.getEditorInput());
-			if (encoding == null) {
-				encoding= provider.getDefaultEncoding();
+		if(computeChange(monitor)) {
+			ISVNRemoteFile remoteFile = (ISVNRemoteFile)fLastSyncState.getBase(); 
+			if (remoteFile != null && documentProvider instanceof IStorageDocumentProvider) {
+				IStorageDocumentProvider provider= (IStorageDocumentProvider) documentProvider;			
+				String encoding= provider.getEncoding(editor.getEditorInput());
+				if (encoding == null) {
+					encoding= provider.getDefaultEncoding();
+				}
+				if(monitor.isCanceled()) return;
+				InputStream stream= remoteFile.getStorage(monitor).getContents();
+				if (stream == null || monitor.isCanceled() || ! isReferenceInitialized) {
+					return;
+				}
+				setDocumentContent(referenceDocument, stream, encoding);
+			} else {
+				// the remote is null, so ensure that the document is null
+				if(monitor.isCanceled()) return;
+				referenceDocument.set(""); //$NON-NLS-1$
 			}
-			if(monitor.isCanceled()) return;
-			
-			ISVNRemoteResource remoteFile = localFile.getBaseResource();
-			if (remoteFile == null || monitor.isCanceled() || ! isReferenceInitialized) {
-				return;
-			}
-			setDocumentContent(referenceDocument, remoteFile.getStorage(monitor).getContents(), encoding);
-		} else {
-			if(monitor.isCanceled()) return;
-			referenceDocument.set(""); //$NON-NLS-1$
+			if(DEBUG) System.out.println("+ SVNQuickDiff: updating document " + (referenceDocument!=null ? "remote found" : "remote empty")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		if(DEBUG) System.out.println("+ SVNQuickDiff: updating document " + (referenceDocument!=null ? "remote found" : "remote empty")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
+
+//	/**
+//	 * Creates a document and initializes it with the contents of a SVN remote
+//	 * resource.
+//	 * @param monitor the progress monitor
+//	 * @throws CoreException
+//	 */
+//	private void readDocument(IProgressMonitor monitor) throws CoreException {
+//		if(! isReferenceInitialized) return;
+//		if(referenceDocument == null)
+//			referenceDocument = new Document();
+//		
+//		ISVNLocalFile localFile = getManagedSVNFile();
+//
+//		// TODO shouldn't have to defend against base revisions not existing for added files
+//		if (!localFile.getStatus().isAdded() && documentProvider instanceof IStorageDocumentProvider) {
+//			IStorageDocumentProvider provider= (IStorageDocumentProvider) documentProvider;            
+//			String encoding= provider.getEncoding(editor.getEditorInput());
+//			if (encoding == null) {
+//				encoding= provider.getDefaultEncoding();
+//			}
+//			if(monitor.isCanceled()) return;
+//			
+//			ISVNRemoteResource remoteFile = localFile.getBaseResource();
+//			if (remoteFile == null || monitor.isCanceled() || ! isReferenceInitialized) {
+//				return;
+//			}
+//			setDocumentContent(referenceDocument, remoteFile.getStorage(monitor).getContents(), encoding);
+//		} else {
+//			if(monitor.isCanceled()) return;
+//			referenceDocument.set(""); //$NON-NLS-1$
+//		}
+//		if(DEBUG) System.out.println("+ SVNQuickDiff: updating document " + (referenceDocument!=null ? "remote found" : "remote empty")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//	}
 
 	/**
 	 * Intitializes the given document with the given stream using the given encoding.
