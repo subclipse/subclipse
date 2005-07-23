@@ -139,28 +139,7 @@ public class CheckoutCommand implements ISVNCommand {
 					}
 				}
 
-				OperationManager operationHandler = OperationManager
-						.getInstance();
-				ISVNNotifyListener notifyListener = new ISVNNotifyAdapter() {
-					public void logMessage(String message) {
-						if (pm != null)
-						{
-							pm.subTask(message);
-						}
-					}
-				};
-				try {
-					operationHandler.beginOperation(svnClient, notifyListener);
-					svnClient.checkout(resource.getUrl(), destPath,
-							SVNRevision.HEAD, true);
-					if (pm != null) {
-						pm.worked(800);
-					}
-				} catch (SVNClientException e) {
-					throw new SVNException("cannot checkout");
-				} finally {
-					operationHandler.endOperation();
-				}
+				checkoutProject(pm, resource, svnClient, destPath);
 
 				// Bring the project into the workspace
 				refreshProjects(new IProject[] { project },
@@ -175,6 +154,42 @@ public class CheckoutCommand implements ISVNCommand {
 		}
 	}
 	
+	/**
+	 * @param pm
+	 * @param resource
+	 * @param svnClient
+	 * @param destPath
+	 * @throws SVNException
+	 */
+	private void checkoutProject(final IProgressMonitor pm, RemoteFolder resource, ISVNClientAdapter svnClient, File destPath) throws SVNException {
+		final IProgressMonitor subPm = Policy.infiniteSubMonitorFor(pm, 800);
+		OperationManager operationHandler = OperationManager
+				.getInstance();
+		ISVNNotifyListener notifyListener = new ISVNNotifyAdapter() {
+			public void logMessage(String message) {
+				if (pm != null)
+				{
+					subPm.worked(1);
+					subPm.subTask(message);
+				}
+			}
+		};
+		try {
+			subPm.beginTask("", 1000);
+			operationHandler.beginOperation(svnClient, notifyListener);
+			svnClient.checkout(resource.getUrl(), destPath,
+					SVNRevision.HEAD, true);
+			if (subPm != null) {
+				subPm.subTask(" ");
+				subPm.done();
+			}
+		} catch (SVNClientException e) {
+			throw new SVNException("cannot checkout");
+		} finally {
+			operationHandler.endOperation();
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -203,9 +218,8 @@ public class CheckoutCommand implements ISVNCommand {
 		}
 		if (monitor != null)
 		{
-			monitor
-				.beginTask(
-						Policy.bind("SVNProvider.Scrubbing_projects_1"), projects.length * 100); //$NON-NLS-1$
+			monitor.beginTask("", projects.length * 100);
+			monitor.setTaskName(Policy.bind("SVNProvider.Scrubbing_projects_1")); //$NON-NLS-1$
 		}
 		try {
 			for (int i = 0; i < projects.length; i++) {
@@ -285,11 +299,12 @@ public class CheckoutCommand implements ISVNCommand {
 	private void refreshProjects(IProject[] projects, IProgressMonitor monitor)
 			throws SVNException {
 	    if (monitor != null)
-	        monitor.beginTask(
-						Policy.bind("SVNProvider.Creating_projects_2"), projects.length * 100); //$NON-NLS-1$
+	    	monitor.beginTask("", projects.length * 100); //$NON-NLS-1$
+	    	monitor.setTaskName(Policy.bind("SVNProvider.Creating_projects_2"));
 		try {
 			for (int i = 0; i < projects.length; i++) {
 				IProject project = projects[i];
+				monitor.subTask(Policy.bind("SVNProvider.Creating_projects_1", project.getName()));
 				// Register the project with Team
 				RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
 				RepositoryProvider.getProvider(project, SVNProviderPlugin

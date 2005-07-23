@@ -39,7 +39,6 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
@@ -388,9 +387,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 		// information can be retrieved.
         boolean isSVNFolder = false;
 		try {
-		  PeekStatusCommand command = new PeekStatusCommand(project);
-		  command.execute(SVNProviderPlugin.getPlugin().createSVNClient());
-		  projectStatus = command.getLocalResourceStatus();
+		  projectStatus = SVNWorkspaceRoot.peekResourceStatusFor(project);;
 		  isSVNFolder = (projectStatus != null) && projectStatus.hasRemote();
           
 		} catch (final SVNException e) {

@@ -42,6 +42,7 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
+import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.core.commands.ShareProjectCommand;
 import org.tigris.subversion.subclipse.core.util.Util;
@@ -156,9 +157,8 @@ public class SVNWorkspaceRoot {
 	public static void setSharing(IProject project, IProgressMonitor monitor) throws TeamException {
 		
 		// Ensure provided info matches that of the project
-		ISVNLocalFolder folder = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(project);
-		LocalResourceStatus status = folder.getStatus();
-        
+		LocalResourceStatus status = peekResourceStatusFor(project);
+
         // this folder needs to be managed but also to have a remote counter-part
         // because we need to know its url
         // we will change this exception !
@@ -252,7 +252,18 @@ public class SVNWorkspaceRoot {
         return managed.getLatestRemoteResource();        
     }
     
-   
+    /**
+     * Peek for (get) the resource status.
+     * Do not descend to children and DO NOT affect sync cache in any way !
+     * @param resource the IResource of which svn status were are looking for
+     * @return LocalResourceStatus of the queried resource or null when no status was found (resource is not svn managed)
+     */
+    public static LocalResourceStatus peekResourceStatusFor(IResource resource) throws SVNException
+    {
+		PeekStatusCommand command = new PeekStatusCommand(resource);
+		command.execute(SVNProviderPlugin.getPlugin().createSVNClient());
+		return command.getLocalResourceStatus();	
+    }
 
 	/**
      * get the repository for this project 

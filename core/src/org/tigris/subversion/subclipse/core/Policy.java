@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.tigris.subversion.subclipse.core.internal.InfiniteSubProgressMonitor;
 
 public class Policy {
     private static final String BUNDLE_NAME = "org.tigris.subversion.subclipse.core.messages"; //$NON-NLS-1$
@@ -137,4 +138,18 @@ public class Policy {
 		return new SubProgressMonitor(monitor, ticks, style);
 	}
 	
+	/**
+	 * return a submonitor when we do not know the number of ticks ...
+	 * @param monitor
+	 * @param ticks
+	 * @return
+	 */
+	public static IProgressMonitor infiniteSubMonitorFor(IProgressMonitor monitor, int ticks) {
+		if (monitor == null)
+			return new NullProgressMonitor();
+		if (monitor instanceof NullProgressMonitor)
+			return monitor;
+		return new InfiniteSubProgressMonitor(monitor, ticks);
+	}
+
  }

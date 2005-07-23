@@ -28,6 +28,7 @@ import org.eclipse.team.core.variants.IResourceVariant;
 import org.tigris.subversion.subclipse.core.commands.AddResourcesCommand;
 import org.tigris.subversion.subclipse.core.commands.CheckinResourcesCommand;
 import org.tigris.subversion.subclipse.core.commands.SwitchToUrlCommand;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNFileModificationValidator;
@@ -94,7 +95,6 @@ public class SVNTeamProvider extends RepositoryProvider {
 									&& (resource.isTeamPrivateMember()))
 							{
 								resource.setTeamPrivateMember(false);
-								resource.touch(null);
 								return false;
 							}
 							else
@@ -119,7 +119,6 @@ public class SVNTeamProvider extends RepositoryProvider {
 									&& (!resource.isTeamPrivateMember()))
 							{
 								resource.setTeamPrivateMember(true);
-								resource.touch(null);
 								return false;
 							}
 							else
@@ -142,7 +141,8 @@ public class SVNTeamProvider extends RepositoryProvider {
 		try {
 			this.workspaceRoot = new SVNWorkspaceRoot(project);
 			// Ensure that the project has SVN info
-			if (!workspaceRoot.getLocalRoot().hasRemote()) {
+			LocalResourceStatus status = SVNWorkspaceRoot.peekResourceStatusFor(workspaceRoot.getLocalRoot().getIResource());
+			if (!status.hasRemote()) {
 				throw new SVNException(new SVNStatus(SVNStatus.ERROR, Policy.bind("SVNTeamProvider.noFolderInfo", project.getName()))); //$NON-NLS-1$
 			}
 		} catch (SVNException e) {
@@ -186,7 +186,7 @@ public class SVNTeamProvider extends RepositoryProvider {
     }
 
     public void configureProject() {
-    	configureTeamPrivateResource(getProject());
+    	configureTeamPrivateResource(getProject()); 
         SVNProviderPlugin.broadcastProjectConfigured(getProject());
     }
     

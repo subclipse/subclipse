@@ -186,7 +186,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 		monitor = Policy.monitorFor(monitor);
 		List errors = new ArrayList();
 		try {
-			monitor.beginTask("Refresing subversion resources", 1000 * resources.length);
+			monitor.beginTask("", 1000 * resources.length);
 			for (int i = 0; i < resources.length; i++) {
 				IResource resource = resources[i];
 
@@ -203,16 +203,17 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			int numSuccess = resources.length - errors.size();
 			throw new TeamException(new MultiStatus(SVNProviderPlugin.ID, 0, 
 					(IStatus[]) errors.toArray(new IStatus[errors.size()]), 
-					Policy.bind("ResourceVariantTreeSubscriber.1", new Object[] {getName(), Integer.toString(numSuccess), Integer.toString(resources.length)}), null)); //$NON-NLS-1$
+					Policy.bind("SVNWorkspaceSubscriber.errorWhileSynchronizing.1", new Object[] {getName(), Integer.toString(numSuccess), Integer.toString(resources.length)}), null)); //$NON-NLS-1$
 		}
     }
 	
 	private IStatus refresh(IResource resource, int depth, IProgressMonitor monitor) {
 		try {
+			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.refreshingSynchronizationData"));
 			SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, IResource.DEPTH_INFINITE);
 			monitor.worked(300);
 
-			monitor.setTaskName("Retrieving synchronization data");
+			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.retrievingSynchronizationData"));
 			IResource[] changedResources = findChanges(resource, depth);
 			monitor.worked(400);
 
@@ -220,7 +221,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			monitor.worked(300);
 			return Status.OK_STATUS;
 		} catch (TeamException e) {
-			return new TeamStatus(IStatus.ERROR, SVNProviderPlugin.ID, 0, Policy.bind("ResourceVariantTreeSubscriber.2", resource.getFullPath().toString(), e.getMessage()), e, resource); //$NON-NLS-1$
+			return new TeamStatus(IStatus.ERROR, SVNProviderPlugin.ID, 0, Policy.bind("SVNWorkspaceSubscriber.errorWhileSynchronizing.2", resource.getFullPath().toString(), e.getMessage()), e, resource); //$NON-NLS-1$
 		} 
 	}
 

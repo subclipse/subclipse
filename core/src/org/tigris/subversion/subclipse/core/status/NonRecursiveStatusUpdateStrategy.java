@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.status;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -37,7 +36,7 @@ public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
 	protected ISVNStatus[] statusesToUpdate(IResource resource) throws SVNException {
         // we update the parent and its immediate children 
         IResource resourceToUpdate = resource;
-        if ((resource instanceof IFile)) {
+        if ((resource.getType() == IResource.FILE)) {
             resourceToUpdate = resource.getParent();
         }
         

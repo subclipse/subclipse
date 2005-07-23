@@ -14,6 +14,8 @@ package org.tigris.subversion.subclipse.core.resourcesListeners;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -26,11 +28,14 @@ import org.eclipse.core.resources.ISavedState;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.team.core.RepositoryProvider;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 /**
  * This class performs several functions related to determining the modified
@@ -75,6 +80,13 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 						if (RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId()) == null) {
 							return false; // not a svn handled project
 						}
+					}
+					
+					if(resource.getName().equals(SVNConstants.SVN_DIRNAME)) {
+						if (handleSVNDir((IContainer)resource, delta.getKind()))
+							{
+								return false;
+							}
 					}
 					
 					if (resource.getType()==IResource.FILE && delta.getKind() == IResourceDelta.CHANGED && resource.exists()) {
@@ -161,6 +173,34 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	public void saving(ISaveContext context) {
 	}
 
+	/**
+	 * If it's a new SVN directory with the canonical child metafiles then mark it as team-private. 
+	 * Makr it is team private even when it is changed but not marked team private yet.
+	 * @param svnDir IContainer which is expected to be svn meta directory
+	 * @param kind resourceDelta kind of change
+	 * @return true when the folder folder really is svn meta directory
+	 */	
+	protected boolean handleSVNDir(IContainer svnDir, int kind) {
+		if((kind & IResourceDelta.ALL_WITH_PHANTOMS)!=0) {
+			if ((kind==IResourceDelta.ADDED) || ((kind==IResourceDelta.CHANGED) && !svnDir.isTeamPrivateMember())) 
+			{
+				// should this dir be made team-private? If it contains Entries then yes!
+				IFile entriesFile = svnDir.getFile(new Path(SVNConstants.SVN_ENTRIES));
+
+				if (entriesFile.exists() &&  !svnDir.isTeamPrivateMember()) {
+					try {
+						svnDir.setTeamPrivateMember(true);			
+						if(Policy.DEBUG_METAFILE_CHANGES) {
+							System.out.println("[svn] found a new SVN meta folder, marking as team-private: " + svnDir.getFullPath()); //$NON-NLS-1$
+						}
+					} catch(CoreException e) {
+						SVNProviderPlugin.log(SVNException.wrapException(svnDir, Policy.bind("SyncFileChangeListener.errorSettingTeamPrivateFlag"), e)); //$NON-NLS-1$
+					}
+				}
+			}
+		}
+		return svnDir.isTeamPrivateMember();
+	}
 
 }
 

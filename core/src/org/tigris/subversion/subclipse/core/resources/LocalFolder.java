@@ -271,4 +271,15 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
 
     }
 
+    /**
+     * get the status of the given resource
+     */
+    public LocalResourceStatus getStatus() throws SVNException {
+    	if (getIResource().isTeamPrivateMember() && (getIResource().getName().equals(SVNConstants.SVN_DIRNAME)))
+    	{
+    		return LocalResourceStatus.NONE;
+    	}
+    	return super.getStatus();
+    }
+
 }
