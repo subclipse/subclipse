@@ -70,7 +70,7 @@ import org.w3c.dom.Text;
 public class SVNWorkspaceRoot {
 
 	private ISVNLocalFolder localRoot;
-    private SVNUrl url;
+    private String url;
 	
 	public SVNWorkspaceRoot(IContainer resource){
 		this.localRoot = getSVNFolderFor(resource);
@@ -166,7 +166,7 @@ public class SVNWorkspaceRoot {
             throw new SVNException(new SVNStatus(SVNStatus.ERROR, Policy.bind("SVNProvider.infoMismatch", project.getName())));//$NON-NLS-1$
         
 		// Ensure that the provided location is managed
-		SVNProviderPlugin.getPlugin().getRepositories().getRepository(status.getUrl().toString());
+		SVNProviderPlugin.getPlugin().getRepositories().getRepository(status.getUrlString());
 		
 		// Register the project with Team
 		RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
@@ -275,9 +275,9 @@ public class SVNWorkspaceRoot {
             if (!status.isManaged()) {
                 throw new SVNException(Policy.bind("SVNWorkspaceRoot.notSVNFolder", localRoot.getName()));  //$NON-NLS-1$
             }
-            url = status.getUrl();
+            url = status.getUrlString();
         }
-		return SVNProviderPlugin.getPlugin().getRepository(url.toString());
+		return SVNProviderPlugin.getPlugin().getRepository(url);
 	}
 
     /**

@@ -14,6 +14,9 @@ package org.tigris.subversion.subclipse.core.util;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 
 /**
@@ -57,4 +60,21 @@ public class Util {
 	public static void logError(String message, Throwable throwable) {
 		SVNProviderPlugin.log(new Status(IStatus.ERROR, SVNProviderPlugin.ID, IStatus.ERROR, message, throwable));
 	}
+	
+	/**
+	 * Get the url string of the parent resource
+	 * @param svnResource
+	 * @return parent's url, null if none of parents has an url
+	 * @throws SVNException
+	 */
+	public static String getParentUrl(ISVNLocalResource svnResource) throws SVNException {
+        ISVNLocalFolder parent = svnResource.getParent();
+        while (parent != null) {
+            String url = parent.getStatus().getUrlString();
+            if (url != null) return url;
+            parent = parent.getParent();
+        }
+        return null;
+    }
+
 }

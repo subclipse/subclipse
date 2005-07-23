@@ -15,8 +15,10 @@ package org.tigris.subversion.subclipse.ui.decorator;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -176,9 +178,9 @@ public class SVNLightweightDecorator
 			    return false;
             if (svnResource.getIResource().getType() == IResource.FILE) {
                 // for files, we want that only modified files to be considered as dirty
-                return !svnResource.isIgnored() && 
-                    (svnResource.getStatus().isTextModified() || 
-                            svnResource.getStatus().isPropModified());
+            	LocalResourceStatus status = svnResource.getStatus();
+                return ((status.isTextModified() || status.isPropModified())
+							&& !status.isIgnored() && !svnResource.isIgnored());
             } else {
                 // a container with an added file, deleted file, conflicted file ... is considered as dirty
                 return svnResource.isDirty();
@@ -243,9 +245,15 @@ public class SVNLightweightDecorator
 	        isDirty = SVNLightweightDecorator.isDirty(svnResource);
 		}
 		
-		decorateTextLabel(resource, decoration, isDirty);
+		LocalResourceStatus status = null;
+		try {
+			status = svnResource.getStatus();
+		} catch (SVNException e1) {
+			SVNUIPlugin.log(e1.getStatus());
+		}
+		decorateTextLabel(svnResource, status, decoration, isDirty);
 		
-		ImageDescriptor overlay = getOverlay(resource, isDirty, svnProvider);
+		ImageDescriptor overlay = getOverlay(svnResource, status, isDirty, svnProvider);
 		if(overlay != null) { //actually sending null arg would work but this makes logic clearer
 			decoration.addOverlay(overlay);
 		}
@@ -255,19 +263,18 @@ public class SVNLightweightDecorator
      * decorate the text label of the given resource.
      * This method assumes that only one thread will be accessing it at a time.
      */
-	public void decorateTextLabel(IResource resource, IDecoration decoration, boolean isDirty) {
-		try {
+	protected void decorateTextLabel(ISVNLocalResource svnResource, LocalResourceStatus status, IDecoration decoration, boolean isDirty) {
 			Map bindings = new HashMap(6);
 
 			// if the resource does not have a location then return. This can happen if the resource
 			// has been deleted after we where asked to decorate it.
-			if (resource.getLocation() == null) {
+			if (svnResource.getIResource().getLocation() == null) {
 				return;
 			}
 
 			// get the format
 			IDecoratorComponent[][] format;
-			int type = resource.getType();
+			int type = svnResource.getIResource().getType();
 			if (type == IResource.FOLDER) {
 				format = folderDecoratorFormat;
 			} else if (type == IResource.PROJECT) {
@@ -281,27 +288,23 @@ public class SVNLightweightDecorator
 				bindings.put(SVNDecoratorConfiguration.DIRTY_FLAG, dirtyFlag);
 			}
 
-			ISVNLocalResource svnResource =
-				SVNWorkspaceRoot.getSVNResourceFor(resource);
-
             bindings.put( SVNDecoratorConfiguration.RESOURCE_LABEL, svnResource.getRepository().getLabel());
             
-			LocalResourceStatus status = svnResource.getStatus();
-			if (status.getUrl() != null) {
+			if (status.getUrlString() != null) {
 				bindings.put(
 					SVNDecoratorConfiguration.RESOURCE_URL,
-					status.getUrl().toString());
+					status.getUrlString());
 				
                 // short url is the path relative to root url of repository
                 SVNUrl repositoryRoot = svnResource.getRepository().getRepositoryRoot();
                 if (repositoryRoot != null) {
-                    int urlLen =  status.getUrl().toString().length();
+                    int urlLen =  status.getUrlString().length();
                     int rootLen = repositoryRoot.toString().length()+1;
                     String shortUrl;
                     if (urlLen > rootLen)
-                       shortUrl = status.getUrl().toString().substring(rootLen);
+                       shortUrl = status.getUrlString().substring(rootLen);
                     else
-                       shortUrl = status.getUrl().toString();
+                       shortUrl = status.getUrlString();
                     bindings.put(
                             SVNDecoratorConfiguration.RESOURCE_URL_SHORT, 
                             shortUrl);
@@ -338,10 +341,6 @@ public class SVNLightweightDecorator
 			}
 
 			SVNDecoratorConfiguration.decorate(decoration, format, bindings);
-			
-		} catch (SVNException e) {
-			SVNUIPlugin.log(e.getStatus());
-		}
 	}
 
 	/* Determine and return the overlay icon to use.
@@ -349,8 +348,7 @@ public class SVNLightweightDecorator
 	 * one we think is the most important to show.
 	 * Return null if no overlay is to be used.
 	 */	
-	public ImageDescriptor getOverlay(IResource resource, boolean isDirty, SVNTeamProvider provider) {
-	    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+	protected ImageDescriptor getOverlay(ISVNLocalResource svnResource, LocalResourceStatus status, boolean isDirty, SVNTeamProvider provider) {
         
 		// show newResource icon
 		if (showNewResources) {
@@ -370,92 +368,59 @@ public class SVNLightweightDecorator
 			}
 		}
 		
-        if (showExternal) {
-            try {
-                if (SVNStatusKind.EXTERNAL.equals(svnResource.getStatus().getTextStatus())) {
-                    return external;
-                }
-            } catch (SVNException e) {
-                SVNUIPlugin.log(e.getStatus());
-            }
-        }
-        
+		if (showExternal) {
+			if (SVNStatusKind.EXTERNAL.equals(status.getTextStatus())) {
+				return external;
+			}
+		}
+		
 		// show dirty icon
 		if(showDirty && isDirty) {
-		    if (resource.getType() == IResource.FOLDER) {
-				try {
-	                LocalResourceStatus status = svnResource.getStatus();
-	                
-	                if (status.isDeleted()) {
-						return deleted;
-	                } else {
-	                    return dirty;
-	                }
-				} catch (SVNException e) {
-					SVNUIPlugin.log(e.getStatus());
-					return null;
-				}
+		    if (svnResource.getIResource().getType() == IResource.FOLDER) {
+		    	if (status.isDeleted()) {
+		    		return deleted;
+		    	} else {
+		    		return dirty;
+		    	}
 		    }
 			return dirty;
 		}
 
         // show added icon
 		if (showAdded) {
-			try {
-                LocalResourceStatus status = svnResource.getStatus();
-                
-                if (status.isTextConflicted()) {
-                	return conflicted;
-                }
-           		if (status.isTextMerged()) {
-           			return merged;
-           		}
-                if (status.isAdded()) {
-					return added;
-                }
-                if (status.isLocked()) {
-                    return locked;
-                }
-                if (status.isReadOnly()) {
-                    return needsLock;
-                }
-			} catch (SVNException e) {
-				SVNUIPlugin.log(e.getStatus());
-				return null;
+			if (status.isTextConflicted()) {
+				return conflicted;
+			}
+			if (status.isTextMerged()) {
+				return merged;
+			}
+			if (status.isAdded()) {
+				return added;
+			}
+			if (status.isLocked()) {
+				return locked;
+			}
+			if (status.isReadOnly()) {
+				return needsLock;
 			}
 		}
 
 		//show deleted icon (on directories only)
 		//ignore preferences use show this sort of overlay allways
 		if (true) {
-			try {
-                LocalResourceStatus status = svnResource.getStatus();
-                
-                if (status.isDeleted()) {
-					return deleted;
-                }
-			} catch (SVNException e) {
-				SVNUIPlugin.log(e.getStatus());
-				return null;
+			if (status.isDeleted()) {
+				return deleted;
 			}
 		}
 		
 		// Simplest is that is has remote.
 		if (showHasRemote) {
-            try {
-                
-                if (svnResource.hasRemote())
-                    return checkedIn;
-            } catch (SVNException e) {
-                SVNUIPlugin.log(e.getStatus());
-            }
-            
-           
+			if (status.hasRemote())
+				return checkedIn;
 		}
 
 		//nothing matched
 		return null;
-
 	}
 
 	/*
@@ -503,7 +468,7 @@ public class SVNLightweightDecorator
 	public void resourceStateChanged(IResource[] changedResources) {
 		// add depth first so that update thread processes parents first.
 		//System.out.println(">> State Change Event");
-		List resourcesToUpdate = new ArrayList();
+		Set resourcesToUpdate = new HashSet();
 
 		for (int i = 0; i < changedResources.length; i++) {
 			IResource resource = changedResources[i];
@@ -512,7 +477,7 @@ public class SVNLightweightDecorator
 	    	{	
 	    		if(computeDeepDirtyCheck) {
 	    			IResource current = resource;
-	    			while (current.getType() != IResource.ROOT) {
+	    			while ((current.getType() != IResource.ROOT) && (!resourcesToUpdate.contains(current))) {
 	    				resourcesToUpdate.add(current);
 	    				current = current.getParent();
 	    			}                

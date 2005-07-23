@@ -175,6 +175,11 @@ public class LocalResourceStatus implements Serializable {
         }
     }
 
+    public String getUrlString()
+    {
+    	return url;
+    }
+
     public Number getLastChangedRevision() {
         if (lastChangedRevision == SVNRevision.SVN_INVALID_REVNUM) {
             return null;
