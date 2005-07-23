@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.history;
 
- 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.ViewerDropAdapter;
@@ -59,7 +57,6 @@ public class HistoryDropAdapter extends ViewerDropAdapter {
            IResource[] sources = (IResource[])data;
            if (sources.length == 0) return false;
            IResource resource = sources[0];
-           if (!(resource instanceof IFile)) return false;
            view.showHistory(resource, true /* fetch */);
            return true;
         } else if( data instanceof ISVNRemoteResource) {
