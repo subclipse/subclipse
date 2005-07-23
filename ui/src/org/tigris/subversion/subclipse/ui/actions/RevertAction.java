@@ -20,17 +20,16 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
-import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.RevertDialog;
 import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
-import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Action to restore pristine working copy file 
@@ -64,9 +63,8 @@ public class RevertAction extends WorkspaceAction {
 			 
 			 // if only one resource selected, get url.  Revert dialog displays this.
 			 if (resources.length == 1) {
-				   SVNUrl svnUrl = svnResource.getStatus().getUrl();
-				   if ((svnUrl == null) || (resource.getType() == IResource.FILE)) url = getParentUrl(svnResource);
-				   else url = svnResource.getStatus().getUrl().toString();
+				   url = svnResource.getStatus().getUrlString();
+				   if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
 			 }
 			 
 			 // get adds, deletes, updates and property updates.
@@ -84,16 +82,6 @@ public class RevertAction extends WorkspaceAction {
 		}
 	    return (IResource[]) modified.toArray(new IResource[modified.size()]);
 	}
-	
-	private String getParentUrl(ISVNLocalResource svnResource) throws SVNException {
-        ISVNLocalFolder parent = svnResource.getParent();
-        while (parent != null) {
-            SVNUrl url = parent.getStatus().getUrl();
-            if (url != null) return url.toString();
-            parent = parent.getParent();
-        }
-        return null;
-    }
 	
 	/**
 	 * prompt revert of selected resources.

@@ -71,8 +71,8 @@ public class SwitchDialog extends Dialog {
 		urlCombo = new UrlCombo(composite, resource.getProject().getName());
 		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		try {
-            SVNUrl svnUrl = svnResource.getStatus().getUrl();
-            if (svnUrl != null) urlCombo.setText(svnResource.getStatus().getUrl().toString());
+            String anUrl = svnResource.getStatus().getUrlString();
+            if (anUrl != null) urlCombo.setText(anUrl);
         } catch (SVNException e1) {}
         urlCombo.getCombo().addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {

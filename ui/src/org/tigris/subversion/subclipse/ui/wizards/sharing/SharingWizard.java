@@ -180,13 +180,13 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 							// Autoconnect to the repository using svn/ directories
 							
 							// Get the repository location (the get will add the locatin to the provider)
-							boolean isPreviouslyKnown = SVNProviderPlugin.getPlugin().getRepositories().isKnownRepository(projectStatus.getUrl().toString());
+							boolean isPreviouslyKnown = SVNProviderPlugin.getPlugin().getRepositories().isKnownRepository(projectStatus.getUrlString());
 	
 							// Validate the connection if the user wants to
 							boolean validate = autoconnectPage.getValidate();					
 							
                             if (validate && !isPreviouslyKnown) {
-								ISVNRepositoryLocation location = SVNProviderPlugin.getPlugin().getRepository(projectStatus.getUrl().toString());                            	
+								ISVNRepositoryLocation location = SVNProviderPlugin.getPlugin().getRepository(projectStatus.getUrlString());                            	
 								// Do the validation
 								try {
 									location.validateConnection(new SubProgressMonitor(monitor, 50));
@@ -366,7 +366,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 		// If there is an autoconnect page then it has the module name
 		if (autoconnectPage != null) {
 //			return autoconnectPage.getSharing().getRepository();
-            return Util.getLastSegment(autoconnectPage.getSharingStatus().getUrl().toString());
+            return Util.getLastSegment(autoconnectPage.getSharingStatus().getUrlString());
 		}
 		String moduleName = directoryPage.getDirectoryName();
 		if (moduleName == null) moduleName = project.getName();

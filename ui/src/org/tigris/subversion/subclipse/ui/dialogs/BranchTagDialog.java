@@ -109,7 +109,7 @@ public class BranchTagDialog extends Dialog {
 		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		try {
             url = svnResource.getStatus().getUrl();
-            if (url != null) urlText.setText(svnResource.getStatus().getUrl().toString());
+            if (url != null) urlText.setText(svnResource.getStatus().getUrlString());
         } catch (SVNException e1) {}
         urlText.setEditable(false);
         

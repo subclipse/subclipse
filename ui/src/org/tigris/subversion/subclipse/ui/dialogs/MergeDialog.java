@@ -94,8 +94,7 @@ public class MergeDialog extends Dialog {
 		svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		String urlString = null;
 		try {
-            SVNUrl svnUrl = svnResource.getStatus().getUrl();
-            if (svnUrl != null) urlString = svnResource.getStatus().getUrl().toString();
+			urlString = svnResource.getStatus().getUrlString();
         } catch (SVNException e1) {}
         
 		Group fromGroup = new Group(composite, SWT.NULL);
@@ -304,7 +303,7 @@ public class MergeDialog extends Dialog {
 		data = new GridData();
 		data.widthHint = URL_WIDTH_HINT;
 		repositoryText.setLayoutData(data);	
-		repositoryText.setText(urlString);
+		if (urlString != null)repositoryText.setText(urlString);
 		
 		Button workingLogButton = new Button(workingGroup, SWT.PUSH);
 		workingLogButton.setText(Policy.bind("MergeDialog.showLog")); //$NON-NLS-1$

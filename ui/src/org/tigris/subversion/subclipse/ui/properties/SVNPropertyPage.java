@@ -186,7 +186,7 @@ public class SVNPropertyPage extends PropertyPage {
             ignoredValue.setText(new Boolean(status.isIgnored()).toString());
             managedValue.setText(new Boolean(status.isManaged()).toString());
             hasRemoteValue.setText(new Boolean(status.isIgnored()).toString());
-            urlValue.setText(status.getUrl() != null ? status.getUrl().toString() : ""); //$NON-NLS-1$
+            urlValue.setText(status.getUrlString() != null ? status.getUrlString() : ""); //$NON-NLS-1$
             lastChangedRevisionValue.setText(status.getLastChangedRevision() != null ? status
                     .getLastChangedRevision().toString() : ""); //$NON-NLS-1$
             lastChangedDateValue.setText(status.getLastChangedDate() != null ? status

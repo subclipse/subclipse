@@ -28,19 +28,18 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.CommitDialog;
 import org.tigris.subversion.subclipse.ui.operations.CommitOperation;
 import org.tigris.subversion.subclipse.ui.repository.RepositoryManager;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
-import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Action for checking in files to a subversion provider
@@ -123,9 +122,8 @@ public class CommitAction extends WorkspaceAction {
 			 
 			 // if only one resource selected, get url.  Commit dialog displays this.
 			 if (resources.length == 1) {
-				   SVNUrl svnUrl = svnResource.getStatus().getUrl();
-				   if ((svnUrl == null) || (resource.getType() == IResource.FILE)) url = getParentUrl(svnResource);
-				   else url = svnResource.getStatus().getUrl().toString();
+				   url = svnResource.getStatus().getUrlString();
+				   if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
 			 }
 			 
 			 // get adds, deletes, updates and property updates.
@@ -162,19 +160,6 @@ public class CommitAction extends WorkspaceAction {
 	}
 
 	/**
-	 * for an unadded resource, get url from parent.
-	 */	
-	private String getParentUrl(ISVNLocalResource svnResource) throws SVNException {
-        ISVNLocalFolder parent = svnResource.getParent();
-        while (parent != null) {
-            SVNUrl url = parent.getStatus().getUrl();
-            if (url != null) return url.toString();
-            parent = parent.getParent();
-        }
-        return null;
-    }
-
-	/**
 	 * prompt commit of selected resources.
 	 * @throws SVNException
 	 */		
@@ -198,10 +183,8 @@ public class CommitAction extends WorkspaceAction {
 	    if (url == null) {
 			 IResource resource = modifiedResources[0];
 			 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);	        
-             SVNUrl svnUrl = svnResource.getStatus().getUrl();
-             String firstUrl;
-             if ((svnUrl == null) || (resource.getType() == IResource.FILE)) firstUrl = getParentUrl(svnResource);
-             else firstUrl = svnResource.getStatus().getUrl().toString();
+             String firstUrl = svnResource.getStatus().getUrlString();
+             if ((firstUrl == null) || (resource.getType() == IResource.FILE)) firstUrl = Util.getParentUrl(svnResource);
              if (firstUrl.indexOf("/tags/") != -1) return true; //$NON-NLS-1$
 	    }
 	    // One resource selected.

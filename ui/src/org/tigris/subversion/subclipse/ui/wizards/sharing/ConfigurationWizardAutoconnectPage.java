@@ -105,7 +105,7 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 				SVNUIPlugin.openError(null, Policy.bind("ConfigurationWizardAutoconnectPage.noSyncInfo"), Policy.bind("ConfigurationWizardAutoconnectPage.noSVNDirectory"), null); //$NON-NLS-1$ //$NON-NLS-2$
 				return;
 			}
-			location = SVNRepositoryLocation.fromString(status.getUrl().toString());
+			location = SVNRepositoryLocation.fromString(status.getUrlString());
 		} catch (TeamException e) {
 			SVNUIPlugin.openError(null, null, null, e);
 		}
