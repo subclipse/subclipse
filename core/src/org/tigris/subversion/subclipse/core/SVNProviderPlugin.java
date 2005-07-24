@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.team.core.TeamException;
 import org.osgi.framework.BundleContext;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
@@ -415,6 +416,35 @@ public class SVNProviderPlugin extends Plugin {
 					}
 				}
 			}, monitor);
+		} catch (CoreException e) {
+			throw SVNException.wrapException(e);
+		}
+		if (error[0] != null) {
+			throw error[0];
+		}
+	}
+
+	/**
+	 * Same as IWorkspace.run but uses a ISVNRunnable
+	 */
+	public static void run(final ISVNRunnable job, ISchedulingRule rule, IProgressMonitor monitor)
+			throws SVNException {
+		final SVNException[] error = new SVNException[1];
+		try {
+			ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) {
+					try {
+						monitor = Policy.monitorFor(monitor);
+						try {
+							job.run(monitor);
+						} finally {
+							monitor.done();
+						}
+					} catch (SVNException e) {
+						error[0] = e;
+					}
+				}
+			}, rule, IWorkspace.AVOID_UPDATE, monitor);
 		} catch (CoreException e) {
 			throw SVNException.wrapException(e);
 		}

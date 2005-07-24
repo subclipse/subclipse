@@ -28,7 +28,6 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.ISVNNotifyAdapter;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
-import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
@@ -58,18 +57,10 @@ public class CheckoutCommand implements ISVNCommand {
 		this.projects = projects;
 	}
 
-	public void run() throws SVNException {
-		basicRun(null);
-	}
-
-	public void runDirectly(IProgressMonitor pm) throws SVNException {
-		basicRun(pm);
-	}
-
-	private void basicRun(final IProgressMonitor pm) throws SVNException {
+	private void basicRun(final IProject project, ISVNRemoteFolder resource, final IProgressMonitor pm) throws SVNException {
 		if (pm != null)
 		{
-			pm.beginTask(null, 1000 * resources.length);
+			pm.beginTask(null, 1000);
 		}
 
 		// Get the location of the workspace root
@@ -78,73 +69,66 @@ public class CheckoutCommand implements ISVNCommand {
 
 		try {
 			// Prepare the target projects to receive resources
-			scrubProjects(projects, (pm != null) ? Policy
-					.subMonitorFor(pm, 100) : null);
+			scrubProject(project, (pm != null) ? Policy.subMonitorFor(pm, 100)
+					: null);
 
-			for (int i = 0; i < resources.length; i++) {
-				IProject project = null;
-				RemoteFolder resource = (RemoteFolder) resources[i];
+			boolean deleteDotProject = false;
+			// Perform the checkout
+			ISVNClientAdapter svnClient = resource.getRepository()
+					.getSVNClient();
 
-				project = projects[i];
-				boolean deleteDotProject = false;
-				// Perform the checkout
-				ISVNClientAdapter svnClient = resource.getRepository()
-						.getSVNClient();
+			// check if the remote project has a .project file
+			ISVNDirEntry[] rootFiles = svnClient.getList(resource.getUrl(),
+					SVNRevision.HEAD, false);
+			for (int j = 0; j < rootFiles.length; j++) {
+				if ((rootFiles[j].getNodeKind() == SVNNodeKind.FILE)
+						&& (".project".equals(rootFiles[j].getPath()))) {
+					deleteDotProject = true;
+				}
+			}
 
-				// check if the remote project has a .project file
-				ISVNDirEntry[] rootFiles = svnClient.getList(resource.getUrl(),
-						SVNRevision.HEAD, false);
-				for (int j = 0; j < rootFiles.length; j++) {
-					if ((rootFiles[j].getNodeKind() == SVNNodeKind.FILE)
-							&& (".project".equals(rootFiles[j].getPath()))) {
-						deleteDotProject = true;
-					}
+			File destPath;
+			if (project.getLocation() == null) {
+				// project.getLocation is null if the project does
+				// not exist in the workspace
+				destPath = new File(root.getIResource().getLocation().toFile(),
+						project.getName());
+				try {
+					// we create the directory corresponding to the
+					// project and we open it
+					project.create(null);
+					project.open(null);
+				} catch (CoreException e1) {
+					throw new SVNException(
+							"Cannot create project to checkout to", e1);
 				}
 
-				File destPath;
-				if (project.getLocation() == null) {
-					// project.getLocation is null if the project does
-					// not exist in the workspace
-					destPath = new File(root.getIResource().getLocation()
-							.toFile(), project.getName());
+			} else {
+				destPath = project.getLocation().toFile();
+			}
+
+			//delete the project file if the flag gets set.
+			//fix for 54
+			if (deleteDotProject) {
+
+				IFile projectFile = project.getFile(".project");
+				if (projectFile != null) {
 					try {
-						// we create the directory corresponding to the
-						// project and we open it
-						project.create(null);
-						project.open(null);
+						// delete the project file, force, no history,
+						// without progress monitor
+						projectFile.delete(true, false, null);
 					} catch (CoreException e1) {
 						throw new SVNException(
-								"Cannot create project to checkout to", e1);
-					}
-
-				} else {
-					destPath = project.getLocation().toFile();
-				}
-
-				//delete the project file if the flag gets set.
-				//fix for 54
-				if (deleteDotProject) {
-
-					IFile projectFile = project.getFile(".project");
-					if (projectFile != null) {
-						try {
-							// delete the project file, force, no history,
-							// without progress monitor
-							projectFile.delete(true, false, null);
-						} catch (CoreException e1) {
-							throw new SVNException(
-									"Cannot delete .project before checkout",
-									e1);
-						}
+								"Cannot delete .project before checkout", e1);
 					}
 				}
+			}
 
-				checkoutProject(pm, resource, svnClient, destPath);
+			checkoutProject(pm, resource, svnClient, destPath);
 
-				// Bring the project into the workspace
-				refreshProjects(new IProject[] { project },
-						(pm != null) ? Policy.subMonitorFor(pm, 100) : null);
-			} //for
+			// Bring the project into the workspace
+			refreshProject(project, (pm != null) ? Policy
+					.subMonitorFor(pm, 100) : null);
 		} catch (SVNClientException ce) {
 			throw new SVNException("Error Getting Dir list", ce);
 		} finally {
@@ -161,7 +145,7 @@ public class CheckoutCommand implements ISVNCommand {
 	 * @param destPath
 	 * @throws SVNException
 	 */
-	private void checkoutProject(final IProgressMonitor pm, RemoteFolder resource, ISVNClientAdapter svnClient, File destPath) throws SVNException {
+	private void checkoutProject(final IProgressMonitor pm, ISVNRemoteFolder resource, ISVNClientAdapter svnClient, File destPath) throws SVNException {
 		final IProgressMonitor subPm = Policy.infiniteSubMonitorFor(pm, 800);
 		OperationManager operationHandler = OperationManager
 				.getInstance();
@@ -176,6 +160,7 @@ public class CheckoutCommand implements ISVNCommand {
 		};
 		try {
 			subPm.beginTask("", 1000);
+//			subPm.setTaskName("");
 			operationHandler.beginOperation(svnClient, notifyListener);
 			svnClient.checkout(resource.getUrl(), destPath,
 					SVNRevision.HEAD, true);
@@ -196,20 +181,24 @@ public class CheckoutCommand implements ISVNCommand {
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void run(IProgressMonitor monitor) throws SVNException {
-		SVNProviderPlugin.run(new ISVNRunnable() {
-			public void run(IProgressMonitor pm) throws SVNException {
-				basicRun(pm);
-			} // run
-		}, Policy.monitorFor(monitor));
+		for (int i = 0; i < resources.length; i++) {
+			final IProject project = projects[i]; 
+			final ISVNRemoteFolder resource = resources[i]; 
+			SVNProviderPlugin.run(new ISVNRunnable() {
+				public void run(IProgressMonitor pm) throws SVNException {
+					basicRun(project, resource, pm);
+				} // run
+			}, projects[i], Policy.monitorFor(monitor));
+		}		
 	}
 
 	/*
 	 * Delete the target projects before checking out
 	 * @param monitor - may be null !
 	 */
-	private void scrubProjects(IProject[] projects, IProgressMonitor monitor)
+	private void scrubProject(IProject project, IProgressMonitor monitor)
 			throws SVNException {
-		if (projects == null) {
+		if (project == null) {
 			if (monitor !=null)
 			{
 				monitor.done();
@@ -218,12 +207,10 @@ public class CheckoutCommand implements ISVNCommand {
 		}
 		if (monitor != null)
 		{
-			monitor.beginTask("", projects.length * 100);
-			monitor.setTaskName(Policy.bind("SVNProvider.Scrubbing_projects_1")); //$NON-NLS-1$
+			monitor.beginTask("", 100);
+			monitor.subTask(Policy.bind("SVNProvider.Scrubbing_local_project_1", project.getName())); //$NON-NLS-1$
 		}
 		try {
-			for (int i = 0; i < projects.length; i++) {
-				IProject project = projects[i];
 				if (project != null && project.exists()) {
 					if (!project.isOpen()) {
 						project.open((monitor != null) ? Policy.subMonitorFor(monitor, 10) : null);
@@ -232,11 +219,6 @@ public class CheckoutCommand implements ISVNCommand {
 					// deletion delta
 					// We do not want to delete the .project to avoid core
 					// exceptions
-					if (monitor != null)
-					{
-						monitor.subTask(Policy
-							.bind("SVNProvider.Scrubbing_local_project_1")); //$NON-NLS-1$
-					}
 					// unmap the project from any previous repository provider
 					if (RepositoryProvider.getProvider(project) != null)
 						RepositoryProvider.unmap(project);
@@ -269,12 +251,12 @@ public class CheckoutCommand implements ISVNCommand {
 						deepDelete(location);
 					}
 				}
-			}
 		} catch (CoreException e) {
 			throw SVNException.wrapException(e);
 		} finally {
 			if (monitor != null)
 			{
+				monitor.subTask(" ");
 				monitor.done();
 			}
 		}
@@ -296,24 +278,23 @@ public class CheckoutCommand implements ISVNCommand {
 	/*
 	 * Bring the provided projects into the workspace
 	 */
-	private void refreshProjects(IProject[] projects, IProgressMonitor monitor)
+	private void refreshProject(IProject project, IProgressMonitor monitor)
 			throws SVNException {
 	    if (monitor != null)
-	    	monitor.beginTask("", projects.length * 100); //$NON-NLS-1$
-	    	monitor.setTaskName(Policy.bind("SVNProvider.Creating_projects_2"));
+	    	monitor.beginTask("", 100); //$NON-NLS-1$
+	    	monitor.subTask(Policy.bind("SVNProvider.Creating_project_1", project.getName()));
 		try {
-			for (int i = 0; i < projects.length; i++) {
-				IProject project = projects[i];
-				monitor.subTask(Policy.bind("SVNProvider.Creating_projects_1", project.getName()));
-				// Register the project with Team
-				RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
-				RepositoryProvider.getProvider(project, SVNProviderPlugin
-						.getTypeId());
-			}
+			// Register the project with Team
+			RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
+			RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());
 		} catch (TeamException e) {
 			throw new SVNException("Cannot map the project with svn provider",e);
 		} finally {
-			if (monitor != null) monitor.done();
+			if (monitor != null)
+			{
+				monitor.subTask(" ");
+				monitor.done();
+			}
 		}
 	}
 

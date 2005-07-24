@@ -224,8 +224,12 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 					Map.Entry cachedEntry = nextFromPendingCache();
 					if (cachedEntry != null)
 					{
+						IResource resource = (IResource) cachedEntry.getKey();
 						try {
-							ResourcesPlugin.getWorkspace().getSynchronizer().setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, (IResource) cachedEntry.getKey(), (byte []) cachedEntry.getValue());
+							if (resource.exists() || resource.isPhantom())
+							{
+								ResourcesPlugin.getWorkspace().getSynchronizer().setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, resource, (byte []) cachedEntry.getValue());
+							}
 							removeFromPendingCacheIfEqual((IResource) cachedEntry.getKey(), (byte []) cachedEntry.getValue());
 						} catch (CoreException e) {
 							SVNProviderPlugin.log(SVNException.wrapException(e));
@@ -246,10 +250,7 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 			{
 				return (Map.Entry) pendingCacheWrites.entrySet().iterator().next();
 			}
-			else
-			{
-				return null;
-			}
+			return null;
 		}
 
 		synchronized protected boolean pendingCacheContains(IResource resource)

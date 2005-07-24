@@ -12,6 +12,7 @@
 package org.tigris.subversion.subclipse.core.resourcesListeners;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -30,11 +31,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.team.core.RepositoryProvider;
-import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 /**
@@ -92,11 +91,9 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 					if (resource.getType()==IResource.FILE && delta.getKind() == IResourceDelta.CHANGED && resource.exists()) {
 						int flags = delta.getFlags();
 						if((flags & INTERESTING_CHANGES) != 0) {
-                            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-                            modifiedResources.add(resource);
+               				modifiedResources.add(resource);
 						}
 					} else if (delta.getKind() == IResourceDelta.ADDED) {
-                        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
                         modifiedResources.add(resource);                        
 					} else if (delta.getKind() == IResourceDelta.REMOVED) {
 						// provide notifications for deletions since they may not have been managed
@@ -117,23 +114,35 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 		} catch (CoreException e) {
 			SVNProviderPlugin.log(e.getStatus());
 		}
-
 	}
 
 	/**
-	 * refresh (reset) the status of all the given resources
+	 * Refresh (reset/reload) the status of all the given resources.
+	 * @param resources Array of IResources to refresh
      */
     private void refreshStatus(IResource[] resources) {
+        //We are not able to get the status for a single file anyway,
+        //so from the performance reasons we collect the parent folders of the files
+        //and we refresh only those folders then. 
+        //All immediate child resources (files) are refreshed automatically
+        Set foldersToRefresh = new HashSet(resources.length);
         for (int i = 0; i < resources.length;i++) {
-        	if (resources[i].exists() || resources[i].isPhantom())
-        	{
-        		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
-        		try {
-        			svnResource.refreshStatus();
-        		} catch (SVNException e) {
-        			e.printStackTrace();
-        		}
-        	}
+            if (resources[i].getType()==IResource.FILE)
+            {
+                foldersToRefresh.add(resources[i].getParent());
+            }
+            else
+            {
+                foldersToRefresh.add(resources[i]);
+            }
+        }
+        for (Iterator it = foldersToRefresh.iterator(); it.hasNext();) {
+            IResource folder = (IResource) it.next();
+    		try {
+                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(folder, IResource.DEPTH_ZERO);
+    		} catch (SVNException e) {
+    		    e.printStackTrace();
+    		}
         }
     }
     

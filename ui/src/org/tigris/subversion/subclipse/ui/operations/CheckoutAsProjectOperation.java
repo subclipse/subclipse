@@ -45,7 +45,7 @@ public class CheckoutAsProjectOperation extends SVNOperation {
     protected void execute(ISVNRemoteFolder[] remote, IProject[] local, IProgressMonitor monitor) throws SVNException, InterruptedException {
 		try {	
 	    	CheckoutCommand command = new CheckoutCommand(remote, local);
-	    	command.runDirectly(monitor);
+	    	command.run(monitor);
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		}

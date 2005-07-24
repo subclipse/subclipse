@@ -108,7 +108,7 @@ public class Policy {
 	}
     
     /**
-     * return a NullProgressMonitor if monitor is null or monitor itself otherwise 
+     * Return a NullProgressMonitor if monitor is null or monitor itself otherwise 
      */
 	public static IProgressMonitor monitorFor(IProgressMonitor monitor) {
 		if (monitor == null)
@@ -117,18 +117,33 @@ public class Policy {
 	}	
 	
     /**
-     * return a submonitor for monitor 
+     * Return a submonitor for monitor 
+	 * @param monitor the parent progress monitor
+	 * @param ticks the number of work ticks allocated from the
+	 *    parent monitor
+	 * @return IProgressMonitor
      */
 	public static IProgressMonitor subMonitorFor(IProgressMonitor monitor, int ticks) {
 		if (monitor == null)
 			return new NullProgressMonitor();
 		if (monitor instanceof NullProgressMonitor)
 			return monitor;
-		return new SubProgressMonitor(monitor, ticks);
+		return new SubProgressMonitor(monitor, ticks, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
 	}
 
     /**
-     * return a submonitor for monitor 
+     * Return a submonitor for monitor 
+	 * @param monitor the parent progress monitor
+	 * @param ticks the number of work ticks allocated from the
+	 *    parent monitor
+	 * @param style one of
+	 *    <ul>
+	 *    <li> <code>SubProgressMonitor#SUPPRESS_SUBTASK_LABEL</code> </li>
+	 *    <li> <code>SubProgressMonitor#PREPEND_MAIN_LABEL_TO_SUBTASK</code> </li>
+	 *    </ul>
+	 * @see SubProgressMonitor#SUPPRESS_SUBTASK_LABEL
+	 * @see SubProgressMonitor#PREPEND_MAIN_LABEL_TO_SUBTASK
+	 * @return IProgressMonitor
      */
 	public static IProgressMonitor subMonitorFor(IProgressMonitor monitor, int ticks, int style) {
 		if (monitor == null)
@@ -139,17 +154,42 @@ public class Policy {
 	}
 	
 	/**
-	 * return a submonitor when we do not know the number of ticks ...
-	 * @param monitor
-	 * @param ticks
-	 * @return
+	 * Return a submonitor for cases when we do not know the number of ticks ...
+	 * The main task label will be prepended to the subtask label.
+	 * @param monitor the parent progress monitor
+	 * @param ticks the number of work ticks allocated from the
+	 *    parent monitor
+	 * @return IProgressMonitor
 	 */
 	public static IProgressMonitor infiniteSubMonitorFor(IProgressMonitor monitor, int ticks) {
 		if (monitor == null)
 			return new NullProgressMonitor();
 		if (monitor instanceof NullProgressMonitor)
 			return monitor;
-		return new InfiniteSubProgressMonitor(monitor, ticks);
+		return new InfiniteSubProgressMonitor(monitor, ticks, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
+	}
+
+	/**
+	 * Return a submonitor for cases when we do not know the number of ticks ...
+	 * The main task label will be prepended to the subtask label.
+	 * @param monitor the parent progress monitor
+	 * @param ticks the number of work ticks allocated from the
+	 *    parent monitor
+	 * @param style one of
+	 *    <ul>
+	 *    <li> <code>SubProgressMonitor#SUPPRESS_SUBTASK_LABEL</code> </li>
+	 *    <li> <code>SubProgressMonitor#PREPEND_MAIN_LABEL_TO_SUBTASK</code> </li>
+	 *    </ul>
+	 * @see SubProgressMonitor#SUPPRESS_SUBTASK_LABEL
+	 * @see SubProgressMonitor#PREPEND_MAIN_LABEL_TO_SUBTASK
+	 * @return IProgressMonitor
+	 */
+	public static IProgressMonitor infiniteSubMonitorFor(IProgressMonitor monitor, int ticks, int style) {
+		if (monitor == null)
+			return new NullProgressMonitor();
+		if (monitor instanceof NullProgressMonitor)
+			return monitor;
+		return new InfiniteSubProgressMonitor(monitor, ticks, style);
 	}
 
  }
