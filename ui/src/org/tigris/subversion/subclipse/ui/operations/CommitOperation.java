@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
@@ -37,7 +36,6 @@ public class CommitOperation extends SVNOperation {
     }
 
     protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
-        monitor.beginTask(null, 100);
         try {
 			if (resourcesToAdd.length > 0) {
 			    Map table = getProviderMapping(resourcesToAdd);
@@ -56,12 +54,12 @@ public class CommitOperation extends SVNOperation {
 			Map table = getProviderMapping(resourcesToCommit);
 			Set keySet = table.keySet();
 			Iterator iterator = keySet.iterator();
+	        monitor.beginTask(null, 100 * keySet.size());
 			while (iterator.hasNext()) {
-				IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
 				SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
 				List list = (List)table.get(provider);
 				IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
-				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), null);
+				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, 100));
 			}			
 //			for (int i = 0; i < selectedResources.length; i++) {
 //				IResource projectHandle = selectedResources[i].getProject();
@@ -80,6 +78,8 @@ public class CommitOperation extends SVNOperation {
 	 * This method figures out of if we should commit with DEPTH_ZERO or DEPTH_INFINITE
 	 * If there are any modified folders (which could only be a prop change) in the list of committed items,
 	 * then it should return DEPTH_ZERO, otherwise it should return DEPTH_INFINITE.
+	 * @param resources an array of resources to check
+	 * @return IResource.DEPTH_ZERO or IResource.DEPTH_INFINITE  
 	 */
 	private int getDepth(IResource[] resources) {
 		for (int i = 0; i < resources.length; i++) {

@@ -52,14 +52,14 @@ public class UpdateOperation extends RepositoryProviderOperation {
 		try {			
 		    SVNWorkspaceSubscriber.getInstance().updateRemote(resources);
 	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resources, revision);
-	        command.run(Policy.subMonitorFor(monitor,1000));
+	        command.run(Policy.subMonitorFor(monitor,100));
 			//updateWorkspaceSubscriber(provider, resources, Policy.subMonitorFor(monitor, 5));
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		} catch (TeamException e) {
 		    collectStatus(e.getStatus());
         } finally {
-			monitor.done();
+            monitor.done();
 		}
     }
 }

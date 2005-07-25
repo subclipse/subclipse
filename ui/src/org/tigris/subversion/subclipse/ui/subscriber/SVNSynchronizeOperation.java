@@ -25,6 +25,7 @@ import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelOperation;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 /**
@@ -55,7 +56,7 @@ public abstract class SVNSynchronizeOperation extends SynchronizeModelOperation 
 			// and cache commits to disk are batched
 			SVNTeamProvider provider = (SVNTeamProvider)RepositoryProvider.getProvider(project, SVNUIPlugin.PROVIDER_ID);
 			if (provider != null) {
-				run(provider, (SyncInfoSet)projectSyncInfos.get(project), monitor);
+				run(provider, (SyncInfoSet)projectSyncInfos.get(project), Policy.subMonitorFor(monitor,100));
 			}
 		}
 		monitor.done();

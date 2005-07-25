@@ -263,6 +263,10 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 
     private Set resourcesToRefresh(IResource resource, int depth, int flags, int expectedSize) throws CoreException
     {
+        if (!resource.exists() && !resource.isPhantom())
+        {
+            return new HashSet(0);
+        }
     	final Set resultSet = (expectedSize != 0) ? new HashSet(expectedSize) : new HashSet();
 		resource.accept(new IResourceVisitor() {
 			public boolean visit(IResource resource) throws CoreException {

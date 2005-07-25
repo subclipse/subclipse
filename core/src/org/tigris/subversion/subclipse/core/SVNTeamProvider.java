@@ -165,8 +165,14 @@ public class SVNTeamProvider extends RepositoryProvider {
 
 	/**
 	 * Checkin any local changes to given resources
-	 * 
-	 */
+	 *
+     * @param resources	resources to commit.
+     * @param comment	log message.
+     * @param keepLocks	whether to keep to locks
+     * @param depth		IResource.DEPTH_INFINITE if the commit should be recursive, anything else if otherwise
+     * @param progress	progressMonitor or null
+     * @exception TeamException
+     */
 	public void checkin(IResource[] resources, final String comment, boolean keepLocks, final int depth, IProgressMonitor progress) throws TeamException {
 		CheckinResourcesCommand command = new CheckinResourcesCommand(getSVNWorkspaceRoot(), resources, depth, comment, keepLocks);
         command.run(progress);

@@ -21,9 +21,11 @@ import org.tigris.subversion.subclipse.core.ISVNRunnable;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.client.ISVNNotifyAdapter;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 /**
@@ -84,10 +86,21 @@ public class CheckinResourcesCommand implements ISVNCommand {
             resourceFiles[i] = resources[i].getLocation().toFile(); 
         
         SVNProviderPlugin.run(new ISVNRunnable() {
-            public void run(IProgressMonitor monitor) throws SVNException {
+            public void run(final IProgressMonitor monitor) throws SVNException {
                 try {
-                    monitor.beginTask(null, 100);
-                    OperationManager.getInstance().beginOperation(svnClient);
+                    OperationManager operationHandler = OperationManager.getInstance();                    
+            		ISVNNotifyListener notifyListener = new ISVNNotifyAdapter() {
+            			public void logMessage(String message) {
+            				if (monitor != null)
+            				{
+            				    monitor.worked(1);
+            				    monitor.subTask(message);
+            				}
+            			}
+            		};
+
+                    monitor.beginTask(null, resourceFiles.length);
+                    operationHandler.beginOperation(svnClient, notifyListener);
                     
                     // we commit the parents (not recursively)
                     if (parents.length > 0)
@@ -99,6 +112,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     throw SVNException.wrapException(e);
                 } finally {
                     OperationManager.getInstance().endOperation();
+                    monitor.subTask(" ");
                     monitor.done();
                 }
             }
