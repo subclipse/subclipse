@@ -74,7 +74,7 @@ public class BaseFolder extends RemoteFolder implements ISVNRemoteFolder {
             List baseChildren = new ArrayList();
 
             // XXX There is no way to get immediate children only
-            GetStatusCommand c = new GetStatusCommand(localResource);
+            GetStatusCommand c = new GetStatusCommand(localResource, false, true);
             c.run(monitor);
             LocalResourceStatus[] statuses = c.getStatuses();
             for (int i = 0; i < statuses.length; i++) {
