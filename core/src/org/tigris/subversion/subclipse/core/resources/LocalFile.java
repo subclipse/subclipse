@@ -41,19 +41,11 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
 	 * (non-Javadoc)
 	 * @see org.tigris.subversion.subclipse.core.resources.LocalResource#getBaseResource()
 	 */
-    public ISVNRemoteResource getBaseResource() throws SVNException {
-    	
+    public ISVNRemoteResource getBaseResource() throws SVNException {   	
 		if (!hasRemote()) // no base if no remote
 			return null;
-		LocalResourceStatus status = getStatus();
-
-		return new BaseFile(
-			this,                  // localResource
-			status.getLastChangedRevision(),
-			status.getLastChangedDate(),
-			status.getLastCommitAuthor());
-    }
-	
+		return new BaseFile(getStatus());
+    }	
 	
     /**
      * @throws SVNException

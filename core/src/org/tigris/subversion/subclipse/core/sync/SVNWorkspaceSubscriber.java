@@ -44,10 +44,9 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
-import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand.InformedStatus;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo.StatusInfo;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
@@ -168,12 +167,12 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
         //LocalResourceStatus localStatus = SVNWorkspaceRoot.getSVNResourceFor( resource );
         LocalResourceStatus localStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatus(resource);
 
-        StatusInfo remoteStatusInfo = null;
+        RemoteResourceStatus remoteStatusInfo = null;
         byte[] remoteBytes = remoteSyncStateStore.getBytes( resource );
         if( remoteBytes != null )
-            remoteStatusInfo = StatusInfo.fromBytes(remoteBytes);
+            remoteStatusInfo = RemoteResourceStatus.fromBytes(remoteBytes);
 
-        SyncInfo syncInfo = new SVNStatusSyncInfo(resource, StatusInfo.from(localStatus), remoteStatusInfo, comparator);
+        SyncInfo syncInfo = new SVNStatusSyncInfo(resource, localStatus, remoteStatusInfo, comparator);
         syncInfo.init();
 
         return syncInfo;
@@ -238,17 +237,16 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
             StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, false, true );
             cmd.execute( client );
 
-            InformedStatus[] statuses = cmd.getInformedStatuses();
+            RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
 
             IResource[] result = new IResource[statuses.length];
-            for (int i = 0; i < statuses.length; i++) {				
+            for (int i = 0; i < statuses.length; i++) {
             	result[i] = statuses[i].getResource();
 				
                 if (isSupervised(result[i]))
                 {
-                    StatusInfo remoteInfo = new StatusInfo(cmd.getRevision(), statuses[i].getRepositoryTextStatus(), statuses[i].getRepositoryPropStatus() );
-                    remoteSyncStateStore.setBytes( statuses[i].getResource(), remoteInfo.asBytes() );
-                }					
+                	remoteSyncStateStore.setBytes( statuses[i].getResource(), statuses[i].getBytes() );
+                }
 			}
             
             return result;

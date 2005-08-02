@@ -59,11 +59,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
     public ISVNRemoteResource getBaseResource() throws SVNException {
         if (!isManaged())
             return null;
-        LocalResourceStatus status = getStatus();
-
-        return new BaseFolder(this, // localResource
-                status.getLastChangedRevision(), status.getLastChangedDate(),
-                status.getLastCommitAuthor());
+        return new BaseFolder(getStatus());
     }
 
     /**

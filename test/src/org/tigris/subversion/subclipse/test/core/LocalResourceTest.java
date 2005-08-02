@@ -18,10 +18,12 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.test.SubclipseTest;
 import org.tigris.subversion.subclipse.test.TestProject;
+import org.tigris.subversion.subclipse.test.TestUtils;
 
 
 public class LocalResourceTest extends SubclipseTest {
@@ -95,4 +97,36 @@ public class LocalResourceTest extends SubclipseTest {
 		isLocal.close();
 		isRemote.close();
 	}
+	
+	public void testGetBytesFromBytes() throws Exception
+	{
+		TestProject testProject = new TestProject("testProject");
+		shareProject(testProject.getProject());
+		String contents = "public class AClass { \n"
+				+ "  public void m() {}\n}";
+
+		// create a file
+		IPackageFragment package1 = testProject.createPackage("pack1");
+		IType type = testProject.createJavaType(package1, "AClass.java",
+				contents);
+		IFile resource = testProject.getProject().getFile(
+				new Path("src/pack1/AClass.java"));
+		ISVNLocalResource svnResource = SVNWorkspaceRoot
+				.getSVNResourceFor(resource);
+		InputStream isLocal = resource.getContents();
+		SVNTeamProvider provider = getProvider(testProject.getProject());
+		// add it to repository
+		provider.add(new IResource[] { resource }, IResource.DEPTH_ZERO, null);
+		// commit it
+		provider.checkin(new IResource[] { resource }, "committed", false,
+				IResource.DEPTH_ZERO, null);
+		// get the remote resource
+		RemoteFile svnRemoteResource = (RemoteFile) svnResource
+				.getLatestRemoteResource();
+		
+		LocalResourceStatus status = svnResource.getStatus();
+		LocalResourceStatus status2 = LocalResourceStatus.fromBytes(status.getBytes());
+		assertTrue(TestUtils.allFieldsEquals(status, status2));		
+	}
+
 }

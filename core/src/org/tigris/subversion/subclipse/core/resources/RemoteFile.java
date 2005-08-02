@@ -15,7 +15,6 @@ import java.util.Date;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -27,13 +26,13 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 /**
- * This class provides the implementation of ISVNRemoteFile and IManagedFile for
- * use by the repository and sync view.
+ * This class provides the implementation of ISVNRemoteFile 
+ * for use by the repository and sync view.
  */
 public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
-	
-	
+		
 	/**
+	 * Constructor (from byte[])
 	 * @param local
 	 * @param bytes
 	 */
@@ -41,6 +40,17 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 		super(local, bytes);
 		
 	}
+	
+	/**
+	 * Constructor
+	 * @param parent
+	 * @param repository
+	 * @param url
+	 * @param revision
+	 * @param lastChangedRevision
+	 * @param date
+	 * @param author
+	 */
 	public RemoteFile(
 			RemoteFolder parent, 
 			ISVNRepositoryLocation repository,
@@ -52,56 +62,73 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 		super(parent, repository, url, revision, lastChangedRevision,
 				date, author);
 	}
+	
+	/**
+	 * Constructor (from url and revision)
+	 * @param repository
+	 * @param url
+	 * @param revision
+	 */
 	public RemoteFile(ISVNRepositoryLocation repository, SVNUrl url,
 			SVNRevision revision) {
 		super(repository, url, revision);
 	}
-	/**
-	 * @see ISVNRemoteFile#getContents()
+
+	public RemoteFile(RemoteResourceStatus remoteStatusInfo)
+	{
+        this( null, 
+        		remoteStatusInfo.getRepository(),
+				remoteStatusInfo.getUrl(), 
+				remoteStatusInfo.getRevision(),
+				remoteStatusInfo.getLastChangedRevision(), 
+				remoteStatusInfo.getLastChangedDate(), 
+				remoteStatusInfo.getLastCommitAuthor());
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.team.core.variants.CachedResourceVariant#fetchContents(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void fetchContents(IProgressMonitor monitor) throws TeamException {
-		// we cache the contents as getContents can be called several times
-		// on the same RemoteFile
-		if (monitor == null) {
-			monitor = new NullProgressMonitor();
-		}
+		monitor = Policy.monitorFor(monitor);
 		monitor.beginTask(Policy.bind("RemoteFile.getContents"), 100);//$NON-NLS-1$
 		try {
-			
-				ISVNClientAdapter svnClient = repository.getSVNClient();
-				InputStream inputStream;
-				try {
-					inputStream = svnClient.getContent(url,
-							getRevision());
-					super.setContents(inputStream, monitor);
-				} catch (SVNClientException e) {
-					throw new TeamException(
-							"Failed in remoteFile.getContents()", e);
-				}
-				monitor.done();
-			
+			ISVNClientAdapter svnClient = repository.getSVNClient();
+			InputStream inputStream;
+			try {
+				inputStream = svnClient.getContent(url, getRevision());
+				super.setContents(inputStream, monitor);
+			} catch (SVNClientException e) {
+				throw new TeamException("Failed in RemoteFile.getContents()", e);
+			}
 		} finally {
 			monitor.done();
 		}
 	}
-	/*
-	 * @see IRemoteResource#members(IProgressMonitor)
+
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#members(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public ISVNRemoteResource[] members(IProgressMonitor progress){
 		return new ISVNRemoteResource[0];
 	}
-	/*
-	 * @see IRemoteResource#isContainer()
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.team.core.variants.IResourceVariant#isContainer()
 	 */
 	public boolean isContainer() {
 		return false;
 	}
-	/*
-	 * @see ISVNResource#isFolder()
+
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.ISVNResource#isFolder()
 	 */
 	public boolean isFolder() {
 		return false;
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	public boolean equals(Object target) {
 		if (this == target)
 			return true;
@@ -112,29 +139,23 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 				&& remote.getLastChangedRevision() == getLastChangedRevision();
 	}
 
-	/**
-	 * get annotations
-	 * @param monitor
-	 * @return
-	 * @throws TeamException
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteFile#getAnnotations(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public ISVNAnnotations getAnnotations(IProgressMonitor monitor) throws TeamException {
+		monitor = Policy.monitorFor(monitor);
 		monitor.beginTask(Policy.bind("RemoteFile.getAnnotations"), 100);//$NON-NLS-1$
 		try {
-			
-				ISVNClientAdapter svnClient = repository.getSVNClient();
-				InputStream inputStream;
-				try {
-					return svnClient.annotate(url,null,getRevision()); 
-				} catch (SVNClientException e) {
-					throw new TeamException(
-							"Failed in remoteFile.getAnnotations()", e);
-				}
+			ISVNClientAdapter svnClient = repository.getSVNClient();
+			InputStream inputStream;
+			try {
+				return svnClient.annotate(url, null, getRevision());
+			} catch (SVNClientException e) {
+				throw new TeamException(
+						"Failed in remoteFile.getAnnotations()", e);
+			}
 		} finally {
 			monitor.done();
 		}
-		
-	}
-	
-	
+	}		
 }

@@ -23,7 +23,17 @@ import org.eclipse.core.runtime.IProgressMonitor;
   */
 public interface ISVNRemoteFolder extends ISVNRemoteResource, ISVNFolder{
 
-    void createRemoteFolder(String folderName, String message,IProgressMonitor monitor) throws SVNException;	
+    /**
+     * Create a new remote folder 
+     * @param folderName a folder name
+     * @param message a commit message
+     * @param monitor a progress monitor
+     * @throws SVNException
+     */
+    void createRemoteFolder(String folderName, String message, IProgressMonitor monitor) throws SVNException;	
 	
+    /**
+     * Empty the cache of children
+     */
     void refresh();
 }

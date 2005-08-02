@@ -16,16 +16,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.Date;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
@@ -33,95 +26,37 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNStatusUtils;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 /**
  * This class has an interface which is very similar to ISVNStatus but we make
  * sure to take as little memory as possible. This class also have a getBytes()
- * method and a constructor that takes bytes.
+ * method and a constructor/factory method that takes bytes.
  * 
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  */
-public class LocalResourceStatus implements Serializable {
+public class LocalResourceStatus extends ResourceStatus {
 	public static LocalResourceStatus NONE = new LocalResourceStatusNone();
 	
-    private static int FORMAT_VERSION_1 = 1;
-    private static int FORMAT_VERSION_2 = 2;
-
-    protected String url;
-
-    protected long lastChangedRevision;
-
-    protected long lastChangedDate;
-
-    protected String lastCommitAuthor;
-
-    protected int textStatus;
-
-    protected int propStatus;
-
-    protected long revision;
-
-    protected int nodeKind;
-
     protected String urlCopiedFrom;
-
-    protected String path; // absolute path
-
     protected String pathConflictOld;
-
     protected String pathConflictWorking;
-
     protected String pathConflictNew;
-    
     protected String lockOwner;
-    
     protected long lockCreationDate;
-    
     protected String lockComment;
-    
     protected boolean readOnly;
     
     static final long serialVersionUID = 1L;
 
+    /**
+     * @param status
+     */
     public LocalResourceStatus(ISVNStatus status) {
+    	super(status);
+    	
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;
     	
-    	aValue = status.getUrl();
-        if (aValue == null) {
-            this.url = null;
-        } else {
-            this.url = ((SVNUrl) aValue).toString();
-        }
-
-        aValue = status.getLastChangedRevision();
-        if (aValue == null) {
-            this.lastChangedRevision = SVNRevision.SVN_INVALID_REVNUM;
-        } else {
-            this.lastChangedRevision = ((SVNRevision.Number) aValue).getNumber();
-        }
-
-        aValue = status.getLastChangedDate();
-        if (aValue == null) {
-            this.lastChangedDate = -1;
-        } else {
-            this.lastChangedDate = ((Date) aValue).getTime();
-        }
-
-        this.lastCommitAuthor = status.getLastCommitAuthor();
-        this.textStatus = status.getTextStatus().toInt();
-        this.propStatus = status.getPropStatus().toInt();
-
-        aValue = status.getRevision();
-        if (aValue == null) {
-            this.revision = SVNRevision.SVN_INVALID_REVNUM;
-        } else {
-            this.revision = ((SVNRevision.Number) aValue).getNumber();
-        }
-
-        this.nodeKind = status.getNodeKind().toInt();
-
         aValue = status.getUrlCopiedFrom();
         if (aValue == null) {
             this.urlCopiedFrom = null;
@@ -163,67 +98,6 @@ public class LocalResourceStatus implements Serializable {
             this.lockCreationDate = ((Date) aValue).getTime();
     }
 
-    public SVNUrl getUrl() {
-        if (url == null) {
-            return null;
-        } else {
-            try {
-                return new SVNUrl(url);
-            } catch (MalformedURLException e) {
-                return null;
-            }
-        }
-    }
-
-    public String getUrlString()
-    {
-    	return url;
-    }
-
-    public Number getLastChangedRevision() {
-        if (lastChangedRevision == SVNRevision.SVN_INVALID_REVNUM) {
-            return null;
-        } else {
-            return new SVNRevision.Number(lastChangedRevision);
-        }
-    }
-
-    public Date getLastChangedDate() {
-        if (lastChangedDate == -1) {
-            return null;
-        } else {
-            return new Date(lastChangedDate);
-        }
-    }
-
-    public String getLastCommitAuthor() {
-        return lastCommitAuthor;
-    }
-
-    public SVNStatusKind getTextStatus() {
-        return SVNStatusKind.fromInt(textStatus);
-    }
-
-    /**
-     * get the prop status. Returns either SVNStatusKind.NORMAL,
-     * SVNStatusKind.CONFLICTED or SVNStatusKind.MODIFIED
-     */
-    public SVNStatusKind getPropStatus() {
-        return SVNStatusKind.fromInt(propStatus);
-    }
-
-    public Number getRevision() {
-        if (revision == SVNRevision.SVN_INVALID_REVNUM) {
-            return null;
-        } else {
-            return new SVNRevision.Number(revision);
-        }
-    }
-
-    public SVNNodeKind getNodeKind() {
-        return SVNNodeKind.fromInt(nodeKind);
-    }
-
     public SVNUrl getUrlCopiedFrom() {
         if (urlCopiedFrom == null) {
             return null;
@@ -236,59 +110,21 @@ public class LocalResourceStatus implements Serializable {
         }
     }
 
-    /**
-     * @return Returns the file.
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#getBytes()
      */
-    public File getFile() {
-        return new File(path);
-    }
-
-    /**
-     * @return Returns the absolute resource path.
-     * (It is absolute since it was constructed as status.getFile().getAbsolutePath())
-     */
-    public IPath getPath() {
-        return new Path(path);
-    }
-
-    public byte[] getBytes() {
+    public byte[] getBytes() {    	
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(out);
+        getBytesInto(new DataOutputStream(out));
+        return out.toByteArray();
+    }
+
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#getBytesInto(java.io.DataOutputStream)
+     */
+    protected DataOutputStream getBytesInto(DataOutputStream dos) {
+    	super.getBytesInto(dos);
         try {
-            dos.writeInt(FORMAT_VERSION_2);
-
-            // url
-            if (url == null) {
-                dos.writeUTF("");
-            } else {
-                dos.writeUTF(url);
-            }
-
-            // lastChangedRevision
-            dos.writeLong(lastChangedRevision);
-
-            // lastChangedDate
-            dos.writeLong(lastChangedDate);
-
-            // lastCommitAuthor
-            if (lastCommitAuthor == null) {
-                dos.writeUTF("");
-            } else {
-                dos.writeUTF(lastCommitAuthor);
-            }
-
-            // textStatus
-            dos.writeInt(textStatus);
-
-            // propStatus
-            dos.writeInt(propStatus);
-
-            // revision
-            dos.writeLong(revision);
-
-            // nodeKind
-            dos.writeInt(nodeKind);
-
             // urlCopiedFrom
             if (urlCopiedFrom == null) {
                 dos.writeUTF("");
@@ -341,7 +177,7 @@ public class LocalResourceStatus implements Serializable {
         } catch (IOException e) {
             return null;
         }
-        return out.toByteArray();
+        return dos;
     }
 
     public static LocalResourceStatus fromBytes(byte[] bytes) throws SVNException
@@ -349,57 +185,32 @@ public class LocalResourceStatus implements Serializable {
     	return ((bytes != null) && (bytes.length > 0)) ? new LocalResourceStatus(bytes) : null;
     }
 
-    private LocalResourceStatus() {}
+    protected LocalResourceStatus() {}
 
-    private LocalResourceStatus(byte[] bytes) throws SVNException {
+    /**
+     * (Re)Construct an object from the given bytes 
+     * @param bytes
+     * @throws SVNException
+     */
+    protected LocalResourceStatus(byte[] bytes) throws SVNException {
+    	super();    	
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         DataInputStream dis = new DataInputStream(in);
+    	initFromBytes(new DataInputStream(in));
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#initFromBytes(java.io.DataInputStream)
+     */
+    protected int initFromBytes(DataInputStream dis) throws SVNException {
+    	int version = super.initFromBytes(dis);
         try {
-            int version = dis.readInt();
-            if (version != FORMAT_VERSION_1 && version != FORMAT_VERSION_2) {
-                throw new SVNException("Invalid format");
-            }
-
-            // url
-            String urlString = dis.readUTF();
-            if (urlString.equals("")) {
-                url = null;
-            } else {
-                url = urlString;
-            }
-
-            // lastChangedRevision
-            lastChangedRevision = dis.readLong();
-
-            // lastChangedDate
-            lastChangedDate = dis.readLong();
-
-            // lastCommitAuthor
-            String lastCommitAuthorString = dis.readUTF();
-            if ((url == null) && (lastCommitAuthorString.equals(""))) {
-                lastCommitAuthor = null;
-            } else {
-                lastCommitAuthor = lastCommitAuthorString;
-            }
-
-            // textStatus
-            textStatus = dis.readInt();
-
-            // propStatus
-            propStatus = dis.readInt();
-
-            // revision
-            revision = dis.readLong();
-
-            // nodeKind
-            nodeKind = dis.readInt();
-
             // urlCopiedFrom
             String urlCopiedFromString = dis.readUTF();
             if (urlCopiedFromString.equals("")) {
                 urlCopiedFrom = null;
             } else {
-                urlCopiedFrom = urlString;
+                urlCopiedFrom = url;
             }
 
             // path
@@ -439,6 +250,7 @@ public class LocalResourceStatus implements Serializable {
             throw new SVNException(
                     "cannot create LocalResourceStatus from bytes", e);
         }
+        return version;
     }
 
     /**
@@ -597,75 +409,7 @@ public class LocalResourceStatus implements Serializable {
     public String getLockComment() {
         return lockComment;
     }
-
-    public String toString()
-    {
-    	return ((path != null) ? path : "") + " (" + revision + ") " + getTextStatus().toString();
-    }
-    
-    
-    /**
-     * Gets the resource this status is corresponding to.
-     * Use either ResourceInfo.getType() or getNodeKind() to determine the proper kind of resource. 
-     * @return
-     */
-    public IResource getResource()
-    {
-    	if (this.path == null) return null;
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IPath resourcePath = SVNWorkspaceRoot.pathForLocation(this.getPath());
-		int kind = SVNWorkspaceRoot.getResourceType(resourcePath);			
-
-		if (kind == IResource.FILE)
-		{
-			return root.getFile(resourcePath);
-		}
-		else if(kind == IResource.FOLDER)
-		{
-			return root.getFolder(resourcePath);
-		}
-		else if (kind == IResource.PROJECT)
-		{
-			return root.getProject(resourcePath.segment(0));
-		}
-		else if (kind == IResource.ROOT)
-		{
-			return root;
-		}
-		else if (this.getNodeKind() == SVNNodeKind.FILE)
-		{
-			return root.getFile(resourcePath);
-		}
-		else
-		{
-			if (resourcePath.isRoot())
-			{
-				return root;
-			}
-			else if (resourcePath.segmentCount() == 1)
-			{
-				return root.getProject(resourcePath.segment(0));
-			}
-		}
-//        if (this.getNodeKind() == SVNNodeKind.UNKNOWN) {
-//        	File file = this.getPath().toFile();
-//        	if (file.isDirectory())
-//        		resource = workspaceRoot.getContainerForLocation(pathEclipse);
-//        	else
-//        		resource = workspaceRoot.getFileForLocation(pathEclipse);
-//        }
-
-		return root.getFolder(resourcePath);
-    }
-    
-    /**
-     * Get the ISVNLocalResource corresponding to the status
-     * @return
-     */
-    public ISVNLocalResource getSVNLocalResource(LocalResourceStatus status) {
-        return SVNWorkspaceRoot.getSVNResourceFor(getResource());
-    }
-    
+            
     public static class LocalResourceStatusNone extends LocalResourceStatus {    
     	public LocalResourceStatusNone()
     	{

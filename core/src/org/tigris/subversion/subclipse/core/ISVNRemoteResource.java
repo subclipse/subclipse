@@ -81,6 +81,11 @@ public interface ISVNRemoteResource extends ISVNResource, IAdaptable, IResourceV
 
     public ISVNRemoteFolder getParent();
     
+    /**
+     * Get the members of this remote resource (at the same revision than this resource)
+     * @param progress a progress monitor
+     * @return ISVNRemoteResource[] and array of members (children resources)
+     */
     public ISVNRemoteResource[] members(IProgressMonitor progress) throws TeamException;
 
 

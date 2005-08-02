@@ -25,6 +25,12 @@ import org.tigris.subversion.svnclientadapter.ISVNAnnotations;
   */
 public interface ISVNRemoteFile extends ISVNRemoteResource, ISVNFile {
 
+	/**
+	 * Get annotations for the remote file
+	 * @param monitor 
+	 * @return
+	 * @throws TeamException
+	 */
 	public ISVNAnnotations getAnnotations(IProgressMonitor monitor) throws TeamException;	
 	
 }
