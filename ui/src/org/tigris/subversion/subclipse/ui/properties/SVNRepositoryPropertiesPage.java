@@ -248,14 +248,14 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
         
         SVNUrl url = location.getUrl();
         if (url != null) {
-            repositoryUrlText.setText(url.get());
+            repositoryUrlText.setText(url.toString());
         } else {
            repositoryUrlText.setText(""); //$NON-NLS-1$
         }
         
         SVNUrl repositoryRoot = location.getRepositoryRoot();
         if (repositoryRoot != null) {
-            repositoryRootText.setText(repositoryRoot.get());   
+            repositoryRootText.setText(repositoryRoot.toString());   
         } else {
             repositoryRootText.setText(""); //$NON-NLS-1$
         }

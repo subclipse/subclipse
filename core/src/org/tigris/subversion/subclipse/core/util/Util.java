@@ -28,6 +28,10 @@ public class Util {
 	
 	/**
 	 * Return the last segment of the given path
+	 * <br>
+	 * Do not abuse this unnecesarily !
+	 * When there is a SVNUrl instance available use direct
+	 * {@link SVNUrl#getLastPathSegment()}
 	 * @param path
 	 * @return String
 	 */
@@ -42,6 +46,10 @@ public class Util {
 	
 	/**
 	 * Append the prefix and suffix to form a valid SVN path.
+	 * <br>
+	 * Do not abuse this unnecesarily !
+	 * When there is a SVNUrl instance available use direct
+	 * {@link SVNUrl#appendPath(java.lang.String)}
 	 */
 	public static String appendPath(String prefix, String suffix) {
 		if (prefix.length() == 0 || prefix.equals(CURRENT_LOCAL_FOLDER)) {

@@ -14,7 +14,6 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -32,7 +31,6 @@ import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.commands.AddIgnoredPatternCommand;
 import org.tigris.subversion.subclipse.core.commands.GetRemoteResourceCommand;
 import org.tigris.subversion.subclipse.core.util.Assert;
-import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -215,12 +213,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     			if (parent == null) {
     				return null; // we cannot find the url
     			}
-    			SVNUrl urlParent = getParent().getUrl();
-    			try {
-    				return new SVNUrl(Util.appendPath(urlParent.toString(),resource.getName()));	
-    			} catch (MalformedURLException e) {
-    				return null;
-    			} 	
+   				return parent.getUrl().appendPath(resource.getName());	
     		}
     	} catch (SVNException e) {
     		return null;

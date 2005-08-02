@@ -9,8 +9,11 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.commands;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
@@ -22,30 +25,31 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  * Command to get the statuses of local resources
  */
 public class GetStatusCommand implements ISVNCommand {
-    private ISVNLocalResource svnResource;
+    private ISVNRepositoryLocation repository;
+    private File file;
     private boolean descend = true;
     private boolean getAll = true;
     private LocalResourceStatus[] statuses;
     
     public GetStatusCommand(ISVNLocalResource svnResource, boolean descend, boolean getAll) {
-        this.svnResource = svnResource;
-        this.descend = true;
-        this.getAll = getAll;
+    	this(svnResource.getRepository(), svnResource.getFile(), descend, getAll);
     }
 
-    public GetStatusCommand(ISVNLocalResource svnResource) {
-        this(svnResource, true, true);
-    }
-    
-    
+    public GetStatusCommand(ISVNRepositoryLocation repository, File file, boolean descend, boolean getAll) {
+    	this.repository = repository;
+    	this.file = file;
+        this.descend = descend;
+        this.getAll = getAll;
+    }    
+
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void run(IProgressMonitor monitor) throws SVNException {
         ISVNStatus[] svnStatuses = null;
-        ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+        ISVNClientAdapter svnClient = repository.getSVNClient();
         try { 
-            svnStatuses = svnClient.getStatus(svnResource.getFile(), descend, getAll);
+            svnStatuses = svnClient.getStatus(file, descend, getAll);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         }

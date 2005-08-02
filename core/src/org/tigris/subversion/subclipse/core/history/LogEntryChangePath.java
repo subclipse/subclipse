@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.history;
 
-import java.net.MalformedURLException;
-
 import org.eclipse.core.runtime.PlatformObject;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -88,11 +86,7 @@ public class LogEntryChangePath extends PlatformObject {
     public SVNUrl getUrl() {
     	SVNUrl repositoryRoot = getRepository().getRepositoryRoot();
         if (repositoryRoot != null) {
-            try {
-				return new SVNUrl(repositoryRoot.get()+getPath());
-			} catch (MalformedURLException e) {
-				return null;
-			}
+			return repositoryRoot.appendPath(getPath());
         } else {
         	return null;
         }

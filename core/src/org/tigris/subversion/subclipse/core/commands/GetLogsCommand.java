@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.commands;
 
-import java.net.MalformedURLException;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.Policy;
@@ -123,21 +121,20 @@ public class GetLogsCommand implements ISVNCommand {
         }
         urls[indexRemote] = remoteResource.getUrl();
         
-        try {
             // we get the url of more recent revisions
             SVNUrl currentUrl = remoteResource.getUrl();
             for (int i = indexRemote+1; i < logMessages.length;i++) {
                 ISVNLogMessageChangePath[] changePaths = logMessages[i].getChangedPaths();
                 for (int j = 0; j < changePaths.length;j++) {
-                	SVNUrl urlChangedPath = new SVNUrl(rootRepositoryUrl.get()+changePaths[j].getPath());
+                	SVNUrl urlChangedPath = rootRepositoryUrl.appendPath(changePaths[j].getPath());
                     if (currentUrl.equals(urlChangedPath)) {
                     	urls[i] = currentUrl;
                         break;
                     }
                     if (changePaths[j].getCopySrcPath() != null) {
-                    	SVNUrl urlCopyPath = new SVNUrl(rootRepositoryUrl.get()+changePaths[j].getCopySrcPath());
+                    	SVNUrl urlCopyPath = rootRepositoryUrl.appendPath(changePaths[j].getCopySrcPath());
                         if (currentUrl.equals(urlCopyPath)) {
-                        	currentUrl = new SVNUrl(rootRepositoryUrl.get()+changePaths[j].getPath());
+                        	currentUrl = rootRepositoryUrl.appendPath(changePaths[j].getPath());
                             urls[i] = currentUrl;
                             break;
                         }
@@ -154,12 +151,12 @@ public class GetLogsCommand implements ISVNCommand {
             for (int i = indexRemote-1; i >= 0;i--) {
                 ISVNLogMessageChangePath[] changePaths = logMessages[i].getChangedPaths();
                 for (int j = 0; j < changePaths.length;j++) {
-                    SVNUrl urlChangedPath = new SVNUrl(rootRepositoryUrl.get()+changePaths[j].getPath());
+                    SVNUrl urlChangedPath = rootRepositoryUrl.appendPath(changePaths[j].getPath());
                     if (currentUrl.equals(urlChangedPath)) {
                         urls[i] = currentUrl;
     
                         if (changePaths[j].getCopySrcPath() != null) {
-                            SVNUrl urlCopyPath = new SVNUrl(rootRepositoryUrl.get()+changePaths[j].getCopySrcPath());
+                            SVNUrl urlCopyPath = rootRepositoryUrl.appendPath(changePaths[j].getCopySrcPath());
                             currentUrl = urlCopyPath;
                         }
                         break;
@@ -170,9 +167,6 @@ public class GetLogsCommand implements ISVNCommand {
                     return fillUrlsWith(urls, remoteResource.getUrl());
                 }
             }
-        } catch(MalformedURLException e) {
-            return fillUrlsWith(urls, remoteResource.getUrl());
-        }
         return urls;
     }
     

@@ -45,9 +45,7 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.core.commands.ShareProjectCommand;
-import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNConstants;
-import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -95,7 +93,7 @@ public class SVNWorkspaceRoot {
 			for (int k = 0; k < children.length; k++) {
 				ISVNResource resource = children[k];
 				if(".project".equals(resource.getName())){
-					RemoteFile dotProject = (RemoteFile)folder.getRepository().getRemoteFile(new SVNUrl(Util.appendPath(folder.getUrl().get(), ".project")));
+					RemoteFile dotProject = (RemoteFile)folder.getRepository().getRemoteFile(folder.getUrl().appendPath(".project"));
 																
 					InputStream is = dotProject.getStorage(monitor).getContents();
 					DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();

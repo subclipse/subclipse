@@ -78,7 +78,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
                 .getProvider(project);
         SVNWorkspaceRoot root = provider.getSVNWorkspaceRoot();
 
-        buffer.append(root.getLocalRoot().getUrl().get());
+        buffer.append(root.getLocalRoot().getUrl().toString());
         buffer.append(",");
         buffer.append(project.getName());
         return buffer.toString();

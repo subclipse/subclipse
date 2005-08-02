@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,7 +22,6 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
-import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -217,14 +215,12 @@ public class RepositoryResourcesManager {
         
         try {        
             ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
-            SVNUrl destUrl = new SVNUrl(Util.appendPath(destinationFolder.getUrl().toString(),destinationResourceName));
+            SVNUrl destUrl = destinationFolder.getUrl().appendPath(destinationResourceName);
             
             svnClient.move(resource.getUrl(),destUrl,message,SVNRevision.HEAD);
             resource.getParent().refresh();
             destinationFolder.refresh();
             remoteResourceMoved(resource, destinationFolder, destinationResourceName);
-        } catch (MalformedURLException e) {
-            throw SVNException.wrapException(e);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {

@@ -618,7 +618,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
     	// can be a null parent if we have the view open before we select anything
     	if(container == null)
     		return null;
-        GetStatusCommand command = new GetStatusCommand(SVNWorkspaceRoot.getSVNResourceFor(container));
+        GetStatusCommand command = new GetStatusCommand(SVNWorkspaceRoot.getSVNResourceFor(container), true, true);
         command.run(null);
         return command.getStatuses();
     }

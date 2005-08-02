@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.commands;
 
-import java.net.MalformedURLException;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,7 +19,6 @@ import org.tigris.subversion.subclipse.core.ISVNRunnable;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -89,18 +86,13 @@ public class ShareProjectCommand implements ISVNCommand {
 
 							try {
 								// create the remote dir
-								SVNUrl url = new SVNUrl(Util.appendPath(
-										location.getUrl().toString(), remoteDirName));
+								SVNUrl url = location.getUrl().appendPath(remoteDirName);
 								svnClient.mkdir(url, message);
 
 								// checkout it so that we have .svn
 								svnClient.checkout(url, project.getLocation()
 										.toFile(), SVNRevision.HEAD, false);
 							} catch (SVNClientException e) {
-								throw new SVNException(
-										"Error while creating module: "
-												+ e.getMessage(), e);
-							} catch (MalformedURLException e) {
 								throw new SVNException(
 										"Error while creating module: "
 												+ e.getMessage(), e);

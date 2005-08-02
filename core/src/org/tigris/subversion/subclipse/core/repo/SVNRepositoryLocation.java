@@ -35,7 +35,6 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.NotificationListener;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
-import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -164,14 +163,10 @@ public class SVNRepositoryLocation
 	 * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#getRemoteFolder(java.lang.String)
 	 */
 	public ISVNRemoteFolder getRemoteFolder(String remotePath) {
-		try {
-			return new RemoteFolder(
+		return new RemoteFolder(
 				this,
-				new SVNUrl(Util.appendPath(getUrl().toString(), remotePath)),
+				getUrl().appendPath(remotePath),
 				SVNRevision.HEAD);
-		} catch (MalformedURLException e) {
-			return null;
-		}
 	}
 	
 	/*
@@ -203,15 +198,7 @@ public class SVNRepositoryLocation
 	}
 
 	public ISVNRemoteFile getRemoteFile(String remotePath) throws SVNException{
-		SVNUrl url;
-		try {
-			url = new SVNUrl(Util.appendPath(getUrl().toString(), remotePath));
-		} catch (MalformedURLException e1) {
-			throw new SVNException(
-				"Can't get latest remote resource for "
-					+ remotePath.toString());
-		}
-		return getRemoteFile(url);
+		return getRemoteFile(getUrl().appendPath(remotePath));
 	}
 
     /*

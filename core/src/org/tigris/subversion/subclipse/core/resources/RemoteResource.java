@@ -25,9 +25,9 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
-import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.SVNUrlUtils;
 
 /**
  * The purpose of this class and its subclasses is to implement the corresponding
@@ -96,19 +96,18 @@ public abstract class RemoteResource
         this.author = null;
     }
 
-
 	/*
 	 * @see ISVNRemoteResource#getName()
 	 */
 	public String getName() {
-		return Util.getLastSegment(url.toString());
+		return (url != null) ? url.getLastPathSegment() : "";
 	}
 
     /**
      * get the path of this remote resource relatively to the repository
      */
     public String getRepositoryRelativePath() {
-        return getUrl().toString().substring(getRepository().getUrl().toString().length());
+        return SVNUrlUtils.getRelativePath(getRepository().getUrl(), getUrl(), true);
     }    
 	
     /*
@@ -196,7 +195,7 @@ public abstract class RemoteResource
      */
     public String getContentIdentifier() {
         if (getLastChangedRevision() == null) return "";
-		return getLastChangedRevision().getNumber()+"";
+		return String.valueOf(getLastChangedRevision().getNumber());
 	}
 	
 	
@@ -205,7 +204,7 @@ public abstract class RemoteResource
 	 * @see org.eclipse.team.core.variants.CachedResourceVariant#getCachePath()
 	 */
 	protected String getCachePath() {
-		return this.getUrl().toString()+":"+getContentIdentifier();
+		return this.getUrl().toString() + ":" + getContentIdentifier();
 	}
 	/*
 	 * (non-Javadoc)
@@ -215,13 +214,11 @@ public abstract class RemoteResource
 	protected String getCacheId() {
 		return SVNProviderPlugin.ID;
 	}
-	/*
-	 * (non-Javadoc)
-	 * 
+
+	/* (non-Javadoc)
 	 * @see org.eclipse.team.core.variants.IResourceVariant#asBytes()
 	 */
 	public byte[] asBytes() {
-		System.out.println("returning bytes for: "+getCachePath());
 		return new Long(getContentIdentifier()).toString().getBytes();
 	}
 	
