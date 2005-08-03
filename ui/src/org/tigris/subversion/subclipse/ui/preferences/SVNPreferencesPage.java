@@ -14,6 +14,7 @@ package org.tigris.subversion.subclipse.ui.preferences;
 
 import java.io.File;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
@@ -40,6 +41,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.javahl.JavaSvnClientAdapterFactory;
+import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapter;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
 
 /**
@@ -60,6 +62,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button useDirectoryLocationRadio;
     private Text directoryLocationText;
     private Button browseConfigDirButton;
+    
+    private boolean javahlErrorShown = false;
 
 	public SVNPreferencesPage() {
 		// sort the options by display text
@@ -322,6 +326,13 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
         if (javahlRadio.getSelection()) {
 			if (!SVNClientAdapterFactory.isSVNClientAvailable(JhlClientAdapterFactory.JAVAHL_CLIENT)) {
 				setErrorMessage(Policy.bind("SVNPreferencePage.javahlNotAvailable")); //$NON-NLS-1$
+				if (!javahlErrorShown) {
+				    javahlErrorShown = true;
+					MessageDialog.openError(
+							getShell(),
+							"Error Loading JavaHL Library",
+							JhlClientAdapter.getLibraryLoadErrors());
+				}
 			}
 		}
         if (javaSvnRadio.getSelection()) {

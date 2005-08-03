@@ -37,29 +37,43 @@ public class SVNClientManager {
      * @see org.eclipse.core.internal.resources.IManager#startup(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void startup(IProgressMonitor monitor) throws CoreException {
+        boolean adapterAvailable = false;
+        SVNException javahlException = null;
+        SVNException javaSvnException = null;
+        SVNException cliException = null;
         try {
             JhlClientAdapterFactory.setup();
+            adapterAvailable = true;
         } catch (SVNClientException e) {
             // if an exception is thrown, javahl is not available or 
             // already registered ...
-            System.out.println("Javahl interface not available");
-            SVNProviderPlugin.log(SVNException.wrapException(e));
+            javahlException = SVNException.wrapException(e);
         }
         try {
             JavaSvnClientAdapterFactory.setup();
+            adapterAvailable = true;
         } catch (SVNClientException e) {
             // if an exception is thrown, JavaSVN is not available or 
             // already registered ...
-            System.out.println("JavaSvn interface not available");
-            SVNProviderPlugin.log(SVNException.wrapException(e));
+            javaSvnException = SVNException.wrapException(e);
         }
         try {
             CmdLineClientAdapterFactory.setup();
+            adapterAvailable = true;
         } catch (SVNClientException e) {
             // if an exception is thrown, command line interface is not available or 
             // already registered ...
-            System.out.println("Command line interface not available");
-            SVNProviderPlugin.log(SVNException.wrapException(e));
+            cliException = SVNException.wrapException(e);
+        }
+        
+        if (!adapterAvailable) {
+            System.out.println("No SVN Client Adapter available");
+            if (javahlException != null)
+                SVNProviderPlugin.log(javahlException);
+            if (javaSvnException != null)
+                SVNProviderPlugin.log(javaSvnException);
+            if (cliException != null)
+                SVNProviderPlugin.log(cliException);
         }
         
         
