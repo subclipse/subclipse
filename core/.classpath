@@ -7,5 +7,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="commons-lang-2.0.jar"/>
+	<classpathentry kind="lib" path="javasvn.jar"/>
+	<classpathentry kind="lib" path="jsch.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

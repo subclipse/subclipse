@@ -23,6 +23,12 @@
       <library name="commons-lang-2.0.jar">
          <export name="*"/>
       </library>
+      <library name="javasvn.jar">
+         <export name="*"/>
+      </library>
+      <library name="jsch.jar">
+         <export name="*"/>
+      </library>
    </runtime>
 
    <requires>

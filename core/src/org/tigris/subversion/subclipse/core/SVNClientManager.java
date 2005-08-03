@@ -19,6 +19,7 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
+import org.tigris.subversion.svnclientadapter.javahl.JavaSvnClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
 
 /**
@@ -42,6 +43,14 @@ public class SVNClientManager {
             // if an exception is thrown, javahl is not available or 
             // already registered ...
             System.out.println("Javahl interface not available");
+            SVNProviderPlugin.log(SVNException.wrapException(e));
+        }
+        try {
+            JavaSvnClientAdapterFactory.setup();
+        } catch (SVNClientException e) {
+            // if an exception is thrown, JavaSVN is not available or 
+            // already registered ...
+            System.out.println("JavaSvn interface not available");
             SVNProviderPlugin.log(SVNException.wrapException(e));
         }
         try {
