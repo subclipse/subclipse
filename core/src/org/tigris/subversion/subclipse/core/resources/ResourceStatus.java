@@ -15,9 +15,11 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.team.core.RepositoryProvider;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -163,12 +165,26 @@ public class ResourceStatus implements Serializable {
 
 	public ISVNRepositoryLocation getRepository()
 	{
-		try {
-			return SVNProviderPlugin.getPlugin().getRepository(getUrl().toString());
-		} catch (SVNException e) {
-			// an exception is thrown when resource	is not managed
-			SVNProviderPlugin.log(e);
-			return null;
+		if (getUrlString() != null)
+		{
+			try {
+				return SVNProviderPlugin.getPlugin().getRepository(getUrlString());
+			} catch (SVNException e) {
+				// an exception is thrown when resource	is not managed
+				SVNProviderPlugin.log(e);
+				return null;
+			}
+		}
+		else
+		{
+			try {
+				SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(getResource().getProject(), SVNProviderPlugin.getTypeId());
+				return teamProvider.getSVNWorkspaceRoot().getRepository();
+			} catch (SVNException e) {
+				// an exception is thrown when resource	is not managed
+				SVNProviderPlugin.log(e);
+				return null;
+			}
 		}
 	}
 
