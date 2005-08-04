@@ -79,8 +79,9 @@ public class SVNStatusSyncInfo extends SyncInfo {
                 return SyncInfo.INCOMING | SyncInfo.DELETION;
             if( repositoryKind == SVNStatusKind.ADDED )
                 return SyncInfo.INCOMING | SyncInfo.ADDITION;
-            if (getComparator().compare(local, getRemote())) 
-                return SyncInfo.IN_SYNC;
+//TODO Is this really necessary here ?
+//            if (getComparator().compare(getBase(), getRemote())) 
+//                return SyncInfo.IN_SYNC;
             return SyncInfo.INCOMING | SyncInfo.CHANGE;
         }
         else if( localKind == SVNStatusKind.EXTERNAL)
