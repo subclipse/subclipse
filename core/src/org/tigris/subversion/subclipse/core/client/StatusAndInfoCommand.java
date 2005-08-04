@@ -33,7 +33,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrlUtils;
 /**
  * svn status + subsequent svn info command(s).
  * After execute() of superclass StatusCommand, not all necessary information is retrieved.
- * For added files or resources (incoming additions), their nodeKind is not known from status.
+ * For added files or resources (incoming additions), their e.g. nodeKind is not known from the status.
  * To get that information, subsequent calls to "svn info" are executed for those unknown urls ...
  * 
  * @author Martin Letenay
@@ -51,8 +51,9 @@ public class StatusAndInfoCommand extends StatusCommand {
     public void execute(ISVNClientAdapter client) throws SVNClientException {
         super.execute(client);
         
-        informedStatuses = collectInformedStatuses(getStatuses());
-        fetchNodeKinds(client, collectUnknownKinds(informedStatuses));
+        informedStatuses = collectRemoteStatuses(getStatuses(), client);
+//        informedStatuses = collectInformedStatuses(getStatuses());
+//        fetchNodeKinds(client, collectUnknownKinds(informedStatuses));
     }
 
     /**
@@ -63,13 +64,66 @@ public class StatusAndInfoCommand extends StatusCommand {
     {
     	return informedStatuses;
     }
-    
+
+    private RemoteResourceStatus[] collectRemoteStatuses(ISVNStatus[] statuses, ISVNClientAdapter client)
+    {
+    	RemoteResourceStatus[] result = new RemoteResourceStatus[statuses.length];
+
+        Arrays.sort(statuses, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				return ((ISVNStatus) o1).getPath().compareTo(((ISVNStatus) o2).getPath());
+			}            	
+        });
+
+        for (int i = 0; i < statuses.length; i++) {
+        	if ((SVNStatusKind.UNVERSIONED == statuses[i].getTextStatus() && (!SVNStatusKind.ADDED.equals(statuses[i].getTextStatus()))))
+        	{
+        		result[i] = RemoteResourceStatus.NONE;
+        	}
+        	else
+        	{
+        		RemoteResourceStatus remoteStatus = new RemoteResourceStatus(statuses[i]);
+//        		if ((remoteStatus.getNodeKind() == SVNNodeKind.UNKNOWN) ||
+//        				(remoteStatus.getLastChangedDate() == null) ||
+//						(remoteStatus.getLastChangedRevision() == null) ||
+//						(remoteStatus.getLastCommitAuthor() == null) ||
+//						(remoteStatus.getRevision() == null) ||
+//						(remoteStatus.getUrlString() == null))
+//        		{
+        			remoteStatus.updateFromInfo(fetchInfo(client, remoteStatus));
+//        		}
+                result[i] = remoteStatus;
+        	}
+        }
+        
+        return result;
+    }
+
+    /**
+     * Fetch SVNInfo for the supplied remote resource
+     * 
+     * @param client svnAdapter to run "info" command on
+     * @param statuse - RemoteResourceStatus which nodeKinds we want to get and set
+     * @throws SVNClientException
+     */
+    private ISVNInfo fetchInfo(ISVNClientAdapter client, RemoteResourceStatus status)
+    {
+    	SVNUrl url = SVNUrlUtils.getUrlFromLocalFileName(status.getPathString(), svnResource.getUrl(), svnResource.getFile().getAbsolutePath());
+    	ISVNInfo info;
+        try {
+            return client.getInfo(url);
+        } catch (SVNClientException e) {
+            return null;
+        }
+    }    
+
     /**
      * Fetch nodeKind info for all InformedStatuses
      * 
      * @param client svnAdapter to run "list" command on
      * @param statuses - list of InformedStatuses which nodeKinds we want to get and set
      * @throws SVNClientException
+     * @deprecated not used anymore - was used as part of collecting missing nodeKinds 
      */
     private void fetchNodeKinds(ISVNClientAdapter client, RemoteResourceStatus[] statuses) throws SVNClientException
     {
@@ -84,9 +138,10 @@ public class StatusAndInfoCommand extends StatusCommand {
     /**
      * Fetch nodeKind info for the InformedStatus
      * 
-     * @param client svnAdapter to run "list" command on
+     * @param client svnAdapter to run "info" command on
      * @param statuse - RemoteResourceStatus which nodeKinds we want to get and set
      * @throws SVNClientException
+     * @deprecated not used anymore - was used as part of collecting missing nodeKinds 
      */
     private void fetchNodeKind(ISVNClientAdapter client, RemoteResourceStatus status)
     {
@@ -103,6 +158,12 @@ public class StatusAndInfoCommand extends StatusCommand {
     	}
     }    
 
+    /**
+     * 
+     * @param statuses
+     * @return
+     * @deprecated not used anymore - was used as part of collecting missing nodeKinds 
+     */
     private RemoteResourceStatus[] collectInformedStatuses(ISVNStatus[] statuses)
     {
         Set containerSet = new HashSet();
@@ -160,6 +221,12 @@ public class StatusAndInfoCommand extends StatusCommand {
         return result;
     }
     
+    /**
+     * 
+     * @param informedStatuses
+     * @return
+     * @deprecated not used anymore - was used as part of collecting missing nodeKinds 
+     */
     private RemoteResourceStatus[] collectUnknownKinds(RemoteResourceStatus[] informedStatuses)
     {
     	List unknowns = new ArrayList();

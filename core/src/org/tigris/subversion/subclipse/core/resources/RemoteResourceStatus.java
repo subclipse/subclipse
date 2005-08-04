@@ -5,11 +5,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Date;
 
+import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * This class has an interface which is very similar to ISVNStatus but we make
@@ -22,6 +27,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus
  */
 public class RemoteResourceStatus extends ResourceStatus {
+	public static RemoteResourceStatus NONE = new RemoteResourceStatusNone();
 
     static final long serialVersionUID = 1L;
 
@@ -32,6 +38,19 @@ public class RemoteResourceStatus extends ResourceStatus {
 
     private RemoteResourceStatus() {}
 
+	public RemoteResourceStatus(ISVNStatus realStatus) {
+		super(realStatus);
+
+		this.textStatus = realStatus.getRepositoryTextStatus().toInt();
+        this.propStatus = realStatus.getRepositoryPropStatus().toInt();
+	}
+
+    /**
+     * 
+     * @param realStatus
+     * @param revision
+     * @deprecated not used anymore - was used as part of collecting missing nodeKinds from StatusAndInfoCommand
+     */
 	public RemoteResourceStatus(ISVNStatus realStatus, SVNRevision.Number revision) {
 		super(realStatus);
 
@@ -49,6 +68,53 @@ public class RemoteResourceStatus extends ResourceStatus {
         }
 	}
 	
+	/**
+	 * Update missing data from the supplied info
+	 * @param info
+	 */
+	public void updateFromInfo(ISVNInfo info)
+	{
+		if (info == null) return;
+		
+    	/** a temporary variable serving as immediate cache for various status values */
+    	Object aValue = null;
+
+		this.nodeKind = info.getNodeKind().toInt();
+
+        aValue = info.getLastChangedDate();
+        if (aValue == null) {
+            this.lastChangedDate = -1;
+        } else {
+            this.lastChangedDate = ((Date) aValue).getTime();
+        }
+
+        aValue = info.getLastChangedRevision();
+        if (aValue == null) {
+            this.lastChangedRevision = SVNRevision.SVN_INVALID_REVNUM;
+        } else {
+            this.lastChangedRevision = ((SVNRevision.Number) aValue).getNumber();
+        }
+
+        this.lastCommitAuthor = info.getLastCommitAuthor();
+
+        aValue = info.getRevision();
+        if (aValue == null) {
+            this.revision = SVNRevision.SVN_INVALID_REVNUM;
+        } else {
+            this.revision = ((SVNRevision.Number) aValue).getNumber();
+        }
+
+    	aValue = info.getUrl();
+        if (aValue == null) {
+            this.url = null;
+        } else {
+            this.url = ((SVNUrl) aValue).toString();
+        }
+	}
+	
+	/**
+     * @deprecated not used anymore - was used as part of collecting missing nodeKinds from StatusAndInfoCommand
+	 */
 	public void setNodeKind(SVNNodeKind informedKind) {
 		this.nodeKind = informedKind.toInt();
 	}
@@ -104,5 +170,20 @@ public class RemoteResourceStatus extends ResourceStatus {
         return version;
     }
 
-    
+    public static class RemoteResourceStatusNone extends RemoteResourceStatus {    
+    	public RemoteResourceStatusNone()
+    	{
+    		super();
+    		this.nodeKind = SVNNodeKind.UNKNOWN.toInt();
+            this.revision = SVNRevision.SVN_INVALID_REVNUM;
+            this.textStatus = SVNStatusKind.NONE.toInt();
+            this.propStatus = SVNStatusKind.NONE.toInt();
+            //this.path = status.getFile().getAbsolutePath();
+    	}
+    	
+    	public IResource getResource()
+    	{
+    		return null;
+    	}
+    }   
 }

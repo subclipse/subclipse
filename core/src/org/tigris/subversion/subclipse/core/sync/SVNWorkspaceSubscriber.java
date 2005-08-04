@@ -110,6 +110,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
      */
     public boolean isSupervised(IResource resource) throws TeamException {
 		try {
+			if (SVNWorkspaceRoot.isLinkedResource(resource)) return false;
 			RepositoryProvider provider = RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
 			if (provider == null) return false;
 			// TODO: what happens for resources that don't exist?
@@ -239,17 +240,18 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
             RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
 
-            IResource[] result = new IResource[statuses.length];
+            List result = new ArrayList(statuses.length);
             for (int i = 0; i < statuses.length; i++) {
-            	result[i] = statuses[i].getResource();
+            	IResource changedResource = statuses[i].getResource();
 				
-                if (isSupervised(result[i]))
+                if ((changedResource != null) && isSupervised(changedResource))
                 {
+                	result.add(changedResource);
                 	remoteSyncStateStore.setBytes( statuses[i].getResource(), statuses[i].getBytes() );
                 }
 			}
             
-            return result;
+            return (IResource[]) result.toArray(new IResource[result.size()]);
         } catch (SVNClientException e) {
             throw new TeamException("Error getting status for resource " + resource + " " + e.getMessage(), e);
         }

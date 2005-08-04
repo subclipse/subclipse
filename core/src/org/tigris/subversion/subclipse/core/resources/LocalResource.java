@@ -145,13 +145,14 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	}
     
     public boolean hasRemote() throws SVNException {
-        return getStatus().hasRemote();
+        return !this.resource.isLinked() && getStatus().hasRemote();
     }
 
     /**
      * get the status of the given resource
      */
     public LocalResourceStatus getStatus() throws SVNException {
+    	if (SVNWorkspaceRoot.isLinkedResource(this.resource)) { return LocalResourceStatus.NONE; }
     	LocalResourceStatus aStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatus(resource);
         return (aStatus != null) ? aStatus : LocalResourceStatus.NONE;
     }
@@ -229,49 +230,6 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
         return getRemoteResource(SVNRevision.HEAD); 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#getBaseResource()
-     */
-    public ISVNRemoteResource getBaseResource() throws SVNException {
-		// this is what we used previously
-		// see in LocalFile and LocalFolder for new implementation
-		// we can't use that for now because it is too slow
-		// repository is contacted (it should not be)
-    	return null;
-
-		/*
-    	ISVNClientAdapter svnClient = getRepository().getSVNClient();
-		ISVNDirEntry dirEntry;
-		try {
-        	dirEntry = svnClient.getDirEntry(getFile(),SVNRevision.BASE);
-        } catch (SVNClientException e) {
-            throw new SVNException("Can't get base resource for "+resource.toString(),e);   
-        }
-        
-        if (dirEntry == null)
-            return null; // no remote file
-        else
-        {
-            if (dirEntry.getNodeKind() == SVNNodeKind.FILE)
-                return new BaseFile(
-                    (ISVNLocalFile)this,
-                    dirEntry.getHasProps(),
-                    dirEntry.getLastChangedRevision(),
-                    dirEntry.getLastChangedDate(),
-                    dirEntry.getLastCommitAuthor()
-                );
-             else
-                return new BaseFolder(
-                	(ISVNLocalFolder)this,
-                    dirEntry.getHasProps(),
-                    dirEntry.getLastChangedRevision(),
-                    dirEntry.getLastChangedDate(),
-                    dirEntry.getLastCommitAuthor()
-                );                
-        }*/
-    }
-    
     /**
      * get the remote resource corresponding to the given revision of this local resource
      * @return null if there is no remote file corresponding to this local resource
