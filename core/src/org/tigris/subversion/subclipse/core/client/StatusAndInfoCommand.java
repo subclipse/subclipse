@@ -18,7 +18,11 @@ import java.util.ListIterator;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.Policy;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.commands.ISVNCommand;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -38,22 +42,39 @@ import org.tigris.subversion.svnclientadapter.SVNUrlUtils;
  * 
  * @author Martin Letenay
  */
-public class StatusAndInfoCommand extends StatusCommand {
+public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
 	
 	private RemoteResourceStatus[] informedStatuses;
 	private ISVNLocalResource svnResource;
+	private SVNUrl rootUrl;
+	private String rootPath;
 
     public StatusAndInfoCommand(ISVNLocalResource svnResource, boolean descend, boolean getAll, boolean contactServer) {
         super(svnResource.getFile(), descend, getAll, contactServer);
-        this.svnResource = svnResource;        
+        this.svnResource = svnResource;
+        this.rootUrl = svnResource.getWorkspaceRoot().getLocalRoot().getUrl();
+        this.rootPath = svnResource.getWorkspaceRoot().getLocalRoot().getFile().getAbsolutePath();
     }
 
-    public void execute(ISVNClientAdapter client) throws SVNClientException {
-        super.execute(client);
+    public void execute(final ISVNClientAdapter client, final IProgressMonitor monitor) throws SVNClientException {
+        super.execute(client, monitor);
+        monitor.worked(50);
         
-        informedStatuses = collectRemoteStatuses(getStatuses(), client);
+        informedStatuses = collectRemoteStatuses(getStatuses(), client, Policy.subMonitorFor(monitor,50));
 //        informedStatuses = collectInformedStatuses(getStatuses());
 //        fetchNodeKinds(client, collectUnknownKinds(informedStatuses));
+    }
+
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void run(IProgressMonitor monitor) throws SVNException {
+        try { 
+            ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+            execute(svnClient, monitor);
+        } catch (SVNClientException e) {
+            throw SVNException.wrapException(e);
+        }
     }
 
     /**
@@ -65,8 +86,10 @@ public class StatusAndInfoCommand extends StatusCommand {
     	return informedStatuses;
     }
 
-    private RemoteResourceStatus[] collectRemoteStatuses(ISVNStatus[] statuses, ISVNClientAdapter client)
+    private RemoteResourceStatus[] collectRemoteStatuses(ISVNStatus[] statuses, ISVNClientAdapter client, final IProgressMonitor monitor)
     {
+    	monitor.beginTask("", statuses.length);
+    	try {
     	RemoteResourceStatus[] result = new RemoteResourceStatus[statuses.length];
 
         Arrays.sort(statuses, new Comparator() {
@@ -90,13 +113,17 @@ public class StatusAndInfoCommand extends StatusCommand {
 //						(remoteStatus.getRevision() == null) ||
 //						(remoteStatus.getUrlString() == null))
 //        		{
-        			remoteStatus.updateFromInfo(fetchInfo(client, remoteStatus));
+        			remoteStatus.updateFromInfo(fetchInfo(client, remoteStatus, monitor));
 //        		}
                 result[i] = remoteStatus;
         	}
-        }
+        	monitor.worked(1);
+        }	
         
         return result;
+    	} finally {
+    		monitor.done();
+    	}
     }
 
     /**
@@ -106,11 +133,17 @@ public class StatusAndInfoCommand extends StatusCommand {
      * @param statuse - RemoteResourceStatus which nodeKinds we want to get and set
      * @throws SVNClientException
      */
-    private ISVNInfo fetchInfo(ISVNClientAdapter client, RemoteResourceStatus status)
+    private ISVNInfo fetchInfo(ISVNClientAdapter client, RemoteResourceStatus status, final IProgressMonitor monitor)
     {
-    	SVNUrl url = SVNUrlUtils.getUrlFromLocalFileName(status.getPathString(), svnResource.getUrl(), svnResource.getFile().getAbsolutePath());
+    	if (SVNStatusKind.DELETED.equals(status.getTextStatus())) return null;
+    	SVNUrl url = status.getUrl();
+    	if (url == null)
+    	{
+    		url = SVNUrlUtils.getUrlFromLocalFileName(status.getPathString(), rootUrl, rootPath);
+    	}
     	ISVNInfo info;
         try {
+        	monitor.subTask(url.toString());
             return client.getInfo(url);
         } catch (SVNClientException e) {
             return null;
@@ -145,7 +178,7 @@ public class StatusAndInfoCommand extends StatusCommand {
      */
     private void fetchNodeKind(ISVNClientAdapter client, RemoteResourceStatus status)
     {
-    	SVNUrl url = SVNUrlUtils.getUrlFromLocalFileName(status.getPathString(), svnResource.getUrl(), svnResource.getFile().getAbsolutePath());
+    	SVNUrl url = SVNUrlUtils.getUrlFromLocalFileName(status.getPathString(), rootUrl, rootPath);
     	ISVNInfo info;
         try {
             info = client.getInfo(url);

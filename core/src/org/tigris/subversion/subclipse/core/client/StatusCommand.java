@@ -5,6 +5,8 @@ package org.tigris.subversion.subclipse.core.client;
 
 import java.io.File;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
@@ -31,7 +33,17 @@ public class StatusCommand {
         this.contactServer = contactServer;
     }
 
+    /**
+     * 
+     * @param client
+     * @throws SVNClientException
+     * @deprecated use {@link #execute(ISVNClientAdapter, IProgressMonitor)} now ...
+     */
     public void execute(ISVNClientAdapter client) throws SVNClientException {
+    	execute(client, new NullProgressMonitor());
+    }
+
+    public void execute(final ISVNClientAdapter client, final IProgressMonitor monitor) throws SVNClientException {
         ISVNNotifyListener revisionListener = new ISVNNotifyListener() {
             public void setCommand(int command) {}
             public void logCommandLine(String commandLine) {}

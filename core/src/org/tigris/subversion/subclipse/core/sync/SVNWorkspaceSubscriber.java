@@ -21,8 +21,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -42,13 +40,12 @@ import org.eclipse.team.core.variants.SessionResourceVariantByteStore;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener {
 
@@ -213,9 +210,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, IResource.DEPTH_INFINITE);
 			monitor.worked(300);
 
-			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.retrievingSynchronizationData"));
-			IResource[] changedResources = findChanges(resource, depth);
-			monitor.worked(400);
+			IResource[] changedResources = findChanges(resource, depth, Policy.infiniteSubMonitorFor(monitor, 400));
 
 			fireTeamResourceChange(SubscriberChangeEvent.asSyncChangedDeltas(this, changedResources));
 			monitor.worked(300);
@@ -225,18 +220,17 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 		} 
 	}
 
-    private IResource[] findChanges(IResource resource, int depth) throws TeamException {
-        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        IWorkspaceRoot workspaceRoot = workspace.getRoot();
-        
-        remoteSyncStateStore.flushBytes(resource, depth);
-
-        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
-
-        boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
+    private IResource[] findChanges(IResource resource, int depth, IProgressMonitor monitor) throws TeamException {
         try {
+        	monitor.beginTask(Policy.bind("SVNWorkspaceSubscriber.retrievingSynchronizationData"), 100);
+
+        	remoteSyncStateStore.flushBytes(resource, depth);
+
+//            ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
+
+            boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
             StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, false, true );
-            cmd.execute( client );
+            cmd.run(monitor);
 
             RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
 
@@ -252,9 +246,11 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			}
             
             return (IResource[]) result.toArray(new IResource[result.size()]);
-        } catch (SVNClientException e) {
+        } catch (SVNException e) {
             throw new TeamException("Error getting status for resource " + resource + " " + e.getMessage(), e);
-        }
+        } finally {
+        	monitor.done();
+		}
     }
 
     /* (non-Javadoc)
