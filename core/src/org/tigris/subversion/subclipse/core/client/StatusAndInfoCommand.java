@@ -9,22 +9,15 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.client;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.ISVNCommand;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
@@ -44,7 +37,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrlUtils;
  */
 public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
 	
-	private RemoteResourceStatus[] informedStatuses;
+	private RemoteResourceStatus[] remoteStatuses;
 	private ISVNLocalResource svnResource;
 	private SVNUrl rootUrl;
 	private String rootPath;
@@ -58,11 +51,8 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
 
     public void execute(final ISVNClientAdapter client, final IProgressMonitor monitor) throws SVNClientException {
         super.execute(client, monitor);
-        monitor.worked(50);
-        
-        informedStatuses = collectRemoteStatuses(getStatuses(), client, Policy.subMonitorFor(monitor,50));
-//        informedStatuses = collectInformedStatuses(getStatuses());
-//        fetchNodeKinds(client, collectUnknownKinds(informedStatuses));
+        monitor.worked(50);        
+        remoteStatuses = collectRemoteStatuses(getStatuses(), client, Policy.subMonitorFor(monitor,50));
     }
 
     /* (non-Javadoc)
@@ -83,7 +73,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
      */
     public RemoteResourceStatus[] getRemoteResourceStatuses()
     {
-    	return informedStatuses;
+    	return remoteStatuses;
     }
 
     private RemoteResourceStatus[] collectRemoteStatuses(ISVNStatus[] statuses, ISVNClientAdapter client, final IProgressMonitor monitor)
@@ -106,16 +96,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
         	else
         	{
         		RemoteResourceStatus remoteStatus = new RemoteResourceStatus(statuses[i]);
-//        		if ((remoteStatus.getNodeKind() == SVNNodeKind.UNKNOWN) ||
-//        				(remoteStatus.getLastChangedDate() == null) ||
-//						(remoteStatus.getLastChangedRevision() == null) ||
-//						(remoteStatus.getLastCommitAuthor() == null) ||
-//						(remoteStatus.getRevision() == null) ||
-//						(remoteStatus.getUrlString() == null))
-//        		{
-        			remoteStatus.updateFromInfo(fetchInfo(client, remoteStatus, monitor));
-//        		}
-                result[i] = remoteStatus;
+                result[i] = ensureStatusContainsRemoteData(remoteStatus, client, monitor);
         	}
         	monitor.worked(1);
         }	
@@ -126,6 +107,39 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
     	}
     }
 
+    /**
+     * Ensure that the supplied <code>remoteStatus</code> contains all required data,
+     * (I.e. nodeKind for incoming resources, repository's lastChangedRevision for incoming modifications etc ... 
+     * @param remoteStatus
+     * @return
+     */
+    private RemoteResourceStatus ensureStatusContainsRemoteData(RemoteResourceStatus remoteStatus, final ISVNClientAdapter client, final IProgressMonitor monitor)
+    {
+    	//Some clientAdpater implementations (e.g. JavaSVN) do their job right, so there's no need to fetch additional data.
+    	if (client.statusReturnsRemoteInfo())
+    	{
+    		return remoteStatus;
+    	}
+    	
+    		
+		if (	//If some crucial data missing ..
+				(remoteStatus.getNodeKind() == SVNNodeKind.UNKNOWN) ||
+				(remoteStatus.getLastChangedDate() == null) ||
+				(remoteStatus.getLastChangedRevision() == null) ||
+				(remoteStatus.getLastCommitAuthor() == null) ||
+				(remoteStatus.getRevision() == null) ||
+				(remoteStatus.getUrlString() == null) ||
+				//For outgoing changes we don't need to obtain server revisions ...
+				((SVNStatusKind.NONE != remoteStatus.getStatusKind()) &&
+				 (SVNStatusKind.NORMAL != remoteStatus.getStatusKind()))			
+			)
+		{
+			remoteStatus.updateFromInfo(fetchInfo(client, remoteStatus, monitor));
+		}
+    	
+    	return remoteStatus;
+    }
+    
     /**
      * Fetch SVNInfo for the supplied remote resource
      * 
@@ -148,127 +162,5 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             return null;
         }
-    }    
-
-    /**
-     * Fetch nodeKind info for all InformedStatuses
-     * 
-     * @param client svnAdapter to run "list" command on
-     * @param statuses - list of InformedStatuses which nodeKinds we want to get and set
-     * @throws SVNClientException
-     * @deprecated not used anymore - was used as part of collecting missing nodeKinds 
-     */
-    private void fetchNodeKinds(ISVNClientAdapter client, RemoteResourceStatus[] statuses) throws SVNClientException
-    {
-    	for (int i = 0; i < statuses.length; i++) {
-    		if (!SVNStatusKind.UNVERSIONED.equals(statuses[i].getTextStatus()))
-    		{
-    			fetchNodeKind(client, statuses[i]);
-    		}
-		}    	
-    }
-
-    /**
-     * Fetch nodeKind info for the InformedStatus
-     * 
-     * @param client svnAdapter to run "info" command on
-     * @param statuse - RemoteResourceStatus which nodeKinds we want to get and set
-     * @throws SVNClientException
-     * @deprecated not used anymore - was used as part of collecting missing nodeKinds 
-     */
-    private void fetchNodeKind(ISVNClientAdapter client, RemoteResourceStatus status)
-    {
-    	SVNUrl url = SVNUrlUtils.getUrlFromLocalFileName(status.getPathString(), rootUrl, rootPath);
-    	ISVNInfo info;
-        try {
-            info = client.getInfo(url);
-        } catch (SVNClientException e) {
-            info = null;
-        }
-        if (info != null)
-    	{
-    		status.setNodeKind(info.getNodeKind());
-    	}
-    }    
-
-    /**
-     * 
-     * @param statuses
-     * @return
-     * @deprecated not used anymore - was used as part of collecting missing nodeKinds 
-     */
-    private RemoteResourceStatus[] collectInformedStatuses(ISVNStatus[] statuses)
-    {
-        Set containerSet = new HashSet();
-        List allStatuses = new ArrayList();
-
-        Arrays.sort(statuses, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return ((ISVNStatus) o1).getPath().compareTo(((ISVNStatus) o2).getPath());
-			}            	
-        });
-
-        //Collect changed resources (in reverse order so dirs are properly identified
-        for (int i = statuses.length - 1; i >= 0; i--) {
-            ISVNStatus status = statuses[i];            
-            RemoteResourceStatus informedStatus = new RemoteResourceStatus(status, getRevision());
-            int resourceType = SVNWorkspaceRoot.getResourceType(status.getPath());
-            if ( SVNNodeKind.UNKNOWN  == status.getNodeKind() ) 
-            {
-                if( resourceType != resourceType)
-                {
-                	if (IResource.FILE == resourceType)
-                	{
-                		informedStatus.setNodeKind(SVNNodeKind.FILE);
-                	}
-                	else if(IResource.FOLDER == resourceType)
-                	{
-                		informedStatus.setNodeKind(SVNNodeKind.DIR);                		
-                	}
-                }
-                else
-                {
-                	// check whether the resource path was not already added as parent of a previous resource.
-                	// if it was then it is pretty clear that it is directory ...
-                	if( containerSet.contains( status.getPath() ) )
-                	{
-                		informedStatus.setNodeKind(SVNNodeKind.DIR);                		
-                	}
-                }
-            }
-            int lastIndexOfSlash = status.getPath().lastIndexOf('/');
-            if (lastIndexOfSlash > 0)
-            {
-            	containerSet.add(status.getPath().substring(0,lastIndexOfSlash));
-            }
-            allStatuses.add(informedStatus);
-        }
-        
-        RemoteResourceStatus[] result = new RemoteResourceStatus[allStatuses.size()];
-        int i= 0;
-        //In reverse-reverse order so dir syncInfos are created sooner then files ...
-        for (ListIterator iter = allStatuses.listIterator(allStatuses.size()); iter.hasPrevious(); i++) {
-        	result[i] = (RemoteResourceStatus) iter.previous();
-		}
-        
-        return result;
-    }
-    
-    /**
-     * 
-     * @param informedStatuses
-     * @return
-     * @deprecated not used anymore - was used as part of collecting missing nodeKinds 
-     */
-    private RemoteResourceStatus[] collectUnknownKinds(RemoteResourceStatus[] informedStatuses)
-    {
-    	List unknowns = new ArrayList();
-    	for (int i = 0; i < informedStatuses.length; i++) {
-			if (SVNNodeKind.UNKNOWN == informedStatuses[i].getNodeKind())
-			{
-				unknowns.add(informedStatuses[i]);
-			}
-		}
-    	return (RemoteResourceStatus[]) unknowns.toArray(new RemoteResourceStatus[0]);
     }
 }
