@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.commands;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -56,15 +58,21 @@ public class UpdateResourcesCommand implements ISVNCommand {
     		};
 
     		operationHandler.beginOperation(svnClient, notifyListener);
-            for (int i = 0; i < resources.length; i++) {
-                if (monitor.isCanceled()) {
-                    return;
-                }
-                
-                monitor.subTask(resources[i].getName());
-                svnClient.update(resources[i].getLocation().toFile(),revision,true);
-                monitor.worked(100);
-            }
+    		if (resources.length == 1)
+    		{
+                monitor.subTask(resources[0].getName());
+                svnClient.update(resources[0].getLocation().toFile(),revision,true);
+                monitor.worked(100);    			
+    		}
+    		else
+    		{
+    			File[] files = new File[resources.length];
+    			for (int i = 0; i < resources.length; i++) {
+					files[i] = resources[i].getLocation().toFile();
+				}
+   				svnClient.update(files, revision, false, true);
+   				monitor.worked(100);
+    		}
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
