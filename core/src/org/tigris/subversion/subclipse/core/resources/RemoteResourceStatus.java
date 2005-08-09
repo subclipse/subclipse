@@ -38,18 +38,10 @@ public class RemoteResourceStatus extends ResourceStatus {
 
     private RemoteResourceStatus() {}
 
-	public RemoteResourceStatus(ISVNStatus realStatus) {
-		super(realStatus);
-
-		this.textStatus = realStatus.getRepositoryTextStatus().toInt();
-        this.propStatus = realStatus.getRepositoryPropStatus().toInt();
-	}
-
     /**
      * 
      * @param realStatus
      * @param revision
-     * @deprecated not used anymore - was used as part of collecting missing nodeKinds from StatusAndInfoCommand
      */
 	public RemoteResourceStatus(ISVNStatus realStatus, SVNRevision.Number revision) {
 		super(realStatus);

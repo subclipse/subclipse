@@ -95,7 +95,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
         	}
         	else
         	{
-        		RemoteResourceStatus remoteStatus = new RemoteResourceStatus(statuses[i]);
+        		RemoteResourceStatus remoteStatus = new RemoteResourceStatus(statuses[i], getRevision());
                 result[i] = ensureStatusContainsRemoteData(remoteStatus, client, monitor);
         	}
         	monitor.worked(1);
