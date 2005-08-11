@@ -43,6 +43,9 @@ private IPreferenceStore store;
         PreferenceConverter.setDefault(store, ISVNUIConstants.PREF_CONSOLE_MESSAGE_COLOR, new RGB(0, 0, 255));
         PreferenceConverter.setDefault(store, ISVNUIConstants.PREF_CONSOLE_ERROR_COLOR, new RGB(255, 0, 0));
         
+        store.setDefault(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_MESSAGE, true);
+        store.setDefault(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_ERROR, true);
+        
         store.setDefault(ISVNUIConstants.PREF_FILETEXT_DECORATION, SVNDecoratorConfiguration.DEFAULT_FILETEXTFORMAT);
         store.setDefault(ISVNUIConstants.PREF_FOLDERTEXT_DECORATION, SVNDecoratorConfiguration.DEFAULT_FOLDERTEXTFORMAT);
         store.setDefault(ISVNUIConstants.PREF_PROJECTTEXT_DECORATION, SVNDecoratorConfiguration.DEFAULT_PROJECTTEXTFORMAT);
@@ -53,7 +56,7 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION, true);
         store.setDefault(ISVNUIConstants.PREF_SHOW_ADDED_DECORATION, true);
         store.setDefault(ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION, true);
-        store.setDefault(ISVNUIConstants.PREF_SHOW_DIRTY_DECORATION, false);
+        store.setDefault(ISVNUIConstants.PREF_SHOW_DIRTY_DECORATION, true);
         store.setDefault(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION, true);
         store.setDefault(ISVNUIConstants.PREF_CALCULATE_DIRTY, true);
         store.setDefault(ISVNUIConstants.PREF_SHOW_SYNCINFO_AS_TEXT, false);        

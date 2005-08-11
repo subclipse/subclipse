@@ -70,15 +70,15 @@ public class SVNDecoratorConfiguration {
 	public static final String DIRTY_FLAG = "dirty_flag"; //$NON-NLS-1$
 	public static final String ADDED_FLAG = "added_flag"; //$NON-NLS-1$
     public static final String EXTERNAL_FLAG = "external_flag"; //$NON-NLS-1$
-	public static final String DEFAULT_DIRTY_FLAG = ">"; //$NON-NLS-1$
-	public static final String DEFAULT_ADDED_FLAG = "*"; //$NON-NLS-1$
-    public static final String DEFAULT_EXTERNAL_FLAG = "-"; //$NON-NLS-1$
+	public static final String DEFAULT_DIRTY_FLAG = ""; //$NON-NLS-1$
+	public static final String DEFAULT_ADDED_FLAG = ""; //$NON-NLS-1$
+    public static final String DEFAULT_EXTERNAL_FLAG = ""; //$NON-NLS-1$
 	
 	// default text decoration formats
     public static final String DEFAULT_FILETEXTFORMAT = "{added_flag}{dirty_flag}{name} {revision}  {date}  {author}"; //$NON-NLS-1$
     
 	public static final String DEFAULT_FOLDERTEXTFORMAT = "{external_flag}{added_flag}{dirty_flag}{name} "; //$NON-NLS-1$
-	public static final String DEFAULT_PROJECTTEXTFORMAT = "{dirty_flag}{name} [{url}]"; //$NON-NLS-1$
+	public static final String DEFAULT_PROJECTTEXTFORMAT = "{dirty_flag}{name} [{url_short}]"; //$NON-NLS-1$
 
     /**
      * add a prefix and a suffix depending on format string and the bindings
