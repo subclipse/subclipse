@@ -198,6 +198,14 @@ public class UnmanageAction extends WorkspaceAction {
 			}
 		});		
 		deleteContent = dialog.getDeleteContent();
+		if (deleteContent && result[0] == 0) {
+		    String title;
+			if (projects.length == 1)
+				title = Policy.bind("Unmanage.title");  //$NON-NLS-1$
+			else
+				title = Policy.bind("Unmanage.titleN");  //$NON-NLS-1$		    
+		    return MessageDialog.openQuestion(shell, title, Policy.bind("Unmanage.deleteMeta"));//$NON-NLS-1$
+		}
 		return result[0] == 0;  // YES
 	}
 	

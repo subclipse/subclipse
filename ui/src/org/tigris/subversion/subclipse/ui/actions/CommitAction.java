@@ -55,6 +55,7 @@ public class CommitAction extends WorkspaceAction {
     private boolean unaddedResources;
     private boolean commit;
     private boolean keepLocks;
+    private IResource[] selectedResources;
 	
 	/*
      * get non added resources and prompts for resources to be added
@@ -269,5 +270,13 @@ public class CommitAction extends WorkspaceAction {
 	      return true;
 	    }	
 	}	
-
+    protected IResource[] getSelectedResources() {
+        if (selectedResources == null)
+            return super.getSelectedResources();
+        else
+            return selectedResources;
+    }
+    public void setSelectedResources(IResource[] selectedResources) {
+        this.selectedResources = selectedResources;
+    }
 }

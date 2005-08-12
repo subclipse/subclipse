@@ -14,9 +14,12 @@ package org.tigris.subversion.subclipse.ui.wizards.sharing;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.help.WorkbenchHelp;
@@ -31,6 +34,7 @@ public class DirectorySelectionPage extends SVNWizardPage {
 	Button useProjectNameButton;
 	Button useSpecifiedNameButton;
 	Text text;
+	Text urlText;
 	
 	String result;
 	boolean useProjectName = true;
@@ -48,6 +52,7 @@ public class DirectorySelectionPage extends SVNWizardPage {
 		useSpecifiedNameButton = createRadioButton(composite, Policy.bind("ModuleSelectionPage.specifyModule"), 1); //$NON-NLS-1$
 		useProjectNameButton.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
+			    setUrlText();
 				useProjectName = useProjectNameButton.getSelection();
 				if (useProjectName) {
 					text.setEnabled(false);
@@ -70,7 +75,8 @@ public class DirectorySelectionPage extends SVNWizardPage {
 		text.setEnabled(false);
 		text.addListener(SWT.Modify, new Listener() {
 			public void handleEvent(Event event) {
-				result = text.getText();
+			    setUrlText();
+				result = text.getText().trim();
 				if (result.length() == 0) {
 					result = null;
 					setPageComplete(false);
@@ -79,8 +85,21 @@ public class DirectorySelectionPage extends SVNWizardPage {
 				}
 			}
 		});
+		Group urlGroup = new Group(composite, SWT.NONE);
+		urlGroup.setText(Policy.bind("SharingWizard.url")); //$NON-NLS-1$
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		urlGroup.setLayout(layout);
+		GridData data = new GridData();
+		data.verticalAlignment = GridData.FILL;
+		data.horizontalAlignment = GridData.FILL;
+		data.horizontalSpan = 2;
+		urlGroup.setLayoutData(data);
+		urlText = createTextField(urlGroup);
+		urlText.setEditable(false);
 		useSpecifiedNameButton.setSelection(false);
 		useProjectNameButton.setSelection(true);
+		setUrlText();
 		setControl(composite);
 		setPageComplete(true);
 	}
@@ -100,6 +119,15 @@ public class DirectorySelectionPage extends SVNWizardPage {
 		super.setVisible(visible);
 		if (visible) {
 			useProjectNameButton.setFocus();
+			setUrlText();
 		}
+	}
+	
+	private void setUrlText() {
+		SharingWizard wizard = (SharingWizard)getWizard();
+		try {
+		    if (useProjectNameButton.getSelection()) urlText.setText(wizard.getLocation().getLocation() + "/" + wizard.getProject().getName());
+		    else urlText.setText(wizard.getLocation().getLocation() + "/" + text.getText().trim());
+		} catch (Exception e) {}	    
 	}
 }

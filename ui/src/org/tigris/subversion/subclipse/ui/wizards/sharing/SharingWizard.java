@@ -30,10 +30,6 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.ui.IConfigurationWizard;
-import org.eclipse.team.ui.TeamUI;
-import org.eclipse.team.ui.synchronize.ISynchronizeParticipant;
-import org.eclipse.team.ui.synchronize.ResourceScope;
-import org.eclipse.team.ui.synchronize.SubscriberParticipant;
 import org.eclipse.ui.IWorkbench;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -46,7 +42,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
-import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
+import org.tigris.subversion.subclipse.ui.actions.CommitAction;
 import org.tigris.subversion.subclipse.ui.wizards.ConfigurationWizardMainPage;
 
 /**
@@ -241,7 +237,8 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 									if (autoconnectPage == null) {
 										getShell().getDisplay().syncExec(new Runnable() {
 											public void run() {
-												sync[0] = MessageDialog.openQuestion(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong", getRemoteDirectoryName())); //$NON-NLS-1$ //$NON-NLS-2$
+											    sync[0] = false;
+											    MessageDialog.openError(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong", getRemoteDirectoryName())); //$NON-NLS-1$ //$NON-NLS-2$
 											}
 										});
 									}
@@ -280,15 +277,19 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 					}
 				}
 			});
-			if (doSync[0]) {
-			    IResource[] resources = { project };
-			    SVNSynchronizeParticipant participant = (SVNSynchronizeParticipant)SubscriberParticipant.getMatchingParticipant(SVNSynchronizeParticipant.ID, resources);
-				if (participant == null) {
-					participant = new SVNSynchronizeParticipant(new ResourceScope(resources));
-					TeamUI.getSynchronizeManager().addSynchronizeParticipants(new ISynchronizeParticipant[] {participant});
-				}
-				participant.refresh(resources, Policy.bind("SharingWizard.0"), Policy.bind("SharingWizard.1", participant.getName()), SVNUIPlugin.getActivePage().getActivePart().getSite()); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			CommitAction commitAction = new CommitAction();
+			IResource[] selectedResources = { project };
+			commitAction.setSelectedResources(selectedResources);
+			commitAction.run(null);
+//			if (doSync[0]) {
+//			    IResource[] resources = { project };
+//			    SVNSynchronizeParticipant participant = (SVNSynchronizeParticipant)SubscriberParticipant.getMatchingParticipant(SVNSynchronizeParticipant.ID, resources);
+//				if (participant == null) {
+//					participant = new SVNSynchronizeParticipant(new ResourceScope(resources));
+//					TeamUI.getSynchronizeManager().addSynchronizeParticipants(new ISynchronizeParticipant[] {participant});
+//				}
+//				participant.refresh(resources, Policy.bind("SharingWizard.0"), Policy.bind("SharingWizard.1", participant.getName()), SVNUIPlugin.getActivePage().getActivePart().getSite()); //$NON-NLS-1$ //$NON-NLS-2$
+//			}
 //			if (doSync[0]) {
 //				// Sync of the project
 //				IWorkbenchPage activePage = null; /* not sure how to get the active page */
@@ -337,7 +338,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 	/**
 	 * Return an ISVNRepositoryLocation
 	 */
-	private ISVNRepositoryLocation getLocation() throws TeamException {
+	protected ISVNRepositoryLocation getLocation() throws TeamException {
 		// If there is an autoconnect page then it has the location
 		if (autoconnectPage != null) {
 			return autoconnectPage.getLocation();
@@ -400,4 +401,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 		}
         return isSVNFolder; 
 	}
+    public IProject getProject() {
+        return project;
+    }
 }
