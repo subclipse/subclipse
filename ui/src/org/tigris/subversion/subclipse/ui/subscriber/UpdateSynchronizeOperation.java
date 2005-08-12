@@ -17,9 +17,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
+import org.tigris.subversion.subclipse.core.sync.notused.SVNSyncInfo;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -79,7 +82,25 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	 * @see org.eclipse.team.examples.filesystem.ui.FileSystemSynchronizeOperation#run(org.eclipse.team.examples.filesystem.FileSystemProvider, org.eclipse.team.core.synchronize.SyncInfoSet, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor progress) throws InvocationTargetException, InterruptedException {
-	    new UpdateOperation(getPart(), set.getResources(), SVNRevision.HEAD).run(progress);
+	    new UpdateOperation(getPart(), set.getResources(), getRepositoryRevision(set)).run(progress);
+	}
+	
+	/**
+	 * Get the revision number to which we want to update.
+	 * @param set - syncInfoset of SyncInfos
+	 * @return
+	 */
+	private SVNRevision getRepositoryRevision(SyncInfoSet set)
+	{
+		SyncInfo[] infos = set.getSyncInfos();
+		if (infos.length > 0)
+		{
+			return ((SVNStatusSyncInfo) infos[0]).getRepositoryRevision();
+		}
+		else
+		{
+			return SVNRevision.HEAD;
+		}
 	}
 	
 	/* (non-Javadoc)

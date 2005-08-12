@@ -14,6 +14,7 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 /**
@@ -34,6 +35,50 @@ public class SVNStatusSyncInfo extends SyncInfo {
         this.baseStatusInfo = (baseStatusInfo != null) ? baseStatusInfo : LocalResourceStatus.NONE;
         this.remoteStatusInfo = remoteStatusInfo;
     }
+
+    /**
+     * Get the repository revision (from the remoteStatus).
+     * If we can't get the revision from the remote status, return HEAD.
+     * @return
+     */
+    public SVNRevision getRepositoryRevision()
+    {
+    	if (remoteStatusInfo != null)
+    	{
+    		SVNRevision rev = remoteStatusInfo.getRevision();
+    		if ((rev != null) && !SVNRevision.INVALID_REVISION.equals(rev))
+    		{
+    			return rev;
+    		}
+    		else
+    		{
+    			return SVNRevision.HEAD;
+    		}
+    	}
+    	else
+    	{
+    		return SVNRevision.HEAD;
+    	}
+    }
+
+//TODO If we want to avoid the unnecessary roundtrip for fetching the contents of remote file in case of outgoing changes,
+// (when we actually need/want to compare with base only), we should trick the eclipse somehow.
+// Maybe this way ? (It seems to work but it should be tested really carefully) 
+//
+//	/* (non-Javadoc)
+//	 * @see org.eclipse.team.core.synchronize.SyncInfo#getRemote()
+//	 */
+//	public IResourceVariant getRemote() {
+//		IResourceVariant theRemote = super.getRemote();
+//		if ((theRemote == null) && (getKind() == (SyncInfo.OUTGOING | SyncInfo.CHANGE)))
+//		{
+//			return getBase();
+//		}
+//		else
+//		{
+//			return theRemote;
+//		}
+//	}
 
     /* (non-Javadoc)
      * @see org.eclipse.team.core.synchronize.SyncInfo#calculateKind()
