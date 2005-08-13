@@ -24,6 +24,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.PlatformUI;
@@ -58,6 +59,9 @@ public class CheckoutAsAction extends SVNAction {
 		if (!WorkspacePathValidator.validateWorkspacePath()) return;
 	    final ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
 		if (folders.length == 1){
+			if (folders[0].getRepository().getRepositoryRoot().toString().equals(folders[0].getUrl().toString())) {
+			    if (!MessageDialog.openQuestion(shell, Policy.bind("CheckoutAsAction.title"), Policy.bind("AddToWorkspaceAction.checkingOutRoot"))) return; //$NON-NLS-1$
+			}
 			checkoutSingleProject(folders[0]);
 		}
 	}

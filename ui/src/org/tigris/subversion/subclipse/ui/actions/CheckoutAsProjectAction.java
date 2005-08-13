@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -41,6 +42,7 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
     private IProject[] localFolders;
     private ISVNRemoteFolder[] remoteFolders;
     private IResource[] projects;
+    private boolean proceed;
 
 	/*
 	 * @see SVNAction#execute()
@@ -59,16 +61,26 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 	    run(new WorkspaceModifyOperation() {
 			public void execute(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 			    try {
-					ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
+					final ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
 							
 					List targetProjects = new ArrayList();
 					Map targetFolders = new HashMap();
 
 					monitor.beginTask(null, 100);
 					for (int i = 0; i < folders.length; i++) {
-						IProject project = SVNWorkspaceRoot.getProject(folders[i],monitor);
-						targetFolders.put(project.getName(), folders[i]);
-						targetProjects.add(project);
+					    proceed = true;
+					    if (folders[i].getRepository().getRepositoryRoot().toString().equals(folders[i].getUrl().toString())) {
+						    shell.getDisplay().syncExec(new Runnable() {
+	                            public void run() {
+	        					     proceed = MessageDialog.openQuestion(shell, Policy.bind("CheckoutAsProjectAction.title"), Policy.bind("AddToWorkspaceAction.checkingOutRoot")); //$NON-NLS-1$                               
+	                            }					        
+						    });					        
+					    }
+					    if (proceed) {
+							IProject project = SVNWorkspaceRoot.getProject(folders[i],monitor);
+							targetFolders.put(project.getName(), folders[i]);
+							targetProjects.add(project);
+					    } else return;
 					}
 					
 
@@ -95,7 +107,7 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 				}
 			}
 		}, true /* cancelable */, PROGRESS_DIALOG);
-	    new CheckoutAsProjectOperation(getTargetPart(), remoteFolders, localFolders).run();
+	    if (proceed) new CheckoutAsProjectOperation(getTargetPart(), remoteFolders, localFolders).run();
 	}
 		
 	/*
