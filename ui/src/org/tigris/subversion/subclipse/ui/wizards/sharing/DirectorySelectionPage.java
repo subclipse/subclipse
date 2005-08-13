@@ -14,17 +14,22 @@ package org.tigris.subversion.subclipse.ui.wizards.sharing;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.help.WorkbenchHelp;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.dialogs.ChooseUrlDialog;
 import org.tigris.subversion.subclipse.ui.wizards.SVNWizardPage;
 
 /**
@@ -34,6 +39,7 @@ public class DirectorySelectionPage extends SVNWizardPage {
 	Button useProjectNameButton;
 	Button useSpecifiedNameButton;
 	Text text;
+	Button browseButton;
 	Text urlText;
 	
 	String result;
@@ -44,11 +50,11 @@ public class DirectorySelectionPage extends SVNWizardPage {
 	}
 	
 	public void createControl(Composite parent) {
-		Composite composite = createComposite(parent, 2);
+		Composite composite = createComposite(parent, 3);
 		// set F1 help
 		WorkbenchHelp.setHelp(composite, IHelpContextIds.SHARING_MODULE_PAGE);
 		
-		useProjectNameButton = createRadioButton(composite, Policy.bind("ModuleSelectionPage.moduleIsProject"), 2); //$NON-NLS-1$
+		useProjectNameButton = createRadioButton(composite, Policy.bind("ModuleSelectionPage.moduleIsProject"), 3); //$NON-NLS-1$
 		useSpecifiedNameButton = createRadioButton(composite, Policy.bind("ModuleSelectionPage.specifyModule"), 1); //$NON-NLS-1$
 		useProjectNameButton.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
@@ -56,10 +62,12 @@ public class DirectorySelectionPage extends SVNWizardPage {
 				useProjectName = useProjectNameButton.getSelection();
 				if (useProjectName) {
 					text.setEnabled(false);
+					browseButton.setEnabled(false);
 					result = null;
 					setPageComplete(true);
 				} else {
 					text.setEnabled(true);
+					browseButton.setEnabled(true);
 					result = text.getText();
 					if (result.length() == 0) {
 						result = null;
@@ -85,6 +93,25 @@ public class DirectorySelectionPage extends SVNWizardPage {
 				}
 			}
 		});
+		browseButton = new Button(composite, SWT.PUSH);
+		browseButton.setText(Policy.bind("SharingWizard.browse")); //$NON-NLS-1$
+		browseButton.setEnabled(false);
+		browseButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent se) {
+                SharingWizard wizard = (SharingWizard)getWizard();
+                String location = null;
+                try {
+                   ISVNRepositoryLocation repositoryLocation = wizard.getLocation();
+                   ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), wizard.getProject());
+                   dialog.setRepositoryLocation(repositoryLocation);
+                   if (dialog.open() == ChooseUrlDialog.OK && dialog.getUrl() != null) {
+                       text.setText(dialog.getUrl().toString().substring(repositoryLocation.getLocation().length() + 1) + "/New Folder");
+                       text.setFocus();
+                       text.setSelection(text.getText().indexOf("/New Folder") + 1, text.getText().length());
+                   }                    
+                } catch (Exception e) {}
+            }
+		});
 		Group urlGroup = new Group(composite, SWT.NONE);
 		urlGroup.setText(Policy.bind("SharingWizard.url")); //$NON-NLS-1$
 		GridLayout layout = new GridLayout();
@@ -93,10 +120,17 @@ public class DirectorySelectionPage extends SVNWizardPage {
 		GridData data = new GridData();
 		data.verticalAlignment = GridData.FILL;
 		data.horizontalAlignment = GridData.FILL;
-		data.horizontalSpan = 2;
+		data.horizontalSpan = 3;
 		urlGroup.setLayoutData(data);
 		urlText = createTextField(urlGroup);
 		urlText.setEditable(false);
+		
+		Label warningLabel = new Label(composite, SWT.NONE);
+		warningLabel.setText(Policy.bind("SharingWizard.cannotExist")); //$NON-NLS-1$
+		data = new GridData();
+		data.horizontalSpan = 3;
+		warningLabel.setLayoutData(data);
+		
 		useSpecifiedNameButton.setSelection(false);
 		useProjectNameButton.setSelection(true);
 		setUrlText();
