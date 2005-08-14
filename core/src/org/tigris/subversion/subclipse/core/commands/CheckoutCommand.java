@@ -10,6 +10,7 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.net.MalformedURLException;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -31,10 +32,12 @@ import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Checkout the remote resources into the local workspace as projects. Each
@@ -68,14 +71,15 @@ public class CheckoutCommand implements ISVNCommand {
 				.getWorkspace().getRoot());
 
 		try {
-			// Prepare the target projects to receive resources
-			scrubProject(project, (pm != null) ? Policy.subMonitorFor(pm, 100)
-					: null);
-
-			boolean deleteDotProject = false;
 			// Perform the checkout
 			ISVNClientAdapter svnClient = resource.getRepository()
 					.getSVNClient();
+
+			// Prepare the target projects to receive resources
+			scrubProject(svnClient, resource, project, (pm != null) ? Policy.subMonitorFor(pm, 100)
+					: null);
+
+			boolean deleteDotProject = false;
 
 			// check if the remote project has a .project file
 			ISVNDirEntry[] rootFiles = svnClient.getList(resource.getUrl(),
@@ -196,7 +200,7 @@ public class CheckoutCommand implements ISVNCommand {
 	 * Delete the target projects before checking out
 	 * @param monitor - may be null !
 	 */
-	private void scrubProject(IProject project, IProgressMonitor monitor)
+	private void scrubProject(ISVNClientAdapter svnClient, ISVNRemoteFolder resource, IProject project, IProgressMonitor monitor)
 			throws SVNException {
 		if (project == null) {
 			if (monitor !=null)
@@ -233,7 +237,17 @@ public class CheckoutCommand implements ISVNCommand {
 					try {
 						for (int j = 0; j < children.length; j++) {
 							if (!children[j].getName().equals(".project")) {//$NON-NLS-1$
-								children[j].delete(true /* force */, (subMonitor != null) ? Policy
+								ISVNInfo info = null;
+								try {
+									SVNUrl url = new SVNUrl(resource.getUrl().toString() + "/" + children[j].getProjectRelativePath());
+									try {
+										info = svnClient.getInfo(url);
+									} catch (SVNClientException e2) {
+									}
+								} catch (MalformedURLException e1) {
+								}
+								if (info != null)
+									children[j].delete(true /* force */, (subMonitor != null) ? Policy
 										.subMonitorFor(subMonitor, 100) : null);
 							}
 						}
