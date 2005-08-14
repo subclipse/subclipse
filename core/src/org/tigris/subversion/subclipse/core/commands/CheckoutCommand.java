@@ -27,13 +27,12 @@ import org.tigris.subversion.subclipse.core.ISVNRunnable;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.client.ISVNNotifyAdapter;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
-import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -151,31 +150,16 @@ public class CheckoutCommand implements ISVNCommand {
 	 */
 	private void checkoutProject(final IProgressMonitor pm, ISVNRemoteFolder resource, ISVNClientAdapter svnClient, File destPath) throws SVNException {
 		final IProgressMonitor subPm = Policy.infiniteSubMonitorFor(pm, 800);
-		OperationManager operationHandler = OperationManager
-				.getInstance();
-		ISVNNotifyListener notifyListener = new ISVNNotifyAdapter() {
-			public void logMessage(String message) {
-				if (pm != null)
-				{
-					subPm.worked(1);
-					subPm.subTask(message);
-				}
-			}
-		};
 		try {
-			subPm.beginTask("", 1000);
+			subPm.beginTask("", Policy.INFINITE_PM_GUESS_FOR_CHECKOUT);
 //			subPm.setTaskName("");
-			operationHandler.beginOperation(svnClient, notifyListener);
-			svnClient.checkout(resource.getUrl(), destPath,
-					SVNRevision.HEAD, true);
-			if (subPm != null) {
-				subPm.subTask(" ");
-				subPm.done();
-			}
+			OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm));
+			svnClient.checkout(resource.getUrl(), destPath, SVNRevision.HEAD, true);
 		} catch (SVNClientException e) {
 			throw new SVNException("cannot checkout");
 		} finally {
-			operationHandler.endOperation();
+			OperationManager.getInstance().endOperation();
+			subPm.done();
 		}
 	}
 

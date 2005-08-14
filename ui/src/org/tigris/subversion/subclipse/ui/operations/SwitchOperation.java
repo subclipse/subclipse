@@ -32,7 +32,7 @@ public class SwitchOperation extends RepositoryProviderOperation {
         monitor.beginTask(null, 100);
 		try {			
 	    	SwitchToUrlCommand command = new SwitchToUrlCommand(provider.getSVNWorkspaceRoot(),resources[0], svnUrl, svnRevision);
-	        command.run(Policy.subMonitorFor(monitor,1000));
+	        command.run(monitor);
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		} finally {

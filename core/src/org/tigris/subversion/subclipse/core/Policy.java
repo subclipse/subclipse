@@ -24,6 +24,12 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.tigris.subversion.subclipse.core.internal.InfiniteSubProgressMonitor;
 
 public class Policy {
+	
+	/** The initial guess for number of resources(pm ticks) the infinite subPm should start with in case of checkout */
+	public static final int INFINITE_PM_GUESS_FOR_CHECKOUT = 1000;
+	/** The initial guess for number of resources(pm ticks) the infinite subPm should start with in case of update/switch */
+	public static final int INFINITE_PM_GUESS_FOR_SWITCH = 100;
+	
     private static final String BUNDLE_NAME = "org.tigris.subversion.subclipse.core.messages"; //$NON-NLS-1$
 	protected static ResourceBundle bundle = null;
 	

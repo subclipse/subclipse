@@ -4,8 +4,10 @@ import java.io.File;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -37,19 +39,18 @@ public class SwitchToUrlCommand implements ISVNCommand {
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void run(IProgressMonitor monitor) throws SVNException {       
+		final IProgressMonitor subPm = Policy.infiniteSubMonitorFor(monitor, 100);
         try {
-            monitor.beginTask(null, 100);
+    		subPm.beginTask(null, Policy.INFINITE_PM_GUESS_FOR_SWITCH);
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
-            OperationManager.getInstance().beginOperation(svnClient);
-            monitor.subTask(resource.getName());
+            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm));
             File file = resource.getLocation().toFile();
             svnClient.switchToUrl(file, svnUrl, svnRevision, true);
-            monitor.worked(100);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
             OperationManager.getInstance().endOperation();
-            monitor.done();
+            subPm.done();
         }
 	}
 

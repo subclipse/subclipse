@@ -14,11 +14,10 @@ import java.io.File;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.client.ISVNNotifyAdapter;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
@@ -47,17 +46,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
             monitor.beginTask(null, 100 * resources.length);                    
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
 
-            OperationManager operationHandler = OperationManager.getInstance();                    
-    		ISVNNotifyListener notifyListener = new ISVNNotifyAdapter() {
-    			public void logMessage(String message) {
-    				if (monitor != null)
-    				{
-    				    monitor.subTask(message);
-    				}
-    			}
-    		};
-
-    		operationHandler.beginOperation(svnClient, notifyListener);
+            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
     		if (resources.length == 1)
     		{
                 monitor.subTask(resources[0].getName());
