@@ -42,12 +42,21 @@ public class PasswordPromptDialog extends Dialog {
 		layout.numColumns = 2;
 		rtnGroup.setLayout(layout);
 		rtnGroup.setLayoutData(
-		new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING));	
+		new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING));
+		
+		Label realmLabel = new Label(rtnGroup, SWT.NONE);
+		realmLabel.setText(Policy.bind("PasswordPromptDialog.repository")); //$NON-NLS-1$
+		Text realmText = new Text(rtnGroup, SWT.BORDER);
+		GridData gd = new GridData();
+		gd.widthHint = WIDTH;
+		realmText.setLayoutData(gd);
+		realmText.setEditable(false);
+		realmText.setText(realm);
 		
 		Label userLabel = new Label(rtnGroup, SWT.NONE);
 		userLabel.setText(Policy.bind("PasswordPromptDialog.username")); //$NON-NLS-1$
 		userText = new Text(rtnGroup, SWT.BORDER);
-		GridData gd = new GridData();
+		gd = new GridData();
 		gd.widthHint = WIDTH;
 		userText.setLayoutData(gd);
 		userText.setText(username == null? "": username);
