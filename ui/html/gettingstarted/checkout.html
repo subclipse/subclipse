@@ -9,18 +9,54 @@
 
 <body>
 <h1>Checking out a Project</h1>
-Navigate to the <b>SVN Perspective</b> and expand out the previously created repository location. 
-<br><br>
-<b>Right click</b> on the project in the repository and select <b>Check Out As Project</b> and this will
-check out the project into your workspace ready to use. Subclipse will attempt to use the same name as
-the Eclipse project in the repository (if stored in the <tt>.project</tt> file).</p>
+<h3>Overview</h3>
+<p>Check out is the term used to describe the process of getting a copy of your project from
+your repository into your local workspace.  In Subversion, the check out process creates what
+Subversion calls a working copy.  A working copy is a specially formatted folder structure
+which contains extra .svn folders that store Subversion information, as well as a pristine
+copy of each item that is checked out.  The working copy format is defined by Subversion and is
+essential for all of the actions you will want to perform on your working copy.</p>
+<h3>Procedure</h3>
+<p>Navigate to the <a href="../reference/svn-repository.html">SVN Repository Exploring Perspective</a></p>
+<p>If you have not already created a repository location, then you should see the section on 
+<a href="new-location.html">Creating a Repository Location</a>.  Once you have a repository location
+then click on it to expand the location and navigate the contents of your repository.</p>
+<p>Find the folder containing the project that you want to check out and then
+<b>Right click</b> on the project to bring up the context menu.  There are two common scenarios
+and options that are supported for checkout:
+<ol>
+<li>The project in your repository already contains an Eclipse <tt>.project</tt> file as well as any other
+Eclipse-specific files that are needed, such as the <tt>.classpath</tt> file used by Java projects.  If this
+scenario applies to you then you want to take the <b>Checkout As Project</b> option.  This option will create
+an Eclipse project in your workspace based on the files in your repository.  Since your repository
+already contains all of the required files, you should be all ready to start working once the checkout
+is complete.
 <p align="center"><img src="../images/checkout.jpg" alt="Checking out an Eclipse project from a Subversion repository"/></p>
+</li>
+<li>The project in your repository does not contain an Eclipse <tt>.project</tt> file.  If this scenario applies
+to you then you want to take the <b>Checkout As ...</b> option.  This option will first run the Eclipse wizard
+to create a new project.  This lets you establish the name for your project as well as the Eclipse project
+type.
+<p><b>NOTE:</b>  The Eclipse new project wizard creates the folder for your project as well as any special files
+that are needed for that project type, such as the <tt>.project</tt> and <tt>.classpath</tt> files, as well as any
+folders you may have told it to create.  Subclipse may have to delete some of those files and folders before it
+can checkout your project.  Subclipse has to run the Subversion checkout process so that you have a proper Subversion
+working copy when the process is finished.  The Subversion checkout process will abort if it encounters a file or
+folder that already exists.  Before Subclipse runs the checkout process it will delete any files and folders that
+exist locally and also exist in the location that you are checking out.  When Subclipse sees that these extra files
+exist, it issues a warning message before it deletes anything. If you receive this warning message, and you want to
+preserve the local version of any of these files, then before answering the message you can copy any files out of
+the folder in your workspace (using your operating system's file explorer) and then copy them back after the checkout
+is complete. In the long term, the best option is to then commit all of those special files so that the next person
+can just use the <b>Checkout As Project</b> option.</p></li>
+</ol>
 
 <p>Once the project is checked out, you can switch to a different perspective and start working.
 The Team menu will automatically use the Subversion repository location for comparisons, updates, etc.
 </p>
 <hr>
 <h3>Reference:</h3>
-<p><a href="../reference/svn-repository.html">SVN Repository Exploring Perspective</a></p>
+<p><a href="../reference/svn-repository.html">SVN Repository Exploring Perspective</a><br>
+<a href="new-location.html">Creating a Repository Location</a></p>
 </body>
 </html>
