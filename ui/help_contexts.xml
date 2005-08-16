@@ -93,6 +93,7 @@
 
 	<context id="sharing_autoconnect_page_context">
 		<description>Subclipse has detected that this project is already a part of a Subversion workspace (a.k.a. "working copy"). Perhaps you already checked the project out a different Subversion client, such as the command line client 'svn'. Once you finish this dialog, you can use the Subversion features that are part of Subclipse.</description>
+	    <topic href="html/gettingstarted/share-existing.html" label="Getting Started: Connect an Existing Project with Subclipse" />
 		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
 		<topic href="html/faq/subversion-mapping.html" label="Subclipse for Subversion Users" />
 		<topic href="html/faq/glossary.html" label="Subversion Glossary" />
@@ -100,7 +101,7 @@
 
 	<context id="sharing_select_repository_page_context">
 		<description>In this dialog you should choose the relevant repository location for the project you wish to share, or choose a new one.</description>
-		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Connecting to a Subversion Repository" />
+		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Subversion Repository" />
 		<topic href="html/faq/subversion-mapping.html" label="Subclipse for Subversion Users" />
 		<topic href="html/faq/glossary.html" label="Subversion Glossary" />
 		<topic href="html/reference/share.html" label="Reference: Team -> Share" />

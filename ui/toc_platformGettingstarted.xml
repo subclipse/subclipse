@@ -10,11 +10,10 @@
 
 <toc label="Team Subversion tutorial" link_to="../org.eclipse.platform.doc.user/topics_GettingStarted.xml#gs_afterteam"> 
 	<topic label="Team Subversion tutorial"> 
-		<topic label="Connecting to a Subversion Repository"  href="html/gettingstarted/connecting.html"> 
-			<topic label="Setting up a Repository" href="html/gettingstarted/settingup.html" /> 
-			<topic label="Creating a New Repository Location" href="html/gettingstarted/new-location.html" /> 				
-		</topic>
-		<topic label="Importing a Project"  href="html/gettingstarted/importing.html"/> 
-		<topic label="Checking out a Project" href="html/gettingstarted/checkout.html" />
+		<topic label="Connecting to a Subversion Repository"  href="html/gettingstarted/connecting.html"/> 
+		<topic label="Creating a New Repository Location" href="html/gettingstarted/new-location.html"/> 				
+		<topic label="Import a New Project into a Subversion Repository"  href="html/gettingstarted/importing.html"/> 
+		<topic label="Connect an Existing Project with Subclipse"  href="html/gettingstarted/share-existing.html"/> 
+		<topic label="Checking out a Project" href="html/gettingstarted/checkout.html"/>
 	</topic>
 </toc>
