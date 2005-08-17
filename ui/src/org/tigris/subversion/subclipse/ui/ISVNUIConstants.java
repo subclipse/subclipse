@@ -74,6 +74,7 @@ public interface ISVNUIConstants {
     public final String IMG_RESOLVE = "tortoise/resolve.gif"; //$NON-NLS-1$
     public final String IMG_LOG = "tortoise/log.gif"; //$NON-NLS-1$
     public final String IMG_MERGE = "tortoise/merge.gif"; //$NON-NLS-1$
+    public final String IMG_IGNORE = "tortoise/ignore.gif"; //$NON-NLS-1$
     
     // views
     public final String IMG_SVN_CONSOLE = "cview16/console_view.gif"; //$NON-NLS-1$

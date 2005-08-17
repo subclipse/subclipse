@@ -70,7 +70,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant {
 			try {
 				if (element instanceof ISynchronizeModelElement) {
 					IResource resource = ((ISynchronizeModelElement) element).getResource();
-					if (resource != null && resource.getType() == IResource.FILE) {
+					if (resource != null) {
 						SyncInfo info = SVNWorkspaceSubscriber.getInstance().getSyncInfo(resource);
 						IResourceVariant variant = info.getRemote();
 						if (variant != null) {
@@ -116,6 +116,16 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant {
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					historyAction);	
+			appendToGroup(
+					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
+					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
+					new Separator());				
+			IgnoreSynchronizeAction ignoreAction = new IgnoreSynchronizeAction(Policy.bind("SyncAction.ignore"), configuration); //$NON-NLS-1$
+			ignoreAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_IGNORE));			
+			appendToGroup(
+					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
+					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
+					ignoreAction);	
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
