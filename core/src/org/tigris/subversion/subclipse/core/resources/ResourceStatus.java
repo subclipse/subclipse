@@ -146,7 +146,7 @@ public class ResourceStatus implements Serializable {
 	 */
 	public SVNStatusKind getStatusKind()
 	{
-		if (!SVNStatusKind.NORMAL.equals(getTextStatus()))
+		if (!SVNStatusKind.NORMAL.equals(getTextStatus()) && !SVNStatusKind.NONE.equals(getTextStatus()))
 		{
 			return getTextStatus(); 
 		}
