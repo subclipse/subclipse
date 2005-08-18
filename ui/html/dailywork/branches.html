@@ -46,25 +46,26 @@
 	explicit name so that it is easier to refer to.
 	
 	<p>To compare: In the Subversion command line, this is done simply by copying the repository location
-	(like <tt>http://svn-server/bigproj/trunk/</tt>) on to a new, different location which could
+	(like <tt>http://svn-server/bigproj/trunk/</tt>) to a new, different location
 		(like <tt>http://svn-server/bigproj/tags/client-release-0.99/</tt>) using <tt>svn cp</tt>.
 	<p>Using Subclipse, you have this functionaliy available in <a href="../reference/branch-tag.html">Branch/Tag...</a>
 	found in the Team menu.</p>
 	
-	<p>By convention, you never commit anything to a tag repository locations, they merely exist pinpoint
-	a specific repository content. There is nothing which stops you from doing this (although Subclipse
-	will warn you), it's just a convention. If you need to make a copy and work in a different direction,
+	<p>By convention, you never commit anything to a tag repository locations, they merely exist to pinpoint
+	a specific repository revision. That being said, there is nothing which stops you from commiting to a tag (although Subclipse
+	will warn you if the URL contains &quot;tags&quot;). Tags are just a convention in Subversion. If you need to make a copy and work in a different direction,
 	use a branch.
 			 
-	<h2>Branching</h2>
+	That being said, the fact that you can commit to a tag folder also has some advantages, as you may have some files that contain version numbers and/or release dates that you would prefer to only update in the tag.<h2>Branching</h2>
 	<p>Creating a branch is the same as creating a tag, a basic repository copy. If you need to work on the branch directly
-	afterwards, using the same working copy (i.e. your Eclipse project), use the 'Team &gt; Switch' command to switch to the new
+	afterwards, using the same working copy (i.e. your Eclipse project), use the '<A
+	href="../reference/switch.html">Team &gt; Switch</A>' command to switch to the new
 	location.</p>
 	<p>If you are working with a number of changes that you wish to put into a branch in one operation, be sure to clear the
 	"create a copy on the server" check box (as explained in the command's <a href="../reference/branch-tag.html">documentation</a>:
-	Your local modifications will then we applied to the base revision your are copying.</p>
+	Your local modifications will then be applied to the base revision your are copying.</p>
 
-	<h2>Choosing to with with a branch or tag</h2>
+	<h2>Choosing to work with a branch or tag</h2>
 	<p>Creating a branch or a tag does not change your working copy. Instead, you need to <a href="../reference/switch.html">switch</a>
 	to the newly created repostory location (or a sublocation thereof).</p>
 	<p>Note: You do not need to switch an entire project, you can indeed switch at an arbitrary folder level or even an individual file, but 
@@ -72,11 +73,12 @@
 
 	<h2>Merging changes</h2>
 	<p>If working on a branch requires the branch maintainer(s) to keep up with the changes being done in the trunk, these changes
-	can be merged into the branch. This is done using 'Team &gt; Merge', which can be used to apply the the differences between the trunk
+	can be merged into the branch. This is done using '<A
+	href="../reference/merge.html">Team &gt; Merge</A>', which can be used to apply the the differences between the trunk
 	at two different revisions.</p>
 	<blockquote>
 	<p><strong>Example</strong>: Alice is working on project 'X' with two other team members, Bob and Charlie. Alice needs to
-	do a major overhaul of the user interface, so the creates a branch called 'gui_changes' from the trunk.
+	do a major overhaul of the user interface, so she creates a branch called 'gui_changes' from the trunk.
 	This is committed at revision 8. Now Alice can switch to this location and work as she wishes, being sandboxed off the main trunk,
 	and soon after, she has committed some changes to her branch.
 	Meanwhile, Bob and Charlie have been working on the the trunk, bringing the revision of the entire repository
@@ -93,11 +95,12 @@
 	(working with "changesets") but not	Subversion (although the feature is slated for a later release).
 	
 	<h2>Applying changes from a branch</h2>
-	<p>TODO: Explain: Copy the changes from the branch back into the trunk.
+	<p>To apply changes from a branch back to trunk or vice versa, see the <A
+	href="../reference/merge.html">Merge</A> documentation.
 	
 	<h2>Backporting</h2>
 	<p>Some branches are just for maintenance or release preparation and cleanup. However, sometimes a change commited to a branch
-	can be useful to put back into the trunk. This process is called 'backporting', and is also done using merging, just with the
+	can be useful to put back into the trunk. This process is called 'backporting', and is also done using merge, just with the
 	roles reversed, applying changes between two specific branch revisions into the trunk.
 
 	<hr>
