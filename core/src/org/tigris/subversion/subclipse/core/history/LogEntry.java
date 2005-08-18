@@ -120,12 +120,23 @@ public class LogEntry extends PlatformObject implements ILogEntry {
     		SVNUrl url = resource.getRepository().getRepositoryRoot();
     		if (url == null)
     		    url = resource.getRepository().getUrl();
-    		ISVNLogMessage[] tmpMessage = client.getLogMessages(url, getRevision(), getRevision(), true);
-    		changePaths = tmpMessage[0].getChangedPaths();
+    		try {
+	    		ISVNLogMessage[] tmpMessage = client.getLogMessages(url, getRevision(), getRevision(), true);
+	    		changePaths = tmpMessage[0].getChangedPaths();
+    		} catch(SVNClientException ce) {
+    		    // Root URL is probably bad.  Use the repository URL and change the root URL to
+    		    // be equal to the repository URL.
+    		    url = resource.getRepository().getUrl();
+    		    resource.getRepository().setRepositoryRoot(url);
+        		ISVNLogMessage[] tmpMessage = client.getLogMessages(url, getRevision(), getRevision(), true);
+        		changePaths = tmpMessage[0].getChangedPaths();
+    		}
 		} catch (SVNException e) {
 			e.printStackTrace();
+			changePaths = new ISVNLogMessageChangePath[0];
 		} catch (SVNClientException e) {
 			e.printStackTrace();
+			changePaths = new ISVNLogMessageChangePath[0];
 		}
     	} else {
     		changePaths = logMessage.getChangedPaths();
