@@ -43,6 +43,10 @@ private IPreferenceStore store;
         PreferenceConverter.setDefault(store, ISVNUIConstants.PREF_CONSOLE_MESSAGE_COLOR, new RGB(0, 0, 255));
         PreferenceConverter.setDefault(store, ISVNUIConstants.PREF_CONSOLE_ERROR_COLOR, new RGB(255, 0, 0));
         
+        store.setDefault(ISVNUIConstants.PREF_SHOW_COMMENTS, true);
+        store.setDefault(ISVNUIConstants.PREF_WRAP_COMMENTS, true);
+        store.setDefault(ISVNUIConstants.PREF_SHOW_PATHS, true);
+        
         store.setDefault(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_MESSAGE, true);
         store.setDefault(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_ERROR, true);
         

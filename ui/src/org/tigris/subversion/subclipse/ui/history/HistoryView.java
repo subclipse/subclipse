@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -157,6 +158,10 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     private Action openChangedPathAction;
     private Action setCommitPropertiesAction;
 
+    private IAction toggleWrapCommentsAction;
+    private IAction toggleShowComments;
+    private IAction toggleShowAffectedPathsAction;
+    
 	private SashForm sashForm;
 	private SashForm innerSashForm;
 
@@ -242,10 +247,10 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
             public void run() {
                 try {
                     if (resource == null) return;
-                    ISelection selection = tableHistoryViewer.getSelection();
+                    ISelection selection = getSelection();
                     if (!(selection instanceof IStructuredSelection)) return;
                     IStructuredSelection ss = (IStructuredSelection)selection;
-                    currentSelection = (ILogEntry)ss.getFirstElement();
+                    currentSelection = getLogEntry(ss);
                     PlatformUI.getWorkbench().getProgressService().run(true, true, new IRunnableWithProgress() {
                         public void run(IProgressMonitor monitor) throws InvocationTargetException {
                             try {               
@@ -264,11 +269,11 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
             
             // we don't allow multiple selection
             public boolean isEnabled() {
-                ISelection selection = tableHistoryViewer.getSelection();
+                ISelection selection = getSelection();
                 if (!(selection instanceof IStructuredSelection)) return false;
                 IStructuredSelection ss = (IStructuredSelection)selection;
                 if(ss.size() != 1) return false;
-                currentSelection = (ILogEntry)ss.getFirstElement();
+                currentSelection = getLogEntry(ss);
                 return true;
             }
         };
@@ -281,12 +286,12 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		        public void run() {
 	    			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
 		        	try {
-		                final ISelection selection = tableHistoryViewer.getSelection();
-		                if (!(selection instanceof IStructuredSelection)) return;
-		                IStructuredSelection ss = (IStructuredSelection)selection;
-		                ILogEntry ourSelection = (ILogEntry)ss.getFirstElement();
+		        		final ISelection selection = getSelection();
+		        		if (!(selection instanceof IStructuredSelection)) return;
+		        		IStructuredSelection ss = (IStructuredSelection)selection;
+		        		ILogEntry ourSelection = getLogEntry(ss);
 
-						SVNUrl repositoryUrl = null;
+		        		SVNUrl repositoryUrl = null;
 
     					// Failing that, try the resource originally selected by the user if from the Team menu
 
@@ -347,17 +352,33 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		        
 		        // we don't allow multiple selection
 		        public boolean isEnabled() {
-		            ISelection selection = tableHistoryViewer.getSelection();
+		        	   ISelection selection = getSelection();
 		            if (!(selection instanceof IStructuredSelection)) return false;
 		            IStructuredSelection ss = (IStructuredSelection)selection;
 		            if(ss.size() != 1) return false;
-		            currentSelection = (ILogEntry)ss.getFirstElement();
+		            currentSelection = getLogEntry(ss);
 		            return true;
 		        }
 		    };
     	}
 		return setCommitPropertiesAction;
 	}
+
+    private ILogEntry getLogEntry(IStructuredSelection ss) {
+      if(ss.getFirstElement() instanceof LogEntryChangePath) {
+        return ((LogEntryChangePath)ss.getFirstElement()).getLogEntry();
+      } else {
+        return (ILogEntry) ss.getFirstElement();
+      }
+    }
+
+    private ISelection getSelection() {
+      if( tableHistoryViewer.getControl().isFocusControl()) {
+        return tableHistoryViewer.getSelection();
+      } else {
+        return tableChangePathViewer.getSelection();
+      }
+    }
 
     // open remote file action (double-click)
 	private Action getOpenRemoteFileAction() {
@@ -513,25 +534,64 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
             }
         });
         
-		// Contribute actions to popup menu for the table
-		MenuManager menuMgr = new MenuManager();
-		Menu menu = menuMgr.createContextMenu(tableHistoryViewer.getTable());
-		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager menuMgr) {
-				fillTableMenu(menuMgr);
-			}
-		});
-		menuMgr.setRemoveAllWhenShown(true);
-		tableHistoryViewer.getTable().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, tableHistoryViewer);
+        // Contribute actions to popup menu for the table
+        {
+            MenuManager menuMgr = new MenuManager();
+    		 		 Menu menu = menuMgr.createContextMenu(tableHistoryViewer.getTable());
+    		 		 menuMgr.addMenuListener(new IMenuListener() {
+    		 		 		 public void menuAboutToShow(IMenuManager menuMgr) {
+    		 		 		 		 fillTableMenu(menuMgr);
+    		 		 		 }
+    		 		 });
+    		 		 menuMgr.setRemoveAllWhenShown(true);
+    		 		 tableHistoryViewer.getTable().setMenu(menu);
+    		 		 getSite().registerContextMenu(menuMgr, tableHistoryViewer);
+        }
+        
+        final IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+        toggleShowComments = new Action(Policy.bind("HistoryView.showComments")) { //$NON-NLS-1$
+            public void run() {
+                setViewerVisibility();
+                store.setValue(ISVNUIConstants.PREF_SHOW_COMMENTS, toggleShowComments.isChecked());
+            }
+        };
+        toggleShowComments.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_COMMENTS));
+        // PlatformUI.getWorkbench().getHelpSystem().setHelp(toggleTextAction, IHelpContextIds.SHOW_COMMENT_IN_HISTORY_ACTION);    
 
-		// Create the local tool bar
-		IToolBarManager tbm = getViewSite().getActionBars().getToolBarManager();
+        // Toggle wrap comments action
+        toggleWrapCommentsAction = new Action(Policy.bind("HistoryView.wrapComments")) { //$NON-NLS-1$
+          public void run() {
+            setViewerVisibility();
+            store.setValue(ISVNUIConstants.PREF_WRAP_COMMENTS, toggleWrapCommentsAction.isChecked());
+          }
+        };
+        toggleWrapCommentsAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_WRAP_COMMENTS));
+        //PlatformUI.getWorkbench().getHelpSystem().setHelp(toggleTextWrapAction, IHelpContextIds.SHOW_TAGS_IN_HISTORY_ACTION);   
+        
+        // Toggle path visible action
+        toggleShowAffectedPathsAction = new Action(Policy.bind("HistoryView.showAffectedPaths")) { //$NON-NLS-1$
+            public void run() {
+                setViewerVisibility();
+                store.setValue(ISVNUIConstants.PREF_SHOW_PATHS, toggleShowAffectedPathsAction.isChecked());
+            }
+        };
+        toggleShowAffectedPathsAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_PATHS));
+        // PlatformUI.getWorkbench().getHelpSystem().setHelp(toggleListAction, IHelpContextIds.SHOW_TAGS_IN_HISTORY_ACTION);   
+        
+        IActionBars actionBars = getViewSite().getActionBars();
+
+        // Contribute toggle text visible to the toolbar drop-down
+        IMenuManager actionBarsMenu = actionBars.getMenuManager();
+        actionBarsMenu.add(toggleWrapCommentsAction);
+        actionBarsMenu.add(new Separator());
+        actionBarsMenu.add(toggleShowComments);
+        actionBarsMenu.add(toggleShowAffectedPathsAction);
+        
+        // Create the local tool bar
+        IToolBarManager tbm = actionBars.getToolBarManager();
 		tbm.add(getRefreshAction());
 		tbm.add(getLinkWithEditorAction());
 		tbm.update(false);
-        
-        IActionBars actionBars = getViewSite().getActionBars();
         
 		// Create actions for the text editor (copy and select all)
 		copyAction = new TextViewerAction(textViewer, ITextOperationTarget.COPY);
@@ -545,17 +605,41 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		actionBars.updateActionBars();
 
         // Contribute actions to popup menu for the comments area
-		menuMgr = new MenuManager();
-		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager menuMgr) {
-				fillTextMenu(menuMgr);
-			}
-		});
-		StyledText text = textViewer.getTextWidget();
-		menu = menuMgr.createContextMenu(text);
-		text.setMenu(menu);
+        {
+	 		 MenuManager menuMgr = new MenuManager();
+	 		 menuMgr.setRemoveAllWhenShown(true);
+	 		 menuMgr.addMenuListener(new IMenuListener() {
+	 		 		 public void menuAboutToShow(IMenuManager menuMgr) {
+	 		 		 		 fillTextMenu(menuMgr);
+	 		 		 }
+	 		 });
+	
+	 		 StyledText text = textViewer.getTextWidget();
+	 		 Menu menu = menuMgr.createContextMenu(text);
+	 		 text.setMenu(menu);
+        }
 	}
+    
+    void setViewerVisibility() {
+        boolean showText = toggleShowComments.isChecked();
+        boolean showList = toggleShowAffectedPathsAction.isChecked();
+        if (showText && showList) {
+            sashForm.setMaximizedControl(null);
+            innerSashForm.setMaximizedControl(null);
+        } else if (showText) {
+            sashForm.setMaximizedControl(null);
+            innerSashForm.setMaximizedControl(textViewer.getTextWidget());
+        } else if (showList) {
+            sashForm.setMaximizedControl(null);
+            innerSashForm.setMaximizedControl(tableChangePathViewer.getTable());
+        } else {
+            sashForm.setMaximizedControl(tableHistoryViewer.getControl());
+        }
+      
+        tableChangePathViewer.refresh();
+        boolean wrapText = toggleWrapCommentsAction.isChecked();
+        textViewer.getTextWidget().setWordWrap(wrapText);
+    }
     
 	/*
 	 * Method declared on IWorkbenchPart
@@ -635,7 +719,9 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 
 		// add listener for editor page activation - this is to support editor linking
 		getSite().getPage().addPartListener(partListener);  
-		getSite().getPage().addPartListener(partListener2); 
+		 		 getSite().getPage().addPartListener(partListener2);
+        
+        setViewerVisibility();
 	}
 	
 	private void openLink(String href) {
@@ -667,6 +753,9 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     	tableChangePathViewer.setContentProvider(new IStructuredContentProvider() {
 
 			public Object[] getElements(Object inputElement) {
+                if (toggleShowAffectedPathsAction.isChecked() == false) {
+                    return new LogEntryChangePath[0];
+                }
                 if ((inputElement == null) || (!(inputElement instanceof ILogEntry))) {
                     return null;
                 }
@@ -690,7 +779,10 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		tableChangePathViewer.setContentProvider(new IStructuredContentProvider() {
 
 			public Object[] getElements(Object inputElement) {
-				
+
+                if (toggleShowAffectedPathsAction.isChecked() == false) {
+                    return new LogEntryChangePath[0];
+                }
 				if (currentLogEntryChangePath != null) {
 					return currentLogEntryChangePath;
 				}
@@ -857,6 +949,11 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		manager.add(getRefreshAction());
 		manager.add(new Separator("additions-end")); //$NON-NLS-1$
 	}
+    
+    private void fillTableChangePathMenu(IMenuManager manager) {
+        // file actions go first (view file)
+        manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+    }
     
     /**
      * fill the popup menu for the comments area 

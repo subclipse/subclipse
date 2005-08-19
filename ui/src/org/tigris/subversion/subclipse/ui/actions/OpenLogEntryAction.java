@@ -12,10 +12,7 @@
 package org.tigris.subversion.subclipse.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Iterator;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -27,42 +24,11 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
-import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
 
 public class OpenLogEntryAction extends SVNAction {
-    /**
-     * Returns the selected remote files
-     */
-    protected ILogEntry[] getSelectedLogEntries() {
-        ArrayList entries = null;
-        if (!selection.isEmpty()) {
-            entries = new ArrayList();
-            Iterator elements = selection.iterator();
-            while (elements.hasNext()) {
-                Object next = elements.next();
-                if (next instanceof ILogEntry) {
-                    entries.add(next);
-                    continue;
-                }
-                if (next instanceof IAdaptable) {
-                    IAdaptable a = (IAdaptable) next;
-                    Object adapter = a.getAdapter(ILogEntry.class);
-                    if (adapter instanceof ILogEntry) {
-                        entries.add(adapter);
-                        continue;
-                    }
-                }
-            }
-        }
-        if (entries != null && !entries.isEmpty()) {
-            ILogEntry[] result = new ILogEntry[entries.size()];
-            entries.toArray(result);
-            return result;
-        }
-        return new ILogEntry[0];
-    }
+
     /*
      * @see SVNAction#execute(IAction)
      */
@@ -72,9 +38,9 @@ public class OpenLogEntryAction extends SVNAction {
                 IWorkbench workbench = SVNUIPlugin.getPlugin().getWorkbench();
                 IEditorRegistry registry = workbench.getEditorRegistry();
                 IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-                final ILogEntry[] entries = getSelectedLogEntries();
+                final ISVNRemoteResource[] entries = getSelectedRemoteResources();
                 for (int i = 0; i < entries.length; i++) {
-                    ISVNRemoteResource remoteResource = entries[i].getRemoteResource();
+                    ISVNRemoteResource remoteResource = entries[i];
                     if (!(remoteResource instanceof ISVNRemoteFile)) continue;
                     
                     ISVNRemoteFile file = (ISVNRemoteFile)remoteResource;
@@ -106,9 +72,9 @@ public class OpenLogEntryAction extends SVNAction {
      * @see TeamAction#isEnabled()
      */
     protected boolean isEnabled() throws TeamException {
-        ILogEntry[] entries = getSelectedLogEntries();
-        if (entries.length == 0) return false;
-        if (entries[0].getRemoteResource() == null) return false;
+        ISVNRemoteResource[] resources = getSelectedRemoteResources();
+        if (resources.length == 0) return false;
+        if (resources[0] == null) return false;
         return true;
     }
 }
