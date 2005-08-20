@@ -130,6 +130,10 @@ public class OperationManager implements ISVNNotifyListener {
             IPath pathEntries = pathEclipse.removeLastSegments(1).append(
                     SVNConstants.SVN_DIRNAME);
             IResource entries = workspaceRoot.getContainerForLocation(pathEntries);
+            if (entries == null) //probably the pathEclipse was project itself
+            {
+            	entries = workspaceRoot.getProject(pathEclipse.lastSegment()).getFolder(new Path(SVNConstants.SVN_DIRNAME));
+            }
             changedResources.add(entries);
         }
         else
