@@ -61,24 +61,53 @@ public class SVNStatusSyncInfo extends SyncInfo {
     	}
     }
 
-//TODO If we want to avoid the unnecessary roundtrip for fetching the contents of remote file in case of outgoing changes,
-// (when we actually need/want to compare with base only), we should trick the eclipse somehow.
-// Maybe this way ? (It seems to work but it should be tested really carefully) 
-//
+	/* (non-Javadoc)
+	 * @see org.eclipse.team.core.synchronize.SyncInfo#getRemote()
+	 */
+	public IResourceVariant getRemote() {
+//		 If we want to avoid the unnecessary roundtrip for fetching the contents of remote file in case of outgoing changes,
+//		 (when we actually need/want to compare with base only), we should trick the eclipse somehow.
+		//So what we do now is answer the remote only in case of incoming change or conflict.
+		IResourceVariant theRemote = super.getRemote();
+		if ((theRemote != null) && 
+				((SyncInfo.INCOMING == SyncInfo.getDirection(getKind())) ||
+				(SyncInfo.CONFLICTING == SyncInfo.getDirection(getKind()))))
+		{
+			return theRemote;
+		}
+		else
+		{
+			return (super.getBase() != null) ? super.getBase() : theRemote;
+		}
+	}
+
 //	/* (non-Javadoc)
 //	 * @see org.eclipse.team.core.synchronize.SyncInfo#getRemote()
 //	 */
-//	public IResourceVariant getRemote() {
-//		IResourceVariant theRemote = super.getRemote();
-//		if ((theRemote == null) && (getKind() == (SyncInfo.OUTGOING | SyncInfo.CHANGE)))
+//	public IResourceVariant getBase() {
+//		//TODO This should probably go away when the JavaHL will be fixed.
+//		//There is a bug in JavaHL (1.2.2) which does not correctly translates the line endings.
+//		//To avoid displaying the change as confilct, we will answer base only when really necessary
+//		//So what we do now is answer the base only in case of outgoing change or conflict.
+//		IResourceVariant theBase = super.getBase();
+//		if ((theBase != null) && 
+//				((SyncInfo.OUTGOING == SyncInfo.getDirection(getKind())) ||
+//				(SyncInfo.CONFLICTING == SyncInfo.getDirection(getKind()))))
 //		{
-//			return getBase();
+//			return theBase;
 //		}
 //		else
 //		{
-//			return theRemote;
+//			return (super.getRemote() != null) ? super.getRemote() : theBase;
 //		}
 //	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.team.core.synchronize.SyncInfo#getLocalContentIdentifier()
+	 */
+	public String getLocalContentIdentifier() {
+		return baseStatusInfo.getRevision().toString();
+	}
 
     /* (non-Javadoc)
      * @see org.eclipse.team.core.synchronize.SyncInfo#calculateKind()
@@ -183,6 +212,25 @@ public class SVNStatusSyncInfo extends SyncInfo {
         else {
             return new RemoteFolder(remoteStatusInfo);
         }
+    }
+    
+    /**
+     * Asnwer label describing revision status.
+     * (E.g. the one displayed byt the resource in the synchronize view). 
+     * @return
+     */
+    public String getLabel()
+    {
+		if ((getRemote() != null) && 
+				((SyncInfo.INCOMING == SyncInfo.getDirection(getKind())) ||
+				(SyncInfo.CONFLICTING == SyncInfo.getDirection(getKind()))))
+		{
+			return " (" + getRemote().getContentIdentifier() + ")" ;
+		}
+		else
+		{
+			return "";
+		}
     }
     
     public String toString()

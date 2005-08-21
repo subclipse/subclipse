@@ -17,7 +17,7 @@ import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.subclipse.core.ISVNFolder;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.Policy;
@@ -29,7 +29,7 @@ import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
  * represents the base revision of a folder
  * 
  */
-public class BaseFolder extends BaseResource implements ISVNFolder {
+public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
 	
 	public BaseFolder(LocalResourceStatus localResourceStatus)
 	{
@@ -40,7 +40,7 @@ public class BaseFolder extends BaseResource implements ISVNFolder {
 	 * @see org.eclipse.team.core.variants.IResourceVariant#isContainer()
 	 */
 	public boolean isContainer() {
-		return false;
+		return true;
 	}
 
 	/* (non-Javadoc)
@@ -126,7 +126,7 @@ public class BaseFolder extends BaseResource implements ISVNFolder {
                 // The folders itself is not its own child, all direct children are
                 if (!statuses[i].getUrlString().equals(localResourceStatus.getUrlString()))
                 {
-                	baseChildren.add(new BaseFolder(statuses[i]));
+                	baseChildren.add(BaseResource.from(statuses[i]));
                 }
             }
             return (ISVNRemoteResource[]) baseChildren.toArray(new ISVNRemoteResource[baseChildren.size()]);
@@ -136,5 +136,16 @@ public class BaseFolder extends BaseResource implements ISVNFolder {
         } finally {
 			progress.done();
 		}	 	
+	}
+
+	public void createRemoteFolder(String folderName, String message, IProgressMonitor monitor) throws SVNException {
+		throw new SVNException("Cannot create remote folder on Base Folder");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteFolder#refresh()
+	 */
+	public void refresh() {
+		//Do nothing. Base folder does NOT caches anything.
 	}	
 }

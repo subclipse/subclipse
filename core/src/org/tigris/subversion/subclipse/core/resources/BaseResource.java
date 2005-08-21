@@ -1,3 +1,13 @@
+/* ***************************************************************************
+ * This program and the accompanying materials are made available under
+ * the terms of the Common Public License v1.0 which accompanies this
+ * distribution, and is available at the following URL:
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * Copyright(c) 2003-2005 by the authors indicated in the @author tags.
+ *
+ * All Rights are Reserved by the various authors.
+ *
+ * ***************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
@@ -14,6 +24,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.util.Assert;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.tigris.subversion.svnclientadapter.SVNUrlUtils;
@@ -38,6 +49,23 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 		this.localResourceStatus = localResourceStatus;		
 	}
 
+	/**
+	 * Create a BaseFile or BaseFolder according to nodeKind of the given status.
+	 * @param localResourceStatus
+	 * @return
+	 */
+	public static BaseResource from(LocalResourceStatus localResourceStatus)
+	{
+		if (SVNNodeKind.FILE.equals(localResourceStatus.getNodeKind()))
+		{
+			return new BaseFile(localResourceStatus);
+		}
+		else
+		{
+			return new BaseFolder(localResourceStatus);
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.team.core.variants.IResourceVariant#getName()
 	 */
@@ -160,6 +188,14 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	 */
 	public ISVNRemoteFolder getParent() {
 		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString()
+	{
+		return (localResourceStatus != null) ? localResourceStatus.getPathString() : "";
 	}
 
 }

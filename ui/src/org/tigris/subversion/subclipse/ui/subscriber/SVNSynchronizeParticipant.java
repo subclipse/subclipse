@@ -16,8 +16,6 @@ import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
-import org.eclipse.team.core.synchronize.SyncInfo;
-import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.ui.TeamUI;
 import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
@@ -26,6 +24,7 @@ import org.eclipse.team.ui.synchronize.ISynchronizeScope;
 import org.eclipse.team.ui.synchronize.SynchronizePageActionGroup;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.PartInitException;
+import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -63,6 +62,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant {
 		public Image decorateImage(Image image, Object element) {
 			return null;
 		}
+		
 		/* (non-Javadoc)
 		 * @see org.eclipse.jface.viewers.ILabelDecorator#decorateText(java.lang.String, java.lang.Object)
 		 */
@@ -71,11 +71,8 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant {
 				if (element instanceof ISynchronizeModelElement) {
 					IResource resource = ((ISynchronizeModelElement) element).getResource();
 					if (resource != null) {
-						SyncInfo info = SVNWorkspaceSubscriber.getInstance().getSyncInfo(resource);
-						IResourceVariant variant = info.getRemote();
-						if (variant != null) {
-							return text + " (" + variant.getContentIdentifier() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-						}
+						SVNStatusSyncInfo info = (SVNStatusSyncInfo) SVNWorkspaceSubscriber.getInstance().getSyncInfo(resource);
+						return text + info.getLabel(); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
 			} catch (TeamException e) {
