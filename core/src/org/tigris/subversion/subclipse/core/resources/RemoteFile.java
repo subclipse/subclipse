@@ -1,14 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
- * which accompanies this distribution, and is available at
+/* ***************************************************************************
+ * This program and the accompanying materials are made available under
+ * the terms of the Common Public License v1.0 which accompanies this
+ * distribution, and is available at the following URL:
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
- *******************************************************************************/
+ * Copyright(c) 2003-2005 by the authors indicated in the @author tags.
+ *
+ * All Rights are Reserved by the various authors.
+ *
+ * ***************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 import java.io.InputStream;
 import java.util.Date;
@@ -147,7 +146,6 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 		monitor.beginTask(Policy.bind("RemoteFile.getAnnotations"), 100);//$NON-NLS-1$
 		try {
 			ISVNClientAdapter svnClient = repository.getSVNClient();
-			InputStream inputStream;
 			try {
 				return svnClient.annotate(url, null, getRevision());
 			} catch (SVNClientException e) {

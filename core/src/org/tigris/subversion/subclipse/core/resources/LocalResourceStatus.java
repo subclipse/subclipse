@@ -1,13 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
- * which accompanies this distribution, and is available at
+/* ***************************************************************************
+ * This program and the accompanying materials are made available under
+ * the terms of the Common Public License v1.0 which accompanies this
+ * distribution, and is available at the following URL:
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
- * Contributors:
- *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
- *******************************************************************************/
+ * Copyright(c) 2003-2005 by the authors indicated in the @author tags.
+ *
+ * All Rights are Reserved by the various authors.
+ *
+ * ***************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.ByteArrayInputStream;
@@ -196,7 +196,7 @@ public class LocalResourceStatus extends ResourceStatus {
     	super();    	
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         DataInputStream dis = new DataInputStream(in);
-    	initFromBytes(new DataInputStream(in));
+    	initFromBytes(dis);
     }
     
     /* (non-Javadoc)
@@ -410,7 +410,9 @@ public class LocalResourceStatus extends ResourceStatus {
         return lockComment;
     }
             
-    public static class LocalResourceStatusNone extends LocalResourceStatus {    
+    public static class LocalResourceStatusNone extends LocalResourceStatus {
+        static final long serialVersionUID = 1L;
+
     	public LocalResourceStatusNone()
     	{
     		super();
