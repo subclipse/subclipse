@@ -72,7 +72,10 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant {
 					IResource resource = ((ISynchronizeModelElement) element).getResource();
 					if (resource != null) {
 						SVNStatusSyncInfo info = (SVNStatusSyncInfo) SVNWorkspaceSubscriber.getInstance().getSyncInfo(resource);
-						return text + info.getLabel(); //$NON-NLS-1$ //$NON-NLS-2$
+						if (info != null)
+						{
+							return text + info.getLabel(); //$NON-NLS-1$ //$NON-NLS-2$
+						}
 					}
 				}
 			} catch (TeamException e) {
