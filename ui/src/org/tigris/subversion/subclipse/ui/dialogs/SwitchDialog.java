@@ -24,7 +24,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -40,6 +42,7 @@ public class SwitchDialog extends Dialog {
     
     private UrlCombo urlCombo;
     private Text revisionText;
+    private Button logButton;
     private Button headButton;
     private Button revisionButton;
     
@@ -95,7 +98,7 @@ public class SwitchDialog extends Dialog {
 		Group revisionGroup = new Group(composite, SWT.NULL);
 		revisionGroup.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
 		GridLayout revisionLayout = new GridLayout();
-		revisionLayout.numColumns = 2;
+		revisionLayout.numColumns = 3;
 		revisionGroup.setLayout(revisionLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 3;
@@ -104,7 +107,7 @@ public class SwitchDialog extends Dialog {
 		headButton = new Button(revisionGroup, SWT.RADIO);
 		headButton.setText(Policy.bind("SwitchDialog.head")); //$NON-NLS-1$
 		data = new GridData();
-		data.horizontalSpan = 2;
+		data.horizontalSpan = 3;
 		headButton.setLayoutData(data);
 		
 		revisionButton = new Button(revisionGroup, SWT.RADIO);
@@ -124,9 +127,19 @@ public class SwitchDialog extends Dialog {
             }		    
 		});
 		
+		logButton = new Button(revisionGroup, SWT.PUSH);
+		logButton.setText(Policy.bind("MergeDialog.showLog")); //$NON-NLS-1$
+		logButton.setEnabled(false);
+		logButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                showLog();
+            }
+		});	
+		
 		SelectionListener listener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 revisionText.setEnabled(revisionButton.getSelection());
+                logButton.setEnabled(revisionButton.getSelection());
                 setOkButtonStatus();
                 if (revisionButton.getSelection()) {
                     revisionText.selectAll();
@@ -143,6 +156,26 @@ public class SwitchDialog extends Dialog {
 		
 		return composite;
 	}
+
+	protected void showLog() {
+	    ISVNRemoteResource remoteResource = null;
+        try {
+            remoteResource = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getRemoteFile(new SVNUrl(urlCombo.getText()));
+        } catch (Exception e) {
+            MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), e.toString()); //$NON-NLS-1$
+            return;
+        }
+        if (remoteResource == null) {
+            MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), Policy.bind("MergeDialog.urlError") + " " + urlCombo.getText()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return;	            
+        }	
+        HistoryDialog dialog = dialog = new HistoryDialog(getShell(), remoteResource);
+        if (dialog.open() == HistoryDialog.CANCEL) return;
+        ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
+        if (selectedEntries.length == 0) return;
+        revisionText.setText(Long.toString(selectedEntries[selectedEntries.length - 1].getRevision().getNumber()));
+        setOkButtonStatus();
+    }
 	
     protected void okPressed() {
         urlCombo.saveUrl();
