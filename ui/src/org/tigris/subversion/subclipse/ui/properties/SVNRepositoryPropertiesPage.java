@@ -32,6 +32,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.decorator.SVNLightweightDecorator;
 import org.tigris.subversion.subclipse.ui.dialogs.ChooseRootUrlDialog;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -314,6 +315,9 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
         try {
             SVNRepositories repositories = SVNProviderPlugin.getPlugin().getRepositories();
             repositories.addOrUpdateRepository(location);
+
+            SVNLightweightDecorator.refresh();
+            
 		} catch (SVNException e) {
 			handle(e);
             return false;

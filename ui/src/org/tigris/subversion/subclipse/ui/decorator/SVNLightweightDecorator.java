@@ -288,9 +288,10 @@ public class SVNLightweightDecorator
 				bindings.put(SVNDecoratorConfiguration.DIRTY_FLAG, dirtyFlag);
 			}
 
-            bindings.put( SVNDecoratorConfiguration.RESOURCE_LABEL, svnResource.getRepository().getLabel());
-            
 			if (status.getUrlString() != null) {
+			    String label = svnResource.getRepository().getLabel();
+			    bindings.put( SVNDecoratorConfiguration.RESOURCE_LABEL, label == null ? status.getUrlString() : label);
+    			  
 				bindings.put(
 					SVNDecoratorConfiguration.RESOURCE_URL,
 					status.getUrlString());
