@@ -12,8 +12,8 @@ package org.tigris.subversion.subclipse.core.client;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
- * ISVNNotifyListener implementation which intercepts the logMessage() method
- * and used it to display the operation progress within the supplied progress monitor.
+ * ISVNNotifyListener implementation which intercepts the some log*() methods
+ * and uses them to display the operation progress within the supplied progress monitor.
  * 
  * @author Martin Letenay (letenay at tigris.org)
  */
@@ -48,4 +48,7 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter {
 		}		
 	}
 
+	public IProgressMonitor getMonitor() {
+		return monitor;
+	}
 }

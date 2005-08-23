@@ -155,7 +155,6 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
     	{
     		url = SVNUrlUtils.getUrlFromLocalFileName(status.getPathString(), rootUrl, rootPath);
     	}
-    	ISVNInfo info;
         try {
         	monitor.subTask(url.toString());
             return client.getInfo(url);
