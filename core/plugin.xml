@@ -8,25 +8,7 @@
    class="org.tigris.subversion.subclipse.core.SVNProviderPlugin">
 
    <runtime>
-      <library name="svnClientAdapter.jar">
-         <export name="*"/>
-      </library>
-      <library name="svnjavahl.jar">
-         <export name="*"/>
-      </library>
       <library name="SVNPluginCore.jar">
-         <export name="*"/>
-      </library>
-      <library name="jakarta-regexp-1.3.jar">
-         <export name="*"/>
-      </library>
-      <library name="commons-lang-2.0.jar">
-         <export name="*"/>
-      </library>
-      <library name="javasvn.jar">
-         <export name="*"/>
-      </library>
-      <library name="jsch.jar">
          <export name="*"/>
       </library>
    </runtime>
