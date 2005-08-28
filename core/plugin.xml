@@ -11,6 +11,16 @@
       <library name="SVNPluginCore.jar">
          <export name="*"/>
       </library>
+      <library name="lib/svnClientAdapter.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/commons-lang-2.1.jar">
+         <export name="*"/>
+      </library>
+      <library name="lib/svnjavahl.jar"/>
+      <library name="lib/jsch.jar"/>
+      <library name="lib/javasvn.jar"/>
+      <library name="lib/jakarta-regexp-1.4.jar"/>
    </runtime>
 
    <requires>
