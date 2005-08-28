@@ -3,5 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/core/lib/commons-lang-2.1.jar"/>
+	<classpathentry kind="lib" path="/core/lib/svnClientAdapter.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

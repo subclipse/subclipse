@@ -3,11 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="commons-lang-2.1.jar"/>
-	<classpathentry kind="lib" path="jakarta-regexp-1.4.jar"/>
-	<classpathentry exported="true" sourcepath="/svnClientAdapter" kind="lib" path="svnClientAdapter.jar"/>
-	<classpathentry exported="true" kind="lib" path="svnjavahl.jar"/>
-	<classpathentry kind="lib" path="javasvn.jar"/>
-	<classpathentry kind="lib" path="jsch.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-regexp-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/javasvn.jar"/>
+	<classpathentry kind="lib" path="lib/jsch.jar"/>
+	<classpathentry kind="lib" path="lib/svnjavahl.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
