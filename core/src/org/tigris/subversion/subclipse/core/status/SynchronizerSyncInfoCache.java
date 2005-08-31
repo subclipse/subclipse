@@ -31,8 +31,8 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
  */
 public class SynchronizerSyncInfoCache implements IStatusCache {
 	
-	private static final byte[] BYTES_REMOVED = new byte[0];
-	private SyncInfoSynchronizedAccessor accessor = new SyncInfoSynchronizedAccessor();
+	protected static final byte[] BYTES_REMOVED = new byte[0];
+	protected SyncInfoSynchronizedAccessor accessor = new SyncInfoSynchronizedAccessor();
 
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#getStatus(org.eclipse.core.resources.IResource)

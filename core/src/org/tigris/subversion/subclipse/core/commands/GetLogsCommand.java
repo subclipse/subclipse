@@ -179,11 +179,11 @@ public class GetLogsCommand implements ISVNCommand {
         // if we get the history for a folder, we get the history for all
         // its members
     	// so there is no remoteResource associated with each LogEntry
-        ILogEntry[] logEntries = new ILogEntry[logMessages.length]; 
+        ILogEntry[] result = new ILogEntry[logMessages.length]; 
         for (int i = 0; i < logMessages.length;i++) {
-        	logEntries[i] = new LogEntry(logMessages[i], remoteResource, null); 
+        	result[i] = new LogEntry(logMessages[i], remoteResource, null); 
         }
-        return logEntries;
+        return result;
     }
     
     /**
@@ -193,7 +193,7 @@ public class GetLogsCommand implements ISVNCommand {
      */
     private ILogEntry[] createLogEntriesForFile(ISVNLogMessage[] logMessages) {
         SVNUrl[] urls = getUrls(logMessages);
-        ILogEntry[] logEntries = new ILogEntry[logMessages.length]; 
+        ILogEntry[] result = new ILogEntry[logMessages.length]; 
         for (int i = 0; i < logMessages.length;i++) {
             ISVNLogMessage logMessage = logMessages[i];
             ISVNRemoteResource correspondingResource;
@@ -205,9 +205,9 @@ public class GetLogsCommand implements ISVNCommand {
                         logMessage.getRevision(), 
                         logMessage.getDate(), 
                         logMessage.getAuthor());  
-            logEntries[i] = new LogEntry(logMessage, remoteResource, correspondingResource);
+            result[i] = new LogEntry(logMessage, remoteResource, correspondingResource);
         }
-        return logEntries;
+        return result;
     }
     
     

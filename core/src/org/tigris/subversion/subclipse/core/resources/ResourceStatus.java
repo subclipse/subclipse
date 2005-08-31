@@ -49,8 +49,8 @@ public class ResourceStatus implements Serializable {
 
     static final long serialVersionUID = 1L;
 
-    protected static int FORMAT_VERSION_1 = 1;
-    protected static int FORMAT_VERSION_2 = 2;
+    protected static final int FORMAT_VERSION_1 = 1;
+    protected static final int FORMAT_VERSION_2 = 2;
 
     protected String url;
     protected String path; // absolute path -- not stored in bytes in this class. Superclasses may store it ...

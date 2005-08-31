@@ -37,7 +37,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus
  */
 public class RemoteResourceStatus extends ResourceStatus {
-	public static RemoteResourceStatus NONE = new RemoteResourceStatusNone();
+	public static final RemoteResourceStatus NONE = new RemoteResourceStatusNone();
 
     static final long serialVersionUID = 1L;
 
@@ -46,7 +46,7 @@ public class RemoteResourceStatus extends ResourceStatus {
     	return ((bytes != null) && (bytes.length > 0)) ? new RemoteResourceStatus(bytes) : null;
     }
 
-    private RemoteResourceStatus() {}
+    protected RemoteResourceStatus() {}
 
     /**
      * 

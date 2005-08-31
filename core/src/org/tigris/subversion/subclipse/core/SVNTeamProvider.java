@@ -22,6 +22,7 @@ import org.eclipse.core.resources.team.IMoveDeleteHook;
 import org.eclipse.core.resources.team.ResourceRuleFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.variants.IResourceVariant;
@@ -45,7 +46,6 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  */
 public class SVNTeamProvider extends RepositoryProvider {
 	private SVNWorkspaceRoot workspaceRoot;
-	private Object operations;
 	
 	/**
 	 * Scheduling rule to use when modifying resources.
@@ -143,7 +143,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 			// Ensure that the project has SVN info
 			LocalResourceStatus status = SVNWorkspaceRoot.peekResourceStatusFor(workspaceRoot.getLocalRoot().getIResource());
 			if (!status.hasRemote()) {
-				throw new SVNException(new SVNStatus(SVNStatus.ERROR, Policy.bind("SVNTeamProvider.noFolderInfo", project.getName()))); //$NON-NLS-1$
+				throw new SVNException(new SVNStatus(IStatus.ERROR, Policy.bind("SVNTeamProvider.noFolderInfo", project.getName()))); //$NON-NLS-1$
 			}
 		} catch (SVNException e) {
 			// Log any problems creating the CVS managed resource
@@ -230,9 +230,8 @@ public class SVNTeamProvider extends RepositoryProvider {
 	 * @param resource the local resource
 	 * @param bytes the bytes that identify a variant of the resource
 	 * @return the resouce variant handle recreated from the bytes
-	 * @throws TeamException
 	 */
-	public IResourceVariant getResourceVariant(IResource resource, byte[] bytes) throws TeamException {
+	public IResourceVariant getResourceVariant(IResource resource, byte[] bytes) {
 		
 		//in this case, asBytes() will return the revision string, so we create 
 		//the variant resource with this minimal info.

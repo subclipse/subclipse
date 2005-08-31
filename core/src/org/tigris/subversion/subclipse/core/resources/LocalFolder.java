@@ -85,11 +85,10 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         boolean includeExisting = (((flags & EXISTING_MEMBERS) != 0) || ((flags & (EXISTING_MEMBERS | PHANTOM_MEMBERS)) == 0));
         boolean includePhantoms = (((flags & PHANTOM_MEMBERS) != 0) || ((flags & (EXISTING_MEMBERS | PHANTOM_MEMBERS)) == 0));
         for (int i = 0; i < resources.length; i++) {
-            IResource resource = resources[i];
             ISVNLocalResource svnResource = SVNWorkspaceRoot
-                    .getSVNResourceFor(resource);
-            if ((includeFiles && (resource.getType() == IResource.FILE))
-                    || (includeFolders && (resource.getType() == IResource.FOLDER))) {
+                    .getSVNResourceFor(resources[i]);
+            if ((includeFiles && (resources[i].getType() == IResource.FILE))
+                    || (includeFolders && (resources[i].getType() == IResource.FOLDER))) {
                 boolean isManaged = svnResource.isManaged();
                 boolean isIgnored = svnResource.isIgnored();
                 if ((isManaged && includeManaged)
@@ -144,8 +143,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                 new NullProgressMonitor(), ALL_UNIGNORED_MEMBERS);
 
         for (int i = 0; i < children.length; i++) {
-            ISVNLocalResource resource = children[i];
-            if (resource.isDirty()) {
+            if (children[i].isDirty()) {
                 // if a child resource is dirty consider the parent dirty as
                 // well, there is no need to continue checking other siblings.
                 return true;
@@ -185,11 +183,11 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
      */
     public void unmanage(IProgressMonitor monitor) throws SVNException {
         SVNProviderPlugin.run(new ISVNRunnable() {
-            public void run(IProgressMonitor monitor) throws SVNException {
-                monitor = Policy.monitorFor(monitor);
-                monitor.beginTask(null, 100);
+            public void run(IProgressMonitor pm) throws SVNException {
+                pm = Policy.monitorFor(pm);
+                pm.beginTask(null, 100);
 
-                ISVNResource[] members = members(Policy.subMonitorFor(monitor,
+                ISVNResource[] members = members(Policy.subMonitorFor(pm,
                         20), FOLDER_MEMBERS | MANAGED_MEMBERS);
                 ArrayList dirs = new ArrayList();
                 for (int i = 0; i < members.length; i++) {
@@ -199,7 +197,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                 // list : we want to delete .svn dir
                 // for it too
 
-                IProgressMonitor monitorDel = Policy.subMonitorFor(monitor, 80);
+                IProgressMonitor monitorDel = Policy.subMonitorFor(pm, 80);
                 monitorDel.beginTask(null, dirs.size());
 
                 for (int i = 0; i < dirs.size(); i++) {
@@ -209,21 +207,20 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
 
                 }
                 monitorDel.done();
-                monitor.done();
+                pm.done();
             }
 
             private void recursiveUnmanage(IContainer container,
-                    IProgressMonitor monitor) {
+                    IProgressMonitor pm) {
                 try {
-                    monitor.beginTask(null, 10);
-                    monitor.subTask(container.getFullPath().toOSString());
+                    pm.beginTask(null, 10);
+                    pm.subTask(container.getFullPath().toOSString());
 
                     IResource[] members = container.members(true);
                     for (int i = 0; i < members.length; i++) {
-                        monitor.worked(1);
-                        IResource resource = members[i];
+                        pm.worked(1);
                         if (members[i].getType() != IResource.FILE) {
-                            recursiveUnmanage((IContainer) resource, monitor);
+                            recursiveUnmanage((IContainer) members[i], pm);
                         }
                     }
                     // Post order traversal to make sure resources are not
@@ -239,7 +236,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                 } catch (CoreException e) {
                     // Just ignore and continue
                 } finally {
-                    monitor.done();
+                    pm.done();
                 }
             }
         }, Policy.subMonitorFor(monitor, 99));

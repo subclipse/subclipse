@@ -78,7 +78,7 @@ public class ReentrantLock {
 		return readOnlyThreads.contains(thread);
 	}
 	
-	public void addReadOnlyThread(Thread thread) {
-		readOnlyThreads.add(thread);
+	public void addReadOnlyThread(Thread aThread) {
+		readOnlyThreads.add(aThread);
 	}
 }

@@ -59,7 +59,7 @@ public class CheckoutCommand implements ISVNCommand {
 		this.projects = projects;
 	}
 
-	private void basicRun(final IProject project, ISVNRemoteFolder resource, final IProgressMonitor pm) throws SVNException {
+	protected void basicRun(final IProject project, ISVNRemoteFolder resource, final IProgressMonitor pm) throws SVNException {
 		if (pm != null)
 		{
 			pm.beginTask(null, 1000);
@@ -279,8 +279,10 @@ public class CheckoutCommand implements ISVNCommand {
 	private void refreshProject(IProject project, IProgressMonitor monitor)
 			throws SVNException {
 	    if (monitor != null)
+	    {
 	    	monitor.beginTask("", 100); //$NON-NLS-1$
 	    	monitor.subTask(Policy.bind("SVNProvider.Creating_project_1", project.getName()));
+	    }
 		try {
 			// Register the project with Team
 			RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());

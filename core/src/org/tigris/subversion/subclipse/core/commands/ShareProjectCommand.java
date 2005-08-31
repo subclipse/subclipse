@@ -37,11 +37,11 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * </p>
  */
 public class ShareProjectCommand implements ISVNCommand {
-	private ISVNRepositoryLocation location;
+	protected ISVNRepositoryLocation location;
 
-	private IProject project;
+	protected IProject project;
 
-	private String remoteDirName;
+	protected String remoteDirName;
 
     /**
      * if remoteDirName is null, the name of the project is used    
@@ -73,9 +73,6 @@ public class ShareProjectCommand implements ISVNCommand {
 				.isKnownRepository(location.getLocation());
 
 		try {
-			// Get the import properties
-			String projectName = project.getName();
-
 			final ISVNClientAdapter svnClient = location.getSVNClient();
 
 			// perform the workspace modifications in a runnable

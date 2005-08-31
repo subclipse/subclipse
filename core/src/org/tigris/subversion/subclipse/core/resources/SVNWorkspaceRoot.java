@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.team.core.RepositoryProvider;
@@ -161,7 +162,7 @@ public class SVNWorkspaceRoot {
         // because we need to know its url
         // we will change this exception !
         if (!status.hasRemote())
-            throw new SVNException(new SVNStatus(SVNStatus.ERROR, Policy.bind("SVNProvider.infoMismatch", project.getName())));//$NON-NLS-1$
+            throw new SVNException(new SVNStatus(IStatus.ERROR, Policy.bind("SVNProvider.infoMismatch", project.getName())));//$NON-NLS-1$
         
 		// Ensure that the provided location is managed
 		SVNProviderPlugin.getPlugin().getRepositories().getRepository(status.getUrlString());

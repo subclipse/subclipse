@@ -35,7 +35,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  */
 public class LocalResourceStatus extends ResourceStatus {
-	public static LocalResourceStatus NONE = new LocalResourceStatusNone();
+	public static final LocalResourceStatus NONE = new LocalResourceStatusNone();
 	
     protected String urlCopiedFrom;
     protected String pathConflictOld;
@@ -278,13 +278,13 @@ public class LocalResourceStatus extends ResourceStatus {
      * @return
      */
     public boolean isTextDirty() {
-        SVNStatusKind textStatus = getTextStatus();
+        SVNStatusKind theTextStatus = getTextStatus();
 
-        return ((textStatus.equals(SVNStatusKind.ADDED))
-                || (textStatus.equals(SVNStatusKind.DELETED))
-                || (textStatus.equals(SVNStatusKind.REPLACED))
-                || (textStatus.equals(SVNStatusKind.MODIFIED))
-                || (textStatus.equals(SVNStatusKind.MERGED)) || (textStatus
+        return ((theTextStatus.equals(SVNStatusKind.ADDED))
+                || (theTextStatus.equals(SVNStatusKind.DELETED))
+                || (theTextStatus.equals(SVNStatusKind.REPLACED))
+                || (theTextStatus.equals(SVNStatusKind.MODIFIED))
+                || (theTextStatus.equals(SVNStatusKind.MERGED)) || (theTextStatus
                 .equals(SVNStatusKind.CONFLICTED)));
     }
 
@@ -294,9 +294,9 @@ public class LocalResourceStatus extends ResourceStatus {
      * @return
      */
     public boolean isPropDirty() {
-        SVNStatusKind propStatus = getPropStatus();
-        return propStatus.equals(SVNStatusKind.CONFLICTED)
-                || propStatus.equals(SVNStatusKind.MODIFIED);
+        SVNStatusKind thePropStatus = getPropStatus();
+        return thePropStatus.equals(SVNStatusKind.CONFLICTED)
+                || thePropStatus.equals(SVNStatusKind.MODIFIED);
     }
 
     /**

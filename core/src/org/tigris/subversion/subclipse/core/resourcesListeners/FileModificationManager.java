@@ -45,9 +45,7 @@ import org.tigris.subversion.svnclientadapter.SVNConstants;
  */
 public class FileModificationManager implements IResourceChangeListener, ISaveParticipant {
 	
-	
-	
-	private Set modifiedResources = new HashSet();
+	protected Set modifiedResources = new HashSet();
 
 	// consider the following changes types and ignore the others (e.g. marker and description changes are ignored)
 	protected int INTERESTING_CHANGES = IResourceDelta.CONTENT | 

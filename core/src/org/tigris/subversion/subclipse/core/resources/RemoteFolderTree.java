@@ -16,7 +16,6 @@ import java.util.Date;
 import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
-import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
@@ -54,12 +53,11 @@ public class RemoteFolderTree extends RemoteFolder  {
      * @param lastChangedRevision
      * @param date
      * @param author
-     * @throws SVNException
      */
     public RemoteFolderTree(RemoteFolder parent,
             ISVNRepositoryLocation repository, SVNUrl url,
             SVNRevision revision, Number lastChangedRevision, Date date,
-            String author) throws SVNException {
+            String author) {
         super(parent, repository, url, revision, lastChangedRevision, date,
                 author);
         this.children = EMPTY;

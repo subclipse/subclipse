@@ -45,7 +45,7 @@ import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 public class SVNTeamProviderType extends RepositoryProviderType {
 
-    private static AutoShareJob autoShareJob;
+    protected static AutoShareJob autoShareJob;
     
     public static class AutoShareJob extends Job {
 
@@ -208,9 +208,6 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 				client.addDirectory(file, false);
 
 				RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
-				SVNTeamProvider provider = (SVNTeamProvider) RepositoryProvider
-						.getProvider(project, SVNProviderPlugin.getTypeId());
-
 				plugin.getStatusCacheManager().refreshStatus(project,
 						IResource.DEPTH_INFINITE);
 				
@@ -250,7 +247,7 @@ public class SVNTeamProviderType extends RepositoryProviderType {
             IContainer container = containers[i];
             IContainer svnDir = null;
 			
-			if (!isProject && container.getType() == IContainer.PROJECT)
+			if (!isProject && container.getType() == IResource.PROJECT)
 				isProject = true;
 			
             if (container.getName().equals(SVNConstants.SVN_DIRNAME)) { //$NON-NLS-1$

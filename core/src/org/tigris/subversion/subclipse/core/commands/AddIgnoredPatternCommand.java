@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.core.commands;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -44,7 +45,7 @@ public class AddIgnoredPatternCommand implements ISVNCommand {
 	public void run(IProgressMonitor monitor) throws SVNException {
         monitor.beginTask(null, 100); //$NON-NLS-1$
         if (!folder.getStatus().isManaged())
-            throw new SVNException(IStatus.ERROR, SVNException.UNABLE,
+            throw new SVNException(IStatus.ERROR, TeamException.UNABLE,
                 Policy.bind("SVNTeamProvider.ErrorSettingIgnorePattern", folder.getIResource().getFullPath().toString())); //$NON-NLS-1$
         ISVNClientAdapter svnClient = folder.getRepository().getSVNClient();
         try {

@@ -24,7 +24,7 @@ public class StatusCommand {
     private final boolean contactServer;
 
     private ISVNStatus[] statuses;
-    private SVNRevision.Number revision;
+    protected SVNRevision.Number revision;
 
     public StatusCommand(File file, boolean descend, boolean getAll, boolean contactServer) {
         this.file = file;

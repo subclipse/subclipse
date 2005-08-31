@@ -235,7 +235,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 			List refreshedResources = updateCache(strategy.statusesToUpdate(resource));
 			Set resourcesToRefresh = resourcesToRefresh(resource, depth, IContainer.INCLUDE_PHANTOMS, refreshedResources.size());
 			for (Iterator iter = refreshedResources.iterator(); iter.hasNext();) {
-				resourcesToRefresh.remove((IResource) iter.next());
+				resourcesToRefresh.remove(iter.next());
 			}
 			//Resources which were not refreshed above (e.g. deleted resources)
 			//We do it with depth = infinite, so the whole deleted trees are refreshed.
@@ -269,8 +269,8 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
         }
     	final Set resultSet = (expectedSize != 0) ? new HashSet(expectedSize) : new HashSet();
 		resource.accept(new IResourceVisitor() {
-			public boolean visit(IResource resource) throws CoreException {
-				resultSet.add(resource);
+			public boolean visit(IResource aResource) throws CoreException {
+				resultSet.add(aResource);
 				return true;
 			}
 		}, depth, flags);

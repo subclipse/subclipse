@@ -68,9 +68,8 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
      * @param project
      *            the project (not <code>null</code>)
      * @return the project reference (not <code>null</code>)
-     * @throws CVSException
      */
-    private String asReference(IProject project) throws TeamException {
+    private String asReference(IProject project) {
         StringBuffer buffer = new StringBuffer();
         buffer.append("0.9.3,"); //$NON-NLS-1$
 
@@ -177,7 +176,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
     /**
      * Internal class for adding projects to the workspace
      */
-    class LoadInfo {
+    protected static class LoadInfo {
         private final ISVNRepositoryLocation repositoryLocation;
         private final IProject project;
         private final boolean fromFileSystem;
@@ -243,7 +242,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
          * 
          * @return the project (not <code>null</code>)
          */
-        private IProject getProject() {
+        protected IProject getProject() {
             return project;
         }
 
@@ -263,8 +262,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
                     return false;
                 }
                 CheckoutCommand command = new CheckoutCommand(
-                        new ISVNRemoteFolder[] { (ISVNRemoteFolder) repositoryLocation
-                                .getRootFolder() }, new IProject[] { project });
+                        new ISVNRemoteFolder[] { repositoryLocation.getRootFolder() }, new IProject[] { project });
                 command.run(monitor);
                 return true;
             }
@@ -291,8 +289,6 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
 
                 monitor.subTask("Refreshing " + project.getName());
                 RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
-                SVNTeamProvider provider = (SVNTeamProvider) RepositoryProvider
-                        .getProvider(project, SVNProviderPlugin.getTypeId());
                 monitor.worked(1000);
                 SVNWorkspaceRoot.setSharing(project, new SubProgressMonitor(
                         monitor, 1000));

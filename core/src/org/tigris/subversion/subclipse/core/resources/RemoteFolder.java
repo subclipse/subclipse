@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
@@ -116,9 +117,9 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 	 * @return true when the child resource exists 
 	 */
 	protected boolean exists(final ISVNRemoteResource child, IProgressMonitor monitor) throws SVNException {
-        ISVNRemoteResource[] children;
+        ISVNRemoteResource[] members;
         try {
-            children = getMembers(monitor);
+            members = getMembers(monitor);
         } catch (SVNException e) {
             if (e.getStatus().getCode() == SVNStatus.DOES_NOT_EXIST) {
                 return false;
@@ -127,8 +128,8 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
             }
         }
         
-        for (int i = 0; i < children.length;i++) {
-            if (children[i].equals(child))
+        for (int i = 0; i < members.length;i++) {
+            if (members[i].equals(child))
                 return true;
         }
         return false;
@@ -199,7 +200,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
             return children;
         } catch (SVNClientException e)
 		{
-            throw new SVNException(new SVNStatus(SVNStatus.ERROR, SVNStatus.DOES_NOT_EXIST, Policy.bind("RemoteFolder.doesNotExist", getRepositoryRelativePath()))); //$NON-NLS-1$
+            throw new SVNException(new SVNStatus(IStatus.ERROR, SVNStatus.DOES_NOT_EXIST, Policy.bind("RemoteFolder.doesNotExist", getRepositoryRelativePath()))); //$NON-NLS-1$
         } finally {
 			progress.done();
 		}	 	

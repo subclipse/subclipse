@@ -25,7 +25,6 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  */
 public class LogEntryChangePath extends PlatformObject {
 
-    private SVNUrl path;
     private ISVNLogMessageChangePath logMessageChangePath;
     private ILogEntry logEntry;
     private ISVNRemoteResource remoteResource;
@@ -121,14 +120,14 @@ public class LogEntryChangePath extends PlatformObject {
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
     public Object getAdapter(Class adapter) {
-        ISVNRemoteResource remoteResource = null;
+        ISVNRemoteResource aRemoteResource = null;
 		try {
-			remoteResource = getRemoteResource();
+			aRemoteResource = getRemoteResource();
 		} catch (SVNException e) {
 		}
         
-		if (adapter.isInstance(remoteResource)) {
-            return remoteResource;
+		if (adapter.isInstance(aRemoteResource)) {
+            return aRemoteResource;
         }
         return super.getAdapter(adapter);
     }    

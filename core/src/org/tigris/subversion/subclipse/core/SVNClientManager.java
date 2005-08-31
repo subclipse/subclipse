@@ -28,7 +28,6 @@ import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
  * @author Cedric Chabanois (cchab at tigris.org) 
  */
 public class SVNClientManager {
-    private SVNAdapterFactories adapterFactories;
     private String svnClientInterface;  
     private File configDir = null;
     private boolean fetchChangePathOnDemand = true;
@@ -83,7 +82,7 @@ public class SVNClientManager {
         try {
             svnClientInterface = SVNClientAdapterFactory.getPreferredSVNClientType();
         } catch (SVNClientException e) {
-            throw new CoreException(new Status(Status.ERROR, SVNProviderPlugin.ID, IStatus.OK, e
+            throw new CoreException(new Status(IStatus.ERROR, SVNProviderPlugin.ID, IStatus.OK, e
                     .getMessage(), e));
         }
         

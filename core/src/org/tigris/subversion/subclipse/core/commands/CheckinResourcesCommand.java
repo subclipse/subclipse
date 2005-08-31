@@ -34,15 +34,15 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  */
 public class CheckinResourcesCommand implements ISVNCommand {
 	// resources to commit
-    private IResource[] resources;
+	protected IResource[] resources;
     
-    private String message;
+    protected String message;
     
-    private boolean keepLocks;
+    protected boolean keepLocks;
     
-    private int depth;
+    protected int depth;
     
-    private SVNWorkspaceRoot root;
+    protected SVNWorkspaceRoot root;
 
     public CheckinResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int depth, String message, boolean keepLocks) {
     	this.resources = resources;
@@ -85,10 +85,10 @@ public class CheckinResourcesCommand implements ISVNCommand {
             resourceFiles[i] = resources[i].getLocation().toFile(); 
         
         SVNProviderPlugin.run(new ISVNRunnable() {
-            public void run(final IProgressMonitor monitor) throws SVNException {
+            public void run(final IProgressMonitor pm) throws SVNException {
                 try {
-                    monitor.beginTask(null, resourceFiles.length);
-                    OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
+                    pm.beginTask(null, resourceFiles.length);
+                    OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm));
                     
                     // we commit the parents (not recursively)
                     if (parents.length > 0)
@@ -100,7 +100,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     throw SVNException.wrapException(e);
                 } finally {
                     OperationManager.getInstance().endOperation();
-                    monitor.done();
+                    pm.done();
                 }
             }
         }, Policy.monitorFor(monitor));

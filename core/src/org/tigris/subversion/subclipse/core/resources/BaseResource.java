@@ -102,6 +102,14 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 			&& base.getRevision() == getRevision();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode()
+	{
+		return getUrl().hashCode() + getRevision().hashCode();
+	}
+	
 	public ISVNRepositoryLocation getRepository() {
 		return localResourceStatus.getRepository();
 	}
