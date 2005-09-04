@@ -334,7 +334,6 @@ public class SVNWorkspaceRoot {
 	 */
 	public static int getResourceType(String absolutePath)
 	{
-		//TODO This code is using eclipse internal classes !
 		return getResourceType(pathForLocation(new Path(absolutePath)));
 	}
 
@@ -345,7 +344,8 @@ public class SVNWorkspaceRoot {
 	 */
 	public static int getResourceType(IPath aResourcePath)
 	{
-		//TODO This code is using eclipse internal classes !
+		if (aResourcePath == null) return 0;
+		//TODO This code is using eclipse internal classes !		
 		ResourceInfo resourceInfo = ((Workspace) ResourcesPlugin.getWorkspace()).getResourceInfo(aResourcePath, true, false);
 		return (resourceInfo != null) ? resourceInfo.getType() : 0;
 	}

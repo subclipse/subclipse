@@ -16,8 +16,6 @@ import java.util.Set;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -647,17 +645,19 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
      * @return
      */
     private IResource[] getChangedResources(LocalResourceStatus[] status) {
-        if( status == null )
-            return null;
-        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-        
+        if( status == null ) return null;
         Set resourceSet = new HashSet();
         for (int i = 0; i < status.length;i++) {
             if ( ((status[i].isAdded()) && (toggleAddedAction.isChecked())) ||
                     ((status[i].isDeleted()) && (toggleDeletedAction.isChecked())) ||
                     ((status[i].isTextModified()) && (toggleModifiedAction.isChecked())) ) {
                 
-                resourceSet.add(status[i].getResource());
+            	try {
+            		resourceSet.add(status[i].getResource());
+        		} catch (SVNException e) {
+        			SVNProviderPlugin.log(e);
+        			return null;
+        		}
             }
         }
         return (IResource[]) resourceSet.toArray(new IResource[0]);

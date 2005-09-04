@@ -9,7 +9,10 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core.client;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
  * ISVNNotifyListener implementation which intercepts the some log*() methods
@@ -30,14 +33,14 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter {
 	/**
 	 * Display the log the message in the progress monitor and increase the progress by 1
 	 */
-	public void logMessage(String message) {
+	public void onNotify(File path, SVNNodeKind kind) {
 		if (monitor != null)
 		{
 		    monitor.worked(1);
-		    monitor.subTask(message);
+		    monitor.subTask(path.getPath());
 		}
 	}
-	
+
 	/**
 	 * The operation was completed, clear the progress' subTask.
 	 */
