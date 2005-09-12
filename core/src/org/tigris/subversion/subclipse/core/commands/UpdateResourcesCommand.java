@@ -71,7 +71,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     			for (int i = 0; i < resources.length; i++) {
 					files[i] = resources[i].getLocation().toFile();
 				}
-   				svnClient.update(files, revision, recursive, true);
+   				svnClient.update(files, revision, recursive, false);
    				monitor.worked(100);
     		}
         } catch (SVNClientException e) {
