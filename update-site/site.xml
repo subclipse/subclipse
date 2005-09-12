@@ -10,7 +10,7 @@
    <feature url="features/org.tigris.subversion.subclipse_0.9.30.jar" id="org.tigris.subversion.subclipse" version="0.9.30">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse_0.9.33.jar" id="org.tigris.subversion.subclipse" version="0.9.33">
+   <feature url="features/org.tigris.subversion.subclipse_0.9.34.jar" id="org.tigris.subversion.subclipse" version="0.9.34">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse Plugin">
