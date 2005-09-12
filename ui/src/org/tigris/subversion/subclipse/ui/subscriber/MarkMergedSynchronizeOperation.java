@@ -53,8 +53,7 @@ public class MarkMergedSynchronizeOperation extends SVNSynchronizeOperation {
                     ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
 					if (svnResource instanceof LocalResource) ((LocalResource)svnResource).revert(false);
 					else svnResource.revert();
-					IResource[] updateResources = { resources[i] };
-					new UpdateOperation(getPart(), updateResources, SVNRevision.HEAD).run(monitor);
+					new UpdateOperation(getPart(), resources[i], SVNRevision.HEAD).run(monitor);
 					File file = new File(resources[i].getLocation().toString());
 					try {
                         copy(tempFile, file);

@@ -325,8 +325,7 @@ public class SVNCompareRevisionsInput extends CompareEditorInput implements ISav
 							VersionCompareDiffNode node = (VersionCompareDiffNode)selection.getFirstElement();
 							ResourceEditionNode right = (ResourceEditionNode)node.getRight();
 							final ISVNRemoteFile edition = (ISVNRemoteFile)right.getRemoteResource();
-							new UpdateOperation(null, new IResource[] {resource},edition.getLastChangedRevision()).run(monitor);
-							    
+							new UpdateOperation(null, resource, edition.getLastChangedRevision()).run(monitor);							    
 							// recompute the labels on the viewer
 							getHistoryTableProvider().setRemoteResource(edition);
 							viewer.refresh();

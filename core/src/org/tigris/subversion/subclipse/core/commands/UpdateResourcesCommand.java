@@ -10,8 +10,6 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,16 +30,24 @@ public class UpdateResourcesCommand implements ISVNCommand {
     private SVNWorkspaceRoot root;
     private IResource[] resources;
     private SVNRevision revision;
+    private boolean recursive;    
     
-    
-    public UpdateResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, SVNRevision revision) {
+    /**
+     * Update the given resources.
+     * BEWARE ! The resource array has to be sorted properly, so parent folder (incoming additions) are updated sooner than their children.
+     * BEWARE ! For incoming deletions, it has to be opposite. 
+     * WATCH OUT ! These two statements mean that you CANNOT have both additions and deletions within the same call !!!
+     * When doing recursive call, it's obviously not an issue ... 
+     * @param root
+     * @param resources
+     * @param revision
+     * @param recursive
+     */
+    public UpdateResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, SVNRevision revision, boolean recursive) {
         this.root = root;
-        this.resources = (IResource[]) resources.clone();
+        this.resources = resources;
         this.revision = revision;
-        Arrays.sort(this.resources, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString());
-			}});
+        this.recursive = recursive;
     }
     
 	/* (non-Javadoc)
@@ -56,7 +62,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     		if (resources.length == 1)
     		{
                 monitor.subTask(resources[0].getName());
-                svnClient.update(resources[0].getLocation().toFile(),revision,true);
+                svnClient.update(resources[0].getLocation().toFile(),revision, recursive);
                 monitor.worked(100);    			
     		}
     		else
@@ -65,7 +71,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     			for (int i = 0; i < resources.length; i++) {
 					files[i] = resources[i].getLocation().toFile();
 				}
-   				svnClient.update(files, revision, false, true);
+   				svnClient.update(files, revision, recursive, true);
    				monitor.worked(100);
     		}
         } catch (SVNClientException e) {

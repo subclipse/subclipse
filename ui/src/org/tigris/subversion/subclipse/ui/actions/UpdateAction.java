@@ -30,7 +30,7 @@ public class UpdateAction extends WorkspaceAction {
 	 * @see IActionDelegate#run(IAction)
 	 */
 	public void execute(IAction action) throws InterruptedException, InvocationTargetException {
-	    new UpdateOperation(getTargetPart(), getSelectedResources(), SVNRevision.HEAD).run();
+	    new UpdateOperation(getTargetPart(), getSelectedResources(), SVNRevision.HEAD, true).run();
 	}
 
 	/**

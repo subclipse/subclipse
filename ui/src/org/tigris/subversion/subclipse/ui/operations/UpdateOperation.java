@@ -19,14 +19,22 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  */
 public class UpdateOperation extends RepositoryProviderOperation {
 	private final SVNRevision revision;
+	private final boolean recursive; 
 
     /**
      * @param part
      * @param resources
      */
-    public UpdateOperation(IWorkbenchPart part, IResource[] resources, SVNRevision revision) {
+    public UpdateOperation(IWorkbenchPart part, IResource[] resources, SVNRevision revision, boolean recursive) {
         super(part, resources);
         this.revision = revision;
+        this.recursive = recursive;
+    }
+
+    public UpdateOperation(IWorkbenchPart part, IResource resource, SVNRevision revision) {
+        super(part, new IResource[] {resource});
+        this.revision = revision;
+        this.recursive = false;
     }
 
     /* (non-Javadoc)
@@ -51,7 +59,7 @@ public class UpdateOperation extends RepositoryProviderOperation {
         monitor.beginTask(null, 100);
 		try {			
 		    SVNWorkspaceSubscriber.getInstance().updateRemote(resources);
-	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resources, revision);
+	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resources, revision, recursive);
 	        command.run(Policy.subMonitorFor(monitor,100));
 			//updateWorkspaceSubscriber(provider, resources, Policy.subMonitorFor(monitor, 5));
 		} catch (SVNException e) {

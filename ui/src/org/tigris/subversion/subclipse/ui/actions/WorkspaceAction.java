@@ -255,17 +255,16 @@ public abstract class WorkspaceAction extends SVNAction {
 	 */
 	protected IResource[] checkOverwriteOfDirtyResources(IResource[] resources) throws SVNException, InterruptedException {
 		List dirtyResources = new ArrayList();
-		IResource[] selectedResources = getSelectedResources();
 		
-		for (int i = 0; i < selectedResources.length; i++) {
-			IResource resource = selectedResources[i];
+		for (int i = 0; i < resources.length; i++) {
+			IResource resource = resources[i];
 			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 			if (svnResource.isDirty()) {
 				dirtyResources.add(resource);
 			}			
 		}
 		
-		PromptingDialog dialog = new PromptingDialog(getShell(), selectedResources, 
+		PromptingDialog dialog = new PromptingDialog(getShell(), resources, 
 				getPromptCondition((IResource[]) dirtyResources.toArray(new IResource[dirtyResources.size()])), Policy.bind("ReplaceWithAction.confirmOverwrite"));//$NON-NLS-1$
 		return dialog.promptForMultiple();
 	}

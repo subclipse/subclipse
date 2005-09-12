@@ -20,20 +20,20 @@ import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class ReplaceWithRemoteAction extends WorkspaceAction {
-	public void execute(IAction action)  throws InvocationTargetException, InterruptedException {
-		
-		final IResource[][] resources = new IResource[][] {null};
+	
+	public void execute(IAction action)  throws InvocationTargetException, InterruptedException {		
+		IResource[] resources = null;
 
 		try {
-			resources[0] = checkOverwriteOfDirtyResources(getSelectedResources());
+			resources = checkOverwriteOfDirtyResources(getSelectedResources());
 		} catch (TeamException e) {
 			throw new InvocationTargetException(e);
 		}
 			
-		if (resources[0] == null || resources[0].length == 0) return;
+		if (resources == null || resources.length == 0) return;
 		
 		// Peform the replace in the background
-		new ReplaceOperation(getTargetPart(), resources[0], SVNRevision.HEAD).run();
+		new ReplaceOperation(getTargetPart(), resources, SVNRevision.HEAD, false).run();
 	}
 	
 	/**

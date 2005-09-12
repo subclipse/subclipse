@@ -11,8 +11,13 @@
 package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -81,7 +86,58 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	 * @see org.eclipse.team.examples.filesystem.ui.FileSystemSynchronizeOperation#run(org.eclipse.team.examples.filesystem.FileSystemProvider, org.eclipse.team.core.synchronize.SyncInfoSet, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor progress) throws InvocationTargetException, InterruptedException {
-	    new UpdateOperation(getPart(), set.getResources(), getRepositoryRevision(set)).run(progress);
+	    new UpdateOperation(getPart(), getAddedAndChangedResources(set), getRepositoryRevision(set), false).run(progress);
+	    new UpdateOperation(getPart(), getDeletedResources(set), getRepositoryRevision(set), false).run(progress);	    
+	}
+	
+	/**
+	 * Collect the "not to be deleted" incoming changes.
+	 * Sort them ascending, so incoming dirs are created soon than incoming files from within.
+	 * @param set
+	 * @return
+	 */
+	private IResource[] getAddedAndChangedResources(SyncInfoSet set)
+	{
+		SyncInfo[] infos = set.getSyncInfos();
+		List resources = new ArrayList();
+		for (int i = 0; i < infos.length; i++) {
+			SyncInfo info = infos[i];
+			if (SyncInfo.getChange(info.getKind()) != SyncInfo.DELETION)
+			{
+				resources.add(info.getLocal());
+			}
+		}
+		IResource[] result = (IResource[]) resources.toArray(new IResource[resources.size()]);
+        Arrays.sort(result, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString());
+			}});
+        return result;
+	}
+
+	/**
+	 * Collect the "to be deleted" incoming changes.
+	 * Sort them descending, so incoming dir deletions are deleted only after the files from within are deleted.
+	 * @param set
+	 * @return
+	 */
+	private IResource[] getDeletedResources(SyncInfoSet set)
+	{
+		SyncInfo[] infos = set.getSyncInfos();
+		List resources = new ArrayList();
+		for (int i = 0; i < infos.length; i++) {
+			SyncInfo info = infos[i];
+			if (SyncInfo.getChange(info.getKind()) == SyncInfo.DELETION)
+			{
+				resources.add(info.getLocal());
+			}
+		}
+		IResource[] result = (IResource[]) resources.toArray(new IResource[resources.size()]);
+        Arrays.sort(result, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				return ((IResource) o2).getFullPath().toString().compareTo(((IResource) o1).getFullPath().toString());
+			}});
+        return result;
 	}
 	
 	/**

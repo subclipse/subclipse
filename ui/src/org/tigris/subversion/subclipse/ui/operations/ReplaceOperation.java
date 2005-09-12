@@ -23,12 +23,21 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  * @author Panagiotis K
  */
 public class ReplaceOperation extends UpdateOperation {
+	
     /**
      * @param part
      * @param resources
      */
-    public ReplaceOperation(IWorkbenchPart part, IResource[] resources, SVNRevision revision) {
-        super(part, resources, revision);
+    public ReplaceOperation(IWorkbenchPart part, IResource[] resources, SVNRevision revision, boolean recursive) {
+        super(part, resources, revision, recursive);
+    }
+
+    /**
+     * @param part
+     * @param resource
+     */
+    public ReplaceOperation(IWorkbenchPart part, IResource resource, SVNRevision revision) {
+        super(part, resource, revision);
     }
 
     /* (non-Javadoc)

@@ -496,7 +496,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 					try {
                         if (remoteFile != null) {
     						if(confirmOverwrite()) {
-                                new ReplaceOperation(HistoryView.this, new IResource[] {file}, remoteFile.getLastChangedRevision()).run(monitor);
+                                new ReplaceOperation(HistoryView.this, file, remoteFile.getLastChangedRevision()).run(monitor);
       							historyTableProvider.setRemoteResource(remoteFile);
     							Display.getDefault().asyncExec(new Runnable() {
     								public void run() {
