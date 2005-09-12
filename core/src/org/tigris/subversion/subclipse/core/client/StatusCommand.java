@@ -4,9 +4,12 @@
 package org.tigris.subversion.subclipse.core.client;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
@@ -24,7 +27,8 @@ public class StatusCommand {
     private final boolean contactServer;
 
     private ISVNStatus[] statuses;
-    protected SVNRevision.Number revision;
+    /** List storing RevisionsCache objects as reported by logRevision() */
+    protected List revisions = new ArrayList();
 
     public StatusCommand(File file, boolean descend, boolean getAll, boolean contactServer) {
         this.file = file;
@@ -33,24 +37,18 @@ public class StatusCommand {
         this.contactServer = contactServer;
     }
 
-    /**
-     * 
-     * @param client
-     * @throws SVNClientException
-     * @deprecated use {@link #execute(ISVNClientAdapter, IProgressMonitor)} now ...
-     */
-    public void execute(ISVNClientAdapter client) throws SVNClientException {
-    	execute(client, new NullProgressMonitor());
-    }
-
-    public void execute(final ISVNClientAdapter client, final IProgressMonitor monitor) throws SVNClientException {
+    protected void execute(final ISVNClientAdapter client, final IProgressMonitor monitor) throws SVNClientException {
         ISVNNotifyListener revisionListener = new ISVNNotifyListener() {
             public void setCommand(int command) {}
             public void logCommandLine(String commandLine) {}
             public void logMessage(String message) {}
             public void logError(String message) {}
-            public void logRevision(long revision) {
-                StatusCommand.this.revision = new SVNRevision.Number(revision);
+            public void logRevision(long aRevision, String path) {
+                StatusCommand.this.revisions.add(new RevisionsCache(aRevision, path));
+                if (StatusCommand.this.revisions.size() > 1)
+                {
+                	Collections.sort(StatusCommand.this.revisions);
+                }
             }
             public void logCompleted(String message) {}
             public void onNotify(File path, SVNNodeKind kind) {}
@@ -69,7 +67,50 @@ public class StatusCommand {
         return statuses;
     }
 
-    public SVNRevision.Number getRevision() {
-        return revision;
+    protected SVNRevision.Number getRevisionFor(ISVNStatus status) {
+    	if (revisions.size() == 1)
+    	{
+    		return ((RevisionsCache) revisions.get(0)).getRevision();
+    	}
+    	else
+    	{
+    		for (Iterator it = revisions.iterator(); it.hasNext();) {
+				RevisionsCache element = (RevisionsCache) it.next();
+				if (element.appliesFor(status.getPath()))
+				{
+					return element.getRevision();
+				}				
+			}
+    		return SVNRevision.INVALID_REVISION;
+    	}
     }
+    
+    private static class RevisionsCache implements Comparable {
+    	private final long revision;
+    	private final String path;
+    	
+    	protected RevisionsCache(long revision, String path)    	
+    	{
+    		this.revision = revision;
+    		this.path = path;
+    	}
+
+		protected String getPath() {
+			return path;
+		}
+
+		protected SVNRevision.Number getRevision() {
+			return new SVNRevision.Number(revision);
+		}
+		
+		protected boolean appliesFor(String statusPath)
+		{
+			return statusPath.startsWith(this.path);
+		}
+    
+		public int compareTo(Object o2) {
+			return ((RevisionsCache) o2).getPath().compareTo(this.getPath());
+		}
+    }
+    
 }

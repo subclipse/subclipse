@@ -49,7 +49,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
         this.rootPath = svnResource.getWorkspaceRoot().getLocalRoot().getFile().getAbsolutePath();
     }
 
-    public void execute(final ISVNClientAdapter client, final IProgressMonitor monitor) throws SVNClientException {
+    protected void execute(final ISVNClientAdapter client, final IProgressMonitor monitor) throws SVNClientException {
         super.execute(client, monitor);
         monitor.worked(50);        
         remoteStatuses = collectRemoteStatuses(getStatuses(), client, Policy.subMonitorFor(monitor,50));
@@ -95,7 +95,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
         	}
         	else
         	{
-        		RemoteResourceStatus remoteStatus = new RemoteResourceStatus(statuses[i], getRevision());
+        		RemoteResourceStatus remoteStatus = new RemoteResourceStatus(statuses[i], getRevisionFor(statuses[i]));
                 result[i] = ensureStatusContainsRemoteData(remoteStatus, client, monitor);
         	}
         	monitor.worked(1);
@@ -157,9 +157,20 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
     	}
         try {
         	monitor.subTask(url.toString());
-            return client.getInfo(url);
+        	if (SVNStatusKind.EXTERNAL.equals(status.getStatusKind()))
+        	{
+            	//TODO optimize this and cache the clients ...
+        		ISVNClientAdapter aClient = status.getRepository().getSVNClient();
+        		return aClient.getInfo(url);
+        	}
+        	else
+        	{
+        		return client.getInfo(url);
+        	}
         } catch (SVNClientException e) {
             return null;
-        }
+    	} catch (SVNException e) {
+    		return null;
+    	}
     }
 }

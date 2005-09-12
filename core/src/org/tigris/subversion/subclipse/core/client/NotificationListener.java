@@ -53,7 +53,7 @@ public class NotificationListener implements ISVNNotifyListener {
         }
 	}
 
-    public void logRevision(long revision) {
+    public void logRevision(long revision, String path) {
     }
 
 	/* (non-Javadoc)

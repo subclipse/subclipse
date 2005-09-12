@@ -71,10 +71,10 @@ public class OperationManager implements ISVNNotifyListener {
 	/**
 	 * Begins a batch of operations.
 	 */
-	public void beginOperation(ISVNClientAdapter svnClient) {
+	public void beginOperation(ISVNClientAdapter aSvnClient) {
 		lock.acquire();
-		this.svnClient = svnClient;
-		svnClient.addNotifyListener(this);
+		this.svnClient = aSvnClient;
+		aSvnClient.addNotifyListener(this);
 		if (lock.getNestingCount() == 1) {
 			changedResources.clear();
 		}
@@ -84,9 +84,9 @@ public class OperationManager implements ISVNNotifyListener {
 	 * Begins a batch of operations.
 	 * Forward notifications to messageNotifyListener
 	 */
-	public void beginOperation(ISVNClientAdapter svnClient, OperationProgressNotifyListener operationNotifyListener) {
-		this.operationNotifyListener = operationNotifyListener;
-		beginOperation(svnClient);
+	public void beginOperation(ISVNClientAdapter aSvnClient, OperationProgressNotifyListener anOperationNotifyListener) {
+		this.operationNotifyListener = anOperationNotifyListener;
+		beginOperation(aSvnClient);
 	}	
 	
 	/**
@@ -187,7 +187,7 @@ public class OperationManager implements ISVNNotifyListener {
 	public void logCommandLine(String commandLine) {
 	}
 
-	public void logRevision(long revision) {
+	public void logRevision(long revision, String path) {
 	}
 
 	public void logCompleted(String message) {

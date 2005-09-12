@@ -30,7 +30,7 @@ public class PeekStatusCommand {
     private final IResource resource;
 
     private ISVNStatus status = null;
-    private SVNRevision.Number revision;
+    protected SVNRevision.Number revision;
 
     public PeekStatusCommand(IResource resource) {
         this.resource = resource;
@@ -42,8 +42,8 @@ public class PeekStatusCommand {
             public void logCommandLine(String commandLine) {}
             public void logMessage(String message) {}
             public void logError(String message) {}
-            public void logRevision(long revision) {
-                PeekStatusCommand.this.revision = new SVNRevision.Number(revision);
+            public void logRevision(long aRevision, String path) {
+                PeekStatusCommand.this.revision = new SVNRevision.Number(aRevision);
             }
             public void logCompleted(String message) {}
             public void onNotify(File path, SVNNodeKind kind) {}

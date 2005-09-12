@@ -31,9 +31,9 @@ public class ISVNNotifyAdapter implements IConsoleListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logRevision(long)
+	 * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#logRevision(long, java.lang.String)
 	 */
-	public void logRevision(long revision) {
+	public void logRevision(long revision, String path) {
 	}
 
 	/* (non-Javadoc)

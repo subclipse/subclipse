@@ -175,6 +175,7 @@ public class ResourceStatus implements Serializable {
 
 	public ISVNRepositoryLocation getRepository()
 	{
+		//TODO svn:externals do not work !!!  
 		if (getUrlString() != null)
 		{
 			try {
@@ -402,8 +403,11 @@ public class ResourceStatus implements Serializable {
     	if (this.path == null) return null;
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IPath resourcePath = SVNWorkspaceRoot.pathForLocation(this.getPath());
-		if (resourcePath == null) throw new SVNException("An (un?)expected error has occured! Please report to users@subclipse.tigris.org ! pathForLocation(" 
+		if (resourcePath == null) 
+		{
+			throw new SVNException("An (un?)expected error has occured! Please report to users@subclipse.tigris.org ! pathForLocation(" 
 				+ this.getPathString() +") is null ! Url: " + this.getUrlString() + " Projects: " + ResourcesPlugin.getWorkspace().getRoot().getProjects());
+		}
 		int kind = SVNWorkspaceRoot.getResourceType(resourcePath);			
 
 		if (kind == IResource.FILE)

@@ -25,6 +25,7 @@ import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 /**
  * This class has an interface which is very similar to ISVNStatus but we make
@@ -35,6 +36,10 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * Since we want to add/modify the nodeKind the setter is also there
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus
+ */
+/**
+ * @author Martin
+ *
  */
 public class RemoteResourceStatus extends ResourceStatus {
 	public static final RemoteResourceStatus NONE = new RemoteResourceStatusNone();
@@ -55,21 +60,31 @@ public class RemoteResourceStatus extends ResourceStatus {
      */
 	public RemoteResourceStatus(ISVNStatus realStatus, SVNRevision.Number revision) {
 		super(realStatus);
-
-		/** a temporary variable serving as immediate cache for various status values */
-    	Object aValue = null;
 		
         this.textStatus = realStatus.getRepositoryTextStatus().toInt();
         this.propStatus = realStatus.getRepositoryPropStatus().toInt();
-
-        aValue = revision;
-        if (aValue == null) {
-            this.revision = SVNRevision.SVN_INVALID_REVNUM;
+        
+        if (revision == null) {
+        	this.revision = SVNRevision.SVN_INVALID_REVNUM;
         } else {
-            this.revision = ((SVNRevision.Number) aValue).getNumber();
+        	this.revision = revision.getNumber();
+        }
+        
+        if (SVNStatusKind.EXTERNAL.equals(realStatus.getTextStatus()))
+        {
+        	this.textStatus = realStatus.getTextStatus().toInt();
         }
 	}
 	
+	/**
+	 * Answer the revision number.
+	 * Contrary to getRevision() of localResourceStatus, this is revision of the
+	 * repository at the time of fetching this status via svn status call ...
+	 */
+    public Number getRevision() {
+    	return super.getRevision();
+    }
+
 	/**
 	 * Update missing data from the supplied info
 	 * @param info
@@ -99,12 +114,12 @@ public class RemoteResourceStatus extends ResourceStatus {
 
         this.lastCommitAuthor = info.getLastCommitAuthor();
 
-        aValue = info.getRevision();
-        if (aValue == null) {
-            this.revision = SVNRevision.SVN_INVALID_REVNUM;
-        } else {
-            this.revision = ((SVNRevision.Number) aValue).getNumber();
-        }
+//        aValue = info.getRevision();
+//        if (aValue == null) {
+//            this.revision = SVNRevision.SVN_INVALID_REVNUM;
+//        } else {
+//            this.revision = ((SVNRevision.Number) aValue).getNumber();
+//        }
 
     	aValue = info.getUrl();
         if (aValue == null) {
