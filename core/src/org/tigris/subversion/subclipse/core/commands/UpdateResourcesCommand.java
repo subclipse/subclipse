@@ -10,6 +10,8 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,8 +36,12 @@ public class UpdateResourcesCommand implements ISVNCommand {
     
     public UpdateResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, SVNRevision revision) {
         this.root = root;
-        this.resources = resources;
+        this.resources = (IResource[]) resources.clone();
         this.revision = revision;
+        Arrays.sort(this.resources, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString());
+			}});
     }
     
 	/* (non-Javadoc)
