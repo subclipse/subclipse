@@ -29,6 +29,7 @@ import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
 
@@ -227,6 +228,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @throws SVNException
      */
     public IResource[] refreshStatus(IResource resource,int depth) throws SVNException {
+    	if (SVNWorkspaceRoot.isLinkedResource(resource)) { return new IResource[0]; }
     	StatusUpdateStrategy strategy = 
     		(depth == IResource.DEPTH_INFINITE) 
 							? (StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(statusCache)
