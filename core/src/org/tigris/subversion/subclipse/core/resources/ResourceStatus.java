@@ -175,7 +175,6 @@ public class ResourceStatus implements Serializable {
 
 	public ISVNRepositoryLocation getRepository()
 	{
-		//TODO svn:externals do not work !!!  
 		if (getUrlString() != null)
 		{
 			try {

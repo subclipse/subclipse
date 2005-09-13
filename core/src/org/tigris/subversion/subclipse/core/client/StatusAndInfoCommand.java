@@ -159,9 +159,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
         	monitor.subTask(url.toString());
         	if (SVNStatusKind.EXTERNAL.equals(status.getStatusKind()))
         	{
-            	//TODO optimize this and cache the clients ...
-        		ISVNClientAdapter aClient = status.getRepository().getSVNClient();
-        		return aClient.getInfo(url);
+        		return client.getInfo(status.getFile());
         	}
         	else
         	{
@@ -169,8 +167,6 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
         	}
         } catch (SVNClientException e) {
             return null;
-    	} catch (SVNException e) {
-    		return null;
-    	}
+        }        
     }
 }

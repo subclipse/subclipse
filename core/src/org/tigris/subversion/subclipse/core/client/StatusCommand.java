@@ -27,7 +27,10 @@ public class StatusCommand {
     private final boolean contactServer;
 
     private ISVNStatus[] statuses;
-    /** List storing RevisionsCache objects as reported by logRevision() */
+    
+    /** List storing RevisionsCache objects as reported by logRevision() 
+     *  They have to be sorted in descending order, so more specific (deeper in the tree)
+     *  is looked up first */
     protected List revisions = new ArrayList();
 
     public StatusCommand(File file, boolean descend, boolean getAll, boolean contactServer) {
