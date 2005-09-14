@@ -179,7 +179,7 @@ public class SVNLightweightDecorator
             if (svnResource.getIResource().getType() == IResource.FILE) {
                 // for files, we want that only modified files to be considered as dirty
             	LocalResourceStatus status = svnResource.getStatus();
-                return ((status.isTextModified() || status.isPropModified())
+                return ((status.isTextModified() || status.isPropModified() || status.isReplaced())
 							&& !status.isIgnored() && !svnResource.isIgnored());
             } else {
                 // a container with an added file, deleted file, conflicted file ... is considered as dirty

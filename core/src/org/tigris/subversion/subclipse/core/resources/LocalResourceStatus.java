@@ -319,6 +319,14 @@ public class LocalResourceStatus extends ResourceStatus {
         return getTextStatus().equals(SVNStatusKind.DELETED);
     }
 
+    public boolean isMissing() {
+    	return getTextStatus().equals(SVNStatusKind.MISSING);
+    }
+    
+    public boolean isReplaced() {
+    	return getTextStatus().equals(SVNStatusKind.REPLACED);
+    }
+    
     public boolean isIgnored() {
         return getTextStatus().equals(SVNStatusKind.IGNORED);
     }

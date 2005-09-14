@@ -26,6 +26,12 @@ public final class ResourceWithStatusUtil {
                if (status.isDeleted())
                    result = Policy.bind("CommitDialog.deleted"); //$NON-NLS-1$
                else
+        	   if (status.isMissing())
+        		   result = Policy.bind("CommitDialog.missing"); //$NON-NLS-1$
+        	   else
+        	   if (status.isReplaced())
+        		   result = Policy.bind("CommitDialog.replaced"); //$NON-NLS-1$
+        	   else
                if (status.isTextModified())
                    result = Policy.bind("CommitDialog.modified"); //$NON-NLS-1$				           
                else

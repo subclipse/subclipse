@@ -72,7 +72,7 @@ public class RevertAction extends WorkspaceAction {
 			 command.run(iProgressMonitor);
 			 LocalResourceStatus[] statuses = command.getStatuses();
 			 for (int j = 0; j < statuses.length; j++) {
-			     if (statuses[j].isTextModified() || statuses[j].isAdded() || statuses[j].isDeleted() || statuses[j].getPropStatus().equals(SVNStatusKind.MODIFIED) || statuses[j].isTextConflicted() || statuses[j].isPropConflicted()) {
+			     if (statuses[j].isTextModified() || statuses[j].isAdded() || statuses[j].isDeleted() || statuses[j].isMissing() || statuses[j].isReplaced() || statuses[j].getPropStatus().equals(SVNStatusKind.MODIFIED) || statuses[j].isTextConflicted() || statuses[j].isPropConflicted()) {
 			         IResource currentResource = null;
 			         currentResource = statuses[j].getResource();
 			         if (currentResource != null)

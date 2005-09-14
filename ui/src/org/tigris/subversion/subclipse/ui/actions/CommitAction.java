@@ -134,7 +134,7 @@ public class CommitAction extends WorkspaceAction {
 			 for (int j = 0; j < statuses.length; j++) {
 			     if ((!statuses[j].isManaged() && !statuses[j].isIgnored()) ||
 			     		statuses[j].isTextModified() || statuses[j].isAdded() ||
-						statuses[j].isDeleted() || statuses[j].isPropModified() ||
+						statuses[j].isDeleted() || statuses[j].isReplaced() || statuses[j].isPropModified() ||
 						(statuses[j].isTextConflicted() || statuses[j].isPropConflicted())) {
 			         IResource currentResource = statuses[j].getResource();
 			         if (currentResource != null) {
