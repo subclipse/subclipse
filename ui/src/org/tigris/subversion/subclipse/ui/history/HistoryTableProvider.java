@@ -93,6 +93,7 @@ public class HistoryTableProvider {
 					return entry.getAuthor();
 				case COL_COMMENT:
 					String comment = entry.getComment();
+					if (comment == null) return "";   //$NON-NLS-1$
 					int rIndex = comment.indexOf("\r");  //$NON-NLS-1$
 					int nIndex = comment.indexOf("\n");	 //$NON-NLS-1$
 					if( (rIndex == -1) && (nIndex == -1) )
