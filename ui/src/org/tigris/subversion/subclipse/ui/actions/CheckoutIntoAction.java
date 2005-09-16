@@ -1,17 +1,5 @@
-/*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
- * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
- *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.actions;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,39 +8,42 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
-import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.operations.CheckoutAsProjectOperation;
-import org.tigris.subversion.subclipse.ui.util.IPromptCondition;
 import org.tigris.subversion.subclipse.ui.util.PromptingDialog;
 
-/**
- * Add some remote resources to the workspace. Current implementation:
- * -Works only for remote folders
- * -Does not prompt for project name; uses folder name instead
- */
-public class CheckoutAsProjectAction extends WorkspaceAction {
-    protected IProject[] localFolders;
-    protected ISVNRemoteFolder[] remoteFolders;
-    protected IResource[] projects;
-    protected boolean proceed;
 
+
+public class CheckoutIntoAction extends CheckoutAsProjectAction {
+	
+	protected IPath intoDir;
+	
 	/*
 	 * @see SVNAction#execute()
 	 */
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
 	    if (!WorkspacePathValidator.validateWorkspacePath()) return;
+	    DirectoryDialog intoDirDia = new DirectoryDialog(shell);
+	    intoDirDia.setMessage(Policy.bind("CheckoutInto.message"));
+    	String intoDirString = intoDirDia.open();
+    	if (intoDirString==null) {
+    		return;
+    	}
+    	intoDir = new Path(intoDirString);
 	    checkoutSelectionIntoWorkspaceDirectory();
 	}
-
-    /**
+	
+	/**
      * checkout into a workspace directory, ie as a project
      * @throws InvocationTargetException
      * @throws InterruptedException
@@ -107,64 +98,7 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 				}
 			}
 		}, true /* cancelable */, PROGRESS_DIALOG);
-	    if (proceed) new CheckoutAsProjectOperation(getTargetPart(), remoteFolders, localFolders).run();
+	    if (proceed) new CheckoutAsProjectOperation(getTargetPart(), remoteFolders, localFolders, intoDir).run();
 	}
-		
-	/*
-	 * @see TeamAction#isEnabled()
-	 */
-	protected boolean isEnabled() {
-		ISVNRemoteFolder[] resources = getSelectedRemoteFolders();
-		if (resources.length == 0) return false;
-		for (int i = 0; i < resources.length; i++) {
-			if (resources[i] instanceof ISVNRepositoryLocation) return false;
-		}
-		return true;
-	}
-	/**
-	 * @see org.tigris.subversion.subclipse.ui.actions.SVNAction#getErrorTitle()
-	 */
-	protected String getErrorTitle() {
-		return Policy.bind("AddToWorkspaceAction.checkoutFailed"); //$NON-NLS-1$
-	}
-
-    protected static String getTaskName(ISVNRemoteFolder[] remoteFolders) {
-        if (remoteFolders.length == 1) {
-            ISVNRemoteFolder folder = remoteFolders[0];
-            String label = folder.getRepositoryRelativePath();
-            return Policy.bind("AddToWorkspace.taskName1", label);  //$NON-NLS-1$
-        }
-        else {
-            return Policy.bind("AddToWorkspace.taskNameN", new Integer(remoteFolders.length).toString());  //$NON-NLS-1$
-        }
-    }
-    
-    /**
-     * get an IPromptCondition 
-     */
-    static public IPromptCondition getOverwriteLocalAndFileSystemPrompt() {
-        return new IPromptCondition() {
-            // prompt if resource in workspace exists or exists in local file system
-            public boolean needsPrompt(IResource resource) {
-                File localLocation  = getFileLocation(resource);
-                if(resource.exists() || localLocation.exists()) {
-                    return true;
-                }
-                return false;
-            }
-            public String promptMessage(IResource resource) {
-                getFileLocation(resource);
-                if(resource.exists()) {
-                    return Policy.bind("AddToWorkspaceAction.thisResourceExists", resource.getName());//$NON-NLS-1$
-                } else {
-                    return Policy.bind("AddToWorkspaceAction.thisExternalFileExists", resource.getName());//$NON-NLS-1$
-                }
-            }
-            private File getFileLocation(IResource resource) {
-                return new File(resource.getParent().getLocation().toFile(), resource.getName());
-            }
-        };
-    }
-
 
 }

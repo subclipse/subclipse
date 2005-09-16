@@ -1,6 +1,7 @@
 package org.tigris.subversion.subclipse.ui.operations;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -13,11 +14,17 @@ import org.tigris.subversion.subclipse.ui.Policy;
 public class CheckoutAsProjectOperation extends SVNOperation {
     private ISVNRemoteFolder[] remoteFolders;
     private IProject[] localFolders;
+    private IPath projectRoot;
 
     public CheckoutAsProjectOperation(IWorkbenchPart part, ISVNRemoteFolder[] remoteFolders, IProject[] localFolders) {
+    	this(part, remoteFolders, localFolders, null);
+    }
+    
+    public CheckoutAsProjectOperation(IWorkbenchPart part, ISVNRemoteFolder[] remoteFolders, IProject[] localFolders, IPath projectRoot) {
         super(part);
         this.remoteFolders = remoteFolders;
         this.localFolders = localFolders;
+        this.projectRoot = projectRoot; 
     }
     
     protected String getTaskName() {
@@ -43,8 +50,13 @@ public class CheckoutAsProjectOperation extends SVNOperation {
     }
     
     protected void execute(ISVNRemoteFolder[] remote, IProject[] local, IProgressMonitor monitor) throws SVNException, InterruptedException {
-		try {	
-	    	CheckoutCommand command = new CheckoutCommand(remote, local);
+		try {
+			CheckoutCommand command;
+			if (projectRoot==null) {
+				command = new CheckoutCommand(remote, local);
+			} else {
+				command = new CheckoutCommand(remote, local, projectRoot);
+			}
 	    	command.run(monitor);
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());

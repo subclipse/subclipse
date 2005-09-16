@@ -233,6 +233,21 @@
             objectClass="org.tigris.subversion.subclipse.core.ISVNRemoteFolder"
             id="org.tigris.subversion.subclipse.ui.RemoteFolderContributions">
          <action
+               label="%CheckoutAsAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.checkout_as_action_context"
+               tooltip="%CheckoutAsAction.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.CheckoutAsAction"
+               menubarPath="checkoutGroup"
+               id="org.tigris.subversion.subclipse.ui.checkoutAs">
+         </action>
+         <action
+               class="org.tigris.subversion.subclipse.ui.actions.CheckoutIntoAction"
+               id="org.tigris.subversion.subclipse.ui.actions.checkoutIntoAction"
+               label="%CheckoutAsProjectIntoAction.label"
+               menubarPath="checkoutGroup"
+               tooltip="CheckoutAsProjectIntoAction.tooltip">
+         </action>
+         <action
                label="%AddToWorkspaceAction.label"
                icon="icons/full/tortoise/checkout.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.checkout_as_project_action_context"
@@ -240,14 +255,6 @@
                tooltip="%AddToWorkspaceAction.tooltip"
                menubarPath="checkoutGroup"
                id="org.tigris.subversion.subclipse.ui.addToWorkspace">
-         </action>
-         <action
-               label="%CheckoutAsAction.label"
-               helpContextId="org.tigris.subversion.subclipse.ui.checkout_as_action_context"
-               tooltip="%CheckoutAsAction.tooltip"
-               class="org.tigris.subversion.subclipse.ui.actions.CheckoutAsAction"
-               menubarPath="checkoutGroup"
-               id="org.tigris.subversion.subclipse.ui.checkoutAs">
          </action>
       </objectContribution>
       <objectContribution
