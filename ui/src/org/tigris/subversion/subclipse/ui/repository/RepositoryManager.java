@@ -37,6 +37,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.authentication.KeyFilesManager;
 import org.tigris.subversion.subclipse.ui.comments.CommentsManager;
 import org.tigris.subversion.subclipse.ui.comments.ReleaseCommentDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.AddToVersionControlDialog;
@@ -52,6 +53,7 @@ public class RepositoryManager {
 	List listeners = new ArrayList();
 
 	private CommentsManager commentsManager = new CommentsManager();
+	private KeyFilesManager keyFilesManager = new KeyFilesManager();
 	
 	/**
 	 * Answer an array of all known remote roots.
@@ -143,6 +145,7 @@ public class RepositoryManager {
      */	
 	public void startup() {
         commentsManager.loadCommentHistory();
+        keyFilesManager.loadKeyFileHistory();
 		
         // we listen to changes to repository so that we can advise concerned views
         SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().addRepositoryListener(new ISVNListener() {
@@ -176,6 +179,7 @@ public class RepositoryManager {
      */
 	public void shutdown() throws TeamException {
         commentsManager.saveCommentHistory();
+        keyFilesManager.saveKeyFilesHistory();
 	}
 
 
@@ -270,6 +274,9 @@ public class RepositoryManager {
 
     public CommentsManager getCommentsManager() {
         return commentsManager;
+    }
+    public KeyFilesManager getKeyFilesManager() {
+    	return keyFilesManager;
     }
 
     /**

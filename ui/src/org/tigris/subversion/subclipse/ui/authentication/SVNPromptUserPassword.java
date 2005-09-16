@@ -22,6 +22,9 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
     private boolean yesIsDefault;
     private String answer;
     private boolean showAnswer;
+    private int sshPort;
+    private String keyFile;
+    private String passPhrase;
 
     public SVNPromptUserPassword() {
         super();
@@ -123,4 +126,36 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
         return allowedSave;
     }
 
+    public int getSSHPort() {
+        return sshPort;
+    }
+    public String getSSHPrivateKeyPassphrase() {
+        return passPhrase;
+    }
+    public String getSSHPrivateKeyPath() {
+        return keyFile;
+    }
+    public boolean promptSSH(String promptRealm, String promptUsername, int promptPort, boolean promptMaySave) {
+        rtnCode = false;
+        username = promptUsername;
+        realm = promptRealm;
+        maySave = promptMaySave;
+        sshPort = promptPort;
+   		SVNUIPlugin.getStandardDisplay().syncExec(new Runnable() {
+			public void run() {
+		        SSHPromptDialog dialog = new SSHPromptDialog(SVNUIPlugin.getStandardDisplay().getActiveShell(),
+		                realm, username, sshPort, maySave);
+		        if (dialog.open() == PasswordPromptDialog.OK) {
+		            username = dialog.getUsername();
+		            password = dialog.getPassword();
+		            sshPort = dialog.getSshPort();
+		            keyFile = dialog.getKeyFile();
+		            passPhrase = dialog.getPassphrase();
+		            allowedSave = dialog.isSave();
+		            rtnCode = true;
+		        }				
+			}
+		});      
+        return rtnCode;
+    }
 }
