@@ -15,10 +15,13 @@ import java.net.MalformedURLException;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
@@ -53,10 +56,17 @@ public class CheckoutCommand implements ISVNCommand {
 	private ISVNRemoteFolder[] resources;
 
 	private IProject[] projects;
+	
+	private IPath projectRoot;
 
 	public CheckoutCommand(ISVNRemoteFolder[] resources, IProject[] projects) {
+		this(resources, projects, null);
+	}
+	
+	public CheckoutCommand(ISVNRemoteFolder[] resources, IProject[] projects, IPath root) {
 		this.resources = resources;
 		this.projects = projects;
+		this.projectRoot = root;
 	}
 
 	protected void basicRun(final IProject project, ISVNRemoteFolder resource, final IProgressMonitor pm) throws SVNException {
@@ -64,10 +74,6 @@ public class CheckoutCommand implements ISVNCommand {
 		{
 			pm.beginTask(null, 1000);
 		}
-
-		// Get the location of the workspace root
-		ISVNLocalFolder root = SVNWorkspaceRoot.getSVNFolderFor(ResourcesPlugin
-				.getWorkspace().getRoot());
 
 		try {
 			// Perform the checkout
@@ -94,20 +100,41 @@ public class CheckoutCommand implements ISVNCommand {
 			if (project.getLocation() == null) {
 				// project.getLocation is null if the project does
 				// not exist in the workspace
-				destPath = new File(root.getIResource().getLocation().toFile(),
-						project.getName());
+				if (projectRoot==null) {
+					ISVNLocalFolder root = SVNWorkspaceRoot.getSVNFolderFor(ResourcesPlugin
+							.getWorkspace().getRoot());
+					destPath = new File(root.getIResource().getLocation().toFile(),
+							project.getName());
+				} else {
+					destPath = new File(projectRoot.toFile(), project.getName());					
+				}
 				try {
 					// we create the directory corresponding to the
 					// project and we open it
+					
 					project.create(null);
 					project.open(null);
+					if (projectRoot!=null) {
+						setProjectToRoot(project, destPath);
+					}
 				} catch (CoreException e1) {
 					throw new SVNException(
 							"Cannot create project to checkout to", e1);
 				}
 
 			} else {
-				destPath = project.getLocation().toFile();
+				if (projectRoot!=null) {
+					try {
+					destPath = new File(projectRoot.toFile(), project.getName());
+					setProjectToRoot(project, destPath);
+					} catch (CoreException e) {
+						throw new SVNException(
+								"Cannot create project to checkout to", e);
+					} 
+					
+				} else {
+					destPath = project.getLocation().toFile();
+				}
 			}
 
 			//delete the project file if the flag gets set.
@@ -139,6 +166,12 @@ public class CheckoutCommand implements ISVNCommand {
 				pm.done();
 			}
 		}
+	}
+
+	private void setProjectToRoot(final IProject project, File destPath) throws CoreException {
+		IProjectDescription description = project.getDescription();
+		description.setLocation(new Path(destPath.getAbsolutePath()));
+		project.move(description, true, null);
 	}
 	
 	/**
