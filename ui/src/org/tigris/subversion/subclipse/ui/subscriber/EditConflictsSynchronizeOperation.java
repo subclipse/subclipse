@@ -3,7 +3,6 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
@@ -140,19 +139,18 @@ public class EditConflictsSynchronizeOperation extends SVNSynchronizeOperation {
             }
 
             final Command command = new Command(mergeProgramLocation);
-            String[] parameters = StringUtils
-                    .split(mergeProgramParameters, ' ');
+            String[] parameters = mergeProgramParameters.split(" ");
             for (int i = 0; i < parameters.length; i++) {
-                parameters[i] = StringUtils.replace(parameters[i], "${theirs}", //$NON-NLS-1$
+                parameters[i] = replaceParameter(parameters[i], "${theirs}", //$NON-NLS-1$
                         conflictNewFile.getLocation().toFile()
                                 .getAbsolutePath());
-                parameters[i] = StringUtils.replace(parameters[i], "${yours}", //$NON-NLS-1$
+                parameters[i] = replaceParameter(parameters[i], "${yours}", //$NON-NLS-1$
                         conflictWorkingFile.getLocation().toFile()
                                 .getAbsolutePath());
-                parameters[i] = StringUtils.replace(parameters[i], "${base}", //$NON-NLS-1$
+                parameters[i] = replaceParameter(parameters[i], "${base}", //$NON-NLS-1$
                         conflictOldFile.getLocation().toFile()
                                 .getAbsolutePath());
-                parameters[i] = StringUtils.replace(parameters[i], "${merged}", //$NON-NLS-1$
+                parameters[i] = replaceParameter(parameters[i], "${merged}", //$NON-NLS-1$
                         resource.getLocation().toFile().getAbsolutePath());
             }
             
@@ -207,5 +205,26 @@ public class EditConflictsSynchronizeOperation extends SVNSynchronizeOperation {
 				throw (InterruptedException)exceptions[0];
 		}
 	}    
+    
+    private String replaceParameter(String input, String pattern, String value) {
+         StringBuffer result = new StringBuffer();
+         //startIdx and idxOld delimit various chunks of input; these
+         //chunks always end where pattern begins
+         int startIdx = 0;
+         int idxOld = 0;
+         while ((idxOld = input.indexOf(pattern, startIdx)) >= 0) {
+           //grab a part of input which does not include pattern
+           result.append( input.substring(startIdx, idxOld) );
+           //add value to take place of pattern
+           result.append( value );
+
+           //reset the startIdx to just after the current match, to see
+           //if there are any further matches
+           startIdx = idxOld + pattern.length();
+         }
+         //the final chunk will go to the end of input
+         result.append( input.substring(startIdx) );
+         return result.toString();
+      }
         
 }
