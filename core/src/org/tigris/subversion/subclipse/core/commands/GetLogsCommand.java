@@ -119,7 +119,9 @@ public class GetLogsCommand implements ISVNCommand {
             	break;
             }
         }
-        urls[indexRemote] = remoteResource.getUrl();
+        if(indexRemote > -1) {
+            urls[indexRemote] = remoteResource.getUrl();
+        }
         
             // we get the url of more recent revisions
             SVNUrl currentUrl = remoteResource.getUrl();
