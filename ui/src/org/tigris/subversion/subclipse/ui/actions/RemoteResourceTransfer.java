@@ -17,6 +17,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 
 import org.eclipse.swt.dnd.ByteArrayTransfer;
 import org.eclipse.swt.dnd.TransferData;
@@ -28,6 +29,7 @@ import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 /**
  * This class is used when copying and pasting remote resources to/from clipboard
@@ -54,28 +56,27 @@ public class RemoteResourceTransfer extends ByteArrayTransfer {
     			DataOutputStream writeOut = new DataOutputStream(out);
                 
    				// write 1 if remote resource is folder, 0 otherwise
-                byte isFolder = (remoteResource.isFolder()?(byte)1:(byte)0);
-                writeOut.write(isFolder);
+                writeOut.writeBoolean(remoteResource.isFolder());
                     
                 // we write the url of the remote resource
-                byte[] buffer = remoteResource.getUrl().toString().getBytes();
-    			writeOut.writeInt(buffer.length);
-    			writeOut.write(buffer);
+    			writeOut.writeUTF(remoteResource.getUrl().toString());
     				
                 // we write the url of the repository
-                buffer = remoteResource.getRepository().getUrl().toString().getBytes();
-    			writeOut.writeInt(buffer.length);
-    			writeOut.write(buffer);
+    			writeOut.writeUTF(remoteResource.getRepository().getUrl().toString());
     		    
                 // we write the revision
-                buffer = remoteResource.getRevision().toString().getBytes();
-                writeOut.writeInt(buffer.length);
-                writeOut.write(buffer);
+                writeOut.writeUTF(remoteResource.getRevision().toString());
+
+                // we write the last changed revision
+                writeOut.writeUTF(remoteResource.getLastChangedRevision().toString());
                 
-                buffer = out.toByteArray();
-    		    writeOut.close();
-    
+                writeOut.writeLong( remoteResource.getDate().getTime());
+                writeOut.writeUTF( remoteResource.getAuthor());
+                
+                writeOut.close();
+
                 // converts a java byte[]to a platform specific representation
+                byte[] buffer = out.toByteArray();
     		    super.javaToNative(buffer, transferData);
     			
     	   } catch (IOException e) {
@@ -95,33 +96,30 @@ public class RemoteResourceTransfer extends ByteArrayTransfer {
     			ByteArrayInputStream in = new ByteArrayInputStream(buffer);
     			DataInputStream readIn = new DataInputStream(in);
 
-                byte isFolder = (byte)readIn.read();
+                boolean isFolder = readIn.readBoolean();
 
                 // first, we read the url of the remote resource
-    			int size = readIn.readInt();
-    			byte[] name = new byte[size];
-    			readIn.read(name);
-    			SVNUrl urlResource = new SVNUrl(new String(name));
+    			SVNUrl urlResource = new SVNUrl(readIn.readUTF());
                     
                 // then we read the url of the repository
-    			size = readIn.readInt();
-    			name = new byte[size];
-    			readIn.read(name);
-                String location = new String(name);
+                String location = readIn.readUTF();
                 
                 // we read the revision
-                size = readIn.readInt();
-                name = new byte[size];
-                readIn.read(name);
-                SVNRevision revision = SVNRevision.getRevision(new String(name));
-                    
+                SVNRevision revision = SVNRevision.getRevision(readIn.readUTF());
+
+                // we read the last changed revision
+                SVNRevision.Number lastChangedRevision = ( Number) SVNRevision.getRevision(readIn.readUTF());
+                
+                Date date = new Date(readIn.readLong());
+                String author = readIn.readUTF();
+                
                 ISVNRepositoryLocation repositoryLocation = SVNProviderPlugin.getPlugin().getRepository(location);
                     
                 ISVNRemoteResource remoteResource;
-                if (isFolder == 1)
-                    remoteResource = new RemoteFolder(repositoryLocation,urlResource, revision);
+                if (isFolder)
+                    remoteResource = new RemoteFolder(null, repositoryLocation,urlResource, revision, lastChangedRevision, date, author);
                 else
-                    remoteResource = new RemoteFile(repositoryLocation,urlResource, revision);
+                    remoteResource = new RemoteFile(null, repositoryLocation,urlResource, revision, lastChangedRevision, date, author);
     				
                 ISVNRemoteResource[] temp = new ISVNRemoteResource[remoteResources.length + 1];
     			System.arraycopy(remoteResources, 0, temp, 0, remoteResources.length);
