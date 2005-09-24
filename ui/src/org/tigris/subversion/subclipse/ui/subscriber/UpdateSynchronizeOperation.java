@@ -14,7 +14,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
@@ -86,76 +89,72 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	 * @see org.eclipse.team.examples.filesystem.ui.FileSystemSynchronizeOperation#run(org.eclipse.team.examples.filesystem.FileSystemProvider, org.eclipse.team.core.synchronize.SyncInfoSet, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor progress) throws InvocationTargetException, InterruptedException {
-	    new UpdateOperation(getPart(), getAddedAndChangedResources(set), getRepositoryRevision(set), false).run(progress);
-	    new UpdateOperation(getPart(), getDeletedResources(set), getRepositoryRevision(set), false).run(progress);	    
+		//The resources to be updated are factorized and sorted first.
+		//They are grouped by revision numbers (mostly necessary for svn:externals)
+		//They are sorted ascending or descending for additions res. deletions.
+		List updateRuns = null;
+		updateRuns = getAddedAndChangedResources(set);
+		for (Iterator it = updateRuns.iterator(); it.hasNext();) {
+			UpdateResourcesSet element = (UpdateResourcesSet) it.next();
+		    new UpdateOperation(getPart(), element.getResources(), element.getRevision(), false).run(progress);			
+		}
+		updateRuns = getDeletedResources(set);
+		for (Iterator it = updateRuns.iterator(); it.hasNext();) {
+			UpdateResourcesSet element = (UpdateResourcesSet) it.next();
+		    new UpdateOperation(getPart(), element.getResources(), element.getRevision(), false).run(progress);			
+		}
 	}
 	
 	/**
 	 * Collect the "not to be deleted" incoming changes.
 	 * Sort them ascending, so incoming dirs are created soon than incoming files from within.
+	 * Groups them by the repositoryRevisions
 	 * @param set
-	 * @return
+	 * @return List with UpdateResourcesSet objects.
 	 */
-	private IResource[] getAddedAndChangedResources(SyncInfoSet set)
+	private List getAddedAndChangedResources(SyncInfoSet set)
 	{
 		SyncInfo[] infos = set.getSyncInfos();
-		List resources = new ArrayList();
+		Map resourceGroups = new HashMap();
 		for (int i = 0; i < infos.length; i++) {
 			SyncInfo info = infos[i];
 			if (SyncInfo.getChange(info.getKind()) != SyncInfo.DELETION)
 			{
+				List resources = (List) resourceGroups.get(((SVNStatusSyncInfo) info).getRepositoryRevision());
+				if (resources == null) {
+					resources = new ArrayList();
+					resourceGroups.put(((SVNStatusSyncInfo) info).getRepositoryRevision(), resources);
+				}				
 				resources.add(info.getLocal());
 			}
 		}
-		IResource[] result = (IResource[]) resources.toArray(new IResource[resources.size()]);
-        Arrays.sort(result, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString());
-			}});
-        return result;
+		return UpdateResourcesSet.convertFactorizingMap(resourceGroups, true);
 	}
 
 	/**
 	 * Collect the "to be deleted" incoming changes.
 	 * Sort them descending, so incoming dir deletions are deleted only after the files from within are deleted.
+	 * Groups them by the repositoryRevisions
 	 * @param set
 	 * @return
 	 */
-	private IResource[] getDeletedResources(SyncInfoSet set)
+	private List getDeletedResources(SyncInfoSet set)
 	{
 		SyncInfo[] infos = set.getSyncInfos();
-		List resources = new ArrayList();
+		Map resourceGroups = new HashMap();
 		for (int i = 0; i < infos.length; i++) {
 			SyncInfo info = infos[i];
 			if (SyncInfo.getChange(info.getKind()) == SyncInfo.DELETION)
 			{
+				List resources = (List) resourceGroups.get(((SVNStatusSyncInfo) info).getRepositoryRevision());
+				if (resources == null) {
+					resources = new ArrayList();
+					resourceGroups.put(((SVNStatusSyncInfo) info).getRepositoryRevision(), resources);
+				}				
 				resources.add(info.getLocal());
 			}
 		}
-		IResource[] result = (IResource[]) resources.toArray(new IResource[resources.size()]);
-        Arrays.sort(result, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return ((IResource) o2).getFullPath().toString().compareTo(((IResource) o1).getFullPath().toString());
-			}});
-        return result;
-	}
-	
-	/**
-	 * Get the revision number to which we want to update.
-	 * @param set - syncInfoset of SyncInfos
-	 * @return
-	 */
-	private SVNRevision getRepositoryRevision(SyncInfoSet set)
-	{
-		SyncInfo[] infos = set.getSyncInfos();
-		if (infos.length > 0)
-		{
-			return ((SVNStatusSyncInfo) infos[0]).getRepositoryRevision();
-		}
-		else
-		{
-			return SVNRevision.HEAD;
-		}
+		return UpdateResourcesSet.convertFactorizingMap(resourceGroups, false);
 	}
 	
 	/* (non-Javadoc)
@@ -163,5 +162,38 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
      */
     protected boolean canRunAsJob() {
         return true;
+    }
+    
+    private static class UpdateResourcesSet {
+    	private SVNRevision revision = null;
+    	private IResource[] resources = null;
+    	
+    	protected static List convertFactorizingMap(Map resourceGroups, final boolean ascending)
+    	{
+    		List result = new ArrayList(resourceGroups.size());
+    		for (Iterator it = resourceGroups.entrySet().iterator(); it.hasNext();) {
+				Map.Entry entry = (Map.Entry) it.next();
+				result.add(new UpdateResourcesSet((SVNRevision) entry.getKey(), (List) entry.getValue(), ascending));
+			}
+    		return result;
+    	}
+    	
+    	protected UpdateResourcesSet(final SVNRevision revision, final List resourcesList, final boolean ascending)
+    	{
+    		this.revision = revision;    		
+    		this.resources = (IResource[]) resourcesList.toArray(new IResource[resourcesList.size()]);
+            Arrays.sort(this.resources, new Comparator() {
+    			public int compare(Object o1, Object o2) {
+    				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString())
+    				* ((ascending) ? 1 : -1);
+    			}});
+    	}
+    	
+		protected IResource[] getResources() {
+			return resources;
+		}
+		protected SVNRevision getRevision() {
+			return revision;
+		}
     }
 }
