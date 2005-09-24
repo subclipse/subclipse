@@ -106,7 +106,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
 	 * @see org.eclipse.team.core.synchronize.SyncInfo#getLocalContentIdentifier()
 	 */
 	public String getLocalContentIdentifier() {
-		return baseStatusInfo.getRevision().toString();
+		return (baseStatusInfo.getRevision() != null) ? baseStatusInfo.getRevision().toString() : null;
 	}
 
     /* (non-Javadoc)
@@ -159,6 +159,10 @@ public class SVNStatusSyncInfo extends SyncInfo {
 //            if (getComparator().compare(getBase(), getRemote())) 
 //                return SyncInfo.IN_SYNC;
             return SyncInfo.INCOMING | SyncInfo.CHANGE;
+        }
+        else if( repositoryKind == SVNStatusKind.EXTERNAL ) {
+        	if ( localKind == SVNStatusKind.EXTERNAL)
+        		return SyncInfo.OUTGOING | SyncInfo.CHANGE;
         }
         
         return super.calculateKind();

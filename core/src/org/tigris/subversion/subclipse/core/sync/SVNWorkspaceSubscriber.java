@@ -51,6 +51,10 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
 	private static SVNWorkspaceSubscriber instance; 
 	
+	/** We need to store unchanged parents in remoteSyncStateStore.
+	 * To distinguish them from real changed resources we store this dummy data instead for them */
+	private static final byte[] DUMMY_SYNC_BYTES = new byte[] {-1, -2, -3, -4};
+	
 	/**
 	 * Return the file system subscriber singleton.
 	 * @return the file system subscriber singleton.
@@ -167,8 +171,9 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
         RemoteResourceStatus remoteStatusInfo = null;
         byte[] remoteBytes = remoteSyncStateStore.getBytes( resource );
-        if( remoteBytes != null )
+        if ((remoteBytes != null) && (remoteBytes != DUMMY_SYNC_BYTES)) {
             remoteStatusInfo = RemoteResourceStatus.fromBytes(remoteBytes);
+        }
 
         SyncInfo syncInfo = new SVNStatusSyncInfo(resource, localStatus, remoteStatusInfo, comparator);
         syncInfo.init();
@@ -241,7 +246,8 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
                 if ((changedResource != null) && isSupervised(changedResource))
                 {
                 	result.add(changedResource);
-                	remoteSyncStateStore.setBytes( statuses[i].getResource(), statuses[i].getBytes() );
+                	remoteSyncStateStore.setBytes( changedResource, statuses[i].getBytes() );
+                	registerChangedResourceParent(changedResource);
                 }
 			}
             
@@ -253,6 +259,26 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 		}
     }
 
+    /**
+     * SessionResourceVariantByteStore of remoteSyncStateStore used to store (and flush) sync changes
+     * register only direct parents of the changed resources.
+     * If we want to be able to flush arbitrary subtree from the remoteSyncStateStore (event subtree which root
+     * is unchanged resource), we have to cache all parent of the changed resources up to the top.
+     * These sync DUMMY_SYNC_BYTES are stored as synch info, so upon this dummy bytes we then filter out
+     * the actually unchanged sync data from the cache 
+     * @param changedResource
+     */
+    private void registerChangedResourceParent(IResource changedResource) throws TeamException
+    {
+    	IContainer parent = changedResource.getParent();
+    	if (parent == null) return;
+    	if (remoteSyncStateStore.getBytes(parent) == null)
+    	{
+    		remoteSyncStateStore.setBytes(parent, DUMMY_SYNC_BYTES);
+    		registerChangedResourceParent(parent);
+    	}    	
+    }
+    
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.IResourceStateChangeListener#resourceSyncInfoChanged(org.eclipse.core.resources.IResource[])
      */
