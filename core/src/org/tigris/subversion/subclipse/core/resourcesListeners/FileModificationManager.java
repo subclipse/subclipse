@@ -102,7 +102,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 				}
 			});
             
-            // we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightwrightDecorator)
+            // we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightweightDecorator)
 			if (!modifiedResources.isEmpty()) {
                 IResource[] resources = (IResource[])modifiedResources.toArray(new IResource[modifiedResources.size()]);
 				refreshStatus(resources);

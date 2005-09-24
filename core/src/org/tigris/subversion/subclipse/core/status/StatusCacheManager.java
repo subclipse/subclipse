@@ -20,11 +20,15 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -89,24 +93,50 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
     /**
      * update the cache using the given statuses
      * @param statuses
+ 	 * @param rule the scheduling rule to use when running this operation
      */
-    protected List updateCache(ISVNStatus[] statuses) {
-    	List result = new ArrayList(statuses.length);
-        for (int i = 0; i < statuses.length;i++) {        	
-        	result.add(updateCache(new LocalResourceStatus(statuses[i])));
-        }
+    protected List updateCache(final ISVNStatus[] statuses, ISchedulingRule rule) throws CoreException {
+    	final List result = new ArrayList(statuses.length);
+    	if (ResourcesPlugin.getWorkspace().isTreeLocked())
+    	{
+            for (int i = 0; i < statuses.length;i++) {        	
+            	result.add(updateCache(statuses[i]));
+            }    		
+    	}
+    	else
+    	{
+    		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+		        for (int i = 0; i < statuses.length;i++) {        	
+		        	result.add(updateCache(statuses[i]));
+		        }
+			}}, rule, IWorkspace.AVOID_UPDATE, null);    		
+    	}
         return result;
     }
-    
+
     /**
      * update the cache using the given statuses
      * @param statuses
+ 	 * @param rule the scheduling rule to use when running this operation
      */
-    protected List updateCache(LocalResourceStatus[] statuses) {
-    	List result = new ArrayList(statuses.length);
-        for (int i = 0; i < statuses.length;i++) {
-            result.add(updateCache(statuses[i]));
-        }
+    protected List updateCache(final LocalResourceStatus[] statuses, ISchedulingRule rule) throws CoreException {
+    	final List result = new ArrayList(statuses.length);
+    	if (ResourcesPlugin.getWorkspace().isTreeLocked())
+    	{
+            for (int i = 0; i < statuses.length;i++) {        	
+            	result.add(updateCache(statuses[i]));
+            }   		
+    	}
+    	else
+    	{
+    		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+		        for (int i = 0; i < statuses.length;i++) {        	
+		        	result.add(updateCache(statuses[i]));
+		        }
+			}}, rule, IWorkspace.AVOID_UPDATE, null);   		
+    	}
         return result;
     }
 
@@ -117,6 +147,15 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      */
     protected IResource updateCache(LocalResourceStatus status) {
    		return statusCache.addStatus(status);
+    }
+
+    /**
+     * update the cache using the given statuses
+     * @param status
+     * @param workspaceRoot
+     */
+    protected IResource updateCache(ISVNStatus status) {
+   		return statusCache.addStatus(new LocalResourceStatus(status));
     }
 
     /**
@@ -187,7 +226,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
         } else {
             // we don't know if resource is managed or not, we must update its status
         	strategy.setStatusCache(statusCache);
-        	setStatuses(strategy.statusesToUpdate(resource));
+        	setStatuses(strategy.statusesToUpdate(resource), resource);
         	status = statusCache.getStatus(resource);
         }
         
@@ -203,9 +242,14 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * be used to update the statuses of some resources  
      * 
      * @param statuses
+ 	 * @param rule the scheduling rule to use when running this operation
      */
-    public void setStatuses(LocalResourceStatus[] statuses) {
-        updateCache(statuses);
+    public void setStatuses(ISVNStatus[] statuses, ISchedulingRule rule) throws SVNException {
+    	try {
+			updateCache(statuses, rule);
+		} catch (CoreException e) {
+			throw SVNException.wrapException(e);
+		}   		
     }
 
     /**
@@ -213,28 +257,35 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * be used to update the statuses of some resources  
      * 
      * @param statuses
+ 	 * @param rule the scheduling rule to use when running this operation
      */
-    public void setStatuses(ISVNStatus[] statuses) {
-        updateCache(statuses);
+    public void setStatuses(LocalResourceStatus[] statuses, ISchedulingRule rule) throws SVNException {
+    	try {
+			updateCache(statuses, rule);
+		} catch (CoreException e) {
+			throw SVNException.wrapException(e);
+		}   		
     }
 
     /**
-     * Refresh the status of the given resource to the give depth.
-     * The depth can be deeper in case of phantom resources.
-     * These have to be traversed to infinite always ...
-     * @param resource
-     * @param depth
-     * @return array of resources which were refreshed (including all phantoms and their children)
-     * @throws SVNException
-     */
-    public IResource[] refreshStatus(IResource resource,int depth) throws SVNException {
+	 * Refresh the status of the given resource to the give depth. The depth can
+	 * be deeper in case of phantom resources. These have to be traversed to
+	 * infinite always ...
+	 * 
+	 * @param resource
+	 * @param depth
+	 * @return array of resources which were refreshed (including all phantoms
+	 *         and their children)
+	 * @throws SVNException
+	 */
+    public IResource[] refreshStatus(final IResource resource, final int depth) throws SVNException {
     	if (SVNWorkspaceRoot.isLinkedResource(resource)) { return new IResource[0]; }
-    	StatusUpdateStrategy strategy = 
+    	final StatusUpdateStrategy strategy = 
     		(depth == IResource.DEPTH_INFINITE) 
 							? (StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(statusCache)
 							: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(statusCache);
-		try {		
-			List refreshedResources = updateCache(strategy.statusesToUpdate(resource));
+		try {
+			List refreshedResources = updateCache(strategy.statusesToUpdate(resource), resource);
 			Set resourcesToRefresh = resourcesToRefresh(resource, depth, IContainer.INCLUDE_PHANTOMS, refreshedResources.size());
 			for (Iterator iter = refreshedResources.iterator(); iter.hasNext();) {
 				resourcesToRefresh.remove(iter.next());

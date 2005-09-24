@@ -52,11 +52,11 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 	public IResource addStatus(LocalResourceStatus status) {
 		try {
 			IResource resource = status.getResource();
-			if ((status != null) && status.isUnversioned() && !(resource.exists() || resource.isPhantom()))
+			if (status.isUnversioned() && !(resource.exists() || resource.isPhantom()))
 			{
 				return resource;
 			}
-			setCachedSyncBytes(resource, (status != null) ? status.getBytes() : null);
+			setCachedSyncBytes(resource, status.getBytes());
 			return resource;
 		} catch (SVNException e) {
 			SVNProviderPlugin.log(e);
@@ -107,11 +107,11 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 	}
 	
 	private void setCachedSyncBytes(IResource resource, byte[] syncBytes) throws SVNException {
-		boolean canModifyWorkspace = !ResourcesPlugin.getWorkspace().isTreeLocked();
 		byte[] oldBytes = getCachedSyncBytes(resource);
 		try {
 			if (syncBytes == null) {
 				if (oldBytes != null) {
+					boolean canModifyWorkspace = !ResourcesPlugin.getWorkspace().isTreeLocked();
 					if (canModifyWorkspace) {
 						accessor.removeFromPendingCache(resource);
 						if (resource.exists() || resource.isPhantom()) {
@@ -128,6 +128,7 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 				// We do this to avoid causing a resource delta when the sync info is 
 				// initially loaded (i.e. the synchronizer has it and so does the Entries file
 				if (oldBytes == null || !SyncInfoSynchronizedAccessor.equals(syncBytes, oldBytes)) {
+					boolean canModifyWorkspace = !ResourcesPlugin.getWorkspace().isTreeLocked();
 					if (canModifyWorkspace) {
 						accessor.removeFromPendingCache(resource);
 						accessor.internalSetCachedSyncBytes(resource, syncBytes);

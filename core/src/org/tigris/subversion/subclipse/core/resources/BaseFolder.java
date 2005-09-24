@@ -104,7 +104,7 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
 		progress.beginTask(Policy.bind("RemoteFolder.getMembers"), 100); //$NON-NLS-1$
         
 		try {
-            GetStatusCommand c = new GetStatusCommand(localResourceStatus.getRepository(), localResourceStatus.getFile(), false, true);
+            GetStatusCommand c = new GetStatusCommand(localResourceStatus.getRepository(), localResourceStatus.getResource(), false, true);
             c.run(monitor);
             LocalResourceStatus[] statuses = c.getStatuses();
             List baseChildren = new ArrayList(statuses.length);
