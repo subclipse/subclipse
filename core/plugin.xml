@@ -15,7 +15,7 @@
          <export name="*"/>
       </library>
       <library name="lib/svnjavahl.jar"/>
-      <library name="lib/jsch.jar"/>
+      <library name="lib/ganymed.jar"/>
       <library name="lib/javasvn.jar"/>
    </runtime>
 
