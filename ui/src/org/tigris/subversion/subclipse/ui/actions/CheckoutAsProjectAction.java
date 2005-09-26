@@ -99,7 +99,8 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 							localFolders[i] = (IProject)projects[i];
 							remoteFolders[i] = (ISVNRemoteFolder)targetFolders.get(projects[i].getName());
 						}
-					}
+					} else 
+					    proceed = false;
 				} catch (Exception e) {
 					throw new InvocationTargetException(e);
 				} finally {
