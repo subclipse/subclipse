@@ -47,7 +47,6 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
  
@@ -74,19 +73,19 @@ public class SVNLightweightDecorator
 
 	private static IPropertyChangeListener propertyListener;
 
-	private boolean computeDeepDirtyCheck;
-	private IDecoratorComponent[][] folderDecoratorFormat;
-	private IDecoratorComponent[][] projectDecoratorFormat;
-	private IDecoratorComponent[][] fileDecoratorFormat;
-	private String dirtyFlag;
-	private String addedFlag;
-    private String externalFlag;
-	private boolean showNewResources;
-	private boolean showDirty;
-	private boolean showAdded;
-    private boolean showExternal;
-	private boolean showHasRemote;
-	private DateFormat dateFormat;
+	protected boolean computeDeepDirtyCheck;
+	protected IDecoratorComponent[][] folderDecoratorFormat;
+	protected IDecoratorComponent[][] projectDecoratorFormat;
+	protected IDecoratorComponent[][] fileDecoratorFormat;
+	protected String dirtyFlag;
+	protected String addedFlag;
+	protected String externalFlag;
+	protected boolean showNewResources;
+	protected boolean showDirty;
+	protected boolean showAdded;
+	protected boolean showExternal;
+	protected boolean showHasRemote;
+	protected DateFormat dateFormat;
 
 	/*
 	 * Define a cached image descriptor which only creates the image data once
@@ -318,9 +317,7 @@ public class SVNLightweightDecorator
                 bindings.put(SVNDecoratorConfiguration.EXTERNAL_FLAG, externalFlag);
             } else {
 				if ((status.getTextStatus() != SVNStatusKind.UNVERSIONED) &&
-					(status.getTextStatus() != SVNStatusKind.ADDED) &&
-				    (status.getRevision() != null) &&
-                    (status.getRevision().getNumber() != SVNRevision.SVN_INVALID_REVNUM)) {
+					(status.getTextStatus() != SVNStatusKind.ADDED)) {
 					
 					if (status.getLastChangedRevision() != null) {
 						bindings.put(

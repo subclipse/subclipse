@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.ui.properties;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -32,6 +33,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class SVNPropertyPage extends PropertyPage {
 
@@ -50,7 +52,6 @@ public class SVNPropertyPage extends PropertyPage {
     private Text revisionValue;
     private Text copiedValue;
     private Text urlCopiedFromValue;
-    private Text pathValue;
     private Text lockOwner;
     private Text lockCreationDate;
     private Text lockComment;
@@ -154,14 +155,6 @@ public class SVNPropertyPage extends PropertyPage {
         label.setText(Policy.bind("SVNPropertyPage.lockComment"));  //$NON-NLS-1$
         lockComment = new Text(composite, SWT.MULTI | SWT.READ_ONLY);
 
-//        label = new Label(composite, SWT.NONE);
-//        label.setText(Policy.bind("SVNPropertyPage.path")); //$NON-NLS-1$
-
-//        GridData gd = new GridData();
-//        gd.horizontalSpan = 2;
-//        pathValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
-//        pathValue.setLayoutData(gd);
-
         // Populate owner text field
         try {
             IResource resource = (IResource) getElement();
@@ -173,6 +166,7 @@ public class SVNPropertyPage extends PropertyPage {
             if (svnResource == null) return;
 
             LocalResourceStatus status = svnResource.getStatus();
+            SVNRevision revision = svnResource.getRevision();
 
             if (status.getUrlCopiedFrom() != null) {
 
@@ -199,17 +193,15 @@ public class SVNPropertyPage extends PropertyPage {
             deletedValue.setText(new Boolean(status.isDeleted()).toString());
             modifiedValue.setText(new Boolean(status.isTextModified()).toString());
             addedValue.setText(new Boolean(status.isAdded()).toString());
-            revisionValue.setText(status.getRevision() != null ? status.getRevision().toString()
-                    : ""); //$NON-NLS-1$
+            revisionValue.setText(revision != null ? revision.toString() : ""); //$NON-NLS-1$
             copiedValue.setText(new Boolean(status.isCopied()).toString());
             lockOwner.setText(status.getLockOwner() != null ? status.getLockOwner() : ""); //$NON-NLS-1$
             lockCreationDate.setText(status.getLockOwner() != null ? status
                     .getLockCreationDate().toString() : ""); //$NON-NLS-1$
             lockComment.setText(status.getLockOwner() != null ? status.getLockComment() : ""); //$NON-NLS-1$
-//            pathValue.setText(status.getPath() != null ? status.getPath() : "");
 
         } catch (Exception e) {
-            SVNUIPlugin.log(new Status(Status.ERROR, SVNUIPlugin.ID, TeamException.UNABLE,
+            SVNUIPlugin.log(new Status(IStatus.ERROR, SVNUIPlugin.ID, TeamException.UNABLE,
                     "Property Exception", e)); //$NON-NLS-1$
         }
     }

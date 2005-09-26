@@ -38,6 +38,16 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 	public LocalResourceStatus getStatus() throws SVNException;
 
 	/**
+	 * Answers the revision number for this resource.
+	 * The revision might not be stored in workspace sychronization data,
+	 * so a svn call might be required. This call however is not expected to contact server,
+	 * just fetch the revision from working copy metadata
+	 * @return
+	 * @throws SVNException
+	 */
+	public SVNRevision getRevision() throws SVNException;
+	
+	/**
 	 * refresh the status of the resource (which is cached)
 	 */
 	public void refreshStatus() throws SVNException;

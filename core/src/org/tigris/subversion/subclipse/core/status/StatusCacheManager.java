@@ -27,14 +27,21 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.commands.GetAnnotationsCommand;
+import org.tigris.subversion.subclipse.core.commands.GetInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.ISVNAnnotations;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
 
 /**
@@ -188,6 +195,23 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 						: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(statusCache));
     }
 
+    /**
+     * The cached statuses do not provide revision numbers anymore.
+     * This method is the only place how to query for the revision of the resource explicitely.
+     * @param resource
+     * @return
+     * @throws SVNException
+     */
+    public SVNRevision getResourceRevision(ISVNLocalResource resource) throws SVNException
+    {    
+    	if (resource == null) return null;
+        GetInfoCommand command = new GetInfoCommand(resource);
+        command.run(null);
+        final ISVNInfo info = command.getInfo();
+
+    	return (info != null) ? info.getRevision() : null;
+    }
+    
     /**
      * get the status of the given resource
      * @throws SVNException

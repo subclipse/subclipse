@@ -148,13 +148,21 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
         return !this.resource.isLinked() && getStatus().hasRemote();
     }
 
-    /**
-     * get the status of the given resource
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#getStatus()
      */
     public LocalResourceStatus getStatus() throws SVNException {
     	if (SVNWorkspaceRoot.isLinkedResource(this.resource)) { return LocalResourceStatus.NONE; }
     	LocalResourceStatus aStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatus(resource);
         return (aStatus != null) ? aStatus : LocalResourceStatus.NONE;
+    }
+
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#getRevision()
+     */
+    public SVNRevision getRevision() throws SVNException {
+    	if (SVNWorkspaceRoot.isLinkedResource(this.resource)) { return null; }
+    	return SVNProviderPlugin.getPlugin().getStatusCacheManager().getResourceRevision(this);
     }
 
 	/*
