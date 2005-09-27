@@ -22,7 +22,6 @@ import java.util.Date;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
-import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNStatusUtils;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -31,6 +30,10 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * This class has an interface which is very similar to ISVNStatus but we make
  * sure to take as little memory as possible. This class also have a getBytes()
  * method and a constructor/factory method that takes bytes.
+ *
+ * This class does NOT stores resource revision intentionally.
+ * The revision numbers changes too frequently and it does not provide too valuable imformation for synchronization
+ * needs anyway. The lastChangedRevision() is more important here. 
  * 
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  */
@@ -425,7 +428,6 @@ public class LocalResourceStatus extends ResourceStatus {
     	{
     		super();
     		this.nodeKind = SVNNodeKind.UNKNOWN.toInt();
-            this.revision = SVNRevision.SVN_INVALID_REVNUM;
             this.textStatus = SVNStatusKind.NONE.toInt();
             this.propStatus = SVNStatusKind.NONE.toInt();
             this.readOnly = false;

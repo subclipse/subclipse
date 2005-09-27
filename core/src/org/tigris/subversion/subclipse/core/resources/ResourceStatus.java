@@ -41,7 +41,12 @@ import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
  * This class has an interface which is very similar to ISVNStatus but we make
  * sure to take as little memory as possible. This class also have a getBytes()
  * method and a constructor/factory method that takes bytes.
- * (However, the bytes are not complete representation of this status, just subset of interesting attributes) 
+ * (However, the bytes are not complete representation of this status, just subset of interesting attributes)
+ * 
+ * This class and neither its LocalResourceStatus which is stored in the workspace metadata does NOT
+ * stores resource revision intentionally.
+ * The revision numbers changes too frequently and it does not provide too valuable imformation for synchronization
+ * needs anyway. The lastChangedRevision() is more important here. 
  * 
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  */
@@ -59,7 +64,6 @@ public class ResourceStatus implements Serializable {
     protected String lastCommitAuthor;
     protected int textStatus;
     protected int propStatus;
-    protected long revision;
     protected int nodeKind;
 	
     protected ResourceStatus() {}
@@ -94,25 +98,14 @@ public class ResourceStatus implements Serializable {
         this.textStatus = status.getTextStatus().toInt();
         this.propStatus = status.getPropStatus().toInt();
 
-        aValue = status.getRevision();
-        if (aValue == null) {
-            this.revision = SVNRevision.SVN_INVALID_REVNUM;
-        } else {
-            this.revision = ((SVNRevision.Number) aValue).getNumber();
-        }
-
         this.nodeKind = status.getNodeKind().toInt();
         
         this.path = status.getFile().getAbsolutePath();
 	}
 	
-	public void setNodeKind(SVNNodeKind informedKind) {
-		this.nodeKind = informedKind.toInt();
-	}
-	
     public String toString()
     {
-    	return ((path != null) ? path : "") + " (" + revision + ") " + getTextStatus().toString();
+    	return ((path != null) ? path : "") + " (" + lastChangedRevision + ") " + getTextStatus().toString();
     }
 	
     /**
@@ -197,17 +190,6 @@ public class ResourceStatus implements Serializable {
 			}
 		}
 	}
-
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.svnclientadapter.ISVNStatus#getRevision()
-	 */
-    public Number getRevision() {
-        if (revision == SVNRevision.SVN_INVALID_REVNUM) {
-            return null;
-        } else {
-            return new SVNRevision.Number(revision);
-        }
-    }
 
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.svnclientadapter.ISVNStatus#getNodeKind()
@@ -321,7 +303,11 @@ public class ResourceStatus implements Serializable {
             propStatus = dis.readInt();
 
             // revision
-            revision = dis.readLong();
+            // originally, the ResourceStatus also contained revision data.
+            // we do not store them anymore, but for backwards compatibilty,
+            // we maintain the byte[] array offsets so we store/read 0 here.
+            //revision = dis.readLong();
+            setRevisionNumber(dis.readLong());
 
             // nodeKind
             nodeKind = dis.readInt();
@@ -380,7 +366,11 @@ public class ResourceStatus implements Serializable {
             dos.writeInt(propStatus);
 
             // revision
-            dos.writeLong(revision);
+            // originally, the ResourceStatus also contained revision data.
+            // we do not store them anymore, but for backwards compatibilty,
+            // we maintain the byte[] array offsets so we store/read 0 here.
+            //dos.writeLong(revision);
+            dos.writeLong(getRevisionNumber());
 
             // nodeKind
             dos.writeInt(nodeKind);
@@ -389,6 +379,33 @@ public class ResourceStatus implements Serializable {
             return null;
         }
         return dos;
+    }
+    
+    /**
+     * Answer the revision number - for internal purposes only.
+     * This class does not contain revision anymore.
+     * However subclasses might add it.
+     * This method is expected to be called from getBytesInto() method only!  
+     *
+     * @return
+     */
+    protected long getRevisionNumber()
+    {
+    	return 0;
+    }
+    
+    /**
+     * Set the revision number - for internal purposes only.
+     * This class does not contain revision anymore.
+     * However subclasses might add it.
+     * This method is expected to be called from initFromBytes() method only!  
+     *
+     * @return
+     */
+    protected void setRevisionNumber(long revision)
+    {
+    	//Do not set anything. There is no revision here.
+    	//However subclass may added it
     }
     
     /**

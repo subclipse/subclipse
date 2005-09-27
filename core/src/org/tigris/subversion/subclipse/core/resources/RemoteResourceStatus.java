@@ -42,9 +42,12 @@ import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
  *
  */
 public class RemoteResourceStatus extends ResourceStatus {
+
 	public static final RemoteResourceStatus NONE = new RemoteResourceStatusNone();
 
     static final long serialVersionUID = 1L;
+
+    protected long revision;
 
     public static RemoteResourceStatus fromBytes(byte[] bytes) throws SVNException
     {
@@ -77,16 +80,23 @@ public class RemoteResourceStatus extends ResourceStatus {
 	}
 	
 	/**
-	 * Answer the revision number.
-	 * Contrary to getRevision() of localResourceStatus, this is revision of the
-	 * repository at the time of fetching this status via svn status call ...
+	 * Answer the revision number. Contrary to getRevision() of
+	 * localResourceStatus, this is the revision of the repository at the time
+	 * of fetching this status via svn status call ... 
+	 * (And meanwhile the localResourceStatus was changed, 
+	 * so it even does not store it's revision anymore)
 	 */
-    public Number getRevision() {
-    	return super.getRevision();
-    }
-
+	public Number getRepositoryRevision() {
+		if (revision == SVNRevision.SVN_INVALID_REVNUM) {
+			return null;
+		} else {
+			return new SVNRevision.Number(revision);
+		}
+	}
+    
 	/**
 	 * Update missing data from the supplied info
+	 * 
 	 * @param info
 	 */
 	public void updateFromInfo(ISVNInfo info)
@@ -127,13 +137,6 @@ public class RemoteResourceStatus extends ResourceStatus {
         } else {
             this.url = ((SVNUrl) aValue).toString();
         }
-	}
-	
-	/**
-     * @deprecated not used anymore - was used as part of collecting missing nodeKinds from StatusAndInfoCommand
-	 */
-	public void setNodeKind(SVNNodeKind informedKind) {
-		this.nodeKind = informedKind.toInt();
 	}
 	
     /* (non-Javadoc)
@@ -187,6 +190,29 @@ public class RemoteResourceStatus extends ResourceStatus {
         return version;
     }
 
+    /**
+     * Answer the revision number - for internal purposes only.
+     * This method is expected to be called from getBytesInto() method only!  
+     *
+     * @return
+     */
+    protected long getRevisionNumber()
+    {
+    	return revision;
+    }
+    
+    /**
+     * Set the revision number - for internal purposes only.
+     * This method is expected to be called from initFromBytes() method only!  
+     *
+     * @return
+     */
+    protected void setRevisionNumber(long revision)
+    {
+    	this.revision = revision;
+    }
+
+    
     public static class RemoteResourceStatusNone extends RemoteResourceStatus {
         static final long serialVersionUID = 1L;
 

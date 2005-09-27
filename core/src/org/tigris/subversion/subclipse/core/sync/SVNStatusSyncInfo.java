@@ -45,7 +45,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
     {
     	if (remoteStatusInfo != null)
     	{
-    		SVNRevision rev = remoteStatusInfo.getRevision();
+    		SVNRevision rev = remoteStatusInfo.getRepositoryRevision();
     		if ((rev != null) && !SVNRevision.INVALID_REVISION.equals(rev))
     		{
     			return rev;
@@ -106,7 +106,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
 	 * @see org.eclipse.team.core.synchronize.SyncInfo#getLocalContentIdentifier()
 	 */
 	public String getLocalContentIdentifier() {
-		return (baseStatusInfo.getRevision() != null) ? baseStatusInfo.getRevision().toString() : null;
+		return (baseStatusInfo.getLastChangedRevision() != null) ? baseStatusInfo.getLastChangedRevision().toString() : null;
 	}
 
     /* (non-Javadoc)

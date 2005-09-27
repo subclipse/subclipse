@@ -88,7 +88,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
         this( null,
         		remoteStatusInfo.getRepository(),
 				remoteStatusInfo.getUrl(), 
-				remoteStatusInfo.getRevision(),
+				remoteStatusInfo.getRepositoryRevision(),
 				remoteStatusInfo.getLastChangedRevision(), 
 				remoteStatusInfo.getLastChangedDate(), 
 				remoteStatusInfo.getLastCommitAuthor());

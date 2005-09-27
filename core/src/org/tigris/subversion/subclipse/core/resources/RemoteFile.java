@@ -78,7 +78,7 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
         this( null, 
         		remoteStatusInfo.getRepository(),
 				remoteStatusInfo.getUrl(), 
-				remoteStatusInfo.getRevision(),
+				remoteStatusInfo.getRepositoryRevision(),
 				remoteStatusInfo.getLastChangedRevision(), 
 				remoteStatusInfo.getLastChangedDate(), 
 				remoteStatusInfo.getLastCommitAuthor());

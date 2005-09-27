@@ -127,7 +127,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
 				(remoteStatus.getLastChangedDate() == null) ||
 				(remoteStatus.getLastChangedRevision() == null) ||
 				(remoteStatus.getLastCommitAuthor() == null) ||
-				(remoteStatus.getRevision() == null) ||
+				(remoteStatus.getRepositoryRevision() == null) ||
 				(remoteStatus.getUrlString() == null) ||
 				//For outgoing changes we don't need to obtain server revisions ...
 				((SVNStatusKind.NONE != remoteStatus.getStatusKind()) &&
