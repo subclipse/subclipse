@@ -1,14 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
- * which accompanies this distribution, and is available at
+/******************************************************************************
+ * This program and the accompanying materials are made available under
+ * the terms of the Common Public License v1.0 which accompanies this
+ * distribution, and is available at the following URL:
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
- *******************************************************************************/
+ * Copyright(c) 2003-2005 by the authors indicated in the @author tags.
+ *
+ * All Rights are Reserved by the various authors.
+ *
+ ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.util.ArrayList;
@@ -42,8 +41,8 @@ import org.tigris.subversion.svnclientadapter.SVNConstants;
 public class LocalFolder extends LocalResource implements ISVNLocalFolder {
 
     /**
-     * create a handle based on the given local resource container can be
-     * IResource.ROOT
+     * create a handle based on the given local resource.
+     * Container can be IResource.ROOT
      * 
      * @param container
      */
@@ -51,22 +50,20 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         super(container);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tigris.subversion.subclipse.core.resources.LocalResource#getBaseResource()
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#getBaseResource()
      */
     public ISVNRemoteResource getBaseResource() throws SVNException {
-        if (!isManaged())
+        if (!isManaged()) {// no base if no remote
             return null;
+        }
         return new BaseFolder(getStatus());
     }
 
-    /**
-     * @see ISVNFolder#members(IProgressMonitor,int)
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNFolder#members(org.eclipse.core.runtime.IProgressMonitor, int)
      */
-    public ISVNResource[] members(IProgressMonitor monitor, int flags)
-            throws SVNException {
+    public ISVNResource[] members(IProgressMonitor monitor, int flags) throws SVNException {
         final List result = new ArrayList();
         IResource[] resources;
         try {
@@ -75,26 +72,26 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
             throw SVNException.wrapException(e);
         }
 
-        boolean includeFiles = (((flags & FILE_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
-        boolean includeFolders = (((flags & FOLDER_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
-        boolean includeManaged = (((flags & MANAGED_MEMBERS) != 0) || ((flags & (MANAGED_MEMBERS
-                | UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
-        boolean includeUnmanaged = (((flags & UNMANAGED_MEMBERS) != 0) || ((flags & (MANAGED_MEMBERS
-                | UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
-        boolean includeIgnored = ((flags & IGNORED_MEMBERS) != 0);
-        boolean includeExisting = (((flags & EXISTING_MEMBERS) != 0) || ((flags & (EXISTING_MEMBERS | PHANTOM_MEMBERS)) == 0));
-        boolean includePhantoms = (((flags & PHANTOM_MEMBERS) != 0) || ((flags & (EXISTING_MEMBERS | PHANTOM_MEMBERS)) == 0));
+        final boolean includeFiles = (((flags & FILE_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
+		final boolean includeFolders = (((flags & FOLDER_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
+		final boolean includeManaged = (((flags & MANAGED_MEMBERS) != 0) || ((flags & (MANAGED_MEMBERS
+				| UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
+		final boolean includeUnmanaged = (((flags & UNMANAGED_MEMBERS) != 0) || ((flags & (MANAGED_MEMBERS
+				| UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
+		final boolean includeIgnored = ((flags & IGNORED_MEMBERS) != 0);
+		final boolean includeExisting = (((flags & EXISTING_MEMBERS) != 0) || ((flags & (EXISTING_MEMBERS | PHANTOM_MEMBERS)) == 0));
+		final boolean includePhantoms = (((flags & PHANTOM_MEMBERS) != 0) || ((flags & (EXISTING_MEMBERS | PHANTOM_MEMBERS)) == 0));
+        
         for (int i = 0; i < resources.length; i++) {
-            ISVNLocalResource svnResource = SVNWorkspaceRoot
-                    .getSVNResourceFor(resources[i]);
             if ((includeFiles && (resources[i].getType() == IResource.FILE))
                     || (includeFolders && (resources[i].getType() == IResource.FOLDER))) {
-                boolean isManaged = svnResource.isManaged();
-                boolean isIgnored = svnResource.isIgnored();
+                ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
+                final boolean isManaged = svnResource.isManaged();
+                final boolean isIgnored = svnResource.isIgnored();
                 if ((isManaged && includeManaged)
                         || (isIgnored && includeIgnored)
                         || (!isManaged && !isIgnored && includeUnmanaged)) {
-                    boolean exists = svnResource.exists();
+                    final boolean exists = svnResource.exists();
                     if ((includeExisting && exists)
                             || (includePhantoms && !exists)) {
                         result.add(svnResource);
@@ -107,23 +104,22 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                 .toArray(new ISVNLocalResource[result.size()]);
     }
 
-    /**
-     * @see ISVNResource#isFolder()
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNResource#isFolder()
      */
     public boolean isFolder() {
         return true;
     }
 
-    /**
-     * @see ISVNLocalResource#refreshStatus()
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#refreshStatus()
      */
     public void refreshStatus() throws SVNException {
         refreshStatus(IResource.DEPTH_ZERO);
     }
 
-    /**
-     * @throws SVNException
-     * @see ISVNLocalFolder#refreshStatus(int)
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFolder#refreshStatus(int)
      */
     public void refreshStatus(int depth) throws SVNException {
         SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(
@@ -152,8 +148,8 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         return false;
     }
 
-    /**
-     * @see ISVNFolder#acceptChildren(ISVNResourceVisitor)
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFolder#acceptChildren(org.tigris.subversion.subclipse.core.ISVNResourceVisitor)
      */
     public void acceptChildren(ISVNResourceVisitor visitor) throws SVNException {
 
@@ -170,16 +166,15 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         }
     }
 
-    /**
-     * @see ISVNResource#accept(ISVNResourceVisitor)
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#accept(org.tigris.subversion.subclipse.core.ISVNResourceVisitor)
      */
     public void accept(ISVNResourceVisitor visitor) throws SVNException {
         visitor.visitFolder(this);
     }
 
-    /**
-     * unmanage the folder, ie delete its svn subdirectory. Unmanage all its
-     * subdirectories too
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFolder#unmanage(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void unmanage(IProgressMonitor monitor) throws SVNException {
         SVNProviderPlugin.run(new ISVNRunnable() {
@@ -242,33 +237,33 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         }, Policy.subMonitorFor(monitor, 99));
     }
 
-    /*
-     * @see ISVNLocalFolder#setIgnoredAs(String)
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFolder#setIgnoredAs(java.lang.String)
      */
     public void setIgnoredAs(final String pattern) throws SVNException {
         AddIgnoredPatternCommand command = new AddIgnoredPatternCommand(this, pattern);
         command.run(new NullProgressMonitor());
     }
 
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#revert()
+     */
     public void revert() throws SVNException {
         super.revert(true);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#resolve()
      */
     public void resolve() {
-        // TODO Auto-generated method stub
-
+    	//Directories could not be resolved.
     }
 
-    /**
-     * get the status of the given resource
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#getStatus()
      */
     public LocalResourceStatus getStatus() throws SVNException {
-    	if (getIResource().isTeamPrivateMember() && (getIResource().getName().equals(SVNConstants.SVN_DIRNAME)))
+    	if (getIResource().isTeamPrivateMember() && (SVNConstants.SVN_DIRNAME.equals(getIResource().getName())))
     	{
     		return LocalResourceStatus.NONE;
     	}
