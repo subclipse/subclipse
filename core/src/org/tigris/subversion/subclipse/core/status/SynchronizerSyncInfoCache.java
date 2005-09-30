@@ -133,6 +133,7 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 						accessor.removeFromPendingCache(resource);
 						accessor.internalSetCachedSyncBytes(resource, syncBytes);
 					} else {
+						LocalResourceStatus.fromBytes(oldBytes);
 						accessor.writeToPendingCache(resource, syncBytes);
 					}
 				}
@@ -313,7 +314,9 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 			if (syncBytes == null || oldBytes == null) return syncBytes == oldBytes;
 			if (syncBytes.length != oldBytes.length) return false;
 			for (int i = 0; i < oldBytes.length; i++) {
-				if (oldBytes[i] != syncBytes[i]) return false;
+				if (oldBytes[i] != syncBytes[i]) { 
+					return false;
+				}
 			}
 			return true;
 		}	

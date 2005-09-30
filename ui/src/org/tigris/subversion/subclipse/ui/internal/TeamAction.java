@@ -162,7 +162,7 @@ public abstract class TeamAction extends ActionDelegate implements IObjectAction
 	 * 
 	 * @return the shell
 	 */
-	protected Shell getShell() {
+	public Shell getShell() {
 		if (shell != null) {
 			return shell;
 		} else {

@@ -21,8 +21,6 @@ import java.net.MalformedURLException;
 import java.util.Date;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.team.core.RepositoryProvider;
@@ -416,56 +414,7 @@ public class ResourceStatus implements Serializable {
      */
     public IResource getResource() throws SVNException
     {
-    	if (this.path == null) return null;
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IPath resourcePath = SVNWorkspaceRoot.pathForLocation(this.getPath());
-		if (resourcePath == null) 
-		{
-			throw new SVNException("An (un?)expected error has occured! Please report to users@subclipse.tigris.org ! pathForLocation(" 
-				+ this.getPathString() +") is null ! Url: " + this.getUrlString() + " Projects: " + ResourcesPlugin.getWorkspace().getRoot().getProjects());
-		}
-		int kind = SVNWorkspaceRoot.getResourceType(resourcePath);			
-
-		if (kind == IResource.FILE)
-		{
-			return root.getFile(resourcePath);
-		}
-		else if(kind == IResource.FOLDER)
-		{
-			return root.getFolder(resourcePath);
-		}
-		else if (kind == IResource.PROJECT)
-		{
-			return root.getProject(resourcePath.segment(0));
-		}
-		else if (kind == IResource.ROOT)
-		{
-			return root;
-		}
-		else if (this.getNodeKind() == SVNNodeKind.FILE)
-		{
-			return root.getFile(resourcePath);
-		}
-		else
-		{
-			if (resourcePath.isRoot())
-			{
-				return root;
-			}
-			else if (resourcePath.segmentCount() == 1)
-			{
-				return root.getProject(resourcePath.segment(0));
-			}
-		}
-//        if (this.getNodeKind() == SVNNodeKind.UNKNOWN) {
-//        	File file = this.getPath().toFile();
-//        	if (file.isDirectory())
-//        		resource = workspaceRoot.getContainerForLocation(pathEclipse);
-//        	else
-//        		resource = workspaceRoot.getFileForLocation(pathEclipse);
-//        }
-
-		return root.getFolder(resourcePath);
+		return SVNWorkspaceRoot.getResourceFor(this);
     }
 
 }

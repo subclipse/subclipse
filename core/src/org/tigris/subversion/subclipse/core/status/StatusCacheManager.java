@@ -121,31 +121,6 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 
     /**
      * update the cache using the given statuses
-     * @param statuses
- 	 * @param rule the scheduling rule to use when running this operation
-     */
-    protected List updateCache(final LocalResourceStatus[] statuses, ISchedulingRule rule) throws CoreException {
-    	final List result = new ArrayList(statuses.length);
-    	if (ResourcesPlugin.getWorkspace().isTreeLocked())
-    	{
-            for (int i = 0; i < statuses.length;i++) {        	
-            	result.add(updateCache(statuses[i]));
-            }   		
-    	}
-    	else
-    	{
-    		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-		        for (int i = 0; i < statuses.length;i++) {        	
-		        	result.add(updateCache(statuses[i]));
-		        }
-			}}, rule, IWorkspace.AVOID_UPDATE, null);   		
-    	}
-        return result;
-    }
-
-    /**
-     * update the cache using the given statuses
      * @param status
      * @param workspaceRoot
      */
@@ -266,21 +241,6 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
  	 * @param rule the scheduling rule to use when running this operation
      */
     public void setStatuses(ISVNStatus[] statuses, ISchedulingRule rule) throws SVNException {
-    	try {
-			updateCache(statuses, rule);
-		} catch (CoreException e) {
-			throw SVNException.wrapException(e);
-		}   		
-    }
-
-    /**
-     * The cache manager handles itself the status retrieving. However this method can
-     * be used to update the statuses of some resources  
-     * 
-     * @param statuses
- 	 * @param rule the scheduling rule to use when running this operation
-     */
-    public void setStatuses(LocalResourceStatus[] statuses, ISchedulingRule rule) throws SVNException {
     	try {
 			updateCache(statuses, rule);
 		} catch (CoreException e) {

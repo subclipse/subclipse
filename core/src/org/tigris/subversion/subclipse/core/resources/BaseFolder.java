@@ -106,7 +106,7 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
 		try {
             GetStatusCommand c = new GetStatusCommand(localResourceStatus.getRepository(), localResourceStatus.getResource(), false, true);
             c.run(monitor);
-            LocalResourceStatus[] statuses = c.getStatuses();
+            LocalResourceStatus[] statuses = c.getLocalResourceStatuses();
             List baseChildren = new ArrayList(statuses.length);
 
             for (int i = 0; i < statuses.length; i++) {

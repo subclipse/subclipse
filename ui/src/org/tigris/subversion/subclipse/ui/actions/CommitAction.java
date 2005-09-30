@@ -20,26 +20,24 @@ import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.window.Window;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
-import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.CommitDialog;
 import org.tigris.subversion.subclipse.ui.operations.CommitOperation;
-import org.tigris.subversion.subclipse.ui.repository.RepositoryManager;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNStatusUtils;
 
 /**
  * Action for checking in files to a subversion provider
@@ -49,13 +47,13 @@ import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
  * and committed.
  */
 public class CommitAction extends WorkspaceAction {
-    private String commitComment;
-    private IResource[] resourcesToCommit;
-    private String url;
-    private boolean unaddedResources;
-    private boolean commit;
-    private boolean keepLocks;
-    private IResource[] selectedResources;
+	protected String commitComment;
+    protected IResource[] resourcesToCommit;
+    protected String url;
+    protected boolean hasUnaddedResources;
+    protected boolean commit;
+    protected boolean keepLocks;
+    protected IResource[] selectedResources;
 	
 	/*
      * get non added resources and prompts for resources to be added
@@ -66,8 +64,7 @@ public class CommitAction extends WorkspaceAction {
 	 */
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		final IResource[] resources = getSelectedResources();
-		final RepositoryManager manager = SVNUIPlugin.getPlugin().getRepositoryManager();
-		final IResource[][] resourcesToBeAdded = new IResource[][] { null };
+	    final List resourcesToBeAdded = new ArrayList();
 		run(new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
@@ -86,14 +83,11 @@ public class CommitAction extends WorkspaceAction {
 				    // if commit was not canceled, create a list of any
 				    // unversioned resources that were selected.
 					if (commit) {
-					    List toBeAddedList = new ArrayList();
 					    for (int i = 0; i < resourcesToCommit.length; i++) {
 					        IResource resource = resourcesToCommit[i];
 					        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-					        if (!svnResource.isManaged()) toBeAddedList.add(resource);
+					        if (!svnResource.isManaged()) resourcesToBeAdded.add(resource);
 					    }
-					    resourcesToBeAdded[0] = new IResource[toBeAddedList.size()];
-					    toBeAddedList.toArray(resourcesToBeAdded[0]);					   
 					}
 				} catch (TeamException e) {
 					throw new InvocationTargetException(e);
@@ -105,18 +99,18 @@ public class CommitAction extends WorkspaceAction {
 			return; // user canceled
 		}
 		
-		new CommitOperation(getTargetPart(), resources, resourcesToBeAdded[0], resourcesToCommit, commitComment, keepLocks).run();
+		new CommitOperation(getTargetPart(), resources, 
+				(IResource[]) resourcesToBeAdded.toArray(new IResource[resourcesToBeAdded.size()]), 
+				resourcesToCommit, commitComment, keepLocks).run();
 	}
 	
 	/**
 	 * get the modified and unadded resources in resources parameter
 	 */	
-	private IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
-	    IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+	protected IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
 	    final List modified = new ArrayList();
 	    List unversionedFolders = new ArrayList();
-		final SVNException[] exception = new SVNException[] { null };		
-		unaddedResources = false;
+		hasUnaddedResources = false;
 	    for (int i = 0; i < resources.length; i++) {
 			 IResource resource = resources[i];
 			 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
@@ -130,19 +124,16 @@ public class CommitAction extends WorkspaceAction {
 			 // get adds, deletes, updates and property updates.
 			 GetStatusCommand command = new GetStatusCommand(svnResource, true, false);
 			 command.run(iProgressMonitor);
-			 LocalResourceStatus[] statuses = command.getStatuses();
+			 ISVNStatus[] statuses = command.getStatuses();
 			 for (int j = 0; j < statuses.length; j++) {
-			     if ((!statuses[j].isManaged() && !statuses[j].isIgnored()) ||
-			     		statuses[j].isTextModified() || statuses[j].isAdded() ||
-						statuses[j].isDeleted() || statuses[j].isReplaced() || statuses[j].isPropModified() ||
-						(statuses[j].isTextConflicted() || statuses[j].isPropConflicted())) {
-			         IResource currentResource = statuses[j].getResource();
+			     if (SVNStatusUtils.isReadyForCommit(statuses[i])) {
+			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
 			         if (currentResource != null) {
 			             ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
 			             if (!localResource.isIgnored()) {
-			                 if (!statuses[j].isManaged()) {
-			                 	unaddedResources = true;
-			                 	if (currentResource.getType() != IResource.FILE && !isSymLink(currentResource))
+			                 if (!SVNStatusUtils.isManaged(statuses[j])) {
+			                 	hasUnaddedResources = true;
+			                 	if ((currentResource.getType() != IResource.FILE) && !isSymLink(currentResource))
 			                 		unversionedFolders.add(currentResource);
 			                 	else
 					                modified.add(currentResource);
@@ -170,13 +161,13 @@ public class CommitAction extends WorkspaceAction {
 	       if (!MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.tag"))) //$NON-NLS-1$ //$NON-NLS-2$
 	           return false;	       
 	   }
-	   CommitDialog dialog = new CommitDialog(getShell(), modifiedResources, url, unaddedResources, projectProperties);
-	   boolean commit = (dialog.open() == CommitDialog.OK);
+	   CommitDialog dialog = new CommitDialog(getShell(), modifiedResources, url, hasUnaddedResources, projectProperties);
+	   boolean commitOK = (dialog.open() == Window.OK);
 	   url = null;
 	   commitComment = dialog.getComment();
 	   resourcesToCommit = dialog.getSelectedResources();
 	   keepLocks = dialog.isKeepLocks();
-	   return commit;
+	   return commitOK;
 	}
 
 	private boolean onTagPath(IResource[] modifiedResources) throws SVNException {
@@ -227,8 +218,8 @@ public class CommitAction extends WorkspaceAction {
 			    // visit each resource deeply
 			    try {
 				    resource.accept(new IResourceVisitor() {
-					public boolean visit(IResource resource) {
-						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+					public boolean visit(IResource aResource) {
+						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(aResource);
 						// skip ignored resources and their children
 						try {
 							if (svnResource.isIgnored())
@@ -236,14 +227,14 @@ public class CommitAction extends WorkspaceAction {
 							// visit the children of shared resources
 							if (svnResource.isManaged())
 								return true;
-							if ((resource.getType() == IResource.FOLDER) && isSymLink(resource)) // don't traverse into symlink folders
+							if ((aResource.getType() == IResource.FOLDER) && isSymLink(aResource)) // don't traverse into symlink folders
 								return false;
 						} catch (SVNException e) {
 							exception[0] = e;
 						}
 						// file/folder is unshared so record it
-						unadded.add(resource);
-						return resource.getType() == IResource.FOLDER;
+						unadded.add(aResource);
+						return aResource.getType() == IResource.FOLDER;
 					}
 				}, IResource.DEPTH_INFINITE, false /* include phantoms */);
 			    } catch (CoreException e) {
@@ -252,11 +243,11 @@ public class CommitAction extends WorkspaceAction {
 			    if (exception[0] != null) throw exception[0];
 	        }
 		}
-		if (unadded.size() > 0) unaddedResources = true;
+		if (unadded.size() > 0) hasUnaddedResources = true;
 		return (IResource[]) unadded.toArray(new IResource[unadded.size()]);
 	}
 	
-	private boolean isSymLink(IResource resource) {
+	protected boolean isSymLink(IResource resource) {
 		File file = resource.getLocation().toFile();
 	    try {
 	    	if (!file.exists())

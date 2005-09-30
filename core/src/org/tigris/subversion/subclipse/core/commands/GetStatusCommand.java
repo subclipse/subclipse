@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
@@ -28,7 +27,7 @@ public class GetStatusCommand implements ISVNCommand {
     private IResource resource;
     private boolean descend = true;
     private boolean getAll = true;
-    private LocalResourceStatus[] statuses;
+    private ISVNStatus[] svnStatuses;
     
     public GetStatusCommand(ISVNLocalResource svnResource, boolean descend, boolean getAll) {
     	this.repository = svnResource.getRepository();
@@ -48,25 +47,18 @@ public class GetStatusCommand implements ISVNCommand {
      * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void run(IProgressMonitor monitor) throws SVNException {
-        ISVNStatus[] svnStatuses = null;
         ISVNClientAdapter svnClient = repository.getSVNClient();
         try { 
             svnStatuses = svnClient.getStatus(resource.getLocation().toFile(), descend, getAll);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         }
-        
-        statuses = convert(svnStatuses);
-
-        // we calculated the statuses of some resources. We update the cache manager
-        // so that it does not have to redo the status retrieving itself
-        SVNProviderPlugin.getPlugin().getStatusCacheManager().setStatuses(statuses, resource);
     }
 
-    private LocalResourceStatus[] convert(ISVNStatus[] svnStatuses) {
-        LocalResourceStatus[] localStatuses = new LocalResourceStatus[svnStatuses.length];
-        for (int i = 0; i < svnStatuses.length;i++) {
-            localStatuses[i] = new LocalResourceStatus(svnStatuses[i]);
+    private LocalResourceStatus[] convert(ISVNStatus[] statuses) {
+        LocalResourceStatus[] localStatuses = new LocalResourceStatus[statuses.length];
+        for (int i = 0; i < statuses.length;i++) {
+            localStatuses[i] = new LocalResourceStatus(statuses[i]);
         }
         return localStatuses;
     }
@@ -75,7 +67,15 @@ public class GetStatusCommand implements ISVNCommand {
      * get the results
      * @return
      */
-    public LocalResourceStatus[] getStatuses() {
-        return statuses;
+    public ISVNStatus[] getStatuses() {
+        return svnStatuses;
+    } 
+
+    /**
+     * get the results
+     * @return
+     */
+    public LocalResourceStatus[] getLocalResourceStatuses() {
+        return convert(svnStatuses);
     }    
 }

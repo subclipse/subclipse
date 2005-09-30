@@ -618,7 +618,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
     		return null;
         GetStatusCommand command = new GetStatusCommand(SVNWorkspaceRoot.getSVNResourceFor(container), true, true);
         command.run(null);
-        return command.getStatuses();
+        return command.getLocalResourceStatuses();
     }
 
     

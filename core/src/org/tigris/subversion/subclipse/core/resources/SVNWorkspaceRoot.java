@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -46,7 +47,9 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.core.commands.ShareProjectCommand;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNConstants;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -349,5 +352,126 @@ public class SVNWorkspaceRoot {
 		ResourceInfo resourceInfo = ((Workspace) ResourcesPlugin.getWorkspace()).getResourceInfo(aResourcePath, true, false);
 		return (resourceInfo != null) ? resourceInfo.getType() : 0;
 	}
+	
+    /**
+     * Gets the resource to which the <code>status</code> is corresponding to.
+     * Use either ResourceInfo.getType() or getNodeKind() to determine the proper kind of resource.
+     * The resource does not need to exists (yet)
+     * @return IResource
+     */
+    public static IResource getResourceFor(ResourceStatus status) throws SVNException
+    {
+    	if (status.path == null) return null;
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IPath resourcePath = pathForLocation(status.getPath());
+		if (resourcePath == null) 
+		{
+			throw new SVNException("An (un?)expected error has occured! Please report to users@subclipse.tigris.org ! pathForLocation(" 
+				+ status.getPathString() +") is null ! Url: " + status.getUrlString() + " Projects: " + ResourcesPlugin.getWorkspace().getRoot().getProjects());
+		}
+		int kind = getResourceType(resourcePath);			
+
+		if (kind == IResource.FILE)
+		{
+			return root.getFile(resourcePath);
+		}
+		else if(kind == IResource.FOLDER)
+		{
+			return root.getFolder(resourcePath);
+		}
+		else if (kind == IResource.PROJECT)
+		{
+			return root.getProject(resourcePath.segment(0));
+		}
+		else if (kind == IResource.ROOT)
+		{
+			return root;
+		}
+		else if (status.getNodeKind() == SVNNodeKind.FILE)
+		{
+			return root.getFile(resourcePath);
+		}
+		else
+		{
+			if (resourcePath.isRoot())
+			{
+				return root;
+			}
+			else if (resourcePath.segmentCount() == 1)
+			{
+				return root.getProject(resourcePath.segment(0));
+			}
+		}
+//        if (this.getNodeKind() == SVNNodeKind.UNKNOWN) {
+//        	File file = this.getPath().toFile();
+//        	if (file.isDirectory())
+//        		resource = workspaceRoot.getContainerForLocation(pathEclipse);
+//        	else
+//        		resource = workspaceRoot.getFileForLocation(pathEclipse);
+//        }
+
+		return root.getFolder(resourcePath);
+    }
+
+    /**
+     * Gets the resource to which the <code>status</code> is corresponding to.
+     * Use either ResourceInfo.getType() or getNodeKind() to determine the proper kind of resource.
+     * The resource does not need to exists (yet)
+     * @return IResource
+     */
+    public static IResource getResourceFor(ISVNStatus status) throws SVNException
+    {
+    	if (status.getPath() == null) return null;
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IPath resourcePath = pathForLocation(new Path(status.getPath()));
+		if (resourcePath == null) 
+		{
+			throw new SVNException("An (un?)expected error has occured! Please report to users@subclipse.tigris.org ! pathForLocation(" 
+				+ status.getPath() +") is null ! Url: " + status.getUrl() + " Projects: " + ResourcesPlugin.getWorkspace().getRoot().getProjects());
+		}
+		int kind = getResourceType(resourcePath);			
+
+		if (kind == IResource.FILE)
+		{
+			return root.getFile(resourcePath);
+		}
+		else if(kind == IResource.FOLDER)
+		{
+			return root.getFolder(resourcePath);
+		}
+		else if (kind == IResource.PROJECT)
+		{
+			return root.getProject(resourcePath.segment(0));
+		}
+		else if (kind == IResource.ROOT)
+		{
+			return root;
+		}
+		else if (status.getNodeKind() == SVNNodeKind.FILE)
+		{
+			return root.getFile(resourcePath);
+		}
+		else
+		{
+			if (resourcePath.isRoot())
+			{
+				return root;
+			}
+			else if (resourcePath.segmentCount() == 1)
+			{
+				return root.getProject(resourcePath.segment(0));
+			}
+		}
+//        if (this.getNodeKind() == SVNNodeKind.UNKNOWN) {
+//        	File file = this.getPath().toFile();
+//        	if (file.isDirectory())
+//        		resource = workspaceRoot.getContainerForLocation(pathEclipse);
+//        	else
+//        		resource = workspaceRoot.getFileForLocation(pathEclipse);
+//        }
+
+		return root.getFolder(resourcePath);
+    }
+
 }
 
