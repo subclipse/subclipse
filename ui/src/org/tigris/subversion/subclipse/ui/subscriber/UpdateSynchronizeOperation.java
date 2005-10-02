@@ -12,7 +12,8 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -92,71 +93,41 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 		//The resources to be updated are factorized and sorted first.
 		//They are grouped by revision numbers (mostly necessary for svn:externals)
 		//They are sorted ascending or descending for additions res. deletions.
-		List updateRuns = null;
-		updateRuns = getAddedAndChangedResources(set);
+		Collection updateRuns = getToBeUpdatedResources(set);
 		for (Iterator it = updateRuns.iterator(); it.hasNext();) {
 			UpdateResourcesSet element = (UpdateResourcesSet) it.next();
-		    new UpdateOperation(getPart(), element.getResources(), element.getRevision(), false).run(progress);			
-		}
-		updateRuns = getDeletedResources(set);
-		for (Iterator it = updateRuns.iterator(); it.hasNext();) {
-			UpdateResourcesSet element = (UpdateResourcesSet) it.next();
-		    new UpdateOperation(getPart(), element.getResources(), element.getRevision(), false).run(progress);			
+		    new UpdateOperation(getPart(), element.getRecursiveResourceUpdates(), element.getRevision(), true).run(progress);
+		    new UpdateOperation(getPart(), element.getNonRecursiveResourceUpdates(), element.getRevision(), false).run(progress);
 		}
 	}
 	
 	/**
-	 * Collect the "not to be deleted" incoming changes.
-	 * Sort them ascending, so incoming dirs are created soon than incoming files from within.
+	 * Collect and group incoming changes.
+	 * Group them to three groups - deletions, additions and changes.
+	 * Sort deletion descending, so incoming dir deletions are deleted only after the files from within are deleted.
+	 * Sort additions ascending, so incoming dirs are created soon than incoming files from within.
+	 * Sort order of changes is irrelevant (ascending).
 	 * Groups them by the repositoryRevisions
 	 * @param set
-	 * @return List with UpdateResourcesSet objects.
+	 * @return List with UpdateResourcesSet objects ordered by revision numbers.
 	 */
-	private List getAddedAndChangedResources(SyncInfoSet set)
+	private Collection getToBeUpdatedResources(SyncInfoSet set)
 	{
 		SyncInfo[] infos = set.getSyncInfos();
 		Map resourceGroups = new HashMap();
 		for (int i = 0; i < infos.length; i++) {
 			SyncInfo info = infos[i];
-			if (SyncInfo.getChange(info.getKind()) != SyncInfo.DELETION)
-			{
-				List resources = (List) resourceGroups.get(((SVNStatusSyncInfo) info).getRepositoryRevision());
-				if (resources == null) {
-					resources = new ArrayList();
-					resourceGroups.put(((SVNStatusSyncInfo) info).getRepositoryRevision(), resources);
-				}				
-				resources.add(info.getLocal());
-			}
+			SVNRevision revision = ((SVNStatusSyncInfo) info).getRepositoryRevision();
+			UpdateResourcesSet resourceSet = (UpdateResourcesSet) resourceGroups.get(revision);
+			if (resourceSet == null) {
+				resourceSet = new UpdateResourcesSet(revision);
+				resourceGroups.put(revision, resourceSet);
+			}				
+			resourceSet.addResource(info);
 		}
-		return UpdateResourcesSet.convertFactorizingMap(resourceGroups, true);
+		return resourceGroups.values();
 	}
 
-	/**
-	 * Collect the "to be deleted" incoming changes.
-	 * Sort them descending, so incoming dir deletions are deleted only after the files from within are deleted.
-	 * Groups them by the repositoryRevisions
-	 * @param set
-	 * @return
-	 */
-	private List getDeletedResources(SyncInfoSet set)
-	{
-		SyncInfo[] infos = set.getSyncInfos();
-		Map resourceGroups = new HashMap();
-		for (int i = 0; i < infos.length; i++) {
-			SyncInfo info = infos[i];
-			if (SyncInfo.getChange(info.getKind()) == SyncInfo.DELETION)
-			{
-				List resources = (List) resourceGroups.get(((SVNStatusSyncInfo) info).getRepositoryRevision());
-				if (resources == null) {
-					resources = new ArrayList();
-					resourceGroups.put(((SVNStatusSyncInfo) info).getRepositoryRevision(), resources);
-				}				
-				resources.add(info.getLocal());
-			}
-		}
-		return UpdateResourcesSet.convertFactorizingMap(resourceGroups, false);
-	}
-	
 	/* (non-Javadoc)
      * @see org.eclipse.team.ui.TeamOperation#canRunAsJob()
      */
@@ -164,34 +135,119 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
         return true;
     }
     
+    /**
+     * Helper class for grouping storing and sorting resources scheduled for update 
+     */
     private static class UpdateResourcesSet {
-    	private SVNRevision revision = null;
-    	private IResource[] resources = null;
-    	
-    	protected static List convertFactorizingMap(Map resourceGroups, final boolean ascending)
+    	private SVNRevision revision = null;   	
+    	private List addedResources = new ArrayList();
+    	private List changedResources = new ArrayList();
+    	private List deletedFiles = new ArrayList();
+    	private List deletedDirectories = new ArrayList();
+
+    	protected UpdateResourcesSet(final SVNRevision revision)
     	{
-    		List result = new ArrayList(resourceGroups.size());
-    		for (Iterator it = resourceGroups.entrySet().iterator(); it.hasNext();) {
-				Map.Entry entry = (Map.Entry) it.next();
-				result.add(new UpdateResourcesSet((SVNRevision) entry.getKey(), (List) entry.getValue(), ascending));
+    		this.revision = revision;
+    	}
+
+    	protected void addResource(SyncInfo info) {
+			if (SyncInfo.getChange(info.getKind()) == SyncInfo.DELETION)
+			{
+				if (IResource.FOLDER == info.getLocal().getType()) {
+					deletedDirectories.add(info.getLocal());	
+				} else {
+					deletedFiles.add(info.getLocal());
+				}
+				
 			}
-    		return result;
+			else if (SyncInfo.getChange(info.getKind()) == SyncInfo.ADDITION)
+			{
+				addedResources.add(info.getLocal());
+			}
+			else
+			{
+				changedResources.add(info.getLocal());
+			}
     	}
-    	
-    	protected UpdateResourcesSet(final SVNRevision revision, final List resourcesList, final boolean ascending)
+
+    	/**
+    	 * Sort additions ascending, so incoming dirs are created soon than incoming files from within.
+    	 * @return List of resources to be deleted.
+    	 */
+    	private List getAddedResources()
     	{
-    		this.revision = revision;    		
-    		this.resources = (IResource[]) resourcesList.toArray(new IResource[resourcesList.size()]);
-            Arrays.sort(this.resources, new Comparator() {
+    		Collections.sort(addedResources, new Comparator() {
     			public int compare(Object o1, Object o2) {
-    				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString())
-    				* ((ascending) ? 1 : -1);
+    				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString());
     			}});
+    		return addedResources;
     	}
-    	
-		protected IResource[] getResources() {
-			return resources;
+
+    	/**
+    	 * Sort order of changes is irrelevant (ascending).
+    	 * @return List of resources to be updated
+    	 */
+    	private List getChangedResources()
+    	{
+    		Collections.sort(changedResources, new Comparator() {
+    			public int compare(Object o1, Object o2) {
+    				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString());
+    			}});
+    		return changedResources;
+    	}
+
+    	/**
+    	 * Sort deletion descending.
+    	 * Originally thought that incoming dir deletions are deleted only after the files from within are deleted.
+    	 * However directories are not deleted this way anymore. Directory deletions have to be performed always
+    	 * in with recursive flag.
+    	 * @return List of resources to be deleted
+    	 */
+    	private List getDeletedFiles()
+    	{
+    		Collections.sort(deletedFiles, new Comparator() {
+    			public int compare(Object o1, Object o2) {
+    				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString()) * -1;
+    			}});
+    		return deletedFiles;
+    	}
+
+    	/**
+    	 * Sort deletion descending.
+    	 * @return List of directories to be deleted
+    	 */    	
+    	private List getDeletedDirectories()
+    	{
+    		Collections.sort(deletedDirectories, new Comparator() {
+    			public int compare(Object o1, Object o2) {
+    				return ((IResource) o1).getFullPath().toString().compareTo(((IResource) o2).getFullPath().toString()) * -1;
+    			}});
+    		return deletedDirectories;
+    	}
+
+    	/**
+    	 * Get the resources to be updated non-recursively.
+    	 * They are sorted according to their nature.
+    	 * @return
+    	 */
+		protected IResource[] getNonRecursiveResourceUpdates() {
+			List allResources = new ArrayList();
+			allResources.addAll(getDeletedFiles());			
+			allResources.addAll(getAddedResources());			
+			allResources.addAll(getChangedResources());			
+			return (IResource[]) allResources.toArray(new IResource[allResources.size()]);
 		}
+
+    	/**
+    	 * Get the resources to be updated recursively.
+    	 * Actually the directory deletions.
+    	 * @return
+    	 */
+		protected IResource[] getRecursiveResourceUpdates() {
+			List allResources = getDeletedDirectories();
+			return (IResource[]) allResources.toArray(new IResource[allResources.size()]);
+		}
+
 		protected SVNRevision getRevision() {
 			return revision;
 		}
