@@ -101,21 +101,21 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      */
     protected List updateCache(final ISVNStatus[] statuses, ISchedulingRule rule) throws CoreException {
     	final List result = new ArrayList(statuses.length);
-    	if (ResourcesPlugin.getWorkspace().isTreeLocked())
-    	{
+//    	if (ResourcesPlugin.getWorkspace().isTreeLocked())
+//    	{
             for (int i = 0; i < statuses.length;i++) {        	
             	result.add(updateCache(statuses[i]));
             }    		
-    	}
-    	else
-    	{
-    		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-		        for (int i = 0; i < statuses.length;i++) {        	
-		        	result.add(updateCache(statuses[i]));
-		        }
-			}}, rule, IWorkspace.AVOID_UPDATE, null);    		
-    	}
+//    	}
+//    	else
+//    	{
+//    		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+//			public void run(IProgressMonitor monitor) throws CoreException {
+//		        for (int i = 0; i < statuses.length;i++) {        	
+//		        	result.add(updateCache(statuses[i]));
+//		        }
+//			}}, rule, IWorkspace.AVOID_UPDATE, null);    		
+//    	}
         return result;
     }
 
