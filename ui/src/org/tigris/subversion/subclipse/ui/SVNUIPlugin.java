@@ -475,4 +475,12 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 				}
 		}
 	}
+	
+	/**
+	 * Gets the one and only SVN console managed by this plugin
+	 * @return the SVN console
+	 */
+	public SVNOutputConsole getConsole() {
+		return console;
+	}
 }

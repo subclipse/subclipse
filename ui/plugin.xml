@@ -899,6 +899,23 @@ tsvn:lockmsgminsize
 Minimum size in characters a lock message must have before a lock is allowed.
 		</description>
       </svnPropertyTypes>                      
+   </extension>
+   <extension
+         point="org.eclipse.ui.console.consoleFactories">
+      <consoleFactory
+            class="org.tigris.subversion.subclipse.ui.console.SVNOutputConsoleFactory"
+            icon="/icons/full/cview16/console_view.gif"
+            label="%Console.name"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.console.consolePageParticipants">
+      <consolePageParticipant
+            class="org.tigris.subversion.subclipse.ui.console.SVNConsolePageParticipant"
+            id="org.tigris.subversion.subclipse.ui.console.SVNConsolePageParticipant">
+         <enablement>
+            <instanceof value="org.tigris.subversion.subclipse.ui.console.SVNOutputConsole"/>
+         </enablement>
+      </consolePageParticipant>
    </extension>	  
 
 </plugin>

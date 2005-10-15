@@ -62,7 +62,7 @@ public class ConsoleDocument {
             lines = new String[BUFFER_SIZE];
             lineTypes = new int[BUFFER_SIZE];
         }
-        lines[writeIndex] = line; //$NON-NLS-1$
+        lines[writeIndex] = line;
         lineTypes[writeIndex] = type;   
         
         if(++writeIndex >= BUFFER_SIZE) {
