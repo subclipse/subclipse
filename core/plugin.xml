@@ -3,7 +3,7 @@
 <plugin
    id="org.tigris.subversion.subclipse.core"
    name="%pluginName"
-   version="0.9.34"
+   version="0.9.35"
    provider-name="%providerName"
    class="org.tigris.subversion.subclipse.core.SVNProviderPlugin">
 
