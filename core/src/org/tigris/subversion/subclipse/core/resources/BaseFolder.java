@@ -125,7 +125,7 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
 //                }
                 
                 // The folders itself is not its own child, all direct children are
-                if (!statuses[i].getUrlString().equals(localResourceStatus.getUrlString()))
+                if (statuses[i].getUrlString() != null && !statuses[i].getUrlString().equals(localResourceStatus.getUrlString()))
                 {
                 	baseChildren.add(BaseResource.from(statuses[i]));
                 }
