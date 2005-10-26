@@ -126,7 +126,7 @@ public class CommitAction extends WorkspaceAction {
 			 command.run(iProgressMonitor);
 			 ISVNStatus[] statuses = command.getStatuses();
 			 for (int j = 0; j < statuses.length; j++) {
-			     if (SVNStatusUtils.isReadyForCommit(statuses[i])) {
+			     if (SVNStatusUtils.isReadyForCommit(statuses[j])) {
 			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
 			         if (currentResource != null) {
 			             ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
