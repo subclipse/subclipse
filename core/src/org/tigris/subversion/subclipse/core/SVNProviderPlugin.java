@@ -191,13 +191,6 @@ public class SVNProviderPlugin extends Plugin {
         svnClientManager.shutdown(null);
 	}
 
-	/**
-	 * @see org.eclipse.core.runtime.Plugin#initializeDefaultPluginPreferences()
-	 */
-	protected void initializeDefaultPluginPreferences() {
-	    getPluginPreferences().setDefault(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE, true);
-	}
-
 	private static List listeners = new ArrayList();
 
 	/*

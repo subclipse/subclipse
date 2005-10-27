@@ -200,6 +200,11 @@
             pattern="*.working">
       </ignore>
    </extension>
+   
+   <extension point="org.eclipse.core.runtime.preferences">
+   		<initializer class="org.tigris.subversion.subclipse.core.PreferenceInitializer"/>
+   </extension>   
+   
    <extension
          point="org.tigris.subversion.subclipse.core.svnPropertyTypes">
       <svnPropertyTypes
