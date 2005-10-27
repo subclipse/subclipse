@@ -1,30 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
-<plugin
-   id="org.tigris.subversion.subclipse.core"
-   name="%pluginName"
-   version="0.9.36"
-   provider-name="%providerName"
-   class="org.tigris.subversion.subclipse.core.SVNProviderPlugin">
+<plugin>
 
-   <runtime>
-      <library name="SVNPluginCore.jar">
-         <export name="*"/>
-      </library>
-      <library name="lib/svnClientAdapter.jar">
-         <export name="*"/>
-      </library>
-      <library name="lib/svnjavahl.jar"/>
-      <library name="lib/ganymed.jar"/>
-      <library name="lib/javasvn.jar"/>
-   </runtime>
-
-   <requires>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.team.core"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.osgi"/>
-   </requires>
    <extension-point id="svnPropertyTypes" name="SVN Property Type Definitions" schema="schema/svnPropertyTypes.exsd"/>
 
    <extension
