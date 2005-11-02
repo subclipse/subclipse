@@ -72,7 +72,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariant;
+import org.eclipse.team.ui.synchronize.SyncInfoCompareInput;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -101,6 +103,7 @@ import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -1007,22 +1010,20 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
         
 		IEditorInput input = editor.getEditorInput();
 		// Handle compare editors opened from the Synchronize View
-		// TODO uncommnet when there is sync support        
-		//        if (input instanceof SyncInfoCompareInput) {
-		//            SyncInfoCompareInput syncInput = (SyncInfoCompareInput) input;
-		//            SyncInfo info = syncInput.getSyncInfo();
-		//            if(info instanceof SVNSyncInfo && info.getLocal().getType() == IResource.FILE) {
-		//                ISVNRemoteFile remote = (ISVNRemoteFile)info.getRemote();
-		//                ISVNRemoteFile base = (ISVNRemoteFile)info.getBase();
-		//                if(remote != null) {
-		//                    showHistory(remote, false);
-		//                } else if(base != null) {
-		//                    showHistory(base, false);
-		//                }
-		//            }
-		//        // Handle editors opened on remote files
-		//        } else
-		if(input instanceof RemoteFileEditorInput) {
+		 		 if (input instanceof SyncInfoCompareInput) {
+        		 SyncInfoCompareInput syncInput = (SyncInfoCompareInput)input;
+            SyncInfo info = syncInput.getSyncInfo();
+            if(info instanceof SVNStatusSyncInfo &&info.getLocal().getType() == IResource.FILE) {
+                ISVNRemoteFile remote =(ISVNRemoteFile)info.getRemote();
+                ISVNRemoteFile base = (ISVNRemoteFile)info.getBase();
+                if(remote != null) {
+                    showHistory(remote, false);
+                } else if(base != null) {
+                    showHistory(base, false);
+                }
+            }
+        // Handle editors opened on remote files
+        } else if(input instanceof RemoteFileEditorInput) {
 			ISVNRemoteFile remote = ((RemoteFileEditorInput)input).getSVNRemoteFile();
 			if(remote != null) {
 				showHistory(remote, false);
