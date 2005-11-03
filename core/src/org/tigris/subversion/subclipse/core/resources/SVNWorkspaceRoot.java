@@ -48,7 +48,6 @@ import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.core.commands.ShareProjectCommand;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
-import org.tigris.subversion.svnclientadapter.SVNConstants;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -317,7 +316,7 @@ public class SVNWorkspaceRoot {
 	 */
 	public static boolean isSvnMetaResource(IResource resource)
 	{
-		if ((resource.getType() == IResource.FOLDER) && (resource.getName().equals(SVNConstants.SVN_DIRNAME)))
+		if ((resource.getType() == IResource.FOLDER) && (SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())))
 			return true;
 		
         IResource parent = resource.getParent();

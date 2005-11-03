@@ -26,10 +26,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.util.ReentrantLock;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
-import org.tigris.subversion.svnclientadapter.SVNConstants;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
@@ -105,7 +105,7 @@ public class OperationManager implements ISVNNotifyListener {
                         // be refreshed later (@see SyncFileChangeListener)
                         resource.refreshLocal(IResource.DEPTH_INFINITE,new NullProgressMonitor());
                         if(Policy.DEBUG_METAFILE_CHANGES) {
-                            System.out.println("[svn]" + SVNConstants.SVN_DIRNAME + " dir refreshed : " + resource.getFullPath()); //$NON-NLS-1$
+                            System.out.println("[svn]" + SVNProviderPlugin.getPlugin().getAdminDirectoryName() + " dir refreshed : " + resource.getFullPath()); //$NON-NLS-1$
                         }
                     } catch (CoreException e) {
                         throw SVNException.wrapException(e);
@@ -127,11 +127,11 @@ public class OperationManager implements ISVNNotifyListener {
 
         if (kind == SVNNodeKind.UNKNOWN)  { // delete, revert 
             IPath pathEntries = pathEclipse.removeLastSegments(1).append(
-                    SVNConstants.SVN_DIRNAME);
+            		SVNProviderPlugin.getPlugin().getAdminDirectoryName());
             IResource entries = workspaceRoot.getContainerForLocation(pathEntries);
             if (entries == null) //probably the pathEclipse was project itself
             {
-            	entries = workspaceRoot.getProject(pathEclipse.lastSegment()).getFolder(new Path(SVNConstants.SVN_DIRNAME));
+            	entries = workspaceRoot.getProject(pathEclipse.lastSegment()).getFolder(new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
             }
             changedResources.add(entries);
         }
@@ -148,11 +148,11 @@ public class OperationManager implements ISVNNotifyListener {
 					if (resource.getProject() != resource) {
 						// if resource is a project. We can't refresh ../.svn
 						svnDir = resource.getParent().getFolder(
-								new Path(SVNConstants.SVN_DIRNAME));
+								new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
 						changedResources.add(svnDir);
 					}
                     svnDir = ((IContainer) resource).getFolder(new Path(
-                            SVNConstants.SVN_DIRNAME));
+                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
                     changedResources.add(svnDir);
 				}
 			} else if (kind == SVNNodeKind.FILE) {
@@ -160,7 +160,7 @@ public class OperationManager implements ISVNNotifyListener {
 
 				if (resource != null) {
 					svnDir = resource.getParent().getFolder(
-							new Path(SVNConstants.SVN_DIRNAME));
+							new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
 					changedResources.add(svnDir);
 				}
 			}

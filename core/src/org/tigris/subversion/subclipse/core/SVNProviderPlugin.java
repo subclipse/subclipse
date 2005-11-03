@@ -84,6 +84,8 @@ public class SVNProviderPlugin extends Plugin {
 	private ISimpleDialogsHelper simpleDialogsHelper;
 	
 	private ISVNFileModificationValidatorPrompt svnFileModificationValidatorPrompt;
+	
+	private String dirname;
     
 	/**
 	 * This constructor required by the bundle loader (calls newInstance())
@@ -475,5 +477,31 @@ public class SVNProviderPlugin extends Plugin {
     public void setSvnFileModificationValidatorPrompt(
             ISVNFileModificationValidatorPrompt svnFileModificationValidatorPrompt) {
         this.svnFileModificationValidatorPrompt = svnFileModificationValidatorPrompt;
+    }
+    
+    public String getAdminDirectoryName() {
+    	if (dirname == null) {
+    		try {
+				dirname = createSVNClient().getAdminDirectoryName();
+			} catch (SVNException e) {
+				dirname = ".svn";
+			}
+    	}
+    	return dirname;
+    }
+    
+    public boolean isAdminDirectory(String name) {
+    	if (".svn".equals(name) || getAdminDirectoryName().equals(name))
+    		return true;
+    	else
+    		return false;
+//  Calling the adapter method here potentially lead to a thread problem
+//  that would make native JavaHL crash.  So I am recreating the logic
+//  internally.  This method is likely to be a lot faster so it is worth it.    	
+//    	try {
+//			return createSVNClient().isAdminDirectory(name);
+//		} catch (SVNException e) {
+//			return getAdminDirectoryName().equals(name);
+//		}
     }
 }

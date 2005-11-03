@@ -92,7 +92,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 					
 					IResource toBeNotified = null;
 										
-					if(name.equals(SVNConstants.SVN_DIRNAME)) {
+					if(SVNProviderPlugin.getPlugin().isAdminDirectory(name)) {
 						handleSVNDir((IContainer)resource, kind);
 					}
 										
@@ -183,7 +183,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 		IContainer parent = resource.getParent();		
 
 		if ((parent != null) && 
-		    (parent.getName().equals(SVNConstants.SVN_DIRNAME)) && 
+		    (SVNProviderPlugin.getPlugin().isAdminDirectory(parent.getName())) && 
 		    (parent.isTeamPrivateMember() || !parent.exists()) ) {
 			return true;
 		}
@@ -203,7 +203,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 		IContainer parent = resource.getParent();		
 		
 		if ((parent != null) && 
-			(parent.getName().equals(SVNConstants.SVN_DIRNAME)) && 
+			(SVNProviderPlugin.getPlugin().isAdminDirectory(parent.getName())) && 
 			(parent.isTeamPrivateMember() || !parent.exists()) ) {
 			return true;
 		}
@@ -231,7 +231,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 		// we then verify that grand-father is svn
 		parent = parent.getParent();
 		if ((parent != null) && 
-			(parent.getName().equals(SVNConstants.SVN_DIRNAME)) && 
+			(SVNProviderPlugin.getPlugin().isAdminDirectory(parent.getName())) && 
 			(parent.isTeamPrivateMember() || !parent.exists()) ) {
 			return true;
 		}

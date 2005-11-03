@@ -30,7 +30,6 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.AddIgnoredPatternCommand;
-import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 /**
  * Implements the ISVNLocalFolder interface on top of an instance of the
@@ -221,7 +220,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                     // Post order traversal to make sure resources are not
                     // orphaned
                     IFolder svnFolder = container.getFolder(new Path(
-                            SVNConstants.SVN_DIRNAME));
+                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
                     if (svnFolder.exists()) {
                         try {
                             svnFolder.delete(true, null);
@@ -263,7 +262,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#getStatus()
      */
     public LocalResourceStatus getStatus() throws SVNException {
-    	if (getIResource().isTeamPrivateMember() && (SVNConstants.SVN_DIRNAME.equals(getIResource().getName())))
+    	if (getIResource().isTeamPrivateMember() && (SVNProviderPlugin.getPlugin().isAdminDirectory(getIResource().getName())))
     	{
     		return LocalResourceStatus.NONE;
     	}

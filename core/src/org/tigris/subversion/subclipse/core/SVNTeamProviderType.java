@@ -35,7 +35,6 @@ import org.eclipse.team.core.RepositoryProviderType;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 
 /**
@@ -250,10 +249,10 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 			if (!isProject && container.getType() == IResource.PROJECT)
 				isProject = true;
 			
-            if (container.getName().equals(SVNConstants.SVN_DIRNAME)) { //$NON-NLS-1$
+            if (SVNProviderPlugin.getPlugin().isAdminDirectory(container.getName())) { //$NON-NLS-1$
                 svnDir = container;
             } else {
-                IResource resource = container.findMember(SVNConstants.SVN_DIRNAME); //$NON-NLS-1$
+                IResource resource = container.findMember(SVNProviderPlugin.getPlugin().getAdminDirectoryName()); //$NON-NLS-1$
                 if (resource != null && resource.getType() != IResource.FILE) {
                     svnDir = (IContainer)resource;
                 }
@@ -273,14 +272,14 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 		 		 // here, this could be due to timing issue with workspace addition, so use trusty File 
 		 		 // instead.
 		
-		 		 File svnDir = project.getLocation().append(SVNConstants.SVN_DIRNAME).toFile(); //$NON-NLS-1$
+		 		 File svnDir = project.getLocation().append(SVNProviderPlugin.getPlugin().getAdminDirectoryName()).toFile(); //$NON-NLS-1$
 		
 		if (svnDir != null && svnDir.exists() && svnDir.isDirectory()) {
 			// It's a project and has toplevel .svn directory, lets share it!
 			getAutoShareJob().share(project);
 		} else {
 			// It's a project and doesn't have .svn dir, let's see if we can add it!
-		 		 		 File parentSvnDir = project.getLocation().append("../" + SVNConstants.SVN_DIRNAME).
+		 		 		 File parentSvnDir = project.getLocation().append("../" + SVNProviderPlugin.getPlugin().getAdminDirectoryName()).
 		 		 		 		 		 toFile(); //$NON-NLS-1$
 			
 			if (parentSvnDir != null && parentSvnDir.exists()

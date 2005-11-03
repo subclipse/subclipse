@@ -87,6 +87,14 @@ public class SVNClientManager {
         }
         
         setFetchChangePathOnDemand(fetchChangePathOnDemand);
+        
+        // Initialize the admin directory name -- fixes a crash scenario with JavaHL
+        // Since the method being called internally caches the result it
+        // avoids a race condition later on, when someone runs an action like
+        // checkout that forces us to call this method for the first time
+        // in the middle of another action.  That is the theory anyway.
+        SVNProviderPlugin.getPlugin().getAdminDirectoryName();
+    
     }
     
     

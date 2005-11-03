@@ -33,7 +33,6 @@ import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.tigris.subversion.svnclientadapter.SVNConstants;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -96,7 +95,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		}
 
 		// always ignore .svn folder
-		if ((resource.getType() == IResource.FOLDER) && SVNConstants.SVN_DIRNAME.equals(getName())) { //$NON-NLS-1$
+		if ((resource.getType() == IResource.FOLDER) && SVNProviderPlugin.getPlugin().isAdminDirectory(getName())) { //$NON-NLS-1$
 			return true; 
 		}
 

@@ -35,7 +35,6 @@ import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNFileModificationValidator;
 import org.tigris.subversion.subclipse.core.resources.SVNMoveDeleteHook;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.svnclientadapter.SVNConstants;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -91,7 +90,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 					new IResourceVisitor() {
 						public boolean visit(IResource resource) throws CoreException {
 							if ((resource.getType() == IResource.FOLDER)
-									&& (resource.getName().equals(SVNConstants.SVN_DIRNAME))
+									&& (resource.getName().equals(SVNProviderPlugin.getPlugin().getAdminDirectoryName()))
 									&& (resource.isTeamPrivateMember()))
 							{
 								resource.setTeamPrivateMember(false);
@@ -115,7 +114,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 					new IResourceVisitor() {
 						public boolean visit(IResource resource) throws CoreException {
 							if ((resource.getType() == IResource.FOLDER)
-									&& (resource.getName().equals(SVNConstants.SVN_DIRNAME))
+									&& (resource.getName().equals(SVNProviderPlugin.getPlugin().getAdminDirectoryName()))
 									&& (!resource.isTeamPrivateMember()))
 							{
 								resource.setTeamPrivateMember(true);

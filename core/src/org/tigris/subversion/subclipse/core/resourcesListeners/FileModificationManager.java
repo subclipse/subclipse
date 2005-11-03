@@ -79,7 +79,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 						}
 					}
 					
-					if(resource.getType()==IResource.FOLDER && resource.getName().equals(SVNConstants.SVN_DIRNAME)) {
+					if(resource.getType()==IResource.FOLDER && SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())) {
 						if (handleSVNDir((IContainer)resource, delta.getKind()))
 							{
 								return false;
