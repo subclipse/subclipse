@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.help.WorkbenchHelp;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -68,6 +69,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 	public SVNPreferencesPage() {
 		// sort the options by display text
 		setDescription(Policy.bind("SVNPreferencePage.description")); //$NON-NLS-1$
+		SVNProviderPlugin.getPlugin().getSVNClientManager().loadAdapters();
 	}
 
 	/**

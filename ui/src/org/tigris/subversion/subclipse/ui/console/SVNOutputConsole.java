@@ -107,7 +107,7 @@ public class SVNOutputConsole extends MessageConsole implements IConsoleListener
 		document = new ConsoleDocument();
 		SVNProviderPlugin.getPlugin().setConsoleListener(SVNOutputConsole.this);
 		SVNUIPlugin.getPlugin().getPreferenceStore().addPropertyChangeListener(SVNOutputConsole.this);
-		showConsole(true);
+		showConsole(false);
 	}
 	
 	/* (non-Javadoc)
