@@ -63,23 +63,24 @@ public class SVNClientManager {
             loadAdapters();
             try {
                 this.svnClientInterface = SVNClientAdapterFactory.getPreferredSVNClientType();
-                return;
             } catch (SVNClientException e) {
                 SVNProviderPlugin.log(new TeamException(new Status(IStatus.ERROR, SVNProviderPlugin.ID, IStatus.OK, e
                         .getMessage(), e)));
+                return;
             }
-        }
-        if (JhlClientAdapterFactory.JAVAHL_CLIENT.equals(svnClientInterface))
-            loadJavaHLAdapter();
-        if (JavaSvnClientAdapterFactory.JAVASVN_CLIENT.equals(svnClientInterface))
-            loadJavaSVNAdapter();
-        if (CmdLineClientAdapterFactory.COMMANDLINE_CLIENT.equals(svnClientInterface))
-            loadCmdLineAdapter();
-        if (SVNClientAdapterFactory.isSVNClientAvailable(svnClientInterface)) {
-            this.svnClientInterface = svnClientInterface;
         } else {
-            if (this.svnClientInterface == null && SVNClientAdapterFactory.isSVNClientAvailable(JavaSvnClientAdapterFactory.JAVASVN_CLIENT))
-                this.svnClientInterface = JavaSvnClientAdapterFactory.JAVASVN_CLIENT;
+	        if (JhlClientAdapterFactory.JAVAHL_CLIENT.equals(svnClientInterface))
+	            loadJavaHLAdapter();
+	        if (JavaSvnClientAdapterFactory.JAVASVN_CLIENT.equals(svnClientInterface))
+	            loadJavaSVNAdapter();
+	        if (CmdLineClientAdapterFactory.COMMANDLINE_CLIENT.equals(svnClientInterface))
+	            loadCmdLineAdapter();
+	        if (SVNClientAdapterFactory.isSVNClientAvailable(svnClientInterface)) {
+	            this.svnClientInterface = svnClientInterface;
+	        } else {
+	            if (this.svnClientInterface == null && SVNClientAdapterFactory.isSVNClientAvailable(JavaSvnClientAdapterFactory.JAVASVN_CLIENT))
+	                this.svnClientInterface = JavaSvnClientAdapterFactory.JAVASVN_CLIENT;
+	        }
         }
         
         // Initialize the admin directory name -- fixes a crash scenario with JavaHL
