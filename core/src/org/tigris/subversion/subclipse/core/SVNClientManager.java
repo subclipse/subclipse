@@ -36,17 +36,10 @@ public class SVNClientManager {
     private boolean javasvn = false;
     private boolean cli = false;
     
-    /* (non-Javadoc)
-     * @see org.eclipse.core.internal.resources.IManager#startup(org.eclipse.core.runtime.IProgressMonitor)
-     */
     public void startup(IProgressMonitor monitor) throws CoreException {
-   
     }
     
     
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.internal.resources.IManager#shutdown(org.eclipse.core.runtime.IProgressMonitor)
-	 */
 	public void shutdown(IProgressMonitor monitor) throws CoreException {
 	}
 
@@ -59,8 +52,9 @@ public class SVNClientManager {
      */
     public void setSvnClientInterface(String svnClientInterface) {
         if (svnClientInterface == null) {
-          // if no specific interface is specified, load them all
-            loadAdapters();
+          // if no specific interface is specified, load JavaHL
+          // if JavaHL fails to load, then JavaSVN will load
+            loadJavaHLAdapter();
             try {
                 this.svnClientInterface = SVNClientAdapterFactory.getPreferredSVNClientType();
             } catch (SVNClientException e) {

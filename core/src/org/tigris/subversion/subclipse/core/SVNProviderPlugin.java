@@ -127,13 +127,6 @@ public class SVNProviderPlugin extends Plugin {
 
 	public void start(BundleContext ctxt) throws Exception {
 		super.start(ctxt);
-
-        svnClientManager = new SVNClientManager();
-        svnClientManager.startup(null);
-        
-        // load the state which includes the known repositories
-        repositories = new SVNRepositories();
-        repositories.startup();
 		
 		// register all the adapter factories
 		adapterFactories = new SVNAdapterFactories();
@@ -339,13 +332,18 @@ public class SVNProviderPlugin extends Plugin {
 	 */
 	public ISVNRepositoryLocation getRepository(String location)
 			throws SVNException {
-		return repositories.getRepository(location);
+		return getRepositories().getRepository(location);
 	}
 
 	/**
 	 * get all the known repositories
 	 */
 	public SVNRepositories getRepositories() {
+	    if (repositories == null) {
+	        // load the state which includes the known repositories
+	        repositories = new SVNRepositories();
+	        repositories.startup();
+	    }
 		return repositories;
 	}
     
@@ -357,6 +355,13 @@ public class SVNProviderPlugin extends Plugin {
     }
 
     public SVNClientManager getSVNClientManager() {
+        if (svnClientManager == null) {
+            svnClientManager = new SVNClientManager();
+            try {
+                svnClientManager.startup(null);
+            } catch (CoreException e) {
+            }
+        }
     	return svnClientManager;
     }
     
