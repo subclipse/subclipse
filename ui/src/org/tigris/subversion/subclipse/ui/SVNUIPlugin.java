@@ -15,6 +15,7 @@ package org.tigris.subversion.subclipse.ui;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
@@ -67,7 +68,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	 */
 	private RepositoryManager repositoryManager;
     
-    private ImageDescriptors imageDescriptors = new ImageDescriptors();
+    private ImageDescriptors imageDescriptors;
     
     private Preferences preferences;
 	
@@ -229,6 +230,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	public static final int LOG_OTHER_EXCEPTIONS = 8;
 	public static final int LOG_NONTEAM_EXCEPTIONS = LOG_CORE_EXCEPTIONS | LOG_OTHER_EXCEPTIONS;
 	private SVNOutputConsole console;
+    private URL baseURL;
 	
 	/**
 	 * Convenience method for showing an error dialog 
@@ -386,8 +388,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		Platform.getAdapterManager().registerAdapters(factory, ISVNRepositoryLocation.class);
 //		Platform.getAdapterManager().registerAdapters(factory, RepositoryRoot.class);
 		
-        // we initialize the image descriptors
-		imageDescriptors.initializeImages(ctxt.getBundle().getEntry("/")); //$NON-NLS-1$
+		baseURL = ctxt.getBundle().getEntry("/"); //$NON-NLS-1$
 		
         preferences = new Preferences(getPreferenceStore());
 		preferences.initializePreferences();
@@ -396,8 +397,12 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		
 //		// if the global ignores list is changed then update decorators.
 		//TeamUI.getSynchronizeManager().addSynchronizeParticipants(new ISynchronizeParticipant[]{new SVNWorkspaceSynchronizeParticipant()});
-		
-		console = new SVNOutputConsole();
+		try {
+		    console = new SVNOutputConsole();
+	    } catch (RuntimeException e) {
+	        // Don't let the console bring down the SVN UI
+	        log(IStatus.ERROR, "Errors occurred starting the SVN console", e); //$NON-NLS-1$
+	    }
 		SVNProviderPlugin.getPlugin().setSvnPromptUserPassword(new SVNPromptUserPassword());
 		SVNProviderPlugin.getPlugin().setSimpleDialogsHelper(new SimpleDialogsHelper());
 		SVNProviderPlugin.getPlugin().setSvnFileModificationValidatorPrompt(new SVNFileModificationValidatorPrompt());
@@ -438,6 +443,10 @@ public class SVNUIPlugin extends AbstractUIPlugin {
      * Returns null if there is no such image.
      */
     public ImageDescriptor getImageDescriptor(String id) {
+        if (imageDescriptors == null) {
+            imageDescriptors = new ImageDescriptors();
+            imageDescriptors.initializeImages(baseURL);
+        }
         return imageDescriptors.getImageDescriptor(id);
     }
 
