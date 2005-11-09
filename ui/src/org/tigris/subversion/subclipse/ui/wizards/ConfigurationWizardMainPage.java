@@ -36,10 +36,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.help.WorkbenchHelp;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.ChooseRootUrlDialog;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
 
 /**
  * Wizard page for entering information about a SVN repository location.
@@ -48,6 +50,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 public class ConfigurationWizardMainPage extends SVNWizardPage {
 	private boolean showValidate;
 	private boolean validate;
+	private boolean showCredentials;
 	
 	// Widgets
 	
@@ -89,6 +92,7 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 	 */
 	public ConfigurationWizardMainPage(String pageName, String title, ImageDescriptor titleImage) {
 		super(pageName, title, titleImage);
+		showCredentials = SVNProviderPlugin.getPlugin().getSVNClientManager().getSvnClientInterface().equals(CmdLineClientAdapterFactory.COMMANDLINE_CLIENT);
 	}
 	/**
 	 * Adds an entry to a history, while taking care of duplicate history items
@@ -190,19 +194,20 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
         Label warningText = new Label(warningComposite, SWT.WRAP);
         warningText.setText(Policy.bind("ConfigurationWizardMainPage.rootUrlWarning")); //$NON-NLS-1$
         
-		g = createGroup(composite, Policy.bind("ConfigurationWizardMainPage.Authentication_2")); //$NON-NLS-1$
-		
-		// User name
-		createLabel(g, Policy.bind("ConfigurationWizardMainPage.userName")); //$NON-NLS-1$
-		userCombo = createEditableCombo(g);
-		userCombo.addListener(SWT.Selection, listener);
-		userCombo.addListener(SWT.Modify, listener);
-		
-		// Password
-		createLabel(g, Policy.bind("ConfigurationWizardMainPage.password")); //$NON-NLS-1$
-		passwordText = createTextField(g);
-		passwordText.setEchoChar('*');
-
+        if (showCredentials) {
+			g = createGroup(composite, Policy.bind("ConfigurationWizardMainPage.Authentication_2")); //$NON-NLS-1$
+			
+			// User name
+			createLabel(g, Policy.bind("ConfigurationWizardMainPage.userName")); //$NON-NLS-1$
+			userCombo = createEditableCombo(g);
+			userCombo.addListener(SWT.Selection, listener);
+			userCombo.addListener(SWT.Modify, listener);
+			
+			// Password
+			createLabel(g, Policy.bind("ConfigurationWizardMainPage.password")); //$NON-NLS-1$
+			passwordText = createTextField(g);
+			passwordText.setEchoChar('*');
+        }
 		// create a composite to ensure the validate button is in its own tab group
 		if (showValidate) {
 			Composite validateButtonTabGroup = new Composite(composite, SWT.NONE);
@@ -307,8 +312,10 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 	public boolean finish(IProgressMonitor monitor) {
 		// Set the result to be the current values
 		Properties result = new Properties();
-		result.setProperty("user", userCombo.getText()); //$NON-NLS-1$
-		result.setProperty("password", passwordText.getText()); //$NON-NLS-1$
+		if (showCredentials) {
+			result.setProperty("user", userCombo.getText()); //$NON-NLS-1$
+			result.setProperty("password", passwordText.getText()); //$NON-NLS-1$
+		}
 		result.setProperty("url", urlCombo.getText()); //$NON-NLS-1$
         result.setProperty("rootUrl", rootUrlText.getText()); //$NON-NLS-1$ 
 		this.properties = result;
@@ -338,10 +345,12 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 					urlCombo.add(hostNames[i]);
 				}
 			}
-			String[] userNames = settings.getArray(STORE_USERNAME_ID);
-			if (userNames != null) {
-				for (int i = 0; i < userNames.length; i++) {
-					userCombo.add(userNames[i]);
+			if (showCredentials) {
+				String[] userNames = settings.getArray(STORE_USERNAME_ID);
+				if (userNames != null) {
+					for (int i = 0; i < userNames.length; i++) {
+						userCombo.add(userNames[i]);
+					}
 				}
 			}
 			if (showValidate) {
@@ -351,16 +360,17 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 		}
 		
 		if(properties != null) {
-			String user = properties.getProperty("user"); //$NON-NLS-1$
-			if (user != null) {
-				userCombo.setText(user);
-			}
-	
-			String password = properties.getProperty("password"); //$NON-NLS-1$
-			if (password != null) {
-				passwordText.setText(password);
-			}
-	
+		    if (showCredentials) {
+				String user = properties.getProperty("user"); //$NON-NLS-1$
+				if (user != null) {
+					userCombo.setText(user);
+				}
+		
+				String password = properties.getProperty("password"); //$NON-NLS-1$
+				if (password != null) {
+					passwordText.setText(password);
+				}
+		    }
 			String host = properties.getProperty("url"); //$NON-NLS-1$
 			if (host != null) {
 				urlCombo.setText(host);
@@ -380,11 +390,12 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 		// Update history
 		IDialogSettings settings = getDialogSettings();
 		if (settings != null) {
-			String[] userNames = settings.getArray(STORE_USERNAME_ID);
-			if (userNames == null) userNames = new String[0];
-			userNames = addToHistory(userNames, userCombo.getText());
-			settings.put(STORE_USERNAME_ID, userNames);
-
+		    if (showCredentials) {
+				String[] userNames = settings.getArray(STORE_USERNAME_ID);
+				if (userNames == null) userNames = new String[0];
+				userNames = addToHistory(userNames, userCombo.getText());
+				settings.put(STORE_USERNAME_ID, userNames);
+		    }
 			String[] hostNames = settings.getArray(STORE_URL_ID);
 			if (hostNames == null) hostNames = new String[0];
 			hostNames = addToHistory(hostNames, urlCombo.getText());
