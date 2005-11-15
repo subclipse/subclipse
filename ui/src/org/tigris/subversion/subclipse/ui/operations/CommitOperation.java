@@ -18,6 +18,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 
 public class CommitOperation extends SVNOperation {
     private IResource[] selectedResources;
@@ -25,6 +26,7 @@ public class CommitOperation extends SVNOperation {
     private IResource[] resourcesToCommit;
     private String commitComment;
     private boolean keepLocks;
+    private ISVNClientAdapter svnClient;
 
     public CommitOperation(IWorkbenchPart part, IResource[] selectedResources, IResource[] resourcesToAdd, IResource[] resourcesToCommit, String commitComment, boolean keepLocks) {
         super(part);
@@ -37,6 +39,7 @@ public class CommitOperation extends SVNOperation {
 
     protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
         try {
+        	svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
 			if (resourcesToAdd.length > 0) {
 			    Map table = getProviderMapping(resourcesToAdd);
 				if (table.get(null) != null) {
@@ -100,9 +103,11 @@ public class CommitOperation extends SVNOperation {
     }
     
 	private Map getProviderMapping(IResource[] resources) {
+		RepositoryProvider provider = null;
 		Map result = new HashMap();
 		for (int i = 0; i < resources.length; i++) {
-			RepositoryProvider provider = RepositoryProvider.getProvider(resources[i].getProject(), SVNProviderPlugin.getTypeId());
+			if (provider == null || !svnClient.canCommitAcrossWC())
+				provider = RepositoryProvider.getProvider(resources[i].getProject(), SVNProviderPlugin.getTypeId());
 			List list = (List)result.get(provider);
 			if (list == null) {
 				list = new ArrayList();

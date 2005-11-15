@@ -91,11 +91,14 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm));
                     
                     // we commit the parents (not recursively)
-                    if (parents.length > 0)
-                        svnClient.commit(parents,message,false,false);
+                    if (parents.length > 0) {
+                    	if (svnClient.canCommitAcrossWC()) svnClient.commitAcrossWC(parents,message,false,false,true);
+                    	else svnClient.commit(parents,message,false,false);
+                    }
                     
                     // then the resources the user has requested to commit
-                    svnClient.commit(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks);
+                    if (svnClient.canCommitAcrossWC()) svnClient.commitAcrossWC(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks,true);
+                    else svnClient.commit(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks);
                 } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 } finally {
