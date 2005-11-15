@@ -145,7 +145,7 @@ public class ProjectProperties {
     	        }
     	        i--;
     	    }
-    		int start = i;
+    		int start = (i < 0) ? 0 : i;
     		// look for the first whitespace character
     		boolean found = false;
     		i += URL.length();
