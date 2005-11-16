@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.compare.CompareUI;
+import org.eclipse.compare.IEncodedStreamContentAccessor;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.IStructureComparator;
@@ -25,6 +26,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput.SVNLocalResourceNode;
 /**
  * A class for comparing ISVNRemoteResource objects
  * 
@@ -41,9 +43,12 @@ public class ResourceEditionNode
 		implements
 			IStructureComparator,
 			ITypedElement,
-			IStreamContentAccessor {
+			IStreamContentAccessor,
+			IEncodedStreamContentAccessor {
 	private ISVNRemoteResource resource;
 	private ResourceEditionNode[] children;
+	private SVNLocalResourceNode localResource = null;
+	private String charset = null;
 	/**
 	 * Creates a new ResourceEditionNode on the given resource edition.
 	 */
@@ -90,6 +95,11 @@ public class ResourceEditionNode
 										for (int i = 0; i < members.length; i++) {
 											children[i] = new ResourceEditionNode(
 													members[i]);
+											SVNLocalResourceNode localNode = matchLocalResource((ISVNRemoteResource) members[i]);
+											if (localNode != null) {
+												children[i]
+														.setLocalResource(localNode);
+											}
 										}
 									} catch (TeamException e) {
 										throw new InvocationTargetException(e);
@@ -175,4 +185,36 @@ public class ResourceEditionNode
 	public int hashCode() {
 		return getName().hashCode();
 	}
+	
+	public String getCharset() throws CoreException {
+		return charset;
+	}
+	
+	public void setCharset(String charset) throws CoreException {
+		this.charset = charset;
+	}
+	
+	public void setLocalResource(SVNLocalResourceNode localResource){
+		this.localResource = localResource;
+	}
+	
+	private SVNLocalResourceNode matchLocalResource(ISVNRemoteResource remoteNode){
+		Object[] lrn = localResource.getChildren();
+		String remotePath=remoteNode.getRepositoryRelativePath();
+		remotePath = remotePath.substring(remotePath.indexOf("/",1));
+		for(int i=0;i<lrn.length;i++){
+			String localPath=((SVNLocalResourceNode)lrn[i]).getResource().getFullPath().toString();
+			localPath = localPath.substring(localPath.indexOf("/",1));
+			if(localPath.equals(remotePath)){
+				try {
+					setCharset(((SVNLocalResourceNode)lrn[i]).getCharset());
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+				return (SVNLocalResourceNode)lrn[i];
+			}
+		}
+		return null;
+	}
+
 }

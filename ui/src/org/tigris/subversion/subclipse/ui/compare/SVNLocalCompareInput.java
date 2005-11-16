@@ -39,6 +39,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
@@ -208,7 +209,19 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	protected Object prepareInput(IProgressMonitor monitor){
 		initLabels();
 		ITypedElement left = new SVNLocalResourceNode(resource);
-		ITypedElement right = new ResourceEditionNode(remoteResource);
+		ResourceEditionNode right = new ResourceEditionNode(remoteResource);
+		if(left.getType()==ITypedElement.FOLDER_TYPE){
+			right.setLocalResource((SVNLocalResourceNode) left);
+		}
+
+
+		String localCharset = Utilities.getCharset(resource.getIResource());
+		try {
+			right.setCharset(localCharset);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
         if (SVNRevision.BASE.equals(remoteRevision)) {
             return new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
         }
