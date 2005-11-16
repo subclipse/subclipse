@@ -62,7 +62,6 @@ public class NewLocationWizard extends Wizard {
 		if (properties != null) {
 			mainPage.setProperties(properties);
 		}
-		mainPage.setShowValidate(true);
 		mainPage.setDescription(Policy.bind("NewLocationWizard.description")); //$NON-NLS-1$
 		mainPage.setDialogSettings(getDialogSettings());
 		addPage(mainPage);
@@ -77,24 +76,23 @@ public class NewLocationWizard extends Wizard {
 		SVNProviderPlugin provider = SVNProviderPlugin.getPlugin();
 		try {
 			root[0] = provider.getRepositories().createRepository(properties);
-			if (mainPage.getValidate()) {
-				try {
-					new ProgressMonitorDialog(getShell()).run(true, true, new IRunnableWithProgress() {
-						public void run(IProgressMonitor monitor) throws InvocationTargetException {
-							try {
-								root[0].validateConnection(monitor);
-							} catch (TeamException e) {
-								throw new InvocationTargetException(e);
-							}
+			// Validate the connection info.  This process also determines the rootURL
+			try {
+				new ProgressMonitorDialog(getShell()).run(true, true, new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) throws InvocationTargetException {
+						try {
+							root[0].validateConnection(monitor);
+						} catch (TeamException e) {
+							throw new InvocationTargetException(e);
 						}
-					});
-				} catch (InterruptedException e) {
-					return false;
-				} catch (InvocationTargetException e) {
-					Throwable t = e.getTargetException();
-					if (t instanceof TeamException) {
-						throw (TeamException)t;
 					}
+				});
+			} catch (InterruptedException e) {
+				return false;
+			} catch (InvocationTargetException e) {
+				Throwable t = e.getTargetException();
+				if (t instanceof TeamException) {
+					throw (TeamException)t;
 				}
 			}
 			provider.getRepositories().addOrUpdateRepository(root[0]);
