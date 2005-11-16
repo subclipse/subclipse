@@ -37,6 +37,7 @@ import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -349,7 +350,8 @@ public class SVNRepositoryLocation
     	ISVNClientAdapter svnClient = getSVNClient();
     	try {
     		// we try to get the list of directories and files using the connection
-    		svnClient.getList(getUrl(), SVNRevision.HEAD, false);
+    		ISVNInfo info = svnClient.getInfo(getUrl());
+   		    repositoryRootUrl = info.getRepository();
     	} catch (SVNClientException e) {
     		// If the validation failed, dispose of any cached info
     		dispose();
