@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.ui.history;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -160,23 +161,32 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	private Action linkWithEditorAction;
     private Action openChangedPathAction;
     private Action setCommitPropertiesAction;
+    private Action getAllAction;
+    private Action getNextAction;
 
     private IAction toggleWrapCommentsAction;
     private IAction toggleShowComments;
     private IAction toggleShowAffectedPathsAction;
+    private IAction toggleStopOnCopyAction;
     
 	private SashForm sashForm;
 	private SashForm innerSashForm;
 
 	private ILogEntry currentSelection; 
 	private boolean linkingEnabled;
+	private ILogEntry lastEntry;
 
 	private IPreferenceStore settings;
 	
 	private FetchLogEntriesJob fetchLogEntriesJob = null;
+	private FetchAllLogEntriesJob fetchAllLogEntriesJob = null;
+	private FetchNextLogEntriesJob fetchNextLogEntriesJob = null;
 	private boolean shutdown = false;
+	private SVNRevision revisionStart = SVNRevision.HEAD;
 	
 	private FetchChangePathJob fetchChangePathJob = null;
+	
+	private static HistoryView view;
     
     // we disable editor activation when double clicking on a log entry
     private boolean disableEditorActivation = false;
@@ -188,6 +198,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 			public void propertyChange(PropertyChangeEvent event) {
 				if (event.getProperty().equals(ISVNUIConstants.PREF_FETCH_CHANGE_PATH_ON_DEMAND)) {
 					entries = null;
+					lastEntry = null;
 					currentLogEntryChangePath = null;
 					tableHistoryViewer.refresh();
 					tableChangePathViewer.refresh();
@@ -197,6 +208,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		
 	    SVNProviderPlugin.addResourceStateChangeListener(this);
 	    this.projectProperties = new ProjectProperties();
+	    view = this;
 	}
 
 	private IPartListener partListener = new IPartListener() {
@@ -462,6 +474,63 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		return linkWithEditorAction;
 	}
 	
+	// Get Get All action (toolbar)
+	private Action getGetAllAction() {
+		if (getAllAction == null) {
+			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
+			getAllAction = new Action(Policy.bind("HistoryView.getAll"), plugin.getImageDescriptor(ISVNUIConstants.IMG_GET_ALL)) { //$NON-NLS-1$
+				public void run() {
+					final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
+					if(fetchAllLogEntriesJob == null) {
+						fetchAllLogEntriesJob = new FetchAllLogEntriesJob();
+					}
+					if(fetchAllLogEntriesJob.getState() != Job.NONE) {
+						fetchAllLogEntriesJob.cancel();
+						try {
+							fetchAllLogEntriesJob.join();
+						} catch (InterruptedException e) {
+							SVNUIPlugin.log(new SVNException(Policy.bind("HistoryView.errorFetchingEntries", remoteResource.getName()), e)); //$NON-NLS-1$
+						}
+					}
+					fetchAllLogEntriesJob.setRemoteFile(remoteResource);
+					Utils.schedule(fetchAllLogEntriesJob, getViewSite());
+				}
+			};
+			getAllAction.setToolTipText(Policy.bind("HistoryView.getAll")); //$NON-NLS-1$
+		}
+		return getAllAction;
+	}
+	
+	// Get Get Next action (toolbar)
+	public Action getGetNextAction() {
+		if (getNextAction == null) {
+			IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+			int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
+			getNextAction = new Action(Policy.bind("HistoryView.getNext"), plugin.getImageDescriptor(ISVNUIConstants.IMG_GET_NEXT)) { //$NON-NLS-1$
+				public void run() {
+					final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
+					if(fetchNextLogEntriesJob == null) {
+						fetchNextLogEntriesJob = new FetchNextLogEntriesJob();
+					}
+					if(fetchNextLogEntriesJob.getState() != Job.NONE) {
+						fetchNextLogEntriesJob.cancel();
+						try {
+							fetchNextLogEntriesJob.join();
+						} catch (InterruptedException e) {
+							SVNUIPlugin.log(new SVNException(Policy.bind("HistoryView.errorFetchingEntries", remoteResource.getName()), e)); //$NON-NLS-1$
+						}
+					}
+					fetchNextLogEntriesJob.setRemoteFile(remoteResource);
+					Utils.schedule(fetchNextLogEntriesJob, getViewSite());
+				}
+			};
+			getNextAction.setToolTipText(Policy.bind("HistoryView.getNext") + " " + entriesToFetch); //$NON-NLS-1$
+			if (entriesToFetch <= 0) getNextAction.setEnabled(false);
+		}
+		return getNextAction;
+	}
+	
 	// get contents Action (context menu)
 	private Action getGetContentsAction() {
 		if (getContentsAction == null) {
@@ -580,6 +649,15 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
         };
         toggleShowAffectedPathsAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_PATHS));
         // PlatformUI.getWorkbench().getHelpSystem().setHelp(toggleListAction, IHelpContextIds.SHOW_TAGS_IN_HISTORY_ACTION);   
+
+        // Toggle stop on copy action
+        toggleStopOnCopyAction = new Action(Policy.bind("HistoryView.stopOnCopy")) { //$NON-NLS-1$
+            public void run() {
+                setStopOnCopy();
+                store.setValue(ISVNUIConstants.PREF_STOP_ON_COPY, toggleStopOnCopyAction.isChecked());
+            }
+        };
+        toggleStopOnCopyAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY));
         
         IActionBars actionBars = getViewSite().getActionBars();
 
@@ -589,10 +667,13 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
         actionBarsMenu.add(new Separator());
         actionBarsMenu.add(toggleShowComments);
         actionBarsMenu.add(toggleShowAffectedPathsAction);
+        actionBarsMenu.add(toggleStopOnCopyAction);
         
         // Create the local tool bar
         IToolBarManager tbm = actionBars.getToolBarManager();
 		tbm.add(getRefreshAction());
+		tbm.add(getGetAllAction());
+		tbm.add(getGetNextAction());
 		tbm.add(getLinkWithEditorAction());
 		tbm.update(false);
         
@@ -621,6 +702,10 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	 		 Menu menu = menuMgr.createContextMenu(text);
 	 		 text.setMenu(menu);
         }
+	}
+	
+	void setStopOnCopy() {
+		refresh();
 	}
     
     void setViewerVisibility() {
@@ -862,6 +947,8 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 			}
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 				entries = null;
+				lastEntry = null;
+				revisionStart = SVNRevision.HEAD;
 			}
 		});
 		
@@ -1144,6 +1231,8 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	 */
 	private void refresh() {
 		entries = null;
+		lastEntry = null;
+		revisionStart = SVNRevision.HEAD;
         // show a Busy Cursor during refresh
 		BusyIndicator.showWhile(tableHistoryViewer.getTable().getDisplay(), new Runnable() {
 			public void run() {
@@ -1210,6 +1299,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     private void resourceChanged() {
         getSite().getShell().getDisplay().asyncExec(new Runnable() {
         	public void run() {
+        		revisionStart = SVNRevision.HEAD;
         		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         		try {
                     if (localResource != null && !localResource.getStatus().isAdded()) {
@@ -1235,12 +1325,125 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		public IStatus run(IProgressMonitor monitor) {
 			try {
 				if(remoteResource != null && !shutdown) {
-					entries = remoteResource.getLogEntries(monitor);
+					SVNRevision pegRevision = remoteResource.getRevision();
+					SVNRevision revisionEnd = new SVNRevision.Number(0);
+					boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
+					IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+					int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+					long limit = entriesToFetch;
+					entries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1);
+					long entriesLength = entries.length;
+					if (entriesLength > limit) {
+						ILogEntry[] fetchedEntries = new ILogEntry[entries.length - 1];
+						for (int i = 0; i < entries.length - 1; i++)
+							fetchedEntries[i] = entries[i];
+						entries = fetchedEntries;
+						getNextAction.setEnabled(true);
+					} else getNextAction.setEnabled(false);
 					final SVNRevision.Number revisionId = remoteResource.getLastChangedRevision();
 					getSite().getShell().getDisplay().asyncExec(new Runnable() {
 						public void run() {
 							if(entries != null && tableHistoryViewer != null && ! tableHistoryViewer.getTable().isDisposed()) {
                                 // once we got the entries, we refresh the table 
+								if (entries.length > 0) {
+									lastEntry = entries[entries.length - 1];
+									long lastEntryNumber = lastEntry.getRevision().getNumber();
+									revisionStart = new SVNRevision.Number(lastEntryNumber - 1);
+								}								
+                                tableHistoryViewer.refresh();
+								selectRevision(revisionId);
+							}
+						}
+					});
+				}
+				return Status.OK_STATUS;
+			} catch (TeamException e) {
+				return e.getStatus();
+			}
+		}
+	}
+	
+	private class FetchNextLogEntriesJob extends Job {
+		public ISVNRemoteResource remoteResource;
+		public FetchNextLogEntriesJob() {
+			super(Policy.bind("HistoryView.fetchHistoryJob"));  //$NON-NLS-1$;
+		}
+		public void setRemoteFile(ISVNRemoteResource resource) {
+			this.remoteResource = resource;
+		}
+		public IStatus run(IProgressMonitor monitor) {
+			try {
+				if(remoteResource != null && !shutdown) {
+					SVNRevision pegRevision = remoteResource.getRevision();
+					SVNRevision revisionEnd = new SVNRevision.Number(0);
+					boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
+					IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+					int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+					long limit = entriesToFetch;
+					ILogEntry[] nextEntries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1);
+					long entriesLength = nextEntries.length;
+					if (entriesLength > limit) {
+						ILogEntry[] fetchedEntries = new ILogEntry[nextEntries.length - 1];
+						for (int i = 0; i < nextEntries.length - 1; i++)
+							fetchedEntries[i] = nextEntries[i];
+						getNextAction.setEnabled(true);
+					} else getNextAction.setEnabled(false);
+					ArrayList entryArray = new ArrayList();
+					if (entries == null) entries = new ILogEntry[0];
+					for (int i = 0; i < entries.length; i++) entryArray.add(entries[i]);
+					for (int i = 0; i < nextEntries.length; i++) entryArray.add(nextEntries[i]);
+					entries = new ILogEntry[entryArray.size()];
+					entryArray.toArray(entries);
+					getSite().getShell().getDisplay().asyncExec(new Runnable() {
+						public void run() {
+							if(entries != null && tableHistoryViewer != null && ! tableHistoryViewer.getTable().isDisposed()) {
+                                // once we got the entries, we refresh the table 
+								ISelection selection = tableHistoryViewer.getSelection();
+                                tableHistoryViewer.refresh();
+                                tableHistoryViewer.setSelection(selection);
+								if (entries.length > 0) {
+									lastEntry = entries[entries.length - 1];
+									long lastEntryNumber = lastEntry.getRevision().getNumber();
+									revisionStart = new SVNRevision.Number(lastEntryNumber - 1);
+								}
+							}
+						}
+					});
+				}
+				return Status.OK_STATUS;
+			} catch (TeamException e) {
+				return e.getStatus();
+			}
+		}
+	}
+	
+	private class FetchAllLogEntriesJob extends Job {
+		public ISVNRemoteResource remoteResource;
+		public FetchAllLogEntriesJob() {
+			super(Policy.bind("HistoryView.fetchHistoryJob"));  //$NON-NLS-1$;
+		}
+		public void setRemoteFile(ISVNRemoteResource resource) {
+			this.remoteResource = resource;
+		}
+		public IStatus run(IProgressMonitor monitor) {
+			try {
+				if(remoteResource != null && !shutdown) {
+					SVNRevision pegRevision = remoteResource.getRevision();
+					revisionStart = SVNRevision.HEAD;
+					SVNRevision revisionEnd = new SVNRevision.Number(0);
+					boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
+					long limit = 0;
+					entries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit);
+					final SVNRevision.Number revisionId = remoteResource.getLastChangedRevision();
+					getSite().getShell().getDisplay().asyncExec(new Runnable() {
+						public void run() {
+							if(entries != null && tableHistoryViewer != null && ! tableHistoryViewer.getTable().isDisposed()) {
+                                // once we got the entries, we refresh the table 
+								if (entries.length > 0) {
+									lastEntry = entries[entries.length - 1];
+									long lastEntryNumber = lastEntry.getRevision().getNumber();
+									revisionStart = new SVNRevision.Number(lastEntryNumber - 1);
+								}										
                                 tableHistoryViewer.refresh();
 								selectRevision(revisionId);
 							}
@@ -1316,5 +1519,9 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
      */
     public void projectDeconfigured(IProject project) {
     }
+
+	public static HistoryView getView() {
+		return view;
+	}
 	
 }

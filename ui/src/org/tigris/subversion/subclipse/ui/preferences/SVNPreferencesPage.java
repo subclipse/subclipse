@@ -14,6 +14,7 @@ package org.tigris.subversion.subclipse.ui.preferences;
 
 import java.io.File;
 
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
@@ -39,6 +40,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.history.HistoryView;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.javasvn.JavaSvnClientAdapterFactory;
@@ -59,6 +61,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button showCompareRevisionInDialog;
     private Button fetchChangePathOnDemand;
     private Button selectUnadded;
+    private Text logEntriesToFetchText;
     private Button defaultConfigLocationRadio;
     private Button useDirectoryLocationRadio;
     private Text directoryLocationText;
@@ -135,6 +138,14 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
 		fetchChangePathOnDemand = createCheckBox(composite, Policy.bind("SVNPreferencePage.fetchChangePathOnDemand")); //$NON-NLS-1$
+		createLabel(composite, "", 2); //$NON-NLS-1$
+		
+		createLabel(composite, Policy.bind("SVNPreferencePage.logEntriesToFetch"), 1); //$NON-NLS-1$
+		logEntriesToFetchText = new Text(composite, SWT.BORDER);
+		gridData = new GridData();
+		gridData.widthHint = 40;
+		logEntriesToFetchText.setLayoutData(gridData);
+		
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
 		// group javahl/command line
@@ -222,6 +233,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
 		selectUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT));
 		
+		logEntriesToFetchText.setText(Integer.toString(store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH)));
+		
         javahlRadio.setSelection(store.getString(
                 ISVNUIConstants.PREF_SVNINTERFACE).equals(JhlClientAdapterFactory.JAVAHL_CLIENT));
         javaSvnRadio.setSelection(store.getString(
@@ -265,6 +278,25 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
         // save select unadded resources on commit pref
 		store.setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, selectUnadded.getSelection());
 
+		int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+		try {
+			entriesToFetch = Integer.parseInt(logEntriesToFetchText.getText().trim());
+		} catch (Exception e) {}
+		
+		store.setValue(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH, entriesToFetch);
+		
+		HistoryView historyView = HistoryView.getView();
+		if (historyView != null) {
+			IAction getNextAction = historyView.getGetNextAction();
+			if (getNextAction != null) {
+				if (entriesToFetch <= 0) getNextAction.setEnabled(false);
+				else {
+					getNextAction.setEnabled(true);
+					getNextAction.setToolTipText(Policy.bind("HistoryView.getNext") + " " + entriesToFetch);
+				}
+			}
+		}
+		
         // save svn interface pref
         if (javahlRadio.getSelection() ){
             store.setValue(ISVNUIConstants.PREF_SVNINTERFACE, JhlClientAdapterFactory.JAVAHL_CLIENT);

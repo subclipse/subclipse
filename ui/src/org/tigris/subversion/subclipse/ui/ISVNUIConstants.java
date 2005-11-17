@@ -43,6 +43,8 @@ public interface ISVNUIConstants {
 	public final String IMG_CLEAR = "clcl16/clear_co.gif"; //$NON-NLS-1$
 	public final String IMG_COLLAPSE_ALL = "clcl16/collapseall.gif"; //$NON-NLS-1$
 	public final String IMG_LINK_WITH_EDITOR = "clcl16/synced.gif"; //$NON-NLS-1$
+	public final String IMG_GET_ALL = "clcl16/get_all.gif"; //$NON-NLS-1$
+	public final String IMG_GET_NEXT = "clcl16/get_next.gif"; //$NON-NLS-1$
 	
 	// toolbar (disabled)
 	public final String IMG_REFRESH_DISABLED = "dlcl16/refresh.gif"; //$NON-NLS-1$
@@ -97,7 +99,9 @@ public interface ISVNUIConstants {
 	public final String PREF_REPLACE_UNMANAGED = "pref_replace_unmanaged"; //$NON-NLS-1$
 	public final String PREF_COMPRESSION_LEVEL = "pref_compression_level"; //$NON-NLS-1$
 	public final String PREF_TEXT_KSUBST = "pref_text_ksubst"; //$NON-NLS-1$
-	public final String PREF_FETCH_CHANGE_PATH_ON_DEMAND = "pref_fetch_change_path_on_Demand";
+	public final String PREF_FETCH_CHANGE_PATH_ON_DEMAND = "pref_fetch_change_path_on_Demand"; //$NON-NLS-1$
+	public final String PREF_LOG_ENTRIES_TO_FETCH = "pref_log_entries_to_fetch"; //$NON-NLS-1$
+	public final String PREF_STOP_ON_COPY = "pref_stop_on_copy"; //$NON-NLS-1$
 
 	public final String PREF_PROMPT_ON_MIXED_TAGS = "pref_prompt_on_mixed_tags"; //$NON-NLS-1$
 

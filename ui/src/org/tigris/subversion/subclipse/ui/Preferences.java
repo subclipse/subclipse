@@ -75,6 +75,8 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_SVNCONFIGDIR, ""); //$NON-NLS-1$
         
         store.setDefault(ISVNUIConstants.PREF_FETCH_CHANGE_PATH_ON_DEMAND, true);
+        store.setDefault(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH, 100);
+        store.setDefault(ISVNUIConstants.PREF_STOP_ON_COPY, false);
 
         store.setDefault(ISVNUIConstants.PREF_MERGE_USE_EXTERNAL, false);
         store.setDefault(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION,""); //$NON-NLS-1$
