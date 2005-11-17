@@ -30,6 +30,11 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  */
 public class GetLogsCommand implements ISVNCommand {
 	private ISVNRemoteResource remoteResource;
+	private SVNRevision pegRevision = SVNRevision.HEAD;
+	private SVNRevision revisionStart = new SVNRevision.Number(0);
+	private SVNRevision revisionEnd = SVNRevision.HEAD;
+	private boolean stopOnCopy = false;
+	private long limit = 0;
     private ILogEntry[] logEntries;
     
     public GetLogsCommand(ISVNRemoteResource remoteResource) {
@@ -55,14 +60,22 @@ public class GetLogsCommand implements ISVNCommand {
             logMessages =
                 client.getLogMessages(
                     remoteResource.getUrl(),
-                    new SVNRevision.Number(0),
-                    SVNRevision.HEAD, false);
+                    pegRevision,
+                    revisionStart,
+                    revisionEnd, 
+                    stopOnCopy,
+                    false,
+                    limit);
         	} else {
         		logMessages =
                     client.getLogMessages(
                         remoteResource.getUrl(),
-                        new SVNRevision.Number(0),
-                        SVNRevision.HEAD, true);	
+                        pegRevision,
+                        revisionStart,
+                        revisionEnd, 
+                        stopOnCopy,
+                        true,
+                        limit);	
         	}
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
@@ -211,6 +224,31 @@ public class GetLogsCommand implements ISVNCommand {
         }
         return result;
     }
+
+
+	public void setLimit(long limit) {
+		this.limit = limit;
+	}
+
+
+	public void setRevisionEnd(SVNRevision revisionEnd) {
+		this.revisionEnd = revisionEnd;
+	}
+
+
+	public void setRevisionStart(SVNRevision revisionStart) {
+		this.revisionStart = revisionStart;
+	}
+
+
+	public void setStopOnCopy(boolean stopOnCopy) {
+		this.stopOnCopy = stopOnCopy;
+	}
+
+
+	public void setPegRevision(SVNRevision pegRevision) {
+		this.pegRevision = pegRevision;
+	}
     
     
 }

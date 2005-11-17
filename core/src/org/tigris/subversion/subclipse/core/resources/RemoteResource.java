@@ -196,6 +196,20 @@ public abstract class RemoteResource
         return command.getLogEntries();
     }
 
+    /**
+     * @see ISVNRemoteResource#getLogEntries()
+     */
+    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit) throws TeamException {
+        GetLogsCommand command = new GetLogsCommand(this);
+        command.setPegRevision(pegRevision);
+        command.setRevisionStart(revisionStart);
+        command.setRevisionEnd(revisionEnd);
+        command.setStopOnCopy(stopOnCopy);
+        command.setLimit(limit);
+        command.run(monitor);
+        return command.getLogEntries();    	
+    }
+
     /*
      * (non-Javadoc)
      * @see org.eclipse.team.core.variants.IResourceVariant#getContentIdentifier()

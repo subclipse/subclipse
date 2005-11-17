@@ -78,6 +78,19 @@ public interface ISVNRemoteResource extends ISVNResource, IAdaptable, IResourceV
      * Get all the log entries of the remote resource
      */
     public ILogEntry[] getLogEntries(IProgressMonitor monitor) throws TeamException;
+    
+    /**
+     * Get log entries of the remote resource
+     * @param monitor 		progress monitor
+     * @param pegRevision   peg revision for URL
+     * @param revisionStart first revision to show
+     * @param revisionEnd   last revision to show
+     * @param stopOnCopy    do not continue on copy operations
+     * @param limit         limit the number of log messages (if 0 or less no
+     *                      limit)
+     * @return array of LogMessages
+     */
+    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit) throws TeamException;
 
     public ISVNRemoteFolder getParent();
     

@@ -182,6 +182,20 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
         command.run(monitor);
         return command.getLogEntries();
     }
+    
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#getLogEntries(org.eclipse.core.runtime.IProgressMonitor, , SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit)
+     */
+    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit) throws SVNException {
+        GetLogsCommand command = new GetLogsCommand(this);
+        command.setPegRevision(pegRevision);
+        command.setRevisionStart(revisionStart);
+        command.setRevisionEnd(revisionEnd);
+        command.setStopOnCopy(stopOnCopy);
+        command.setLimit(limit);
+        command.run(monitor);
+        return command.getLogEntries();   
+    }
 
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#exists(org.eclipse.core.runtime.IProgressMonitor)
