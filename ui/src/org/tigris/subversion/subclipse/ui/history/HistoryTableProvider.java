@@ -282,14 +282,14 @@ public class HistoryTableProvider {
 		col.setResizable(true);
 		col.setText(Policy.bind("HistoryView.revision")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
-		layout.addColumnData(new ColumnWeightData(20, true));
+		layout.addColumnData(new ColumnWeightData(10, true));
 	
 		// creation date
 		col = new TableColumn(table, SWT.NONE);
 		col.setResizable(true);
 		col.setText(Policy.bind("HistoryView.date")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
-		layout.addColumnData(new ColumnWeightData(20, true));
+		layout.addColumnData(new ColumnWeightData(25, true));
 	
 		// author
 		col = new TableColumn(table, SWT.NONE);

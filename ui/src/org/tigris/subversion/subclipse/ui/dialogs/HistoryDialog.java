@@ -1,10 +1,12 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -18,9 +20,12 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -31,10 +36,12 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.history.ChangePathsTableProvider;
 import org.tigris.subversion.subclipse.ui.history.HistoryTableProvider;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class HistoryDialog extends Dialog {
     private IResource resource;
@@ -44,9 +51,15 @@ public class HistoryDialog extends Dialog {
 	private TableViewer tableHistoryViewer;
     private TableViewer tableChangePathViewer;
 	private TextViewer textViewer;
+	private Button stopOnCopyButton;
+	private Button getAllButton;
+	private Button getNextButton;
 	private ILogEntry[] entries;
 	private IDialogSettings settings;
 	private ILogEntry[] selectedEntries;
+	private IPreferenceStore store;
+	private SVNRevision revisionStart = SVNRevision.HEAD;
+	private boolean getNextEnabled = true;
 	
 	private static final int WIDTH_HINT = 500;
 	private final static int LOG_HEIGHT_HINT = 200;
@@ -59,6 +72,7 @@ public class HistoryDialog extends Dialog {
 		setShellStyle(shellStyle | SWT.RESIZE);
         this.resource = resource;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
+		store = SVNUIPlugin.getPlugin().getPreferenceStore();
     }
     
     public HistoryDialog(Shell parentShell, ISVNRemoteResource remoteResource) {
@@ -67,10 +81,11 @@ public class HistoryDialog extends Dialog {
 		setShellStyle(shellStyle | SWT.RESIZE);
         this.remoteResource = remoteResource;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
+		store = SVNUIPlugin.getPlugin().getPreferenceStore();
     }    
     
 	protected Control createDialogArea(Composite parent) {
-	    getLogEntries();
+		getLogEntries();
 	    if (resource == null)
 	        getShell().setText(Policy.bind("HistoryDialog.title") + " - " + remoteResource.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	    else
@@ -146,7 +161,6 @@ public class HistoryDialog extends Dialog {
 
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			}
-            
         });
         
 		data = new GridData(GridData.FILL_BOTH);
@@ -154,10 +168,22 @@ public class HistoryDialog extends Dialog {
 		data.widthHint = WIDTH_HINT;
 		tableChangePathViewer.getTable().setLayoutData(data);
 		
+		stopOnCopyButton = new Button(composite, SWT.CHECK);
+		stopOnCopyButton.setText(Policy.bind("HistoryView.stopOnCopy"));
+		stopOnCopyButton.setSelection(store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY));
+		stopOnCopyButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				store.setValue(ISVNUIConstants.PREF_STOP_ON_COPY, stopOnCopyButton.getSelection());				
+				revisionStart = SVNRevision.HEAD;
+				getLogEntries();
+				tableHistoryViewer.refresh();
+			}
+		});
+		
 		return composite;
 	}
 	
-	private ILogEntry[] getLogEntries() {
+	private void getLogEntries() {
 	   BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 	        public void run() {
 	            try {
@@ -169,15 +195,109 @@ public class HistoryDialog extends Dialog {
 						    remoteResource = localResource.getBaseResource();
 						}
 		            }
-		            if (remoteResource != null) entries = remoteResource.getLogEntries(null);
+		            if (remoteResource != null) {
+						SVNRevision pegRevision = remoteResource.getRevision();
+						SVNRevision revisionEnd = new SVNRevision.Number(0);
+						boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
+						int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+						long limit = entriesToFetch;
+						entries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1);
+						long entriesLength = entries.length;
+						if (entriesLength > limit) {
+							ILogEntry[] fetchedEntries = new ILogEntry[entries.length - 1];
+							for (int i = 0; i < entries.length - 1; i++)
+								fetchedEntries[i] = entries[i];
+							entries = fetchedEntries;
+						} else getNextEnabled = false;
+						if (entries.length > 0) {
+							ILogEntry lastEntry = entries[entries.length - 1];
+							long lastEntryNumber = lastEntry.getRevision().getNumber();
+							revisionStart = new SVNRevision.Number(lastEntryNumber - 1);
+						}		
+		            }
 				} catch (TeamException e) {
 					SVNUIPlugin.openError(Display.getCurrent().getActiveShell(), null, null, e);
 				}	
 	        }       
 	   });
-	   if (entries == null) return new ILogEntry[0];
-	   return entries;
 	}
+	
+	private void getNextLogEntries() {
+		   BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+		        public void run() {
+		            try {
+			            if (remoteResource == null) {
+			                ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+							if ( localResource != null
+							        && !localResource.getStatus().isAdded()
+							        && localResource.getStatus().isManaged() ) {
+							    remoteResource = localResource.getBaseResource();
+							}
+			            }
+			            if (remoteResource != null) {
+							SVNRevision pegRevision = remoteResource.getRevision();
+							SVNRevision revisionEnd = new SVNRevision.Number(0);
+							boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
+							int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+							long limit = entriesToFetch;
+							ILogEntry[] nextEntries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1);
+							long entriesLength = nextEntries.length;
+							if (entriesLength > limit) {
+								ILogEntry[] fetchedEntries = new ILogEntry[nextEntries.length - 1];
+								for (int i = 0; i < nextEntries.length - 1; i++)
+									fetchedEntries[i] = nextEntries[i];
+								getNextButton.setEnabled(true);
+							} else getNextButton.setEnabled(false);
+							ArrayList entryArray = new ArrayList();
+							if (entries == null) entries = new ILogEntry[0];
+							for (int i = 0; i < entries.length; i++) entryArray.add(entries[i]);
+							for (int i = 0; i < nextEntries.length; i++) entryArray.add(nextEntries[i]);
+							entries = new ILogEntry[entryArray.size()];
+							entryArray.toArray(entries);							
+							if (entries.length > 0) {
+								ILogEntry lastEntry = entries[entries.length - 1];
+								long lastEntryNumber = lastEntry.getRevision().getNumber();
+								revisionStart = new SVNRevision.Number(lastEntryNumber - 1);
+							}		
+			            }
+					} catch (TeamException e) {
+						SVNUIPlugin.openError(Display.getCurrent().getActiveShell(), null, null, e);
+					}	
+		        }       
+		   });
+			ISelection selection = tableHistoryViewer.getSelection();
+            tableHistoryViewer.refresh();
+            tableHistoryViewer.setSelection(selection);
+	}
+	
+	private void getAllLogEntries() {
+		   BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+		        public void run() {
+		            try {
+			            if (remoteResource == null) {
+			                ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+							if ( localResource != null
+							        && !localResource.getStatus().isAdded()
+							        && localResource.getStatus().isManaged() ) {
+							    remoteResource = localResource.getBaseResource();
+							}
+			            }
+			            if (remoteResource != null) {
+							SVNRevision pegRevision = remoteResource.getRevision();
+							SVNRevision revisionEnd = new SVNRevision.Number(0);
+							revisionStart = SVNRevision.HEAD;
+							boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
+							long limit = 0;
+							entries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit);
+							getNextButton.setEnabled(false);	
+			            }
+					} catch (TeamException e) {
+						SVNUIPlugin.openError(Display.getCurrent().getActiveShell(), null, null, e);
+					}	
+		        }       
+		   });
+		   tableHistoryViewer.refresh();
+		}
 
     protected void cancelPressed() {
         saveLocation();
@@ -186,6 +306,7 @@ public class HistoryDialog extends Dialog {
  
     protected void okPressed() {
         saveLocation();
+        store.setValue(ISVNUIConstants.PREF_STOP_ON_COPY, stopOnCopyButton.getSelection());
         IStructuredSelection selection = (IStructuredSelection)tableHistoryViewer.getSelection();
         selectedEntries = new ILogEntry[selection.size()];
         Iterator iter = selection.iterator();
@@ -193,7 +314,28 @@ public class HistoryDialog extends Dialog {
         while (iter.hasNext()) selectedEntries[i++] = (ILogEntry)iter.next();
         super.okPressed();
     }
-    protected Point getInitialLocation(Point initialSize) {
+       
+    protected void createButtonsForButtonBar(Composite parent) {
+    	getAllButton = createButton(parent, 2, Policy.bind("HistoryView.getAll"), false); //$NON-NLS-1$
+		getAllButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				getAllLogEntries();
+			}
+		});    	
+    	int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+    	if (entriesToFetch > 0) {
+    		getNextButton = createButton(parent, 3, Policy.bind("HistoryView.getNext") + " " + entriesToFetch, false); //$NON-NLS-1$
+    		getNextButton.setEnabled(getNextEnabled);
+    		getNextButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					getNextLogEntries();
+				}
+    		});
+    	}
+    	super.createButtonsForButtonBar(parent);
+	}
+
+	protected Point getInitialLocation(Point initialSize) {
 	    try {
 	        int x = settings.getInt("HistoryDialog.location.x"); //$NON-NLS-1$
 	        int y = settings.getInt("HistoryDialog.location.y"); //$NON-NLS-1$

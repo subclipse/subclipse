@@ -165,7 +165,7 @@ public class ChangePathsTableProvider {
         TableColumn col = new TableColumn(table, SWT.NONE);
         col.setResizable(true);
         col.setText(Policy.bind("ChangePathsTableProvider.action")); //$NON-NLS-1$
-        layout.addColumnData(new ColumnWeightData(14, true));
+        layout.addColumnData(new ColumnWeightData(10, true));
     
         // path
         col = new TableColumn(table, SWT.NONE);
