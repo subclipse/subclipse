@@ -672,8 +672,8 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
         // Create the local tool bar
         IToolBarManager tbm = actionBars.getToolBarManager();
 		tbm.add(getRefreshAction());
-		tbm.add(getGetAllAction());
 		tbm.add(getGetNextAction());
+		tbm.add(getGetAllAction());
 		tbm.add(getLinkWithEditorAction());
 		tbm.update(false);
         
