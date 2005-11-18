@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.history;
 
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
@@ -119,6 +121,7 @@ import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -163,6 +166,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     private Action setCommitPropertiesAction;
     private Action getAllAction;
     private Action getNextAction;
+    private Action showDifferencesAsUnifiedDiffAction;
 
     private IAction toggleWrapCommentsAction;
     private IAction toggleShowComments;
@@ -529,6 +533,44 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 			if (entriesToFetch <= 0) getNextAction.setEnabled(false);
 		}
 		return getNextAction;
+	}
+	
+	// get differences as unified diff action (context menu)
+	private Action getShowDifferencesAsUnifiedDiffAction() {
+		if (showDifferencesAsUnifiedDiffAction == null) {
+			showDifferencesAsUnifiedDiffAction = new Action(Policy.bind("HistoryView.showDifferences")) { //$NON-NLS-1$
+				public void run() {
+                    ISelection selection = getSelection();
+                    if (!(selection instanceof IStructuredSelection)) return;
+                    IStructuredSelection ss = (IStructuredSelection)selection;
+                    currentSelection = getLogEntry(ss);
+					FileDialog dialog = new FileDialog(getSite().getShell(), SWT.SAVE);
+					dialog.setText("Select Unified Diff Output File");
+					dialog.setFileName("revision" + currentSelection.getRevision().getNumber() + ".diff"); //$NON-NLS-1$
+					String outFile = dialog.open();
+					if (outFile != null) {
+						final SVNUrl url = currentSelection.getResource().getUrl();
+						final SVNRevision oldUrlRevision = new SVNRevision.Number(currentSelection.getRevision().getNumber() - 1);
+						final SVNRevision newUrlRevision = currentSelection.getRevision();
+						final File file = new File(outFile);
+						if (file.exists()) {
+							if (!MessageDialog.openQuestion(getSite().getShell(), Policy.bind("HistoryView.showDifferences"), Policy.bind("HistoryView.overwriteOutfile", file.getName()))) return;
+						}
+						BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+							public void run() {
+								try {
+									ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+									client.diff(url, oldUrlRevision, newUrlRevision, file, true);
+								} catch (Exception e) {
+									MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage());
+								}
+							}							
+						});
+					}
+				}
+			};
+		}
+		return showDifferencesAsUnifiedDiffAction;
 	}
 	
 	// get contents Action (context menu)
@@ -1031,6 +1073,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 						manager.add(getGetContentsAction());
 						manager.add(getUpdateToRevisionAction());
 					}
+					manager.add(getShowDifferencesAsUnifiedDiffAction());
 					manager.add(getSetCommitPropertiesAction());
 				}
 			}
