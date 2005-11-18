@@ -63,8 +63,14 @@ public class BranchTagDialog extends Dialog {
     private Button okButton;
     private CommentProperties commentProperties;
     private ProjectProperties projectProperties;
+    
+    private long revisionNumber = 0;
 
-    public BranchTagDialog(Shell parentShell, IResource resource) {
+    public void setRevisionNumber(long revisionNumber) {
+		this.revisionNumber = revisionNumber;
+	}
+
+	public BranchTagDialog(Shell parentShell, IResource resource) {
         super(parentShell);
 		int shellStyle = getShellStyle();
 		setShellStyle(shellStyle | SWT.RESIZE);
@@ -160,7 +166,8 @@ public class BranchTagDialog extends Dialog {
 		data = new GridData();
 		data.widthHint = REVISION_WIDTH_HINT;
 		revisionText.setLayoutData(data);
-		revisionText.setEnabled(false);
+		if (revisionNumber == 0) revisionText.setEnabled(false);
+		else revisionText.setText("" + revisionNumber);
 		revisionText.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 setOkButtonStatus();
@@ -168,7 +175,8 @@ public class BranchTagDialog extends Dialog {
 		});
 		logButton = new Button(serverComposite, SWT.PUSH);
 		logButton.setText(Policy.bind("MergeDialog.showLog")); //$NON-NLS-1$
-		logButton.setEnabled(false);
+		if (revisionNumber == 0)
+			logButton.setEnabled(false);
 		logButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 showLog();
@@ -181,7 +189,8 @@ public class BranchTagDialog extends Dialog {
 		data.horizontalSpan = 3;
 		workingCopyButton.setLayoutData(data);			
 		
-		serverButton.setSelection(true); 
+		if (revisionNumber == 0) serverButton.setSelection(true);
+		else revisionButton.setSelection(true);
 		
 		SelectionListener selectionListener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -354,4 +363,5 @@ public class BranchTagDialog extends Dialog {
     public SVNRevision getRevision() {
         return revision;
     }
+
 }

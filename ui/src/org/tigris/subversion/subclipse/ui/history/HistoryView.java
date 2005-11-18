@@ -114,10 +114,12 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.actions.RemoteResourceTransfer;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
+import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.CommitDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.SetCommitPropertiesDialog;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
+import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
 import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
@@ -167,6 +169,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     private Action getAllAction;
     private Action getNextAction;
     private Action showDifferencesAsUnifiedDiffAction;
+    private Action createTagFromRevisionAction;
 
     private IAction toggleWrapCommentsAction;
     private IAction toggleShowComments;
@@ -533,6 +536,34 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 			if (entriesToFetch <= 0) getNextAction.setEnabled(false);
 		}
 		return getNextAction;
+	}
+	
+	// get create tag from revision action (context menu)
+	private Action getCreateTagFromRevisionAction() {
+		if (createTagFromRevisionAction == null) {
+			createTagFromRevisionAction = new Action(Policy.bind("HistoryView.createTagFromRevision")) { //$NON-NLS-1$
+				public void run() {
+                    ISelection selection = getSelection();
+                    if (!(selection instanceof IStructuredSelection)) return;
+                    IStructuredSelection ss = (IStructuredSelection)selection;
+                    currentSelection = getLogEntry(ss);                
+                    BranchTagDialog dialog = new BranchTagDialog(getSite().getShell(), resource);
+                    dialog.setRevisionNumber(currentSelection.getRevision().getNumber());
+                    if (dialog.open() == BranchTagDialog.CANCEL) return;
+                    SVNUrl sourceUrl = dialog.getUrl();
+                    SVNUrl destinationUrl = dialog.getToUrl();
+                    String message = dialog.getComment();
+                    boolean createOnServer = dialog.isCreateOnServer();
+                    IResource[] resources = { resource };
+                    try {
+                    	new BranchTagOperation(HistoryView.this, resources, sourceUrl, destinationUrl, createOnServer, dialog.getRevision(), message).run();
+                    } catch (Exception e) {
+                    	MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e.getMessage());                   	
+                    }
+                 }
+			};			
+		}
+		return createTagFromRevisionAction;
 	}
 	
 	// get differences as unified diff action (context menu)
@@ -1074,6 +1105,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 						manager.add(getUpdateToRevisionAction());
 					}
 					manager.add(getShowDifferencesAsUnifiedDiffAction());
+					if (resource != null) manager.add(getCreateTagFromRevisionAction());
 					manager.add(getSetCommitPropertiesAction());
 				}
 			}
