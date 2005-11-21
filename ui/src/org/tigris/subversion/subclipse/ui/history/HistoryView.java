@@ -632,17 +632,32 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
                     ISelection selection = getSelection();
                     if (!(selection instanceof IStructuredSelection)) return;
                     IStructuredSelection ss = (IStructuredSelection)selection;
-                    currentSelection = getLogEntry(ss);                
-                    BranchTagDialog dialog = new BranchTagDialog(getSite().getShell(), resource);
+                    currentSelection = getLogEntry(ss); 
+                    BranchTagDialog dialog;
+                    if (resource == null) dialog = new BranchTagDialog(getSite().getShell(), historyTableProvider.getRemoteResource());
+                    else dialog = new BranchTagDialog(getSite().getShell(), resource);
                     dialog.setRevisionNumber(currentSelection.getRevision().getNumber());
                     if (dialog.open() == BranchTagDialog.CANCEL) return;
-                    SVNUrl sourceUrl = dialog.getUrl();
-                    SVNUrl destinationUrl = dialog.getToUrl();
-                    String message = dialog.getComment();
+                    final SVNUrl sourceUrl = dialog.getUrl();
+                    final SVNUrl destinationUrl = dialog.getToUrl();
+                    final String message = dialog.getComment();
+                    final SVNRevision revision = dialog.getRevision();
                     boolean createOnServer = dialog.isCreateOnServer();
                     IResource[] resources = { resource };
                     try {
-                    	new BranchTagOperation(HistoryView.this, resources, sourceUrl, destinationUrl, createOnServer, dialog.getRevision(), message).run();
+                    	if (resource == null) {
+                    		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+								public void run() {
+									try {
+			                    		ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+			                    		client.copy(sourceUrl, destinationUrl, message, revision);                    											
+									} catch (Exception e) {
+										MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e.getMessage());            
+									}
+								}                    			
+                    		});
+                    	}
+                    	else new BranchTagOperation(HistoryView.this, resources, sourceUrl, destinationUrl, createOnServer, dialog.getRevision(), message).run();
                     } catch (Exception e) {
                     	MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e.getMessage());                   	
                     }
@@ -1191,9 +1206,9 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 						manager.add(getUpdateToRevisionAction());
 					}
 					manager.add(getShowDifferencesAsUnifiedDiffAction());
-					if (resource != null) {
+//					if (resource != null) {
 						manager.add(getCreateTagFromRevisionAction());
-					}
+//					}
 					manager.add(getSetCommitPropertiesAction());
 				}
 				if (resource != null) manager.add(getRevertChangesAction());
