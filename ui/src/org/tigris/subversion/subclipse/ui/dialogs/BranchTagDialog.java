@@ -42,6 +42,7 @@ public class BranchTagDialog extends Dialog {
     private static final int REVISION_WIDTH_HINT = 40;
     
     private IResource resource;
+    private ISVNRemoteResource remoteResource;
     
     private UrlCombo toUrlCombo;
     private Button serverButton;
@@ -89,6 +90,14 @@ public class BranchTagDialog extends Dialog {
 		}
         this.resource = resource;
     }
+	
+	public BranchTagDialog(Shell parentShell, ISVNRemoteResource remoteResource) {
+        super(parentShell);
+		int shellStyle = getShellStyle();
+		setShellStyle(shellStyle | SWT.RESIZE);
+        commitCommentArea = new CommitCommentArea(this, null, Policy.bind("BranchTagDialog.enterComment"), commentProperties); //$NON-NLS-1$
+        this.remoteResource = remoteResource;
+    }
     
 	/*
 	 * @see Dialog#createDialogArea(Composite)
@@ -106,17 +115,25 @@ public class BranchTagDialog extends Dialog {
 		repositoryGroup.setLayoutData(data);
 		
 		Label fromUrlLabel = new Label(repositoryGroup, SWT.NONE);
-		fromUrlLabel.setText(Policy.bind("BranchTagDialog.url")); //$NON-NLS-1$
+		if (resource == null) fromUrlLabel.setText(Policy.bind("BranchTagDialog.fromUrl")); //$NON-NLS-1$
+		else fromUrlLabel.setText(Policy.bind("BranchTagDialog.url")); //$NON-NLS-1$
 		
 		Text urlText = new Text(repositoryGroup, SWT.BORDER);
 		data = new GridData();
 		data.widthHint = URL_WIDTH_HINT;
 		urlText.setLayoutData(data);
-		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-		try {
-            url = svnResource.getStatus().getUrl();
-            if (url != null) urlText.setText(svnResource.getStatus().getUrlString());
-        } catch (SVNException e1) {}
+		
+		if (resource == null) {
+			url = remoteResource.getUrl();
+			urlText.setText(url.toString());
+		} else {
+			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+			try {
+	            url = svnResource.getStatus().getUrl();
+	            if (url != null) urlText.setText(svnResource.getStatus().getUrlString());
+	        } catch (SVNException e1) {}
+		}
+		
         urlText.setEditable(false);
         
 		Label toUrlLabel = new Label(repositoryGroup, SWT.NONE);
@@ -131,7 +148,8 @@ public class BranchTagDialog extends Dialog {
 		data = new GridData(GridData.FILL_BOTH);
 		urlComposite.setLayoutData(data);
 		
-		toUrlCombo = new UrlCombo(urlComposite, resource.getProject().getName());
+		if (resource == null) toUrlCombo = new UrlCombo(urlComposite, "repositoryBrowser"); //$NON-NLS-1$
+		else toUrlCombo = new UrlCombo(urlComposite, resource.getProject().getName());
 		toUrlCombo.setText(urlText.getText());
 		
 		Button browseButton = new Button(urlComposite, SWT.PUSH);
@@ -187,7 +205,8 @@ public class BranchTagDialog extends Dialog {
 		workingCopyButton.setText(Policy.bind("BranchTagDialog.working")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
-		workingCopyButton.setLayoutData(data);			
+		workingCopyButton.setLayoutData(data);	
+		if (resource == null) workingCopyButton.setVisible(false);
 		
 		if (revisionNumber == 0) serverButton.setSelection(true);
 		else revisionButton.setSelection(true);
@@ -205,8 +224,10 @@ public class BranchTagDialog extends Dialog {
 		revisionButton.addSelectionListener(selectionListener);
 		workingCopyButton.addSelectionListener(selectionListener);
 		
-		Label label = createWrappingLabel(composite);
-		label.setText(Policy.bind("BranchTagDialog.note")); //$NON-NLS-1$ 
+		if (resource != null) {
+			Label label = createWrappingLabel(composite);
+			label.setText(Policy.bind("BranchTagDialog.note")); //$NON-NLS-1$ 
+		}
 		
 		if (projectProperties != null) {
 		    addBugtrackingArea(composite);
@@ -230,12 +251,15 @@ public class BranchTagDialog extends Dialog {
 	
 	protected void showLog() {
 	    ISVNRemoteResource remoteResource = null;
-        try {
-            remoteResource = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getRemoteFile(url);
-        } catch (Exception e) {
-            MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), e.toString()); //$NON-NLS-1$
-            return;
-        }
+	    if (resource == null) remoteResource = this.remoteResource;
+	    else {
+	        try {
+	            remoteResource = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getRemoteFile(url);
+	        } catch (Exception e) {
+	            MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), e.toString()); //$NON-NLS-1$
+	            return;
+	        }
+	    }
         if (remoteResource == null) {
             MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), Policy.bind("MergeDialog.urlError") + " " + toUrlCombo.getText()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             return;	            

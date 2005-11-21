@@ -191,7 +191,14 @@
                class="org.tigris.subversion.subclipse.ui.actions.CopyRemoteResourceAction"
                menubarPath="miscGroup"
                id="org.tigris.subversion.subclipse.ui.copyRemoteResource">
-         </action>         
+         </action>
+         <action
+               label="%BranchTagAction.label"
+               icon="icons/full/tortoise/copy.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.RepositoryBranchTagAction"
+               menubarPath="miscGroup"
+               id="org.tigris.subversion.subclipse.ui.repositoryBranchTag">
+         </action>                           
          <action
                label="%MoveRemoteAction.label"
                icon="icons/full/tortoise/rename.gif"
