@@ -32,7 +32,6 @@ public interface ISVNUIConstants {
 	
 	// objects
 	public final String IMG_REPOSITORY = "obj16/repository_rep.gif"; //$NON-NLS-1$
-	public final String IMG_TAG = "obj16/tag.gif"; //$NON-NLS-1$
 	public final String IMG_BRANCHES_CATEGORY = "obj16/branches_rep.gif"; //$NON-NLS-1$
 	public final String IMG_VERSIONS_CATEGORY = "obj16/versions_rep.gif"; //$NON-NLS-1$
 	public final String IMG_MODULE = "obj16/module_rep.gif"; //$NON-NLS-1$
@@ -77,6 +76,8 @@ public interface ISVNUIConstants {
     public final String IMG_LOG = "tortoise/log.gif"; //$NON-NLS-1$
     public final String IMG_MERGE = "tortoise/merge.gif"; //$NON-NLS-1$
     public final String IMG_IGNORE = "tortoise/ignore.gif"; //$NON-NLS-1$
+    public final String IMG_TAG = "tortoise/copy.gif"; //$NON-NLS-1$
+    public final String IMG_DIFF = "tortoise/diff.gif"; //$NON-NLS-1$
     
     // views
     public final String IMG_SVN_CONSOLE = "cview16/console_view.gif"; //$NON-NLS-1$

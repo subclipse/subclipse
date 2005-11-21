@@ -97,6 +97,7 @@ public class ImageDescriptors {
 		createImageDescriptor(ISVNUIConstants.IMG_LOG, baseURL);
 		createImageDescriptor(ISVNUIConstants.IMG_MERGE, baseURL);
 		createImageDescriptor(ISVNUIConstants.IMG_IGNORE, baseURL);
+		createImageDescriptor(ISVNUIConstants.IMG_DIFF, baseURL);
         
         // special
         createImageDescriptor("glyphs/glyph1.gif", baseURL);  //$NON-NLS-1$

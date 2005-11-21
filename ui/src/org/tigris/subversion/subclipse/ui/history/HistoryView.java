@@ -592,6 +592,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 				revertChangesAction.setText(Policy.bind("HistoryView.revertChangesFromRevisions", "" + lastElement.getRevision().getNumber(), "" + firstElement.getRevision().getNumber()));
 			}
 		}
+		revertChangesAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MERGE));
 		return revertChangesAction;
 	}
 	
@@ -626,7 +627,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	// get create tag from revision action (context menu)
 	private Action getCreateTagFromRevisionAction() {
 		if (createTagFromRevisionAction == null) {
-			createTagFromRevisionAction = new Action(Policy.bind("HistoryView.createTagFromRevision")) { //$NON-NLS-1$
+			createTagFromRevisionAction = new Action(Policy.bind("HistoryView.createTagFromRevision"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TAG)) { //$NON-NLS-1$
 				public void run() {
                     ISelection selection = getSelection();
                     if (!(selection instanceof IStructuredSelection)) return;
@@ -654,7 +655,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	// get differences as unified diff action (context menu)
 	private Action getShowDifferencesAsUnifiedDiffAction() {
 		if (showDifferencesAsUnifiedDiffAction == null) {
-			showDifferencesAsUnifiedDiffAction = new Action(Policy.bind("HistoryView.showDifferences")) { //$NON-NLS-1$
+			showDifferencesAsUnifiedDiffAction = new Action(Policy.bind("HistoryView.showDifferences"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_DIFF)) { //$NON-NLS-1$
 				public void run() {
                     ISelection selection = getSelection();
                     if (!(selection instanceof IStructuredSelection)) return;
