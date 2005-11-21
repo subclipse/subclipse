@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -113,6 +114,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.actions.RemoteResourceTransfer;
+import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.CommitDialog;
@@ -120,6 +122,7 @@ import org.tigris.subversion.subclipse.ui.dialogs.SetCommitPropertiesDialog;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
+import org.tigris.subversion.subclipse.ui.operations.MergeOperation;
 import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
@@ -170,6 +173,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     private Action getNextAction;
     private Action showDifferencesAsUnifiedDiffAction;
     private Action createTagFromRevisionAction;
+    private Action revertChangesAction;
 
     private IAction toggleWrapCommentsAction;
     private IAction toggleShowComments;
@@ -536,6 +540,87 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 			if (entriesToFetch <= 0) getNextAction.setEnabled(false);
 		}
 		return getNextAction;
+	}
+	
+	// get revert changes action (context menu)
+	private Action getRevertChangesAction() {
+		if (revertChangesAction == null) {
+			revertChangesAction = new Action() {
+				public void run() {
+					ISelection selection = getSelection();
+					if (!(selection instanceof IStructuredSelection)) return;
+					final IStructuredSelection ss = (IStructuredSelection)selection;
+					if (ss.size() == 1) {
+						if (!MessageDialog.openConfirm(getSite().getShell(), getText(), Policy.bind("HistoryView.confirmRevertRevision", resource.getFullPath().toString()))) return;
+					} else {
+						if (!MessageDialog.openConfirm(getSite().getShell(), getText(), Policy.bind("HistoryView.confirmRevertRevisions", resource.getFullPath().toString()))) return;
+					}
+					BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+						public void run() {
+							ILogEntry firstElement = getFirstElement();
+							ILogEntry lastElement = getLastElement();
+							final SVNUrl path1 = firstElement.getResource().getUrl();
+							final SVNRevision revision1 = firstElement.getRevision();
+							final SVNUrl path2 = lastElement.getResource().getUrl();
+							final SVNRevision revision2 = new SVNRevision.Number(lastElement.getRevision().getNumber() - 1);
+							final IResource[] resources = { resource };
+							try {
+								WorkspaceAction mergeAction = new WorkspaceAction() {
+									protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
+										new MergeOperation(HistoryView.this, resources, path1, revision1, path2, revision2).run();      
+									}									
+								};
+								mergeAction.run(null);
+							} catch (Exception e) {
+								MessageDialog.openError(getSite().getShell(), revertChangesAction.getText(), e.getMessage());   								
+							}
+						}						
+					});
+				}
+			};
+		}
+		ISelection selection = getSelection();
+		if (selection instanceof IStructuredSelection) {
+			IStructuredSelection ss = (IStructuredSelection)selection;
+			if (ss.size() == 1) {
+				currentSelection = getLogEntry(ss);      
+				revertChangesAction.setText(Policy.bind("HistoryView.revertChangesFromRevision", "" + currentSelection.getRevision().getNumber()));
+			}
+			if (ss.size() > 1) {
+				ILogEntry firstElement = getFirstElement();
+				ILogEntry lastElement = getLastElement();
+				revertChangesAction.setText(Policy.bind("HistoryView.revertChangesFromRevisions", "" + lastElement.getRevision().getNumber(), "" + firstElement.getRevision().getNumber()));
+			}
+		}
+		return revertChangesAction;
+	}
+	
+	private ILogEntry getFirstElement() {
+		ILogEntry firstElement = null;
+		ISelection selection = getSelection();
+		if (selection instanceof IStructuredSelection) {
+			IStructuredSelection ss = (IStructuredSelection)selection;
+			Iterator iter = ss.iterator();
+			while (iter.hasNext()) {
+				ILogEntry element = (ILogEntry)iter.next();
+				if (firstElement == null || element.getRevision().getNumber() > firstElement.getRevision().getNumber()) firstElement = element;
+			}
+		}
+		return firstElement;
+	}
+	
+	private ILogEntry getLastElement() {
+		ILogEntry lastElement = null;
+		ISelection selection = getSelection();
+		if (selection instanceof IStructuredSelection) {
+			IStructuredSelection ss = (IStructuredSelection)selection;
+			Iterator iter = ss.iterator();
+			while (iter.hasNext()) {
+				ILogEntry element = (ILogEntry)iter.next();
+				if (lastElement == null || element.getRevision().getNumber() < lastElement.getRevision().getNumber()) lastElement = element;
+			}
+		}
+		return lastElement;
 	}
 	
 	// get create tag from revision action (context menu)
@@ -1105,9 +1190,12 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 						manager.add(getUpdateToRevisionAction());
 					}
 					manager.add(getShowDifferencesAsUnifiedDiffAction());
-					if (resource != null) manager.add(getCreateTagFromRevisionAction());
+					if (resource != null) {
+						manager.add(getCreateTagFromRevisionAction());
+					}
 					manager.add(getSetCommitPropertiesAction());
 				}
+				if (resource != null) manager.add(getRevertChangesAction());
 			}
 		}
 		manager.add(new Separator("additions")); //$NON-NLS-1$

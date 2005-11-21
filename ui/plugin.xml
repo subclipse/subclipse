@@ -149,6 +149,12 @@
                id="org.tigris.subversion.subclipse.ui.createRemoteFolder">
          </action>
          <action
+               label="%CopyUrlToClipboardAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.CopyUrlToClipboardAction"
+               menubarPath="additions"
+               id="org.tigris.subversion.subclipse.ui.copyUrlToClipboard">
+         </action>       
+         <action
                label="%DeleteRemoteAction.label"
                icon="icons/full/ctool16/delete.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.delete_remote_resource_action_context"
@@ -227,6 +233,12 @@
                menubarPath="checkoutGroup"
                id="org.tigris.subversion.subclipse.ui.addToWorkspace">
          </action>
+         <action
+               label="%ExportRemoteFolderAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.ExportRemoteFolderAction"
+               menubarPath="additions"
+               id="org.tigris.subversion.subclipse.ui.ExportRemoteFolder">
+         </action>         
       </objectContribution>
       <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.history.LogEntry"
