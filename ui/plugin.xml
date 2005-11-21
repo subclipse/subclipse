@@ -125,6 +125,7 @@
                icon="icons/full/tortoise/checkout.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.checkout_as_project_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.CheckoutAsProjectAction"
+               menubarPath="checkoutGroup"
                tooltip="%AddToWorkspaceAction.tooltip"
                id="org.tigris.subversion.subclipse.ui.addToWorkspace">
          </action>
@@ -133,6 +134,7 @@
                helpContextId="org.tigris.subversion.subclipse.ui.checkout_as_action_context"
                tooltip="%CheckoutAsAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.CheckoutAsAction"
+               menubarPath="checkoutGroup"
                id="org.tigris.subversion.subclipse.ui.checkoutAs">
          </action>               
       </objectContribution>
@@ -149,9 +151,18 @@
                id="org.tigris.subversion.subclipse.ui.createRemoteFolder">
          </action>
          <action
+               label="%ShowHistoryAction.label"
+               icon="icons/full/tortoise/log.gif"
+               helpContextId="org.tigris.subversion.subclipse.ui.show_in_history_action_context"
+               class="org.tigris.subversion.subclipse.ui.actions.ShowHistoryAction"
+               menubarPath="historyGroup"
+               tooltip="%ShowHistoryAction.tooltip"
+               id="org.tigris.subversion.subclipse.ui.showHistory">
+         </action>         
+         <action
                label="%CopyUrlToClipboardAction.label"
                class="org.tigris.subversion.subclipse.ui.actions.CopyUrlToClipboardAction"
-               menubarPath="additions"
+               menubarPath="miscGroup"
                id="org.tigris.subversion.subclipse.ui.copyUrlToClipboard">
          </action>       
          <action
@@ -160,15 +171,8 @@
                helpContextId="org.tigris.subversion.subclipse.ui.delete_remote_resource_action_context"
                tooltip="%DeleteRemoteAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.DeleteRemoteResourceAction"
+               menubarPath="miscGroup"
                id="org.tigris.subversion.subclipse.ui.deleteRemoteResource">
-         </action>
-         <action
-               label="%CopyRemoteAction.label"
-               icon="icons/full/ctool16/copy_edit.gif"
-               helpContextId="org.tigris.subversion.subclipse.ui.copy_remote_resource_action_context"
-               tooltip="%CopyRemoteAction.tooltip"
-               class="org.tigris.subversion.subclipse.ui.actions.CopyRemoteResourceAction"
-               id="org.tigris.subversion.subclipse.ui.copyRemoteResource">
          </action>
          <action
                label="%PasteRemoteAction.label"
@@ -176,23 +180,26 @@
                helpContextId="org.tigris.subversion.subclipse.ui.paste_remote_resource_action_context"
                tooltip="%PasteRemoteAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.PasteRemoteResourceAction"
+               menubarPath="miscGroup"
                id="org.tigris.subversion.subclipse.ui.pasteRemoteResource">
          </action>
+         <action
+               label="%CopyRemoteAction.label"
+               icon="icons/full/ctool16/copy_edit.gif"
+               helpContextId="org.tigris.subversion.subclipse.ui.copy_remote_resource_action_context"
+               tooltip="%CopyRemoteAction.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.CopyRemoteResourceAction"
+               menubarPath="miscGroup"
+               id="org.tigris.subversion.subclipse.ui.copyRemoteResource">
+         </action>         
          <action
                label="%MoveRemoteAction.label"
                icon="icons/full/tortoise/rename.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.move_remote_resource_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.MoveRemoteResourceAction"
+               menubarPath="miscGroup"
                tooltip="%MoveRemoteAction.tooltip"
                id="org.tigris.subversion.subclipse.ui.moveRemoteResource">
-         </action>
-         <action
-               label="%ShowHistoryAction.label"
-               icon="icons/full/tortoise/log.gif"
-               helpContextId="org.tigris.subversion.subclipse.ui.show_in_history_action_context"
-               class="org.tigris.subversion.subclipse.ui.actions.ShowHistoryAction"
-               tooltip="%ShowHistoryAction.tooltip"
-               id="org.tigris.subversion.subclipse.ui.showHistory">
          </action>
       </objectContribution>
       <objectContribution
@@ -203,6 +210,7 @@
                helpContextId="org.tigris.subversion.subclipse.ui.open_remote_file_action_context"
                tooltip="%OpenRemoteFileAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction"
+               menubarPath="group.file"
                id="org.tigris.subversion.subclipse.ui.openRemoteFile">
          </action>
       </objectContribution>
@@ -234,10 +242,17 @@
                id="org.tigris.subversion.subclipse.ui.addToWorkspace">
          </action>
          <action
+               label="%ImportFolderAction.label"
+               icon="icons/full/tortoise/import.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.ImportFolderAction"
+               menubarPath="exportImportGroup"
+               id="org.tigris.subversion.subclipse.ui.ImportFolder">
+         </action>                 
+         <action
                label="%ExportRemoteFolderAction.label"
                icon="icons/full/tortoise/export.gif"
                class="org.tigris.subversion.subclipse.ui.actions.ExportRemoteFolderAction"
-               menubarPath="additions"
+               menubarPath="exportImportGroup"
                id="org.tigris.subversion.subclipse.ui.ExportRemoteFolder">
          </action>         
       </objectContribution>

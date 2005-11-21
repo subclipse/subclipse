@@ -113,7 +113,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
             refresh(false);
         }
         public void remoteResourceCreated(ISVNRemoteFolder parent,String resourceName) {
-            refresh(false);  
+            refresh(true);  
         }
         public void remoteResourceCopied(ISVNRemoteResource source,ISVNRemoteFolder destination) {
             refresh(false);  
@@ -294,7 +294,9 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         // File actions go first (view file)
         manager.add(new Separator(IWorkbenchActionConstants.GROUP_FILE));
         // Misc additions
+        manager.add(new Separator("historyGroup")); //$NON-NLS-1$
         manager.add(new Separator("checkoutGroup")); //$NON-NLS-1$
+        manager.add(new Separator("exportImportGroup")); //$NON-NLS-1$
         manager.add(new Separator("miscGroup")); //$NON-NLS-1$
         
         manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
