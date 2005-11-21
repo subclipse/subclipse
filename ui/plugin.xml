@@ -235,6 +235,7 @@
          </action>
          <action
                label="%ExportRemoteFolderAction.label"
+               icon="icons/full/tortoise/export.gif"
                class="org.tigris.subversion.subclipse.ui.actions.ExportRemoteFolderAction"
                menubarPath="additions"
                id="org.tigris.subversion.subclipse.ui.ExportRemoteFolder">
