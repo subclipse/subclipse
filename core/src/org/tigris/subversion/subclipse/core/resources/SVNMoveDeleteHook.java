@@ -24,10 +24,12 @@ import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class SVNMoveDeleteHook implements IMoveDeleteHook {
@@ -44,6 +46,9 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 return false;
             }
 
+            if (getDeferFileDelete(file))
+            	return false;
+            
             monitor.beginTask(null, 1000);
             resource.delete();
             tree.deletedFile(file);
@@ -235,6 +240,32 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
      * @see org.eclipse.core.resources.team.IMoveDeleteHook#moveProject(org.eclipse.core.resources.team.IResourceTree, org.eclipse.core.resources.IProject, org.eclipse.core.resources.IProjectDescription, int, org.eclipse.core.runtime.IProgressMonitor)
      */
     public boolean moveProject(IResourceTree tree, IProject source, IProjectDescription description, int updateFlags, IProgressMonitor monitor) {
+        return false;
+    }
+
+    // Get the DeferFileDelete Property for selected resource.  First looks at selected resource,
+    // then works up through ancestors until a folder with the DeferFileDelete property
+    // is found.  If none found, returns false.
+    private boolean getDeferFileDelete(IResource resource) throws SVNException {
+        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+        ISVNProperty property = null;
+        if (svnResource.isManaged()) {
+            property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
+        }
+        if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
+            return property.getValue().equalsIgnoreCase("true");           
+        }
+        IResource checkResource = resource;
+        while (checkResource.getParent() != null) {
+            checkResource = checkResource.getParent();
+            if (checkResource.getParent() == null) return false;
+            svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
+            if (svnResource.isManaged())
+                property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
+            if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
+                return property.getValue().equalsIgnoreCase("true");           
+            }
+        }
         return false;
     }
 
