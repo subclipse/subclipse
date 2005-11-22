@@ -151,6 +151,13 @@
                id="org.tigris.subversion.subclipse.ui.createRemoteFolder">
          </action>
          <action
+               label="%ShowDifferencesAsUnifiedDiffAction.label"
+               icon="icons/full/tortoise/diff.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffAction"
+               menubarPath="historyGroup"
+               id="org.tigris.subversion.subclipse.ui.showDifferencesAsUnifiedDiff">
+         </action>               
+         <action
                label="%ShowHistoryAction.label"
                icon="icons/full/tortoise/log.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.show_in_history_action_context"
