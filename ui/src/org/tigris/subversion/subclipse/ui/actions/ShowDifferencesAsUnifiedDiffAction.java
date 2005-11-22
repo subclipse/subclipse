@@ -20,6 +20,7 @@ public class ShowDifferencesAsUnifiedDiffAction extends SVNAction {
 	protected boolean isEnabled() throws TeamException {
 		ISVNRemoteResource[] selectedResources = getSelectedRemoteResources();
 		if (selectedResources.length != 2) return false;
+		if (!selectedResources[0].getRepository().getRepositoryRoot().toString().equals(selectedResources[1].getRepository().getRepositoryRoot().toString())) return false;
 		if (selectedResources[0] instanceof ISVNRemoteFolder && selectedResources[1] instanceof ISVNRemoteFolder) return true;
 		if (selectedResources[0] instanceof ISVNRemoteFile && selectedResources[1] instanceof ISVNRemoteFile) return true;
 		return false;
