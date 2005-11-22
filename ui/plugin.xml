@@ -208,6 +208,11 @@
                tooltip="%MoveRemoteAction.tooltip"
                id="org.tigris.subversion.subclipse.ui.moveRemoteResource">
          </action>
+         <action
+               label="%RemoteResourcePropertiesAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.RemoteResourcePropertiesAction"
+               id="org.tigris.subversion.subclipse.ui.remoteResourceProperties">
+         </action>
       </objectContribution>
       <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.ISVNRemoteFile"
