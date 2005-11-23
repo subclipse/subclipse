@@ -130,5 +130,20 @@ foo      http://example.com/repos/zig
 foo/bar  -r 1234  http://example.com/repos/zag
         </description>
       </svnPropertyTypes>
+      <svnPropertyTypes
+            type="Boolean"
+            fileOrFolder="folder"
+            allowRecurse = "false"
+            name="DeferFileDelete">
+         <description>
+DeferFileDelete
+Set to &quot;true&quot; if your project is using some kind of generator or other process that
+updates versioned files by deleting and then recreating the files.  By setting this property
+you indicate that you do not want Delete operations to be immediately handled and turned into
+svn delete commands.  If the file is deleted and recreated, this will cause it to be recognized
+as a modification.  If the file is never recreated it will have a status of missing and can be
+deleted on commit or from the Show Pending Operations view.
+        </description>
+      </svnPropertyTypes>
  </extension>
 </plugin>
