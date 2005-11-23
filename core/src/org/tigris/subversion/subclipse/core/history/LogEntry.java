@@ -17,12 +17,11 @@ import java.util.Date;
 import org.eclipse.core.runtime.PlatformObject;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResource;
-import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
-import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -115,29 +114,24 @@ public class LogEntry extends PlatformObject implements ILogEntry {
     public LogEntryChangePath[] getLogEntryChangePaths() {
     	ISVNLogMessageChangePath[] changePaths = null;
     	if (SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand()) {
-    	try {
-    		ISVNClientAdapter client = resource.getRepository().getSVNClient();
     		SVNUrl url = resource.getRepository().getRepositoryRoot();
     		if (url == null)
-    		    url = resource.getRepository().getUrl();
-    		try {
-	    		ISVNLogMessage[] tmpMessage = client.getLogMessages(url, getRevision(), getRevision(), true);
-	    		changePaths = tmpMessage[0].getChangedPaths();
-    		} catch(SVNClientException ce) {
-    		    // Root URL is probably bad.  Use the repository URL and change the root URL to
-    		    // be equal to the repository URL.
-    		    url = resource.getRepository().getUrl();
-        		ISVNLogMessage[] tmpMessage = client.getLogMessages(url, getRevision(), getRevision(), true);
-        		changePaths = tmpMessage[0].getChangedPaths();
-    		    resource.getRepository().setRepositoryRoot(url);
+    		    url = updateRootUrl(resource);
+    		changePaths = getPathsOnDemand(url);
+    		if (changePaths == null) {
+    		    // Root URL is probably bad.  Run svn info to retrieve the root URL and
+    		    // update it in the repository.
+    		    SVNUrl url2 = updateRootUrl(resource);
+    		    if (!url.toString().equals(url2.toString()))
+    		        changePaths = getPathsOnDemand(url);
+    		    // one last try using the resource URL
+    		    if (changePaths == null)
+    		        changePaths = getPathsOnDemand(resource.getUrl());
+    		    
+    		    // Still nothing, just return an empty array
+    		    if (changePaths == null)
+    				changePaths = new ISVNLogMessageChangePath[0];
     		}
-		} catch (SVNException e) {
-			e.printStackTrace();
-			changePaths = new ISVNLogMessageChangePath[0];
-		} catch (SVNClientException e) {
-			e.printStackTrace();
-			changePaths = new ISVNLogMessageChangePath[0];
-		}
     	} else {
     		changePaths = logMessage.getChangedPaths();
     	}
@@ -147,6 +141,41 @@ public class LogEntry extends PlatformObject implements ILogEntry {
         	logEntryChangePaths[i] = new LogEntryChangePath(this,changePaths[i]);
         }
         return logEntryChangePaths;
+    }
+    
+    /**
+     * @param resource
+     * @return rootURL
+     */
+    private SVNUrl updateRootUrl(ISVNResource resource) {
+        try {
+            ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
+            ISVNInfo info = client.getInfo(resource.getUrl());
+            if (info.getRepository() == null)
+                return resource.getUrl();
+            else {
+                // update the saved root URL
+                resource.getRepository().setRepositoryRoot(info.getRepository());
+                return info.getRepository();
+            }
+        } catch (Exception e) {
+            return resource.getUrl();
+        }
+    }
+
+    private ISVNLogMessageChangePath[] getPathsOnDemand(SVNUrl url) {
+		ISVNLogMessage[] tmpMessage;
+		ISVNClientAdapter client;
+        try {
+            client = SVNProviderPlugin.getPlugin().createSVNClient(); // errors will not log to console
+            tmpMessage = client.getLogMessages(url, getRevision(), getRevision(), true);
+	        if (tmpMessage != null && tmpMessage.length > 0)
+			    return tmpMessage[0].getChangedPaths();
+			else
+			    return null;
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 
