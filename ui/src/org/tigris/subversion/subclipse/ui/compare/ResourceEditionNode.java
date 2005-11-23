@@ -99,6 +99,11 @@ public class ResourceEditionNode
 											if (localNode != null) {
 												children[i]
 														.setLocalResource(localNode);
+												try {
+													children[i].setCharset(localNode.getCharset());
+												} catch (CoreException e) {
+													e.printStackTrace();
+												}
 											}
 										}
 									} catch (TeamException e) {
@@ -206,11 +211,6 @@ public class ResourceEditionNode
 			String localPath=((SVNLocalResourceNode)lrn[i]).getResource().getFullPath().toString();
 			localPath = localPath.substring(localPath.indexOf("/",1));
 			if(localPath.equals(remotePath)){
-				try {
-					setCharset(((SVNLocalResourceNode)lrn[i]).getCharset());
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
 				return (SVNLocalResourceNode)lrn[i];
 			}
 		}
