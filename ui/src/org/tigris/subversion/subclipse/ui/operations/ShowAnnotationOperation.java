@@ -34,6 +34,13 @@ public class ShowAnnotationOperation extends SVNOperation {
         this.toRevision = remoteFile.getLastChangedRevision();
     }
     
+    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, SVNRevision fromRevision, SVNRevision toRevision) {
+        super(part);
+        this.remoteFile = remoteFile;
+        this.fromRevision = fromRevision;
+        this.toRevision = toRevision;
+    }
+    
     public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile) {
         this(part, remoteFile, SVNRevision.START);
     }
