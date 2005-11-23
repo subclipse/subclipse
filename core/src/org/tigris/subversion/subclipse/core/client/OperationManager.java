@@ -30,6 +30,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.util.ReentrantLock;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
@@ -171,15 +172,11 @@ public class OperationManager implements ISVNNotifyListener {
 			operationNotifyListener.onNotify(path, kind);
 			if ((operationNotifyListener.getMonitor() != null) && (operationNotifyListener.getMonitor().isCanceled()))
 			{
-				//TODO This code should allow the long running svn operation to be canceled.
-				//However a the time of writing (JavaHL 1.2.0) it is crashing the whole Java VM.
-				//So I've commented it out for the time being. We should investigate it closer,
-				//whether it is JavaHL bug or not ...
-//				try {
-//					svnClient.cancelOperation();
-//				} catch (SVNClientException e) {
-//					SVNProviderPlugin.log(SVNException.wrapException(e));
-//				}
+				try {
+					svnClient.cancelOperation();
+				} catch (SVNClientException e) {
+					SVNProviderPlugin.log(SVNException.wrapException(e));
+				}
 			}
 		}
 	}
