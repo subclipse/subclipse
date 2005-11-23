@@ -162,20 +162,25 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 		}
 	    if (confirmCommit(set)) {
 	        final IResource[][] resourcesToBeAdded = new IResource[][] { null };
+	        final IResource[][] resourcesToBeDeleted = new IResource[][] { null };
 		    List toBeAddedList = new ArrayList();
+		    List toBeDeletedList = new ArrayList();
 		    for (int i = 0; i < resourcesToCommit.length; i++) {
 		        IResource resource = resourcesToCommit[i];
 		        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		        try {
                     if (!svnResource.isManaged()) toBeAddedList.add(resource);
+                    if (svnResource.getStatus().isMissing()) toBeDeletedList.add(resource);
                 } catch (SVNException e) {
                     e.printStackTrace();
                 }
 		    }
 		    resourcesToBeAdded[0] = new IResource[toBeAddedList.size()];
 		    toBeAddedList.toArray(resourcesToBeAdded[0]);
+		    resourcesToBeDeleted[0] = new IResource[toBeDeletedList.size()];
+		    toBeDeletedList.toArray(resourcesToBeDeleted[0]);
 		    try {
-                new CommitOperation(getPart(), resourcesToCommit, resourcesToBeAdded[0], resourcesToCommit, commitComment, keepLocks).run();
+                new CommitOperation(getPart(), resourcesToCommit, resourcesToBeAdded[0], resourcesToBeDeleted[0], resourcesToCommit, commitComment, keepLocks).run();
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {

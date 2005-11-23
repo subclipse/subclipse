@@ -65,6 +65,7 @@ public class CommitAction extends WorkspaceAction {
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		final IResource[] resources = getSelectedResources();
 	    final List resourcesToBeAdded = new ArrayList();
+	    final List resourcesToBeDeleted = new ArrayList();
 		run(new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
@@ -81,12 +82,14 @@ public class CommitAction extends WorkspaceAction {
 					}
 
 				    // if commit was not canceled, create a list of any
-				    // unversioned resources that were selected.
+				    // unversioned resources that were selected and a list of any missing
+				    // resources that were selected.
 					if (commit) {
 					    for (int i = 0; i < resourcesToCommit.length; i++) {
 					        IResource resource = resourcesToCommit[i];
 					        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 					        if (!svnResource.isManaged()) resourcesToBeAdded.add(resource);
+					        if (svnResource.getStatus().isMissing()) resourcesToBeDeleted.add(resource);
 					    }
 					}
 				} catch (TeamException e) {
@@ -100,7 +103,8 @@ public class CommitAction extends WorkspaceAction {
 		}
 		
 		new CommitOperation(getTargetPart(), resources, 
-				(IResource[]) resourcesToBeAdded.toArray(new IResource[resourcesToBeAdded.size()]), 
+				(IResource[]) resourcesToBeAdded.toArray(new IResource[resourcesToBeAdded.size()]),
+				(IResource[]) resourcesToBeDeleted.toArray(new IResource[resourcesToBeAdded.size()]),
 				resourcesToCommit, commitComment, keepLocks).run();
 	}
 	
@@ -126,7 +130,7 @@ public class CommitAction extends WorkspaceAction {
 			 command.run(iProgressMonitor);
 			 ISVNStatus[] statuses = command.getStatuses();
 			 for (int j = 0; j < statuses.length; j++) {
-			     if (SVNStatusUtils.isReadyForCommit(statuses[j])) {
+			     if (SVNStatusUtils.isReadyForCommit(statuses[j]) || SVNStatusUtils.isMissing(statuses[j])) {
 			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
 			         if (currentResource != null) {
 			             ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);

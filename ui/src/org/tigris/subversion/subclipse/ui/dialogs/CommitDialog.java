@@ -412,20 +412,23 @@ public class CommitDialog extends Dialog {
 	private void setChecks() {
 	    boolean selectUnadded = SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT);
 	    listViewer.setAllChecked(true);
-	    if (!selectUnadded) deselectUnadded();
+	    deselect();
 		selectedResources = listViewer.getCheckedElements();
 	}
-
-    private void deselectUnadded() {
-        TableItem[] items = listViewer.getTable().getItems();
-        for (int i = 0; i < items.length; i++) {
-           IResource resource = (IResource)items[i].getData();
-           ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-           try {
-            if (!svnResource.isManaged()) items[i].setChecked(false);
-           } catch (SVNException e1) {}
-        }
+    
+    private void deselect() {
+    	 boolean selectUnadded = SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT);    	
+    	 TableItem[] items = listViewer.getTable().getItems();         
+    	 for (int i = 0; i < items.length; i++) {
+             IResource resource = (IResource)items[i].getData();
+             ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+             try {
+              if (!selectUnadded && !svnResource.isManaged()) items[i].setChecked(false);
+              else if (svnResource.getStatus().isMissing()) items[i].setChecked(false);
+             } catch (SVNException e1) {}
+          }    
     }
+    
     public boolean isKeepLocks() {
         return keepLocks;
     }
