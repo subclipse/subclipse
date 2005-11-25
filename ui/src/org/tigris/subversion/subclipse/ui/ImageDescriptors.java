@@ -115,6 +115,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_FOLDERDELETE_PENDING,baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_FILEMODIFIED_PENDING,baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_FOLDERMODIFIED_PENDING,baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_FILEMISSING_PENDING,baseURL);
 
         // views
         createImageDescriptor(ISVNUIConstants.IMG_SVN_CONSOLE, baseURL);

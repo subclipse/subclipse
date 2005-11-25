@@ -16,9 +16,11 @@ import java.util.Set;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
@@ -160,6 +162,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
         private Image imgDeleteFolder;
         private Image imgModifiedFile;
         private Image imgModifiedFolder;
+        private Image imgMissing;
         
         public EditorsLabelProvider() {
             imgAddFile = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_FILEADD_PENDING).createImage(false);
@@ -168,6 +171,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
             imgDeleteFolder = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_FOLDERDELETE_PENDING).createImage(false);
             imgModifiedFile = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_FILEMODIFIED_PENDING).createImage(false);
             imgModifiedFolder = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_FOLDERMODIFIED_PENDING).createImage(false);
+            imgMissing = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_FILEMISSING_PENDING).createImage(false);
         }
         
         /**
@@ -202,6 +206,9 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
             else
             if ((svnResource.isFolder()) && (status.isTextModified()))
                 return imgModifiedFolder;
+            else
+            if (status.isMissing()) 
+            	return imgMissing;
             else
                 return null;
 		}
@@ -239,6 +246,9 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
                     else
                     if (status.isTextModified())
                         result = Policy.bind("PendingOperationsView.hasBeenModified",svnResource.getName()); //$NON-NLS-1$
+                    else
+                    if (status.isMissing())
+                    	result = Policy.bind("PendingOperationsView.missing",svnResource.getName()); //$NON-NLS-1$
                     break;
 				case 2 : // resource
 					result = svnResource.getName();
@@ -485,6 +495,12 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
      */
     public void refresh()  {
         changedResources = null;
+        // Force a refresh of the parent to pick up any changes outside of
+        // Eclipse and update their SVN status.
+        try {
+			parent.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		} catch (CoreException e) {
+		}
         updateTable();
     }
 
@@ -544,6 +560,12 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
      */
     public void showPending(IContainer container) throws SVNException {
         parent = container;
+        // Force a refresh of the parent to pick up any changes outside of
+        // Eclipse and update their SVN status.
+        try {
+			parent.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		} catch (CoreException e) {
+		}
         setPartName(Policy.bind("PendingOperationsView.titleWithArgument", container.getName())); //$NON-NLS-1$
         setContentDescription(Policy.bind("PendingOperationsView.titleWithArgument", container.getName())); //$NON-NLS-1$
         tableViewer.setInput(container);
@@ -649,6 +671,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
         Set resourceSet = new HashSet();
         for (int i = 0; i < status.length;i++) {
             if ( ((status[i].isAdded()) && (toggleAddedAction.isChecked())) ||
+            		status[i].isMissing() ||
                     ((status[i].isDeleted()) && (toggleDeletedAction.isChecked())) ||
                     ((status[i].isTextModified()) && (toggleModifiedAction.isChecked())) ) {
                 

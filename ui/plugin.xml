@@ -440,6 +440,13 @@
                id="org.tigris.subversion.subclipse.ui.resolve">
          </action>
          <action
+               label="%MarkDeletedAction.label"
+               icon="icons/full/tortoise/delete.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.MarkDeletedAction"
+               menubarPath="team.main/group5"
+               id="org.tigris.subversion.subclipse.ui.markDeleted">
+         </action>         
+         <action
                label="%RevertAction.label"
                icon="icons/full/tortoise/revert.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.team_revert_action_context"
