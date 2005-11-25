@@ -283,7 +283,7 @@ public class SVNLightweightDecorator
 			}
             
             // fill the bindings
-			if (isDirty) {
+			if (isDirty & !status.isAdded()) {
 				bindings.put(SVNDecoratorConfiguration.DIRTY_FLAG, dirtyFlag);
 			}
 
@@ -378,7 +378,10 @@ public class SVNLightweightDecorator
 		    	if (status.isDeleted()) {
 		    		return deleted;
 		    	} else {
-		    		return dirty;
+		    	    if (status.isAdded())
+		    	        return added;
+		    	    else
+		    	        return dirty;
 		    	}
 		    }
 			return dirty;
