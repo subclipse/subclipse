@@ -53,6 +53,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.SashForm;
@@ -118,7 +119,6 @@ import org.tigris.subversion.subclipse.ui.actions.RemoteResourceTransfer;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
-import org.tigris.subversion.subclipse.ui.dialogs.CommitDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.SetCommitPropertiesDialog;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
@@ -184,7 +184,6 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	private SashForm sashForm;
 	private SashForm innerSashForm;
 
-	private ILogEntry currentSelection; 
 	private boolean linkingEnabled;
 	private ILogEntry lastEntry;
 
@@ -288,10 +287,6 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
             public void run() {
                 try {
                     if (resource == null) return;
-                    ISelection selection = getSelection();
-                    if (!(selection instanceof IStructuredSelection)) return;
-                    IStructuredSelection ss = (IStructuredSelection)selection;
-                    currentSelection = getLogEntry(ss);
                     PlatformUI.getWorkbench().getProgressService().run(true, true, new IRunnableWithProgress() {
                         public void run(IProgressMonitor monitor) throws InvocationTargetException {
                             try {               
@@ -311,11 +306,8 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
             // we don't allow multiple selection
             public boolean isEnabled() {
                 ISelection selection = getSelection();
-                if (!(selection instanceof IStructuredSelection)) return false;
-                IStructuredSelection ss = (IStructuredSelection)selection;
-                if(ss.size() != 1) return false;
-                currentSelection = getLogEntry(ss);
-                return true;
+                return selection instanceof IStructuredSelection && 
+                        ((IStructuredSelection)selection).size() == 1;
             }
         };
     }
@@ -325,14 +317,10 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		if (setCommitPropertiesAction == null) {
 	       	setCommitPropertiesAction = new Action(Policy.bind("HistoryView.setCommitProperties")) {
 		        public void run() {
-	    			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
 		        	try {
 		        		final ISelection selection = getSelection();
 		        		if (!(selection instanceof IStructuredSelection)) return;
-		        		IStructuredSelection ss = (IStructuredSelection)selection;
-		        		ILogEntry ourSelection = getLogEntry(ss);
-
-		        		SVNUrl repositoryUrl = null;
+		        		final ILogEntry ourSelection = getLogEntry((IStructuredSelection)selection);
 
     					// Failing that, try the resource originally selected by the user if from the Team menu
 
@@ -343,6 +331,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     					final ISVNResource svnResource = ourSelection.getRemoteResource() != null ? ourSelection.getRemoteResource() : 
     						ourSelection.getResource();
 
+    					SVNUrl repositoryUrl = null;
     					if (ourSelection.getResource() != null) {
     						repositoryUrl = ourSelection.getResource().getUrl();
     					} else {
@@ -353,21 +342,22 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     					// Set previous text - the text to edit
     					dialog.setOldAuthor(ourSelection.getAuthor());
     					dialog.setOldComment(ourSelection.getComment());
-    					boolean doCommit = (dialog.open() == CommitDialog.OK);		
 
+    					boolean doCommit = (dialog.open() == Window.OK);		
     					if (doCommit) {
     						final String commitComment = dialog.getComment();
     						final String author = dialog.getAuthor();
-    						final ChangeCommitPropertiesCommand command = new ChangeCommitPropertiesCommand(svnResource.getRepository(), currentSelection.getRevision(), commitComment, author);
+    						final ChangeCommitPropertiesCommand command = new ChangeCommitPropertiesCommand(svnResource.getRepository(), 
+                                    ourSelection.getRevision(), commitComment, author);
 
 			        		PlatformUI.getWorkbench().getProgressService().run(true, true, new IRunnableWithProgress() {
 			        			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 		        					try {
 										command.run(monitor);
-			        					if (currentSelection instanceof LogEntry) {
-			        						LogEntry logEntry = (LogEntry)currentSelection;
+			        					if (ourSelection instanceof LogEntry) {
+			        						LogEntry logEntry = (LogEntry)ourSelection;
 											logEntry.setComment(commitComment);
-			        						logEntry.setAuthor(author);
+                                            logEntry.setAuthor(author);
 			        					}
 			        					getSite().getShell().getDisplay().asyncExec(new Runnable() {
 			        						public void run() {
@@ -393,12 +383,9 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		        
 		        // we don't allow multiple selection
 		        public boolean isEnabled() {
-		        	   ISelection selection = getSelection();
-		            if (!(selection instanceof IStructuredSelection)) return false;
-		            IStructuredSelection ss = (IStructuredSelection)selection;
-		            if(ss.size() != 1) return false;
-		            currentSelection = getLogEntry(ss);
-		            return true;
+                    ISelection selection = getSelection();
+                    return selection instanceof IStructuredSelection && 
+                           ((IStructuredSelection)selection).size() == 1;
 		        }
 		    };
     	}
@@ -424,7 +411,6 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     // open remote file action (double-click)
 	private Action getOpenRemoteFileAction() {
         if (openAction == null) {
-			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
 			openAction = new Action() {
 				public void run() {
 					OpenRemoteFileAction delegate = new OpenRemoteFileAction();
@@ -447,7 +433,6 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     // open changed Path (double-click)
     private Action getOpenChangedPathAction() {
         if (openChangedPathAction == null) {
-            SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
             openChangedPathAction = new Action() {
                 public void run() {
                     OpenRemoteFileAction delegate = new OpenRemoteFileAction();
@@ -598,7 +583,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		if (selection instanceof IStructuredSelection) {
 			IStructuredSelection ss = (IStructuredSelection)selection;
 			if (ss.size() == 1) {
-				currentSelection = getLogEntry(ss);      
+				ILogEntry currentSelection = getLogEntry(ss);      
 				revertChangesAction.setText(Policy.bind("HistoryView.revertChangesFromRevision", "" + currentSelection.getRevision().getNumber()));
 			}
 			if (ss.size() > 1) {
@@ -646,8 +631,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 				public void run() {
                     ISelection selection = getSelection();
                     if (!(selection instanceof IStructuredSelection)) return;
-                    IStructuredSelection ss = (IStructuredSelection)selection;
-                    currentSelection = getLogEntry(ss); 
+                    ILogEntry currentSelection = getLogEntry((IStructuredSelection)selection); 
                     BranchTagDialog dialog;
                     if (resource == null) dialog = new BranchTagDialog(getSite().getShell(), historyTableProvider.getRemoteResource());
                     else dialog = new BranchTagDialog(getSite().getShell(), resource);
@@ -689,8 +673,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 				public void run() {
                     ISelection selection = getSelection();
                     if (!(selection instanceof IStructuredSelection)) return;
-                    IStructuredSelection ss = (IStructuredSelection)selection;
-                    currentSelection = getLogEntry(ss);
+                    ILogEntry currentSelection = getLogEntry((IStructuredSelection)selection);
 					FileDialog dialog = new FileDialog(getSite().getShell(), SWT.SAVE);
 					dialog.setText("Select Unified Diff Output File");
 					dialog.setFileName("revision" + currentSelection.getRevision().getNumber() + ".diff"); //$NON-NLS-1$
@@ -725,13 +708,16 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		if (getContentsAction == null) {
 			getContentsAction = getContextMenuAction(Policy.bind("HistoryView.getContentsAction"), new IWorkspaceRunnable() { //$NON-NLS-1$
 				public void run(IProgressMonitor monitor) throws CoreException {
-					IFile file = (IFile)resource;
-					ISVNRemoteFile remoteFile = (ISVNRemoteFile)currentSelection.getRemoteResource();
+					ISelection selection = getSelection();
+                    if(!(selection instanceof IStructuredSelection)) return;
+                    IStructuredSelection ss = (IStructuredSelection) selection;
+                    ISVNRemoteFile remoteFile = (ISVNRemoteFile)getLogEntry(ss).getRemoteResource();
 					monitor.beginTask(null, 100);
 					try {
                         if (remoteFile != null) {
     						if(confirmOverwrite()) {
     							InputStream in = ((IResourceVariant)remoteFile).getStorage(new SubProgressMonitor(monitor,50)).getContents();
+    							IFile file = (IFile)resource;
     							file.setContents(in, false, true, new SubProgressMonitor(monitor, 50));				
     						}
                         }
@@ -752,11 +738,14 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		if (updateToRevisionAction == null) {
 			updateToRevisionAction = getContextMenuAction(Policy.bind("HistoryView.getRevisionAction"), new IWorkspaceRunnable() { //$NON-NLS-1$
 				public void run(IProgressMonitor monitor) throws CoreException {
-					IFile file = (IFile)resource;
-					ISVNRemoteFile remoteFile = (ISVNRemoteFile)currentSelection.getRemoteResource();
+					ISelection selection = getSelection();
+                    if(!(selection instanceof IStructuredSelection)) return;
+                    IStructuredSelection ss = (IStructuredSelection) selection;
+                    ISVNRemoteFile remoteFile = (ISVNRemoteFile)getLogEntry(ss).getRemoteResource();
 					try {
                         if (remoteFile != null) {
     						if(confirmOverwrite()) {
+    						    IFile file = (IFile)resource;
                                 new ReplaceOperation(HistoryView.this, file, remoteFile.getLastChangedRevision()).run(monitor);
       							historyTableProvider.setRemoteResource(remoteFile);
     							Display.getDefault().asyncExec(new Runnable() {
@@ -1020,11 +1009,16 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		});
 		
         // set the selectionchanged listener for the table
-        // updates the comments when selection changes
+        // updates the comments and affected paths when selection changes
 		tableHistoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
+            private ILogEntry currentLogEntry;
+            public void selectionChanged(SelectionChangedEvent event) {
 				ISelection selection = event.getSelection();
-				updatePanels( selection);               
+                ILogEntry logEntry = getLogEntry(( IStructuredSelection) selection);
+                if(logEntry!=currentLogEntry) {
+                  this.currentLogEntry = logEntry;
+                  updatePanels(selection);
+                }
 			}
 		});
 		
