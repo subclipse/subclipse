@@ -116,18 +116,18 @@ public class HistoryDialog extends Dialog {
                 ISelection selection = event.getSelection();
 				if (selection == null || !(selection instanceof IStructuredSelection)) {
 					textViewer.setDocument(new Document("")); //$NON-NLS-1$
-                    changePathsTableProvider.setLogEntry(null);
+                    changePathsTableProvider.setInput(null);
 					return;
 				}
 				IStructuredSelection ss = (IStructuredSelection)selection;
 				if (ss.size() != 1) {
 					textViewer.setDocument(new Document("")); //$NON-NLS-1$
-                    changePathsTableProvider.setLogEntry(null);
+                    changePathsTableProvider.setInput(null);
 					return;
 				}
 				LogEntry entry = (LogEntry)ss.getFirstElement();
 				textViewer.setDocument(new Document(entry.getComment()));
-                changePathsTableProvider.setLogEntry(entry);                     
+                changePathsTableProvider.setInput(entry);                     
             }		    
 		});
 		tableHistoryViewer.addDoubleClickListener(new IDoubleClickListener() {
@@ -144,9 +144,8 @@ public class HistoryDialog extends Dialog {
 		data.widthHint = WIDTH_HINT;
 		textViewer.getControl().setLayoutData(data);
 		
-		changePathsTableProvider = new ChangePathsTableProvider();
-		tableChangePathViewer = changePathsTableProvider.createTable(composite);
-        tableChangePathViewer.setContentProvider(new IStructuredContentProvider() {
+		changePathsTableProvider = new ChangePathsTableProvider(composite);
+        changePathsTableProvider.setContentProvider(new IStructuredContentProvider() {
 
 			public Object[] getElements(Object inputElement) {
                 if ((inputElement == null) || (!(inputElement instanceof ILogEntry))) {

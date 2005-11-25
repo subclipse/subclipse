@@ -115,8 +115,12 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_FOLDERDELETE_PENDING,baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_FILEMODIFIED_PENDING,baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_FOLDERMODIFIED_PENDING,baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_FOLDER, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_FILEMISSING_PENDING,baseURL);
 
+        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_LAYOUT, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_LAYOUT, baseURL);
+        
         // views
         createImageDescriptor(ISVNUIConstants.IMG_SVN_CONSOLE, baseURL);
     }    

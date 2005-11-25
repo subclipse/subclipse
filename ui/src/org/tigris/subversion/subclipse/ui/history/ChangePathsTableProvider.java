@@ -37,19 +37,66 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * This class provides the table and it's required components for a change path
  * This is used from HistoryView
  */
-public class ChangePathsTableProvider {
-
-    private ILogEntry currentLogEntry;
-    private TableViewer viewer;
-    private Font currentPathFont;
+public class ChangePathsTableProvider extends TableViewer {
+    ILogEntry currentLogEntry;
+    Font currentPathFont;
         
     /**
      * Constructor for HistoryTableProvider.
      */
-    public ChangePathsTableProvider() {
-        super();
+    public ChangePathsTableProvider(Composite parent) {
+        super(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
+        
+        TableLayout layout = new TableLayout();
+        GridData data = new GridData(GridData.FILL_BOTH);
+        
+        Table table = (Table) getControl();
+        table.setHeaderVisible(true);
+        table.setLinesVisible(true);
+        table.setLayoutData(data);    
+        table.setLayout(layout);
+        table.addDisposeListener(new DisposeListener() {
+            public void widgetDisposed(DisposeEvent e) {
+                if(currentPathFont != null) {
+                    currentPathFont.dispose();
+                }
+            }
+        });
+        
+        createColumns(table, layout);
+
+        setLabelProvider(new ChangePathLabelProvider());
     }
 
+    protected void inputChanged(Object input, Object oldInput) {
+        super.inputChanged(input, oldInput);
+        this.currentLogEntry = (ILogEntry) input;
+    }
+    
+    /**
+     * Creates the columns for the history table.
+     */
+    private void createColumns(Table table, TableLayout layout) {
+        // action
+        TableColumn col = new TableColumn(table, SWT.NONE);
+        col.setResizable(true);
+        col.setText(Policy.bind("ChangePathsTableProvider.action")); //$NON-NLS-1$
+        layout.addColumnData(new ColumnWeightData(10, true));
+    
+        // path
+        col = new TableColumn(table, SWT.NONE);
+        col.setResizable(true);
+        col.setText(Policy.bind("ChangePathsTableProvider.path")); //$NON-NLS-1$
+        layout.addColumnData(new ColumnWeightData(45, true));
+    
+        // description
+        col = new TableColumn(table, SWT.NONE);
+        col.setResizable(true);
+        col.setText(Policy.bind("ChangePathsTableProvider.description")); //$NON-NLS-1$
+        layout.addColumnData(new ColumnWeightData(50, true));
+    }
+    
+    
     //column constants
     private static final int COL_ACTION = 0;
     private static final int COL_PATH = 1;
@@ -87,14 +134,11 @@ public class ChangePathsTableProvider {
          * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
          */
         public Font getFont(Object element) {
-            LogEntryChangePath changePath = (LogEntryChangePath)element;
-            if (changePath == null)
-                return null;
-            
-            SVNUrl url = changePath.getUrl();
-            if (url == null) {
+            if(currentLogEntry==null || element==null) {
                 return null;
             }
+            
+            SVNUrl url = ((LogEntryChangePath)element).getUrl();
             
             ISVNRemoteResource remoteResource = currentLogEntry.getRemoteResource();
             if (remoteResource == null) {
@@ -102,87 +146,21 @@ public class ChangePathsTableProvider {
             }
             
             SVNUrl currentUrl = remoteResource.getUrl();
-            if (currentUrl == null) {
+            if (currentUrl == null || !currentUrl.equals(url)) {
                 return null;
             }
-            
-            if (currentUrl.equals(url)) {
-                if (currentPathFont == null) {
-                    Font defaultFont = JFaceResources.getDefaultFont();
-                    FontData[] data = defaultFont.getFontData();
-                    for (int i = 0; i < data.length; i++) {
-                        data[i].setStyle(SWT.BOLD);
-                    }               
-                    currentPathFont = new Font(viewer.getTable().getDisplay(), data);
-                }
-                return currentPathFont;
+
+            if (currentPathFont == null) {
+                Font defaultFont = JFaceResources.getDefaultFont();
+                FontData[] data = defaultFont.getFontData();
+                for (int i = 0; i < data.length; i++) {
+                    data[i].setStyle(SWT.BOLD);
+                }               
+                currentPathFont = new Font(getControl().getDisplay(), data);
             }
-            return null;
+            return currentPathFont;
         }
         
-    }
-    
-    /**
-     * Create a TableViewer that can be used to display a list of ILogEntry instances.
-     * Ths method provides the labels and sorter but does not provide a content provider
-     * 
-     * @param parent
-     * @return TableViewer
-     */
-    public TableViewer createTable(Composite parent) {
-        Table table = new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
-        table.setHeaderVisible(true);
-        table.setLinesVisible(true);
-        GridData data = new GridData(GridData.FILL_BOTH);
-        table.setLayoutData(data);
-    
-        TableLayout layout = new TableLayout();
-        table.setLayout(layout);
-        
-        TableViewer viewer = new TableViewer(table);
-        
-        createColumns(table, layout, viewer);
-
-        viewer.setLabelProvider(new ChangePathLabelProvider());
-        
-        table.addDisposeListener(new DisposeListener() {
-            public void widgetDisposed(DisposeEvent e) {
-                if(currentPathFont != null) {
-                    currentPathFont.dispose();
-                }
-            }
-        });
-        
-        this.viewer = viewer;
-        return viewer;
-    }
-    
-    /**
-     * Creates the columns for the history table.
-     */
-    private void createColumns(Table table, TableLayout layout, TableViewer viewer) {
-        // action
-        TableColumn col = new TableColumn(table, SWT.NONE);
-        col.setResizable(true);
-        col.setText(Policy.bind("ChangePathsTableProvider.action")); //$NON-NLS-1$
-        layout.addColumnData(new ColumnWeightData(10, true));
-    
-        // path
-        col = new TableColumn(table, SWT.NONE);
-        col.setResizable(true);
-        col.setText(Policy.bind("ChangePathsTableProvider.path")); //$NON-NLS-1$
-        layout.addColumnData(new ColumnWeightData(45, true));
-    
-        // description
-        col = new TableColumn(table, SWT.NONE);
-        col.setResizable(true);
-        col.setText(Policy.bind("ChangePathsTableProvider.description")); //$NON-NLS-1$
-        layout.addColumnData(new ColumnWeightData(50, true));
-    }
-
-    public void setLogEntry(ILogEntry logEntry) {
-        this.currentLogEntry = logEntry;
-        viewer.setInput(logEntry);
     }
 
 }

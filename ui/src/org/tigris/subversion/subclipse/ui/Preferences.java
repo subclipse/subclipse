@@ -46,6 +46,7 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_SHOW_COMMENTS, true);
         store.setDefault(ISVNUIConstants.PREF_WRAP_COMMENTS, true);
         store.setDefault(ISVNUIConstants.PREF_SHOW_PATHS, true);
+        store.setDefault(ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT, ISVNUIConstants.LAYOUT_FLAT);
         
         store.setDefault(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_MESSAGE, true);
         store.setDefault(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_ERROR, true);

@@ -50,6 +50,7 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -138,7 +139,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * - showHistory(ISVNRemoteFile remoteFile, boolean refetch)
  */
 public class HistoryView extends ViewPart implements IResourceStateChangeListener {
-	// the resource for which we want to see the history or null if we use showHistory(ISVNRemoteResource)
+    // the resource for which we want to see the history or null if we use showHistory(ISVNRemoteResource)
 	private IResource resource;
 	
 	private ProjectProperties projectProperties;
@@ -151,13 +152,12 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	// cached for efficiency
 	private ILogEntry[] entries;
 	
-	private LogEntryChangePath[] currentLogEntryChangePath;
+	LogEntryChangePath[] currentLogEntryChangePath;
 
 	private HistoryTableProvider historyTableProvider;
-	private ChangePathsTableProvider changePathsTableProvider;
+	StructuredViewer changePathsViewer;
     
 	private TableViewer tableHistoryViewer;
-    private TableViewer tableChangePathViewer;
 	private TextViewer textViewer;
 	
     private Action openAction;
@@ -179,6 +179,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     private IAction toggleShowComments;
     private IAction toggleShowAffectedPathsAction;
     private IAction toggleStopOnCopyAction;
+    private ToggleAffectedPathsLayoutAction[] toggleAffectedPathsLayoutActions;
     
 	private SashForm sashForm;
 	private SashForm innerSashForm;
@@ -188,6 +189,10 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	private ILogEntry lastEntry;
 
 	private IPreferenceStore settings;
+
+    private boolean showComments;
+	private boolean showAffectedPaths;
+	private boolean wrapCommentsText;
 	
 	private FetchLogEntriesJob fetchLogEntriesJob = null;
 	private FetchAllLogEntriesJob fetchAllLogEntriesJob = null;
@@ -195,7 +200,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	private boolean shutdown = false;
 	private SVNRevision revisionStart = SVNRevision.HEAD;
 	
-	private FetchChangePathJob fetchChangePathJob = null;
+	FetchChangePathJob fetchChangePathJob = null;
 	
 	private static HistoryView view;
     
@@ -212,7 +217,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 					lastEntry = null;
 					currentLogEntryChangePath = null;
 					tableHistoryViewer.refresh();
-					tableChangePathViewer.refresh();
+                    changePathsViewer.refresh();
 				}
 			}
 		});
@@ -220,9 +225,19 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	    SVNProviderPlugin.addResourceStateChangeListener(this);
 	    this.projectProperties = new ProjectProperties();
 	    view = this;
+        
+        toggleAffectedPathsLayoutActions = new ToggleAffectedPathsLayoutAction[] {
+            new ToggleAffectedPathsLayoutAction(this, ISVNUIConstants.LAYOUT_FLAT),
+            new ToggleAffectedPathsLayoutAction(this, ISVNUIConstants.LAYOUT_COMPRESSED),
+          };
+        
+        IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+        showComments = store.getBoolean(ISVNUIConstants.PREF_SHOW_COMMENTS);
+        wrapCommentsText = store.getBoolean(ISVNUIConstants.PREF_WRAP_COMMENTS);
+        showAffectedPaths = store.getBoolean(ISVNUIConstants.PREF_SHOW_PATHS);
 	}
 
-	private IPartListener partListener = new IPartListener() {
+    private IPartListener partListener = new IPartListener() {
 		public void partActivated(IWorkbenchPart part) {
 			if (part instanceof IEditorPart)
 				editorActivated((IEditorPart) part);
@@ -402,7 +417,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
       if( tableHistoryViewer.getControl().isFocusControl()) {
         return tableHistoryViewer.getSelection();
       } else {
-        return tableChangePathViewer.getSelection();
+        return changePathsViewer.getSelection();
       }
     }
 
@@ -437,7 +452,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
                 public void run() {
                     OpenRemoteFileAction delegate = new OpenRemoteFileAction();
                     delegate.init(this);
-                    delegate.selectionChanged(this,tableChangePathViewer.getSelection());
+                    delegate.selectionChanged(this,changePathsViewer.getSelection());
                     if (isEnabled()) {
                         try {
                             disableEditorActivation = true;
@@ -774,12 +789,6 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 			}
 		});
 
-        tableChangePathViewer.getTable().addListener(SWT.DefaultSelection, new Listener() {
-            public void handleEvent(Event e) {
-                getOpenChangedPathAction().run();
-            }
-        });
-        
         // Contribute actions to popup menu for the table
         {
             MenuManager menuMgr = new MenuManager();
@@ -797,31 +806,34 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
         final IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
         toggleShowComments = new Action(Policy.bind("HistoryView.showComments")) { //$NON-NLS-1$
             public void run() {
+                showComments = isChecked();
                 setViewerVisibility();
-                store.setValue(ISVNUIConstants.PREF_SHOW_COMMENTS, toggleShowComments.isChecked());
+                store.setValue(ISVNUIConstants.PREF_SHOW_COMMENTS, showComments);
             }
         };
-        toggleShowComments.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_COMMENTS));
+        toggleShowComments.setChecked(showComments);
         // PlatformUI.getWorkbench().getHelpSystem().setHelp(toggleTextAction, IHelpContextIds.SHOW_COMMENT_IN_HISTORY_ACTION);    
 
         // Toggle wrap comments action
         toggleWrapCommentsAction = new Action(Policy.bind("HistoryView.wrapComments")) { //$NON-NLS-1$
           public void run() {
+            wrapCommentsText = isChecked();
             setViewerVisibility();
-            store.setValue(ISVNUIConstants.PREF_WRAP_COMMENTS, toggleWrapCommentsAction.isChecked());
+            store.setValue(ISVNUIConstants.PREF_WRAP_COMMENTS, wrapCommentsText);
           }
         };
-        toggleWrapCommentsAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_WRAP_COMMENTS));
+        toggleWrapCommentsAction.setChecked(wrapCommentsText);
         //PlatformUI.getWorkbench().getHelpSystem().setHelp(toggleTextWrapAction, IHelpContextIds.SHOW_TAGS_IN_HISTORY_ACTION);   
         
         // Toggle path visible action
         toggleShowAffectedPathsAction = new Action(Policy.bind("HistoryView.showAffectedPaths")) { //$NON-NLS-1$
             public void run() {
+                showAffectedPaths = isChecked();
                 setViewerVisibility();
-                store.setValue(ISVNUIConstants.PREF_SHOW_PATHS, toggleShowAffectedPathsAction.isChecked());
+                store.setValue(ISVNUIConstants.PREF_SHOW_PATHS, showAffectedPaths);
             }
         };
-        toggleShowAffectedPathsAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_SHOW_PATHS));
+        toggleShowAffectedPathsAction.setChecked(showAffectedPaths);
         // PlatformUI.getWorkbench().getHelpSystem().setHelp(toggleListAction, IHelpContextIds.SHOW_TAGS_IN_HISTORY_ACTION);   
 
         // Toggle stop on copy action
@@ -842,6 +854,10 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
         actionBarsMenu.add(toggleShowComments);
         actionBarsMenu.add(toggleShowAffectedPathsAction);
         actionBarsMenu.add(toggleStopOnCopyAction);
+        actionBarsMenu.add(new Separator());
+        
+        actionBarsMenu.add(toggleAffectedPathsLayoutActions[0]);
+        actionBarsMenu.add(toggleAffectedPathsLayoutActions[1]);
         
         // Create the local tool bar
         IToolBarManager tbm = actionBars.getToolBarManager();
@@ -850,32 +866,6 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		tbm.add(getGetAllAction());
 		tbm.add(getLinkWithEditorAction());
 		tbm.update(false);
-        
-		// Create actions for the text editor (copy and select all)
-		copyAction = new TextViewerAction(textViewer, ITextOperationTarget.COPY);
-		copyAction.setText(Policy.bind("HistoryView.copy")); //$NON-NLS-1$
-		actionBars.setGlobalActionHandler(ITextEditorActionConstants.COPY, copyAction);
-		
-		selectAllAction = new TextViewerAction(textViewer, ITextOperationTarget.SELECT_ALL);
-		selectAllAction.setText(Policy.bind("HistoryView.selectAll")); //$NON-NLS-1$
-		actionBars.setGlobalActionHandler(ITextEditorActionConstants.SELECT_ALL, selectAllAction);
-
-		actionBars.updateActionBars();
-
-        // Contribute actions to popup menu for the comments area
-        {
-	 		 MenuManager menuMgr = new MenuManager();
-	 		 menuMgr.setRemoveAllWhenShown(true);
-	 		 menuMgr.addMenuListener(new IMenuListener() {
-	 		 		 public void menuAboutToShow(IMenuManager menuMgr) {
-	 		 		 		 fillTextMenu(menuMgr);
-	 		 		 }
-	 		 });
-	
-	 		 StyledText text = textViewer.getTextWidget();
-	 		 Menu menu = menuMgr.createContextMenu(text);
-	 		 text.setMenu(menu);
-        }
 	}
 	
 	void setStopOnCopy() {
@@ -883,24 +873,61 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	}
     
     void setViewerVisibility() {
-        boolean showText = toggleShowComments.isChecked();
-        boolean showList = toggleShowAffectedPathsAction.isChecked();
-        if (showText && showList) {
+        if (showComments && showAffectedPaths) {
             sashForm.setMaximizedControl(null);
             innerSashForm.setMaximizedControl(null);
-        } else if (showText) {
+        } else if (showComments) {
             sashForm.setMaximizedControl(null);
             innerSashForm.setMaximizedControl(textViewer.getTextWidget());
-        } else if (showList) {
+        } else if (showAffectedPaths) {
             sashForm.setMaximizedControl(null);
-            innerSashForm.setMaximizedControl(tableChangePathViewer.getTable());
+            innerSashForm.setMaximizedControl(changePathsViewer.getControl());
         } else {
             sashForm.setMaximizedControl(tableHistoryViewer.getControl());
         }
       
-        tableChangePathViewer.refresh();
-        boolean wrapText = toggleWrapCommentsAction.isChecked();
-        textViewer.getTextWidget().setWordWrap(wrapText);
+        changePathsViewer.refresh();
+        textViewer.getTextWidget().setWordWrap(wrapCommentsText);
+    }
+    
+    public void setCurrentLogEntryChangePath( final LogEntryChangePath[] currentLogEntryChangePath) {
+        this.currentLogEntryChangePath = currentLogEntryChangePath;
+        if(!shutdown) {
+            //Getting the changePaths
+            /*
+            final SVNRevision.Number revisionId = remoteResource.getLastChangedRevision();
+            */
+            getSite().getShell().getDisplay().asyncExec(new Runnable() {
+                    public void run() {
+                        if(currentLogEntryChangePath != null && changePathsViewer != null && !changePathsViewer.getControl().isDisposed()) {
+                            // once we got the changePath, we refresh the table 
+                            changePathsViewer.refresh();
+                            //selectRevision(revisionId);
+                        }
+                    }
+                });
+        }
+    }
+    
+    public void scheduleFetchChangePathJob(ILogEntry logEntry) {
+        if(fetchChangePathJob == null) {
+            fetchChangePathJob = new FetchChangePathJob(this);
+        }
+        if(fetchChangePathJob.getState() != Job.NONE) {
+            fetchChangePathJob.cancel();
+            try {
+                fetchChangePathJob.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                //SVNUIPlugin.log(new SVNException(Policy.bind("HistoryView.errorFetchingEntries", remoteResource.getName()), e)); //$NON-NLS-1$
+            }
+        }
+        fetchChangePathJob.setLogEntry(logEntry);
+        Utils.schedule(fetchChangePathJob, getViewSite());
+    }
+    
+    public boolean isShowChangePaths() {
+        return toggleShowAffectedPathsAction.isChecked();
     }
     
 	/*
@@ -910,80 +937,28 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	    busyCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
 	    handCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_HAND);
 		settings = SVNUIPlugin.getPlugin().getPreferenceStore();
-		this.linkingEnabled = settings.getBoolean(ISVNUIConstants.PREF_HISTORY_VIEW_EDITOR_LINKING);
+		linkingEnabled = settings.getBoolean(ISVNUIConstants.PREF_HISTORY_VIEW_EDITOR_LINKING);
 
 		sashForm = new SashForm(parent, SWT.VERTICAL);
 		sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
-		tableHistoryViewer = createTableHistory(sashForm);
-		innerSashForm = new SashForm(sashForm, SWT.HORIZONTAL);
-		textViewer = createText(innerSashForm);
-		Font font = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry().get(ISVNUIConstants.SVN_COMMENT_FONT);
-		if (font != null) textViewer.getTextWidget().setFont(font);
-		textViewer.getTextWidget().addMouseListener(new MouseAdapter() {
-			public void mouseDown(MouseEvent e) {
-				if (e.button != 1) {
-					return;
-				}
-				mouseDown = true;
-			}
-			public void mouseUp(MouseEvent e) {
-				mouseDown = false;
-				StyledText text = (StyledText)e.widget;
-				int offset = text.getCaretOffset();
-				if (dragEvent) {
-					// don't activate a link during a drag/mouse up operation
-					dragEvent = false;
-					if (linkList != null && linkList.isLinkAt(offset)) {
-						text.setCursor(handCursor);
-					}
-				} else {
-					if (linkList != null && linkList.isLinkAt(offset)) {	
-						text.setCursor(busyCursor);
-						openLink(linkList.getLinkAt(offset));
-						text.setCursor(null);
-					}
-				}
-			}			
-		});
 		
-		textViewer.getTextWidget().addMouseMoveListener(new MouseMoveListener() {
-            public void mouseMove(MouseEvent e) {
-    			// Do not change cursor on drag events
-    			if (mouseDown) {
-    				if (!dragEvent) {
-    					StyledText text = (StyledText)e.widget;
-    					text.setCursor(null);
-    				}
-    				dragEvent = true;
-    				return;
-    			}
-    			StyledText text = (StyledText)e.widget;
-    			int offset = -1;
-    			try {
-    				offset = text.getOffsetAtLocation(new Point(e.x, e.y));
-    			} catch (IllegalArgumentException ex) {}
-    			if (offset == -1)
-    				text.setCursor(null);
-    			else if (linkList != null && linkList.isLinkAt(offset)) 
-    				text.setCursor(handCursor);
-    			else 
-    				text.setCursor(null);                
-            }		    
-		});
+        tableHistoryViewer = createTableHistory(sashForm);
 		
-        tableChangePathViewer = createTableChangePath(innerSashForm);
-		sashForm.setWeights(new int[] { 70, 30 });
+        IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+        createAffectedPathsViewer(store.getInt(ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT));
+        contributeActions();
 
-		contributeActions();
+        sashForm.setWeights(new int[] { 70, 30 });
+        
 		// set F1 help
 		WorkbenchHelp.setHelp(sashForm, IHelpContextIds.RESOURCE_HISTORY_VIEW);
 		initDragAndDrop();
 
 		// add listener for editor page activation - this is to support editor linking
 		getSite().getPage().addPartListener(partListener);  
-		 		 getSite().getPage().addPartListener(partListener2);
+	    getSite().getPage().addPartListener(partListener2);
         
-        setViewerVisibility();
+        // setViewerVisibility();
 	}
 	
 	private void openLink(String href) {
@@ -999,89 +974,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		if (handCursor != null) handCursor.dispose();
 	}   
 
-    protected TableViewer createTableChangePath(Composite parent) {
-        changePathsTableProvider = new ChangePathsTableProvider();
-        tableChangePathViewer = changePathsTableProvider.createTable(parent);
-        
-        if (SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand()) {
-          fetchChangePathOnDemand();
-        } else {
-          fetchChangePathGlobal();
-        }
-        return tableChangePathViewer;
-    }
-    
-    private void fetchChangePathGlobal() {
-    	tableChangePathViewer.setContentProvider(new IStructuredContentProvider() {
-
-			public Object[] getElements(Object inputElement) {
-                if (toggleShowAffectedPathsAction.isChecked() == false) {
-                    return new LogEntryChangePath[0];
-                }
-                if ((inputElement == null) || (!(inputElement instanceof ILogEntry))) {
-                    return null;
-                }
-                ILogEntry logEntry = (ILogEntry)inputElement;
-				return logEntry.getLogEntryChangePaths();
-			}
-
-			public void dispose() {
-			}
-
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			}
-            
-        });
-    }
-    
-	/**
-	 * 
-	 */
-	private void fetchChangePathOnDemand() {
-		tableChangePathViewer.setContentProvider(new IStructuredContentProvider() {
-
-			public Object[] getElements(Object inputElement) {
-
-                if (toggleShowAffectedPathsAction.isChecked() == false) {
-                    return new LogEntryChangePath[0];
-                }
-				if (currentLogEntryChangePath != null) {
-					return currentLogEntryChangePath;
-				}
-				
-				if (!(inputElement instanceof ILogEntry)) return null;
-				final ILogEntry logEntry = (ILogEntry)inputElement;
-
-				if(fetchChangePathJob == null) {
-					fetchChangePathJob = new FetchChangePathJob();
-				}
-				if(fetchChangePathJob.getState() != Job.NONE) {
-					fetchChangePathJob.cancel();
-					try {
-						fetchChangePathJob.join();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						//SVNUIPlugin.log(new SVNException(Policy.bind("HistoryView.errorFetchingEntries", remoteResource.getName()), e)); //$NON-NLS-1$
-					}
-				}
-				fetchChangePathJob.setLogEntry(logEntry);
-				Utils.schedule(fetchChangePathJob, getViewSite());
-				
-      
-				return new Object[0];
-			}
-
-			public void dispose() {
-			}
-
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-				currentLogEntryChangePath = null;
-			}
-            
-        });
-	}
-
-	/**
+    /**
 	 * Creates the table that displays the log history
 	 *
 	 * @param the parent composite to contain the group
@@ -1131,30 +1024,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		tableHistoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				ISelection selection = event.getSelection();
-				if (selection == null || !(selection instanceof IStructuredSelection)) {
-					textViewer.setDocument(new Document("")); //$NON-NLS-1$
-                    changePathsTableProvider.setLogEntry(null);
-					return;
-				}
-				IStructuredSelection ss = (IStructuredSelection)selection;
-				if (ss.size() != 1) {
-					textViewer.setDocument(new Document("")); //$NON-NLS-1$
-                    changePathsTableProvider.setLogEntry(null);
-					return;
-				}
-				LogEntry entry = (LogEntry)ss.getFirstElement();
-				textViewer.setDocument(new Document(entry.getComment()));
-				StyledText text = textViewer.getTextWidget();
-				if (projectProperties == null) linkList = ProjectProperties.getUrls(entry.getComment());
-				else linkList = projectProperties.getLinkList(entry.getComment());
-				if (linkList != null) {
-					int[][] linkRanges = linkList.getLinkRanges();
-					String[] urls = linkList.getUrls();
-					for (int i = 0; i < linkRanges.length; i++) {
-						  text.setStyleRange(new StyleRange(linkRanges[i][0], linkRanges[i][1], JFaceColors.getHyperlinkText(Display.getCurrent()), null));				       
-					}
-				}
-                changePathsTableProvider.setLogEntry(entry);               
+				updatePanels( selection);               
 			}
 		});
 		
@@ -1171,6 +1041,89 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 				copyAction.update();
 			}
 		});
+        
+        Font font = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry().get(ISVNUIConstants.SVN_COMMENT_FONT);
+        if (font != null) result.getTextWidget().setFont(font);
+        result.getTextWidget().addMouseListener(new MouseAdapter() {
+            public void mouseDown(MouseEvent e) {
+                if (e.button != 1) {
+                    return;
+                }
+                mouseDown = true;
+            }
+            public void mouseUp(MouseEvent e) {
+                mouseDown = false;
+                StyledText text = (StyledText)e.widget;
+                int offset = text.getCaretOffset();
+                if (dragEvent) {
+                    // don't activate a link during a drag/mouse up operation
+                    dragEvent = false;
+                    if (linkList != null && linkList.isLinkAt(offset)) {
+                        text.setCursor(handCursor);
+                    }
+                } else {
+                    if (linkList != null && linkList.isLinkAt(offset)) {    
+                        text.setCursor(busyCursor);
+                        openLink(linkList.getLinkAt(offset));
+                        text.setCursor(null);
+                    }
+                }
+            }           
+        });
+        
+        result.getTextWidget().addMouseMoveListener(new MouseMoveListener() {
+            public void mouseMove(MouseEvent e) {
+                // Do not change cursor on drag events
+                if (mouseDown) {
+                    if (!dragEvent) {
+                        StyledText text = (StyledText)e.widget;
+                        text.setCursor(null);
+                    }
+                    dragEvent = true;
+                    return;
+                }
+                StyledText text = (StyledText)e.widget;
+                int offset = -1;
+                try {
+                    offset = text.getOffsetAtLocation(new Point(e.x, e.y));
+                } catch (IllegalArgumentException ex) {}
+                if (offset == -1)
+                    text.setCursor(null);
+                else if (linkList != null && linkList.isLinkAt(offset)) 
+                    text.setCursor(handCursor);
+                else 
+                    text.setCursor(null);                
+            }           
+        });
+        
+        // Create actions for the text editor (copy and select all)
+        copyAction = new TextViewerAction(result, ITextOperationTarget.COPY);
+        copyAction.setText(Policy.bind("HistoryView.copy")); //$NON-NLS-1$
+        
+        selectAllAction = new TextViewerAction(result, ITextOperationTarget.SELECT_ALL);
+        selectAllAction.setText(Policy.bind("HistoryView.selectAll")); //$NON-NLS-1$
+
+        IActionBars actionBars = getViewSite().getActionBars();
+        actionBars.setGlobalActionHandler(ITextEditorActionConstants.COPY, copyAction);
+        actionBars.setGlobalActionHandler(ITextEditorActionConstants.SELECT_ALL, selectAllAction);
+        actionBars.updateActionBars();
+
+        // Contribute actions to popup menu for the comments area
+        {
+             MenuManager menuMgr = new MenuManager();
+             menuMgr.setRemoveAllWhenShown(true);
+             menuMgr.addMenuListener(new IMenuListener() {
+                     public void menuAboutToShow(IMenuManager menuMgr) {
+                             fillTextMenu(menuMgr);
+                     }
+             });
+    
+             StyledText text = result.getTextWidget();
+             Menu menu = menuMgr.createContextMenu(text);
+             text.setMenu(menu);
+        }
+        
+        
 		return result;
 	}
 
@@ -1636,10 +1589,13 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		}
 	}
 	
-	private class FetchChangePathJob extends Job {
+	static class FetchChangePathJob extends Job {
 		public ILogEntry logEntry;
-		public FetchChangePathJob() {
+        private final HistoryView historyView;
+		
+        public FetchChangePathJob(HistoryView historyView) {
 			super(Policy.bind("HistoryView.fetchChangePathJob"));  //$NON-NLS-1$;
+            this.historyView = historyView;
 		}
 		
 		public void setLogEntry(ILogEntry logEntry) {
@@ -1648,24 +1604,10 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		
 		
 		public IStatus run(IProgressMonitor monitor) {
-			    
-				if(logEntry.getResource() != null && !shutdown) {
-					//Getting the changePaths
-					currentLogEntryChangePath = logEntry.getLogEntryChangePaths();
-					/*
-					final SVNRevision.Number revisionId = remoteResource.getLastChangedRevision();
-					*/
-					getSite().getShell().getDisplay().asyncExec(new Runnable() {
-						public void run() {
-							if(currentLogEntryChangePath != null && tableChangePathViewer != null && ! tableChangePathViewer.getTable().isDisposed()) {
-                                // once we got the changePath, we refresh the table 
-                                tableChangePathViewer.refresh();
-								//selectRevision(revisionId);
-							}
-						}
-					});
-				}
-				return Status.OK_STATUS;	
+		    if(logEntry.getResource()!=null) {
+			    historyView.setCurrentLogEntryChangePath(logEntry.getLogEntryChangePaths());
+            }
+			return Status.OK_STATUS;	
 		}
 	}
 
@@ -1702,5 +1644,109 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	public static HistoryView getView() {
 		return view;
 	}
-	
+
+    public void createAffectedPathsViewer(int layout) {
+      for( int i = 0; i < toggleAffectedPathsLayoutActions.length; i++) {
+        ToggleAffectedPathsLayoutAction action = toggleAffectedPathsLayoutActions[i];
+        action.setChecked(layout==action.getLayout());
+      }
+      
+      if(innerSashForm!=null) {
+        innerSashForm.dispose();
+      }
+      if(changePathsViewer!=null) {
+        changePathsViewer.getControl().dispose();
+      }
+      
+      innerSashForm = new SashForm(sashForm, SWT.HORIZONTAL);
+
+      switch(layout) {
+        case ISVNUIConstants.LAYOUT_COMPRESSED:
+          changePathsViewer = new ChangePathsTreeViewer(innerSashForm);
+          changePathsViewer.setContentProvider(new ChangePathsTreeContentProvider(this));
+          break;
+        default:
+          changePathsViewer = new ChangePathsTableProvider(innerSashForm);
+          changePathsViewer.setContentProvider(new ChangePathsTableContentProvider(this));
+          break;
+      }
+      
+      changePathsViewer.getControl().addListener(SWT.DefaultSelection, new Listener() {
+            public void handleEvent(Event e) {
+                getOpenChangedPathAction().run();
+            }
+        });
+      
+      textViewer = createText(innerSashForm);
+      setViewerVisibility();
+      innerSashForm.layout();
+      sashForm.layout();
+      
+      updatePanels(tableHistoryViewer.getSelection());
+    }
+
+    
+    private void updatePanels(ISelection selection) {
+      if (selection == null || !(selection instanceof IStructuredSelection)) {
+      	textViewer.setDocument(new Document("")); //$NON-NLS-1$
+        changePathsViewer.setInput(null);
+      	return;
+      }
+      IStructuredSelection ss = (IStructuredSelection)selection;
+      if (ss.size() != 1) {
+      	textViewer.setDocument(new Document("")); //$NON-NLS-1$
+        changePathsViewer.setInput(null);
+      	return;
+      }
+      LogEntry entry = (LogEntry)ss.getFirstElement();
+      textViewer.setDocument(new Document(entry.getComment()));
+      StyledText text = textViewer.getTextWidget();
+      if (projectProperties == null) linkList = ProjectProperties.getUrls(entry.getComment());
+      else linkList = projectProperties.getLinkList(entry.getComment());
+      if (linkList != null) {
+      	int[][] linkRanges = linkList.getLinkRanges();
+      	String[] urls = linkList.getUrls();
+      	for (int i = 0; i < linkRanges.length; i++) {
+            text.setStyleRange(new StyleRange(linkRanges[i][0], linkRanges[i][1], JFaceColors.getHyperlinkText(Display.getCurrent()), null));				       
+      	}
+      }
+      changePathsViewer.setInput(entry);
+    }
+
+    public static class ToggleAffectedPathsLayoutAction extends Action {
+      private final HistoryView view;
+      private final int layout;
+
+      public ToggleAffectedPathsLayoutAction( HistoryView view, int layout) {
+        super("", AS_RADIO_BUTTON);
+        this.view = view;
+        this.layout = layout;
+        
+        String id = null; 
+        switch(layout) {
+          case ISVNUIConstants.LAYOUT_FLAT:
+            setText(Policy.bind("HistoryView.affectedPathsFlatLayout")); //$NON-NLS-1$
+            id = ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_LAYOUT;
+            break;
+          case ISVNUIConstants.LAYOUT_COMPRESSED:
+            setText(Policy.bind("HistoryView.affectedPathsCompressedLayout")); //$NON-NLS-1$
+            id = ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_LAYOUT;
+            break;
+        }
+        setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(id));
+      }
+      
+      public int getLayout() {
+        return this.layout;
+      }
+
+      public void run() {
+        if (isChecked()) {
+          SVNUIPlugin.getPlugin().getPreferenceStore().setValue(ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT, layout);
+          view.createAffectedPathsViewer(layout);
+        }
+      }
+      
+    }
+    
 }

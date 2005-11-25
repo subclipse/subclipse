@@ -54,7 +54,10 @@ public interface ISVNUIConstants {
 	public final String IMG_CLEAR_ENABLED = "elcl16/clear_co.gif"; //$NON-NLS-1$
 	public final String IMG_COLLAPSE_ALL_ENABLED = "elcl16/collapseall.gif"; //$NON-NLS-1$
 	public final String IMG_LINK_WITH_EDITOR_ENABLED = "elcl16/synced.gif"; //$NON-NLS-1$
-	
+
+    public final String IMG_AFFECTED_PATHS_FLAT_LAYOUT = "elcl16/flatLayout.gif"; //$NON-NLS-1$
+    public final String IMG_AFFECTED_PATHS_COMPRESSED_LAYOUT = "elcl16/compressedLayout.gif"; //$NON-NLS-1$
+    
 	// wizards
 	public final String IMG_NEWLOCATION = "wizards/newlocation_wiz.gif"; //$NON-NLS-1$
     public final String IMG_NEWFOLDER = "wizards/newfolder_wiz.gif"; //$NON-NLS-1$
@@ -66,8 +69,9 @@ public interface ISVNUIConstants {
     public final String IMG_FOLDERDELETE_PENDING = "pending16/folderdelete_pending.gif"; //$NON-NLS-1$    
     public final String IMG_FILEMODIFIED_PENDING = "pending16/filemodified_pending.gif"; //$NON-NLS-1$
     public final String IMG_FOLDERMODIFIED_PENDING = "pending16/foldermodified_pending.gif"; //$NON-NLS-1$
+    public final String IMG_FOLDER = "pending16/folder_pending.gif"; //$NON-NLS-1$
     public final String IMG_FILEMISSING_PENDING = "pending16/filemissing_pending.gif"; //$NON-NLS-1$
-    
+
     //  tortoise
     public final String IMG_COMMIT = "tortoise/commit.gif"; //$NON-NLS-1$
     public final String IMG_UPDATE = "tortoise/update.gif"; //$NON-NLS-1$
@@ -91,6 +95,7 @@ public interface ISVNUIConstants {
 	public final String PREF_SHOW_COMMENTS = "pref_show_comments"; //$NON-NLS-1$
 	public final String PREF_WRAP_COMMENTS = "pref_wrap_comments"; //$NON-NLS-1$
 	public final String PREF_SHOW_PATHS = "pref_show_paths"; //$NON-NLS-1$
+    public final String PREF_AFFECTED_PATHS_LAYOUT = "pref_affected_paths_layout"; //$NON-NLS-1$
 	public final String PREF_HISTORY_VIEW_EDITOR_LINKING = "pref_history_view_linking"; //$NON-NLS-1$
 	public final String PREF_PRUNE_EMPTY_DIRECTORIES = "pref_prune_empty_directories";	 //$NON-NLS-1$
 	public final String PREF_TIMEOUT = "pref_timeout";	 //$NON-NLS-1$
@@ -199,7 +204,10 @@ public interface ISVNUIConstants {
 	// preference options
 	public final int OPTION_NEVER = 1; //$NON-NLS-1$
 	public final int OPTION_PROMPT = 2; //$NON-NLS-1$
-	public final int OPTION_AUTOMATIC = 3;
+	public final int OPTION_AUTOMATIC = 3; //$NON-NLS-1$
+
+    public final int LAYOUT_FLAT = 1; //$NON-NLS-1$
+    public final int LAYOUT_COMPRESSED = 2; //$NON-NLS-1$
 
 }
 
