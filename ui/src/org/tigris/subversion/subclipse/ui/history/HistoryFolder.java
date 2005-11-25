@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
+import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 
 /**
@@ -24,11 +25,22 @@ import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
 public class HistoryFolder {
     private final String path;
     private final char action;
+    private final String copySrcPath;
+    private final Number copySrcRevision;
     private final List children = new ArrayList();
 
-    public HistoryFolder(String path, char action) {
+    public HistoryFolder(String path) {
         this.path = path;
-        this.action = action;
+        this.action = '?';
+        this.copySrcPath = null;
+        this.copySrcRevision = null;
+    }
+
+    public HistoryFolder(LogEntryChangePath changePath) {
+        this.path = changePath.getPath();
+        this.action = changePath.getAction();
+        this.copySrcPath = changePath.getCopySrcPath();
+        this.copySrcRevision = changePath.getCopySrcRevision();
     }
 
     public String getPath() {
@@ -37,6 +49,14 @@ public class HistoryFolder {
     
     public char getAction() {
         return action;
+    }
+    
+    public String getCopySrcPath() {
+        return copySrcPath;
+    }
+    
+    public Number getCopySrcRevision() {
+        return copySrcRevision;
     }
 
     public void add(LogEntryChangePath changePath) {
@@ -47,10 +67,9 @@ public class HistoryFolder {
         return children.toArray();
     }
     
-    public String toString() {
-        return path + 
-            (children.size()==0 ? "" : " ["+children.size()+"]");
+    public int getChildCount() {
+        return children.size();
     }
-
+    
 }
 

@@ -78,40 +78,44 @@ class ChangePathsTreeContentProvider implements ITreeContentProvider {
     }
     
     private Object[] getGroups(LogEntryChangePath[] changePaths) {
+        // 1st pass. Collect folder names
         Set folderNames = new HashSet(); 
         for( int i = 0; i < changePaths.length; i++) {
           folderNames.add(getFolderName(changePaths[i]));
         }
         
+        // 2nd pass. Sorting out explicitly changed folders
         TreeMap folders = new TreeMap();
         for( int i = 0; i < changePaths.length; i++) {
-          String path = changePaths[i].getPath();
+          LogEntryChangePath changePath = changePaths[i];
+        String path = changePath.getPath();
           if(folderNames.contains(path)) {
             // changed folder
             HistoryFolder folder = (HistoryFolder) folders.get(path);
             if(folder==null) {
-              folder = new HistoryFolder(path, changePaths[i].getAction());
+              folder = new HistoryFolder(changePath);
               folders.put(path, folder);
             }
           } else {
             // changed resource
-            path = getFolderName(changePaths[i]);
+            path = getFolderName(changePath);
             HistoryFolder folder = (HistoryFolder) folders.get(path);
             if(folder==null) {
-              folder = new HistoryFolder(path, '?');
+              folder = new HistoryFolder(path);
               folders.put(path, folder);
             }
-            folder.add(changePaths[i]);
+            folder.add(changePath);
           }
         }
         
+        // 3rd pass. Optimize folders with one or no children 
         ArrayList groups = new ArrayList();
         for( Iterator it = folders.values().iterator(); it.hasNext();) {
             HistoryFolder folder = (HistoryFolder) it.next();
             Object[] children = folder.getChildren();
             if(children.length==1) {
                 LogEntryChangePath changePath = (LogEntryChangePath)children[0];
-                groups.add(new HistoryFolder(changePath.getPath(), changePath.getAction()));
+                groups.add(new HistoryFolder(changePath));
             } else if(children.length>1) {
                 groups.add(folder);
             }

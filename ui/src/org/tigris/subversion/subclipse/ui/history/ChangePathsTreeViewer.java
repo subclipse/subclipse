@@ -77,10 +77,19 @@ class ChangePathsTreeViewer extends TreeViewer {
                 if (changePath.getCopySrcPath() == null) {
                     return path;
                 }
-                return path + " " +  //$NON-NLS-1$
+                return path + " [" +  //$NON-NLS-1$
                   Policy.bind("ChangePathsTableProvider.copiedfrom",  //$NON-NLS-1$
-                          changePath.getCopySrcPath(),
-                          changePath.getCopySrcRevision().toString());
+                      changePath.getCopySrcPath(),
+                      changePath.getCopySrcRevision().toString())+"]";
+            } else if(element instanceof HistoryFolder) {
+                HistoryFolder f = (HistoryFolder) element;
+                if(f.getCopySrcPath()==null) {
+                    return f.getPath() + (f.getChildCount()==0 ? "" : " ["+f.getChildCount()+"]");
+                }
+                return f.getPath() + (f.getChildCount()==0 ? " [" : " ["+f.getChildCount()+"] [") +
+                  Policy.bind("ChangePathsTableProvider.copiedfrom",  //$NON-NLS-1$
+                      f.getCopySrcPath(), 
+                      f.getCopySrcRevision().toString())+"]";
             }
             return element.toString();
         }
