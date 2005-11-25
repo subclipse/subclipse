@@ -431,19 +431,33 @@
                id="org.tigris.subversion.subclipse.ui.compareWithBase">
          </action>
          <action
+               label="%ExportAction.label"
+               icon="icons/full/tortoise/export.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.ExportAction"
+               menubarPath="team.main/group5"
+               id="org.tigris.subversion.subclipse.ui.export">
+         </action>
+         <action
+               label="%CopyAction.label"
+               icon="icons/full/ctool16/copy_edit.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.CopyAction"
+               menubarPath="team.main/group5"
+               id="org.tigris.subversion.subclipse.ui.copy">
+         </action>                         
+         <action
                label="%ResolveAction.label"
                icon="icons/full/tortoise/resolve.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.team_resolve_action_context"
                tooltip="%ResolveAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.ResolveAction"
-               menubarPath="team.main/group5"
+               menubarPath="team.main/group6"
                id="org.tigris.subversion.subclipse.ui.resolve">
          </action>
          <action
                label="%MarkDeletedAction.label"
                icon="icons/full/tortoise/delete.gif"
                class="org.tigris.subversion.subclipse.ui.actions.MarkDeletedAction"
-               menubarPath="team.main/group5"
+               menubarPath="team.main/group6"
                id="org.tigris.subversion.subclipse.ui.markDeleted">
          </action>         
          <action
@@ -452,7 +466,7 @@
                helpContextId="org.tigris.subversion.subclipse.ui.team_revert_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.RevertAction"
                tooltip="%RevertAction.tooltip"
-               menubarPath="team.main/group5"
+               menubarPath="team.main/group6"
                id="org.tigris.subversion.subclipse.ui.revert">
          </action>
          <action
@@ -491,7 +505,7 @@
                helpContextId="org.tigris.subversion.subclipse.ui.team_edit_conflicts_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.EditConflictsAction"
                tooltip="%EditConflictsAction.tooltip"
-               menubarPath="team.main/group5"
+               menubarPath="team.main/group6"
                id="org.tigris.subversion.subclipse.ui.editConflicts">
          </action>
          <action
@@ -614,7 +628,7 @@
                helpContextId="org.tigris.subversion.subclipse.ui.team_cleanup_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.CleanupAction"
                tooltip="%CleanupAction.tooltip"
-               menubarPath="team.main/group5"
+               menubarPath="team.main/group6"
                id="org.tigris.subversion.subclipse.ui.cleanup">
          </action>
          <action
@@ -623,7 +637,7 @@
                helpContextId="org.tigris.subversion.subclipse.team_show_pending_operations_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.ShowPendingOperationsAction"
                tooltip="%ShowPendingOperationsAction.tooltip"
-               menubarPath="team.main/group5"
+               menubarPath="team.main/group6"
                id="org.tigris.subversion.subclipse.ui.showPendingOperations">
          </action>
       </objectContribution>
