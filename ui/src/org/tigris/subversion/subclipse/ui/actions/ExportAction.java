@@ -10,7 +10,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 
@@ -24,9 +24,11 @@ public class ExportAction extends WorkspaceAction {
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
 				try {
-					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+					ISVNClientAdapter client = null;
 					IResource[] resources = getSelectedResources();
 					for (int i = 0; i < resources.length; i++) {	
+						if (client == null) 
+						    client = SVNWorkspaceRoot.getSVNResourceFor(resources[i]).getRepository().getSVNClient();
 						File srcPath = new File(resources[i].getLocation().toString());
 						File destPath= new File(directory + File.separator + resources[i].getName());
 						client.doExport(srcPath, destPath, true);

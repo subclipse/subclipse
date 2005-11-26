@@ -17,7 +17,7 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 
@@ -31,15 +31,23 @@ public class CopyAction extends WorkspaceAction {
 		Object[] result = dialog.getResult();
 		if (result == null || result.length == 0) return;
 		final Path path = (Path)result[0];
-		IFile targetFile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-		final IProject targetProject = targetFile.getProject();
+		IProject selectedProject;
+		if (path.segmentCount() == 1)
+			selectedProject = ResourcesPlugin.getWorkspace().getRoot().getProject(path.toString());
+		else {
+			IFile targetFile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+			selectedProject = targetFile.getProject();
+		}
+		final IProject targetProject = selectedProject;
 		final File destPath = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation() + File.separator + path.toString());
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
 				try {
-					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+					ISVNClientAdapter client = null;
 					for (int i = 0; i < resources.length; i++) {
 						final IResource resource = resources[i];
+						if (client == null)
+						    client = SVNWorkspaceRoot.getSVNResourceFor(resources[i]).getRepository().getSVNClient();
 						File checkFile = new File(destPath.getPath() + File.separator + resource.getName());
 						File srcPath = new File(resource.getLocation().toString());
 						File newDestPath = new File(destPath.getPath() + File.separator + resource.getName());
