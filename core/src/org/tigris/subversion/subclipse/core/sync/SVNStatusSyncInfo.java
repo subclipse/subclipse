@@ -169,7 +169,8 @@ public class SVNStatusSyncInfo extends SyncInfo {
     }
     
     private boolean isDeletion(SVNStatusKind kind) {
-        return kind == SVNStatusKind.DELETED;
+        return kind == SVNStatusKind.DELETED
+			 || kind == SVNStatusKind.MISSING;
     }
 
     private boolean isChange(SVNStatusKind kind) {
