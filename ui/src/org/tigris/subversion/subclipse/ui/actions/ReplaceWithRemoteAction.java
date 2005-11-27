@@ -21,6 +21,16 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class ReplaceWithRemoteAction extends WorkspaceAction {
 	
+	private final SVNRevision revision;
+
+	public ReplaceWithRemoteAction() {
+		this.revision = SVNRevision.HEAD;
+	}
+	
+	public ReplaceWithRemoteAction(SVNRevision revision) {
+		this.revision = revision;
+	}
+	
 	public void execute(IAction action)  throws InvocationTargetException, InterruptedException {		
 		IResource[] resources = null;
 
@@ -33,7 +43,7 @@ public class ReplaceWithRemoteAction extends WorkspaceAction {
 		if (resources == null || resources.length == 0) return;
 		
 		// Peform the replace in the background
-		new ReplaceOperation(getTargetPart(), resources, SVNRevision.HEAD, false).run();
+		new ReplaceOperation(getTargetPart(), resources, this.revision, false).run();
 	}
 	
 	/**

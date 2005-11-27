@@ -24,12 +24,16 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  */
 public class ReplaceOperation extends UpdateOperation {
 	
-    /**
+    private final SVNRevision revision;
+
+
+	/**
      * @param part
      * @param resources
      */
     public ReplaceOperation(IWorkbenchPart part, IResource[] resources, SVNRevision revision, boolean recursive) {
         super(part, resources, revision, recursive);
+		this.revision = revision;
     }
 
     /**
@@ -38,6 +42,7 @@ public class ReplaceOperation extends UpdateOperation {
      */
     public ReplaceOperation(IWorkbenchPart part, IResource resource, SVNRevision revision) {
         super(part, resource, revision);
+        this.revision = revision;
     }
 
     /* (non-Javadoc)
@@ -72,6 +77,11 @@ public class ReplaceOperation extends UpdateOperation {
     			}
             }
 
+		    // We are already at the base revision after a revert, no need to update
+		    if (this.revision.equals(SVNRevision.BASE)) {
+		    	return;
+		    }
+		    
             // then we update to revision
 		    super.execute(provider, resources, monitor);
 		} catch (SVNException e) {
