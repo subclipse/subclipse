@@ -473,36 +473,36 @@ public class SVNLightweightDecorator
 
 		for (int i = 0; i < changedResources.length; i++) {
 			IResource resource = changedResources[i];
-
-	    	if (resource.exists())
-	    	{	
-	    		if(computeDeepDirtyCheck) {
-	    			IResource current = resource;
-	    			while ((current.getType() != IResource.ROOT) && (!resourcesToUpdate.contains(current))) {
-	    				resourcesToUpdate.add(current);
-	    				current = current.getParent();
-	    			}                
-	    		} else {
-	    			resourcesToUpdate.add(resource);
-	    		}
-	    	} else {
-	    		// If deleting an unversioned resource, force a decorator refresh of the parent folders.
-	    		// This does not have to happen when managed resources are deleted because in that
-	    		// scenario the .svn folder is updated which already forces the refresh.
-	    		try {
-	    			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-					if (!svnResource.isManaged() && !svnResource.isIgnored()) {
-		    			IResource current = resource;
-		    			while (current.getType() != IResource.ROOT) {
-		    				current = current.getParent();
-		    				if (SVNWorkspaceRoot.getSVNResourceFor(current).isManaged()) {
-		    					resourcesToUpdate.add(current);
-		    				}
-		    			}                
-					}
-				} catch (SVNException e) {
-				}
-	    	}
+			if (resource != null) {
+			    	if (resource.exists()) {	
+			    		if(computeDeepDirtyCheck) {
+			    			IResource current = resource;
+			    			while ((current.getType() != IResource.ROOT) && (!resourcesToUpdate.contains(current))) {
+			    				resourcesToUpdate.add(current);
+			    				current = current.getParent();
+			    			}                
+			    		} else {
+			    			resourcesToUpdate.add(resource);
+			    		}
+			    	} else {
+			    		// If deleting an unversioned resource, force a decorator refresh of the parent folders.
+			    		// This does not have to happen when managed resources are deleted because in that
+			    		// scenario the .svn folder is updated which already forces the refresh.
+			    		try {
+			    			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+							if (!svnResource.isManaged() && !svnResource.isIgnored()) {
+				    			IResource current = resource;
+				    			while (current.getType() != IResource.ROOT) {
+				    				current = current.getParent();
+				    				if (SVNWorkspaceRoot.getSVNResourceFor(current).isManaged()) {
+				    					resourcesToUpdate.add(current);
+				    				}
+				    			}                
+							}
+						} catch (SVNException e) {
+						}
+			    	}
+			}
 		}
 
 		postLabelEvent(new LabelProviderChangedEvent(this, resourcesToUpdate.toArray()));
