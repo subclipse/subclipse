@@ -216,10 +216,13 @@ public class ProjectProperties {
         while (checkResource.getParent() != null) {
             checkResource = checkResource.getParent();
             if (checkResource.getParent() == null) return null;
-            svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
-            if (svnResource.isManaged())
-                property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
-            if (property != null) return getProjectProperties(checkResource);
+            try {
+	            svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
+	            if (svnResource.isManaged())
+	                property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
+	            if (property != null) return getProjectProperties(checkResource);
+            } catch (SVNException e) {
+            }
         }
         return null;
     }

@@ -204,6 +204,7 @@ public class ResourceEditionNode
 	}
 	
 	private SVNLocalResourceNode matchLocalResource(ISVNRemoteResource remoteNode){
+	    if (localResource == null) return null;
 		Object[] lrn = localResource.getChildren();
 		String remotePath=remoteNode.getRepositoryRelativePath();
 		remotePath = remotePath.substring(remotePath.indexOf("/",1));
