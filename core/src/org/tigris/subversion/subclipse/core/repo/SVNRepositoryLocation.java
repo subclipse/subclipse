@@ -554,5 +554,9 @@ public class SVNRepositoryLocation
 		this.label = label;
 	}
 
+	public void setUrl(SVNUrl url) {
+		this.url = url;
+	}
+
 
 }
