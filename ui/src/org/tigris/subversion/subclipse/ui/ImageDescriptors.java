@@ -70,6 +70,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_BRANCHES_CATEGORY, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_VERSIONS_CATEGORY, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_PROJECT_VERSION, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_WARNING, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_MERGE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SHARE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SYNCH, baseURL);
