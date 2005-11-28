@@ -213,15 +213,18 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 	{
         LocalResourceStatus status = null;
 
-        if (isAncestorNotManaged(resource)) {
-            // we know the resource is not managed because one of its ancestor is not managed
-       		status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false)); 
-        } else {
+   /* Code commented so that svn:externals that are multi-level deep will be 
+    * decorated.  In this scenario, there can be unversioned files in the middle
+    * of the svn:externals files.                                               */     
+//        if (isAncestorNotManaged(resource)) {
+//            // we know the resource is not managed because one of its ancestor is not managed
+//       		status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false)); 
+//        } else {
             // we don't know if resource is managed or not, we must update its status
         	strategy.setStatusCache(statusCache);
         	setStatuses(strategy.statusesToUpdate(resource), resource);
         	status = statusCache.getStatus(resource);
-        }
+//        }
         
         if (status == null) {
             status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false));
