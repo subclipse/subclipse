@@ -31,6 +31,10 @@ public class BaseFile extends BaseResource implements ISVNRemoteFile {
 		super(localResourceStatus);
 	}	
 
+	public BaseFile(LocalResourceStatus localResourceStatus, String charset) {
+		super(localResourceStatus, charset);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.team.core.variants.IResourceVariant#isContainer()
 	 */

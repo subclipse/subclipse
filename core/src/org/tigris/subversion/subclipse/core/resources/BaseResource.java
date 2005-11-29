@@ -38,6 +38,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrlUtils;
  */
 public abstract class BaseResource extends PlatformObject implements ISVNRemoteResource {
 
+	private String charset = null;
 	protected LocalResourceStatus localResourceStatus;
 
 	/**
@@ -47,6 +48,16 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	{
 		Assert.isNotNull(localResourceStatus);
 		this.localResourceStatus = localResourceStatus;		
+	}
+
+	/**
+	 * Constructor for BaseResource.
+	 */
+	public BaseResource(LocalResourceStatus localResourceStatus, String charset)
+	{
+		Assert.isNotNull(localResourceStatus);
+		this.localResourceStatus = localResourceStatus;
+		this.charset = charset;
 	}
 
 	/**
@@ -210,6 +221,14 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	 */
 	public ISVNRemoteFolder getParent() {
 		return null;
+	}
+	
+	/**
+	 * charset same as local resource.
+	 * @return
+	 */
+	public String getCharset(){
+		return charset;
 	}
 	
 	/* (non-Javadoc)

@@ -1,9 +1,8 @@
-/*
- * Created on 20 Ιουλ 2004
- */
 package org.tigris.subversion.subclipse.core.sync;
 
+import org.eclipse.core.resources.IEncodedStorage;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariant;
@@ -195,7 +194,13 @@ public class SVNStatusSyncInfo extends SyncInfo {
           return null;
         
         if( local.getType() == IResource.FILE ) {
-            return new BaseFile(baseStatusInfo);
+        	String charset = null;
+        	try {
+        		charset = ((IEncodedStorage)local).getCharset();
+        	} catch (CoreException e) {
+        		e.printStackTrace();
+        	}
+        	return new BaseFile(baseStatusInfo, charset);
         }
         else {
             return new BaseFolder(baseStatusInfo);

@@ -12,6 +12,8 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.InputStream;
 
+import org.eclipse.compare.IEncodedStreamContentAccessor;
+import org.eclipse.core.resources.IEncodedStorage;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -26,7 +28,7 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  * IStorage implementation for accessing the contents of base resource
  *
  */
-public class BaseResourceStorage extends PlatformObject implements IStorage {
+public class BaseResourceStorage extends PlatformObject implements IStorage ,IEncodedStreamContentAccessor, IEncodedStorage {
 
 	private BaseResource baseResource;
 	
@@ -67,5 +69,9 @@ public class BaseResourceStorage extends PlatformObject implements IStorage {
 	 */
 	public boolean isReadOnly() {
 		return true;
+	}
+
+	public String getCharset() throws CoreException {
+		return baseResource.getCharset();
 	}
 }
