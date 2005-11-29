@@ -47,7 +47,10 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.core.commands.ShareProjectCommand;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -166,8 +169,19 @@ public class SVNWorkspaceRoot {
         if (!status.hasRemote())
             throw new SVNException(new SVNStatus(IStatus.ERROR, Policy.bind("SVNProvider.infoMismatch", project.getName())));//$NON-NLS-1$
         
+        String repositoryURL = null;
+        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
+        try {
+			ISVNInfo info = client.getInfoFromWorkingCopy(project.getLocation().toFile());
+			if (info.getRepository() != null)
+				repositoryURL = info.getRepository().toString();
+		} catch (SVNClientException e) {
+		}
+		if (repositoryURL == null)
+			repositoryURL = status.getUrlString();
+        
 		// Ensure that the provided location is managed
-		SVNProviderPlugin.getPlugin().getRepositories().getRepository(status.getUrlString());
+		SVNProviderPlugin.getPlugin().getRepositories().getRepository(repositoryURL);
 		
 		// Register the project with Team
 		RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
