@@ -49,7 +49,6 @@ public class HistoryDialog extends Dialog {
 	private HistoryTableProvider historyTableProvider;
 	private ChangePathsTableProvider changePathsTableProvider;
 	private TableViewer tableHistoryViewer;
-    private TableViewer tableChangePathViewer;
 	private TextViewer textViewer;
 	private Button stopOnCopyButton;
 	private Button getAllButton;
@@ -64,7 +63,6 @@ public class HistoryDialog extends Dialog {
 	private static final int WIDTH_HINT = 500;
 	private final static int LOG_HEIGHT_HINT = 200;
 	private final static int COMMENT_HEIGHT_HINT = 100;
-	private final static int PATHS_HEIGHT_HINT = 200;
 
     public HistoryDialog(Shell parentShell, IResource resource) {
         super(parentShell);
@@ -161,11 +159,6 @@ public class HistoryDialog extends Dialog {
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			}
         });
-        
-		data = new GridData(GridData.FILL_BOTH);
-		data.heightHint = PATHS_HEIGHT_HINT;
-		data.widthHint = WIDTH_HINT;
-		tableChangePathViewer.getTable().setLayoutData(data);
 		
 		stopOnCopyButton = new Button(composite, SWT.CHECK);
 		stopOnCopyButton.setText(Policy.bind("HistoryView.stopOnCopy"));
