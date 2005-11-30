@@ -6,7 +6,6 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -17,28 +16,28 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.subclipse.ui.operations.ImportOperation;
 
 public class ImportFolderDialog extends Dialog {
 	private ISVNRemoteFolder remoteFolder;
+	private IWorkbenchPart targetPart;
 	private Text directoryText;
 	private Button recurseButton;
 	private CommitCommentArea commitCommentArea;
 	private Button okButton;
-	private boolean success;
 
-	public ImportFolderDialog(Shell parentShell, ISVNRemoteFolder remoteFolder) {
+	public ImportFolderDialog(Shell parentShell, ISVNRemoteFolder remoteFolder, IWorkbenchPart targetPart) {
 		super(parentShell);
 		this.remoteFolder = remoteFolder;
+		this.targetPart = targetPart;
 		commitCommentArea = new CommitCommentArea(this, null, Policy.bind("ImportFolderDialog.comment")); //$NON-NLS-1$
 	}
 	
@@ -128,20 +127,14 @@ public class ImportFolderDialog extends Dialog {
     }
 
 	protected void okPressed() {
-		success = true;
-		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-			public void run() {
-				try {
-					ISVNClientAdapter client = remoteFolder.getRepository().getSVNClient();
-					File directory = new File(directoryText.getText().trim());
-					client.doImport(directory, remoteFolder.getUrl(), commitCommentArea.getComment(), recurseButton.getSelection());
-					SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().remoteResourceCreated(remoteFolder, null);
-				} catch (Exception e) {
-					MessageDialog.openError(getShell(), Policy.bind("ImportFolderDialog.title"), e.getMessage()); //$NON-NLS-1$
-					success = false;					
-				}
-			}			
-		});
+		boolean success = true;
+		try {
+			File directory = new File(directoryText.getText().trim());
+			new ImportOperation(targetPart, remoteFolder, directory, commitCommentArea.getComment(), recurseButton.getSelection()).run();
+		} catch (Exception e) {
+			MessageDialog.openError(getShell(), Policy.bind("ImportFolderDialog.title"), e.getMessage()); //$NON-NLS-1$
+			success = false;
+		}
 		if (!success) return;
 		super.okPressed();
 	}

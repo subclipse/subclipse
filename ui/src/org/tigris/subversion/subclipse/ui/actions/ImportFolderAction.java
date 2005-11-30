@@ -11,7 +11,7 @@ public class ImportFolderAction extends SVNAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
-		ImportFolderDialog dialog = new ImportFolderDialog(getShell(), folders[0]);
+		ImportFolderDialog dialog = new ImportFolderDialog(getShell(), folders[0], getTargetPart());
 		dialog.open();
 	}
 
