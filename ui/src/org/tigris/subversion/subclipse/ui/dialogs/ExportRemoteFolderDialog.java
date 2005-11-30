@@ -6,7 +6,6 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -18,31 +17,31 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.subclipse.ui.operations.ExportRemoteFolderOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class ExportRemoteFolderDialog extends Dialog {
 	private ISVNRemoteFolder remoteFolder;
+	private IWorkbenchPart targetPart;
 	private Text directoryText;
 	private Text revisionText;
     private Button logButton;
     private Button headButton;
     private Button revisionButton;
 	private Button okButton;
-	private boolean success;
 
-	public ExportRemoteFolderDialog(Shell parentShell, ISVNRemoteFolder remoteFolder) {
+	public ExportRemoteFolderDialog(Shell parentShell, ISVNRemoteFolder remoteFolder, IWorkbenchPart targetPart) {
 		super(parentShell);
 		this.remoteFolder = remoteFolder;
+		this.targetPart = targetPart;
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -190,26 +189,21 @@ public class ExportRemoteFolderDialog extends Dialog {
     }
 
 	protected void okPressed() {
-		success = true;
-		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-			public void run() {
-				try {
-					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-					SVNRevision revision = null;
-					if (headButton.getSelection()) revision = SVNRevision.HEAD;
-					else {
-						int revisionNumber = Integer.parseInt(revisionText.getText().trim());
-						long revisionLong = revisionNumber;
-						revision = new SVNRevision.Number(revisionLong);
-					}
-					File directory = new File(directoryText.getText().trim());
-					client.doExport(remoteFolder.getUrl(), directory, revision, true);		
-				} catch (Exception e) {
-					MessageDialog.openError(getShell(), Policy.bind("ExportRemoteFolderAction.directoryDialogText"), e.getMessage()); //$NON-NLS-1$
-					success = false;
-				}
-			}			
-		});
+		boolean success = true;
+		SVNRevision revision = null;
+		if (headButton.getSelection()) revision = SVNRevision.HEAD;
+		else {
+			int revisionNumber = Integer.parseInt(revisionText.getText().trim());
+			long revisionLong = revisionNumber;
+			revision = new SVNRevision.Number(revisionLong);
+		}
+		File directory = new File(directoryText.getText().trim() + File.separator + remoteFolder.getName());
+		try {
+			new ExportRemoteFolderOperation(targetPart, remoteFolder, directory, revision).run();
+		} catch (Exception e) {
+			MessageDialog.openError(getShell(), Policy.bind("ExportRemoteFolderAction.directoryDialogText"), e.getMessage()); //$NON-NLS-1$
+			success = false;
+		}
 		if (!success) return;
 		super.okPressed();
 	}

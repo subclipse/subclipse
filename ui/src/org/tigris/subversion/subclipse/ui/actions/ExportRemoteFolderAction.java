@@ -11,7 +11,7 @@ public class ExportRemoteFolderAction extends SVNAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
-		ExportRemoteFolderDialog dialog = new ExportRemoteFolderDialog(getShell(), folders[0]);
+		ExportRemoteFolderDialog dialog = new ExportRemoteFolderDialog(getShell(), folders[0], getTargetPart());
 		dialog.open();
 	}
 
