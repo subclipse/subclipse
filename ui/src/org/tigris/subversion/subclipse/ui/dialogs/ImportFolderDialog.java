@@ -132,7 +132,7 @@ public class ImportFolderDialog extends Dialog {
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
 				try {
-					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+					ISVNClientAdapter client = remoteFolder.getRepository().getSVNClient();
 					File directory = new File(directoryText.getText().trim());
 					client.doImport(directory, remoteFolder.getUrl(), commitCommentArea.getComment(), recurseButton.getSelection());
 					SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().remoteResourceCreated(remoteFolder, null);

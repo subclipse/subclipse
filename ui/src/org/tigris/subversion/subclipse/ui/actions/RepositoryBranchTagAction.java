@@ -8,6 +8,7 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
@@ -28,7 +29,12 @@ public class RepositoryBranchTagAction extends SVNAction {
             BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 				public void run() {
 					try {
-						ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+						ISVNClientAdapter client = null;
+						ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrl.toString());
+						if (repository != null)
+							client = repository.getSVNClient();
+						if (client == null)
+							client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
 						client.copy(sourceUrl, destinationUrl, message, revision);
 					} catch (Exception e) {
 						MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
