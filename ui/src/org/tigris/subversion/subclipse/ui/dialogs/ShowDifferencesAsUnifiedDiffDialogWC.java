@@ -2,6 +2,7 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -24,23 +25,19 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperation;
+import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
-	private ISVNRemoteResource[] remoteResources;
+public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
+	private IResource resource;
 	private IWorkbenchPart targetPart;
-	private ISVNRemoteResource fromResource;
 	private Text fileText;
-	private Text fromUrlText;
-	private Button fromHeadButton;
-	private  Button fromRevisionButton;
-	private Text fromRevisionText;
-	private Button fromLogButton;
 	private Text toUrlText;
 	private Button toHeadButton;
 	private  Button toRevisionButton;
@@ -49,11 +46,10 @@ public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
 	private Button okButton;
 	private boolean success;
 
-	public ShowDifferencesAsUnifiedDiffDialog(Shell parentShell, ISVNRemoteResource[] remoteResources, IWorkbenchPart targetPart) {
+	public ShowDifferencesAsUnifiedDiffDialogWC(Shell parentShell, IResource resource, IWorkbenchPart targetPart) {
 		super(parentShell);
-		this.remoteResources = remoteResources;
+		this.resource = resource;
 		this.targetPart = targetPart;
-		fromResource = remoteResources[0];
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -96,54 +92,19 @@ public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
 		data = new GridData(GridData.FILL_BOTH);
 		fromGroup.setLayoutData(data);
 		
-		Label fromUrlLabel = new Label(fromGroup, SWT.NONE);
-		fromUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
-		fromUrlText = new Text(fromGroup, SWT.BORDER);
-		fromUrlText.setEditable(false);
+		Label pathLabel = new Label(fromGroup, SWT.NONE);
+		pathLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.path")); //$NON-NLS-1$
+		Text pathText = new Text(fromGroup, SWT.BORDER);
 		data = new GridData();
 		data.widthHint = 300;
-		fromUrlText.setLayoutData(data);
-		fromUrlText.setText(remoteResources[0].getUrl().toString());
-		
-		Group fromRevisionGroup = new Group(fromGroup, SWT.NULL);
-		fromRevisionGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
-		GridLayout fromRevisionLayout = new GridLayout();
-		fromRevisionLayout.numColumns = 3;
-		fromRevisionGroup.setLayout(fromRevisionLayout);
-		data = new GridData(GridData.FILL_BOTH);
-		data.horizontalSpan = 3;
-		fromRevisionGroup.setLayoutData(data);
-		
-		fromHeadButton = new Button(fromRevisionGroup, SWT.RADIO);
-		fromHeadButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.head")); //$NON-NLS-1$
-		data = new GridData();
-		data.horizontalSpan = 3;
-		fromHeadButton.setLayoutData(data);
-		
-		fromRevisionButton = new Button(fromRevisionGroup, SWT.RADIO);
-		fromRevisionButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
-		
-		fromHeadButton.setSelection(true);
-		
-		fromRevisionText = new Text(fromRevisionGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 40;
-		fromRevisionText.setLayoutData(data);
-		fromRevisionText.setEnabled(false);
-		
-		fromLogButton = new Button(fromRevisionGroup, SWT.PUSH);
-		fromLogButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.showLog")); //$NON-NLS-1$
-		fromLogButton.setEnabled(false);
-		fromLogButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                showLog(e.getSource());
-            }
-		});	
+		pathText.setLayoutData(data);
+		pathText.setEditable(false);
+		pathText.setText(resource.getFullPath().toString());
 		
 		Group toGroup = new Group(composite, SWT.NULL);
 		toGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.compareTo")); //$NON-NLS-1$
 		GridLayout toLayout = new GridLayout();
-		toLayout.numColumns = 2;
+		toLayout.numColumns = 3;
 		toGroup.setLayout(toLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		toGroup.setLayoutData(data);
@@ -151,11 +112,24 @@ public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
 		Label toUrlLabel = new Label(toGroup, SWT.NONE);
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		toUrlText = new Text(toGroup, SWT.BORDER);
-		toUrlText.setEditable(false);
 		data = new GridData();
 		data.widthHint = 300;
 		toUrlText.setLayoutData(data);
-		toUrlText.setText(remoteResources[1].getUrl().toString());
+		
+		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+		toUrlText.setText(localResource.getUrl().toString());
+		
+		Button urlBrowseButton = new Button(toGroup, SWT.PUSH);
+		urlBrowseButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.browse")); //$NON-NLS-1$
+		urlBrowseButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), resource);
+				if (dialog.open() == ChooseUrlDialog.CANCEL) return;
+				String url = dialog.getUrl();
+				if (url != null) toUrlText.setText(url);
+				setOkButtonStatus();
+			}
+		});
 		
 		Group toRevisionGroup = new Group(toGroup, SWT.NULL);
 		toRevisionGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
@@ -202,15 +176,9 @@ public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
 		
 		SelectionListener selectionListener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-                fromRevisionText.setEnabled(fromRevisionButton.getSelection());
-                fromLogButton.setEnabled(fromRevisionButton.getSelection());
                 toRevisionText.setEnabled(toRevisionButton.getSelection());
-                toLogButton.setEnabled(toRevisionButton.getSelection());
+                toLogButton.setEnabled(toRevisionButton.getSelection() && toUrlText.getText().trim().length() > 0);
 				setOkButtonStatus();
-				if (e.getSource() == fromRevisionButton && fromRevisionButton.getSelection()) {
-                    fromRevisionText.selectAll();
-                    fromRevisionText.setFocus();					
-				}
 				if (e.getSource() == toRevisionButton && toRevisionButton.getSelection()) {
                     toRevisionText.selectAll();
                     toRevisionText.setFocus();					
@@ -219,56 +187,14 @@ public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
 		};
 		
 		fileText.addModifyListener(modifyListener);
-		fromRevisionText.addModifyListener(modifyListener);
+		toUrlText.addModifyListener(modifyListener);
 		toRevisionText.addModifyListener(modifyListener);
-		fromHeadButton.addSelectionListener(selectionListener);
-		fromRevisionButton.addSelectionListener(selectionListener);
 		toHeadButton.addSelectionListener(selectionListener);
 		toRevisionButton.addSelectionListener(selectionListener);
 		
 		return composite;
 	}
 	
-    protected void createButtonsForButtonBar(Composite parent) {
-		Button toggleFromToButton = createButton(parent, 2, Policy.bind("ShowDifferencesAsUnifiedDiffDialog.swap"), false); //$NON-NLS-1$
-		toggleFromToButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				String fromUrl = fromUrlText.getText().trim();
-				boolean fromHeadRevision = fromHeadButton.getSelection();
-				String fromRevision = fromRevisionText.getText().trim();
-				String toUrl = toUrlText.getText().trim();
-				boolean toHeadRevision = toHeadButton.getSelection();
-				String toRevision = toRevisionText.getText().trim();	
-				fromUrlText.setText(toUrl);
-				toUrlText.setText(fromUrl);
-				if (toHeadRevision) {
-					fromHeadButton.setSelection(true);
-					fromRevisionButton.setSelection(false);
-				}
-				else {
-					fromHeadButton.setSelection(false);
-					fromRevisionButton.setSelection(true);
-				}
-				if (fromHeadRevision) {
-					toHeadButton.setSelection(true);
-					toRevisionButton.setSelection(false);
-				}
-				else {
-					toHeadButton.setSelection(false);
-					toRevisionButton.setSelection(true);
-				}
-				fromRevisionText.setText(toRevision);
-				toRevisionText.setText(fromRevision);
-				if (fromResource == remoteResources[0]) fromResource = remoteResources[1];
-				else fromResource = remoteResources[0];
-				fromRevisionText.setEnabled(fromRevisionButton.getSelection());
-				toRevisionText.setEnabled(toRevisionButton.getSelection());
-				setOkButtonStatus();
-			}			
-		});
-		super.createButtonsForButtonBar(parent);
-	}
-
 	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {
@@ -276,8 +202,8 @@ public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
 			okButton.setEnabled(false);
 		}
         return button;
-    }	
-    
+    }
+	
     protected void okPressed() {
     	success = true;
 		final File file = new File(fileText.getText().trim());
@@ -287,30 +213,17 @@ public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
 				try {
-					SVNUrl fromUrl = null;
 					SVNUrl toUrl = null;
-					SVNRevision fromRevision;
 					SVNRevision toRevision;
-					if (fromHeadButton.getSelection()) fromRevision = SVNRevision.HEAD;
-					else {
-						int fromRevisionInt = Integer.parseInt(fromRevisionText.getText().trim());
-						long fromRevisionLong = fromRevisionInt;
-						fromRevision = new SVNRevision.Number(fromRevisionLong);
-					}
 					if (toHeadButton.getSelection()) toRevision = SVNRevision.HEAD;
 					else {
 						int toRevisionInt = Integer.parseInt(toRevisionText.getText().trim());
 						long toRevisionLong = toRevisionInt;
 						toRevision = new SVNRevision.Number(toRevisionLong);
 					}
-					if (fromResource == remoteResources[0]) {
-						fromUrl = remoteResources[0].getUrl();
-						toUrl = remoteResources[1].getUrl();						
-					} else {
-						fromUrl = remoteResources[1].getUrl();
-						toUrl = remoteResources[0].getUrl();								
-					}
-					new ShowDifferencesAsUnifiedDiffOperation(targetPart, fromUrl, fromRevision, toUrl, toRevision, file).run();
+					toUrl = new SVNUrl(toUrlText.getText().trim());					
+					File path = new File(resource.getLocation().toString());
+					new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file).run();
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage());
 					success = false;
@@ -320,34 +233,28 @@ public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
 		if (!success) return;
 		super.okPressed();
 	}
-
+	
 	private void setOkButtonStatus() {
     	boolean canFinish = true;
     	if (fileText.getText().trim().length() == 0) canFinish = false;
-    	if (fromRevisionButton.getSelection() && fromRevisionText.getText().trim().length() == 0) canFinish = false;
+    	if (toUrlText.getText().trim().length() == 0) canFinish = false;
     	if (toRevisionButton.getSelection() && toRevisionText.getText().trim().length() == 0) canFinish = false;
-    	okButton.setEnabled(canFinish);
-    	
+    	okButton.setEnabled(canFinish);   	
     }
-    
-    private void showLog(Object sourceButton) {
-    	HistoryDialog dialog = null;
-    	if (sourceButton == fromLogButton) {
-	    	if (fromResource == remoteResources[0]) dialog = new HistoryDialog(getShell(), remoteResources[0]);
-	    	else dialog = new HistoryDialog(getShell(), remoteResources[1]);
+	
+	private void showLog(Object sourceButton) {
+		try {
+			SVNUrl url = new SVNUrl(toUrlText.getText().trim());
+			ISVNRemoteResource remoteResource = remoteResource = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getRemoteFile(url);
+			HistoryDialog dialog = new HistoryDialog(getShell(), remoteResource);
 	        if (dialog.open() == HistoryDialog.CANCEL) return;
 	        ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
 	        if (selectedEntries.length == 0) return;
-	        fromRevisionText.setText(Long.toString(selectedEntries[selectedEntries.length - 1].getRevision().getNumber()));
-    	} else {
-	    	if (fromResource == remoteResources[0]) dialog = new HistoryDialog(getShell(), remoteResources[1]);
-	    	else dialog = new HistoryDialog(getShell(), remoteResources[0]);
-	        if (dialog.open() == HistoryDialog.CANCEL) return;
-	        ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
-	        if (selectedEntries.length == 0) return;
-	        toRevisionText.setText(Long.toString(selectedEntries[selectedEntries.length - 1].getRevision().getNumber()));    		
-    	}
-        setOkButtonStatus();    	
-    }
+	        toRevisionText.setText(Long.toString(selectedEntries[selectedEntries.length - 1].getRevision().getNumber()));
+		} catch (Exception e) {
+			MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage()); //$NON-NLS-1$
+		}
+		setOkButtonStatus();
+	}
 
 }

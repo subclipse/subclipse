@@ -413,6 +413,13 @@
                id="org.tigris.subversion.subclipse.ui.showSvnProperties">
          </action>
          <action
+               label="%CompareWithBranchTagAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffActionWC"
+               enablesFor="1"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="org.tigris.subversion.subclipse.ui.compareWithBranchTag">
+         </action>         
+         <action
                label="%CompareWithPreviousAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.compare_with_previous_action_context"
                tooltip="%CompareWithPreviousAction.tooltip"

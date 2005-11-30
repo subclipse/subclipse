@@ -13,7 +13,7 @@ public class ShowDifferencesAsUnifiedDiffAction extends SVNAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		ISVNRemoteResource[] selectedResources = getSelectedRemoteResources();
-		ShowDifferencesAsUnifiedDiffDialog dialog = new ShowDifferencesAsUnifiedDiffDialog(getShell(), selectedResources);
+		ShowDifferencesAsUnifiedDiffDialog dialog = new ShowDifferencesAsUnifiedDiffDialog(getShell(), selectedResources, getTargetPart());
 		dialog.open();
 	}
 
