@@ -42,6 +42,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
@@ -191,11 +192,15 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			monitor.beginTask("", 1000 * resources.length);
 			for (int i = 0; i < resources.length; i++) {
 				IResource resource = resources[i];
-
-				monitor.subTask(resource.getName());
-				IStatus status = refresh(resource, depth, monitor);
-				if (!status.isOK()) {
-					errors.add(status);
+				// Make certain that resource is still connected with SVN.  When
+				// Synch is on a schedule it is possible for the project to become disconnected
+				SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
+				if (teamProvider != null) {
+					monitor.subTask(resource.getName());
+					IStatus status = refresh(resource, depth, monitor);
+					if (!status.isOK()) {
+						errors.add(status);
+					}
 				}
 			}
 		} finally {
