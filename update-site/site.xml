@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
 
-   <description url="http://subclipse.tigris.org/update">
-      Tigris.org Eclipse Plugins Update Site
+   <description url="http://subclipse.tigris.org/update_1.0.x">
+      Eclipse Install/Update site for Subclipse
    </description>
-   <feature url="features/org.tigris.subversion.book_1.1.1.jar" id="org.tigris.subversion.book" version="1.1.1">
-      <category name="Book"/>
-   </feature>
-   <feature url="features/org.tigris.subversion.subclipse_0.9.30.jar" id="org.tigris.subversion.subclipse" version="0.9.30">
-      <category name="Subclipse"/>
-   </feature>
-   <feature url="features/org.tigris.subversion.subclipse_0.9.37.jar" id="org.tigris.subversion.subclipse" version="0.9.37">
+   <feature url="features/org.tigris.subversion.subclipse_0.9.100.jar" id="org.tigris.subversion.subclipse" version="0.9.100">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse Plugin">
       <description>
          The subclipse Subversion plugin
-      </description>
-   </category-def>
-   <category-def name="Book" label="Subversion Book">
-      <description>
-         Version Control with Subversion book
       </description>
    </category-def>
 </site>
