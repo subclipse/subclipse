@@ -31,6 +31,7 @@ import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
+import org.tigris.subversion.subclipse.ui.util.UrlCombo;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -38,7 +39,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 	private IResource resource;
 	private IWorkbenchPart targetPart;
 	private Text fileText;
-	private Text toUrlText;
+	private UrlCombo toUrlText;
 	private Button toHeadButton;
 	private  Button toRevisionButton;
 	private Text toRevisionText;
@@ -69,7 +70,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 		fileLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.file")); //$NON-NLS-1$
 		fileText = new Text(fileGroup, SWT.BORDER);
 		data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 450;
 		fileText.setLayoutData(data);
 		
 		Button browseButton = new Button(fileGroup, SWT.PUSH);
@@ -96,7 +97,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 		pathLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.path")); //$NON-NLS-1$
 		Text pathText = new Text(fromGroup, SWT.BORDER);
 		data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 450;
 		pathText.setLayoutData(data);
 		pathText.setEditable(false);
 		pathText.setText(resource.getFullPath().toString());
@@ -111,10 +112,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 		
 		Label toUrlLabel = new Label(toGroup, SWT.NONE);
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
-		toUrlText = new Text(toGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 300;
-		toUrlText.setLayoutData(data);
+		toUrlText = new UrlCombo(toGroup, resource.getProject().getName());
 		
 		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		toUrlText.setText(localResource.getUrl().toString());
@@ -187,7 +185,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 		};
 		
 		fileText.addModifyListener(modifyListener);
-		toUrlText.addModifyListener(modifyListener);
+		toUrlText.getCombo().addModifyListener(modifyListener);
 		toRevisionText.addModifyListener(modifyListener);
 		toHeadButton.addSelectionListener(selectionListener);
 		toRevisionButton.addSelectionListener(selectionListener);
@@ -231,6 +229,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 			}			
 		});
 		if (!success) return;
+		toUrlText.saveUrl();
 		super.okPressed();
 	}
 	
