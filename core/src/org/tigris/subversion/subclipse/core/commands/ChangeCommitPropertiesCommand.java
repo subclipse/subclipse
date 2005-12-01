@@ -46,8 +46,10 @@ public class ChangeCommitPropertiesCommand implements ISVNCommand {
             OperationManager.getInstance().beginOperation(svnClient);
             
             try {
-                svnClient.setRevProperty(repositoryLocation.getUrl(), revisionNo, "svn:log", logMessage, true);
-                svnClient.setRevProperty(repositoryLocation.getUrl(), revisionNo, "svn:author", author, true);
+            	if (logMessage != null)
+            		svnClient.setRevProperty(repositoryLocation.getUrl(), revisionNo, "svn:log", logMessage, true);
+            	if (author != null)
+            		svnClient.setRevProperty(repositoryLocation.getUrl(), revisionNo, "svn:author", author, true);
             }
             catch (SVNClientException e) {
                 throw SVNException.wrapException(e);
