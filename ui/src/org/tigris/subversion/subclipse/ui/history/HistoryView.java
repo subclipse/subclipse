@@ -345,8 +345,17 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 
     					boolean doCommit = (dialog.open() == Window.OK);		
     					if (doCommit) {
-    						final String commitComment = dialog.getComment();
-    						final String author = dialog.getAuthor();
+    						final String author;
+    						final String commitComment;
+    						if (ourSelection.getAuthor().equals(dialog.getAuthor()))
+    							author = null;
+    						else
+    							author = dialog.getAuthor();
+    						if (ourSelection.getComment().equals(dialog.getComment()))
+    							commitComment = null;
+    						else
+    							commitComment = dialog.getComment();
+    						
     						final ChangeCommitPropertiesCommand command = new ChangeCommitPropertiesCommand(svnResource.getRepository(), 
                                     ourSelection.getRevision(), commitComment, author);
 

@@ -47,7 +47,7 @@ public class CommitCommentArea extends DialogArea {
 	private Combo previousCommentsCombo;
 	
 	private String[] comments = new String[0];
-	private String comment = ""; //$NON-NLS-1$
+	private String comment = null; //$NON-NLS-1$
 	private CommentProperties commentProperties;
 	private ModifyListener modifyListener;
 	
