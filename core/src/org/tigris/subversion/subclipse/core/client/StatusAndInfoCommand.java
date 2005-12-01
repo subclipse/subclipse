@@ -116,7 +116,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
     private RemoteResourceStatus ensureStatusContainsRemoteData(RemoteResourceStatus remoteStatus, final ISVNClientAdapter client, final IProgressMonitor monitor)
     {
     	//Some clientAdpater implementations (e.g. JavaSVN) do their job right, so there's no need to fetch additional data.
-    	if (client.statusReturnsRemoteInfo())
+    	if (client.statusReturnsRemoteInfo() & remoteStatus.getLastChangedRevision() != null)
     	{
     		return remoteStatus;
     	}
