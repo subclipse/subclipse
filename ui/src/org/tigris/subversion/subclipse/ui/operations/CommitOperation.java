@@ -115,17 +115,22 @@ public class CommitOperation extends SVNOperation {
 	 * @return IResource.DEPTH_ZERO or IResource.DEPTH_INFINITE  
 	 */
 	private int getDepth(IResource[] resources) {
+	    int depth = IResource.DEPTH_INFINITE;
 		for (int i = 0; i < resources.length; i++) {
 			if (resources[i].getType() != IResource.FILE) {
 				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
 				try {
+				    // If there is a folder delete, then we cannot do a
+				    // non-recursive commit
+					if (svnResource.getStatus().isDeleted())
+						return IResource.DEPTH_INFINITE;
 					if (svnResource.getStatus().isPropModified())
-						return IResource.DEPTH_ZERO;
+						depth = IResource.DEPTH_ZERO;
 				} catch (SVNException e) {
 				}
 			}
 		}
-		return IResource.DEPTH_INFINITE;
+		return depth;
 	}
 
 	protected String getTaskName() {
