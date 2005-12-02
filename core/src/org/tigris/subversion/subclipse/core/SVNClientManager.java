@@ -34,7 +34,6 @@ public class SVNClientManager {
     private boolean fetchChangePathOnDemand = true;
     private boolean javahl = false;
     private boolean javasvn = false;
-    private boolean cli = false;
     
     public void startup(IProgressMonitor monitor) throws CoreException {
     }
@@ -63,12 +62,12 @@ public class SVNClientManager {
                 return;
             }
         } else {
+	        if (CmdLineClientAdapterFactory.COMMANDLINE_CLIENT.equals(svnClientInterface))
+                svnClientInterface = JavaSvnClientAdapterFactory.JAVASVN_CLIENT;
 	        if (JhlClientAdapterFactory.JAVAHL_CLIENT.equals(svnClientInterface))
 	            loadJavaHLAdapter();
 	        if (JavaSvnClientAdapterFactory.JAVASVN_CLIENT.equals(svnClientInterface))
 	            loadJavaSVNAdapter();
-	        if (CmdLineClientAdapterFactory.COMMANDLINE_CLIENT.equals(svnClientInterface))
-	            loadCmdLineAdapter();
 	        if (SVNClientAdapterFactory.isSVNClientAvailable(svnClientInterface)) {
 	            this.svnClientInterface = svnClientInterface;
 	        } else {
@@ -138,7 +137,6 @@ public class SVNClientManager {
 	public void loadAdapters() {
 	    loadJavaHLAdapter();
 	    loadJavaSVNAdapter();
-	    loadCmdLineAdapter();
 	}
 	
 	private void loadJavaHLAdapter() {
@@ -158,17 +156,6 @@ public class SVNClientManager {
 		    try {
 	            JavaSvnClientAdapterFactory.setup();
 	        } catch (SVNClientException e) {
-	        }
-        }
-	}
-	
-	private void loadCmdLineAdapter() {
-        if (!cli) {
-            cli = true;
-		    try {
-	            CmdLineClientAdapterFactory.setup();
-	        } catch (SVNClientException e) {
-	            loadJavaSVNAdapter(); // try to make sure there is at least one adapter available
 	        }
         }
 	}
