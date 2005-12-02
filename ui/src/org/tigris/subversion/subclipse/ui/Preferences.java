@@ -77,7 +77,7 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_SVNINTERFACE, JhlClientAdapterFactory.JAVAHL_CLIENT);
         store.setDefault(ISVNUIConstants.PREF_SVNCONFIGDIR, ""); //$NON-NLS-1$
         
-        store.setDefault(ISVNUIConstants.PREF_FETCH_CHANGE_PATH_ON_DEMAND, true);
+        store.setDefault(ISVNUIConstants.PREF_FETCH_CHANGE_PATH_ON_DEMAND, false);
         store.setDefault(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH, 25);
         store.setDefault(ISVNUIConstants.PREF_STOP_ON_COPY, false);
 
