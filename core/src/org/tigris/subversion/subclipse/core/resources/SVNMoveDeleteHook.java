@@ -25,6 +25,7 @@ import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
@@ -119,6 +120,8 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                         .isManaged()) {
                     SVNTeamProvider provider = (SVNTeamProvider) RepositoryProvider
                             .getProvider(destination.getProject());
+                    if (provider == null) //target is not SVN project
+                        throw new SVNException(Policy.bind("SVNMoveHook.moveFileException"));
                     provider.add(new IResource[] { destination.getParent() },
                             IResource.DEPTH_ZERO, new NullProgressMonitor());
                 }
@@ -190,6 +193,9 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                         .isManaged()) {
                     SVNTeamProvider provider = (SVNTeamProvider) RepositoryProvider
                             .getProvider(destination.getProject());
+                    if (provider == null) {
+                        throw new SVNException(Policy.bind("SVNMoveHook.moveFolderException"));
+                    }
                     provider.add(new IResource[] { destination.getParent() },
                             IResource.DEPTH_ZERO, new NullProgressMonitor());
                 }
