@@ -141,7 +141,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 			this.workspaceRoot = new SVNWorkspaceRoot(project);
 			// Ensure that the project has SVN info
 			LocalResourceStatus status = SVNWorkspaceRoot.peekResourceStatusFor(workspaceRoot.getLocalRoot().getIResource());
-			if (!status.hasRemote()) {
+			if (status == null || !status.hasRemote()) {
 				throw new SVNException(new SVNStatus(IStatus.ERROR, Policy.bind("SVNTeamProvider.noFolderInfo", project.getName()))); //$NON-NLS-1$
 			}
 		} catch (SVNException e) {
