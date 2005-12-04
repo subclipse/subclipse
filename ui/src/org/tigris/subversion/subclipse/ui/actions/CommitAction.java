@@ -104,7 +104,7 @@ public class CommitAction extends WorkspaceAction {
 		
 		new CommitOperation(getTargetPart(), resources, 
 				(IResource[]) resourcesToBeAdded.toArray(new IResource[resourcesToBeAdded.size()]),
-				(IResource[]) resourcesToBeDeleted.toArray(new IResource[resourcesToBeAdded.size()]),
+				(IResource[]) resourcesToBeDeleted.toArray(new IResource[resourcesToBeDeleted.size()]),
 				resourcesToCommit, commitComment, keepLocks).run();
 	}
 	
