@@ -4,5 +4,5 @@ Bundle-SymbolicName: org.tigris.subversion.javahl.win32
 Bundle-Vendor: tigris.org 
 Bundle-Name: Win32 Fragment
 Bundle-ClassPath: win32.jar
-Fragment-Host: org.tigris.subversion.subclipse.core;bundle-version="0.9.100"
-Bundle-Version: 0.9.100
+Fragment-Host: org.tigris.subversion.subclipse.core;bundle-version="0.9.101"
+Bundle-Version: 0.9.101
