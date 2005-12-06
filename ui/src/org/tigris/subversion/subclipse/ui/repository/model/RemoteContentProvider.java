@@ -11,8 +11,11 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.repository.model;
  
+import java.util.ArrayList;
+
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.WorkbenchContentProvider;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 
@@ -23,6 +26,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
  * on the tree expansion box.
  */
 public class RemoteContentProvider extends WorkbenchContentProvider {
+	private boolean foldersOnly = false;
 	
 	/* (non-Javadoc)
 	 * Method declared on WorkbenchContentProvider.
@@ -50,9 +54,23 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 	public Object[] getChildren(Object parentElement) {
 		IWorkbenchAdapter adapter = getAdapter(parentElement);
 		if (adapter instanceof SVNModelElement) {
-			return ((SVNModelElement)adapter).getChildren(parentElement);
+			Object[] children = ((SVNModelElement)adapter).getChildren(parentElement);
+			if (foldersOnly) {
+				ArrayList folderArray = new ArrayList();
+				for (int i = 0; i < children.length; i++) {
+					if (children[i] instanceof ISVNRemoteFolder) folderArray.add(children[i]);
+				}
+				children = new Object[folderArray.size()];
+				folderArray.toArray(children);
+				return children;
+			}
+			else return children;
 		}
 		return super.getChildren(parentElement);
+	}
+
+	public void setFoldersOnly(boolean foldersOnly) {
+		this.foldersOnly = foldersOnly;
 	}
 
 }

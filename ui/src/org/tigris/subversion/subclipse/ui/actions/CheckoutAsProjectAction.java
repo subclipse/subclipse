@@ -20,9 +20,11 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -43,6 +45,19 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
     protected ISVNRemoteFolder[] remoteFolders;
     protected IResource[] projects;
     protected boolean proceed;
+	private ISVNRemoteFolder[] selectedFolders;
+	private String projectName;
+	
+	public CheckoutAsProjectAction() {
+		super();
+	}
+    
+	public CheckoutAsProjectAction(ISVNRemoteFolder[] selectedFolders, String projectName, Shell shell) {
+		super();
+		this.selectedFolders = selectedFolders;
+		this.projectName = projectName;
+		this.shell = shell;
+	}
 
 	/*
 	 * @see SVNAction#execute()
@@ -77,7 +92,11 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 						    });					        
 					    }
 					    if (proceed) {
-							IProject project = SVNWorkspaceRoot.getProject(folders[i],monitor);
+					    	IProject project;
+					    	if (projectName == null)
+					    		project = SVNWorkspaceRoot.getProject(folders[i],monitor);
+					    	else
+					    		project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 							targetFolders.put(project.getName(), folders[i]);
 							targetProjects.add(project);
 					    } else return;
@@ -167,5 +186,9 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
         };
     }
 
+	protected ISVNRemoteFolder[] getSelectedRemoteFolders() {
+		if (selectedFolders != null) return selectedFolders;
+		return super.getSelectedRemoteFolders();
+	}   
 
 }

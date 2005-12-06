@@ -8,12 +8,14 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -27,19 +29,32 @@ import org.tigris.subversion.subclipse.ui.util.PromptingDialog;
 public class CheckoutIntoAction extends CheckoutAsProjectAction {
 	
 	protected IPath intoDir;
+	private ISVNRemoteFolder[] selectedFolders;
+	private String projectName;
+	private String intoDirectory;
 	
+	public CheckoutIntoAction(ISVNRemoteFolder[] selectedFolders, String projectName, String intoDirectory, Shell shell) {
+		super();
+		this.selectedFolders = selectedFolders;
+		this.projectName = projectName;
+		this.intoDirectory = intoDirectory;
+		this.shell = shell;
+	}
+
 	/*
 	 * @see SVNAction#execute()
 	 */
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
-	    if (!WorkspacePathValidator.validateWorkspacePath()) return;
-	    DirectoryDialog intoDirDia = new DirectoryDialog(shell);
-	    intoDirDia.setMessage(Policy.bind("CheckoutInto.message"));
-    	String intoDirString = intoDirDia.open();
-    	if (intoDirString==null) {
-    		return;
-    	}
-    	intoDir = new Path(intoDirString);
+	    if (intoDirectory == null) {
+			if (!WorkspacePathValidator.validateWorkspacePath()) return;
+		    DirectoryDialog intoDirDia = new DirectoryDialog(shell);
+		    intoDirDia.setMessage(Policy.bind("CheckoutInto.message"));
+	    	String intoDirString = intoDirDia.open();
+	    	if (intoDirString==null) {
+	    		return;
+	    	}
+	    	intoDir = new Path(intoDirString);
+	    } else intoDir = new Path(intoDirectory);
 	    checkoutSelectionIntoWorkspaceDirectory();
 	}
 	
@@ -68,8 +83,12 @@ public class CheckoutIntoAction extends CheckoutAsProjectAction {
 						    });					        
 					    }
 					    if (proceed) {
-							IProject project = SVNWorkspaceRoot.getProject(folders[i],monitor);
-							targetFolders.put(project.getName(), folders[i]);
+					    	IProject project;
+					    	if (projectName == null)
+					    		project = SVNWorkspaceRoot.getProject(folders[i],monitor);
+					    	else
+					    		project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+					    	targetFolders.put(project.getName(), folders[i]);
 							targetProjects.add(project);
 					    } else return;
 					}
@@ -99,6 +118,11 @@ public class CheckoutIntoAction extends CheckoutAsProjectAction {
 			}
 		}, true /* cancelable */, PROGRESS_DIALOG);
 	    if (proceed) new CheckoutAsProjectOperation(getTargetPart(), remoteFolders, localFolders, intoDir).run();
+	}
+
+	protected ISVNRemoteFolder[] getSelectedRemoteFolders() {
+		if (selectedFolders != null) return selectedFolders;
+		return super.getSelectedRemoteFolders();
 	}
 
 }
