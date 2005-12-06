@@ -84,7 +84,7 @@ public class ShareProjectCommand implements ISVNCommand {
 							try {
 								// create the remote dir
 								SVNUrl url = location.getUrl().appendPath(remoteDirName);
-								svnClient.mkdir(url, message);
+								svnClient.mkdir(url, true, message);
 
 								// checkout it so that we have .svn
 								svnClient.checkout(url, project.getLocation()
