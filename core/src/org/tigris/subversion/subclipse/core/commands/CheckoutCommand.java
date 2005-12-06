@@ -81,7 +81,7 @@ public class CheckoutCommand implements ISVNCommand {
 					.getSVNClient();
 
 			// Prepare the target projects to receive resources
-			scrubProject(svnClient, resource, project, (pm != null) ? Policy.subMonitorFor(pm, 100)
+			scrubProject(resource, project, (pm != null) ? Policy.subMonitorFor(pm, 100)
 					: null);
 
 			boolean deleteDotProject = false;
@@ -217,7 +217,7 @@ public class CheckoutCommand implements ISVNCommand {
 	 * Delete the target projects before checking out
 	 * @param monitor - may be null !
 	 */
-	private void scrubProject(ISVNClientAdapter svnClient, ISVNRemoteFolder resource, IProject project, IProgressMonitor monitor)
+	private void scrubProject(ISVNRemoteFolder resource, IProject project, IProgressMonitor monitor)
 			throws SVNException {
 		if (project == null) {
 			if (monitor !=null)
@@ -252,13 +252,16 @@ public class CheckoutCommand implements ISVNCommand {
 						subMonitor.beginTask(null, children.length * 100);
 					}
 					try {
+						ISVNClientAdapter clientSilent = null;
 						for (int j = 0; j < children.length; j++) {
 							if (!children[j].getName().equals(".project")) {//$NON-NLS-1$
+								if (clientSilent == null)
+									clientSilent = SVNProviderPlugin.getPlugin().createSVNClient();
 								ISVNInfo info = null;
 								try {
 									SVNUrl url = new SVNUrl(resource.getUrl().toString() + "/" + children[j].getProjectRelativePath());
 									try {
-										info = svnClient.getInfo(url);
+										info = clientSilent.getInfo(url);
 									} catch (SVNClientException e2) {
 									}
 								} catch (MalformedURLException e1) {
