@@ -323,4 +323,12 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 			urlCombo.setFocus();
 		}
 	}
+	public boolean canFlipToNextPage() {
+		if (getWizard() instanceof CheckoutWizard) {
+			CheckoutWizard wizard = (CheckoutWizard)getWizard();
+			return isPageComplete() && wizard.getNextPage(this, false) != null;			
+		}
+		return super.canFlipToNextPage();
+	}
+	
 }

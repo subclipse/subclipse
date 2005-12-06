@@ -81,15 +81,22 @@ public class CheckoutWizardLocationPage extends WizardPage {
 		
 		setControl(outerContainer);
 		
+		refreshLocations();
+	}
+	
+	public void refreshLocations() {
         ISVNRepositoryLocation[] locations = SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations();
         AdaptableList input = new AdaptableList(locations);
         table.setInput(input);
         if (locations.length == 0) {
-            newButton.setSelection(true);  
+            newButton.setSelection(true); 
+            existingButton.setSelection(false);
+            table.getTable().setEnabled(false);
         } else {
             existingButton.setSelection(true); 
-//            table.setSelection(new StructuredSelection(locations[0]));
-        }
+            newButton.setSelection(false);
+            table.getTable().setEnabled(true);
+        }		
 	}
 	
 	   /**

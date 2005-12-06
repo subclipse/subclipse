@@ -1,13 +1,22 @@
 package org.tigris.subversion.subclipse.ui.wizards;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Properties;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
@@ -127,6 +136,16 @@ public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
 				return selectionPage;
 			}
 		}
+		if (page == createLocationPage) {
+			if (aboutToShow) {
+				ISVNRepositoryLocation newLocation = createLocation();
+				if (newLocation != null) {
+					locationPage.refreshLocations();
+					selectionPage.setLocation(newLocation);
+				}
+			}
+			return selectionPage;
+		}
 		if (page == selectionPage) {
 			if (aboutToShow) {
 				if (remoteFolders.length == 1) {
@@ -167,6 +186,69 @@ public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
 		if (page == checkoutAsMultiplePage || page == checkoutAsWithProjectFilePage)
 			return projectPage;
 		return super.getNextPage(page);
+	}
+
+	private ISVNRepositoryLocation createLocation() {
+		createLocationPage.finish(new NullProgressMonitor());
+		Properties properties = createLocationPage.getProperties();
+		final ISVNRepositoryLocation[] root = new ISVNRepositoryLocation[1];
+		SVNProviderPlugin provider = SVNProviderPlugin.getPlugin();
+		try {
+			root[0] = provider.getRepositories().createRepository(properties);
+			// Validate the connection info.  This process also determines the rootURL
+			try {
+				new ProgressMonitorDialog(getShell()).run(true, true, new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) throws InvocationTargetException {
+						try {
+							root[0].validateConnection(monitor);
+						} catch (TeamException e) {
+							throw new InvocationTargetException(e);
+						}
+					}
+				});
+			} catch (InterruptedException e) {
+				return null;
+			} catch (InvocationTargetException e) {
+				Throwable t = e.getTargetException();
+				if (t instanceof TeamException) {
+					throw (TeamException)t;
+				}
+			}
+			provider.getRepositories().addOrUpdateRepository(root[0]);
+		} catch (TeamException e) {
+			if (root[0] == null) {
+				// Exception creating the root, we cannot continue
+				SVNUIPlugin.openError(getContainer().getShell(), Policy.bind("NewLocationWizard.exception"), null, e); //$NON-NLS-1$
+				return null;
+			} else {
+				// Exception validating. We can continue if the user wishes.
+				IStatus error = e.getStatus();
+				if (error.isMultiStatus() && error.getChildren().length == 1) {
+					error = error.getChildren()[0];
+				}
+					
+				boolean keep = false;
+				if (error.isMultiStatus()) {
+					SVNUIPlugin.openError(getContainer().getShell(), Policy.bind("NewLocationWizard.validationFailedTitle"), null, e); //$NON-NLS-1$
+				} else {
+					keep = MessageDialog.openQuestion(getContainer().getShell(),
+						Policy.bind("NewLocationWizard.validationFailedTitle"), //$NON-NLS-1$
+						Policy.bind("NewLocationWizard.validationFailedText", new Object[] {error.getMessage()})); //$NON-NLS-1$
+				}
+				try {
+					if (keep) {
+						provider.getRepositories().addOrUpdateRepository(root[0]);
+					} else {
+						provider.getRepositories().disposeRepository(root[0]);
+					}
+				} catch (TeamException e1) {
+					SVNUIPlugin.openError(getContainer().getShell(), Policy.bind("exception"), null, e1); //$NON-NLS-1$
+					return null;
+				}
+				if (keep) return root[0];
+			}
+		}
+		return root[0];
 	}
 
 	private void checkForProjectFile() {
