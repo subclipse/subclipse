@@ -1,8 +1,11 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -219,7 +222,56 @@ public class CommitDialog extends Dialog {
             }
         }
         keepLocks = keepLocksButton.getSelection();
+        if (!checkForUnselectedPropChangeChildren()) return;
         super.okPressed();
+    }
+    
+    private boolean checkForUnselectedPropChangeChildren() {
+    	ArrayList folderPropertyChanges = new ArrayList();
+    	boolean folderDeletionSelected = false;
+    	for (int i = 0; i < selectedResources.length; i++) {
+    		IResource resource = (IResource)selectedResources[i];
+    		if (resource instanceof IContainer) {
+    			if (ResourceWithStatusUtil.getStatus(resource).equals(Policy.bind("CommitDialog.deleted"))) //$NON-NLS-1$
+    				folderDeletionSelected = true;
+    			String propertyStatus = ResourceWithStatusUtil.getPropertyStatus(resource);
+    			if (propertyStatus != null && propertyStatus.length() > 0)
+    				folderPropertyChanges.add(resource);
+    		}
+    	}
+    	boolean unselectedPropChangeChildren = false;
+    	if (folderDeletionSelected) {
+    		Iterator iter = folderPropertyChanges.iterator();
+    	whileLoop:
+    		while (iter.hasNext()) {
+    			IContainer container = (IContainer)iter.next();
+    			TableItem[] items = listViewer.getTable().getItems();   
+    			for (int i = 0; i < items.length; i++) {
+    				if (!items[i].getChecked()) {
+    					IResource resource = (IResource)items[i].getData();
+    					if (isChild(resource, container)) {
+    						unselectedPropChangeChildren = true;
+    						break whileLoop;
+    					}
+    				}
+    			}
+    		}
+    	}
+    	if (unselectedPropChangeChildren) {
+    		MessageDialog.openError(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.unselectedPropChangeChildren")); //$NON-NLS-1$
+    		return false;
+    	}
+    	return true;
+    }
+    
+    private boolean isChild(IResource resource, IContainer folder) {
+    	IContainer container = resource.getParent();
+    	while (container != null) {
+    		if (container.getFullPath().toString().equals(folder.getFullPath().toString()))
+    			return true;
+    		container = container.getParent();
+    	}
+    	return false;
     }
     
     protected void cancelPressed() {
