@@ -59,7 +59,8 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 			setCachedSyncBytes(resource, status.getBytes());
 			return resource;
 		} catch (SVNException e) {
-			SVNProviderPlugin.log(e);
+		    if (!"".equals(e.getMessage())) // We send these exceptions so that the log does not go nuts
+		        SVNProviderPlugin.log(e);
 			return null;
 		}
 	}

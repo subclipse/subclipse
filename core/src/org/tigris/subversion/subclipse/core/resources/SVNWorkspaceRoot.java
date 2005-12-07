@@ -44,6 +44,7 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
+import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.core.commands.ShareProjectCommand;
@@ -75,6 +76,7 @@ public class SVNWorkspaceRoot {
 
 	private ISVNLocalFolder localRoot;
     private String url;
+    private static boolean nullResourceLogged = false;
 	
 	public SVNWorkspaceRoot(IContainer resource){
 		this.localRoot = getSVNFolderFor(resource);
@@ -379,8 +381,21 @@ public class SVNWorkspaceRoot {
 		IPath resourcePath = pathForLocation(status.getPath());
 		if (resourcePath == null) 
 		{
-			throw new SVNException("An (un?)expected error has occured! Please report to users@subclipse.tigris.org ! pathForLocation(" 
-				+ status.getPathString() +") is null ! Url: " + status.getUrlString() + " Projects: " + ResourcesPlugin.getWorkspace().getRoot().getProjects());
+		    if (!nullResourceLogged) {
+		        String errorMsg = Policy.bind("SVNWorkspaceRoot.nullResource", status.getPathString());
+			    IConsoleListener console = SVNProviderPlugin.getPlugin().getConsoleListener();
+			    if (console != null) {
+			        console.logError(errorMsg);
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.2"));
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.3"));
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.4"));
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.5"));
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.6"));
+			    }
+			    nullResourceLogged = true;
+			    throw new SVNException(errorMsg);
+		    }
+		    throw new SVNException("");
 		}
 		int kind = getResourceType(resourcePath);			
 
@@ -439,8 +454,21 @@ public class SVNWorkspaceRoot {
 		IPath resourcePath = pathForLocation(new Path(status.getPath()));
 		if (resourcePath == null) 
 		{
-			throw new SVNException("An (un?)expected error has occured! Please report to users@subclipse.tigris.org ! pathForLocation(" 
-				+ status.getPath() +") is null ! Url: " + status.getUrl() + " Projects: " + ResourcesPlugin.getWorkspace().getRoot().getProjects());
+		    if (!nullResourceLogged) {
+		        String errorMsg = Policy.bind("SVNWorkspaceRoot.nullResource", status.getPath());
+		        IConsoleListener console = SVNProviderPlugin.getPlugin().getConsoleListener();
+			    if (console != null) {
+			        console.logError(Policy.bind(errorMsg));
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.2"));
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.3"));
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.4"));
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.5"));
+			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.6"));
+			    }
+			    nullResourceLogged = true;
+			    throw new SVNException(errorMsg);
+		    }
+		    throw new SVNException("");
 		}
 		int kind = getResourceType(resourcePath);			
 
