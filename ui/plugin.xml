@@ -526,6 +526,13 @@
                menubarPath="team.main/group6"
                id="org.tigris.subversion.subclipse.ui.editConflicts">
          </action>
+
+         <action
+               label="%CompareWithBranchTagAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.SwitchAction"
+               menubarPath="replaceWithMenu/replaceWithGroup"
+               id="org.tigris.subversion.subclipse.ui.replaceWithBranchTag">
+         </action>         
          <action
                label="%ReplaceWithAction.label"
                helpContextId="org.eclipse.team.cvs.ui.replace_with_latest_action_context"
