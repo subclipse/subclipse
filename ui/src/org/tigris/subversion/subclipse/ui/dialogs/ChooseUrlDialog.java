@@ -45,6 +45,7 @@ public class ChooseUrlDialog extends Dialog {
     private String url;
     private IResource resource;
     private ISVNRepositoryLocation repositoryLocation;
+    private boolean foldersOnly = false;
 
     public ChooseUrlDialog(Shell parentShell, IResource resource) {
         super(parentShell);
@@ -80,6 +81,7 @@ public class ChooseUrlDialog extends Dialog {
 		
 		treeViewer = new TreeViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL);
         RemoteContentProvider contentProvider = new RemoteContentProvider();
+        contentProvider.setFoldersOnly(foldersOnly);
         treeViewer.setContentProvider(contentProvider);
         treeViewer.setLabelProvider(new WorkbenchLabelProvider());
         if (repositoryLocation == null) {
@@ -145,4 +147,8 @@ public class ChooseUrlDialog extends Dialog {
     public void setRepositoryLocation(ISVNRepositoryLocation repositoryLocation) {
         this.repositoryLocation = repositoryLocation;
     }
+
+	public void setFoldersOnly(boolean foldersOnly) {
+		this.foldersOnly = foldersOnly;
+	}
 }

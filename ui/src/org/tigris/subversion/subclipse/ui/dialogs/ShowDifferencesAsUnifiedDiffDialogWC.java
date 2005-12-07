@@ -2,6 +2,8 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 
 import java.io.File;
 
+import org.eclipse.compare.CompareUI;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -24,14 +26,24 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
 import org.tigris.subversion.subclipse.ui.util.UrlCombo;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -46,6 +58,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 	private Button toLogButton;
 	private Button okButton;
 	private boolean success;
+	private File file;
 
 	public ShowDifferencesAsUnifiedDiffDialogWC(Shell parentShell, IResource resource, IWorkbenchPart targetPart) {
 		super(parentShell);
@@ -54,43 +67,50 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 	}
 	
 	protected Control createDialogArea(Composite parent) {
-		getShell().setText(Policy.bind("HistoryView.showDifferences")); //$NON-NLS-1$
+		if (resource instanceof IContainer)
+			getShell().setText(Policy.bind("HistoryView.showDifferences")); //$NON-NLS-1$
+		else
+			getShell().setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag")); //$NON-NLS-1$
 		Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		Composite fileGroup = new Composite(composite, SWT.NULL);
-		GridLayout fileLayout = new GridLayout();
-		fileLayout.numColumns = 3;
-		fileGroup.setLayout(fileLayout);
-		GridData data = new GridData(GridData.FILL_BOTH);
-		fileGroup.setLayoutData(data);
+		if (resource instanceof IContainer) {
 		
-		Label fileLabel = new Label(fileGroup, SWT.NONE);
-		fileLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.file")); //$NON-NLS-1$
-		fileText = new Text(fileGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 450;
-		fileText.setLayoutData(data);
+			Composite fileGroup = new Composite(composite, SWT.NULL);
+			GridLayout fileLayout = new GridLayout();
+			fileLayout.numColumns = 3;
+			fileGroup.setLayout(fileLayout);
+			GridData data = new GridData(GridData.FILL_BOTH);
+			fileGroup.setLayoutData(data);
+			
+			Label fileLabel = new Label(fileGroup, SWT.NONE);
+			fileLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.file")); //$NON-NLS-1$
+			fileText = new Text(fileGroup, SWT.BORDER);
+			data = new GridData();
+			data.widthHint = 450;
+			fileText.setLayoutData(data);
+			
+			Button browseButton = new Button(fileGroup, SWT.PUSH);
+			browseButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.browse")); //$NON-NLS-1$
+			browseButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
+					dialog.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.fileDialogText")); //$NON-NLS-1$
+					dialog.setFileName("revision.diff"); //$NON-NLS-1$
+					String outFile = dialog.open();
+					if (outFile != null) fileText.setText(outFile);
+				}		
+			});
 		
-		Button browseButton = new Button(fileGroup, SWT.PUSH);
-		browseButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.browse")); //$NON-NLS-1$
-		browseButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
-				dialog.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.fileDialogText")); //$NON-NLS-1$
-				dialog.setFileName("revision.diff"); //$NON-NLS-1$
-				String outFile = dialog.open();
-				if (outFile != null) fileText.setText(outFile);
-			}		
-		});
+		}
 		
 		Group fromGroup = new Group(composite, SWT.NULL);
 		fromGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.compareFrom")); //$NON-NLS-1$
 		GridLayout fromLayout = new GridLayout();
 		fromLayout.numColumns = 2;
 		fromGroup.setLayout(fromLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		GridData data = new GridData(GridData.FILL_BOTH);
 		fromGroup.setLayoutData(data);
 		
 		Label pathLabel = new Label(fromGroup, SWT.NONE);
@@ -122,6 +142,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 		urlBrowseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), resource);
+				if (resource instanceof IContainer) dialog.setFoldersOnly(true);
 				if (dialog.open() == ChooseUrlDialog.CANCEL) return;
 				String url = dialog.getUrl();
 				if (url != null) toUrlText.setText(url);
@@ -164,7 +185,10 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
             }
 		});			
 		
-		fileText.setFocus();
+		if (fileText == null)
+			toUrlText.setFocus();
+		else 
+			fileText.setFocus();
 		
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -184,7 +208,8 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 			}
 		};
 		
-		fileText.addModifyListener(modifyListener);
+		if (fileText != null)
+			fileText.addModifyListener(modifyListener);
 		toUrlText.getCombo().addModifyListener(modifyListener);
 		toRevisionText.addModifyListener(modifyListener);
 		toHeadButton.addSelectionListener(selectionListener);
@@ -197,17 +222,14 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {
 			okButton = button; 
-			okButton.setEnabled(false);
+			if (resource instanceof IContainer)
+				okButton.setEnabled(false);
 		}
         return button;
     }
 	
     protected void okPressed() {
     	success = true;
-		final File file = new File(fileText.getText().trim());
-		if (file.exists()) {
-			if (!MessageDialog.openQuestion(getShell(), Policy.bind("HistoryView.showDifferences"), Policy.bind("HistoryView.overwriteOutfile", file.getName()))) return;
-		}	
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
 				try {
@@ -219,9 +241,41 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 						long toRevisionLong = toRevisionInt;
 						toRevision = new SVNRevision.Number(toRevisionLong);
 					}
-					toUrl = new SVNUrl(toUrlText.getText().trim());					
+					toUrl = new SVNUrl(toUrlText.getText().trim());	
 					File path = new File(resource.getLocation().toString());
-					new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file).run();
+					ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+					ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+					ISVNInfo svnInfo = svnClient.getInfo(toUrl);
+					SVNNodeKind nodeKind = svnInfo.getNodeKind();
+					if (resource instanceof IContainer) {
+						if (nodeKind.toInt() == SVNNodeKind.FILE.toInt()) {
+							MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.fileToFolder"));
+							success = false;
+							return;
+						}
+				    	if (fileText != null) {
+							file = new File(fileText.getText().trim());
+							if (file.exists()) {
+								if (!MessageDialog.openQuestion(getShell(), Policy.bind("HistoryView.showDifferences"), Policy.bind("HistoryView.overwriteOutfile", file.getName()))) return;
+							}
+				    	}
+						new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file).run();														
+					} else {
+						if (nodeKind.toInt() == SVNNodeKind.DIR.toInt()) {
+							MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.fileToFolder"));
+							success = false;
+							return;
+						}
+						try {
+							ISVNRemoteFile remoteFile = new RemoteFile(svnResource.getRepository(), toUrl, toRevision);
+							CompareUI.openCompareEditorOnPage(
+									new SVNLocalCompareInput((ISVNLocalFile)svnResource, (ISVNRemoteFile)remoteFile),
+									getTargetPage());
+						} catch (SVNException e) {
+							MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), e.getMessage());
+							success = false;							
+						}
+					}
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage());
 					success = false;
@@ -235,7 +289,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 	
 	private void setOkButtonStatus() {
     	boolean canFinish = true;
-    	if (fileText.getText().trim().length() == 0) canFinish = false;
+    	if (fileText != null && fileText.getText().trim().length() == 0) canFinish = false;
     	if (toUrlText.getText().trim().length() == 0) canFinish = false;
     	if (toRevisionButton.getSelection() && toRevisionText.getText().trim().length() == 0) canFinish = false;
     	okButton.setEnabled(canFinish);   	
@@ -254,6 +308,15 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 			MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage()); //$NON-NLS-1$
 		}
 		setOkButtonStatus();
+	}
+
+	/**
+	 * Return the path that was active when the menu item was selected.
+	 * @return IWorkbenchPage
+	 */
+	private IWorkbenchPage getTargetPage() {
+		if (targetPart == null) return SVNUIPlugin.getActivePage();
+		return targetPart.getSite().getPage();
 	}
 
 }
