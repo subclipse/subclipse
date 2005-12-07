@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
-import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -269,7 +268,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 						try {
 							ISVNRemoteFile remoteFile = new RemoteFile(svnResource.getRepository(), toUrl, toRevision);
 							CompareUI.openCompareEditorOnPage(
-									new SVNLocalCompareInput((ISVNLocalFile)svnResource, (ISVNRemoteFile)remoteFile),
+									new SVNLocalCompareInput(svnResource, remoteFile),
 									getTargetPage());
 						} catch (SVNException e) {
 							MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), e.getMessage());

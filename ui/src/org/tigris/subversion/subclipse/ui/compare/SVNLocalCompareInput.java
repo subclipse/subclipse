@@ -33,10 +33,8 @@ import org.eclipse.team.ui.ISaveableWorkbenchPart;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
-import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -192,7 +190,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	 * @throws SVNException
 	 * creates a SVNCompareRevisionsInput  
 	 */
-	public SVNLocalCompareInput(ISVNLocalFile resource, ISVNRemoteFile remoteResource) throws SVNException {
+	public SVNLocalCompareInput(ISVNLocalResource resource, ISVNRemoteResource remoteResource) throws SVNException {
 		super(new CompareConfiguration());
 		this.resource = resource;
 		this.remoteResource = remoteResource;
