@@ -252,11 +252,14 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
     // Get the DeferFileDelete Property for selected resource.  First looks at selected resource,
     // then works up through ancestors until a folder with the DeferFileDelete property
     // is found.  If none found, returns false.
-    private boolean getDeferFileDelete(IResource resource) throws SVNException {
+    private boolean getDeferFileDelete(IResource resource) {
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         ISVNProperty property = null;
-        if (svnResource.isManaged()) {
-            property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
+        try {
+            if (svnResource.isManaged()) {
+                property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
+            }
+        } catch (SVNException e) {
         }
         if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
             return property.getValue().equalsIgnoreCase("true");           
@@ -266,8 +269,11 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             checkResource = checkResource.getParent();
             if (checkResource.getParent() == null) return false;
             svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
-            if (svnResource.isManaged())
-                property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
+            try {
+                if (svnResource.isManaged())
+                    property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
+            } catch (SVNException e1) {
+            }
             if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
                 return property.getValue().equalsIgnoreCase("true");           
             }
