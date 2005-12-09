@@ -28,11 +28,13 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNCompareRevisionsInput;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * Used when you want to compare local resource with remote ones 
@@ -82,7 +84,10 @@ public class CompareWithRevisionAction extends WorkspaceAction {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
 					monitor.beginTask(Policy.bind("CompareWithRevisionAction.fetching"), 100); //$NON-NLS-1$
-					entries[0] = file[0].getLogEntries(Policy.subMonitorFor(monitor, 100));
+					TagManager tagManager = null;
+					IResource[] resources = getSelectedResources();
+					if (resources.length == 1) tagManager = new TagManager(resources[0]);
+					entries[0] = file[0].getLogEntries(Policy.subMonitorFor(monitor, 100), SVNRevision.HEAD, SVNRevision.HEAD, new SVNRevision.Number(0), false, 0, tagManager);
 					monitor.done();
 				} catch (TeamException e) {
 					throw new InvocationTargetException(e);

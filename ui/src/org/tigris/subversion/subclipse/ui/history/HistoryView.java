@@ -108,6 +108,7 @@ import org.tigris.subversion.subclipse.core.commands.ChangeCommitPropertiesComma
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
+import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -142,12 +143,16 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     // the resource for which we want to see the history or null if we use showHistory(ISVNRemoteResource)
 	private IResource resource;
 	
+	private ISVNRemoteResource remoteResource;
+	
 	private ProjectProperties projectProperties;
 	private LinkList linkList;
 	private boolean mouseDown = false; 
 	private boolean dragEvent = false;
 	private Cursor handCursor;
 	private Cursor busyCursor;
+	
+	private TagManager tagManager;
 
 	// cached for efficiency
 	private ILogEntry[] entries;
@@ -1267,6 +1272,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	 * 
 	 */
 	public void showHistory(IResource resource, boolean refetch) {
+		remoteResource = null;
 		if(!refetch && this.resource != null && resource.equals(this.resource)) {
 			return;
 		} 
@@ -1281,10 +1287,11 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
                     projectProperties = ProjectProperties.getProjectProperties(resource);
 					ISVNRemoteResource baseResource = localResource.getBaseResource();
 					historyTableProvider.setRemoteResource(baseResource);
+					historyTableProvider.setResource(resource);
+					this.resource = resource;
 					tableHistoryViewer.setInput(baseResource);
 					setContentDescription(Policy.bind("HistoryView.titleWithArgument", baseResource.getName())); //$NON-NLS-1$
 					setTitleToolTip(baseResource.getRepositoryRelativePath());
-					this.resource = resource;
 				}
 			} catch (TeamException e) {
 				SVNUIPlugin.openError(getViewSite().getShell(), null, null, e);
@@ -1296,15 +1303,17 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	 * Shows the history for the given ISVNRemoteFile in the view.
 	 */
 	public void showHistory(ISVNRemoteResource remoteResource, String currentRevision) {
+		this.remoteResource = remoteResource;
+		this.resource = null;
 		if (remoteResource == null) {
 			tableHistoryViewer.setInput(null);
 			setContentDescription(Policy.bind("HistoryView.title")); //$NON-NLS-1$
 			setTitleToolTip(""); //$NON-NLS-1$
 			return;
 		}
-		this.resource = null;
         projectProperties = ProjectProperties.getProjectProperties(remoteResource);
 		historyTableProvider.setRemoteResource(remoteResource);
+		historyTableProvider.setResource(null);
 		tableHistoryViewer.setInput(remoteResource);
 		setContentDescription(Policy.bind("HistoryView.titleWithArgument", remoteResource.getName())); //$NON-NLS-1$
 		setTitleToolTip(""); //$NON-NLS-1$
@@ -1460,13 +1469,20 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		public IStatus run(IProgressMonitor monitor) {
 			try {
 				if(remoteResource != null && !shutdown) {
+					if (resource == null) {
+						if (remoteResource == null || !SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE))
+							tagManager = null;
+						else
+							tagManager = new TagManager(remoteResource.getUrl());
+					}
+					else tagManager = new TagManager(resource);
 					SVNRevision pegRevision = remoteResource.getRevision();
 					SVNRevision revisionEnd = new SVNRevision.Number(0);
 					boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
 					IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
 					int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
 					long limit = entriesToFetch;
-					entries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1);
+					entries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1, tagManager);
 					long entriesLength = entries.length;
 					if (entriesLength > limit) {
 						ILogEntry[] fetchedEntries = new ILogEntry[entries.length - 1];
@@ -1515,7 +1531,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 					IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
 					int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
 					long limit = entriesToFetch;
-					ILogEntry[] nextEntries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1);
+					ILogEntry[] nextEntries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1, tagManager);
 					long entriesLength = nextEntries.length;
 					if (entriesLength > limit) {
 						ILogEntry[] fetchedEntries = new ILogEntry[nextEntries.length - 1];
@@ -1563,12 +1579,19 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		public IStatus run(IProgressMonitor monitor) {
 			try {
 				if(remoteResource != null && !shutdown) {
+					if (resource == null) {
+						if (remoteResource == null || !SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE))
+							tagManager = null;
+						else
+							tagManager = new TagManager(remoteResource.getUrl());
+					}
+					else tagManager = new TagManager(resource);
 					SVNRevision pegRevision = remoteResource.getRevision();
 					revisionStart = SVNRevision.HEAD;
 					SVNRevision revisionEnd = new SVNRevision.Number(0);
 					boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
 					long limit = 0;
-					entries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit);
+					entries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager);
 					final SVNRevision.Number revisionId = remoteResource.getLastChangedRevision();
 					getSite().getShell().getDisplay().asyncExec(new Runnable() {
 						public void run() {

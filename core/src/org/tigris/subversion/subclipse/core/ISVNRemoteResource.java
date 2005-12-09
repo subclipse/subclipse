@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.variants.IResourceVariant;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -88,9 +89,10 @@ public interface ISVNRemoteResource extends ISVNResource, IAdaptable, IResourceV
      * @param stopOnCopy    do not continue on copy operations
      * @param limit         limit the number of log messages (if 0 or less no
      *                      limit)
+     * @param tagManager    used to determine tags for revision                     
      * @return array of LogMessages
      */
-    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit) throws TeamException;
+    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, TagManager tagManager) throws TeamException;
 
     public ISVNRemoteFolder getParent();
     

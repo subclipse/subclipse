@@ -17,6 +17,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
+import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
@@ -35,6 +36,7 @@ public class GetLogsCommand implements ISVNCommand {
 	private SVNRevision revisionEnd = SVNRevision.HEAD;
 	private boolean stopOnCopy = false;
 	private long limit = 0;
+	private TagManager tagManager;
     private ILogEntry[] logEntries;
     
     public GetLogsCommand(ISVNRemoteResource remoteResource) {
@@ -197,6 +199,11 @@ public class GetLogsCommand implements ISVNCommand {
         ILogEntry[] result = new ILogEntry[logMessages.length]; 
         for (int i = 0; i < logMessages.length;i++) {
         	result[i] = new LogEntry(logMessages[i], remoteResource, null); 
+        	if (tagManager != null) {
+        		String rev = result[i].getRevision().toString();
+        		int revNo = Integer.parseInt(rev);
+        		result[i].setTags(tagManager.getTags(revNo));
+        	}
         }
         return result;
     }
@@ -221,6 +228,11 @@ public class GetLogsCommand implements ISVNCommand {
                         logMessage.getDate(), 
                         logMessage.getAuthor());  
             result[i] = new LogEntry(logMessage, remoteResource, correspondingResource);
+        	if (tagManager != null) {
+        		String rev = result[i].getRevision().toString();
+        		int revNo = Integer.parseInt(rev);
+        		result[i].setTags(tagManager.getTags(revNo));
+        	}        
         }
         return result;
     }
@@ -248,6 +260,11 @@ public class GetLogsCommand implements ISVNCommand {
 
 	public void setPegRevision(SVNRevision pegRevision) {
 		this.pegRevision = pegRevision;
+	}
+
+
+	public void setTagManager(TagManager tagManager) {
+		this.tagManager = tagManager;
 	}
     
     

@@ -978,6 +978,27 @@ tsvn:lockmsgminsize
 Minimum size in characters a lock message must have before a lock is allowed.
 		</description>
       </svnPropertyTypes>                      
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="folder"
+            allowRecurse = "false"
+            name="subclipse:tags">
+         <description>
+subclipse:tags
+List of tags and branches that have been created from the selected item.  Typically
+this property would only be set on the project folder.  The format of the property
+is:
+
+revnum,tag_name,relative_path,branch/tag
+
+For example:
+
+123,custom_mods,/branches/custom_mods,branch
+135,v1.0,/tags/v1.0,tag
+195,v1.1,/tags/v1.1,tag
+215,v2.0,/tags/v2.0,tag
+		</description>
+      </svnPropertyTypes>                      
    </extension>	  
 
 </plugin>

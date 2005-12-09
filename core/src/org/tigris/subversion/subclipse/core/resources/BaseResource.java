@@ -23,6 +23,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -197,13 +198,14 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#getLogEntries(org.eclipse.core.runtime.IProgressMonitor, , SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit)
      */
-    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit) throws SVNException {
+    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, TagManager tagManager) throws SVNException {
         GetLogsCommand command = new GetLogsCommand(this);
         command.setPegRevision(pegRevision);
         command.setRevisionStart(revisionStart);
         command.setRevisionEnd(revisionEnd);
         command.setStopOnCopy(stopOnCopy);
         command.setLimit(limit);
+        command.setTagManager(tagManager);
         command.run(monitor);
         return command.getLogEntries();   
     }

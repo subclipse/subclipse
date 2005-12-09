@@ -35,6 +35,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
+import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -44,6 +45,7 @@ import org.tigris.subversion.subclipse.ui.history.HistoryTableProvider;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class HistoryDialog extends Dialog {
+	private IResource selectedResource;
     private IResource resource;
     private ISVNRemoteResource remoteResource;
 	private HistoryTableProvider historyTableProvider;
@@ -53,6 +55,7 @@ public class HistoryDialog extends Dialog {
 	private Button stopOnCopyButton;
 	private Button getAllButton;
 	private Button getNextButton;
+	private TagManager tagManager;
 	private ILogEntry[] entries;
 	private IDialogSettings settings;
 	private ILogEntry[] selectedEntries;
@@ -95,6 +98,7 @@ public class HistoryDialog extends Dialog {
 		
 		historyTableProvider = new HistoryTableProvider();
 		historyTableProvider.setRemoteResource(remoteResource);
+		historyTableProvider.setResource(selectedResource);
 		tableHistoryViewer = historyTableProvider.createTable(composite);
 		data = new GridData(GridData.FILL_BOTH);
 		data.widthHint = WIDTH_HINT;
@@ -188,12 +192,14 @@ public class HistoryDialog extends Dialog {
 						}
 		            }
 		            if (remoteResource != null) {
+		            	if (SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE))
+		            		tagManager = new TagManager(remoteResource.getUrl());
 						SVNRevision pegRevision = remoteResource.getRevision();
 						SVNRevision revisionEnd = new SVNRevision.Number(0);
 						boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
 						int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
 						long limit = entriesToFetch;
-						entries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1);
+						entries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1, tagManager);
 						long entriesLength = entries.length;
 						if (entriesLength > limit) {
 							ILogEntry[] fetchedEntries = new ILogEntry[entries.length - 1];
@@ -232,7 +238,7 @@ public class HistoryDialog extends Dialog {
 							boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
 							int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
 							long limit = entriesToFetch;
-							ILogEntry[] nextEntries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1);
+							ILogEntry[] nextEntries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1, tagManager);
 							long entriesLength = nextEntries.length;
 							if (entriesLength > limit) {
 								ILogEntry[] fetchedEntries = new ILogEntry[nextEntries.length - 1];
@@ -275,12 +281,14 @@ public class HistoryDialog extends Dialog {
 							}
 			            }
 			            if (remoteResource != null) {
+			            	if (SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE))
+			            		tagManager = new TagManager(remoteResource.getUrl());
 							SVNRevision pegRevision = remoteResource.getRevision();
 							SVNRevision revisionEnd = new SVNRevision.Number(0);
 							revisionStart = SVNRevision.HEAD;
 							boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
 							long limit = 0;
-							entries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit);
+							entries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager);
 							getNextButton.setEnabled(false);	
 			            }
 					} catch (TeamException e) {
@@ -359,4 +367,8 @@ public class HistoryDialog extends Dialog {
     public ILogEntry[] getSelectedLogEntries() {
         return selectedEntries;
     }
+
+	public void setSelectedResource(IResource selectedResource) {
+		this.selectedResource = selectedResource;
+	}
 }

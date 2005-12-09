@@ -265,6 +265,7 @@ public class BranchTagDialog extends Dialog {
             return;	            
         }	
         HistoryDialog dialog = dialog = new HistoryDialog(getShell(), remoteResource);
+        dialog.setSelectedResource(resource);
         if (dialog.open() == HistoryDialog.CANCEL) return;
         ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
         if (selectedEntries.length == 0) return;

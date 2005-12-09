@@ -14,6 +14,7 @@ package org.tigris.subversion.subclipse.ui.history;
 import java.text.DateFormat;
 import java.util.Date;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -39,6 +40,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
@@ -53,6 +55,7 @@ public class HistoryTableProvider {
 	private SVNRevision.Number currentRevision;
 	private TableViewer viewer;
 	private Font currentRevisionFont;
+	private IResource resource;
 		
 	/**
 	 * Constructor for HistoryTableProvider.
@@ -63,9 +66,10 @@ public class HistoryTableProvider {
 
 	//column constants
 	private static final int COL_REVISION = 0;
-	private static final int COL_DATE = 1;
-	private static final int COL_AUTHOR = 2;
-	private static final int COL_COMMENT = 3;
+	private static final int COL_TAGS = 1;
+	private static final int COL_DATE = 2;
+	private static final int COL_AUTHOR = 3;
+	private static final int COL_COMMENT = 4;
 
 	/**
 	 * The history label provider.
@@ -84,6 +88,8 @@ public class HistoryTableProvider {
 						revision = Policy.bind("currentRevision", revision); //$NON-NLS-1$
 					}
 					return revision;
+				case COL_TAGS:
+					return TagManager.getTagsAsString(entry.getTags());
 				case COL_DATE:
 					Date date = entry.getDate();
 					if (date == null) return Policy.bind("notAvailable"); //$NON-NLS-1$
@@ -147,10 +153,11 @@ public class HistoryTableProvider {
 		
 		// column headings:	"Revision" "Tags" "Date" "Author" "Comment"
 		private int[][] SORT_ORDERS_BY_COLUMN = {
-			{COL_REVISION, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* revision */ 
-			{COL_DATE, COL_REVISION, COL_AUTHOR, COL_COMMENT},	/* date */
-			{COL_AUTHOR, COL_REVISION, COL_DATE, COL_COMMENT},	/* author */
-			{COL_COMMENT, COL_REVISION, COL_DATE, COL_AUTHOR}   /* comment */
+			{COL_REVISION, COL_TAGS, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* revision */
+			{COL_TAGS, COL_REVISION, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* tags */ 
+			{COL_DATE, COL_REVISION, COL_TAGS, COL_AUTHOR, COL_COMMENT},	/* date */
+			{COL_AUTHOR, COL_REVISION, COL_TAGS, COL_DATE, COL_COMMENT},	/* author */
+			{COL_COMMENT, COL_REVISION, COL_TAGS, COL_DATE, COL_AUTHOR}   /* comment */
 		};
 		
 		/**
@@ -188,6 +195,10 @@ public class HistoryTableProvider {
 			switch (columnNumber) {
 				case COL_REVISION: /* revision */
                     return (e1.getRevision().getNumber()<e2.getRevision().getNumber() ? -1 : (e1.getRevision()==e2.getRevision() ? 0 : 1));
+				case COL_TAGS: /* tags */
+					String tags1 = TagManager.getTagsAsString(e1.getTags());
+					String tags2 = TagManager.getTagsAsString(e2.getTags());
+					return getCollator().compare(tags1, tags2);
 				case COL_DATE: /* date */
 					Date date1 = e1.getDate();
 					Date date2 = e2.getDate();
@@ -283,6 +294,13 @@ public class HistoryTableProvider {
 		col.setText(Policy.bind("HistoryView.revision")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
 		layout.addColumnData(new ColumnWeightData(10, true));
+		
+		// tags
+		col = new TableColumn(table, SWT.NONE);
+		col.setResizable(true);
+		col.setText(Policy.bind("HistoryView.tags")); //$NON-NLS-1$
+		col.addSelectionListener(headerListener);
+		layout.addColumnData(new ColumnWeightData(30, true));
 	
 		// creation date
 		col = new TableColumn(table, SWT.NONE);
@@ -365,5 +383,9 @@ public class HistoryTableProvider {
      */
 	public ISVNRemoteResource getRemoteResource() {
 		return this.currentRemoteResource;
+	}
+
+	public void setResource(IResource resource) {
+		this.resource = resource;
 	}
 }

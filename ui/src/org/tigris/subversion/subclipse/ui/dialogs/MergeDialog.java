@@ -422,6 +422,7 @@ public class MergeDialog extends Dialog {
             dialog = new HistoryDialog(getShell(), remoteResource);
         else
             dialog = new HistoryDialog(getShell(), resource);
+        dialog.setSelectedResource(resource);
         if (dialog.open() == HistoryDialog.CANCEL) return;
         ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
         if (selectedEntries.length == 0) return;

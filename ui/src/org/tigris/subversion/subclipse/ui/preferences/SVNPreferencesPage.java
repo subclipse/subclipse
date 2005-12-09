@@ -43,9 +43,9 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.history.HistoryView;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
-import org.tigris.subversion.svnclientadapter.javasvn.JavaSvnClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapter;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
+import org.tigris.subversion.svnclientadapter.javasvn.JavaSvnClientAdapterFactory;
 
 /**
  * SVN Preference Page
@@ -59,6 +59,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button javaSvnRadio;
     private Button showCompareRevisionInDialog;
     private Button fetchChangePathOnDemand;
+    private Button showTagsInRemoteHistory;
     private Button selectUnadded;
     private Text logEntriesToFetchText;
     private Button defaultConfigLocationRadio;
@@ -134,9 +135,10 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		showCompareRevisionInDialog = createCheckBox(composite, Policy.bind("SVNPreferencePage.showCompareMergeInSync")); //$NON-NLS-1$
 		
 		selectUnadded = createCheckBox(composite, Policy.bind("SVNPreferencePage.selectUnadded")); //$NON-NLS-1$
-		createLabel(composite, "", 2); //$NON-NLS-1$
 		
 		fetchChangePathOnDemand = createCheckBox(composite, Policy.bind("SVNPreferencePage.fetchChangePathOnDemand")); //$NON-NLS-1$
+		
+		showTagsInRemoteHistory = createCheckBox(composite, Policy.bind("SVNPreferencePage.showTags")); //$NON-NLS-1$
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
 		createLabel(composite, Policy.bind("SVNPreferencePage.logEntriesToFetch"), 1); //$NON-NLS-1$
@@ -228,6 +230,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
 		fetchChangePathOnDemand.setSelection(store.getBoolean(ISVNUIConstants.PREF_FETCH_CHANGE_PATH_ON_DEMAND));
 		
+		showTagsInRemoteHistory.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE));
+		
 		selectUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT));
 		
 		logEntriesToFetchText.setText(Integer.toString(store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH)));
@@ -270,6 +274,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		store.setValue(ISVNUIConstants.PREF_SHOW_COMPARE_REVISION_IN_DIALOG, showCompareRevisionInDialog.getSelection());
 		
 		store.setValue(ISVNUIConstants.PREF_FETCH_CHANGE_PATH_ON_DEMAND, fetchChangePathOnDemand.getSelection());
+		
+		store.setValue(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE, showTagsInRemoteHistory.getSelection());
 		
         // save select unadded resources on commit pref
 		store.setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, selectUnadded.getSelection());

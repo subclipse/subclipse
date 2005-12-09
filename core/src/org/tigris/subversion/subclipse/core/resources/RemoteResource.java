@@ -25,6 +25,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.tigris.subversion.svnclientadapter.SVNUrlUtils;
@@ -199,13 +200,14 @@ public abstract class RemoteResource
     /**
      * @see ISVNRemoteResource#getLogEntries()
      */
-    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit) throws TeamException {
+    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, TagManager tagManager) throws TeamException {
         GetLogsCommand command = new GetLogsCommand(this);
         command.setPegRevision(pegRevision);
         command.setRevisionStart(revisionStart);
         command.setRevisionEnd(revisionEnd);
         command.setStopOnCopy(stopOnCopy);
         command.setLimit(limit);
+        command.setTagManager(tagManager);
         command.run(monitor);
         return command.getLogEntries();    	
     }

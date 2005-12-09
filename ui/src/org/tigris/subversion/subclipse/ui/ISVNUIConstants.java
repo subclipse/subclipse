@@ -108,6 +108,7 @@ public interface ISVNUIConstants {
 	public final String PREF_COMPRESSION_LEVEL = "pref_compression_level"; //$NON-NLS-1$
 	public final String PREF_TEXT_KSUBST = "pref_text_ksubst"; //$NON-NLS-1$
 	public final String PREF_FETCH_CHANGE_PATH_ON_DEMAND = "pref_fetch_change_path_on_Demand"; //$NON-NLS-1$
+	public final String PREF_SHOW_TAGS_IN_REMOTE = "pref_show_tags_in_remote"; //$NON-NLS-1$
 	public final String PREF_LOG_ENTRIES_TO_FETCH = "pref_log_entries_to_fetch"; //$NON-NLS-1$
 	public final String PREF_STOP_ON_COPY = "pref_stop_on_copy"; //$NON-NLS-1$
 

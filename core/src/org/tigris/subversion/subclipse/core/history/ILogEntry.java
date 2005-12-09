@@ -63,5 +63,15 @@ public interface ILogEntry extends IAdaptable {
      */
     public LogEntryChangePath[] getLogEntryChangePaths();
     
+    /**
+     *  Get the tags for the revision
+     */
+    public Tag[] getTags();
+
+    /**
+     *  Set the tags for the revision
+     */
+    public void setTags(Tag[] tags);
+    
 }
 
