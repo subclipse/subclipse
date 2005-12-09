@@ -13,11 +13,16 @@ package org.tigris.subversion.subclipse.ui.repository.model;
  
 import java.util.ArrayList;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.history.Branches;
+import org.tigris.subversion.subclipse.core.history.Tag;
+import org.tigris.subversion.subclipse.core.history.TagManager;
+import org.tigris.subversion.subclipse.core.history.Tags;
 
 /**
  * Extension to the generic workbench content provider mechanism
@@ -27,6 +32,8 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
  */
 public class RemoteContentProvider extends WorkbenchContentProvider {
 	private boolean foldersOnly = false;
+	private Branches branches;
+	private Tags tags;
 	
 	/* (non-Javadoc)
 	 * Method declared on WorkbenchContentProvider.
@@ -35,6 +42,9 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 		if (element == null) {
 			return false;
 		}
+		
+		if (element instanceof Branches || element instanceof Tags) return true;
+		if (element instanceof Tag) return false;
 		
 		if (element instanceof ISVNRepositoryLocation)
 			return true;
@@ -52,6 +62,8 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 	 * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
 	 */
 	public Object[] getChildren(Object parentElement) {
+		if (parentElement instanceof Branches) return ((Branches)parentElement).getBranches();
+		if (parentElement instanceof Tags) return ((Tags)parentElement).getTags();
 		IWorkbenchAdapter adapter = getAdapter(parentElement);
 		if (adapter instanceof SVNModelElement) {
 			Object[] children = ((SVNModelElement)adapter).getChildren(parentElement);
@@ -62,15 +74,30 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 				}
 				children = new Object[folderArray.size()];
 				folderArray.toArray(children);
-				return children;
 			}
-			else return children;
+			if (parentElement instanceof ISVNRepositoryLocation && (branches != null || tags != null)) {
+				ArrayList childrenArray = new ArrayList();
+				for (int i = 0; i < children.length; i++) childrenArray.add(children[i]);
+				if (branches != null) childrenArray.add(branches);
+				if (tags != null) childrenArray.add(tags);
+				children = new Object[childrenArray.size()];
+				childrenArray.toArray(children);
+			}
+			return children;
 		}
 		return super.getChildren(parentElement);
 	}
 
 	public void setFoldersOnly(boolean foldersOnly) {
 		this.foldersOnly = foldersOnly;
+	}
+
+	public void setResource(IResource resource) {
+		TagManager tagManager = new TagManager(resource);
+		Tag[] branchTags = tagManager.getBranchTags();
+		Tag[] tagTags = tagManager.getTagTags();
+		if (branchTags.length > 0) branches = new Branches(branchTags);
+		if (tagTags.length > 0) tags = new Tags(tagTags);
 	}
 
 }

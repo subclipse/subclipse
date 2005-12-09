@@ -7,11 +7,17 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -24,6 +30,10 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.history.Branches;
+import org.tigris.subversion.subclipse.core.history.Tag;
+import org.tigris.subversion.subclipse.core.history.TagManager;
+import org.tigris.subversion.subclipse.core.history.Tags;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -81,9 +91,11 @@ public class ChooseUrlDialog extends Dialog {
 		
 		treeViewer = new TreeViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL);
         RemoteContentProvider contentProvider = new RemoteContentProvider();
+        contentProvider.setResource(resource);
         contentProvider.setFoldersOnly(foldersOnly);
         treeViewer.setContentProvider(contentProvider);
-        treeViewer.setLabelProvider(new WorkbenchLabelProvider());
+//        treeViewer.setLabelProvider(new WorkbenchLabelProvider());
+        treeViewer.setLabelProvider(new RemoteLabelProvider());
         if (repositoryLocation == null) {
 	        if (resource == null) treeViewer.setInput(new AllRootsElement());     
 	        else {
@@ -137,6 +149,7 @@ public class ChooseUrlDialog extends Dialog {
             Object first = structured.getFirstElement();
             if (first instanceof ISVNRemoteResource) url = ((ISVNRemoteResource)first).getUrl().toString();
             if (first instanceof ISVNRepositoryLocation) url = ((ISVNRepositoryLocation)first).getUrl().toString();
+            if (first instanceof Tag) url = TagManager.transformUrl(resource, (Tag)first);
         }
         super.okPressed();
     }
@@ -150,5 +163,41 @@ public class ChooseUrlDialog extends Dialog {
 
 	public void setFoldersOnly(boolean foldersOnly) {
 		this.foldersOnly = foldersOnly;
+	}
+	
+	class RemoteLabelProvider extends LabelProvider implements IColorProvider, IFontProvider{
+		private WorkbenchLabelProvider workbenchLabelProvider = new WorkbenchLabelProvider();
+		
+		public Color getForeground(Object element) {
+			return workbenchLabelProvider.getForeground(element);
+		}
+
+		public Color getBackground(Object element) {
+			return workbenchLabelProvider.getBackground(element);
+		}
+
+		public Font getFont(Object element) {
+			return workbenchLabelProvider.getFont(element);
+		}
+
+		public Image getImage(Object element) {
+			if (element instanceof Branches) return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_BRANCHES_CATEGORY).createImage();
+			if (element instanceof Tags) return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_VERSIONS_CATEGORY).createImage();
+			if (element instanceof Tag) {
+				if (((Tag)element).isBranch()) 
+					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TAG).createImage();
+				else
+					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROJECT_VERSION).createImage();
+			}
+			return workbenchLabelProvider.getImage(element);
+		}
+
+		public String getText(Object element) {
+			if (element instanceof Branches) return Policy.bind("ChooseUrlDialog.branches"); //$NON-NLS-1$
+			if (element instanceof Tags) return Policy.bind("ChooseUrlDialog.tags"); //$NON-NLS-1$
+			if (element instanceof Tag) return ((Tag)element).getName();
+			return workbenchLabelProvider.getText(element);
+		}
+		
 	}
 }

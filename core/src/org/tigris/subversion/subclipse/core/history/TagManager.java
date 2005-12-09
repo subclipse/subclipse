@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -41,6 +42,34 @@ public class TagManager {
 		Tag[] tagArray = new Tag[revisionTags.size()];
 		revisionTags.toArray(tagArray);
 		for (int i = 0; i < tagArray.length; i++) tags.remove(tagArray[i]);
+		return tagArray;
+	}
+	
+	public Tag[] getTagTags() {
+		ArrayList tagTags = new ArrayList();
+		Iterator iter = tags.iterator();
+		while (iter.hasNext()) {
+			Tag tag = (Tag)iter.next();
+			if (!tag.isBranch()) {
+				tagTags.add(tag);
+			}
+		}		
+		Tag[] tagArray = new Tag[tagTags.size()];
+		tagTags.toArray(tagArray);
+		return tagArray;
+	}
+	
+	public Tag[] getBranchTags() {
+		ArrayList branchTags = new ArrayList();
+		Iterator iter = tags.iterator();
+		while (iter.hasNext()) {
+			Tag tag = (Tag)iter.next();
+			if (tag.isBranch()) {
+				branchTags.add(tag);
+			}
+		}		
+		Tag[] tagArray = new Tag[branchTags.size()];
+		branchTags.toArray(tagArray);
 		return tagArray;
 	}
 	
@@ -89,8 +118,24 @@ public class TagManager {
 		return stringBuffer.toString();
 	}
 	
+	public static String transformUrl(IResource resource, Tag tag) {
+		String tagUrl = tag.getTagUrl();
+		String a;
+        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+        ISVNRepositoryLocation repository = svnResource.getRepository();
+		if (svnResource.getUrl().toString().length() <= tagUrl.length()) 
+			a = "";
+		else
+			a = svnResource.getUrl().toString().substring(tagUrl.length());
+		String b = repository.getUrl().toString();
+		String c;
+		if (tag.getRelativePath() == null) c = "";
+		else c = tag.getRelativePath();			
+		return b + c + a;
+	}
+	
 	public Tag[] getTags(IResource resource) {
-		Tag[] tags = getTags(resource, true);
+		Tag[] tags = getTags(resource, true);		
 		Arrays.sort(tags);
 		return tags;
 	}
