@@ -235,10 +235,15 @@ public class SSHPromptDialog extends Dialog {
     	if (portError) return;
         username = userText.getText().trim();
         password = passwordText.getText().trim();
-        keyFile = keyFileCombo.getText().trim();
-        passphrase = passphraseText.getText().trim();
+		if (passwordButton.getSelection()) {
+		    keyFile = null;
+		    passphrase = null;
+		} else {
+	        keyFile = keyFileCombo.getText().trim();
+	        passphrase = passphraseText.getText().trim();
+		}
         if (maySave) save = saveButton.getSelection();
-        if (keyFile.length() > 0) SVNUIPlugin.getPlugin().getRepositoryManager().getKeyFilesManager().addKeyFile(keyFile);
+        if (keyFile != null && keyFile.length() > 0) SVNUIPlugin.getPlugin().getRepositoryManager().getKeyFilesManager().addKeyFile(keyFile);
         super.okPressed();
     }
     public boolean isSave() {
