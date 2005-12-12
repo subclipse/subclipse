@@ -202,7 +202,7 @@ public class GetLogsCommand implements ISVNCommand {
         	if (tagManager != null) {
         		String rev = result[i].getRevision().toString();
         		int revNo = Integer.parseInt(rev);
-        		result[i].setAliases(tagManager.getTags(revNo));
+        		result[i].setAliases(tagManager.getAliases(revNo));
         	}
         }
         return result;
@@ -231,7 +231,7 @@ public class GetLogsCommand implements ISVNCommand {
         	if (tagManager != null) {
         		String rev = result[i].getRevision().toString();
         		int revNo = Integer.parseInt(rev);
-        		result[i].setAliases(tagManager.getTags(revNo));
+        		result[i].setAliases(tagManager.getAliases(revNo));
         	}        
         }
         return result;

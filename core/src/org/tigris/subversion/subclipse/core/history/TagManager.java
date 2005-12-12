@@ -21,16 +21,16 @@ public class TagManager {
 	private ArrayList aliases = new ArrayList();
 	
 	public TagManager(IResource resource) {
-		Alias[] aliasArray = getTags(resource);
+		Alias[] aliasArray = getAliases(resource);
 		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
 	}
 	
 	public TagManager(SVNUrl url) {
-		Alias[] aliasArray = getTags(url);
+		Alias[] aliasArray = getAliases(url);
 		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
 	}
 	
-	public Alias[] getTags(int revision) {
+	public Alias[] getAliases(int revision) {
 		ArrayList revisionAliases = new ArrayList();
 		Iterator iter = aliases.iterator();
 		while (iter.hasNext()) {
@@ -45,7 +45,7 @@ public class TagManager {
 		return aliasArray;
 	}
 	
-	public Alias[] getTagTags() {
+	public Alias[] getTags() {
 		ArrayList tags = new ArrayList();
 		Iterator iter = aliases.iterator();
 		while (iter.hasNext()) {
@@ -59,7 +59,7 @@ public class TagManager {
 		return tagArray;
 	}
 	
-	public Alias[] getBranchTags() {
+	public Alias[] getBranches() {
 		ArrayList branches = new ArrayList();
 		Iterator iter = aliases.iterator();
 		while (iter.hasNext()) {
@@ -73,7 +73,7 @@ public class TagManager {
 		return branchArray;
 	}
 	
-	public Alias getTag(String revisionNamePathBranch, String tagUrl) {
+	public Alias getAlias(String revisionNamePathBranch, String tagUrl) {
 		boolean branch = false;
 		Alias alias = null;
 		int index = revisionNamePathBranch.indexOf(",");
@@ -134,25 +134,25 @@ public class TagManager {
 		return b + c + a;
 	}
 	
-	public Alias[] getTags(IResource resource) {
-		Alias[] aliases = getTags(resource, true);		
+	public Alias[] getAliases(IResource resource) {
+		Alias[] aliases = getAliases(resource, true);		
 		Arrays.sort(aliases);
 		return aliases;
 	}
 	
-	private Alias[] getTags(IResource resource, boolean checkParents)  {
+	private Alias[] getAliases(IResource resource, boolean checkParents)  {
 		ArrayList aliases = new ArrayList();
 		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		try {
 			if (svnResource.isManaged()) {
 				ISVNProperty property = null;
 				property = svnResource.getSvnProperty("subclipse:tags"); //$NON-NLS-1$
-				if (property != null && property.getValue() != null) getTags(aliases, property.getValue(), svnResource.getUrl().toString());
+				if (property != null && property.getValue() != null) getAliases(aliases, property.getValue(), svnResource.getUrl().toString());
 				if (checkParents) {
 					IResource checkResource = resource;
 					while (checkResource.getParent() != null) {
 						checkResource = checkResource.getParent();
-						Alias[] parentAliases = getTags(checkResource, false);
+						Alias[] parentAliases = getAliases(checkResource, false);
 						for (int i = 0; i < parentAliases.length; i++) {
 							if (aliases.contains(parentAliases[i])) {
 								Alias checkAlias = (Alias)aliases.get(aliases.indexOf(parentAliases[i]));
@@ -172,23 +172,23 @@ public class TagManager {
 		return aliasArray;
 	}
 	
-	public Alias[] getTags(SVNUrl url) {
-		Alias[] aliases = getTags(url, true);
+	public Alias[] getAliases(SVNUrl url) {
+		Alias[] aliases = getAliases(url, true);
 		Arrays.sort(aliases);
 		return aliases;
 	}
 	
-	private Alias[] getTags(SVNUrl url, boolean checkParents)  {
+	private Alias[] getAliases(SVNUrl url, boolean checkParents)  {
 		ArrayList aliases = new ArrayList();
 		try {
 			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
 			ISVNProperty property = null;
 			property = client.propertyGet(url, "subclipse:tags");
 			if (property != null && property.getValue() != null) {
-				getTags(aliases, property.getValue(), url.toString());
+				getAliases(aliases, property.getValue(), url.toString());
 			} else {
 				if (url.getParent() != null && checkParents)
-					return getTags(url.getParent(), checkParents);
+					return getAliases(url.getParent(), checkParents);
 			}
 		} catch (SVNClientException e) {
 		} catch (SVNException e) {
@@ -198,13 +198,13 @@ public class TagManager {
 		return aliasArray;
 	}
 	
-	private void getTags(ArrayList aliases, String propertyValue, String url) {
+	private void getAliases(ArrayList aliases, String propertyValue, String url) {
 		StringReader reader = new StringReader(propertyValue);
 		BufferedReader bReader = new BufferedReader(reader);
 		try {
 			String line = bReader.readLine();
 			while (line != null) {
-				Alias alias = getTag(line, url);
+				Alias alias = getAlias(line, url);
 				if (aliases.contains(alias)) {
 					Alias checkTag = (Alias)aliases.get(aliases.indexOf(alias));
 					if (alias.getRevision() < checkTag.getRevision()) {

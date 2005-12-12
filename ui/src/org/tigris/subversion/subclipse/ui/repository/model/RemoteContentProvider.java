@@ -94,8 +94,8 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 
 	public void setResource(IResource resource) {
 		TagManager tagManager = new TagManager(resource);
-		Alias[] branchAliases = tagManager.getBranchTags();
-		Alias[] tagAliases = tagManager.getTagTags();
+		Alias[] branchAliases = tagManager.getBranches();
+		Alias[] tagAliases = tagManager.getTags();
 		if (branchAliases.length > 0) branches = new Branches(branchAliases);
 		if (tagAliases.length > 0) tags = new Tags(tagAliases);
 	}
