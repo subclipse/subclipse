@@ -1,22 +1,22 @@
 package org.tigris.subversion.subclipse.core.history;
 
 public class Branches {
-	private Tag[] branches;
+	private Alias[] branches;
 	
 	public Branches() {
 		super();
 	}
 	
-	public Branches(Tag[] branches) {
+	public Branches(Alias[] branches) {
 		this();
 		this.branches = branches;
 	}
 
-	public Tag[] getBranches() {
+	public Alias[] getBranches() {
 		return branches;
 	}
 
-	public void setBranches(Tag[] branches) {
+	public void setBranches(Alias[] branches) {
 		this.branches = branches;
 	}
 

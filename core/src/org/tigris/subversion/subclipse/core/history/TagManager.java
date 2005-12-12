@@ -21,61 +21,61 @@ public class TagManager {
 	private ArrayList tags = new ArrayList();
 	
 	public TagManager(IResource resource) {
-		Tag[] tagArray = getTags(resource);
+		Alias[] tagArray = getTags(resource);
 		for (int i = 0; i < tagArray.length; i++) tags.add(tagArray[i]);
 	}
 	
 	public TagManager(SVNUrl url) {
-		Tag[] tagArray = getTags(url);
+		Alias[] tagArray = getTags(url);
 		for (int i = 0; i < tagArray.length; i++) tags.add(tagArray[i]);
 	}
 	
-	public Tag[] getTags(int revision) {
+	public Alias[] getTags(int revision) {
 		ArrayList revisionTags = new ArrayList();
 		Iterator iter = tags.iterator();
 		while (iter.hasNext()) {
-			Tag tag = (Tag)iter.next();
+			Alias tag = (Alias)iter.next();
 			if (tag.getRevision() >= revision) {
 				revisionTags.add(tag);
 			}
 		}
-		Tag[] tagArray = new Tag[revisionTags.size()];
+		Alias[] tagArray = new Alias[revisionTags.size()];
 		revisionTags.toArray(tagArray);
 		for (int i = 0; i < tagArray.length; i++) tags.remove(tagArray[i]);
 		return tagArray;
 	}
 	
-	public Tag[] getTagTags() {
+	public Alias[] getTagTags() {
 		ArrayList tagTags = new ArrayList();
 		Iterator iter = tags.iterator();
 		while (iter.hasNext()) {
-			Tag tag = (Tag)iter.next();
+			Alias tag = (Alias)iter.next();
 			if (!tag.isBranch()) {
 				tagTags.add(tag);
 			}
 		}		
-		Tag[] tagArray = new Tag[tagTags.size()];
+		Alias[] tagArray = new Alias[tagTags.size()];
 		tagTags.toArray(tagArray);
 		return tagArray;
 	}
 	
-	public Tag[] getBranchTags() {
+	public Alias[] getBranchTags() {
 		ArrayList branchTags = new ArrayList();
 		Iterator iter = tags.iterator();
 		while (iter.hasNext()) {
-			Tag tag = (Tag)iter.next();
+			Alias tag = (Alias)iter.next();
 			if (tag.isBranch()) {
 				branchTags.add(tag);
 			}
 		}		
-		Tag[] tagArray = new Tag[branchTags.size()];
+		Alias[] tagArray = new Alias[branchTags.size()];
 		branchTags.toArray(tagArray);
 		return tagArray;
 	}
 	
-	public Tag getTag(String revisionNamePathBranch, String tagUrl) {
+	public Alias getTag(String revisionNamePathBranch, String tagUrl) {
 		boolean branch = false;
-		Tag tag = null;
+		Alias tag = null;
 		int index = revisionNamePathBranch.indexOf(",");
 		if (index == -1) return null;
 		String rev = revisionNamePathBranch.substring(0, index);
@@ -103,12 +103,12 @@ public class TagManager {
 				}
 			}
 		}
-		tag = new Tag(revision, name, relativePath, tagUrl);
+		tag = new Alias(revision, name, relativePath, tagUrl);
 		tag.setBranch(branch);
 		return tag;
 	}
 
-	public static String getTagsAsString(Tag[] tags) {
+	public static String getTagsAsString(Alias[] tags) {
 		if (tags == null) return "";
 		StringBuffer stringBuffer = new StringBuffer();
 		for (int i = 0; i < tags.length; i++) {
@@ -118,8 +118,8 @@ public class TagManager {
 		return stringBuffer.toString();
 	}
 	
-	public static String transformUrl(IResource resource, Tag tag) {
-		String tagUrl = tag.getTagUrl();
+	public static String transformUrl(IResource resource, Alias tag) {
+		String tagUrl = tag.getUrl();
 		String a;
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         ISVNRepositoryLocation repository = svnResource.getRepository();
@@ -134,13 +134,13 @@ public class TagManager {
 		return b + c + a;
 	}
 	
-	public Tag[] getTags(IResource resource) {
-		Tag[] tags = getTags(resource, true);		
+	public Alias[] getTags(IResource resource) {
+		Alias[] tags = getTags(resource, true);		
 		Arrays.sort(tags);
 		return tags;
 	}
 	
-	private Tag[] getTags(IResource resource, boolean checkParents)  {
+	private Alias[] getTags(IResource resource, boolean checkParents)  {
 		ArrayList tags = new ArrayList();
 		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		try {
@@ -152,10 +152,10 @@ public class TagManager {
 					IResource checkResource = resource;
 					while (checkResource.getParent() != null) {
 						checkResource = checkResource.getParent();
-						Tag[] parentTags = getTags(checkResource, false);
+						Alias[] parentTags = getTags(checkResource, false);
 						for (int i = 0; i < parentTags.length; i++) {
 							if (tags.contains(parentTags[i])) {
-								Tag checkTag = (Tag)tags.get(tags.indexOf(parentTags[i]));
+								Alias checkTag = (Alias)tags.get(tags.indexOf(parentTags[i]));
 								if (parentTags[i].getRevision() < checkTag.getRevision()) {
 									tags.remove(checkTag);
 									tags.add(parentTags[i]);
@@ -167,18 +167,18 @@ public class TagManager {
 			}
 		} catch (SVNException e) {
 		}
-		Tag[] tagArray = new Tag[tags.size()];
+		Alias[] tagArray = new Alias[tags.size()];
 		tags.toArray(tagArray);
 		return tagArray;
 	}
 	
-	public Tag[] getTags(SVNUrl url) {
-		Tag[] tags = getTags(url, true);
+	public Alias[] getTags(SVNUrl url) {
+		Alias[] tags = getTags(url, true);
 		Arrays.sort(tags);
 		return tags;
 	}
 	
-	private Tag[] getTags(SVNUrl url, boolean checkParents)  {
+	private Alias[] getTags(SVNUrl url, boolean checkParents)  {
 		ArrayList tags = new ArrayList();
 		try {
 			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
@@ -193,7 +193,7 @@ public class TagManager {
 		} catch (SVNClientException e) {
 		} catch (SVNException e) {
 		}
-		Tag[] tagArray = new Tag[tags.size()];
+		Alias[] tagArray = new Alias[tags.size()];
 		tags.toArray(tagArray);
 		return tagArray;
 	}
@@ -204,9 +204,9 @@ public class TagManager {
 		try {
 			String line = bReader.readLine();
 			while (line != null) {
-				Tag tag = getTag(line, url);
+				Alias tag = getTag(line, url);
 				if (tags.contains(tag)) {
-					Tag checkTag = (Tag)tags.get(tags.indexOf(tag));
+					Alias checkTag = (Alias)tags.get(tags.indexOf(tag));
 					if (tag.getRevision() < checkTag.getRevision()) {
 						tags.remove(checkTag);
 						tags.add(tag);

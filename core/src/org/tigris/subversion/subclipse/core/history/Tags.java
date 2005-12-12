@@ -1,22 +1,22 @@
 package org.tigris.subversion.subclipse.core.history;
 
 public class Tags {
-	private Tag[] tags;
+	private Alias[] tags;
 	
 	public Tags() {
 		super();
 	}
 	
-	public Tags(Tag[] tags) {
+	public Tags(Alias[] tags) {
 		this();
 		this.tags = tags;
 	}
 
-	public Tag[] getTags() {
+	public Alias[] getTags() {
 		return tags;
 	}
 
-	public void setTags(Tag[] tags) {
+	public void setTags(Alias[] tags) {
 		this.tags = tags;
 	}
 

@@ -20,7 +20,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.history.Branches;
-import org.tigris.subversion.subclipse.core.history.Tag;
+import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.subclipse.core.history.Tags;
 
@@ -44,7 +44,7 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 		}
 		
 		if (element instanceof Branches || element instanceof Tags) return true;
-		if (element instanceof Tag) return false;
+		if (element instanceof Alias) return false;
 		
 		if (element instanceof ISVNRepositoryLocation)
 			return true;
@@ -94,10 +94,10 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 
 	public void setResource(IResource resource) {
 		TagManager tagManager = new TagManager(resource);
-		Tag[] branchTags = tagManager.getBranchTags();
-		Tag[] tagTags = tagManager.getTagTags();
-		if (branchTags.length > 0) branches = new Branches(branchTags);
-		if (tagTags.length > 0) tags = new Tags(tagTags);
+		Alias[] branchAliases = tagManager.getBranchTags();
+		Alias[] tagAliases = tagManager.getTagTags();
+		if (branchAliases.length > 0) branches = new Branches(branchAliases);
+		if (tagAliases.length > 0) tags = new Tags(tagAliases);
 	}
 
 }

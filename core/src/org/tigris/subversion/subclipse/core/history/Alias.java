@@ -1,22 +1,22 @@
 package org.tigris.subversion.subclipse.core.history;
 
-public class Tag implements Comparable {
+public class Alias implements Comparable {
 	private int revision;
 	private String name;
 	private String relativePath;
 	private boolean branch;
-	private String tagUrl;
+	private String url;
 
-	public Tag() {
+	public Alias() {
 		super();
 	}
 	
-	public Tag(int revision, String name, String relativePath, String tagUrl) {
+	public Alias(int revision, String name, String relativePath, String url) {
 		this();
 		this.revision = revision;
 		this.name = name;
 		this.relativePath = relativePath;
-		this.tagUrl = tagUrl;
+		this.url = url;
 	}
 	
 	public String getName() {
@@ -43,25 +43,25 @@ public class Tag implements Comparable {
 		this.revision = revision;
 	}
 
-	public String getTagUrl() {
-		return tagUrl;
+	public String getUrl() {
+		return url;
 	}
 
-	public void setTagUrl(String tagUrl) {
-		this.tagUrl = tagUrl;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 	
 	public boolean equals(Object object) {
-		if (!(object instanceof Tag)) return false;
-		return ((Tag)object).getName().equals(name);
+		if (!(object instanceof Alias)) return false;
+		return ((Alias)object).getName().equals(name);
 	}
 
 	public String toString() {
-		return revision + "," + name + "," + relativePath + " URL: " + tagUrl;
+		return revision + "," + name + "," + relativePath + " URL: " + url;
 	}
 	
 	public int compareTo(Object object) {
-		Tag compare = (Tag)object;
+		Alias compare = (Alias)object;
 		if (revision > compare.getRevision()) return 1;
 		if (compare.getRevision() > revision) return -1;
 		return 0;

@@ -31,7 +31,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.Branches;
-import org.tigris.subversion.subclipse.core.history.Tag;
+import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.TagManager;
 import org.tigris.subversion.subclipse.core.history.Tags;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -149,7 +149,7 @@ public class ChooseUrlDialog extends Dialog {
             Object first = structured.getFirstElement();
             if (first instanceof ISVNRemoteResource) url = ((ISVNRemoteResource)first).getUrl().toString();
             if (first instanceof ISVNRepositoryLocation) url = ((ISVNRepositoryLocation)first).getUrl().toString();
-            if (first instanceof Tag) url = TagManager.transformUrl(resource, (Tag)first);
+            if (first instanceof Alias) url = TagManager.transformUrl(resource, (Alias)first);
         }
         super.okPressed();
     }
@@ -183,8 +183,8 @@ public class ChooseUrlDialog extends Dialog {
 		public Image getImage(Object element) {
 			if (element instanceof Branches) return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_BRANCHES_CATEGORY).createImage();
 			if (element instanceof Tags) return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_VERSIONS_CATEGORY).createImage();
-			if (element instanceof Tag) {
-				if (((Tag)element).isBranch()) 
+			if (element instanceof Alias) {
+				if (((Alias)element).isBranch()) 
 					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TAG).createImage();
 				else
 					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROJECT_VERSION).createImage();
@@ -195,7 +195,7 @@ public class ChooseUrlDialog extends Dialog {
 		public String getText(Object element) {
 			if (element instanceof Branches) return Policy.bind("ChooseUrlDialog.branches"); //$NON-NLS-1$
 			if (element instanceof Tags) return Policy.bind("ChooseUrlDialog.tags"); //$NON-NLS-1$
-			if (element instanceof Tag) return ((Tag)element).getName();
+			if (element instanceof Alias) return ((Alias)element).getName();
 			return workbenchLabelProvider.getText(element);
 		}
 		

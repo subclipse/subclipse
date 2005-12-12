@@ -34,7 +34,7 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	private ISVNRemoteResource remoteResource; // the corresponding remote resource
     private ISVNLogMessage logMessage;
     private ISVNResource resource; // the resource for which we asked the history
-    private Tag[] tags;
+    private Alias[] tags;
     
     private String messageOverride = null; // Log comment may be overridden  
     private String authorOverride = null; // Author names may be overridden  
@@ -206,11 +206,11 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 		authorOverride = newAuthor;
 	}
 
-	public Tag[] getTags() {
+	public Alias[] getAliases() {
 		return tags;
 	}
 
-	public void setTags(Tag[] tags) {
+	public void setAliases(Alias[] tags) {
 		this.tags = tags;
 	}
 
