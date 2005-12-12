@@ -89,7 +89,7 @@ public class HistoryTableProvider {
 					}
 					return revision;
 				case COL_TAGS:
-					return AliasManager.getTagsAsString(entry.getAliases());
+					return AliasManager.getAliasesAsString(entry.getAliases());
 				case COL_DATE:
 					Date date = entry.getDate();
 					if (date == null) return Policy.bind("notAvailable"); //$NON-NLS-1$
@@ -196,8 +196,8 @@ public class HistoryTableProvider {
 				case COL_REVISION: /* revision */
                     return (e1.getRevision().getNumber()<e2.getRevision().getNumber() ? -1 : (e1.getRevision()==e2.getRevision() ? 0 : 1));
 				case COL_TAGS: /* tags */
-					String tags1 = AliasManager.getTagsAsString(e1.getAliases());
-					String tags2 = AliasManager.getTagsAsString(e2.getAliases());
+					String tags1 = AliasManager.getAliasesAsString(e1.getAliases());
+					String tags2 = AliasManager.getAliasesAsString(e2.getAliases());
 					return getCollator().compare(tags1, tags2);
 				case COL_DATE: /* date */
 					Date date1 = e1.getDate();

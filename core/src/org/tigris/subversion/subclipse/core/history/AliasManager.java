@@ -73,7 +73,7 @@ public class AliasManager {
 		return branchArray;
 	}
 	
-	public Alias getAlias(String revisionNamePathBranch, String tagUrl) {
+	public Alias getAlias(String revisionNamePathBranch, String url) {
 		boolean branch = false;
 		Alias alias = null;
 		int index = revisionNamePathBranch.indexOf(",");
@@ -103,12 +103,12 @@ public class AliasManager {
 				}
 			}
 		}
-		alias = new Alias(revision, name, relativePath, tagUrl);
+		alias = new Alias(revision, name, relativePath, url);
 		alias.setBranch(branch);
 		return alias;
 	}
 
-	public static String getTagsAsString(Alias[] aliases) {
+	public static String getAliasesAsString(Alias[] aliases) {
 		if (aliases == null) return "";
 		StringBuffer stringBuffer = new StringBuffer();
 		for (int i = 0; i < aliases.length; i++) {
@@ -206,9 +206,9 @@ public class AliasManager {
 			while (line != null) {
 				Alias alias = getAlias(line, url);
 				if (aliases.contains(alias)) {
-					Alias checkTag = (Alias)aliases.get(aliases.indexOf(alias));
-					if (alias.getRevision() < checkTag.getRevision()) {
-						aliases.remove(checkTag);
+					Alias checkAlias = (Alias)aliases.get(aliases.indexOf(alias));
+					if (alias.getRevision() < checkAlias.getRevision()) {
+						aliases.remove(checkAlias);
 						aliases.add(alias);
 					}					
 				} else aliases.add(alias);
