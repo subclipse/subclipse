@@ -32,7 +32,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.Branches;
 import org.tigris.subversion.subclipse.core.history.Alias;
-import org.tigris.subversion.subclipse.core.history.TagManager;
+import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.Tags;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -149,7 +149,7 @@ public class ChooseUrlDialog extends Dialog {
             Object first = structured.getFirstElement();
             if (first instanceof ISVNRemoteResource) url = ((ISVNRemoteResource)first).getUrl().toString();
             if (first instanceof ISVNRepositoryLocation) url = ((ISVNRepositoryLocation)first).getUrl().toString();
-            if (first instanceof Alias) url = TagManager.transformUrl(resource, (Alias)first);
+            if (first instanceof Alias) url = AliasManager.transformUrl(resource, (Alias)first);
         }
         super.okPressed();
     }

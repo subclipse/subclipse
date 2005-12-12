@@ -17,15 +17,15 @@ import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class TagManager {
+public class AliasManager {
 	private ArrayList aliases = new ArrayList();
 	
-	public TagManager(IResource resource) {
+	public AliasManager(IResource resource) {
 		Alias[] aliasArray = getAliases(resource);
 		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
 	}
 	
-	public TagManager(SVNUrl url) {
+	public AliasManager(SVNUrl url) {
 		Alias[] aliasArray = getAliases(url);
 		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
 	}

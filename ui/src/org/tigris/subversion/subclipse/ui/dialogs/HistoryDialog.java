@@ -35,7 +35,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
-import org.tigris.subversion.subclipse.core.history.TagManager;
+import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -55,7 +55,7 @@ public class HistoryDialog extends Dialog {
 	private Button stopOnCopyButton;
 	private Button getAllButton;
 	private Button getNextButton;
-	private TagManager tagManager;
+	private AliasManager tagManager;
 	private ILogEntry[] entries;
 	private IDialogSettings settings;
 	private ILogEntry[] selectedEntries;
@@ -193,7 +193,7 @@ public class HistoryDialog extends Dialog {
 		            }
 		            if (remoteResource != null) {
 		            	if (SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE))
-		            		tagManager = new TagManager(remoteResource.getUrl());
+		            		tagManager = new AliasManager(remoteResource.getUrl());
 						SVNRevision pegRevision = remoteResource.getRevision();
 						SVNRevision revisionEnd = new SVNRevision.Number(0);
 						boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
@@ -282,7 +282,7 @@ public class HistoryDialog extends Dialog {
 			            }
 			            if (remoteResource != null) {
 			            	if (SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE))
-			            		tagManager = new TagManager(remoteResource.getUrl());
+			            		tagManager = new AliasManager(remoteResource.getUrl());
 							SVNRevision pegRevision = remoteResource.getRevision();
 							SVNRevision revisionEnd = new SVNRevision.Number(0);
 							revisionStart = SVNRevision.HEAD;

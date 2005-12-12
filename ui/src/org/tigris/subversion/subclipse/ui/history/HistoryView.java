@@ -108,7 +108,7 @@ import org.tigris.subversion.subclipse.core.commands.ChangeCommitPropertiesComma
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
-import org.tigris.subversion.subclipse.core.history.TagManager;
+import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -152,7 +152,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	private Cursor handCursor;
 	private Cursor busyCursor;
 	
-	private TagManager tagManager;
+	private AliasManager tagManager;
 
 	// cached for efficiency
 	private ILogEntry[] entries;
@@ -1473,9 +1473,9 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 						if (remoteResource == null || !SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE))
 							tagManager = null;
 						else
-							tagManager = new TagManager(remoteResource.getUrl());
+							tagManager = new AliasManager(remoteResource.getUrl());
 					}
-					else tagManager = new TagManager(resource);
+					else tagManager = new AliasManager(resource);
 					SVNRevision pegRevision = remoteResource.getRevision();
 					SVNRevision revisionEnd = new SVNRevision.Number(0);
 					boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
@@ -1583,9 +1583,9 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 						if (remoteResource == null || !SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE))
 							tagManager = null;
 						else
-							tagManager = new TagManager(remoteResource.getUrl());
+							tagManager = new AliasManager(remoteResource.getUrl());
 					}
-					else tagManager = new TagManager(resource);
+					else tagManager = new AliasManager(resource);
 					SVNRevision pegRevision = remoteResource.getRevision();
 					revisionStart = SVNRevision.HEAD;
 					SVNRevision revisionEnd = new SVNRevision.Number(0);

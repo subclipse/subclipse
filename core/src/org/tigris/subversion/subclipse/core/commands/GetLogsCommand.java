@@ -17,7 +17,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
-import org.tigris.subversion.subclipse.core.history.TagManager;
+import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
@@ -36,7 +36,7 @@ public class GetLogsCommand implements ISVNCommand {
 	private SVNRevision revisionEnd = SVNRevision.HEAD;
 	private boolean stopOnCopy = false;
 	private long limit = 0;
-	private TagManager tagManager;
+	private AliasManager tagManager;
     private ILogEntry[] logEntries;
     
     public GetLogsCommand(ISVNRemoteResource remoteResource) {
@@ -263,7 +263,7 @@ public class GetLogsCommand implements ISVNCommand {
 	}
 
 
-	public void setTagManager(TagManager tagManager) {
+	public void setTagManager(AliasManager tagManager) {
 		this.tagManager = tagManager;
 	}
     
