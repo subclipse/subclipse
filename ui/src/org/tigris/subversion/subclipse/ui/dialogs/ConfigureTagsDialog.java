@@ -85,6 +85,8 @@ public class ConfigureTagsDialog extends Dialog {
 	private Button applyButton;
 	private Button deleteButton;
 	private boolean updates = false;
+	private boolean tagUpdatePending = false;
+	private Alias previousAlias;
 	
     private static final int LIST_HEIGHT_HINT = 250;
     private static final int LIST_WIDTH_HINT = 450;
@@ -126,6 +128,9 @@ public class ConfigureTagsDialog extends Dialog {
 		} catch (SVNException e) {}
 		
 		getBranchesAndTags();
+		
+		Label textLabel = new Label(composite, SWT.NONE);
+		textLabel.setText(Policy.bind("ConfigureTagsDialog.text")); //$NON-NLS-1$
 
 		treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);		
 		treeViewer.setContentProvider(new TagsContentProvider(resource));
@@ -203,6 +208,13 @@ public class ConfigureTagsDialog extends Dialog {
 		
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
+				if (tagUpdatePending) {
+					if (MessageDialog.openQuestion(getShell(), Policy.bind("ConfigureTagsDialog.title"), //$NON-NLS-1$
+							Policy.bind("ConfigureTagsDialog.pendingUpdate"))) { //$NON-NLS-1$
+						new UpdateAction(previousAlias).run();
+					}
+					tagUpdatePending = false;
+				}
 				applyButton.setEnabled(false);
 				IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 				boolean deleteEnabled = false;
@@ -216,6 +228,7 @@ public class ConfigureTagsDialog extends Dialog {
 				deleteButton.setEnabled(deleteEnabled);
 				if (selection.size() == 1 && selection.getFirstElement() instanceof Alias) {
 					Alias alias = (Alias)selection.getFirstElement();
+					previousAlias = alias;
 					if (alias.isBranch()) {
 						tagGroup.setText(Policy.bind("ConfigureTagsDialog.branchHeader")); //$NON-NLS-1$
 						branchButton.setSelection(true);
@@ -242,6 +255,8 @@ public class ConfigureTagsDialog extends Dialog {
 		ModifyListener modifyListener = new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				applyButton.setEnabled(canUpdate());
+				if (applyButton.isEnabled()) tagUpdatePending = true;
+				else tagUpdatePending = false;
 			}			
 		};
 		
@@ -262,6 +277,8 @@ public class ConfigureTagsDialog extends Dialog {
 		branchButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				applyButton.setEnabled(canUpdate());
+				if (applyButton.isEnabled()) tagUpdatePending = true;
+				else tagUpdatePending = false;
 			}
 		});
 		
@@ -445,11 +462,26 @@ public class ConfigureTagsDialog extends Dialog {
 	}
 
 	class UpdateAction extends Action {
+		private Alias previousAlias;
+		
+		public UpdateAction() {
+			super();
+		}
+		
+		public UpdateAction(Alias alias) {
+			this();
+			previousAlias = alias;
+		}
+		
 		public void run() {
 			updates = true;
+			tagUpdatePending = false;
 			boolean branchAttributeChanged = false;
-			IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
-			Alias alias = (Alias)selection.getFirstElement();	
+			Alias alias = null;
+			if (previousAlias == null) {
+				IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
+				alias = (Alias)selection.getFirstElement();
+			} else alias = previousAlias;
 			alias.setRevision(Integer.parseInt(revisionText.getText().trim()));
 			alias.setName(nameText.getText().trim());
 			if (pathText.getText().trim().length() == 0) alias.setRelativePath(null);
