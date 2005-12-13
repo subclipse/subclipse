@@ -63,6 +63,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_NEWLOCATION, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_NEWFOLDER, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_TAG, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_BRANCH, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_MODULE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_CLEAR, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_CLEAR_ENABLED, baseURL);

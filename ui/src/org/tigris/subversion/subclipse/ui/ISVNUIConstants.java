@@ -37,6 +37,7 @@ public interface ISVNUIConstants {
 	public final String IMG_MODULE = "obj16/module_rep.gif"; //$NON-NLS-1$
 	public final String IMG_PROJECT_VERSION = "obj16/prjversions_rep.gif"; //$NON-NLS-1$
 	public final String IMG_WARNING = "obj16/warn.gif"; //$NON-NLS-1$
+	public final String IMG_BRANCH = "obj16/tag.gif"; //$NON-NLS-1$
 	
 	// toolbar
 	public final String IMG_REFRESH = "clcl16/refresh.gif"; //$NON-NLS-1$

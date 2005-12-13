@@ -1,5 +1,8 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -22,6 +25,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
@@ -53,9 +57,15 @@ public class ChooseUrlDialog extends Dialog {
     private Action deleteFolderAction;
     
     private String url;
+    private String name;
+    private String[] urls;
+    private String[] names;
     private IResource resource;
+    private String message;
+    private boolean multipleSelect = false;
     private ISVNRepositoryLocation repositoryLocation;
     private boolean foldersOnly = false;
+    private boolean includeBranchesAndTags = true;
 
     public ChooseUrlDialog(Shell parentShell, IResource resource) {
         super(parentShell);
@@ -89,8 +99,15 @@ public class ChooseUrlDialog extends Dialog {
 		composite.setLayout(new GridLayout());
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		treeViewer = new TreeViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL);
+		if (message != null) {
+			Label messageLabel = new Label(composite, SWT.NONE);
+			messageLabel.setText(message);
+		}
+		
+		if (multipleSelect) treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		else treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         RemoteContentProvider contentProvider = new RemoteContentProvider();
+        contentProvider.setIncludeBranchesAndTags(includeBranchesAndTags);
         contentProvider.setResource(resource);
         contentProvider.setFoldersOnly(foldersOnly);
         treeViewer.setContentProvider(contentProvider);
@@ -147,9 +164,26 @@ public class ChooseUrlDialog extends Dialog {
         if (!selection.isEmpty() && (selection instanceof IStructuredSelection)) {
             IStructuredSelection structured = (IStructuredSelection)selection;
             Object first = structured.getFirstElement();
-            if (first instanceof ISVNRemoteResource) url = ((ISVNRemoteResource)first).getUrl().toString();
+            if (first instanceof ISVNRemoteResource) {
+            	url = ((ISVNRemoteResource)first).getUrl().toString();
+            	name = ((ISVNRemoteResource)first).getName();
+            }
             if (first instanceof ISVNRepositoryLocation) url = ((ISVNRepositoryLocation)first).getUrl().toString();
             if (first instanceof Alias) url = AliasManager.transformUrl(resource, (Alias)first);
+            ArrayList urlArray = new ArrayList();
+            ArrayList nameArray = new ArrayList();
+            Iterator iter = structured.iterator();
+            while (iter.hasNext()) {
+            	Object selectedItem = iter.next();
+            	if (selectedItem instanceof ISVNRemoteResource) {
+            		urlArray.add(((ISVNRemoteResource)selectedItem).getUrl().toString());
+            		nameArray.add(((ISVNRemoteResource)selectedItem).getName());
+            	}
+            }
+            urls = new String[urlArray.size()];
+            urlArray.toArray(urls);
+            names = new String[nameArray.size()];
+            nameArray.toArray(names);
         }
         super.okPressed();
     }
@@ -185,7 +219,7 @@ public class ChooseUrlDialog extends Dialog {
 			if (element instanceof Tags) return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_VERSIONS_CATEGORY).createImage();
 			if (element instanceof Alias) {
 				if (((Alias)element).isBranch()) 
-					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TAG).createImage();
+					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_BRANCH).createImage();
 				else
 					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROJECT_VERSION).createImage();
 			}
@@ -199,5 +233,29 @@ public class ChooseUrlDialog extends Dialog {
 			return workbenchLabelProvider.getText(element);
 		}
 		
+	}
+
+	public void setIncludeBranchesAndTags(boolean includeBranchesAndTags) {
+		this.includeBranchesAndTags = includeBranchesAndTags;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setMultipleSelect(boolean multipleSelect) {
+		this.multipleSelect = multipleSelect;
+	}
+
+	public String[] getNames() {
+		return names;
+	}
+
+	public String[] getUrls() {
+		return urls;
 	}
 }

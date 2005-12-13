@@ -34,6 +34,7 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 	private boolean foldersOnly = false;
 	private Branches branches;
 	private Tags tags;
+	private boolean includeBranchesAndTags = true;
 	
 	/* (non-Javadoc)
 	 * Method declared on WorkbenchContentProvider.
@@ -93,11 +94,17 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 	}
 
 	public void setResource(IResource resource) {
-		AliasManager tagManager = new AliasManager(resource);
-		Alias[] branchAliases = tagManager.getBranches();
-		Alias[] tagAliases = tagManager.getTags();
-		if (branchAliases.length > 0) branches = new Branches(branchAliases);
-		if (tagAliases.length > 0) tags = new Tags(tagAliases);
+		if (includeBranchesAndTags) {
+			AliasManager tagManager = new AliasManager(resource);
+			Alias[] branchAliases = tagManager.getBranches();
+			Alias[] tagAliases = tagManager.getTags();
+			if (branchAliases.length > 0) branches = new Branches(branchAliases);
+			if (tagAliases.length > 0) tags = new Tags(tagAliases);
+		}
+	}
+
+	public void setIncludeBranchesAndTags(boolean includeBranchesAndTags) {
+		this.includeBranchesAndTags = includeBranchesAndTags;
 	}
 
 }
