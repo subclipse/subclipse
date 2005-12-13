@@ -22,11 +22,19 @@ public class AliasManager {
 	
 	public AliasManager(IResource resource) {
 		Alias[] aliasArray = getAliases(resource);
+		Arrays.sort(aliasArray);
+		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
+	}
+	
+	public AliasManager(IResource resource, boolean checkParents) {
+		Alias[] aliasArray = getAliases(resource, checkParents);
+		Arrays.sort(aliasArray);
 		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
 	}
 	
 	public AliasManager(SVNUrl url) {
 		Alias[] aliasArray = getAliases(url);
+		Arrays.sort(aliasArray);
 		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
 	}
 	
