@@ -20,7 +20,9 @@ public class BranchTagAction extends WorkspaceAction {
             SVNUrl destinationUrl = dialog.getToUrl();
             String message = dialog.getComment();
             boolean createOnServer = dialog.isCreateOnServer();
-            new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, dialog.getRevision(), message).run();
+            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, dialog.getRevision(), message);
+            branchTagOperation.setNewAlias(dialog.getNewAlias());
+            branchTagOperation.run();
         }          
     }
     

@@ -25,6 +25,7 @@ import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -33,6 +34,9 @@ import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 import org.tigris.subversion.subclipse.ui.settings.CommentProperties;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.UrlCombo;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
+import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -43,6 +47,7 @@ public class BranchTagDialog extends Dialog {
     
     private IResource resource;
     private ISVNRemoteResource remoteResource;
+    private ISVNLocalResource svnResource;
     
     private UrlCombo toUrlCombo;
     private Button serverButton;
@@ -66,6 +71,7 @@ public class BranchTagDialog extends Dialog {
     private ProjectProperties projectProperties;
     
     private long revisionNumber = 0;
+    private Alias newAlias;
 
     public void setRevisionNumber(long revisionNumber) {
 		this.revisionNumber = revisionNumber;
@@ -127,7 +133,7 @@ public class BranchTagDialog extends Dialog {
 			url = remoteResource.getUrl();
 			urlText.setText(url.toString());
 		} else {
-			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+			svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 			try {
 	            url = svnResource.getStatus().getUrl();
 	            if (url != null) urlText.setText(svnResource.getStatus().getUrlString());
@@ -318,7 +324,31 @@ public class BranchTagDialog extends Dialog {
             MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage()); //$NON-NLS-1$
             return;
         }
+        if (resource != null) updateTagsProperty(toUrl);
         super.okPressed();
+    }
+    
+    private void updateTagsProperty(SVNUrl toUrl) {
+    	try {
+			ISVNProperty property = null;
+			property = svnResource.getSvnProperty("subclipse:tags"); //$NON-NLS-1$
+			if (property == null) return;
+			newAlias = new Alias();
+			newAlias.setBranch(toUrl.toString().toUpperCase().indexOf("TAGS") == -1); //$NON-NLS-1$
+			String relativePath = toUrl.toString().substring(svnResource.getRepository().getUrl().toString().length());
+			newAlias.setRelativePath(relativePath);
+			SVNRevision revision = null;
+			if (revisionButton.getSelection()) revision = SVNRevision.getRevision(revisionText.getText().trim());
+			else {
+				ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+				ISVNInfo svnInfo = svnClient.getInfo(url);
+				revision = SVNRevision.getRevision(svnInfo.getRevision().toString());
+			}
+			newAlias.setRevision(Integer.parseInt(revision.toString()));
+			newAlias.setName(toUrl.getLastPathSegment());
+			BranchTagPropertyUpdateDialog dialog = new BranchTagPropertyUpdateDialog(getShell(), resource, newAlias);
+			if (dialog.open() == BranchTagPropertyUpdateDialog.OK) newAlias = dialog.getNewAlias();
+    	} catch (Exception e) {}
     }
     
     private void setOkButtonStatus() {
@@ -388,5 +418,9 @@ public class BranchTagDialog extends Dialog {
     public SVNRevision getRevision() {
         return revision;
     }
+
+	public Alias getNewAlias() {
+		return newAlias;
+	}
 
 }
