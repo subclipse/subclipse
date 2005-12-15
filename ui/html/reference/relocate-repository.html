@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Relocate Repository</title>
+</head>
+<body>
+<h1>Relocate Repository</h1>
+<h2>Overview</h2>
+<p>
+    Sometimes an administrator might change the <em>base location</em> of your
+    repository &mdash; in other words, the contents of the repository doesn't
+    change, but the URL used to reach the root of the repository does. For example,
+    the hostname may change, or the URL schema, or perhaps just the path which
+    leads to the repository. Rather than checkout a new working copy, you can
+    use the Relocate option to have SVN <em>rewrite</em> the the beginnings of
+    all the URLs in your working copy. No file contents are changed, nor is the
+    repository contacted.
+</p>
+<h2>Process</h2>
+<p>
+    <img src="../images/relocate-repository-url.png" width="471" height="553">
+</p>
+<p>
+    Type the new repository URL.
+</p>
+<p>
+    <img src="../images/bullet-warn.png" width="75" height="16" align="left">The
+    Relocate command should only used if the URL of the repository root has changed.
+    This is a very infrequently used operation and should not be used to move
+    to another SVN repository, nor should it be used to switch to another branch
+    or directory within the same repository. An improperly used Relocate command
+    may corrupt your working copy! The chances are, if you are unsure whether
+    Relocate is the correct operation, it probably is not.
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    None
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="svn-repository-view.html">SVN Repository View</a>
+</p>
+</body>
+</html>

@@ -1,4 +1,3 @@
-
 body {
   font-family: sans-serif;
   font-size: 10pt;
@@ -11,16 +10,15 @@ h1 {
 }
 
 h2 {
-  font-size: 14pt;
+  font-size: 16pt;
 }
 
 h3 {
-  font-size: 11pt;
+  font-size: 14pt;
 }
 
 h4 {
-  font-size: 10pt;
-  font-style: italic;
+  font-size: 12pt;
 }
 
 table {
@@ -44,15 +42,38 @@ ol {
   margin-bottom: 1em;
 }
 
+dt {
+  font-weight: bold;
+  margin-top: 1em;
+}
+
+li {
+  margin-top: 1em;
+}
+
 span.control {
   font-weight: bold;
 }
 
 span.name {
-  font-style: italics;
+  font-style: italic;
+  font-weight: bold;
+}
+
+span.action {
+  font-style: italic;
 }
 
 span.code {
+  font-family: monospace;
+}
+
+span.menu {
+  color: #660033;
+  font-weight: bold;
+}
+
+span.filefolder {
   font-family: monospace;
 }
 
@@ -62,3 +83,11 @@ blockquote {
   margin: 2em; border: 1px solid black;
   padding: 1em;
 }
+
+.tasks, .reference, .faq {
+  padding-left: 18px;
+  font-size: 14pt;
+  background-image:url(images/bullet14.png);
+  background-repeat: no-repeat;
+  background-position: left;
+ }

@@ -1,51 +1,66 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">			
-	<title>Creating a new Repository Location</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Creating a new Repository Location</title>
 </head>
-
 <body>
 <h1>Creating a new Repository Location</h1>
-<h3>Overview</h3>
-<p>Before you can begin working with a Subversion repository you must define  that repository to Subclipse.  This simply
-involves entering the URL and possibly the login credentials for the repository. The repository itself should already
-exist and be accessible.</p>
-<h3>Procedure</h3>
-<p>You create and work with your repository locations from the SVN Repository View. 
-Invoke the Create New Repository Location wizard either by clicking the view toolbar button
-<img border="0" src="../../icons/full/wizards/newlocation_wiz.gif" width="16" height="16"> 
-or by right clicking inside the view and selecting <b>New &gt; Repository Location...</b>
-<p align="center"><img src="../images/new-location.jpg"/></p>
+<h2>Overview</h2>
 <p>
-This will bring up a dialog that will prompt you for a repository location URL, username and password. 
-Enter the URL of the repository you want to connect to (in this example we will use the Subclipse repository URL).
-Before entering your username and password, you may want to first read the advanced topic on 
-<a href="../advanced/managing-passwords.html">Managing Username and Passwords</a>. 
-Typically it is easiest to leave these fields blank and allow Subversion to prompt for a username and password
-when it needs it, and then you can also optionally allow Subversion to cache and encrypt your password.</p>
-<p align="center"><img src="../images/add-repos-wizard.jpg"/></p>
-<p>
-The repository dialog also has a place for entering the Root URL of the repository.  Click the Browse... button
-to pick the root URL from a list based on the URL entered.  If you do not specify a value for the root
-URL, Subclipse will default it to the same value entered as the URL.  The root URL is used to calculate
-the url_short project decorator and also for some of the Subversion API calls that are made, such as retrieving
-the changed paths for a specific revision.</p>
-<p>
-After you click finish, the wizard will create the location. Expand the location to see the contents for the given URL. 
+    Before you can begin working with a SVN repository, you must define that
+        repository location to your Eclipse IDE.
 </p>
-<p align="center"><img src="../images/new-repos-list.jpg"/></p>
-
-<h3>Reference:</h3>
-<p><a href="../reference/svn-repository.html">SVN Repository Exploring Perspective</a></p>
-
-<h3>Related FAQs:</h3>
+<h2>Procedure</h2>
 <p>
-<a href="../faq/faq.html#http-proxy">How do I configure an HTTP proxy connection?</a><br />
-<a href="../faq/faq.html#http-ssl">How do I specify SSL client certificates?</a><br />
-<a href="../faq/faq.html#svn-ssh">How do I configure an svn+ssh:// connection?</a><br />
+    You create and work with your repository locations from the <span class="name">SVN
+    Repository View</span>, which is part of the <span class="name">SVN Repository
+    Exploring Perspective</span>. To create a new repository location, click
+    the <span class="control">Add SVN Repository</span> button <img border="0" src="../../icons/full/wizards/newlocation_wiz.gif" width="16" height="16"> or <span class="action">right
+    clicking</span> inside the view and selecting <span class="menu">New &gt; Repository
+    Location...</span>
+<p>
+    <img src="../images/new-location.png" width="416" height="286">
+<p>
+    The <span class="name">Add SVN Repository</span> dialog will prompt you for
+    a repository location URL. Enter the URL of the repository you want to connect
+    to. No authentication information is requested at the time the location is
+    defined; it is left to SVN to request your user and password information
+    when it is needed. The main benefit of allowing SVN to manage your password
+    in this way is that it will prompt you for a new password when your password
+    changes. Furthermore, it will also cache and encrypt the new password.
+</p>
+<p>
+    <img src="../images/new-repository-location-url.png" width="438" height="415">
+</p>
+<p>
+    Once you click finish, the wizard will create the location. Expand the location
+        to see the contents for the given URL.
+</p>
+<p>
+    <img src="../images/new-repository-folders.png" width="332" height="179">
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    None
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="../reference/svn-repository.html">SVN Repository Exploring Perspective</a><a href="svn-repository-view.html"><br>
+    SVN Repository View</a>
+</p>
+<p class="faq">
+    Related FAQ
+</p>
+<p>
+    <a href="../faq/faq.html#http-proxy">How do I configure an HTTP proxy connection?</a><br />
+    <a href="../faq/faq.html#http-ssl">How do I specify SSL client certificates?</a><br />
+    <a href="../faq/faq.html#svn-ssh">How do I configure an svn+ssh:// connection?</a>
 </p>
 </body>
 </html>

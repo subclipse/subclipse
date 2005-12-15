@@ -1,53 +1,101 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
-<title>Team &gt; Branch/Tag...</title>
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Team&gt;Branch/Tag...</title>
 </head>
-
 <body>
-
-<h1>Team &gt; Branch/Tag...</h1>
-
-<p>You can use Branch/Tag for several different purposes:</p>
+<h1>Branch/Tag</h1>
+<p>
+    This function is initiated via the <span class="menu">Team &gt; Branch/Tag...</span> menu
+    option.
+</p>
+<h2>Overview</h2>
+<p>
+    You can use the Branch/Tag command for several different purposes:
+</p>
 <ol>
-  <li>To create a snapshot copy of the current repository state (version) for later retrieval. This is usually called tagging</li>
-  <li>To create a place for a new variation of the project as is exists in the repository. This is usually called branching.</li> 
-  <li>To save the state of the current working copy as a new branch of the project. This is also called branching.</li> 
+    <li>
+        To create a snapshot copy of the current repository state (version) for
+            later retrieval. This is usually called a <a href="glossary.html#tag">tag</a>.
+    </li>
+    <li>
+        To create a place for a new variation of the project as is exists in
+            the repository. This is usually called a <a href="glossary.html#branch">branch</a>.
+    </li>
+    <li>
+        To save the state of the current <a href="glossary.html#working">working
+        copy</a> as a new branch of the project. This is also called a <a href="glossary.html#branch">branch</a>.
+    </li>
 </ol>
-
-<p>Creating a tag (first option above) or a branch (second option) off the repository state is covered by the same functionality
-is Subversion, namely copying (since trunks, tags, and branches are merely a repository layout
-<a href="../dailywork/branches.html">convention</a>.)
-<ul>
-  <li>First, choose the project (or folder) which you want to copy.</li>
-  <li>Choose Branch/Tag... in the Team menu.</li>
-  <li>Enter the desired location for the copy (branch or tag). You can use the browse button to browse the structure of your repository.</li>
-  <li>Enter the appropriate commit message. This will be the initial message found on the new location.</li>
-  <li>The chosen repository tree is copied to a new location (within the same repository.)</li>
-  <li>Click 'OK'</li>
-</ul>
-<p>Subclipse will create the copy.</p>
-<blockquote><strong>Note:</strong> By leaving <em>Create the branch/tag directly on the server</em> selected,
-you tell Subclipse to just copy the repository as it exists on the server (in the latest version). If you deselect 
-this option, the current changes currently found in your working copy are copied to the new location as well,
-corresponding to the changes found in the <a href="../reference/pending-operations-view.html">Pending
-Operations View</a>. In effect, this enables you to save you work off to a repository location. This is te third option above, and
-is likely to be useful if you started working on a change which you later decide to change into a branch of its own.
-Another use is when you need to move really big changes between working copies (e.g. home and work machines), and
-when moving patch files becomes impractical.</blockquote>
-<p>After creating a branch, remember to <a href="../reference/switch.html">switch</a> to it to start working on it.
-<h3>Tasks:</h3>
-<p><a href="../dailywork/branches.html">Maintaining branches with Subclipse</a></p>
-<h3>Reference:</h3>
-<p><a href="../reference/switch.html">Team &gt; Switch...</a><br>
-<a href="../reference/merge.html">Team &gt; Merge...</a></p>
-<h3>See also (CVS equivalents):</h3>
-<p><a href="../../../org.eclipse.platform.doc.user/concepts/concepts-27.htm">Team programming with CVS &gt; Versons</a><br>
-<a href="../../../org.eclipse.platform.doc.user/concepts/concepts-27b.htm">Team programming with CVS &gt; Branches</a></p>
+<h2>Process</h2>
+<p>
+    <img src="../images/branch-tag-wc-issuetrack.png" width="577" height="620">
+</p>
+<p>
+    This command launches the same single-step Copy (Branch /Tag) operation as
+        described in the <a href="copy-branch-tag.html"><span class="name">SVN
+        Repository Explorer View</span></a>. The only difference is the availability
+        of the working copy as a source for the copy operation.
+</p>
+<p>
+    <img src="../images/branch-tag-wc-ref.png" width="543" height="94">
+</p>
+<ol>
+    <li>
+        Choose the project (or folder) which you want to copy (branch or tag).
+    </li>
+    <li>
+        Choose the <span class="menu">Branch/Tag...</span> option from the Team
+        context menu.
+    </li>
+    <li>
+        Specify the target location for the copy operation or click <span class="control">Browse</span> to
+        select the location in the repository.
+    </li>
+    <li>
+        Select the source of the copy operation. If you are copying a specific
+            revision in the repository, click <span class="control">Show Log</span> to
+            choose the revision.
+    </li>
+    <li>
+        The copy process is a commit operation. Enter a comment to be assocatied
+            with the copy. This will be the initial message found on the new
+            location.
+    </li>
+    <li>
+        Click <span class="control">OK</span> to complete the branch or tag.
+    </li>
+</ol>
+<p>
+    Selecting to create the branch or tag from your working copy enables you
+    to save your work to a new repository location. This is likely to be useful
+    if you started working on a change which you later decide be in a branch
+    of its own. Another use is when you need to move really big changes between
+    working copies (e.g. between development machines), and when moving a patch
+    files becomes impractical.
+</p>
+<blockquote>
+    <p>
+        The process of creating a new branch or tag does not change or redirect
+        your working copy to the new target path. To work on the newly created
+        branch or tag, you will need to <a href="../reference/switch.html">switch</a> to
+        it.
+    </p>
+</blockquote>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    <a href="../dailywork/branches.html">Maintaining branches with SVN </a>
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="revert.html"> Revert</a><br>
+    <a href="preferences.html"> </a><a href="../reference/switch.html">Switch...</a>
+</p>
 </body>
 </html>
-
-
