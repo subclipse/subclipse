@@ -206,11 +206,11 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 		authorOverride = newAuthor;
 	}
 
-	public Alias[] getAliases() {
+	public Alias[] getTags() {
 		return tags;
 	}
 
-	public void setAliases(Alias[] tags) {
+	public void setTags(Alias[] tags) {
 		this.tags = tags;
 	}
 

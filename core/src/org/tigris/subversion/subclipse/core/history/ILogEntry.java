@@ -66,12 +66,12 @@ public interface ILogEntry extends IAdaptable {
     /**
      *  Get the tags for the revision
      */
-    public Alias[] getAliases();
+    public Alias[] getTags();
 
     /**
      *  Set the tags for the revision
      */
-    public void setAliases(Alias[] tags);
+    public void setTags(Alias[] tags);
     
 }
 

@@ -38,12 +38,12 @@ public class AliasManager {
 		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
 	}
 	
-	public Alias[] getAliases(int revision) {
+	public Alias[] getTags(int revision) {
 		ArrayList revisionAliases = new ArrayList();
 		Iterator iter = aliases.iterator();
 		while (iter.hasNext()) {
 			Alias alias = (Alias)iter.next();
-			if (alias.getRevision() >= revision) {
+			if (alias.getRevision() >= revision && !alias.isBranch()) {
 				revisionAliases.add(alias);
 			}
 		}
