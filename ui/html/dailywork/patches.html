@@ -12,23 +12,25 @@
 	<p>Often, when work on a project is shared between many developers, you need to work with,
 	review and mabye transfer changes that haven't been committed yet. For this, Subclipse
 	offers the functionality to <a href="../reference/create-patch.html">create a patch</a>,
-	which works with Eclipse's build-in <a href="/../reference/apply-patch.html">apply patch</a>.
+	which works with Eclipse's built-in <a href="/../reference/apply-patch.html">apply patch</a>.
 	<p>Patches are representations of changes to a given version of the repository state, and
-	can easily be transferred to other developers, for instance in one developer (who doesn't have
+	can easily be transferred to other developers, for instance when one developer (who doesn't have
 	commit access) needs to submit a change to someone who can then review and commit it.</p>
 	
 	<h2>Creating a patch</h2>
 	
-	<p>Select the resource and activate the funciton. TODO: Step by step - or put that in the reference part?</p>
+	<p>Select your project or a folder/file and take the Team &gt; Create patch... option.  Save the patch to a file and distribute the file
+	via email or whatever mechanism is appropriate.  NOTE:  To have new files included in your patch you must use the <a href="../reference/add.html">Team &gt;
+	Add to Version Control</a> option prior to creating the patch.  This will tell Subversion to include it in the patch.</p>
 	
 	<h2>Applying a patch</h2>
 	
-	<p>Select the activate the funciton and find the patch file.
-	TODO: Step by step - or put that in the reference part?</p>
+	<p>Select the project or a folder/file and take the Team &gt; Apply patch... option.  This will walk you through a wizard that lets you
+	specify the patch location and then apply it to your working copy.</p>
 
 	<h3>Reference:</h3>
-	<p><a href="/../reference/create-patch.html">Team &gt; Create patch...</a></p>
-	<p><a href="/../reference/apply-patch.html">Team &gt; Apply patch...</a></p>
+	<p><a href="../reference/create-patch.html">Team &gt; Create patch...</a></p>
+	<p><a href="../reference/apply-patch.html">Team &gt; Apply patch...</a></p>
 
 	<h3>See also:</h3>
 	<p>From the Eclipse CVS documentation: <a href="../../../org.eclipse.platform.doc.user/tasks/tasks-68c.htm">Working with patches</a></p>

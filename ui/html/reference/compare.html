@@ -22,8 +22,14 @@ or to compare two selected resources.
 	<li><b>Compare With &gt; Latest From Repository</b> - this will compare the selected resource with the latest version
 	    of this resource at the same location in the repository. This requires a lookup to see what the latest version is.
 	</li>	
-	<li><b>Compare With &gt; Previous From Repository</b> - TODO. this will compare the selected resource with the latest version
-	    of this resource at the same location in the repository. This requires a lookup to see what the latest version is.
+	<li><b>Compare With &gt; Revision...</b> - this will bring up a dialog showing the change history for the file.  You can then easily
+	compare the file against any previous revision from the repository.
+	</li>	
+	<li><b>Compare With &gt; Branch/Tag...</b> - This option allows you to compare your working copy with another URL from the
+	repository, presumably a different branch/tag of the same project.  You are given the option of viewing the output in the
+	Eclipse graphical compare engine, or using the Subversion command to produce a unified diff.  The latter operation generally
+	runs a lot faster and is able to factor out differences in keywords.  Of course the graphical compare is a nicer way to view
+	the differences.
 	</li>	
 </ul>
 <p>These comparisons are very useful for reviewing the contents of you changes before you commit them.

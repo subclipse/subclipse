@@ -48,7 +48,7 @@
 	<topic label="Compare Menu" href="html/reference/compare.html" />
 	<topic label="Replace Menu" href="html/reference/replace.html" />
 	<topic label="Other Actions">
-		<topic label="Check out" href="html/reference/checkout.html" />
+		<topic label="Check out" href="html/gettingstarted/checkout.html" />
 		<topic label="Preferences Pages" href="html/reference/preferences.html" />
 		<topic label="Subversion Properties Tab" href="html/reference/properties.html" />
 	</topic>

@@ -17,7 +17,9 @@
     Keywords in SVN are used to embed versioning information into files that
     are under version control. These keywords (like for instance, 'Id') are expanded
     for resources that are marked as using them, and this is what the "Add keywords" action
-    does.
+    does.  The action will set the svn:keywords property on the selected files.  This tells
+    Subversion to look for an expand those keywords in the file.  Of course, it is up to you
+    to include the keyword in the file in the place you want it to appear.
 </p>
 <h2>Process</h2>
 <p>
@@ -31,7 +33,7 @@
 <p>
     <span class="action">Check</span> the keywords to associate with the selected
     resource(s). To use the keyword in a (text) file, enclose it in $-signs,
-    as in <span class="code">$Id</span>.
+    as in <span class="code">$Id$</span>.
 </p>
 <p class="tasks">
     Related Tasks
