@@ -1,177 +1,202 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
-  <title>Subclipse for Subversion Users</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Subclipse for Subversion Users</title>
 </head>
 <body>
-<h2>For Subversion users</h2>
-<p>In the following, we'll examine how Subclipse compares with the
-"original" Subversion command-line client.</p>
-<p>
+<h1>SVN plug-in for Eclipse</h1>
+<h2>Quick reference for SVN command line users</h2>
 <table border="0" cellspacing="0" cellpadding="2">
-  <thead> <tr>
-    <th><tt>svn</tt> command</th>
-    <th>Subclipse Feature</th>
-    <th>Explanation</th>
-  </tr>
-  </thead> <tbody>
-    <tr>
-      <td><tt>add</tt></td>
-      <td><a href="../reference/add.html">Team &gt; Add to Version Control</a></td>
-      <td>Just like with the command line, you need to add a resource
-to Subversion after you create it.</td>
-    </tr>
-    <tr>
-      <td><tt>blame (praise, annotate, ann)</tt></td>
-      <td><a href="../reference/svn-annotations.html">SVN Annotations
-View</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>lock</tt></td>
-      <td><a href="../reference/lock">Team &gt; Lock</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>unlock</tt></td>
-      <td><a href="../reference/unlock">Team &gt; Unlock</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>cat</tt></td>
-      <td><a href="../reference/svn-repository-view.html">SVN Repository View</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>checkout (co)</tt></td>
-      <td><a href="../reference/checkout.html">Team &gt; Check out</a> and <a
+    <thead>
+        <tr>
+            <th align="left" valign="top">svn command</th>
+            <th align="left" valign="top">SVN plug-in Feature</th>
+            <th align="left" valign="top">Explanation</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="left" valign="top"><tt>add</tt></td>
+            <td align="left" valign="top"><a href="../reference/add.html">Team &gt; Add
+                    to Version Control</a></td>
+            <td align="left" valign="top">Just as with the command line, you
+                need to add a resource to SVN after you create it.</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>blame 
+            (praise, annotate, ann)</tt></td>
+            <td align="left" valign="top"><a href="../reference/svn-annotations.html">SVN
+                    Annotate View</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>lock</tt></td>
+            <td align="left" valign="top"><a href="../reference/lock.html">Team &gt; Lock</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>unlock</tt></td>
+            <td align="left" valign="top"><a href="../reference/unlock.html">Team &gt; Unlock</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>cat</tt></td>
+            <td align="left" valign="top"><a href="../reference/svn-repository-view.html">SVN
+                    Repository View</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>checkout (co)</tt></td>
+            <td align="left" valign="top"><a href="../reference/checkout.html">Team &gt; Check
+                    out<br>
+            </a><a
  href="../reference/svn-repository-view.html">SVN Repository View</a> </td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>cleanup</tt></td>
-      <td><a href="../reference/cleanup.html">Team &gt; Cleanup</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>commit (ci)</tt></td>
-      <td><a href="../reference/commit.html">Team &gt; Commit</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>copy (cp)</tt></td>
-      <td><a href="../reference/branch-tag.html">Team &gt; Branch/Tag</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>delete (del, remove, rm)</tt></td>
-      <td>Refactoring support, <a
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>cleanup</tt></td>
+            <td align="left" valign="top"><a href="../reference/cleanup.html">Team &gt; Cleanup</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>commit (ci)</tt></td>
+            <td align="left" valign="top"><a href="../reference/commit.html">Team &gt; Commit</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>copy (cp)</tt></td>
+            <td align="left" valign="top"><a href="../reference/branch-tag.html">Team &gt; Branch/Tag</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>delete 
+            (del, remove, rm)</tt></td>
+            <td align="left" valign="top">Refactoring support, <a
  href="../reference/svn-repository-view.html">SVN Repository View</a></td>
-      <td style="vertical-align: top;">When you remove a file, Subclipse's Refactoring hook ensures that the resource is scheduled for deletion with Subversion. Also, in the <a
- href="../reference/svn-repository-view.html">Repository view</a>, you can delete resources directly, without having them checked out.</td>
-    </tr>
-    <tr>
-      <td><tt>diff (di)</tt></td>
-      <td><a href="../reference/compare.html">Compare menu</a>, and <a
- href="../reference/generate-patch.html">Team &gt; Generate Patch</a>.</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>export</tt></td>
-      <td>N/A</td>
-      <td>This is not supported in Subclipse.</td>
-    </tr>
-    <tr>
-      <td><tt>import</tt></td>
-      <td><a href="../reference/share.html">Team &gt; Share...</a>,
-      <a href="../gettingstarted/importing.html">Importing a project
-      </a></td>
-      <td>This doesn't work quite like with the command line, as you
-cannot do this in one single Subversion revision, rather the import
-is done by creating the existing Eclipse project in a Subversion
-repository and then scheduling all the project contents for addition.</td>
-    </tr>
-    <tr>
-      <td><tt>info</tt></td>
-      <td><a href="../reference/properties.html">Subversion Properties Page</a></td>
-      <td>The information is found on the resource's property page
-(right click on a controlled resource inside a project)</td>
-    </tr>
-    <tr>
-      <td><tt>list (ls)</tt></td>
-      <td><a href="../reference/svn-repository-view.html">SVN
-Repository View</a></td>
-      <td>Not all details are shown.</td>
-    </tr>
-    <tr>
-      <td><tt>log</tt></td>
-      <td><a href="../reference/svn-history-view.html">SVN Resource History View</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>merge</tt></td>
-      <td><a href="../reference/merge.html">Merge</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>mkdir</tt></td>
-      <td><a href="../reference/svn-repository-view.html">SVN
-Repository View</a></td>
-      <td>From a repository node, you can right-click and choose New &gt; New Remote Folder</td>
-    </tr>
-    <tr>
-      <td><tt>move (mv, rename, ren)</tt></td>
-      <td>Refactoring support, <a href="../reference/svn-repository-view.html">Repository view</a></td>
-      <td>Support for moving and renaming has been integrated into
-Eclipse's Refactoring featured. Also, in the <a
- href="../reference/svn-repository-view.html">Repository
-view</a>, you
-can move and rename resources directly, without having them checked out.</td>
-    </tr>
-    <tr>
-      <td><tt>propdel</tt>, <tt>propedit</tt>, <tt>propget</tt>, <tt>proplist</tt>,
-and <tt>propset</tt></td>
-      <td><a href="../reference/svn-properties-view.html">SVN Properties View</a>, <a href="../reference/ignore.html">Team &gt; Add to svn:ignore</a>, and <a href="../reference/add-keywords.html">Team &gt; Add Keywords</a>.</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td><tt>resolved</tt></td>
-      <td><a href="../reference/mark-resolved.html">Team &gt; Mark Resolved</a></td>
-      <td>Use this after you resolve merge conflicts, mabye using <a href="../reference/edit-conflicts">Team &gt; Edit Conflicts</a></td>
-    </tr>
-    <tr>
-      <td><tt>revert</tt></td>
-      <td> <a href="../reference/revert.html">Team &gt; Revert</a></td>
-      <td>This also works if you select several resources. But be careful, as it will work recursively on folders.</td>
-    </tr>
-    <tr>
-      <td><tt>status (stat, st)</tt></td>
-      <td><a href="../reference/pending-operations-view.html">Pending
-Operations View</a> and <a href="../reference/properties.html">Subversion Properties Page</a></td>
-      <td>Status is also shown as icon overlay and text annotation</td>
-    </tr>
-    <tr>
-      <td><tt>switch (sw)</tt></td>
-      <td><a href="../reference/switch.html">Team &gt; Switch</a> </td>
-      <td>Note that it is not possible to do a relocate <tt>--relocate</tt>.
-      Also note that the switch cannot happen above the project level, since that would be outside Eclipse's workspace.</td>
-    </tr>
-    <tr>
-      <td><tt>update (up)</tt></td>
-      <td> <a href="../reference/update.html">Team &gt; Update</a>, <a
- href="../dailywork/workcycle.html">Tasks: Edit, Update, Commit</a></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Console output</td>
-      <td><a href="../reference/svn-console.html">SVN Console</a></td>
-      <td>The output from the Subversion commands (or the JNI calls)
-are displayed here.</td>
-    </tr>
-  </tbody>
+            <td align="left" valign="top" style="vertical-align: top;">When you
+                remove a file, the SVN plug-in refactoring hook ensures that
+                the resource is scheduled for deletion within SVN. Also,
+                in the <a
+ href="../reference/svn-repository-view.html">Repository view</a>, you can delete
+                resources directly, without having them checked out.</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>diff (di)</tt></td>
+            <td align="left" valign="top"><a href="../reference/compare.html">Compare
+                    menu</a>, and <a
+ href="../reference/create-patch.html">Team &gt; Generate Patch</a>.</td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>export</tt></td>
+            <td align="left" valign="top"><a href="../reference/export.html">Team &gt; Export</a> </td>
+            <td align="left" valign="top">&nbsp;</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>import</tt></td>
+            <td align="left" valign="top"><a href="../reference/share.html">Team &gt; Share...</a>, <a href="../gettingstarted/importing.html">Importing
+                    a project </a></td>
+            <td align="left" valign="top">This doesn't work quite like with the
+                command line, as you cannot perform the import operation in one
+                single Subversion revision; rather the import is performed by
+                creating the existing Eclipse project in a SVN repository
+                and then scheduling all the project contents for addition.</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>info</tt></td>
+            <td align="left" valign="top"><a href="../reference/properties.html">SVN
+                    Properties Page</a></td>
+            <td align="left" valign="top">The information is found on the resource's
+                property page (right click on a controlled resource inside a
+                project)</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>list (ls)</tt></td>
+            <td align="left" valign="top"><a href="../reference/svn-repository-view.html">SVN
+                    Repository View</a></td>
+            <td align="left" valign="top">Not all details are shown.</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>log</tt></td>
+            <td align="left" valign="top"><a href="../reference/svn-history-view.html">SVN
+                    Resource History View</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>merge</tt></td>
+            <td align="left" valign="top"><a href="../reference/merge.html">Merge</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>mkdir</tt></td>
+            <td align="left" valign="top"><a href="../reference/svn-repository-view.html">SVN
+                    Repository View</a></td>
+            <td align="left" valign="top">From a repository node, you can right-click
+            and choose <span class="menu">New &gt; New Remote Folder</span></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>move 
+            (mv, rename, ren)</tt></td>
+            <td align="left" valign="top"><a href="../reference/svn-repository-view.html">SVN
+                    Repository view</a></td>
+            <td align="left" valign="top">Support for moving and renaming have
+                been integrated directly into the Eclipse workbench and refactoring
+                operations. You can also move
+            and rename resources directly in the <a
+ href="../reference/svn-repository-view.html">Repository view</a> without having
+            them checked out.</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>propdel</tt>, <tt>propedit</tt>, <tt>propget</tt>, <tt>proplist</tt>, <tt>propset</tt></td>
+            <td align="left" valign="top"><a href="../reference/svn-properties-view.html">SVN
+                    Properties View</a><a href="../reference/ignore.html"><br>
+                    Team &gt; Add
+                    to svn:ignore</a><br>
+                    <a href="../reference/add-keywords.html">Team &gt; Add
+            Keywords</a>.</td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>resolved</tt></td>
+            <td align="left" valign="top"><a href="../reference/mark-resolved.html">Team &gt; Mark
+                    Resolved</a></td>
+            <td align="left" valign="top">Use this after you resolve merge conflicts</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>revert</tt></td>
+            <td align="left" valign="top"><a href="../reference/revert.html">Team &gt; Revert</a></td>
+            <td align="left" valign="top">This also works if you select several
+                resources. But be careful, as it will work recursively on folders.</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>status (stat, st)</tt></td>
+            <td align="left" valign="top"><a href="../reference/pending-operations-view.html">Pending
+            Operations View</a></td>
+            <td align="left" valign="top">File status is also shown as an icon
+                overlay (decorator) and text annotation.</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>switch (sw)</tt></td>
+            <td align="left" valign="top"><a href="../reference/switch.html">Team &gt; Switch</a> </td>
+            <td align="left" valign="top">A switch cannot
+                happen above the project level, since that would be outside of
+                the Eclipse workspace.</td>
+        </tr>
+        <tr>
+            <td align="left" valign="top"><tt>update (up)</tt></td>
+            <td align="left" valign="top"><a href="../reference/update.html">Team &gt; Update</a></td>
+            <td align="left" valign="top"></td>
+        </tr>
+        <tr>
+            <td align="left" valign="top">Console output</td>
+            <td align="left" valign="top"><a href="../reference/svn-console.html">SVN
+                    Console</a></td>
+            <td align="left" valign="top">The output from the SVN commands
+                (or the JNI calls) are displayed here.</td>
+        </tr>
+    </tbody>
 </table>
-
 </body>
 </html>

@@ -3,10 +3,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
-<title>Checking out a Project</title>
+<title>Checkout</title>
 </head>
 <body>
-<h1>Checking out a Project</h1>
+<h1>Checkout</h1>
 <h2>Overview</h2>
 <p>
     Check out is the term used to describe the process of making a copy of a
@@ -17,60 +17,38 @@
         as a <a href="../reference/glossary.html#pristine">pristine copy</a> of
         each item that is checked out.
 </p>
-<h2>Procedure</h2>
+<h2>Process</h2>
 <p>
-    Navigate to the <span class="name"><a href="../reference/svn-repository.html">SVN
-    Repository Exploring Perspective</a></span>. If you have not already defined
-    a connection to your repository, you will need to <a href="new-location.html">add
-    a new repository location</a>.
+To checkout directly against your <a href="../reference/glossary.html#repository">repository</a>,
+navigate to the <span class="name"><a href="../reference/svn-repository.html">SVN
+Repository Exploring Perspective</a></span>. If you have not yet defined a connection
+to your repository, you will need to <a href="new-location.html">add a new repository
+location</a>.
 </p>
 <p>
-    Once you have defined a repository location, click on it to expand the location
-        and navigate the contents of your repository.
+    <img src="../images/checkout.png" width="296" height="493" style="margin-right: 10px;">
+</p>
+<p>Select the desired repository directory and choose <span class="menu">Checkout</span> from
+    the context menu. 
 </p>
 <p>
-    Locate the folder containing the project that you want to check out and then<span class="action"> right
-    click</span> on the project to bring up the context menu.
+<img src="../images/checkout-from-svn-method.png" width="681" height="558"></p>
 <p>
-    <img src="../images/checkout.png" width="295" height="511" style="margin-right: 10px;">
-</p>
-<h3>Check out as Project</h3>
-<p>
-    If the project in your repository already contains an Eclipse <span class="code">.project</span> file
-    as well as any other Eclipse-specific files that are needed, such as the <span class="code">.classpath</span> file
-    used by Java projects, then you would want to use the <span class="menu">Check
-    Out As Project</span> option. This option will create an Eclipse project
-    in your active workspace, based on the files in the repository. Since your
-    repository already contains all of the required files, you should be all
-    ready to start working once the checkout is complete.
-</p>
-<h3>Check Out Project Into ... </h3>
-<p>
-    This option works exactly as desctribed in the Check Out as Project option
-        except that it allows you to select a target directory for the working
-        copy that is outside your active Eclipse workspace.
-</p>
-<h3>Check out As ... </h3>
-<p>
-    If your repository does not contain an Eclipse <span class="code">.project</span> file,
-    then you will want to use the <span class="menu">Check Out As ...</span> option.
-    This option will run the Eclipse new project wizard and lets you establish
-    a name for your project as well as the Eclipse project type.
+    If an Eclipse <span class="filefolder">.project</span> file
+            already exists in the selected repository folder, the check out wizard
+        will automatically default the method of checkout and using the project
+    definition file.
+    If no .project file exists in the selected repository location, the
+            wizard will give you the option of checking out the folder as a regular
+    Eclipse project or launching the <span class="name">New Project Wizard</span>. 
 </p>
 <p>
-    The Eclipse new project wizard creates the folder for your project as well
-        as any special files that are needed for that project type, such as the <span class="filefolder">.project</span> and <span class="filefolder">.classpath</span> files,
-        as well as any folders you may have told it to create. SVN may have to
-        delete some of those files and folders before it can check out your project
-        and the SVN checkout process will abort if it encounters a file or folder
-        that already exists. When SVN sees that these extra files exist, it issues
-        a warning message before it deletes anything. If you receive this warning
-        message, and you want to preserve the local version of any of these files,
-        you can copy any files out of the folder in your workspace (using your
-        operating system's file explorer) and then copy them back after the checkout
-        is complete; all before answering the message. In the long term, the
-        best option is to then commit all of those special project files so that
-        the next person can just use the <span class="menu">Check Oout As Project</span> option.
+<img src="../images/checkout-from-svn-location.png" width="453" height="415"></p>
+<p>
+    The next step allows you to identify where the working copy should be created.
+        The default option is to create the working copy in your Eclispe workspace.
+        To select an alternative location, <span class="action">uncheck</span> the <span class="control">use
+        default workspace location</span> option and type or <span class="control">Browse</span> for a new target location.
 </p>
 <p class="reference">
     Reference
