@@ -270,6 +270,8 @@ public class SVNLightweightDecorator
 			if (svnResource.getIResource().getLocation() == null) {
 				return;
 			}
+			if (status.isUnversioned())
+				return;
 
 			// get the format
 			IDecoratorComponent[][] format;
