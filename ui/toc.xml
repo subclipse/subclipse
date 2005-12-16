@@ -16,9 +16,9 @@
    <topic label="Reference">
       <anchor id="reference"/>
    </topic>
-   <topic label="Subclipse for Subversion Users" href="html/faq/subversion-mapping.html"/>
-   <topic label="Glossary" href="html/faq/glossary.html"/>
-   <topic label="Tips and Tricks" href="html/faq/tips-and-tricks.html"/>
+   <topic label="SVN plug-in for Eclipse for Subversion users" href="html/faq/subversion-mapping.html"/>
+   <topic label="Glossary" href="html/reference/glossary.html"/>
+   <topic label="Tips and tricks" href="html/faq/tips-and-tricks.html"/>
    <topic label="FAQ" href="html/faq/faq.html"/>
-   <topic label="Subclipse Changelog" href="html/subclipse/changes.html"/>
+   <topic label="Subclipse changelog" href="html/subclipse/changes.html"/>
 </toc>

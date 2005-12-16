@@ -23,21 +23,25 @@
 		<topic label="Commit" href="html/reference/commit.html" />
 		<topic label="Create Patch" href="html/reference/create-patch.html" />
 		<topic label="Apply Patch" href="html/reference/apply-patch.html" />
-		<topic label="Show in Resource History" href="html/reference/show-in-history.html" />
-		<topic label="Show Annotation" href="html/reference/show-annotation.html" />
-		<topic label="Show Properties" href="html/reference/show-properties.html" />
+		<topic label="Show in Resource History" href="html/reference/svn-history-view.html" />
+		<topic label="Show Annotation" href="html/reference/svn-annotations.html" />
+		<topic label="Show Properties" href="html/reference/svn-properties-view.html" />
 		<topic label="Set Property" href="html/reference/set-property.html" />
 		<topic label="Add keywords" href="html/reference/add-keywords.html" />
 		<topic label="Lock" href="html/reference/lock.html" />
 		<topic label="Add to Version Control" href="html/reference/add.html" />
-		<topic label="Add to svn:ignore" href="html/reference/svn-ignore.html" />
+		<topic label="Add to svn:ignore" href="html/reference/ignore.html" />
 		<topic label="Branch/Tag" href="html/reference/branch-tag.html" />
 		<topic label="Switch" href="html/reference/switch.html" />
 		<topic label="Merge" href="html/reference/merge.html" />
-		<topic label="Show pending operations" href="html/reference/show-pending-operations.html" />
+		<topic label="Copy" href="html/reference/copy.html" />
+		<topic label="Export" href="html/reference/export.html" />
 		<topic label="Edit conflicts" href="html/reference/edit-conflicts.html" />
 		<topic label="Revert" href="html/reference/revert.html" />
 		<topic label="Mark Resolved" href="html/reference/mark-resolved.html" />
+		<topic label="Mark as Deleted" href="html/reference/mark-deleted.html" />
+		<topic label="Show pending operations" href="html/reference/show-pending-operations.html" />
+		<topic label="Cleanup" href="html/reference/cleanup.html" />
 		<topic label="Share" href="html/reference/share.html" />
 		<topic label="Disconnect" href="html/reference/disconnect.html" />
 	</topic>
