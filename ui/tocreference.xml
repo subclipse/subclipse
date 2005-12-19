@@ -9,7 +9,7 @@
 <toc label="Reference" link_to="toc.xml#reference"> 
 	<topic label="Repository Exporing Perspective" href="html/reference/svn-repository.html" />
 	<topic label="Team Synchronize Perspective" href="html/reference/team-synchronize.html" />
-	<topic label="Subversion Views">
+	<topic label="Views">
 		<topic label="Annotate View" href="html/reference/svn-annotations.html" />
 		<topic label="Console View" href="html/reference/svn-console.html" />
 		<topic label="Pending Operations View" href="html/reference/pending-operations-view.html" />
@@ -50,6 +50,6 @@
 	<topic label="Other Actions">
 		<topic label="Check out" href="html/gettingstarted/checkout.html" />
 		<topic label="Preferences Pages" href="html/reference/preferences.html" />
-		<topic label="Subversion Properties Tab" href="html/reference/properties.html" />
+		<topic label="Resource Properties Tab" href="html/reference/properties.html" />
 	</topic>
 </toc>

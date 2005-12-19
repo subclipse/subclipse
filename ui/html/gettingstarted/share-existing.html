@@ -4,36 +4,36 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
-	<title>Connect an Existing Project with Subclipse</title>
+	<title>Connect an Existing Project with SVN</title>
 </head>
 
 <body>
-<h1>Connect an Existing Project with Subclipse</h1>
+<h1>Connect an Existing Project with SVN</h1>
 <h3>Overview</h3>
-<p>This is the process for taking an existing Subversion working copy that exists in your Eclipse workspace
-and connecting it to Subclipse.  If you have a brand new project that you want to import into your repository,
-then see <a href="importing.html">Import a New Project into a Subversion Repository</a>.</p>
+<p>This is the process for taking an existing working copy that exists in your workspace
+and connecting it to SVN.  If you have a brand new project that you want to import into your repository,
+then see <a href="importing.html">Import a New Project into a SVN Repository</a>.</p>
 <h3>Procedure</h3>
 <p>
-This procedure assumes that you have an existing project in your Eclipse workspace and that project is
-already a valid Subversion working copy.</p>
+This procedure assumes that you have an existing project in your workspace and that project is
+already a valid working copy.</p>
 <p>
-Select the project you want to connect with Subclipse and right click to select <b>Team &gt; Share Project...</b>.</p>
+Select the project you want to connect with SVN and right click to select <b>Team &gt; Share Project...</b>.</p>
 <img src="../images/share-provider.jpg" alt="Select Provider">
 <p>This will begin the Share Project wizard. Select <b>SVN</b> as the repository type and click <b>next</b>.</p>
 <img src="../images/share-working-copy.jpg" alt="Select Project">
-<p>Subclipse will check for valid .svn metadata folders in the root of the project you originally selected
+<p>The wizard will check for valid .svn metadata folders in the root of the project you originally selected
 to share. If it finds those folders, then you will see a screen like the one above. If you do not see this
 screen, and instead see the screen that you would see when this is a new project, then you should cancel
-the wizard. This would mean that Subclipse did not recognize this an existing Subversion working copy.
-If you continue, Subclipse will treat this like a new project to import into your repository. Otherwise,
-assuming that you do see the above screen, just click Finish to connect the project with Subclipse. The
+the wizard. This would mean that the wizard did not recognize this as an existing working copy.
+If you continue, the wizard will treat this like a new project to import into your repository. Otherwise,
+assuming that you do see the above screen, just click Finish to connect the project with SVN. The
 wizard will complete the process by launching the commit dialog to commit any locally modified files.
 You can cancel the dialog if you do not want to commit anything at this time.</p>
 <p></p>
 <hr>
 <h3>Reference:</h3>
-<p><a href="importing.html">Import a New Project into a Subversion Repository</a><br>
+<p><a href="importing.html">Import a New Project into a SVN Repository</a><br>
 <a href="../advanced/wc-outside-workspace.html">Using a Working Copy outside the Eclipse Workspace</a><br>
 <a href="new-location.html">Creating a Repository Location</a></p>
 </body>

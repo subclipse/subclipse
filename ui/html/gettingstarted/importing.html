@@ -4,19 +4,19 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
-	<title>Import a New Project into a Subversion Repository</title>
+	<title>Import a New Project into a SVN Repository</title>
 </head>
 
 <body>
-<h1>Import a New Project into a Subversion Repository</h1>
+<h1>Import a New Project into a SVN Repository</h1>
 <h3>Overview</h3>
 <p>This is the process for taking a brand new project in your Eclipse workspace and importing
-it into your repository so that it can be managed by Subversion.  If you have already been using
-Subversion and you have an existing Subversion working copy in your Eclipse workspace that you
-want to connect to Subclipse, then see <a href="share-existing.html">Connecting an Existing Project</a>.</p>
+it into your repository so that it can be managed by SVN.  If you have already been using
+SVN and you have an existing working copy in your workspace that you
+want to connect to SVN, then see <a href="share-existing.html">Connecting an Existing Project</a>.</p>
 <h3>Procedure</h3>
 <p>
-Create a simple project that contains a few files so they can be stored in the Subversion Repository. 
+Create a simple project that contains a few files so they can be stored in the repository. 
 A good test (since the wizard creates a lot of files) is to create a sample plug-in project by selecting <b>File>New>Project..</b> and <b>Plug-in Development>Plug-in Project</b>
 Give the project a name and click through to finish on the wizard.
 </p>
@@ -35,17 +35,17 @@ the URL of the repository location you specified in the previous step. All inter
 already exist in the repository, but the final folder name must not already exist. You can use the
 Browse .. button to select a path from within the repository. The Browse dialog also allows you to
 create folders, so you could use that option to create any intermediate folders. In the above example,
-we are going to follow the Subversion convention of storing the project in a ProjectName/trunk structure.
+we are going to follow the convention of storing the project in a ProjectName/trunk structure.
 In this example, the ProjectName folder must already exist and the trunk folder must not exist. Click
 <B>Next</B> or <B>Finish</B> when you are through.</p>
 <img src="../images/share-ready.jpg" alt="Finish">
-<p>The final page of the wizard is just a final confirmation page.  When you click finish, Subclipse
-will issue the Subversion mkdir command to create an empty folder in the repository. It will then
+<p>The final page of the wizard is just a final confirmation page.  When you click finish, SVN
+will issue the mkdir command to create an empty folder in the repository. It will then
 checkout that folder on top of your local project.  This will create the .svn folder inside your
-project, converting it into a valid Working Copy. Finally, Subclipse will then bring up the Commit
+project, converting it into a valid Working Copy. Finally, the wizard will bring up the Commit
 Dialog so that you can commit everything into the repository. You do not have to commit everything or
 even anything. You may want to cancel the commit dialog and then go back to your workspace and do
-everything from the Team menu. For example, if you wanted to set Subversion properties as part of the
+everything from the Team menu. For example, if you wanted to set SVN properties as part of the
 commit, you would want to first use the <B>Team-&gt; Add to Version Control</B> option and then use
 the <B>Team -&gt;Set Property</B> option etc. Once you have things the way you want them you can then
 do <B>Team-&gt; Commit</B>.</p>

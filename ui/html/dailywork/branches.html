@@ -10,16 +10,16 @@
 <body>
 	<h1>Maintaining branches with SVN </h1>
 	
-	<p>Like many other SCM systems, Subversion has the notion of working with separate
+	<p>Like many other SCM systems, SVN has the notion of working with separate
 	branches of the same project, meaning that different lines of development are isolated
 	in different parts of the repository, but that it is possible to work with sets of changes,
 	including comparing whole branches and copying changes between branches.
-	<p>Typically, the 'main' line of development in a project using the Subversion SCM system is
+	<p>Typically, the 'main' line of development in a project using SVN is
 	called the <em>trunk</em>, but this is not a technical requirement, it is a convention.
 	<blockquote>
 		Unlike CVS (which supports tags/versions and branches as a direct mechanism) the support for
-		branches and tags are a "by-product" of the Subversion repository model, where copying is cheap
-		and where the addressing of specific resources is simplified. The <em>usual</em> Subversion
+		branches and tags are a "by-product" of the SVN repository model, where copying is cheap
+		and where the addressing of specific resources is simplified. The <em>usual</em> SVN
 		repository setup groups the repository into three areas:
 		<ul>
 			<li><tt>trunk</tt> - the main line of development, the leading edge, where developers
@@ -45,15 +45,15 @@
 	the contents of the project, use it for comparison, etc. However, you can also give the tag an
 	explicit name so that it is easier to refer to.
 	
-	<p>To compare: In the Subversion command line, this is done simply by copying the repository location
+	<p>To compare: In the SVN command line, this is done simply by copying the repository location
 	(like <tt>http://svn-server/bigproj/trunk/</tt>) to a new, different location
 		(like <tt>http://svn-server/bigproj/tags/client-release-0.99/</tt>) using <tt>svn cp</tt>.
-	<p>Using Subclipse, you have this functionaliy available in <a href="../reference/branch-tag.html">Branch/Tag...</a>
+	<p>Using the Eclipse plug-in, you have this functionaliy available in <a href="../reference/branch-tag.html">Branch/Tag...</a>
 	found in the Team menu.</p>
 	
 	<p>By convention, you never commit anything to a tag repository locations, they merely exist to pinpoint
-	a specific repository revision. That being said, there is nothing which stops you from commiting to a tag (although Subclipse
-	will warn you if the URL contains &quot;tags&quot;). Tags are just a convention in Subversion. If you need to make a copy and work in a different direction,
+	a specific repository revision. That being said, there is nothing which stops you from commiting to a tag (although the Create Branch/Tag dialog
+	will warn you if the URL contains &quot;tags&quot;). Tags are just a convention in SVN. If you need to make a copy and work in a different direction,
 	use a branch.
 			 
 	That being said, the fact that you can commit to a tag folder also has some advantages, as you may have some files that contain version numbers and/or release dates that you would prefer to only update in the tag.<h2>Branching</h2>
