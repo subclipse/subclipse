@@ -83,6 +83,7 @@ public interface ISVNUIConstants {
     public final String IMG_LOG = "tortoise/log.gif"; //$NON-NLS-1$
     public final String IMG_MERGE = "tortoise/merge.gif"; //$NON-NLS-1$
     public final String IMG_IGNORE = "tortoise/ignore.gif"; //$NON-NLS-1$
+    public final String IMG_ADD = "tortoise/add.gif"; //$NON-NLS-1$
     public final String IMG_TAG = "tortoise/copy.gif"; //$NON-NLS-1$
     public final String IMG_DIFF = "tortoise/diff.gif"; //$NON-NLS-1$
     
