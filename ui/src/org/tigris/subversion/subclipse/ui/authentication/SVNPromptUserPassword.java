@@ -158,4 +158,28 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
 		});      
         return rtnCode;
     }
+    public String getSSLClientCertPassword() {
+        return passPhrase;
+    }
+    public String getSSLClientCertPath() {
+        return keyFile;
+    }
+    public boolean promptSSL(String promptRealm, boolean promptMaySave) {
+        rtnCode = false;
+        realm = promptRealm;
+        maySave = promptMaySave;
+   		SVNUIPlugin.getStandardDisplay().syncExec(new Runnable() {
+			public void run() {
+		        SSLClientCertificate dialog = new SSLClientCertificate(SVNUIPlugin.getStandardDisplay().getActiveShell(),
+		                realm, maySave);
+		        if (dialog.open() == PasswordPromptDialog.OK) {
+		            keyFile = dialog.getKeyFile();
+		            passPhrase = dialog.getPassphrase();
+		            allowedSave = dialog.isSave();
+		            rtnCode = true;
+		        }				
+			}
+		});      
+        return rtnCode;
+    }
 }
