@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.subscriber;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -61,7 +64,17 @@ public class IgnoreSynchronizeAction extends SynchronizeModelAction {
 	}    
 
     protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
-        return new IgnoreSynchronizeOperation(configuration, elements);
+		ArrayList selectedElements = new ArrayList();
+		IStructuredSelection selection = getStructuredSelection();
+		Iterator iter = selection.iterator();
+		while (iter.hasNext()) {
+			ISynchronizeModelElement synchronizeModelElement = (ISynchronizeModelElement)iter.next();
+			IResource resource = synchronizeModelElement.getResource();
+			selectedElements.add(resource);
+		}
+		IResource[] resources = new IResource[selectedElements.size()];
+		selectedElements.toArray(resources);      
+		return new IgnoreSynchronizeOperation(configuration, elements, resources);
     }
 
 }
