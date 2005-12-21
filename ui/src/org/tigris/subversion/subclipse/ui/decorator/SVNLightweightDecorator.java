@@ -137,7 +137,7 @@ public class SVNLightweightDecorator
 		propertyListener = new IPropertyChangeListener() {
 						public void propertyChange(PropertyChangeEvent event) {
 							if (ISVNUIConstants.PREF_CALCULATE_DIRTY.equals(event.getProperty())) {
-								computeDeepDirtyCheck = ((Boolean)event.getNewValue()).booleanValue();					
+								computeDeepDirtyCheck = getBoolean(event);
 							} else if (ISVNUIConstants.PREF_FOLDERTEXT_DECORATION.equals(event.getProperty())) {
 								folderDecoratorFormat = SVNDecoratorConfiguration.compileFormatString((String)event.getNewValue());
 							} else if (ISVNUIConstants.PREF_PROJECTTEXT_DECORATION.equals(event.getProperty())) {
@@ -151,21 +151,27 @@ public class SVNLightweightDecorator
 							} else if (ISVNUIConstants.PREF_EXTERNAL_FLAG.equals(event.getProperty())) {
                                 externalFlag = (String)event.getNewValue();
                             } else if (ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION.equals(event.getProperty())){
-								showNewResources = ((Boolean)event.getNewValue()).booleanValue();
+								showNewResources = getBoolean(event);
 							} else if (ISVNUIConstants.PREF_SHOW_DIRTY_DECORATION.equals(event.getProperty())) {
-								showDirty = ((Boolean)event.getNewValue()).booleanValue();
+								showDirty = getBoolean(event);
 							} else if (ISVNUIConstants.PREF_SHOW_ADDED_DECORATION.equals(event.getProperty())) {
-								showAdded = ((Boolean)event.getNewValue()).booleanValue();
+								showAdded = getBoolean(event);
 							} else if (ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION.equals(event.getProperty())) {
-                                showExternal = ((Boolean)event.getNewValue()).booleanValue();
+                                showExternal = getBoolean(event);
                             } else if (ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION.equals(event.getProperty())) {
-								showHasRemote = ((Boolean)event.getNewValue()).booleanValue();
+								showHasRemote = getBoolean(event);
 							}
 						}
 					};
 		store.addPropertyChangeListener(propertyListener);
 		SVNProviderPlugin.addResourceStateChangeListener(this);
 //		SVNProviderPlugin.broadcastDecoratorEnablementChanged(true /* enabled */);
+	}
+	
+	private boolean getBoolean(PropertyChangeEvent event) {
+		if (event.getNewValue() instanceof String) return ((String)event.getNewValue()).equalsIgnoreCase("true"); //$NON-NLS-1$
+		if (event.getNewValue() instanceof Boolean) return ((Boolean)event.getNewValue()).booleanValue();
+		return false;
 	}
     
     /**
