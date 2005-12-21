@@ -89,6 +89,7 @@ public interface ISVNUIConstants {
     
     // views
     public final String IMG_SVN_CONSOLE = "cview16/console_view.gif"; //$NON-NLS-1$
+    public final String IMG_PROPERTIES = "cview16/props_view.gif"; //$NON-NLS-1$
     
     //operations
     public final String IMG_CHECKOUT = "ctool16/checkout.gif"; //$NON-NLS-1$

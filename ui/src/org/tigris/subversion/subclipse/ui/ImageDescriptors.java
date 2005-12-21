@@ -126,6 +126,7 @@ public class ImageDescriptors {
         
         // views
         createImageDescriptor(ISVNUIConstants.IMG_SVN_CONSOLE, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_PROPERTIES, baseURL);
     }    
     
 }
