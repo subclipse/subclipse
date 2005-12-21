@@ -90,4 +90,11 @@ public class SVNPropertyDefinition  implements Comparable {
     public boolean isUrl() {
         return type.equals(URL);
     }
+
+	public boolean equals(Object object) {
+		if (!(object instanceof SVNPropertyDefinition)) return false;
+		return ((SVNPropertyDefinition)object).getName().equals(name);
+	}
+    
+    
 }

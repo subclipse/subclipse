@@ -63,6 +63,7 @@ public class SetSvnPropertyDialog extends Dialog {
 	private File propertyFile;
 	private boolean recurse;
 	
+	private ArrayList allPropertyTypes = new ArrayList();
 	private SVNPropertyDefinition[] propertyTypes;
 	private ArrayList propertyNames;
 	private int prop;
@@ -149,7 +150,7 @@ public class SetSvnPropertyDialog extends Dialog {
 		propertyNameText = new Combo(composite, SWT.BORDER);
 
 		gridData = new GridData(GridData.FILL_HORIZONTAL);
-		gridData.widthHint = 300;
+		gridData.widthHint = 400;
 		gridData.grabExcessHorizontalSpace = true;
 		propertyNameText.setLayoutData(gridData);
 		if (property != null) {
@@ -188,7 +189,7 @@ public class SetSvnPropertyDialog extends Dialog {
 		propertyValueText = new Text(group,SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		gridData = new GridData(GridData.FILL_BOTH);
 		gridData.heightHint = 100;
-		gridData.widthHint = 300;
+		gridData.widthHint = 400;
 		gridData.horizontalIndent = 30;
 		gridData.grabExcessHorizontalSpace = true;
 		propertyValueText.setLayoutData(gridData);
@@ -253,9 +254,11 @@ public class SetSvnPropertyDialog extends Dialog {
 	}
 
     private void getPropertyTypes() {
-	    if (svnResource.isFolder())
+	    if (svnResource.isFolder()) {
+	    	SVNPropertyDefinition[] allProperties = SVNPropertyManager.getInstance().getPropertyTypes();
+	    	for (int i = 0; i < allProperties.length; i++) allPropertyTypes.add(allProperties[i]);
 	        propertyTypes = SVNPropertyManager.getInstance().getFolderPropertyTypes();
-	    else
+	    } else
 	        propertyTypes = SVNPropertyManager.getInstance().getFilePropertyTypes();
 	    propertyNames = new ArrayList();
 	    for (int i = 0; i < propertyTypes.length; i++) {
@@ -372,7 +375,16 @@ public class SetSvnPropertyDialog extends Dialog {
 		                return;
 		            }
 		        } 		   		        
-		    }							
+		    }
+		    // if non-folder property specified for folder, recurse must be selected.
+		    if (svnResource.isFolder() && !recurseCheckbox.getSelection() && prop == -1) {
+		    	SVNPropertyDefinition checkDefinition = new SVNPropertyDefinition(propertyName, null);
+		    	int index = allPropertyTypes.indexOf(checkDefinition);
+		    	if (index != -1) {
+		    		setError(Policy.bind("SetSvnPropertyDialog.recurseRequired")); //$NON-NLS-1$
+		    		return;
+		    	}
+		    }
 		}
 		
 		// verify file
