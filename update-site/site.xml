@@ -4,7 +4,7 @@
    <description url="http://subclipse.tigris.org/update_1.0.x">
       Eclipse Install/Update site for Subclipse
    </description>
-   <feature url="features/org.tigris.subversion.subclipse_0.9.101.jar" id="org.tigris.subversion.subclipse" version="0.9.101">
+   <feature url="features/org.tigris.subversion.subclipse_0.9.102.jar" id="org.tigris.subversion.subclipse" version="0.9.102">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse Plugin">
