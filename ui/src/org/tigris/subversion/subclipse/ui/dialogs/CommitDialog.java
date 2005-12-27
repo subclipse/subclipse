@@ -227,6 +227,7 @@ public class CommitDialog extends Dialog {
     }
     
     private boolean checkForUnselectedPropChangeChildren() {
+        if (selectedResources == null) return true;
     	ArrayList folderPropertyChanges = new ArrayList();
     	boolean folderDeletionSelected = false;
     	for (int i = 0; i < selectedResources.length; i++) {
