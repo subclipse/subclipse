@@ -369,8 +369,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
         else
 			toggleAddedAction.setChecked(true);
 			
-//        WorkbenchHelp.setHelp(toggleTextAction, IHelpContextIds.SHOW_COMMENT_IN_HISTORY_ACTION);    
-    
+   
         // Toggle show deleted resources action
         toggleDeletedAction = new Action(Policy.bind("PendingOperationsView.showDeletedResources")) { //$NON-NLS-1$
             public void run() {
@@ -384,7 +383,6 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
 		else
 			toggleDeletedAction.setChecked(true);
         
-//        WorkbenchHelp.setHelp(toggleTextAction, IHelpContextIds.SHOW_COMMENT_IN_HISTORY_ACTION);    
 
         // Toggle show modified resources action
         toggleModifiedAction = new Action(Policy.bind("PendingOperationsView.showModifiedResources")) { //$NON-NLS-1$
@@ -400,7 +398,6 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
 			toggleModifiedAction.setChecked(true);
 
         
-//        WorkbenchHelp.setHelp(toggleTextAction, IHelpContextIds.SHOW_COMMENT_IN_HISTORY_ACTION);
         
         // Contribute toggle text visible to the toolbar drop-down
         IActionBars actionBars = getViewSite().getActionBars();

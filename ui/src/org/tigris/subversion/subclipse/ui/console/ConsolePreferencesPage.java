@@ -61,7 +61,7 @@ public class ConsolePreferencesPage extends FieldEditorPreferencePage implements
                 Policy.bind("ConsolePreferencePage.showOnError"), composite); //$NON-NLS-1$
         addField(showOnError);
 
-        WorkbenchHelp.setHelp(composite, IHelpContextIds.CONSOLE_PREFERENCE_PAGE);
+        WorkbenchHelp.setHelp(getControl(), IHelpContextIds.CONSOLE_PREFERENCE_PAGE);
 	}
 
 	/**

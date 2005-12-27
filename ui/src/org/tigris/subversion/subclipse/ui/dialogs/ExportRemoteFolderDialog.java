@@ -21,9 +21,11 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.help.WorkbenchHelp;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ExportRemoteFolderOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -161,6 +163,9 @@ public class ExportRemoteFolderDialog extends Dialog {
 		headButton.addSelectionListener(listener);
 		revisionButton.addSelectionListener(listener);
 		
+		// set F1 help
+		WorkbenchHelp.setHelp(composite, IHelpContextIds.EXPORT_REMOTE_FOLDER_DIALOG);	
+
 		directoryText.setFocus();
 		
 		return composite;

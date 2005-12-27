@@ -15,10 +15,12 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 
 public class BranchTagPropertyUpdateDialog extends Dialog {
@@ -112,7 +114,10 @@ public class BranchTagPropertyUpdateDialog extends Dialog {
 		revisionText.addModifyListener(modifyListener);
 		nameText.addModifyListener(modifyListener);
 		pathText.addModifyListener(modifyListener);
-		
+
+		// set F1 help
+		WorkbenchHelp.setHelp(composite, IHelpContextIds.BRANCH_TAG_PROPERTY_UPDATE_DIALOG);	
+
 		return composite;
 	}
 

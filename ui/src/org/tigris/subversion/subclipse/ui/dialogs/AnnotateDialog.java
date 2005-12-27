@@ -21,8 +21,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ShowAnnotationOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -149,6 +151,9 @@ public class AnnotateDialog extends Dialog {
 		headButton.addSelectionListener(selectionListener);
 		revisionButton.addSelectionListener(selectionListener);
 		
+		// set F1 help
+		WorkbenchHelp.setHelp(composite, IHelpContextIds.ANNOTATE_DIALOG);	
+
 		fromRevisionText.selectAll();
 		fromRevisionText.setFocus();
 		

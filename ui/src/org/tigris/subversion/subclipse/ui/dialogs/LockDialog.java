@@ -22,7 +22,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
@@ -85,6 +87,9 @@ public class LockDialog extends Dialog {
 		
 		addResourcesArea(composite);
 
+		// set F1 help
+		WorkbenchHelp.setHelp(composite, IHelpContextIds.LOCK_DIALOG);	
+		
 		return composite;
 	}
 	

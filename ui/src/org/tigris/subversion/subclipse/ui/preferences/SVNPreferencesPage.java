@@ -215,7 +215,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		initializeValues();
 		verifyValidation();
 
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.SVN_PREFERENCE_DIALOG);
+		WorkbenchHelp.setHelp(getControl(), IHelpContextIds.SVN_PREFERENCE_DIALOG);
 
 		return composite;
 	}

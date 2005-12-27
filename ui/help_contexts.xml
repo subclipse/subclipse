@@ -9,6 +9,8 @@
 
   The space should be adequate, since the pop-up can be as large as required. This is in contrast to the
   TOC files, where context is given already.
+  
+  The well-known id's for each context are defined in org.tigris.subversion.subclipse.ui.IHelpContextIds.  
 -->
 
 <contexts>
@@ -59,6 +61,36 @@
 		<topic href="html/reference/pending-operations-view.html" label="Reference: Pending Operations View"/>
 	</context>
 
+	<!-- 
+	 	Jesper notes:
+	 	These are referenced but I doubt any user is EVER going to find them.
+	 	Just because we can add help text to an action doesn't mean we have to...
+	-->
+		
+	<context id="get_file_revision_action_context">
+		<description>TODO - get_file_revision_action_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="get_file_contents_action_context">
+		<description>TODO - get_file_contents_action_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="new_repository_location_action_context">
+		<description>TODO - new_repository_location_action_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="remove_root_action_context">
+		<description>TODO - remove_root_action_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
 	<!-- Dialogs -->
 
 	<context id="release_comment_dialog_context">
@@ -74,14 +106,14 @@
 	</context>
 
 	<context id="branch_tag_dialog_context">
-		<description>Branching and tagging copies the current repository state (e.g. under 'trunk' to a new location under e.g. 'tags' or 'branches'.</description>
+		<description>Branching and tagging copies the current repository state (e.g. the 'trunk') to a new location under e.g. 'tags' or 'branches'.</description>
 		<topic href="html/reference/branch-tag.html" label="Reference: Team -> Branch/Tag"/>
 	</context>
 
 	<context id="merge_dialog_context">
 		<description>Using this dialog, you can merge a set of differences between two different revisions of a repository location, OR merge the difference between two separate repository locations.</description>
 		<topic href="html/reference/merge.html" label="Reference: Team -> Merge"/>
-		<topic href="html/reference/merge.html" label="Reference: Team -> Merge"/>
+		<topic href="html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
 	</context>
 
 	<context id="revert_dialog_context">
@@ -89,6 +121,120 @@
 		<topic href="html/reference/revert.html" label="Reference: Team -> Revert"/>
 	</context>
 
+	<context id="disconnect_action_context">
+		<description>You can choose between erasing the SVN meta-data information or keeping it. Should you choose to keep the SVN directories, you may reconnect by choosing "Share" in the Team menu and selecting the "SVN" repository type. If you are in doubt, keep the '.svn' directories so you can continue tracking the contents against the repository.</description>
+		<topic href="html/reference/disconnect.html" label="Reference: Team -> Disconnect"/>
+	</context>
+
+	<context id="add_to_svnignore_dialog_context">
+		<description>You can choose between three ways of choosing which resources to ignore. If you are in doubt, leave the setting as it is, this will only ignore the files you specifically selected.</description>
+		<topic href="html/reference/add-to-svn-ignore.html" label="Reference: Team -> Add to svn:ignore..."/>
+	</context>
+
+	<context id="add_keywords_dialog_context">
+		<description>Choose one or more keywords to activate for the selected resource(s). When keywords are used the text contents (enclosed in $-signs), SVN will replace the keyword with its expansion text on every update of the resource.</description>
+		<topic href="html/reference/add-keywords.html" label="Reference: Team -> Add keywords..."/>
+	</context>
+
+	<context id="lock_dialog_context">
+		<description>You may chose which file(s) you wish to lock. Remember to either commit or unlock the file(s) after editing is done.</description>
+		<topic href="html/reference/lock.html" label="Reference: Team -> Lock"/>
+		<topic href="html/reference/unlock.html" label="Reference: Team -> Unlock"/>
+		<topic href="html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit"/>
+	</context>
+
+	<context id="unlock_dialog_context">
+		<description>The files shown are locked by you, and you may chose which file(s) to release the lock for. Others can then safely lock and edit those resources. Note that if you want to commit any changes to the resource(s), you need not unlock the file explicitly, committing will also do this, unless you choose to retain the lock.</description>
+		<topic href="html/reference/lock.html" label="Reference: Team -> Lock"/>
+		<topic href="html/reference/unlock.html" label="Reference: Team -> Unlock"/>
+		<topic href="html/reference/commit.html" label="Reference: Team -> Commit"/>
+		<topic href="html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit"/>
+	</context>
+
+	<context id="import_folder_dialog_context">
+		<description>TODO - import_folder_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="annotate_dialog_context">
+		<description>TODO - annotate_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="set_svn_property_dialog_context">
+		<description>TODO - set_svn_property_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="password_prompt_dialog_context">
+		<description>TODO - password_prompt_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="question_dialog_context">
+		<description>TODO - question_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="ssh_prompt_dialog_context">
+		<description>TODO - ssh_prompt_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="trust_ssl_server_dialog_context">
+		<description>TODO - trust_ssl_server_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="choose_url_dialog_context">
+		<description>TODO - choose_url_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="history_dialog_context">
+		<description>TODO - history_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="show_unified_diff_dialog_context">
+		<description>TODO - show_unified_diff_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="export_remote_folder_dialog_context">
+		<description>TODO - export_remote_folder_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+		
+	<context id="remote_resource_properties_dialog_context">
+		<description>TODO - remote_resource_properties_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="branch_tag_property_update_dialog_context">
+		<description>TODO - branch_tag_property_update_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+	
+	<context id="configure_tags_dialog_context">
+		<description>TODO - configure_tags_dialog_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+		
 	<!-- Wizards -->
 
 	<context id="sharing_autoconnect_page_context">
@@ -107,7 +253,59 @@
 		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
 	</context>
 
+	<context id="sharing_new_repository_page_context">
+		<description>TODO - sharing_new_repository_page_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="sharing_module_page_context">
+		<description>TODO - sharing_module_page_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="sharing_finish_page_context">
+		<description>TODO - sharing_finish_page_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="patch_selection_page_context">
+		<description>TODO - patch_selection_page_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="patch_options_page_context">
+		<description>TODO - patch_options_page_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="create_remote_folder_page_context">
+		<description>TODO - create_remote_folder_page_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="move_rename_remote_resource_page_context">
+		<description>TODO - move_rename_remote_resource_page_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+	</context>
+
+	<context id="comment_commit_page_context">
+		<description>Enter the log message (also called a commit comment) for the change you are making to the repository. Note that some repositories may have specific rules for commit messages, others have not, and may even accept a blank commit comment.</description>
+	</context>
+
 	<!-- Preference Pages -->
+
+	<context id="svn_preference_page_context">
+		<description>These controls determine some general preferences for the Subversion support in Eclipse, including the method for connecting to your Subversion repositories.</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
+	</context>
 
 	<context id="console_preference_page_context">
 		<description>These controls determine whether or not the SVN Console output is generated, as well as how.</description>
@@ -115,19 +313,16 @@
 		<topic href="html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
 	</context>
 
-	<context id="disconnect_action_context">
-		<description>You can choose between erasing the SVN neta-data information or keeping it. Should you choose to keep the SVN directories, you may reconnect by choosing "Share" in the Team menu and selecting the "SVN" repository type. If you are in doubt, keep the '.svn' directories so you can continue tracking the contents against the repository.</description>
-		<topic href="html/reference/disconnect.html" label="Reference: Team -> Disconnect"/>
+	<context id="decorators_preference_page_context">
+		<description>TODO - decorators_preference_page_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
 	</context>
-
-	<context id="add_to_svnignore_dialog_context">
-		<description>You can choose between three ways of choosing which resources to ignore. If you are in doubt, leave the setting as it is, this will only ignore the files you specifically selected.</description>
-		<topic href="html/reference/add-to-svn-ignore.html" label="Reference: Team -> Add to svn:ignore..."/>
-	</context>
-
-	<context id="add_keywords_dialog_context">
-		<description>Choose one or more keywords to activate for the selected resource(s). When keywords are used the text contents (enclosed in $-signs), SVN will replace the keyword with its expansion text on every update of the resource.</description>
-		<topic href="html/reference/add-keywords.html" label="Reference: Team -> Add keywords..."/>
+	
+	<context id="diff_merge_preferences_page_context">
+		<description>TODO - diff_merge_preferences_page_context</description>
+		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
 	</context>
 
 	<!-- Property page -->
@@ -136,9 +331,8 @@
 		<topic href="html/reference/properties.html" label="Reference: Properties"/>
 	</context>
 
-
 	<!-- 
-		Here's a typical example of the text you need.
+		Here's a typical example of the text you need when adding a context id in the UI.
 		
 		<context id="">
 		<description></description>
@@ -146,23 +340,6 @@
 		<topic href="html/reference/.html" label=""/>
 		</context>
 		
-		TODO: Remaining ID's to take care of, or to eliminate
-			
-		"sharing_new_repository_page_context"
-		"sharing_module_page_context"
-		"sharing_finish_page_context"
-		"patch_selection_page_context"
-		"patch_options_page_context"
-		
-		"get_file_revision_action_context"
-		"get_file_contents_action_context"
-		"new_repository_location_action_context"
-		"remove_root_action_context"
-		
-		"svn_preference_page_context"
-		"decorators_preference_page_context"
-		"diff_merge_preferences_page_context"
-
 		Seemingly dead contexts ID:
 
 		"add_to_version_control_dialog_context" - The dialog in question is never used

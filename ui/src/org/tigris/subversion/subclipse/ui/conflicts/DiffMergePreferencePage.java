@@ -203,7 +203,7 @@ public class DiffMergePreferencePage extends PreferencePage implements
                 3, 20);
 
         initializeValues();
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.DIFF_MERGE_PREFERENCE_PAGE);
+		WorkbenchHelp.setHelp(getControl(), IHelpContextIds.DIFF_MERGE_PREFERENCE_PAGE);
 
         return composite;
     }

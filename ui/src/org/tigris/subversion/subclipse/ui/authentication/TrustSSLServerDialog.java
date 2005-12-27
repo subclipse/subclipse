@@ -8,6 +8,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.help.WorkbenchHelp;
+import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 
 public class TrustSSLServerDialog extends Dialog {
@@ -36,6 +38,9 @@ public class TrustSSLServerDialog extends Dialog {
 		Label infoLabel = new Label(rtnGroup, SWT.NONE);
 		infoLabel.setText(info);
 	    
+		// set F1 help
+		WorkbenchHelp.setHelp(rtnGroup, IHelpContextIds.TRUST_SSL_SERVER_DIALOG);	
+
 	    return rtnGroup;
 	}
 

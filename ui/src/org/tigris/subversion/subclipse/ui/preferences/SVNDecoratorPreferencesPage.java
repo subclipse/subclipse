@@ -220,7 +220,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		tabItem.setControl(createGeneralDecoratorPage(tabFolder));
 		
 		initializeValues();
-		WorkbenchHelp.setHelp(tabFolder, IHelpContextIds.DECORATORS_PREFERENCE_PAGE);
+		WorkbenchHelp.setHelp(getControl(), IHelpContextIds.DECORATORS_PREFERENCE_PAGE);
 		Dialog.applyDialogFont(parent);
 		return tabFolder;
 	}

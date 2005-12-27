@@ -24,8 +24,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -225,6 +227,9 @@ public class ShowDifferencesAsUnifiedDiffDialog extends Dialog {
 		fromRevisionButton.addSelectionListener(selectionListener);
 		toHeadButton.addSelectionListener(selectionListener);
 		toRevisionButton.addSelectionListener(selectionListener);
+		
+		// Set F1 Help
+		WorkbenchHelp.setHelp(composite, IHelpContextIds.SHOW_UNIFIED_DIFF_DIALOG);	
 		
 		return composite;
 	}

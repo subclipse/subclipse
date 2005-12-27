@@ -35,10 +35,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.properties.SVNPropertyDefinition;
 import org.tigris.subversion.subclipse.core.properties.SVNPropertyManager;
+import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
@@ -250,6 +252,8 @@ public class SetSvnPropertyDialog extends Dialog {
 		}
 		propertyValueText.addListener(SWT.Modify,updatePropertiesListener);
 	
+		WorkbenchHelp.setHelp(composite, IHelpContextIds.SET_SVN_PROPERTY_DIALOG);	
+		
 		return area;
 	}
 
