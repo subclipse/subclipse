@@ -44,18 +44,19 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.CreateRemoteFolderAction;
 import org.tigris.subversion.subclipse.ui.actions.DeleteRemoteResourceAction;
+import org.tigris.subversion.subclipse.ui.repository.RepositoryFilters;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
 
 public class ChooseUrlDialog extends Dialog {
     private static final int LIST_HEIGHT_HINT = 250;
     private static final int LIST_WIDTH_HINT = 450;
-    
+
     private TreeViewer treeViewer;
     private Action refreshAction;
     private Action newFolderAction;
     private Action deleteFolderAction;
-    
+
     private String url;
     private String name;
     private String[] urls;
@@ -81,7 +82,7 @@ public class ChooseUrlDialog extends Dialog {
                 createAction.selectionChanged(null, treeViewer.getSelection());
                 createAction.run(null);
                 refreshViewer(true);
-            }            
+            }
         };
         deleteFolderAction = new Action(Policy.bind("ChooseUrlDialog.delete")) { //$NON-NLS-1$
             public void run() {
@@ -89,32 +90,34 @@ public class ChooseUrlDialog extends Dialog {
                 deleteAction.selectionChanged(null, treeViewer.getSelection());
                 deleteAction.run(null);
                 refreshViewer(true);
-            }            
-        };        
+            }
+        };
     }
-    
+
 	protected Control createDialogArea(Composite parent) {
 		getShell().setText(Policy.bind("ChooseUrlDialog.title")); //$NON-NLS-1$
 		Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		
+
 		if (message != null) {
 			Label messageLabel = new Label(composite, SWT.NONE);
 			messageLabel.setText(message);
 		}
-		
+
 		if (multipleSelect) treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
 		else treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         RemoteContentProvider contentProvider = new RemoteContentProvider();
         contentProvider.setIncludeBranchesAndTags(includeBranchesAndTags);
         contentProvider.setResource(resource);
-        contentProvider.setFoldersOnly(foldersOnly);
         treeViewer.setContentProvider(contentProvider);
-//        treeViewer.setLabelProvider(new WorkbenchLabelProvider());
+        if( foldersOnly )
+        	treeViewer.addFilter(RepositoryFilters.FOLDERS_ONLY);
+
+        //        treeViewer.setLabelProvider(new WorkbenchLabelProvider());
         treeViewer.setLabelProvider(new RemoteLabelProvider());
         if (repositoryLocation == null) {
-	        if (resource == null) treeViewer.setInput(new AllRootsElement());     
+	        if (resource == null) treeViewer.setInput(new AllRootsElement());
 	        else {
 	            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 	            ISVNRepositoryLocation repository = svnResource.getRepository();
@@ -122,7 +125,7 @@ public class ChooseUrlDialog extends Dialog {
 	            else treeViewer.setInput(svnResource.getRepository());
 	        }
         } else treeViewer.setInput(repositoryLocation);
-        
+
 		GridData data = new GridData(GridData.FILL_BOTH | GridData.GRAB_VERTICAL);
 		data.heightHint = LIST_HEIGHT_HINT;
 		data.widthHint = LIST_WIDTH_HINT;
@@ -132,8 +135,8 @@ public class ChooseUrlDialog extends Dialog {
             public void doubleClick(DoubleClickEvent e) {
                 okPressed();
             }
-        }); 
- 
+        });
+
         // Create the popup menu
         MenuManager menuMgr = new MenuManager();
         Tree tree = treeViewer.getTree();
@@ -148,15 +151,15 @@ public class ChooseUrlDialog extends Dialog {
         });
         menuMgr.setRemoveAllWhenShown(true);
         tree.setMenu(menu);
-        
+
 		return composite;
 	}
-	
+
     protected void refreshViewer(boolean refreshRepositoriesFolders) {
         if (treeViewer == null) return;
         if (refreshRepositoriesFolders)
             SVNProviderPlugin.getPlugin().getRepositories().refreshRepositoriesFolders();
-        treeViewer.refresh(); 
+        treeViewer.refresh();
     }
 
     protected void okPressed() {
@@ -187,7 +190,7 @@ public class ChooseUrlDialog extends Dialog {
         }
         super.okPressed();
     }
-    
+
     public String getUrl() {
         return url;
     }
@@ -198,10 +201,10 @@ public class ChooseUrlDialog extends Dialog {
 	public void setFoldersOnly(boolean foldersOnly) {
 		this.foldersOnly = foldersOnly;
 	}
-	
+
 	class RemoteLabelProvider extends LabelProvider implements IColorProvider, IFontProvider{
 		private WorkbenchLabelProvider workbenchLabelProvider = new WorkbenchLabelProvider();
-		
+
 		public Color getForeground(Object element) {
 			return workbenchLabelProvider.getForeground(element);
 		}
@@ -218,7 +221,7 @@ public class ChooseUrlDialog extends Dialog {
 			if (element instanceof Branches) return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_BRANCHES_CATEGORY).createImage();
 			if (element instanceof Tags) return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_VERSIONS_CATEGORY).createImage();
 			if (element instanceof Alias) {
-				if (((Alias)element).isBranch()) 
+				if (((Alias)element).isBranch())
 					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_BRANCH).createImage();
 				else
 					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROJECT_VERSION).createImage();
@@ -232,7 +235,7 @@ public class ChooseUrlDialog extends Dialog {
 			if (element instanceof Alias) return ((Alias)element).getName();
 			return workbenchLabelProvider.getText(element);
 		}
-		
+
 	}
 
 	public void setIncludeBranchesAndTags(boolean includeBranchesAndTags) {

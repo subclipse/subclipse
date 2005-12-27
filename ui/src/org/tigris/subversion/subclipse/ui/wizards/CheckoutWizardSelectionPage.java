@@ -17,14 +17,15 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.repository.RepositoryFilters;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
 
 public class CheckoutWizardSelectionPage extends WizardPage {
     private static final int LIST_HEIGHT_HINT = 250;
     private static final int LIST_WIDTH_HINT = 450;
-    
+
     private ISVNRepositoryLocation repositoryLocation;
-    
+
     private TreeViewer treeViewer;
 
 	public CheckoutWizardSelectionPage(String pageName, String title, ImageDescriptor titleImage) {
@@ -39,20 +40,19 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 		outerContainer.setLayout(layout);
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
-		
+
 		treeViewer = new TreeViewer(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
         RemoteContentProvider contentProvider = new RemoteContentProvider();
-        contentProvider.setFoldersOnly(true);
         treeViewer.setContentProvider(contentProvider);
+        treeViewer.addFilter(RepositoryFilters.FOLDERS_ONLY);
         treeViewer.setLabelProvider(new WorkbenchLabelProvider());
-
         treeViewer.setInput(repositoryLocation);
-        
+
 		GridData data = new GridData(GridData.FILL_BOTH | GridData.GRAB_VERTICAL);
 		data.heightHint = LIST_HEIGHT_HINT;
 		data.widthHint = LIST_WIDTH_HINT;
 		treeViewer.getControl().setLayoutData(data);
-		
+
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				CheckoutWizard wizard = (CheckoutWizard)getWizard();
@@ -64,12 +64,12 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 				folderArray.toArray(remoteFolders);
 				wizard.setRemoteFolders(remoteFolders);
 				setPageComplete(!treeViewer.getSelection().isEmpty());
-			}			
+			}
 		});
-		
+
 		setMessage(Policy.bind("CheckoutWizardSelectionPage.text")); //$NON-NLS-1$
-		
-		setControl(outerContainer);	
+
+		setControl(outerContainer);
 	}
 
 	public boolean canFlipToNextPage() {

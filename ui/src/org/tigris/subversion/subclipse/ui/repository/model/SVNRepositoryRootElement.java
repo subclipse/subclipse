@@ -1,28 +1,35 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
+ *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.repository.model;
 
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
+import org.eclipse.ui.progress.IElementCollector;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.operations.FetchMembersOperation;
 
 /**
  * RemoteRootElement is the model element for a repository that
  * appears in the repositories view
  */
-public class SVNRepositoryRootElement extends SVNModelElement {
+public class SVNRepositoryRootElement extends SVNModelElement implements IDeferredWorkbenchAdapter {
 	public ImageDescriptor getImageDescriptor(Object object) {
 		if (object instanceof ISVNRepositoryLocation /*|| object instanceof RepositoryRoot*/) {
 			return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REPOSITORY);
@@ -54,5 +61,39 @@ public class SVNRepositoryRootElement extends SVNModelElement {
 		} catch (Exception e) {}
 		return result;
 	}
-	
+
+	public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
+		// If it's not a folder, return an empty array
+		if (!(o instanceof ISVNRepositoryLocation)) {
+			collector.add(new Object[0], monitor);
+		}
+		try {
+			monitor = Policy.monitorFor(monitor);
+			monitor.beginTask(Policy.bind("RemoteFolderElement_fetchingRemoteMembers.message", getLabel(o)), 100); //$NON-NLS-1$
+			FetchMembersOperation operation = new FetchMembersOperation(null, ((ISVNRepositoryLocation)o).getRootFolder(), collector);
+			operation.run(Policy.subMonitorFor(monitor, 100));
+		} catch (InvocationTargetException e) {
+			SVNUIPlugin.openError(null, null, null, e);
+		} catch (InterruptedException e) {
+			// Cancelled by the user;
+		} finally {
+			monitor.done();
+		}
+	}
+
+	public ISchedulingRule getRule(Object element) {
+		ISVNRepositoryLocation location = getRepositoryLocation(element);
+		return new RepositoryLocationSchedulingRule(location); //$NON-NLS-1$
+	}
+
+	protected ISVNRepositoryLocation getRepositoryLocation(Object o) {
+		if (!(o instanceof ISVNRepositoryLocation))
+			return null;
+		return (ISVNRepositoryLocation)o;
+	}
+
+	public boolean isContainer() {
+		return true;
+	}
+
 }

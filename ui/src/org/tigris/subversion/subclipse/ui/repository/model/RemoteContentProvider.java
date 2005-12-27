@@ -1,27 +1,28 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
+ *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.repository.model;
- 
+
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.ui.model.IWorkbenchAdapter;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.model.WorkbenchContentProvider;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.eclipse.ui.progress.DeferredTreeContentManager;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
-import org.tigris.subversion.subclipse.core.history.Branches;
 import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
+import org.tigris.subversion.subclipse.core.history.Branches;
 import org.tigris.subversion.subclipse.core.history.Tags;
 
 /**
@@ -31,11 +32,22 @@ import org.tigris.subversion.subclipse.core.history.Tags;
  * on the tree expansion box.
  */
 public class RemoteContentProvider extends WorkbenchContentProvider {
-	private boolean foldersOnly = false;
 	private Branches branches;
 	private Tags tags;
 	private boolean includeBranchesAndTags = true;
-	
+
+	private DeferredTreeContentManager manager;
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
+	 */
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		if (viewer instanceof AbstractTreeViewer) {
+			manager = new DeferredTreeContentManager(this, (AbstractTreeViewer) viewer);
+		}
+		super.inputChanged(viewer, oldInput, newInput);
+	}
+
 	/* (non-Javadoc)
 	 * Method declared on WorkbenchContentProvider.
 	 */
@@ -43,54 +55,51 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 		if (element == null) {
 			return false;
 		}
-		
+
 		if (element instanceof Branches || element instanceof Tags) return true;
 		if (element instanceof Alias) return false;
-		
+
 		if (element instanceof ISVNRepositoryLocation)
 			return true;
-		
+
 		// the + box will always appear, but then disappear
 		// if not needed after you first click on it.
 		if (element instanceof ISVNRemoteResource) {
 			return ((ISVNRemoteResource)element).isContainer();
-		} 
+		}
+
+		if (manager != null) {
+			if (manager.isDeferredAdapter(element))
+				return manager.mayHaveChildren(element);
+		}
 
 		return super.hasChildren(element);
 	}
-	
+
 	/**
 	 * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
 	 */
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof Branches) return ((Branches)parentElement).getBranches();
 		if (parentElement instanceof Tags) return ((Tags)parentElement).getTags();
-		IWorkbenchAdapter adapter = getAdapter(parentElement);
-		if (adapter instanceof SVNModelElement) {
-			Object[] children = ((SVNModelElement)adapter).getChildren(parentElement);
-			if (foldersOnly) {
-				ArrayList folderArray = new ArrayList();
-				for (int i = 0; i < children.length; i++) {
-					if (children[i] instanceof ISVNRemoteFolder) folderArray.add(children[i]);
+		if (manager != null) {
+			Object[] children = manager.getChildren(parentElement);
+			if (children != null) {
+				if (parentElement instanceof ISVNRepositoryLocation && (branches != null || tags != null)) {
+					ArrayList childrenArray = new ArrayList();
+					if (branches != null) childrenArray.add(branches);
+					if (tags != null) childrenArray.add(tags);
+					for (int i = 0; i < children.length; i++) childrenArray.add(children[i]);
+
+					children = new Object[childrenArray.size()];
+					childrenArray.toArray(children);
 				}
-				children = new Object[folderArray.size()];
-				folderArray.toArray(children);
+				// This will be a placeholder to indicate
+				// that the real children are being fetched
+				return children;
 			}
-			if (parentElement instanceof ISVNRepositoryLocation && (branches != null || tags != null)) {
-				ArrayList childrenArray = new ArrayList();
-				for (int i = 0; i < children.length; i++) childrenArray.add(children[i]);
-				if (branches != null) childrenArray.add(branches);
-				if (tags != null) childrenArray.add(tags);
-				children = new Object[childrenArray.size()];
-				childrenArray.toArray(children);
-			}
-			return children;
 		}
 		return super.getChildren(parentElement);
-	}
-
-	public void setFoldersOnly(boolean foldersOnly) {
-		this.foldersOnly = foldersOnly;
 	}
 
 	public void setResource(IResource resource) {
@@ -107,4 +116,22 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 		this.includeBranchesAndTags = includeBranchesAndTags;
 	}
 
+	public void cancelJobs(ISVNRepositoryLocation[] roots) {
+		if (manager != null) {
+			for (int i = 0; i < roots.length; i++) {
+				ISVNRepositoryLocation root = roots[i];
+				cancelJobs(root);
+			}
+		}
+	}
+
+	/**
+	 * Cancel any jobs that are fetching content from the given location.
+	 * @param location
+	 */
+	public void cancelJobs(ISVNRepositoryLocation location) {
+		if (manager != null) {
+			manager.cancel(location);
+		}
+	}
 }

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ *
  * Contributors:
- *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
+ *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.wizards;
 
@@ -20,8 +20,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -30,11 +28,11 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownComposite;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.repository.RepositoryFilters;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -59,10 +57,10 @@ public class MoveRemoteResourceWizardMainPage extends SVNWizardPage {
     private ISelectionChangedListener treeSelectionChangedListener = new ISelectionChangedListener() {
         public void selectionChanged(SelectionChangedEvent event) {
             Object selection = ((IStructuredSelection)event.getSelection()).getFirstElement();
-            
+
             if (selection instanceof ISVNRemoteFolder) {
                 parentFolder = (ISVNRemoteFolder)selection;
-    
+
             }
             else
             if (selection instanceof IAdaptable) {
@@ -70,32 +68,32 @@ public class MoveRemoteResourceWizardMainPage extends SVNWizardPage {
                 IAdaptable a = (IAdaptable) selection;
                 Object adapter = a.getAdapter(ISVNRemoteFolder.class);
                 parentFolder = (ISVNRemoteFolder)adapter;
-            }            
+            }
 
             if (parentFolder != null)
                 urlParentText.setText(parentFolder.getUrl().toString());
         }
 
     };
-    
-    
+
+
 	/**
 	 * MoveRemoteResourceWizardMainPage constructor.
-	 * 
+	 *
 	 * @param pageName  the name of the page
 	 * @param title  the title of the page
 	 * @param titleImage  the image for the page
 	 */
 	public MoveRemoteResourceWizardMainPage(
-        String pageName, 
-        String title, 
+        String pageName,
+        String title,
         ImageDescriptor titleImage) {
 		super(pageName, title, titleImage);
 	}
 
 	/**
 	 * Creates the UI part of the page.
-	 * 
+	 *
 	 * @param parent  the parent of the created widgets
 	 */
 	public void createControl(Composite parent) {
@@ -125,33 +123,29 @@ public class MoveRemoteResourceWizardMainPage extends SVNWizardPage {
         spec.widthHint = LIST_WIDTH;
         spec.heightHint = LIST_HEIGHT;
         drillDown.setLayoutData(spec);
- 
+
         // Create tree viewer inside drill down.
         viewer = new TreeViewer(drillDown, SWT.H_SCROLL | SWT.V_SCROLL);
         drillDown.setChildTree(viewer);
         viewer.setLabelProvider(new WorkbenchLabelProvider());
         viewer.setContentProvider(new RemoteContentProvider());
         viewer.setInput(new AllRootsElement());
-        viewer.addFilter(new ViewerFilter() {
-            public boolean select(Viewer viewer, Object parentElement, Object element) {
-                return !(element instanceof ISVNRemoteFile);                      
-            }          
-        });
+        viewer.addFilter(RepositoryFilters.FOLDERS_ONLY);
         viewer.addSelectionChangedListener(treeSelectionChangedListener);
 
         // the text field for the resource name
         createLabel(composite, Policy.bind("MoveRemoteResourceWizardMainPage.resourceName")); //$NON-NLS-1$
-        
+
         resourceNameText = createTextField(composite);
         resourceNameText.addListener(SWT.Selection, listener);
         resourceNameText.addListener(SWT.Modify, listener);
         resourceNameText.setText(resourceName);
-            
+
 		validateFields();
         resourceNameText.setFocus();
-	
+
 		setControl(composite);
-        
+
         // set the initial selection in the tree
         if (parentFolder != null) {
             Object toSelect = null;
@@ -160,17 +154,17 @@ public class MoveRemoteResourceWizardMainPage extends SVNWizardPage {
                 toSelect = parentFolder.getRepository();
             }
             else
-                toSelect = parentFolder; 
+                toSelect = parentFolder;
             viewer.expandToLevel(toSelect,0);
             viewer.setSelection(new StructuredSelection(toSelect),true);
-        }        
-        
+        }
+
 	}
-	
+
 	/**
-	 * Validates the contents of the editable fields and set page completion 
+	 * Validates the contents of the editable fields and set page completion
 	 * and error messages appropriately. Call each time folder name or parent url
-     * is modified 
+     * is modified
 	 */
 	private void validateFields() {
 		if (resourceNameText.getText().length() == 0) {
@@ -182,42 +176,42 @@ public class MoveRemoteResourceWizardMainPage extends SVNWizardPage {
 			new SVNUrl(Util.appendPath(urlParentText.getText(), resourceNameText.getText()));
 		} catch (MalformedURLException e) {
 			setErrorMessage(Policy.bind("MoveRemoteResourceWizardMainPage.invalidUrl")); //$NON-NLS-1$);
-			setPageComplete(false);			
+			setPageComplete(false);
 			return;
 		}
 		setErrorMessage(null);
-		setPageComplete(true); 
+		setPageComplete(true);
 	}
-	
-   
+
+
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		if (visible) {
             resourceNameText.setFocus();
 		}
 	}
-    
+
     /**
-     * returns the parent folder of the destination 
+     * returns the parent folder of the destination
      */
     public ISVNRemoteFolder getParentFolder() {
         return parentFolder;
     }
-    
+
     /**
-     * get the destination name of the resource 
+     * get the destination name of the resource
      */
     public String getResourceName() {
         return resourceNameText.getText();
     }
-    
+
     /**
      * set the remote resource. Call this method before the creation of the control.
-     * This will select the folder  
+     * This will select the folder
      */
     public void setRemoteResource(ISVNRemoteResource remoteResource) {
         parentFolder = remoteResource.getParent();
         resourceName = remoteResource.getName();
     }
-    
+
 }
