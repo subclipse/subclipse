@@ -34,6 +34,7 @@
 		<topic label="Branch/Tag" href="html/reference/branch-tag.html" />
 		<topic label="Switch" href="html/reference/switch.html" />
 		<topic label="Merge" href="html/reference/merge.html" />
+		<topic label="Configure Branches/Tags" href="html/reference/configure-tags.html" />
 		<topic label="Copy" href="html/reference/copy.html" />
 		<topic label="Export" href="html/reference/export.html" />
 		<topic label="Edit conflicts" href="html/reference/edit-conflicts.html" />
@@ -52,4 +53,5 @@
 		<topic label="Preferences Pages" href="html/reference/preferences.html" />
 		<topic label="Resource Properties Tab" href="html/reference/properties.html" />
 	</topic>
+	<topic label="Support for SVN Protocols" href="html/reference/protocol.html" />
 </toc>
