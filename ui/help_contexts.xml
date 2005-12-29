@@ -18,8 +18,7 @@
 	<!-- Views -->
 
 	<context id="resource_history_view_context">
-		<description>This view shows you the different revisions of the selected file or folder as they are found in the repository.</description>
-		<topic href="html/dailywork/diffing.html" label="Tasks: Comparing, QuickDiff and Restoring" />
+		<description>This view shows you the revision history of the selected file or folder as they are found in the repository.</description>
 		<topic href="html/reference/svn-history-view.html" label="Reference: SVN Resource History View" />
 		<topic href="html/reference/show-in-history.html" label="Reference: Team -> Show in Resource History"/>
 	</context>
@@ -32,12 +31,11 @@
 
 	<context id="repositories_view_context">
 		<description>This view contains the SVN repository locations known in this workspace. Using the context menu, you can add and remove locations, browse repository contents and check out projects to work with them, as well as viewing resource histories (log), creating new folders, moving and renaming resources.</description>
-		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Connecting to a Subversion Repository"/>
+		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Connecting to a SVN Repository"/>
 		<topic href="html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
 	</context>
 
 	<context id="compare_revision_view_context">
-		<description>TODO - compare_revision_view_context - how did you make this text appear?</description>
 		<topic href="html/reference/compare.html" label="Reference: Compare Menu"/>
 	</context>
 
@@ -68,56 +66,57 @@
 	-->
 		
 	<context id="get_file_revision_action_context">
-		<description>TODO - get_file_revision_action_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>This option replaces your working copy file with the selected revision.</description>
+		<topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
+		<topic href="html/reference/switch.html" label="Reference: Team -> Switch"/>
 	</context>
 
 	<context id="get_file_contents_action_context">
-		<description>TODO - get_file_contents_action_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>This option replaces the contents of your local file with the contents of the selected revision.</description>
+		<topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
 	</context>
 
 	<context id="new_repository_location_action_context">
-		<description>TODO - new_repository_location_action_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Specify the URL of the new SVN repository location.</description>
+		<topic href="html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+		<topic href="html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
 	</context>
 
 	<context id="remove_root_action_context">
-		<description>TODO - remove_root_action_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Confirm delete of SVN repository location.</description>
+		<topic href="html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
 	</context>
 
 	<!-- Dialogs -->
 
 	<context id="release_comment_dialog_context">
-		<description>This dialog box is used for entering the "commit message" or "log message", the text associated with the revision number that you are comitting. This is the text that will also be shown in SVN History view for the changed resource(s).</description>
+		<description>This dialog box is used for entering the "commit message" or "log message", the text associated with the revision that you are comitting. This is the text that will also be shown in SVN History view for the changed resource(s).</description>
 		<topic href="html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit" />
+		<topic href="html/reference/commit.html" label="Reference: Team -> Commit" />
 		<topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
-		<topic href="html/reference/svn-repository.html" label="Reference: SVN Repository Exploring Perspective" />
+		<topic href="html/reference/issuetracker.html" label="Tips: Issue Tracker Integration" />
 	</context>
 
 	<context id="switch_dialog_context">
 		<description>You can enter the URL of the repository location that you wish to switch to directly, or use the "Choose..." button to bring up a repository browser enabling you to choose the location by point-and-click. Usually, you want the HEAD revision of the selected location, but if you specify a specific revision number, ensure that the chosen repository location did indeed exist at that revision.</description>
+		<topic href="html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
 		<topic href="html/reference/switch.html" label="Reference: Team -> Switch"/>
 	</context>
 
 	<context id="branch_tag_dialog_context">
 		<description>Branching and tagging copies the current repository state (e.g. the 'trunk') to a new location under e.g. 'tags' or 'branches'.</description>
+		<topic href="html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
 		<topic href="html/reference/branch-tag.html" label="Reference: Team -> Branch/Tag"/>
 	</context>
 
 	<context id="merge_dialog_context">
 		<description>Using this dialog, you can merge a set of differences between two different revisions of a repository location, OR merge the difference between two separate repository locations.</description>
-		<topic href="html/reference/merge.html" label="Reference: Team -> Merge"/>
 		<topic href="html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
+		<topic href="html/reference/merge.html" label="Reference: Team -> Merge"/>
 	</context>
 
 	<context id="revert_dialog_context">
-		<description>You may chose which changes you wish to revert to the pristine state (this may differ from the state currently found in the repository). Reverting doesn't connect to the repository, all the pristine data are stored within your working copy.</description>
+		<description>You may choose which changes you wish to revert to the pristine state (this may differ from the state currently found in the repository). Reverting doesn't connect to the repository, all the pristine data are stored within your working copy.</description>
 		<topic href="html/reference/revert.html" label="Reference: Team -> Revert"/>
 	</context>
 
@@ -152,87 +151,83 @@
 	</context>
 
 	<context id="import_folder_dialog_context">
-		<description>TODO - import_folder_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>This option allows you to import files and folders into the repository, making the resources available for checkout.  Be certain that the location you are importing does not contain any files you do not want to add to the repository, such as binary or compiled objects.</description>
+		<topic href="html/reference/import-folder.html" label="Reference: Team -> Import"/>
+		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Repository" />
 	</context>
 
 	<context id="annotate_dialog_context">
-		<description>TODO - annotate_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>This dialog allows you to confirm which revisions of the selected file you wish to annotate.</description>
+		<topic href="html/reference/svn-annotations.html" label="Reference: Team -> SVN Annotation View"/>
+		<topic href="html/reference/show-annotation.html" label="Reference: Team -> Show Annotation"/>
+		<topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
 	</context>
 
 	<context id="set_svn_property_dialog_context">
-		<description>TODO - set_svn_property_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>This dialog allows you to set versioned SVN properties on resources.</description>
+		<topic href="html/reference/set-property.html" label="Reference: Team -> Set Property"/>
+		<topic href="html/reference/svn-properties-view.html" label="Reference: SVN Properties View"/>
 	</context>
 
 	<context id="password_prompt_dialog_context">
-		<description>TODO - password_prompt_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Supply a valid username and password and optionally allow it to be cached.</description>
+		<topic href="html/advanced/managing-passwords.html" label="Advanced: Managing Usernames and Passwords"/>
 	</context>
 
 	<context id="question_dialog_context">
-		<description>TODO - question_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Answer a question being asked by the SVN adapter.</description>
+		<topic href="html/reference/preferences.html" label="Reference: Preferences"/>
 	</context>
 
 	<context id="ssh_prompt_dialog_context">
-		<description>TODO - ssh_prompt_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Supply your SSH connection information</description>
+		<topic href="html/reference/preferences.html" label="Reference: Preferences"/>
+		<topic href="html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
 	</context>
 
 	<context id="trust_ssl_server_dialog_context">
-		<description>TODO - trust_ssl_server_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Review the server SSL certificate and accept or decline it.</description>
+		<topic href="html/reference/preferences.html" label="Reference: Preferences"/>
+		<topic href="html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
 	</context>
 
 	<context id="choose_url_dialog_context">
-		<description>TODO - choose_url_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Select a URL from the repository.  Optionally, you may select a pre-configured branch or tag and have the URL created automatically.</description>
+		<topic href="html/reference/configures-tags.html" label="Reference: Team -> Configure Tags"/>
+		<topic href="html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
 	</context>
 
 	<context id="history_dialog_context">
-		<description>TODO - history_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Shows the revision history of the selected resource.</description>
+		<topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
 	</context>
 
 	<context id="show_unified_diff_dialog_context">
-		<description>TODO - show_unified_diff_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Specify where to save the unified diff.</description>
+		<topic href="html/reference/glossary.html" label="Reference: Glossary"/>
 	</context>
 
 	<context id="export_remote_folder_dialog_context">
-		<description>TODO - export_remote_folder_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Specify where the output of the export operation should be stored.</description>
+		<topic href="html/reference/export.html" label="Reference: Team -> Export"/>
+		<topic href="html/reference/export-remote-folder.html" label="Reference: Export Remote Folder"/>
 	</context>
 		
 	<context id="remote_resource_properties_dialog_context">
-		<description>TODO - remote_resource_properties_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Shows basic SVN information, including current lock information as well as versioned properties.</description>
+		<topic href="html/reference/svn-repository-properties.html" label="Reference: SVN Repository Properties"/>
 	</context>
 
 	<context id="branch_tag_property_update_dialog_context">
-		<description>TODO - branch_tag_property_update_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Indicate whether the subclipse:tags property should be updated with the new branch/tag that was created.</description>
+		<topic href="html/reference/configures-tags.html" label="Reference: Team -> Configure Tags"/>
+		<topic href="html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
 	</context>
 	
 	<context id="configure_tags_dialog_context">
-		<description>TODO - configure_tags_dialog_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Allows you to configure the branches and tags related to the selected resource.</description>
+		<topic href="html/reference/configures-tags.html" label="Reference: Team -> Configure Tags"/>
+		<topic href="html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
 	</context>
 		
 	<!-- Wizards -->
@@ -254,45 +249,48 @@
 	</context>
 
 	<context id="sharing_new_repository_page_context">
-		<description>TODO - sharing_new_repository_page_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Specify the URL of the repository location.</description>
+		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Connecting to a SVN Repository"/>
+		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+		<topic href="html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
+		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
 	</context>
 
 	<context id="sharing_module_page_context">
-		<description>TODO - sharing_module_page_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Specify the name of the folder to create in the repository.</description>
+		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
 	</context>
 
 	<context id="sharing_finish_page_context">
-		<description>TODO - sharing_finish_page_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Press OK to confirm adding the project to the repository.</description>
+		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
 	</context>
 
 	<context id="patch_selection_page_context">
-		<description>TODO - patch_selection_page_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>This wizard allows you to create a patch in unified diff format that contains your local changes.</description>
+		<topic href="html/reference/create-patch.html" label="Reference: Team -> Create Patch"/>
+		<topic href="html/dailywork/patches.html" label="Tasks: Creating and Applying Patches"/>
+		<topic href="html/reference/glossary.html" label="Glossary" />
 	</context>
 
 	<context id="patch_options_page_context">
-		<description>TODO - patch_options_page_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>This wizard allows you to create a patch in unified diff format that contains your local changes.</description>
+		<topic href="html/reference/create-patch.html" label="Reference: Team -> Create Patch"/>
+		<topic href="html/dailywork/patches.html" label="Tasks: Creating and Applying Patches"/>
+		<topic href="html/reference/glossary.html" label="Glossary" />
 	</context>
 
 	<context id="create_remote_folder_page_context">
-		<description>TODO - create_remote_folder_page_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Specify the name for the new folder.</description>
+		<topic href="html/reference/new-remote-folder.html" label="Reference: New Remote Folder"/>
 	</context>
 
 	<context id="move_rename_remote_resource_page_context">
-		<description>TODO - move_rename_remote_resource_page_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>Specify the new name/location for the selected resource.</description>
+		<topic href="html/reference/move-remote-resource.html" label="Reference: Move/Rename Remote Resource"/>
 	</context>
 
 	<context id="comment_commit_page_context">
@@ -302,27 +300,24 @@
 	<!-- Preference Pages -->
 
 	<context id="svn_preference_page_context">
-		<description>These controls determine some general preferences for the Subversion support in Eclipse, including the method for connecting to your Subversion repositories.</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
+		<description>These preferences determine some general preferences for the SVN support in Eclipse, including the method for connecting to your SVN repositories.</description>
 		<topic href="html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
 	</context>
 
 	<context id="console_preference_page_context">
-		<description>These controls determine whether or not the SVN Console output is generated, as well as how.</description>
+		<description>These preferences determine whether or not the SVN Console output is generated, as well as how.</description>
 		<topic href="html/reference/svn-console.html" label="Reference: SVN Console View"/>
 		<topic href="html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
 	</context>
 
 	<context id="decorators_preference_page_context">
-		<description>TODO - decorators_preference_page_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>These preferences control the SVN decorator settings.</description>
+		<topic href="html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
 	</context>
 	
 	<context id="diff_merge_preferences_page_context">
-		<description>TODO - diff_merge_preferences_page_context</description>
-		<topic href="html/reference/xxx.html" label="Reference: Xxx"/>
-		<topic href="html/dailywork/xxx.html" label="Tasks: Xxx"/>
+		<description>These preferences allows you to configure an external merge program, or use the built-in option.</description>
+		<topic href="html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
 	</context>
 
 	<!-- Property page -->
