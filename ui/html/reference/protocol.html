@@ -84,6 +84,14 @@
     	the user for SSL client certificates.
 		<br /><br />
 	    <img src="../images/ssl-client-cert.png" />
+		<br /><br />
+		In order to activate this feature you have to edit the "servers" file in the <a 
+    	href="http://svnbook.red-bean.com/en/1.1/ch07.html#svn-ch-7-sect-1"> Runtime Configuration
+    	Area</a> and add the following:
+    	<pre>
+[global]
+ssl-client-cert-prompt = yes    	
+    	</pre>
     </dd>
 </dl>
 <p class="tasks">
