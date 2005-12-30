@@ -252,7 +252,7 @@ public class SetSvnPropertyDialog extends Dialog {
 		}
 		propertyValueText.addListener(SWT.Modify,updatePropertiesListener);
 	
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.SET_SVN_PROPERTY_DIALOG);	
+		WorkbenchHelp.setHelp(area, IHelpContextIds.SET_SVN_PROPERTY_DIALOG);	
 		
 		return area;
 	}
