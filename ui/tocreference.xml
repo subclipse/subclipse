@@ -52,6 +52,7 @@
 		<topic label="Check out" href="html/gettingstarted/checkout.html" />
 		<topic label="Preferences Pages" href="html/reference/preferences.html" />
 		<topic label="Resource Properties Tab" href="html/reference/properties.html" />
+		<topic label="Relocate Repository" href="html/reference/relocate.html" />
 	</topic>
 	<topic label="Support for SVN Protocols" href="html/reference/protocol.html" />
 </toc>

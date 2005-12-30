@@ -64,6 +64,7 @@ public interface IHelpContextIds {
 	public static final String PATCH_OPTIONS_PAGE = PREFIX + "patch_options_page_context"; //$NON-NLS-1$
 	public static final String CREATE_REMOTE_FOLDER_PAGE = PREFIX + "create_remote_folder_page_context"; //$NON_NLS-1$
 	public static final String MOVE_RENAME_REMOTE_RESOURCE_PAGE = PREFIX + "move_rename_remote_resource_page_context"; //$NON_NLS-1$
+	public static final String RELOCATE_REPOSITORY_PAGE = PREFIX + "relocate_page_context"; //$NON_NLS-1$
 	public static final String COMMENT_COMMIT_PAGE_DIALOG = PREFIX + "comment_commit_page_context"; //$NON_NLS-1$
 
 	// Properties and Preferences

@@ -326,6 +326,12 @@
 		<topic href="html/reference/properties.html" label="Reference: Properties"/>
 	</context>
 
+	<!-- Relocate repository -->
+	<context id="relocate_page_context">
+		<description>This option exists for the sole purpose of changing the URL of your repository and updating the connected projects.</description>
+		<topic href="html/reference/relocate.html" label="Reference: Relocate Repository"/>
+	</context>
+
 	<!-- 
 		Here's a typical example of the text you need when adding a context id in the UI.
 		
