@@ -94,7 +94,7 @@ public class SetCommitPropertiesDialog extends Dialog {
 	    if (author != null) committerText.setText(author);
 
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.RELEASE_COMMENT_DIALOG);	
+		WorkbenchHelp.setHelp(composite, IHelpContextIds.CHANGE_REVPROPS);	
 		
 		return composite;
 	}

@@ -54,6 +54,8 @@ public interface IHelpContextIds {
 	public static final String BRANCH_TAG_PROPERTY_UPDATE_DIALOG = PREFIX + "branch_tag_property_update_dialog_context"; //$NON_NLS-1$
 	public static final String CONFIGURE_TAGS_DIALOG = PREFIX + "configure_tags_dialog_context"; //$NON_NLS-1$
 
+	public static final String CHANGE_REVPROPS = PREFIX + "change_revprops_context"; //$NON_NLS-1$
+
 	// Wizard Pages
 	public static final String SHARING_AUTOCONNECT_PAGE = PREFIX + "sharing_autoconnect_page_context"; //$NON-NLS-1$
 	public static final String SHARING_SELECT_REPOSITORY_PAGE = PREFIX + "sharing_select_repository_page_context"; //$NON-NLS-1$

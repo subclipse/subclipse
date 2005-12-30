@@ -332,6 +332,12 @@
 		<topic href="html/reference/relocate.html" label="Reference: Relocate Repository"/>
 	</context>
 
+	<!-- Change Revision Properties -->
+	<context id="change_revprops_context">
+		<description>This option allows you to edit the commit message and/or author of an existing commit.  The repository must have the pre-revprop-change hook enabled to allow this operation.</description>
+		<topic href="html/reference/set-commit-properties.html" label="Reference: Set Commit Properties"/>
+	</context>
+
 	<!-- 
 		Here's a typical example of the text you need when adding a context id in the UI.
 		
