@@ -3,36 +3,42 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
-<title>Relocate Repository</title>
+<title>Relocate</title>
 </head>
 <body>
-<h1>Relocate Repository</h1>
+<h1>Relocate Repository </h1>
+<p>
+    This dialog is accessed via the <span class="menu">Relocate </span> context
+    menu from the <a href="svn-repository-view.html">SVN Repository View</a>.
+</p>
 <h2>Overview</h2>
 <p>
-    Sometimes an administrator might change the <em>base location</em> of your
-    repository &mdash; in other words, the contents of the repository doesn't
-    change, but the URL used to reach the root of the repository does. For example,
-    the hostname may change, or the URL schema, or perhaps just the path which
-    leads to the repository. Rather than checkout a new working copy, you can
-    use the Relocate option to have SVN <em>rewrite</em> the the beginnings of
-    all the URLs in your working copy. No file contents are changed, nor is the
-    repository contacted.
+    The relocate option exists for one reason, and that is to update the URL
+        of your repository when it is moved to a new server or you change the
+        access method, such as from http:// to https://. When you take the option
+        it updates the URL in the repository view, and then runs the switch --relocate
+        command on all of the projects in your workspace that are connected to
+        this repository location.
 </p>
 <h2>Process</h2>
 <p>
-    <img src="../images/relocate-repository-url.png" width="471" height="553">
+    <img src="../images/relocate-1.png">
 </p>
 <p>
-    Type the new repository URL.
+    The first page of the wizard contains some standard warning text about what
+        the option will do, but the main thing it is showing you is all of the
+        projects in your workspace that is going to update. This is purely informational,
+        you cannot choose to not update any of the projects.
 </p>
 <p>
-    <img src="../images/bullet-warn.png" width="75" height="16" align="left">The
-    Relocate command should only used if the URL of the repository root has changed.
-    This is a very infrequently used operation and should not be used to move
-    to another SVN repository, nor should it be used to switch to another branch
-    or directory within the same repository. An improperly used Relocate command
-    may corrupt your working copy! The chances are, if you are unsure whether
-    Relocate is the correct operation, it probably is not.
+    <img src="../images/relocate-2.png">
+</p>
+<p>
+    The next and final page of the wizard shows you the current repository URL
+        and allows you to provide a new URL. The new URL should be pointing to
+        the same relative location within the repository. In other words, you
+        should only be changing something like the access method (http://), or
+        the port number, or the host name.
 </p>
 <p class="tasks">
     Related Tasks
