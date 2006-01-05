@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.Team;
@@ -23,6 +24,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
@@ -204,6 +206,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 */
 	public SVNWorkspaceRoot getWorkspaceRoot() {
 		SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
+		if (teamProvider == null) return null;
 		return teamProvider.getSVNWorkspaceRoot();
 	}
 
@@ -212,7 +215,12 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 */
 	public ISVNRepositoryLocation getRepository()  {
 		try {
-			return getWorkspaceRoot().getRepository();
+		    SVNWorkspaceRoot root = getWorkspaceRoot();
+		    if (root == null) {
+		        SVNProviderPlugin.log(IStatus.WARNING, Policy.bind("LocalResource.errorGettingTeamProvider", resource.toString()), null);
+		        return null;
+		    }
+			return root.getRepository();
 		} catch (SVNException e) {
 			// an exception is thrown when project is not managed
 			SVNProviderPlugin.log(e);
