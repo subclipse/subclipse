@@ -7,7 +7,6 @@
 -->
 
 <toc label="Getting Started" link_to="toc.xml#gettingstarted"> 
-		<topic label="Connecting to a Repository"  href="html/gettingstarted/connecting.html"/> 
 		<topic label="Creating a New Repository Location" href="html/gettingstarted/new-location.html"/> 				
 		<topic label="Import a New Project into a Repository"  href="html/gettingstarted/importing.html"/> 
 		<topic label="Connect an Existing Project with SVN"  href="html/gettingstarted/share-existing.html"/> 

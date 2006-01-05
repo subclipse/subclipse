@@ -31,7 +31,7 @@
 
 	<context id="repositories_view_context">
 		<description>This view contains the SVN repository locations known in this workspace. Using the context menu, you can add and remove locations, browse repository contents and check out projects to work with them, as well as viewing resource histories (log), creating new folders, moving and renaming resources.</description>
-		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Connecting to a SVN Repository"/>
+		<topic href="html/gettingstarted/new-location.html" label="Getting Started: Creating a new Repository Location"/>
 		<topic href="html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
 	</context>
 
@@ -153,7 +153,7 @@
 	<context id="import_folder_dialog_context">
 		<description>This option allows you to import files and folders into the repository, making the resources available for checkout.  Be certain that the location you are importing does not contain any files you do not want to add to the repository, such as binary or compiled objects.</description>
 		<topic href="html/reference/import-folder.html" label="Reference: Team -> Import"/>
-		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
 	</context>
 
 	<context id="annotate_dialog_context">
@@ -242,7 +242,7 @@
 
 	<context id="sharing_select_repository_page_context">
 		<description>In this dialog you should choose the relevant repository location for the project you wish to share, or choose a new one.</description>
-		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
 		<topic href="html/faq/subversion-mapping.html" label="SVN Quick Reference" />
 		<topic href="html/reference/glossary.html" label="Glossary" />
 		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
@@ -250,8 +250,7 @@
 
 	<context id="sharing_new_repository_page_context">
 		<description>Specify the URL of the repository location.</description>
-		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Connecting to a SVN Repository"/>
-		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
 		<topic href="html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
 		<topic href="html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
 		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
@@ -259,13 +258,13 @@
 
 	<context id="sharing_module_page_context">
 		<description>Specify the name of the folder to create in the repository.</description>
-		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
 		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
 	</context>
 
 	<context id="sharing_finish_page_context">
 		<description>Press OK to confirm adding the project to the repository.</description>
-		<topic href="html/gettingstarted/connecting.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
 		<topic href="html/reference/share.html" label="Reference: Team -> Share" />
 	</context>
 
@@ -329,7 +328,7 @@
 	<!-- Relocate repository -->
 	<context id="relocate_page_context">
 		<description>This option exists for the sole purpose of changing the URL of your repository and updating the connected projects.</description>
-		<topic href="html/reference/relocate.html" label="Reference: Relocate Repository"/>
+		<topic href="html/reference/relocate-repository.html" label="Reference: Relocate Repository"/>
 	</context>
 
 	<!-- Change Revision Properties -->
