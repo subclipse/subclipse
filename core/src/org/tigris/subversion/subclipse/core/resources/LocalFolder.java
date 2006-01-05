@@ -63,6 +63,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
      * @see org.tigris.subversion.subclipse.core.ISVNFolder#members(org.eclipse.core.runtime.IProgressMonitor, int)
      */
     public ISVNResource[] members(IProgressMonitor monitor, int flags) throws SVNException {
+        if (!resource.exists()) return new ISVNLocalResource[0];
         final List result = new ArrayList();
         IResource[] resources;
         try {
