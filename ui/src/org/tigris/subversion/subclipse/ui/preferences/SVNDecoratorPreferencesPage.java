@@ -501,6 +501,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
         bindings.put(SVNDecoratorConfiguration.RESOURCE_URL, Policy.bind("SVNDecoratorPreferencesPage.remoteLocationVariable")); //$NON-NLS-1$                    
         bindings.put(SVNDecoratorConfiguration.RESOURCE_URL_SHORT, Policy.bind("SVNDecoratorPreferencesPage.remoteLocationVariableShort")); //$NON-NLS-1$                    
         bindings.put(SVNDecoratorConfiguration.RESOURCE_LABEL, Policy.bind("SVNDecoratorPreferencesPage.remoteLocationLabel")); //$NON-NLS-1$                    
+        bindings.put(SVNDecoratorConfiguration.RESOURCE_REVISION, Policy.bind("SVNDecoratorPreferencesPage.revisionResourceVariable")); //$NON-NLS-1$
         return bindings;
     }    
     
