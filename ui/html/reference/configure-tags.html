@@ -6,7 +6,7 @@
 <title>Configure Branches/Tags</title>
 </head>
 <body>
-<h1>Congfigure Branches/Tags</h1>
+<h1>Configure Branches/Tags</h1>
 <p>
 	In many ways, the support for branching and tagging in SVN represents a vast improvement over
 	CVS.  It certainly addresses many of the complaints with this feature in CVS.  There is one significant
@@ -49,7 +49,7 @@ revision_number,tag_name,relative_path,branch/tag
 	Once the property has been defined, there are a number of ways that the plug-in takes advantage of it.
 </p>
 
-<h3>History Browsing</h3>
+<h2>History Browsing</h2>
 <p>
 	The Resource History View contains a column to show the tags for a revision.
 </p>
@@ -62,7 +62,7 @@ revision_number,tag_name,relative_path,branch/tag
 	<tt>subclipse:tags</tt> property.  On a slow connection you probably would not want to do this.
 </p>
 
-<h3>Compare Revisions</h3>
+<h2>Compare Revisions</h2>
 <p>
 	The Compare with Revision ... option also contains a column to show tags in its history view.  This
 	makes it easy to know which revisions you want to compare.
@@ -71,7 +71,7 @@ revision_number,tag_name,relative_path,branch/tag
 	<img src="../images/compare_revision.png" alt="Revision Compare" />
 </p>
 
-<h3>URL Chooser</h3>
+<h2>URL Chooser</h2>
 <p>
 	The URL Chooser that allows you to pick a URL in many of the SVN dialogs also shows the
 	Branch/Tag information.  This allows you to just select a branch/tag and the proper URL to
@@ -81,9 +81,9 @@ revision_number,tag_name,relative_path,branch/tag
 	<img src="../images/choose_url.png" alt="Repository Browser" />
 </p>
 
-<h3>Updating the Property</h3>
+<h2>Updating the Property</h2>
 <p>
-	In addition to the <b>Configures Branches and Tags</b> option, there is also support
+	In addition to the <span class="name">Configures Branches and Tags</span> option, there is also support
 	for automatically updating the <tt>subclipse:tags</tt> property when you create a Branch/Tag
 	from within Eclipse.  When you take this option, if we the <tt>subclipse:tags</tt> property
 	exists on the item you selected, then a pop-up dialog will appear that allows you to
