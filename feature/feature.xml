@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.subclipse"
       label="Subclipse"
-      version="0.9.102"
+      version="1.1.0"
       provider-name="tigris.org"
       colocation-affinity="org.tigris.subversion.subclipse">
 
@@ -21,8 +21,8 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.0.x"/>
-      <discovery label="%updateSiteName" url="http://subclipse.tigris.org/update_1.0.x"/>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.1.x"/>
+      <discovery label="%updateSiteName" url="http://subclipse.tigris.org/update_1.1.x"/>
    </url>
 
    <requires>
@@ -45,25 +45,25 @@
          os="win32"
          download-size="1504"
          install-size="3376"
-         version="0.9.102"
+         version="1.1.0"
          fragment="true"/>
 
    <plugin
          id="org.tigris.subversion.subclipse.core"
          download-size="1160"
          install-size="1316"
-         version="0.9.102"/>
+         version="1.1.0"/>
 
    <plugin
          id="org.tigris.subversion.subclipse.ui"
          download-size="1912"
          install-size="2602"
-         version="0.9.102"/>
+         version="1.1.0"/>
          
    <plugin
          id="org.tigris.subversion.subclipse"
          download-size="3"
          install-size="4"
-         version="0.9.102"/>
+         version="1.1.0"/>
 
 </feature>

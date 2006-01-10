@@ -3,7 +3,7 @@
 <plugin
    id="org.tigris.subversion.subclipse"
    name="Subclipse"
-   version="0.9.102"
+   version="1.1.0"
    provider-name="tigris.org">
 
 </plugin>
