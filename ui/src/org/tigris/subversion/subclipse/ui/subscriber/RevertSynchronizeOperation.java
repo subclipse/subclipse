@@ -17,6 +17,7 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 	private IResource[] resources;
 	private IResource[] resourcesToRevert;
 	private boolean revert;
+	private boolean prompted;
 
 	public RevertSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, String url, IResource[] resources) {
 		super(configuration, elements);
@@ -29,6 +30,8 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 	}
 
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+		if (prompted) return;
+		prompted = true;
 		getShell().getDisplay().syncExec(new Runnable() {
 			public void run() {
 				if (resources == null || resources.length == 0) {

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.subscriber;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -20,10 +23,6 @@ import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
 import org.eclipse.team.ui.synchronize.SynchronizeModelOperation;
-import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.core.util.Util;
 
 /**
  * Put action that appears in the synchronize view. It's main purpose is
@@ -46,19 +45,16 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 	 * @see org.eclipse.team.ui.synchronize.SynchronizeModelAction#getSubscriberOperation(org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration, org.eclipse.compare.structuremergeviewer.IDiffElement[])
 	 */
 	protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
-		String url = null;
-	    IStructuredSelection selection = getStructuredSelection();
-	    if (selection.size() == 1) {
-	        ISynchronizeModelElement element = (ISynchronizeModelElement)selection.getFirstElement();
-		    IResource resource = element.getResource();
-		    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-            try {
-                url = svnResource.getStatus().getUrlString();
-                if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
-            } catch (SVNException e) {
-                e.printStackTrace();
-            }	    
-	    }
-	    return new CommitSynchronizeOperation(configuration, elements, url);
+		ArrayList selectedElements = new ArrayList();
+		IStructuredSelection selection = getStructuredSelection();
+		Iterator iter = selection.iterator();
+		while (iter.hasNext()) {
+			ISynchronizeModelElement synchronizeModelElement = (ISynchronizeModelElement)iter.next();
+			IResource resource = synchronizeModelElement.getResource();
+			selectedElements.add(resource);
+		}
+		IResource[] resources = new IResource[selectedElements.size()];
+		selectedElements.toArray(resources);
+	    return new CommitSynchronizeOperation(configuration, elements, resources);
 	}	
 }
