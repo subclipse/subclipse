@@ -11,12 +11,14 @@
 package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.RepositoryProvider;
@@ -89,6 +91,32 @@ public abstract class SVNSynchronizeOperation extends SynchronizeModelOperation 
 			set.add(info);
 		}
 		return map;
+	}
+
+    /**
+     * @param IResource[] selectedResources
+     * @param SyncInfoSet selections
+     * @return resources that belong to current project
+     * 
+     * The Synch view runs operations once for each selected
+     * project.  selectedResources contains all of the selected resources
+     * across projects so we need to reduce the array to just the selected 
+     * resources associated with the SyncInfoSet.  To do that we get the
+     * IProject associated with the first resource in the set, and then
+     * create an array from resources of just those resources that belong
+     * to the same IProject.
+     * 
+     */	
+	protected IResource[] extractResources(IResource[] selectedResources, SyncInfoSet set) {
+        IResource[] setResources = set.getResources();
+		IProject project = setResources[0].getProject();
+		ArrayList projectResources = new ArrayList();
+		for (int i = 0; i < selectedResources.length; i++) {
+			if (selectedResources[i].getProject().equals(project)) projectResources.add(selectedResources[i]);
+		}
+		IResource[] resourceArray = new IResource[projectResources.size()];
+		projectResources.toArray(resourceArray);
+        return resourceArray;		
 	}
 	
 	/**

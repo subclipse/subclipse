@@ -39,6 +39,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	}
 
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+		IResource[] resourceArray = extractResources(resources, set);
 		SVNRevision revision = null;
 		SyncInfo[] syncInfos = set.getSyncInfos();
 		for (int i = 0; i < syncInfos.length; i++) {
@@ -57,7 +58,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 			}
 		}
 		if (revision == null) revision = SVNRevision.HEAD;
-		new UpdateOperation(getPart(), resources, revision, true).run();
+		new UpdateOperation(getPart(), resourceArray, revision, true).run();
 	}
 
 }
