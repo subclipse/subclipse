@@ -165,6 +165,8 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 	private TableViewer tableHistoryViewer;
 	private TextViewer textViewer;
 	
+	private ISelection selection;
+	
     private Action openAction;
 	private TextViewerAction copyAction;
 	private TextViewerAction selectAllAction;
@@ -415,11 +417,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
     }
 
     private ISelection getSelection() {
-      if( tableHistoryViewer.getControl().isFocusControl()) {
-        return tableHistoryViewer.getSelection();
-      } else {
-        return changePathsViewer.getSelection();
-      }
+    	return selection;
     }
 
     // open remote file action (double-click)
@@ -946,6 +944,12 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 		sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
         tableHistoryViewer = createTableHistory(sashForm);
+        
+        tableHistoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				selection = tableHistoryViewer.getSelection();
+			}       	
+        });
 		
         IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
         createAffectedPathsViewer(store.getInt(ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT));
@@ -1696,6 +1700,12 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
           changePathsViewer.setContentProvider(new ChangePathsTableContentProvider(this));
           break;
       }
+      
+      changePathsViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+		public void selectionChanged(SelectionChangedEvent event) {
+			selection = changePathsViewer.getSelection();
+		}    	  
+      });
       
       changePathsViewer.getControl().addListener(SWT.DefaultSelection, new Listener() {
             public void handleEvent(Event e) {
