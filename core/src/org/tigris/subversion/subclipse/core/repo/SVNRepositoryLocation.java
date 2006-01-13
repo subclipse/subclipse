@@ -178,7 +178,10 @@ public class SVNRepositoryLocation
 		ISVNClientAdapter svnClient = getSVNClient();
 		ISVNDirEntry dirEntry = null;
 		try {
-			dirEntry = svnClient.getDirEntry(url, SVNRevision.HEAD);
+			if (this.getRepositoryRoot().equals(url))
+			    return new RemoteFile(this, url, SVNRevision.HEAD);
+			else
+			    dirEntry = svnClient.getDirEntry(url, SVNRevision.HEAD);
 		} catch (SVNClientException e) {
 			throw new SVNException(
 				"Can't get latest remote resource for "
