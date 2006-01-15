@@ -169,7 +169,9 @@ public class SVNProviderPlugin extends Plugin {
 		workspace.removeResourceChangeListener(fileModificationManager);
 
 		// save the state which includes the known repositories
-        repositories.shutdown();
+		if (repositories != null) {
+			repositories.shutdown();
+		}
 		
 		adapterFactories.shutdown(null);
         getPluginPreferences().removePropertyChangeListener(statusCacheManager);
