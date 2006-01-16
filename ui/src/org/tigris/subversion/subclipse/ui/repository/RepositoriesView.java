@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.repository;
 
+import java.util.Iterator;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -48,6 +50,7 @@ import org.eclipse.ui.help.WorkbenchHelp;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.part.WorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -88,6 +91,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
     private DrillDownAdapter drillPart; // Home, back, and "drill into"
     
     private Action refreshAction;
+    private Action refreshPopupAction;
     private Action collapseAllAction;
     private OpenRemoteFileAction openAction;
     private Action propertiesAction;
@@ -235,7 +239,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
         refreshAction = new Action(Policy.bind("RepositoriesView.refresh"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REFRESH_ENABLED)) { //$NON-NLS-1$
             public void run() {
-                refreshViewer(true);
+            	refreshViewer(true);
             }
         };
         refreshAction.setToolTipText(Policy.bind("RepositoriesView.refreshTooltip")); //$NON-NLS-1$
@@ -243,6 +247,12 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         refreshAction.setHoverImageDescriptor(plugin.getImageDescriptor(ISVNUIConstants.IMG_REFRESH));
         getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.REFRESH.getId(), refreshAction);
 
+        refreshPopupAction = new Action(Policy.bind("RepositoriesView.refreshPopup"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REFRESH)) { //$NON-NLS-1$
+            public void run() {
+            	refreshViewerNode();
+            }
+        };
+        
         // Collapse action
         collapseAllAction = new Action(Policy.bind("RepositoriesView.collapseAll"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_COLLAPSE_ALL_ENABLED)) { //$NON-NLS-1$
             public void run() {
@@ -301,7 +311,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         
         manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
-        manager.add(refreshAction);
+        manager.add(refreshPopupAction);
 
 	
 		IStructuredSelection selection = (IStructuredSelection)getViewer().getSelection();
@@ -452,6 +462,20 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         if (refreshRepositoriesFolders)
             SVNProviderPlugin.getPlugin().getRepositories().refreshRepositoriesFolders();
         treeViewer.refresh(); 
+    }
+    
+    protected void refreshViewerNode() {
+    	IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
+        Iterator iter = selection.iterator();
+        while (iter.hasNext()) {
+        	Object object = iter.next();
+        	if (object instanceof ISVNRepositoryLocation) {
+        		refreshAction.run();
+        		break;
+        	}
+        	if (object instanceof ISVNRemoteFolder) ((ISVNRemoteFolder)object).refresh();
+        	treeViewer.refresh(object); 
+        }
     }
     
     public void collapseAll() {
