@@ -15,6 +15,7 @@ import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.history.HistoryView;
@@ -23,6 +24,7 @@ import org.tigris.subversion.subclipse.ui.history.HistoryView;
 public class ShowHistorySynchronizeOperation extends SVNSynchronizeOperation {
     
     private IResource resource;
+    private ISVNRemoteResource remoteResource;
     
 	public final static int PROGRESS_DIALOG = 1;
 	public final static int PROGRESS_BUSYCURSOR = 2;
@@ -30,6 +32,11 @@ public class ShowHistorySynchronizeOperation extends SVNSynchronizeOperation {
     public ShowHistorySynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, IResource resource) {
         super(configuration, elements);
         this.resource = resource;
+    }
+    
+    public ShowHistorySynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, ISVNRemoteResource remoteResource) {
+        super(configuration, elements);
+        this.remoteResource = remoteResource;
     }
 
     protected boolean promptForConflictHandling(Shell shell, SyncInfoSet syncSet) {
@@ -43,7 +50,8 @@ public class ShowHistorySynchronizeOperation extends SVNSynchronizeOperation {
 					public void run() {
 						HistoryView view = (HistoryView)showView(HistoryView.VIEW_ID);
 						if (view != null) {
-						    view.showHistory(resource, true);
+							if (resource == null) view.showHistory(remoteResource, true); 
+							else view.showHistory(resource, true);
 						}					   
 					}
 				});   
