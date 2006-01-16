@@ -95,7 +95,7 @@ public class SvnPropertiesView extends ViewPart {
 		 */
 		public void resourceSyncInfoChanged(IResource[] changedResources) {
 			for (int i = 0; i < changedResources.length;i++) {
-				if (changedResources[i].equals(resource.getIResource())) {
+				if (resource != null && changedResources[i].equals(resource.getIResource())) {
 					refresh();
 				}
 			}
