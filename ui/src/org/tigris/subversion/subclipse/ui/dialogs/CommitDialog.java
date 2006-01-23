@@ -21,6 +21,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -112,12 +113,31 @@ public class CommitDialog extends Dialog {
 		Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        SashForm sashForm = new SashForm(composite, SWT.VERTICAL);
+        sashForm.setLayout(new GridLayout());
+        sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
+                
+        Composite cTop = new Composite(sashForm, SWT.NULL);
+        cTop.setLayout(new GridLayout());
+        cTop.setLayoutData(new GridData(GridData.FILL_BOTH));
+                
+        Composite cBottom1 = new Composite(sashForm, SWT.NULL);
+        cBottom1.setLayout(new GridLayout());
+        cBottom1.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        Composite cBottom2 = new Composite(cBottom1, SWT.NULL);
+        cBottom2.setLayout(new GridLayout());
+        cBottom2.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        sashForm.setWeights(new int[] {3, 4});
+
 		
 		if (projectProperties != null) {
-		    addBugtrackingArea(composite);
+		    addBugtrackingArea(cTop);
 		}
 
-		commitCommentArea.createArea(composite);
+		commitCommentArea.createArea(cTop);
 		commitCommentArea.addPropertyChangeListener(new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (event.getProperty() == CommitCommentArea.OK_REQUESTED)
@@ -125,7 +145,7 @@ public class CommitDialog extends Dialog {
 			}
 		});
 
-		addResourcesArea(composite);
+		addResourcesArea(cBottom2);
 				
 		// set F1 help
 		WorkbenchHelp.setHelp(composite, IHelpContextIds.RELEASE_COMMENT_DIALOG);	

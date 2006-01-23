@@ -113,8 +113,12 @@ public class BranchTagDialog extends Dialog {
 		Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        Composite top = new Composite(composite, SWT.NULL);
+        top.setLayout(new GridLayout());
+        top.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		Group repositoryGroup = new Group(composite, SWT.NULL);
+		Group repositoryGroup = new Group(top, SWT.NULL);
 		repositoryGroup.setText(Policy.bind("BranchTagDialog.repository")); //$NON-NLS-1$
 		repositoryGroup.setLayout(new GridLayout());
 		GridData data = new GridData(GridData.FILL_BOTH);
@@ -231,12 +235,12 @@ public class BranchTagDialog extends Dialog {
 		workingCopyButton.addSelectionListener(selectionListener);
 		
 		if (resource != null) {
-			Label label = createWrappingLabel(composite);
+			Label label = createWrappingLabel(top);
 			label.setText(Policy.bind("BranchTagDialog.note")); //$NON-NLS-1$ 
 		}
 		
 		if (projectProperties != null) {
-		    addBugtrackingArea(composite);
+		    addBugtrackingArea(top);
 		}
 		
 		commitCommentArea.createArea(composite);

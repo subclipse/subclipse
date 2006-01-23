@@ -10,6 +10,7 @@ import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
@@ -79,13 +80,30 @@ public class LockDialog extends Dialog {
 		Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        SashForm sashForm = new SashForm(composite, SWT.VERTICAL);
+        sashForm.setLayout(new GridLayout());
+        sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
+                
+        Composite cTop = new Composite(sashForm, SWT.NULL);
+        cTop.setLayout(new GridLayout());
+        cTop.setLayoutData(new GridData(GridData.FILL_BOTH));
+                
+        Composite cBottom1 = new Composite(sashForm, SWT.NULL);
+        cBottom1.setLayout(new GridLayout());
+        cBottom1.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        Composite cBottom2 = new Composite(cBottom1, SWT.NULL);
+        cBottom2.setLayout(new GridLayout());
+        cBottom2.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		commitCommentArea.createArea(composite);
+		commitCommentArea.createArea(cTop);
+        
+        addResourcesArea(cBottom2);
 		
-		stealButton = new Button(composite, SWT.CHECK);
+		stealButton = new Button(cBottom2, SWT.CHECK);
 		stealButton.setText(Policy.bind("LockDialog.stealLock")); //$NON-NLS-1$
 		
-		addResourcesArea(composite);
 
 		// set F1 help
 		WorkbenchHelp.setHelp(composite, IHelpContextIds.LOCK_DIALOG);	

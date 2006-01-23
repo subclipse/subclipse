@@ -39,7 +39,7 @@ import org.tigris.subversion.subclipse.ui.util.RuleredText;
 public class CommitCommentArea extends DialogArea {
 
 	private static final int WIDTH_HINT = 350;
-	private static final int HEIGHT_HINT = 150;
+	private static final int HEIGHT_HINT = 50;
 	
 	private String enterCommentMessage;
 	private String oldComment;
