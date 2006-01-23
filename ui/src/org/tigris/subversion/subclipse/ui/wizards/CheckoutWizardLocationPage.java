@@ -1,5 +1,7 @@
 package org.tigris.subversion.subclipse.ui.wizards;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -20,6 +22,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.repo.RepositoryComparator;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.util.AdaptableList;
@@ -86,6 +89,7 @@ public class CheckoutWizardLocationPage extends WizardPage {
 	
 	public void refreshLocations() {
         ISVNRepositoryLocation[] locations = SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations();
+        Arrays.sort(locations, new RepositoryComparator());
         AdaptableList input = new AdaptableList(locations);
         table.setInput(input);
         if (locations.length == 0) {
