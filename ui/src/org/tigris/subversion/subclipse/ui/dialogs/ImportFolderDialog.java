@@ -104,7 +104,7 @@ public class ImportFolderDialog extends Dialog {
 			}
 		});
 		
-		recurseButton = new Button(composite, SWT.CHECK);
+		recurseButton = new Button(repositoryGroup, SWT.CHECK);
 		recurseButton.setText(Policy.bind("ImportFolderDialog.recurse"));
 		recurseButton.setSelection(true);
 		
