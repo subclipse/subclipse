@@ -133,8 +133,12 @@ public class ProjectProperties {
     }
     
     public static LinkList getUrls(String s) {
-    	int max = s.length();
-    	int i = s.indexOf(URL);
+        int max = 0;
+        int i = -1;
+        if (s != null) {
+            max = s.length();
+            i = s.indexOf(URL);
+        }
     	ArrayList linkRanges = new ArrayList();
     	ArrayList links = new ArrayList();
     	while (i != -1) {

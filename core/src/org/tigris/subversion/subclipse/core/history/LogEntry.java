@@ -89,6 +89,8 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 		if (messageOverride != null) {
 			return messageOverride;
 		}
+		if (logMessage.getMessage() == null)
+		    return "";
 		return logMessage.getMessage();
 	}
 
