@@ -7,9 +7,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.commands.ImportCommand;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class ImportOperation extends SVNOperation {
 	private File directory;
@@ -38,13 +37,11 @@ public class ImportOperation extends SVNOperation {
 	 */
 	protected void execute(IProgressMonitor monitor) throws SVNException,
 			InterruptedException {
+
+	    monitor.beginTask(null, 100);
 		try {
-			ISVNClientAdapter client = folder.getRepository().getSVNClient();
-			try {
-				client.doImport(directory, folder.getUrl(), commitComment, recurse);
-			} catch (SVNClientException e) {
-				throw SVNException.wrapException(e);
-			}
+		    ImportCommand command = new ImportCommand(folder, directory, commitComment, recurse);
+	        command.run(monitor);
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		} finally {
