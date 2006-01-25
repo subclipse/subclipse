@@ -140,9 +140,9 @@ public class CommitAction extends WorkspaceAction {
 			                 	if ((currentResource.getType() != IResource.FILE) && !isSymLink(currentResource))
 			                 		unversionedFolders.add(currentResource);
 			                 	else
-					                modified.add(currentResource);
+					                if (!modified.contains(currentResource)) modified.add(currentResource);
 			                 } else
-				                 modified.add(currentResource);
+			                	 if (!modified.contains(currentResource)) modified.add(currentResource);
 			             }
 			         }
 			     }
@@ -151,7 +151,7 @@ public class CommitAction extends WorkspaceAction {
 	    // get unadded resources and add them to the list.
 	    IResource[] unaddedResources = getUnaddedResources(unversionedFolders, iProgressMonitor);
 	    for (int i = 0; i < unaddedResources.length; i++)
-	        modified.add(unaddedResources[i]);
+	    	if (!modified.contains(unaddedResources[i])) modified.add(unaddedResources[i]);
 	    return (IResource[]) modified.toArray(new IResource[modified.size()]);
 	}
 
