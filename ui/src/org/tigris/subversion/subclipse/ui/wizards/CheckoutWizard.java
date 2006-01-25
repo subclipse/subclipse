@@ -48,6 +48,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 
 	private CheckoutWizardProjectPage projectPage;
 
+	private IProject project;
 	private String projectName;
 	private boolean hasProjectFile;
 	private ISVNRepositoryLocation repositoryLocation;
@@ -107,6 +108,9 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 						SVNUIPlugin.getPlugin().getImageDescriptor(
 								ISVNUIConstants.IMG_WIZBAN_SHARE));
 				addPage(checkoutAsWithProjectFilePage);
+				if (remoteFolders != null && remoteFolders.length == 1) {
+					if (project != null) checkoutAsWithProjectFilePage.setProjectName(project.getName());
+				}
 			}
 			if (remoteFolders == null || !hasProjectFile) {
 				checkoutAsWithoutProjectFilePage = new CheckoutWizardCheckoutAsWithoutProjectFilePage(
@@ -155,8 +159,8 @@ public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
 							if (hasProjectFile) {
 								if (checkoutAsWithProjectFilePage != null) {
 									checkoutAsWithProjectFilePage.setText(Policy.bind("CheckoutWizardCheckoutAsPage.single", remoteFolders[0].getName())); //$NON-NLS-1$
-									IProject project = SVNWorkspaceRoot.getProject(remoteFolders[0],null);
-									checkoutAsWithProjectFilePage.setProject(project.getName());
+//									IProject project = SVNWorkspaceRoot.getProject(remoteFolders[0],null);
+//									checkoutAsWithProjectFilePage.setProject(project.getName());
 //									checkoutAsWithProjectFilePage.setProject(remoteFolders[0].getName());
 								}
 							} else {
@@ -258,6 +262,7 @@ public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
 			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
 			client.getInfo(new SVNUrl(url));
 			hasProjectFile = true;
+			project = SVNWorkspaceRoot.getProject(folder,null);
 		} catch (Exception e) {
 			hasProjectFile = false;
 		}		

@@ -23,6 +23,7 @@ public class CheckoutWizardCheckoutAsWithProjectFilePage extends WizardPage {
 	private Button projectButton;
 	private Text projectText;
 	private Button existingButton;
+	private String projectName;
 
 	public CheckoutWizardCheckoutAsWithProjectFilePage(String pageName, String title, ImageDescriptor titleImage) {
 		super(pageName, title, titleImage);
@@ -71,7 +72,9 @@ public class CheckoutWizardCheckoutAsWithProjectFilePage extends WizardPage {
 		data = new GridData();
 		data.widthHint = 300;
 		projectText.setLayoutData(data);
-		if (remoteFolders != null) projectText.setText(remoteFolders[0].getName());
+		if (projectName == null) {
+			if (remoteFolders != null) projectText.setText(remoteFolders[0].getName());
+		} else projectText.setText(projectName);
 		projectText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				CheckoutWizard wizard = (CheckoutWizard)getWizard();
@@ -117,6 +120,10 @@ public class CheckoutWizardCheckoutAsWithProjectFilePage extends WizardPage {
 	
 	private boolean canFinish() {
 		return !projectButton.getSelection() || projectText.getText().trim().length() > 0;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
 	}
 
 }
