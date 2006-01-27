@@ -33,7 +33,8 @@ public interface IHelpContextIds {
 	public static final String MERGE_DIALOG = PREFIX + "merge_dialog_context"; //$NON-NLS-1$
 	public static final String BRANCH_TAG_DIALOG = PREFIX + "branch_tag_dialog_context"; //$NON-NLS-1$
 	public static final String REVERT_DIALOG = PREFIX + "revert_dialog_context"; //$NON-NLS-1$
-		
+	public static final String COMMIT_DIALOG = PREFIX + "commit_dialog_context"; //$NON-NLS-1$
+	
 	public static final String IMPORT_FOLDER_DIALOG = PREFIX + "import_folder_dialog_context"; //$NON-NLS-1$;
 	public static final String ANNOTATE_DIALOG = PREFIX + "annotate_dialog_context"; //$NON-NLS-1$;
 	public static final String SET_SVN_PROPERTY_DIALOG = PREFIX + "set_svn_property_dialog_context"; //$NON_NLS-1$

@@ -155,7 +155,7 @@ public class CommitDialog extends Dialog {
 		addResourcesArea(cBottom2);
 				
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.RELEASE_COMMENT_DIALOG);	
+		WorkbenchHelp.setHelp(composite, IHelpContextIds.COMMIT_DIALOG);	
 		
 		return composite;
 	}

@@ -116,10 +116,18 @@
 	</context>
 
 	<context id="revert_dialog_context">
-		<description>You may choose which changes you wish to revert to the pristine state (this may differ from the state currently found in the repository). Reverting doesn't connect to the repository, all the pristine data are stored within your working copy.</description>
+		<description>You may choose which changes you wish to revert to the pristine state (this may differ from the state currently found in the repository). Reverting doesn't connect to the repository, all the pristine data are stored within your working copy. Double-click on a file in the list to view the differences.</description>
 		<topic href="html/reference/revert.html" label="Reference: Team -> Revert"/>
 	</context>
 
+	<context id="commit_dialog_context">
+        <description>You may choose the changes you with to commit. Double-click on a file in the list to view the differences. You should also enter a "commit message" or "log message" associated with the revision that you are comitting. This is the text that will also be shown in SVN History view for the changed resource(s).</description>
+        <topic href="html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit" />
+        <topic href="html/reference/commit.html" label="Reference: Team -> Commit" />
+        <topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
+        <topic href="html/reference/issuetracker.html" label="Tips: Issue Tracker Integration" />
+    </context>
+  
 	<context id="disconnect_action_context">
 		<description>You can choose between erasing the SVN meta-data information or keeping it. Should you choose to keep the SVN directories, you may reconnect by choosing "Share" in the Team menu and selecting the "SVN" repository type. If you are in doubt, keep the '.svn' directories so you can continue tracking the contents against the repository.</description>
 		<topic href="html/reference/disconnect.html" label="Reference: Team -> Disconnect"/>
