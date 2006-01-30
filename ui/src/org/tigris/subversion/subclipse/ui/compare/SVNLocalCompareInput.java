@@ -54,6 +54,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	private ISVNLocalResource resource;
 	private Shell shell;
 	private final ISVNRemoteResource remoteResource; // the remote resource to compare to or null if it does not exist
+	private boolean readOnly;
 	
     /**
      * Differencer that only uses teh status to determine if a file has changed
@@ -173,19 +174,29 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	
 	/**
 	 * @throws SVNException
-	 * creates a SVNCompareRevisionsInput  
+	 * creates a SVNLocalCompareInput, allows setting whether the current local resource is read only or not.
 	 */
-	public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision) throws SVNException {
+	public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision, boolean readOnly) throws SVNException {
 		super(new CompareConfiguration());
         this.remoteRevision = revision;
-		this.resource = resource;
+        this.readOnly = readOnly;
+        this.resource = resource;
 		// SVNRevision can be any valid revision : BASE, HEAD, number ...
 		this.remoteResource = resource.getRemoteResource(revision);
         
         // remoteResouce can be null if there is no corresponding remote resource
         // (for example no base because resource has just been added)
 	}
-	
+
+	/**
+	 * Constructor which allows 
+	 * @throws SVNException
+	 * creates a SVNLocalCompareInput, defaultin to read/write.  
+	 */
+	public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision) throws SVNException {
+		this(resource, revision, false);
+	}
+
 	/**
 	 * @throws SVNException
 	 * creates a SVNCompareRevisionsInput  
@@ -205,7 +216,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 		CompareConfiguration cc = getCompareConfiguration();
 		String resourceName = resource.getName();	
 		setTitle(Policy.bind("SVNCompareRevisionsInput.compareResourceAndVersions", new Object[] {resourceName})); //$NON-NLS-1$
-		cc.setLeftEditable(true);
+		cc.setLeftEditable(! readOnly);
 		cc.setRightEditable(false);
 		
 		String leftLabel = Policy.bind("SVNCompareRevisionsInput.workspace", new Object[] {resourceName}); //$NON-NLS-1$

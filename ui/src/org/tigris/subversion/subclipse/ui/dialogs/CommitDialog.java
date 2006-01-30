@@ -217,7 +217,7 @@ public class CommitDialog extends Dialog {
 					final ISVNLocalResource localResource= SVNWorkspaceRoot.getSVNResourceFor((IFile)sel0);
 					try {
 						CompareUI.openCompareDialog(
-								new SVNLocalCompareInput(localResource, SVNRevision.BASE));
+								new SVNLocalCompareInput(localResource, SVNRevision.BASE, true));
 					} catch (SVNException e1) {
 					}
 				}
