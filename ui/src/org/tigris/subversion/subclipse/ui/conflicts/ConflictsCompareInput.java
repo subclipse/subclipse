@@ -15,12 +15,17 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
+import org.eclipse.compare.IContentChangeListener;
+import org.eclipse.compare.IContentChangeNotifier;
 import org.eclipse.compare.ITypedElement;
+import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.compare.structuremergeviewer.Differencer;
+import org.eclipse.compare.structuremergeviewer.IDiffContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.internal.BufferedResourceNode;
 import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
@@ -38,6 +43,22 @@ import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
  * </p>
  */
 public class ConflictsCompareInput extends CompareEditorInput {
+    
+    /**
+     * This class is only here so we can make the fireChange method public.
+     * We want to invoke this when we do a save so that the synchronization
+     * markers get updated. 
+     */
+    public static class MyDiffNode extends DiffNode {
+        public MyDiffNode(IDiffContainer parent, int kind, ITypedElement ancestor, ITypedElement left, ITypedElement right) {
+            super(parent, kind, ancestor, left, right);
+        }
+         
+        public void fireChange() {
+            super.fireChange();
+        }
+    }
+    
     private Object fRoot;
 
     private BufferedResourceNode fAncestor;
@@ -57,6 +78,9 @@ public class ConflictsCompareInput extends CompareEditorInput {
     // we use this trick because we can't use setDirty which does not work as I
     // expected
     private boolean neverSaved = true;
+    
+    // use this to avoid recursion in saveChanges
+    private boolean isSaving = false;
 
     /**
      * Creates an compare editor input for the given selection.
@@ -98,8 +122,8 @@ public class ConflictsCompareInput extends CompareEditorInput {
         cc.setRightLabel(rightLabel);
 
         cc.setAncestorLabel(ancestorLabel);
-    }
-
+    }    
+    
     /*
      * (non-Javadoc)
      * 
@@ -135,7 +159,7 @@ public class ConflictsCompareInput extends CompareEditorInput {
                     return ConflictsCompareInput.this.getType();
                 }
             };
-
+            
             InputStream mineContents = fMineResource.getContents();
             byte[] contents;
             try {
@@ -146,6 +170,22 @@ public class ConflictsCompareInput extends CompareEditorInput {
             }
             
             fLeft.setContent(contents);
+
+            // add after setting contents, otherwise we end up in a loop
+            // makes sure that the diff gets re-run if we right-click and select Save on the left pane.
+            // Requires that we have a isSaving flag to avoid recursion
+            fLeft.addContentChangeListener( new IContentChangeListener() {            
+                public void contentChanged(IContentChangeNotifier source) {
+                    if (!isSaving) {
+                        try {                    
+                            saveChanges(new NullProgressMonitor());
+                        } catch (CoreException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }            
+            });
+
             fRight = new BufferedResourceNode(fTheirsResource) {
                 public String getType() {
                     return ConflictsCompareInput.this.getType();
@@ -159,7 +199,14 @@ public class ConflictsCompareInput extends CompareEditorInput {
             String title = "Conflicts on " + fDestinationResource.getName();
             setTitle(title);
 
-            Differencer d = new Differencer();
+            // Override the default difference visit method to use MyDiffNode 
+            // instead of just DiffNode
+            Differencer d = new Differencer()
+            {
+                protected Object visit(Object data, int result, Object ancestor, Object left, Object right) {
+                    return new MyDiffNode((IDiffContainer) data, result, (ITypedElement)ancestor, (ITypedElement)left, (ITypedElement)right);
+                }
+            };
 
             fRoot = d.findDifferences(true, pm, null, fAncestor, fLeft, fRight);
             return fRoot;
@@ -178,9 +225,15 @@ public class ConflictsCompareInput extends CompareEditorInput {
      * @see org.eclipse.compare.CompareEditorInput#saveChanges(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void saveChanges(IProgressMonitor pm) throws CoreException {
-        super.saveChanges(pm);
-        fLeft.commit(pm);
-        neverSaved = false;
+        try {
+            isSaving = true;
+            super.saveChanges(pm);
+            fLeft.commit(pm);
+            neverSaved = false;
+            ((MyDiffNode)fRoot).fireChange();
+        } finally {
+            isSaving = false;
+        }
     }
 
     public boolean isSaveNeeded() {
