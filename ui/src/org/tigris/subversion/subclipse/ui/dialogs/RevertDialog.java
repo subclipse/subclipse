@@ -144,8 +144,8 @@ public class RevertDialog extends Dialog {
 				if (sel0 instanceof IFile) {
 					final ISVNLocalResource localResource= SVNWorkspaceRoot.getSVNResourceFor((IFile)sel0);
 					try {
-						CompareUI.openCompareDialog(
-								new SVNLocalCompareInput(localResource, SVNRevision.BASE, true));
+						new CompareDialog(getShell(),
+							new SVNLocalCompareInput(localResource, SVNRevision.BASE, true)).open();
 					} catch (SVNException e1) {
 					}
 				}

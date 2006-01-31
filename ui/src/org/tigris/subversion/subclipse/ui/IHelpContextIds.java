@@ -34,6 +34,7 @@ public interface IHelpContextIds {
 	public static final String BRANCH_TAG_DIALOG = PREFIX + "branch_tag_dialog_context"; //$NON-NLS-1$
 	public static final String REVERT_DIALOG = PREFIX + "revert_dialog_context"; //$NON-NLS-1$
 	public static final String COMMIT_DIALOG = PREFIX + "commit_dialog_context"; //$NON-NLS-1$
+	public static final String COMPARE_DIALOG = PREFIX + "compare_dialog_context"; //$NON-NLS-1$
 	
 	public static final String IMPORT_FOLDER_DIALOG = PREFIX + "import_folder_dialog_context"; //$NON-NLS-1$;
 	public static final String ANNOTATE_DIALOG = PREFIX + "annotate_dialog_context"; //$NON-NLS-1$;

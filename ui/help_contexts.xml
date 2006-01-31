@@ -127,6 +127,12 @@
         <topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
         <topic href="html/reference/issuetracker.html" label="Tips: Issue Tracker Integration" />
     </context>
+
+	<context id="compare_dialog_context">
+        <description>You can inspect the differences between your edited version of the file, and the version in the repository.</description>
+        <topic href="html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit" />
+        <topic href="html/reference/history-view.html" label="Reference: SVN Resource History View" />
+    </context>
   
 	<context id="disconnect_action_context">
 		<description>You can choose between erasing the SVN meta-data information or keeping it. Should you choose to keep the SVN directories, you may reconnect by choosing "Share" in the Team menu and selecting the "SVN" repository type. If you are in doubt, keep the '.svn' directories so you can continue tracking the contents against the repository.</description>
