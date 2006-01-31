@@ -3,7 +3,6 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.Dialog;
