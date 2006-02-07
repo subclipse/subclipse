@@ -999,5 +999,14 @@ For example:
 		</description>
       </svnPropertyTypes>                      
    </extension>	  
+   <extension
+         point="org.eclipse.jdt.ui.javaElementFilters">
+      <filter
+            class="org.tigris.subversion.subclipse.ui.SVNConflictsFilter"
+            description="%SVNConflictFilter.description"
+            enabled="false"
+            id="org.tigris.subversion.subclipse.conflictFilter"
+            name="%SVNConflictFilter.name"/>
+   </extension>	  
 
 </plugin>

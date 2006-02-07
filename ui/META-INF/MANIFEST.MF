@@ -20,7 +20,9 @@ Require-Bundle: org.tigris.subversion.subclipse.core,
  org.eclipse.compare,
  org.eclipse.osgi,
  org.eclipse.ui.console,
- org.eclipse.help
+ org.eclipse.help,
+ org.eclipse.jdt.ui;optional=true,
+ org.eclipse.jdt.core;optional=true
 Eclipse-AutoStart: true
 Provide-Package: org.tigris.subversion.subclipse.ui,
  org.tigris.subversion.subclipse.ui.actions,
