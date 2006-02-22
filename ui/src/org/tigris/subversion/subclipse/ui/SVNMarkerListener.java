@@ -16,7 +16,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 
@@ -24,7 +23,6 @@ public class SVNMarkerListener implements IResourceStateChangeListener {
 
     public SVNMarkerListener() {
         super();
-        SVNProviderPlugin.addResourceStateChangeListener(this);
     }
 
     /* (non-Javadoc)

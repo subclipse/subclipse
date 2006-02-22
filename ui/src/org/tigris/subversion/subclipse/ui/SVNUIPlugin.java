@@ -394,6 +394,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		preferences.initializePreferences();
 		
 		markerListener = new SVNMarkerListener();
+        SVNProviderPlugin.addResourceStateChangeListener(markerListener);
 		
 //		// if the global ignores list is changed then update decorators.
 		//TeamUI.getSynchronizeManager().addSynchronizeParticipants(new ISynchronizeParticipant[]{new SVNWorkspaceSynchronizeParticipant()});
