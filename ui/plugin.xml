@@ -752,13 +752,6 @@
       </page>
    </extension>
    <extension
-         point="org.eclipse.ui.ide.markerResolution">
-      <markerResolutionGenerator
-            markerType="org.tigris.subversion.subclipse.core.svnremove"
-            class="org.tigris.subversion.subclipse.ui.markers.SVNRemoveResolutionGenerator">
-      </markerResolutionGenerator>
-   </extension>
-   <extension
          point="org.eclipse.ui.propertyPages">
       <page
             objectClass="org.eclipse.core.resources.IResource"
