@@ -118,7 +118,7 @@
 	      	   name = "%CheckoutWizard.name"
 		   class="org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard"
 		   category="org.tigris.subversion.subclipse.ui.svn"
-		   icon="icons/full/wizards/newConnect_wiz.gif">
+		   icon="icons/full/wizards/newconnect_wiz.gif">
 	    	   <description>%CheckoutWizard.desc</description>
 		</wizard>
 	</extension>
@@ -129,7 +129,7 @@
 		   id = "org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard"
 	      	   name = "%CheckoutWizard.name"
 		   class="org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard"
-		   icon="icons/full/wizards/newConnect_wiz.gif">
+		   icon="icons/full/wizards/newconnect_wiz.gif">
 	    	   <description>%CheckoutWizard.desc</description>
 		</wizard>
 	</extension>	
