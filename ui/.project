@@ -3,7 +3,6 @@
 	<name>ui</name>
 	<comment></comment>
 	<projects>
-		<project>core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
