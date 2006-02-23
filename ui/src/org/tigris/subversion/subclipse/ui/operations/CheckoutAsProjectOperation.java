@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -34,9 +35,10 @@ public class CheckoutAsProjectOperation extends SVNOperation {
     public void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
         monitor.beginTask(null, remoteFolders.length * 1000);
         for (int i = 0; i < remoteFolders.length; i++) {
-            IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000); 
+            IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
+            ISchedulingRule rule = localFolders[i].getWorkspace().getRuleFactory().modifyRule(localFolders[i]);
 			try {
-				Platform.getJobManager().beginRule(localFolders[i], monitor);
+				Platform.getJobManager().beginRule(rule, monitor);
 				monitor.setTaskName(Policy.bind("CheckoutAsProjectOperation.0", remoteFolders[i].getName())); //$NON-NLS-1$
 				IProject[] local = new IProject[1];
 				local[0] = localFolders[i];
@@ -44,7 +46,7 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 				remote[0] = remoteFolders[i];
 				execute(remote, local, subMonitor);
 			} finally {
-				Platform.getJobManager().endRule(localFolders[i]);
+				Platform.getJobManager().endRule(rule);
 			}            
         }
     }
