@@ -13,7 +13,7 @@ public class EditConflictsResolution implements IMarkerResolution {
     }
 
     public String getLabel() {
-        return Policy.bind("SyncAction.conflicts"); //$NON-NLS-1$
+        return Policy.bind("EditConflicts.Label"); //$NON-NLS-1$
     }
 
     public void run(IMarker marker) {
