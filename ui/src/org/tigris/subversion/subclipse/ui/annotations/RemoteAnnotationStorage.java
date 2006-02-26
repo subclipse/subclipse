@@ -19,12 +19,15 @@ import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.Status;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class RemoteAnnotationStorage extends PlatformObject implements IEncodedStorage  {
 
@@ -75,7 +78,18 @@ public class RemoteAnnotationStorage extends PlatformObject implements IEncodedS
 	 * @see org.eclipse.core.resources.IStorage#getFullPath()
 	 */
 	public IPath getFullPath() {
-		return null;
+		ISVNRepositoryLocation location = file.getRepository();
+		SVNUrl repositoryUrl = location.getRepositoryRoot();
+		String[] segments = repositoryUrl.getPathSegments();
+		
+		IPath path = new Path(null, "/");
+		for (int i = 0; i < segments.length; i++) {
+			path = path.append(segments[i]);
+		}
+		
+		path = path.setDevice(repositoryUrl.getHost() + IPath.DEVICE_SEPARATOR);
+		path = path.append(file.getRepositoryRelativePath());
+		return path;
 	}
 	
 	/*
