@@ -41,18 +41,29 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 		IResource[] resourceArray = extractResources(resources, set);
 		SVNRevision revision = null;
-		SyncInfo[] syncInfos = set.getSyncInfos();
-		for (int i = 0; i < syncInfos.length; i++) {
-			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
-			IResourceVariant remote = syncInfo.getRemote();
-			if (remote != null && remote instanceof ISVNRemoteResource) {
-				SVNRevision rev = ((ISVNRemoteResource)remote).getLastChangedRevision();
-				if (rev instanceof SVNRevision.Number) {
-					long nbr = ((SVNRevision.Number)rev).getNumber();
-					if (revision == null) revision = rev;
-					else {
-						long revisionNumber = ((SVNRevision.Number)revision).getNumber();
-						if (nbr > revisionNumber) revision = rev;
+		// If any folders are selected, we will update to HEAD so as
+		// to not back-revision any committed files which could be at
+		// a higher rev than the selected files
+		for (int i = 0; i < resourceArray.length; i++) {
+            if (resourceArray[i].getType() != IResource.FILE) {
+                revision = SVNRevision.HEAD;
+                break;
+            }
+        }
+		if (revision == null) {
+			SyncInfo[] syncInfos = set.getSyncInfos();
+			for (int i = 0; i < syncInfos.length; i++) {
+				SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
+				IResourceVariant remote = syncInfo.getRemote();
+				if (remote != null && remote instanceof ISVNRemoteResource) {
+					SVNRevision rev = ((ISVNRemoteResource)remote).getLastChangedRevision();
+					if (rev instanceof SVNRevision.Number) {
+						long nbr = ((SVNRevision.Number)rev).getNumber();
+						if (revision == null) revision = rev;
+						else {
+							long revisionNumber = ((SVNRevision.Number)revision).getNumber();
+							if (nbr > revisionNumber) revision = rev;
+						}
 					}
 				}
 			}
