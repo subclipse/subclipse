@@ -125,7 +125,6 @@ public class AddResourcesCommand implements ISVNCommand {
   
                 try {
                     svnClient.addDirectory(localResource.getIResource().getLocation().toFile(),false);
-                    localResource.refreshStatus();
                 } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 }
@@ -139,7 +138,6 @@ public class AddResourcesCommand implements ISVNCommand {
                     // If file has read-only attribute set, remove it
                     if (localResource.getIResource().getType() == IResource.FILE && localResource.getIResource().isReadOnly())
                         localResource.getIResource().setReadOnly(false);
-                    localResource.refreshStatus();
                 } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 }    
