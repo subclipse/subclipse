@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
-import org.eclipse.team.core.synchronize.FastSyncInfoFilter.SyncInfoDirectionFilter;
 import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
@@ -35,8 +34,27 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 	 * @see org.eclipse.team.ui.synchronize.SynchronizeModelAction#getSyncInfoFilter()
 	 */
 	protected FastSyncInfoFilter getSyncInfoFilter() {
-		return new SyncInfoDirectionFilter(new int[] {SyncInfo.OUTGOING, SyncInfo.CONFLICTING});
-	}
+		return new FastSyncInfoFilter() {
+			public boolean select(SyncInfo info) {
+				SyncInfoDirectionFilter outgoingFilter = new SyncInfoDirectionFilter(new int[] {SyncInfo.OUTGOING, SyncInfo.CONFLICTING});
+			    if (!outgoingFilter.select(info)) return false;
+			    IStructuredSelection selection = getStructuredSelection();
+			    Iterator iter = selection.iterator();
+			    while (iter.hasNext()) {
+			    	ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
+			    	IResource resource = element.getResource();
+			    	if (resource.isLinked()) return false;
+	                ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);			    
+	                try {
+	                	if (!svnResource.isManaged()) return false;
+	                } catch (SVNException e) {
+	                    return false;
+	                }
+			    }
+                return true;
+			}
+		};
+	}    
 
     protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
 		url = null;
