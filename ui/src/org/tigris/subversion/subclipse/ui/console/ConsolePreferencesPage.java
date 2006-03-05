@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -61,7 +61,7 @@ public class ConsolePreferencesPage extends FieldEditorPreferencePage implements
                 Policy.bind("ConsolePreferencePage.showOnError"), composite); //$NON-NLS-1$
         addField(showOnError);
 
-        WorkbenchHelp.setHelp(getControl(), IHelpContextIds.CONSOLE_PREFERENCE_PAGE);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IHelpContextIds.CONSOLE_PREFERENCE_PAGE);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class ConsolePreferencesPage extends FieldEditorPreferencePage implements
 	 */
 	private ColorFieldEditor createColorFieldEditor(String preferenceName, String label, Composite parent) {
 		ColorFieldEditor editor = new ColorFieldEditor(preferenceName, label, parent);
-		editor.setPreferencePage(this);
+		editor.setPage(this);
 		editor.setPreferenceStore(getPreferenceStore());
 		return editor;
 	}

@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.ui.console;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
@@ -23,13 +24,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IConsoleView;
-import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.console.IOConsole;
+import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.IPageSite;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -48,16 +49,16 @@ import org.tigris.subversion.svnclientadapter.SVNNodeKind;
  * 
  * @since 3.0 
  */
-public class SVNOutputConsole extends MessageConsole implements IConsoleListener, IPropertyChangeListener {
+public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPropertyChangeListener {
 	// created colors for each line type - must be disposed at shutdown
 	private Color commandColor;
 	private Color messageColor;
 	private Color errorColor;
 	
 	// streams for each command type - each stream has its own color
-	private MessageConsoleStream commandStream;
-	private MessageConsoleStream messageStream;
-	private MessageConsoleStream errorStream;
+	private IOConsoleOutputStream commandStream;
+	private IOConsoleOutputStream messageStream;
+	private IOConsoleOutputStream errorStream;
 	
 	// preferences for showing the SVN console when SVN output is provided
     private boolean showOnError;
@@ -107,7 +108,7 @@ public class SVNOutputConsole extends MessageConsole implements IConsoleListener
 		document = new ConsoleDocument();
 		SVNProviderPlugin.getPlugin().setConsoleListener(SVNOutputConsole.this);
 		SVNUIPlugin.getPlugin().getPreferenceStore().addPropertyChangeListener(SVNOutputConsole.this);
-		showConsole(false);
+		showConsole(true);
 	}
 	
 	/* (non-Javadoc)
@@ -133,9 +134,9 @@ public class SVNOutputConsole extends MessageConsole implements IConsoleListener
 	private void initializeStreams() {
 		synchronized(document) {
 			if (!initialized) {
-				commandStream = newMessageStream();
-				errorStream = newMessageStream();
-				messageStream = newMessageStream();
+				commandStream = newOutputStream();
+				errorStream = newOutputStream();
+				messageStream = newOutputStream();
 				// install colors
 				commandColor = createColor(SVNUIPlugin.getStandardDisplay(), ISVNUIConstants.PREF_CONSOLE_COMMAND_COLOR);
 				commandStream.setColor(commandColor);
@@ -150,7 +151,14 @@ public class SVNOutputConsole extends MessageConsole implements IConsoleListener
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.console.AbstractConsole#getHelpContextId()
+	 */
+	public String getHelpContextId() {
+		return IHelpContextIds.CONSOLE_VIEW;
+	}
     /* (non-Javadoc)
+     * TODO remove this method when Eclipse 3.2 is required
      * @see org.eclipse.ui.console.IConsole#createPage(org.eclipse.ui.console.IConsoleView)
      */
     public IPageBookViewPage createPage(IConsoleView view) {
@@ -163,7 +171,7 @@ public class SVNOutputConsole extends MessageConsole implements IConsoleListener
              */
             public void createControl(Composite parent) {
                 delegate.createControl(parent);
-                WorkbenchHelp.setHelp(delegate.getControl(), IHelpContextIds.CONSOLE_VIEW);
+                PlatformUI.getWorkbench().getHelpSystem().setHelp(delegate.getControl(), IHelpContextIds.CONSOLE_VIEW);
             }
             
             public void dispose() {
@@ -211,16 +219,23 @@ public class SVNOutputConsole extends MessageConsole implements IConsoleListener
 	private void appendLine(int type, String line) {
 		synchronized(document) {
 			if(visible) {
-				switch(type) {
-					case ConsoleDocument.COMMAND:
-						commandStream.println(line);
-						break;
-					case ConsoleDocument.MESSAGE:
-						messageStream.println("  " + line); //$NON-NLS-1$
-						break;
-					case ConsoleDocument.ERROR:
-						errorStream.println("  " + line); //$NON-NLS-1$
-						break;
+				try {
+					switch(type) {
+						case ConsoleDocument.COMMAND:
+							commandStream.write(line);
+							commandStream.write('\n');
+							break;
+						case ConsoleDocument.MESSAGE:
+							messageStream.write("  " + line); //$NON-NLS-1$
+							messageStream.write('\n');
+							break;
+						case ConsoleDocument.ERROR:
+							errorStream.write("  " + line); //$NON-NLS-1$
+							errorStream.write('\n');
+							break;
+					}
+				} catch (IOException e) {
+					SVNUIPlugin.log(0, e.getMessage(), e);
 				}
 			} else {
 				document.appendConsoleLine(type, line);
