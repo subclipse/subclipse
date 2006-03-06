@@ -16,8 +16,6 @@ import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.eclipse.core.internal.resources.ResourceInfo;
-import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -363,9 +361,8 @@ public class SVNWorkspaceRoot {
 	public static int getResourceType(IPath aResourcePath)
 	{
 		if (aResourcePath == null) return 0;
-		//TODO This code is using eclipse internal classes !		
-		ResourceInfo resourceInfo = ((Workspace) ResourcesPlugin.getWorkspace()).getResourceInfo(aResourcePath, true, false);
-		return (resourceInfo != null) ? resourceInfo.getType() : 0;
+		IResource r = ResourcesPlugin.getWorkspace().getRoot().findMember(aResourcePath);
+		return r == null ? 0 : r.getType();	
 	}
 	
     /**
