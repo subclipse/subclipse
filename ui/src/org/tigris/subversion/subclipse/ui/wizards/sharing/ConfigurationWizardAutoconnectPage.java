@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.team.core.TeamException;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
@@ -55,7 +55,7 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 		setControl(composite);
 		
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.SHARING_AUTOCONNECT_PAGE);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.SHARING_AUTOCONNECT_PAGE);
 		
 		Label description = new Label(composite, SWT.WRAP);
 		GridData data = new GridData();

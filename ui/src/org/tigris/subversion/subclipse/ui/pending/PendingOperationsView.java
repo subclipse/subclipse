@@ -52,8 +52,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionContext;
-import org.eclipse.ui.help.WorkbenchHelp;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ViewPart;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
@@ -407,7 +407,7 @@ public class PendingOperationsView extends ViewPart implements IResourceStateCha
         actionBarsMenu.add(toggleModifiedAction);                
         
 		// set F1 help
-        WorkbenchHelp.setHelp(tableViewer.getControl(), IHelpContextIds.PENDING_OPERATIONS_VIEW);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(tableViewer.getControl(), IHelpContextIds.PENDING_OPERATIONS_VIEW);
 
         tableViewer.addDoubleClickListener(new IDoubleClickListener() {
             public void doubleClick(DoubleClickEvent e) {

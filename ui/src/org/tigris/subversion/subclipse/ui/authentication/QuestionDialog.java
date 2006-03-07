@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 
@@ -61,7 +61,7 @@ public class QuestionDialog extends Dialog {
 		}
 		
 		// set F1 help
-		WorkbenchHelp.setHelp(rtnGroup, IHelpContextIds.QUESTION_DIALOG);	
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(rtnGroup, IHelpContextIds.QUESTION_DIALOG);	
 
 		answerText.setFocus();
 		

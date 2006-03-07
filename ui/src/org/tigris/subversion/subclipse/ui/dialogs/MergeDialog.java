@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -314,7 +314,7 @@ public class MergeDialog extends Dialog {
 		});		
 		
 		fromUrlCombo.getCombo().setFocus();
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.MERGE_DIALOG);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.MERGE_DIALOG);
 
 		return composite;
 	}

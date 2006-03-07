@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -70,7 +70,7 @@ public class AddToVersionControlDialog extends DetailsDialog {
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.ADD_TO_VERSION_CONTROL_DIALOG);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.ADD_TO_VERSION_CONTROL_DIALOG);
 			 
 		// add a description label
 		if (unaddedResources.length==1) {
@@ -98,7 +98,7 @@ public class AddToVersionControlDialog extends DetailsDialog {
 		addUnaddedResourcesArea(composite);
 		
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.ADD_TO_VERSION_CONTROL_DIALOG);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.ADD_TO_VERSION_CONTROL_DIALOG);
 		
 		return composite;
 	}

@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownComposite;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
@@ -101,7 +101,7 @@ public class MoveRemoteResourceWizardMainPage extends SVNWizardPage {
 	public void createControl(Composite parent) {
 		Composite composite = createComposite(parent, 1);
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.MOVE_RENAME_REMOTE_RESOURCE_PAGE);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.MOVE_RENAME_REMOTE_RESOURCE_PAGE);
 
 		Listener listener = new Listener() {
 			public void handleEvent(Event event) {

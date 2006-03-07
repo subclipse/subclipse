@@ -36,8 +36,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
@@ -107,7 +107,7 @@ public class UnmanageAction extends WorkspaceAction {
 			radio1.setSelection(deleteContent);
 			radio2.setSelection(!deleteContent);
 			
-			WorkbenchHelp.setHelp(composite, IHelpContextIds.DISCONNECT_ACTION);
+			PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.DISCONNECT_ACTION);
 			
 			return composite;
 		}

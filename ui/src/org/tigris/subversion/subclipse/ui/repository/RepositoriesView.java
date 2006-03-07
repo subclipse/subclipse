@@ -44,9 +44,9 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
-import org.eclipse.ui.help.WorkbenchHelp;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
@@ -208,7 +208,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 				dialog.open();
 			}
 		};
-		WorkbenchHelp.setHelp(newAction, IHelpContextIds.NEW_REPOSITORY_LOCATION_ACTION);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(newAction, IHelpContextIds.NEW_REPOSITORY_LOCATION_ACTION);
 		
 		// Properties
         propertiesAction = new PropertyDialogAction(shell, getViewer());
@@ -230,7 +230,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         // Remove Root
 		removeRootAction = new RemoveRootAction(treeViewer.getControl().getShell());
 		removeRootAction.selectionChanged((IStructuredSelection)null);
-		WorkbenchHelp.setHelp(removeRootAction, IHelpContextIds.REMOVE_REPOSITORY_LOCATION_ACTION);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(removeRootAction, IHelpContextIds.REMOVE_REPOSITORY_LOCATION_ACTION);
 		
 		IActionBars bars = getViewSite().getActionBars();
 		bars.setGlobalActionHandler(ActionFactory.DELETE.getId(), removeRootAction);
@@ -346,7 +346,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         // F1 Help
         String helpID = getHelpContextId();
         if (helpID != null)
-            WorkbenchHelp.setHelp(treeViewer.getControl(), helpID);
+        	PlatformUI.getWorkbench().getHelpSystem().setHelp(treeViewer.getControl(), helpID);
         initializeListeners();
 		SVNUIPlugin.getPlugin().getRepositoryManager().addRepositoryListener(repositoryListener);
 	}

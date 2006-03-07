@@ -15,7 +15,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 
@@ -49,7 +49,7 @@ public class CommentCommitWizardPage extends SVNWizardPage {
 		top.setLayout(new GridLayout());
 		setControl(top);
 		// set F1 help
-		WorkbenchHelp.setHelp(top, IHelpContextIds.COMMENT_COMMIT_PAGE_DIALOG);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(top, IHelpContextIds.COMMENT_COMMIT_PAGE_DIALOG);
 		commitCommentArea.createArea(top);
         
 	}

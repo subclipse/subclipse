@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -206,7 +206,7 @@ public class SSHPromptDialog extends Dialog {
 		keyFileButton.addSelectionListener(selectionListener);
 		
 		// set F1 help
-		WorkbenchHelp.setHelp(rtnGroup, IHelpContextIds.SSH_PROMPT_DIALOG);	
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(rtnGroup, IHelpContextIds.SSH_PROMPT_DIALOG);	
 
 		if (username != null) passwordText.setFocus();
 		else userText.setFocus();

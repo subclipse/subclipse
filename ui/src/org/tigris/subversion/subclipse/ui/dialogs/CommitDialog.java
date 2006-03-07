@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -154,7 +154,7 @@ public class CommitDialog extends Dialog {
 		addResourcesArea(cBottom2);
 				
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.COMMIT_DIALOG);	
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.COMMIT_DIALOG);	
 		
 		return composite;
 	}

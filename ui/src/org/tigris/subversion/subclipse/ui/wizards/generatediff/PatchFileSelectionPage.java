@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -159,7 +159,7 @@ class PatchFileSelectionPage extends WizardPage {
 		initializeDialogUnits(composite);
 
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.PATCH_SELECTION_PAGE);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.PATCH_SELECTION_PAGE);
 				
 		// Clipboard
 		saveToClipboard= new Button(composite, SWT.RADIO);

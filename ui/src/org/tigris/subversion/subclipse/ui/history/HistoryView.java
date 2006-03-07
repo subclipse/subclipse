@@ -91,7 +91,6 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.help.WorkbenchHelp;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
@@ -740,7 +739,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 					}
 				}
 			});
-			WorkbenchHelp.setHelp(getContentsAction, IHelpContextIds.GET_FILE_CONTENTS_ACTION);
+			PlatformUI.getWorkbench().getHelpSystem().setHelp(getContentsAction, IHelpContextIds.GET_FILE_CONTENTS_ACTION);
 		}
 		return getContentsAction;
 	}
@@ -774,7 +773,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 					}
 				} 
 			});
-			WorkbenchHelp.setHelp(updateToRevisionAction, IHelpContextIds.GET_FILE_REVISION_ACTION);	
+			PlatformUI.getWorkbench().getHelpSystem().setHelp(updateToRevisionAction, IHelpContextIds.GET_FILE_REVISION_ACTION);	
 		}
 		return updateToRevisionAction;
 	}
@@ -958,7 +957,7 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
         sashForm.setWeights(new int[] { 70, 30 });
         
 		// set F1 help
-		WorkbenchHelp.setHelp(sashForm, IHelpContextIds.RESOURCE_HISTORY_VIEW);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(sashForm, IHelpContextIds.RESOURCE_HISTORY_VIEW);
 		initDragAndDrop();
 
 		// add listener for editor page activation - this is to support editor linking

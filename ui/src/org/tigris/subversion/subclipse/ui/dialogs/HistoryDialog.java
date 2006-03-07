@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
@@ -179,7 +179,7 @@ public class HistoryDialog extends Dialog {
 		});
 		
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.HISTORY_DIALOG);	
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.HISTORY_DIALOG);	
 
 		return composite;
 	}

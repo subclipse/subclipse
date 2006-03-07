@@ -10,7 +10,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 
@@ -27,7 +27,7 @@ public class RelocateWizardUrlPage extends WizardPage {
 	public void createControl(Composite parent) {
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		// set F1 help
-		WorkbenchHelp.setHelp(outerContainer, IHelpContextIds.RELOCATE_REPOSITORY_PAGE);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(outerContainer, IHelpContextIds.RELOCATE_REPOSITORY_PAGE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		outerContainer.setLayout(layout);

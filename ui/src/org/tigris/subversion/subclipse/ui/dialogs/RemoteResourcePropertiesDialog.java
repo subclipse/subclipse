@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -204,7 +204,7 @@ public class RemoteResourcePropertiesDialog extends Dialog {
 		viewer.setInput(remoteResource);
 
 		// set f1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.REMOTE_RESOURCE_PROPERTIES_DIALOG);	
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.REMOTE_RESOURCE_PROPERTIES_DIALOG);	
 
 		data = new GridData();
 		data.widthHint = 500;

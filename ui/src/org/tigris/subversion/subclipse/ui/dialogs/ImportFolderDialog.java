@@ -20,8 +20,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -109,7 +109,7 @@ public class ImportFolderDialog extends Dialog {
 		recurseButton.setSelection(true);
 		
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.IMPORT_FOLDER_DIALOG);	
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.IMPORT_FOLDER_DIALOG);	
 
 		commitCommentArea.createArea(composite);
 		

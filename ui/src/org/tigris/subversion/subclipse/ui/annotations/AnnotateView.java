@@ -42,7 +42,7 @@ import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.internal.registry.EditorDescriptor;
 import org.eclipse.ui.part.ViewPart;
@@ -149,7 +149,7 @@ public class AnnotateView extends ViewPart implements ISelectionChangedListener 
 		viewer.addSelectionChangedListener(this);
 		viewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		WorkbenchHelp.setHelp(viewer.getControl(), IHelpContextIds.ANNOTATIONS_VIEW);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), IHelpContextIds.ANNOTATIONS_VIEW);
 
 		top.layout();
 		

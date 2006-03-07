@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.Alias;
@@ -116,7 +116,7 @@ public class BranchTagPropertyUpdateDialog extends Dialog {
 		pathText.addModifyListener(modifyListener);
 
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.BRANCH_TAG_PROPERTY_UPDATE_DIALOG);	
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.BRANCH_TAG_PROPERTY_UPDATE_DIALOG);	
 
 		return composite;
 	}

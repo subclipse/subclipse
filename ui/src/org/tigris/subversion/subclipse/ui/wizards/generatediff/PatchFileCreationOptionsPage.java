@@ -18,7 +18,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 
@@ -58,7 +58,7 @@ public class PatchFileCreationOptionsPage extends WizardPage {
 		setControl(composite);
 
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.PATCH_OPTIONS_PAGE);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.PATCH_OPTIONS_PAGE);
 					
 		recurseOption = new Button(composite, SWT.CHECK);
 		recurseOption.setText(Policy.bind("GenerateSVNDiff.RecurseOption")); //$NON-NLS-1$

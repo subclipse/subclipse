@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -94,7 +94,7 @@ public class SetCommitPropertiesDialog extends Dialog {
 	    if (author != null) committerText.setText(author);
 
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.CHANGE_REVPROPS);	
+	    PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.CHANGE_REVPROPS);	
 		
 		return composite;
 	}

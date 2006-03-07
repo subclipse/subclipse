@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
@@ -312,7 +312,7 @@ public class ConfigureTagsDialog extends Dialog {
         tree.setMenu(menu);
 
         // set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.CONFIGURE_TAGS_DIALOG);	
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.CONFIGURE_TAGS_DIALOG);	
 
 		return composite;
 	}

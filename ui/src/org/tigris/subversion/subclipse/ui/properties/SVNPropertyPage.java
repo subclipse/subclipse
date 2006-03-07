@@ -23,8 +23,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PropertyPage;
-import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
@@ -223,7 +223,7 @@ public class SVNPropertyPage extends PropertyPage {
         
         Dialog.applyDialogFont(parent);
         
-        WorkbenchHelp.setHelp(composite, IHelpContextIds.SVN_RESOURCE_PROPERTIES_PAGE);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.SVN_RESOURCE_PROPERTIES_PAGE);
 
         return composite;
     }

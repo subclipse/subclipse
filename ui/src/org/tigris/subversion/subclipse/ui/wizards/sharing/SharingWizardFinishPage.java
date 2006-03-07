@@ -17,7 +17,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.wizards.SVNWizardPage;
@@ -36,7 +36,7 @@ public class SharingWizardFinishPage extends SVNWizardPage {
 	public void createControl(Composite parent) {
 		Composite composite = createComposite(parent, 1);
 		// set F1 help
-		WorkbenchHelp.setHelp(composite, IHelpContextIds.SHARING_FINISH_PAGE);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.SHARING_FINISH_PAGE);
 		Label label = new Label(composite, SWT.LEFT | SWT.WRAP);
 		label.setText(Policy.bind("SharingWizardFinishPage.message")); //$NON-NLS-1$
 		GridData data = new GridData();

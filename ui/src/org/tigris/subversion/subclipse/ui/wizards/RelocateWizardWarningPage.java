@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -50,7 +50,7 @@ public class RelocateWizardWarningPage extends WizardPage {
 		
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		// set F1 help
-		WorkbenchHelp.setHelp(outerContainer, IHelpContextIds.RELOCATE_REPOSITORY_PAGE);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(outerContainer, IHelpContextIds.RELOCATE_REPOSITORY_PAGE);
 		GridLayout outerLayout = new GridLayout();
 		outerLayout.numColumns = 2;
 		outerContainer.setLayout(outerLayout);

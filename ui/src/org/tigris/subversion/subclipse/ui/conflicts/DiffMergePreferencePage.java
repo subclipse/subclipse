@@ -37,8 +37,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
-import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -203,7 +203,7 @@ public class DiffMergePreferencePage extends PreferencePage implements
                 3, 20);
 
         initializeValues();
-		WorkbenchHelp.setHelp(getControl(), IHelpContextIds.DIFF_MERGE_PREFERENCE_PAGE);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IHelpContextIds.DIFF_MERGE_PREFERENCE_PAGE);
 
         return composite;
     }

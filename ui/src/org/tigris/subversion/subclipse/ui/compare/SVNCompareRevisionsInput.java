@@ -53,8 +53,8 @@ import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.ui.ISaveableWorkbenchPart;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.eclipse.ui.help.WorkbenchHelp;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
@@ -249,9 +249,9 @@ public class SVNCompareRevisionsInput extends CompareEditorInput implements ISav
 		});
 		
 		// Add F1 help.
-		WorkbenchHelp.setHelp(table, IHelpContextIds.COMPARE_REVISIONS_VIEW);
-		WorkbenchHelp.setHelp(getContentsAction, IHelpContextIds.GET_FILE_CONTENTS_ACTION);
-		WorkbenchHelp.setHelp(getRevisionAction, IHelpContextIds.GET_FILE_REVISION_ACTION);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(table, IHelpContextIds.COMPARE_REVISIONS_VIEW);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(getContentsAction, IHelpContextIds.GET_FILE_CONTENTS_ACTION);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(getRevisionAction, IHelpContextIds.GET_FILE_REVISION_ACTION);
 		
 		return viewer;
 	}

@@ -28,7 +28,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -124,7 +124,7 @@ public class CompareDialog extends Dialog {
 		Shell shell= c.getShell();
 		shell.setText(compareEditorInput.getTitle());
 		shell.setImage(compareEditorInput.getTitleImage());
-		WorkbenchHelp.setHelp(parent, IHelpContextIds.COMPARE_DIALOG);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IHelpContextIds.COMPARE_DIALOG);
 
 		applyDialogFont(parent);
 		return parent;

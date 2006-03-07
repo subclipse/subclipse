@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.help.WorkbenchHelp;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -215,7 +215,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		initializeValues();
 		verifyValidation();
 
-		WorkbenchHelp.setHelp(getControl(), IHelpContextIds.SVN_PREFERENCE_DIALOG);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IHelpContextIds.SVN_PREFERENCE_DIALOG);
 
 		return composite;
 	}
