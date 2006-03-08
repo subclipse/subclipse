@@ -398,8 +398,13 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		
 //		// if the global ignores list is changed then update decorators.
 		//TeamUI.getSynchronizeManager().addSynchronizeParticipants(new ISynchronizeParticipant[]{new SVNWorkspaceSynchronizeParticipant()});
-
-        SVNProviderPlugin.getPlugin().setSvnPromptUserPassword(new SVNPromptUserPassword());
+		try {
+		    console = new SVNOutputConsole();
+	    } catch (RuntimeException e) {
+	        // Don't let the console bring down the SVN UI
+	        log(IStatus.ERROR, "Errors occurred starting the SVN console", e); //$NON-NLS-1$
+	    }
+		SVNProviderPlugin.getPlugin().setSvnPromptUserPassword(new SVNPromptUserPassword());
 		SVNProviderPlugin.getPlugin().setSimpleDialogsHelper(new SimpleDialogsHelper());
 		SVNProviderPlugin.getPlugin().setSvnFileModificationValidatorPrompt(new SVNFileModificationValidatorPrompt());
 	}
@@ -417,8 +422,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 			throw new CoreException(e.getStatus());
 		}
 
-		if (console != null)
-			console.shutdown();
+        console.shutdown();
 	}
 	
     /**
@@ -458,7 +462,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	 * Reconnect the console view to the message source
 	 */
 	public void enableConsoleListener() {
-        SVNProviderPlugin.getPlugin().setConsoleListener(getConsole());
+        SVNProviderPlugin.getPlugin().setConsoleListener(console);
 	}
 
 	
@@ -483,21 +487,10 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	}
 	
 	/**
-	 * Gets the one and only SVN console managed by this plugin.
-	 * This may return null if the console could not be created
-	 * 
+	 * Gets the one and only SVN console managed by this plugin
 	 * @return the SVN console
 	 */
 	public SVNOutputConsole getConsole() {
-		if (console == null) {
-			try {
-			    console = new SVNOutputConsole();
-		    } catch (RuntimeException e) {
-		        // Don't let the console bring down the SVN UI
-		        log(IStatus.ERROR, "Errors occurred starting the SVN console", e); //$NON-NLS-1$
-		    }
-			
-		}
 		return console;
 	}
 }
