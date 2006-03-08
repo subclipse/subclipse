@@ -351,7 +351,10 @@ public class BranchTagDialog extends Dialog {
 			newAlias.setRevision(Integer.parseInt(revision.toString()));
 			newAlias.setName(toUrl.getLastPathSegment());
 			BranchTagPropertyUpdateDialog dialog = new BranchTagPropertyUpdateDialog(getShell(), resource, newAlias);
-			if (dialog.open() == BranchTagPropertyUpdateDialog.OK) newAlias = dialog.getNewAlias();
+			if (dialog.open() == BranchTagPropertyUpdateDialog.OK) 
+				newAlias = dialog.getNewAlias();
+			else
+				newAlias = null;
     	} catch (Exception e) {}
     }
     
