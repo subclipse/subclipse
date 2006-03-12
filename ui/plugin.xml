@@ -1008,6 +1008,20 @@ For example:
             <instanceof value="org.tigris.subversion.subclipse.ui.console.SVNOutputConsole"/>
          </enablement>
       </consolePageParticipant>
+   </extension>
+   <extension
+         point="org.eclipse.ui.console.consolePatternMatchListeners">
+      <consolePatternMatchListener
+            class="org.tigris.subversion.subclipse.ui.console.PathMatcher"
+            id="ui.consolePatternMatchListener1"
+            qualifier=".+"
+            regex=".+">
+         <enablement>
+            <test
+                  property="org.eclipse.ui.console.consoleTypeTest"
+                  value="SVN"/>
+         </enablement>
+      </consolePatternMatchListener>
    </extension>	  
 
 </plugin>

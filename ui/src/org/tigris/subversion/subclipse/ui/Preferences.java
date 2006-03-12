@@ -50,9 +50,11 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_SHOW_PATHS, true);
         store.setDefault(ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT, ISVNUIConstants.LAYOUT_FLAT);
         
-        store.setDefault(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_MESSAGE, true);
+        store.setDefault(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_MESSAGE, false);
         store.setDefault(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_ERROR, true);
-        
+		store.setDefault(ISVNUIConstants.PREF_CONSOLE_LIMIT_OUTPUT, true);	
+		store.setDefault(ISVNUIConstants.PREF_CONSOLE_HIGH_WATER_MARK, 500000);	
+		
         store.setDefault(ISVNUIConstants.PREF_FILETEXT_DECORATION, SVNDecoratorConfiguration.DEFAULT_FILETEXTFORMAT);
         store.setDefault(ISVNUIConstants.PREF_FOLDERTEXT_DECORATION, SVNDecoratorConfiguration.DEFAULT_FOLDERTEXTFORMAT);
         store.setDefault(ISVNUIConstants.PREF_PROJECTTEXT_DECORATION, SVNDecoratorConfiguration.DEFAULT_PROJECTTEXTFORMAT);

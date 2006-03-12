@@ -135,6 +135,8 @@ public interface ISVNUIConstants {
 	public final String PREF_CONSOLE_FONT = "pref_console_font"; //$NON-NLS-1$
     public final String PREF_CONSOLE_SHOW_ON_ERROR = "pref_console_show_on_error"; //$NON-NLS-1$
     public final String PREF_CONSOLE_SHOW_ON_MESSAGE = "pref_console_show_on_message"; //$NON-NLS-1$
+	public final String PREF_CONSOLE_LIMIT_OUTPUT = "pref_console_limit_output"; //$NON-NLS-1$
+	public final String PREF_CONSOLE_HIGH_WATER_MARK = "pref_console_high_water_mark"; //$NON-NLS-1$
 		
 	// decorator preferences
 	public final String PREF_FILETEXT_DECORATION = "pref_filetext_decoration"; //$NON-NLS-1$

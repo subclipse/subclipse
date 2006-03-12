@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.ui.console;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -50,6 +51,9 @@ import org.tigris.subversion.svnclientadapter.SVNNodeKind;
  * @since 3.0 
  */
 public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPropertyChangeListener {
+	
+	/** Constant used to define consoles that have the ability to output subversion information */
+	public static final String SVN_CONSOLE_TYPE = "SVN";
 	// created colors for each line type - must be disposed at shutdown
 	private Color commandColor;
 	private Color messageColor;
@@ -101,14 +105,13 @@ public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPr
 	 * page yet.
 	 */
 	public SVNOutputConsole() {
-		super("SVN", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_SVN_CONSOLE)); //$NON-NLS-1$
+		super("SVN", SVN_CONSOLE_TYPE, SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_SVN_CONSOLE)); //$NON-NLS-1$
 		// setup console showing preferences
 		showOnMessage = SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_MESSAGE);
         showOnError = SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_ERROR);  
 		document = new ConsoleDocument();
 		SVNProviderPlugin.getPlugin().setConsoleListener(SVNOutputConsole.this);
 		SVNUIPlugin.getPlugin().getPreferenceStore().addPropertyChangeListener(SVNOutputConsole.this);
-		showConsole(true);
 	}
 	
 	/* (non-Javadoc)
@@ -117,6 +120,9 @@ public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPr
 	protected void init() {
 		// Called when console is added to the console view
 		super.init();	
+		
+		initLimitOutput();
+		
 		//	Ensure that initialization occurs in the ui thread
 		SVNUIPlugin.getStandardDisplay().asyncExec(new Runnable() {
 			public void run() {
@@ -125,6 +131,15 @@ public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPr
 				dump();
 			}
 		});
+	}
+	
+	private void initLimitOutput() {
+		IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+		if(store.getBoolean(ISVNUIConstants.PREF_CONSOLE_LIMIT_OUTPUT)) {
+			setWaterMarks(1000, store.getInt(ISVNUIConstants.PREF_CONSOLE_HIGH_WATER_MARK));
+		} else {
+			setWaterMarks(-1, 0);
+		}
 	}
 	
 	/*
@@ -243,18 +258,6 @@ public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPr
 		}
 	}
 	
-	private void showConsole(boolean show) {
-		if(showOnMessage) {
-			IConsoleManager manager = ConsolePlugin.getDefault().getConsoleManager();
-			if(! visible) {
-				manager.addConsoles(new IConsole[] {this});
-			}
-			if (show) {
-				manager.showConsoleView(this);
-			}
-		} 
-	}
-
     private void bringConsoleToFront() {
         IConsoleManager manager = ConsolePlugin.getDefault().getConsoleManager();
         if(! visible) {
@@ -320,6 +323,8 @@ public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPr
 				// font
 			} else if (property.equals(ISVNUIConstants.PREF_CONSOLE_FONT)) {
 				setFont(JFaceResources.getFontRegistry().get(ISVNUIConstants.PREF_CONSOLE_FONT));
+			} else if(property.equals(ISVNUIConstants.PREF_CONSOLE_LIMIT_OUTPUT)) {
+				initLimitOutput();
 			}
 		}
 		// show preferences
@@ -329,13 +334,6 @@ public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPr
 				showOnMessage = Boolean.getBoolean((String)event.getNewValue());
 			} else {
 				showOnMessage = ((Boolean)value).booleanValue();
-			}
-			if(showOnMessage) {
-				showConsole(true);
-			} else {
-				IConsoleManager manager = ConsolePlugin.getDefault().getConsoleManager();
-				manager.removeConsoles(new IConsole[] {this});
-				ConsolePlugin.getDefault().getConsoleManager().addConsoleListener(new MyLifecycle());
 			}
 		}
 
@@ -359,19 +357,28 @@ public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPr
 	}
 
     public void logCommandLine(String commandLine) {
+    	if (showOnMessage) {
+    		bringConsoleToFront();
+    	}
         appendLine(ConsoleDocument.DELIMITER, Policy.bind("Console.preExecutionDelimiter")); //$NON-NLS-1$
         appendLine(ConsoleDocument.COMMAND, commandLine);
     }
     public void logMessage(String message) {
+    	if (showOnMessage) {
+    		bringConsoleToFront();
+    	}
         appendLine(ConsoleDocument.MESSAGE, "  " + message); //$NON-NLS-1$
     }
     public void logRevision(long revision, String path) {
     }
     public void logCompleted(String message) {
+    	if (showOnMessage) {
+    		bringConsoleToFront();
+    	}
         appendLine(ConsoleDocument.MESSAGE, "  " + message); //$NON-NLS-1$
     }
     public void logError(String message) {
-        if (showOnError) {
+        if (showOnMessage || showOnError) {
         	bringConsoleToFront();
         }
         appendLine(ConsoleDocument.ERROR, "  " + message); //$NON-NLS-1$
