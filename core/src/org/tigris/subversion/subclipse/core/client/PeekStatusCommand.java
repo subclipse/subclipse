@@ -15,11 +15,13 @@ import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Peek for (get) the resource status.
@@ -30,6 +32,7 @@ public class PeekStatusCommand {
     private final IResource resource;
 
     private ISVNStatus status = null;
+    private ISVNInfo info = null;
     protected SVNRevision.Number revision;
 
     public PeekStatusCommand(IResource resource) {
@@ -58,6 +61,8 @@ public class PeekStatusCommand {
 				if (file.equals(statuses[i].getFile()))
 				{
 					status = statuses[i];
+					if (status.getUrl() == null)
+						info = client.getInfo(status.getFile());
 					break;
 				}
 			}
@@ -76,10 +81,21 @@ public class PeekStatusCommand {
 
     public LocalResourceStatus getLocalResourceStatus()
     {    	
-    	return (status != null) ? new LocalResourceStatus(status) : null;
+    	return (status != null) ? new LocalResourceStatus(status, getURL(status)) : null;
     }
     
     public SVNRevision.Number getRevision() {
         return revision;
     }
+
+
+    // getStatuses returns null URL for svn:externals folder.  This will
+    // get the URL using svn info command on the local resource
+	private SVNUrl getURL(ISVNStatus status) {
+		SVNUrl url = status.getUrl();
+		if (url == null && info != null) {
+	    	url = info.getUrl();
+		}
+		return url;
+	}
 }

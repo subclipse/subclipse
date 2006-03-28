@@ -51,11 +51,13 @@ public class LocalResourceStatus extends ResourceStatus {
     
     static final long serialVersionUID = 1L;
 
-    /**
-     * @param status
-     */
-    public LocalResourceStatus(ISVNStatus status) {
-    	super(status);
+	/**
+	 * @param status
+	 * @param url - Only needed when status.getUrl is Null, such as
+	 *  for an svn:externals folder
+	 */
+    public LocalResourceStatus(ISVNStatus status, SVNUrl url) {
+    	super(status, url);
     	
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;

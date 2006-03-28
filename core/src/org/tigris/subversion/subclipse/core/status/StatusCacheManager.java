@@ -33,10 +33,13 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Provides a method to get the status of a resource. <br>   
@@ -131,7 +134,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @param workspaceRoot
      */
     protected IResource updateCache(ISVNStatus status) {
-   		return statusCache.addStatus(new LocalResourceStatus(status));
+   		return statusCache.addStatus(new LocalResourceStatus(status, getURL(status)));
     }
 
     /**
@@ -227,7 +230,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 //        }
         
         if (status == null) {
-            status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false));
+            status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false), null);
         }
         
         return status;
@@ -338,6 +341,22 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
 		statusCache.flushPendingStatuses();
+	}
+
+    // getStatuses returns null URL for svn:externals folder.  This will
+    // get the URL using svn info command on the local resource
+	private SVNUrl getURL(ISVNStatus status) {
+		SVNUrl url = status.getUrl();
+		if (url == null) {
+		    try { 
+		    	ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().createSVNClient();
+		    	ISVNInfo info = svnClient.getInfo(status.getFile());
+		    	url = info.getUrl();
+		    } catch (SVNException e) {
+			} catch (SVNClientException e) {
+			}
+		}
+		return url;
 	}
 
 }

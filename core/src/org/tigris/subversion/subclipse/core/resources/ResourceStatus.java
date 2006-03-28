@@ -66,14 +66,24 @@ public class ResourceStatus implements Serializable {
 	
     protected ResourceStatus() {}
 
-	public ResourceStatus(ISVNStatus status) {
+    
+    
+	/**
+	 * @param status
+	 * @param url - Only needed when status.getUrl is Null, such as
+	 *  for an svn:externals folder
+	 */
+	public ResourceStatus(ISVNStatus status, SVNUrl url) {
 		super();
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;
 
     	aValue = status.getUrl();
         if (aValue == null) {
-            this.url = null;
+        	if (url == null)
+        		this.url = null;
+        	else
+        		this.url = url.toString();
         } else {
             this.url = ((SVNUrl) aValue).toString();
         }
