@@ -84,7 +84,7 @@ public class HistoryTableProvider {
 			switch (columnIndex) {
 				case COL_REVISION:
 					String revision = entry.getRevision().toString();
-					if (entry.getRevision().equals( currentRemoteResource.getLastChangedRevision())) {
+					if (currentRemoteResource != null && entry.getRevision().equals( currentRemoteResource.getLastChangedRevision())) {
 						revision = Policy.bind("currentRevision", revision); //$NON-NLS-1$
 					}
 					return revision;
