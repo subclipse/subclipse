@@ -145,7 +145,7 @@ public class OperationManager implements ISVNNotifyListener {
 				// potentially
 				// be modified
 				resource = workspaceRoot.getContainerForLocation(pathEclipse);
-				if (resource != null) {
+				if (resource != null && resource.getType() != IResource.ROOT) {
 					if (resource.getProject() != resource) {
 						// if resource is a project. We can't refresh ../.svn
 						svnDir = resource.getParent().getFolder(

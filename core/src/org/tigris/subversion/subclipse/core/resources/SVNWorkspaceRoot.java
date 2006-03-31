@@ -378,6 +378,8 @@ public class SVNWorkspaceRoot {
 		IPath resourcePath = pathForLocation(status.getPath());
 		if (resourcePath == null) 
 		{
+			if(status.getFile() != null && status.getFile().getName().equals(".metadata"))  //$NON-NLS-1$
+				return null;
 		    if (!nullResourceLogged) {
 		        String errorMsg = Policy.bind("SVNWorkspaceRoot.nullResource", status.getPathString());
 			    IConsoleListener console = SVNProviderPlugin.getPlugin().getConsoleListener();
@@ -451,6 +453,8 @@ public class SVNWorkspaceRoot {
 		IPath resourcePath = pathForLocation(new Path(status.getPath()));
 		if (resourcePath == null) 
 		{
+			if(status.getFile() != null && status.getFile().getName().equals(".metadata"))  //$NON-NLS-1$
+				return null;
 		    if (!nullResourceLogged) {
 		        String errorMsg = Policy.bind("SVNWorkspaceRoot.nullResource", status.getPath());
 		        IConsoleListener console = SVNProviderPlugin.getPlugin().getConsoleListener();

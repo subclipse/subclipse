@@ -52,6 +52,7 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 	public IResource addStatus(LocalResourceStatus status) {
 		try {
 			IResource resource = status.getResource();
+			if (resource == null) return null;
 			if (status.isUnversioned() && !(resource.exists() || resource.isPhantom()))
 			{
 				return resource;
