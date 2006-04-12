@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Team Synchronizing Perspective</title>
+</head>
+<body>
+<h1>Team Synchronizing Perspective </h1>
+<h2>Overview</h2>
+<p>
+    When you are working with complex projects in a team, it may be extremely
+        hard to grasp the impact of your changes in relation to the changes committed
+        by others. To help with this, the Eclipse IDE offers the <span class="name">Team
+        Synchronizing Perspective</span>, which the SVN plug-in for Eclipse extends
+        to support SVN repositories. To activate this perspective, choose <span class="menu">Window &gt; Open
+        Perspective &gt; Other...</span> and select <span class="name">Team Synchronizing.</span> Alternatively,
+        you can launch the persective directly from your <a href="glossary.html#working">working
+        copy</a> via the <span class="menu">Team &gt; Synchronize...</span> context
+        menu option.
+</p>
+<p>
+    The concept of <em>team synchronization</em> is that of a cross-resource,
+    three way merge in which you may consider all changes at once, and filter
+    the information as needed before performing any updates or commits, with
+    your existing working copy being the focal point. Your own local changes
+    are called <em>outgoing</em> and the changes that have happened in the repository
+    since your last update are called <em>incoming</em>. In the synchronization
+    perspective, both incoming and outgoing changes are analyzed before they
+    are <em>synchronized</em>; that is, for incoming changes, synchronization
+    means that your working copy is updated (corresponds to <span class="menu">Team &gt; Update</span>)
+    and for outgoing changes, synchronization means that your changes are committed.
+</p>
+<p>
+    Launching the <span class="name">Team Synchronization Perspective</span> does
+    not update or change the status of local or repository resources automatically.
+</p>
+<p>
+    The <span class="name">Team Synchronizing Perspective</span> as a whole can
+    be considered analogous to the output of <span class="code">svn status -u</span>.
+</p>
+<p>
+    The T<span class="name">eam Synchronization Perspective</span> is a function
+    of the Eclipse IDE. For a more detailed discussion of team synchronization,
+    take a look at the help on <a href="../../../org.eclipse.platform.doc.user/reference/ref-33.htm">CVS
+    workspace synchronization</a>.
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    None
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    None
+</p>
+</body>
+</html>

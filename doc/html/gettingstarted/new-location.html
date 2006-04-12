@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Creating a new Repository Location</title>
+</head>
+<body>
+<h1>Creating a new Repository Location</h1>
+<h2>Overview</h2>
+<p>
+    Before you can begin working with a SVN repository, you must define that
+        repository location to your Eclipse IDE.
+</p>
+<h2>Procedure</h2>
+<p>
+    You create and work with your repository locations from the <span class="name">SVN
+    Repository View</span>, which is part of the <span class="name">SVN Repository
+    Exploring Perspective</span>. To create a new repository location, click
+    the <span class="control">Add SVN Repository</span> button <img border="0" src="../../icons/full/wizards/newlocation_wiz.gif" width="16" height="16"> or <span class="action">right
+    clicking</span> inside the view and selecting <span class="menu">New &gt; Repository
+    Location...</span>
+<p>
+    <img src="../images/new-location.png" width="416" height="286">
+<p>
+    The <span class="name">Add SVN Repository</span> dialog will prompt you for
+    a repository location URL. Enter the URL of the repository you want to connect
+    to. No authentication information is requested at the time the location is
+    defined; it is left to SVN to request your user and password information
+    when it is needed. The main benefit of allowing SVN to manage your password
+    in this way is that it will prompt you for a new password when your password
+    changes. Furthermore, it will also cache and encrypt the new password.
+</p>
+<p>
+    <img src="../images/new-repository-location-url.png" width="438" height="415">
+</p>
+<p>
+    Once you click finish, the wizard will create the location. Expand the location
+        to see the contents for the given URL.
+</p>
+<p>
+    <img src="../images/new-repository-folders.png" width="332" height="179">
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    None
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="../reference/svn-repository.html">SVN Repository Exploring Perspective</a><a href="../reference/svn-repository-view.html"><br>
+    SVN Repository View</a>
+</p>
+<p class="faq">
+    Related FAQ
+</p>
+<p>
+    <a href="../faq/faq.html#http-proxy">How do I configure an HTTP proxy connection?</a><br />
+    <a href="../faq/faq.html#http-ssl">How do I specify SSL client certificates?</a><br />
+    <a href="../faq/faq.html#svn-ssh">How do I configure an svn+ssh:// connection?</a>
+</p>
+</body>
+</html>

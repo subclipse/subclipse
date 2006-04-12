@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Add To Version Control</title>
+</head>
+<body>
+<h1>Add To Version Control</h1>
+<p>
+    This function is initiated via the <span class="menu">Team &gt; Add to Version
+    Control </span> menu option.
+</p>
+<h2>Overview</h2>
+<p>
+    When you share a project for the first time, or when you add or import new
+        resources to a project, you need to tell SVN that you want them <em>under
+        version control</em>.
+</p>
+<h2>Process</h2>
+<p>
+    <img src="../images/add-to-version-control-before.png" width="375" height="354">
+</p>
+<p>
+    To do this, find and select the unversioned resource(s) that you want to
+        add. These will typically be decorated by a little question mark <img src="../images/unknown.png" width="11" height="14"> in
+        the Navigator view. Once you execute the <span class="name">Add to Version
+        Control </span>process, the decoration will change to a small blue plus <img src="../images/add.png" width="13" height="15">.
+        This indicates that your resource is scheduled for addition to the repository
+        on the next commit.
+</p>
+<p>
+    <img src="../images/add-to-version-control-after.png" width="317" height="51">
+</p>
+<p>
+    This operation does not contact the repository. Also, if the resources parent
+        folder is not under version control, it will be added as well (all the
+        way up to the project root, as needed).
+</p>
+<h2>Reverting files added in error</h2>
+<p>
+    If you add something to version control you didn't want to, don't panic;
+        you can always undo (<a href="revert.html">Revert</a>) your changes. <em>Reverting</em> the
+        added resource is often preferred over deleting the resource, since it
+        is only the 'added'-state that you revert, not the creation of the file
+        itself.
+</p>
+<blockquote>
+    When you commit your changes back to the repository, you can short-cut the <span class="name">Add</span> command
+    by simply <span class="action">checking</span> the unversioned resources
+    in the <a href="commit.html">commit</a> dialog resource list. A <a href="preferences.html">preference</a> setting
+    controls whether or not unversioned resources are checked by default during
+    the commit operation.
+</blockquote>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    None
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="revert.html"> Revert</a><br>
+    <a href="preferences.html"> Preferences</a><br>
+    <a href="commit.html">Commit</a>
+</p>
+</body>
+</html>

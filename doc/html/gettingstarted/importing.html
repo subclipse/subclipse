@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Import a new Project into a SVN Repository</title>
+</head>
+<body>
+<h1>Import a new Project into a SVN Repository</h1>
+<h2>Overview</h2>
+<p>
+    This is the process for taking a new project in your Eclipse workspace and
+    importing it into a repository so that it can be managed by SVN. If you have
+    already been using SVN and you have an existing working copy in your workspace
+    that you want to connect to SVN, then you will likely want to follow the
+    procedure for <a href="share-existing.html">Connecting an Existing Project</a>.
+</p>
+<h2>Procedure</h2>
+<p>
+    If you do not yet have your project ready to import into the repository,
+        create a simple project that contains a few files so that they can be
+        stored in the repository. A simple way to achieve this is to create a
+        sample plug-in project by selecting <span class="menu">File &gt; New &gt; Project...</span> and <span class="menu">Plug-in
+        Development &gt; Plug-in Project. </span>Give the project a name and
+        click through to finish on the wizard.
+</p>
+<p>
+    To import a project into the repository, right click the project you want
+        to import and select <span class="menu">Team &gt; Share Project...</span> from
+        the context menu.
+</p>
+<p>
+    <img src="../images/share-provider.png" width="461" height="415">
+</p>
+<p>
+    This will begin the <span class="name">Share Project</span> wizard. Select <span class="control">SVN</span> as
+    the repository type and click <span class="control">Next</span>.
+</p>
+<img src="../images/share-project.jpg" alt="Select Project">
+<p>
+    If you have already defined the repository location you want to store this
+    project in, then select it in the list and click <span class="control">Next</span>.
+    Otherwise, select the <span class="control">Create a new repository location</span> option
+    and click <span class="control">Next</span>. If you need to create a location
+    then see the section on <a
+	href="new-location.html">creating a new repository location</a> for more information.
+</p>
+<p>
+    <img src="../images/share-module-name.png" width="461" height="415">
+</p>
+<p>
+    You must specify the folder name where you want to store the project. The
+    folder name is relative to the URL of the repository location you specified
+    in the previous step. All intermediate folders must already exist in the
+    repository, but the final folder name must not already exist. You can use
+    the <span class="control">Browse...</span> button to select a path from within
+    the repository. The Browse dialog also allows you to create folders, so you
+    could use that option to create any intermediate folders. In the above example,
+    we are going to follow the convention of storing the project in a ProjectName/trunk
+    structure. In this example, the ProjectName folder must already exist and
+    the trunk folder must not exist. Click <span class="control">Next</span> or <span class="control">Finish</span> when
+    you are through.
+</p>
+<p>
+    <img src="../images/share-ready.png" width="461" height="415">
+</p>
+<p>
+    The final page of the wizard is just a final confirmation page. When you
+    click <span class="control">Finish</span>, SVN will issue the <em>mkdir</em> command
+    to create an empty folder in the repository. It will then checkout that folder
+    on top of your local project. This will create the .svn folder inside your
+    project, converting it into a valid Working Copy. Finally, the wizard will
+    bring up the Commit Dialog so that you can commit everything into the repository.
+    You do not have to commit everything or even anything. You may want to cancel
+    the commit dialog and then go back to your workspace and do everything from
+    the Team menu. For example, if you wanted to set SVN properties as part of
+    the commit, you would want to first use the <span class="menu">Team &gt; Add
+    to Version Control</span> option and then use the <span class="menu">Team
+    &gt; Set Property</span> option etc. Once you have things the way you want
+    them you can then perform a <span class="menu">Team &gt; Commit</span>.
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    None
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="share-existing.html">Connecting an Existing Project</a><br>
+    <a href="new-location.html">Creating a Repository Location</a>
+</p>
+</body>
+</html>

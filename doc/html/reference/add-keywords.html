@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Add keywords</title>
+</head>
+<body>
+<h1>Add keywords</h1>
+<p>
+    This dialog is accessed via the <span class="menu">Team &gt; Add keywords </span> menu
+    or the <span class="menu">Add keywords </span> context menu option in the <span class="name">SVN
+    Properties View</span>.
+</p>
+<h2>Overview</h2>
+<p>
+    Keywords in SVN are used to embed versioning information into files that
+    are under version control. These keywords (like for instance, 'Id') are expanded
+    for resources that are marked as using them, and this is what the "Add keywords" action
+    does.  The action will set the svn:keywords property on the selected files.  This tells
+    SVN to look for an expand those keywords in the file.  Of course, it is up to you
+    to include the keyword in the file in the place you want it to appear.
+</p>
+<h2>Process</h2>
+<p>
+    <img src="../images/add-keywords.png" width="737" height="314">
+</p>
+<p>
+    Select the resources that need keywords added - this may be a folder in which
+        case all the contained (child) resources are also affected - and choose <span class="menu">Add
+        keywords</span> from the Team menu.
+</p>
+<p>
+    <span class="action">Check</span> the keywords to associate with the selected
+    resource(s). To use the keyword in a (text) file, enclose it in $-signs,
+    as in <span class="code">$Id$</span>.
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    None
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="svn-properties-view.html">SVN Properties View</a>
+</p>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Resource History View Options</title>
+</head>
+<body>
+<h1>Resource History View Options</h1>
+<h2>Menu</h2>
+<p>
+    <img src="../images/resource-history-options-menu.png" width="172" height="136">
+</p>
+<p>
+    <img src="../images/menu-tick.png" width="15" height="13">= option enabled<br>
+    <img src="../images/menu-ball.png" width="14" height="14">= option selected
+</p>
+<h2>Options</h2>
+<h3>Wrap Comments</h3>
+<p>
+    Toggle this option to have the commit commentary wrap within the confines
+        of the commit panel.
+</p>
+<h3>Show Comments </h3>
+<p>
+    Toggles the display of commit comments on and off.
+</p>
+<h3>Show Affected Paths</h3>
+<p>
+    Toggles the display of the affected paths grid on and off.
+</p>
+<h3>Stop on Copy/Rename </h3>
+<p>
+    Toggles the option to stop the retrieval of resource history for an item
+        on a copy or rename operation on and off.
+</p>
+<p>
+    When the checked, the resource history will stop at the point that the selected
+        file or folder was copied from somewhere else within the repository.
+        This can be useful when looking at <a href="glossary.html#branch">branches</a> (or <a href="glossary.html#tag">tags</a>)
+        as it stops at the root of that branch, and gives a quick indication
+        of changes made in that branch only.
+</p>
+<h3>Flat</h3>
+<p>
+    Select this option to display the affected paths in a flat grid style. Where
+        many files within a folder were changed as part of a revision, this view
+        will show one entry for every changed file. It is the default view for
+        the affected paths grid.
+</p>
+<p>
+    <img src="../images/affected-paths-flat.png" width="310" height="116">
+</p>
+<h3>Compressed Folders</h3>
+<p>
+    Select this option to display the affected paths in a compressed folder (tree
+        view) style. Where many files within a folder were changed as part of
+        a revision, this view will show one compressed (collapsed) entry for
+        each folder containing more than one changed file. The entry can then
+        be expanded to show the individual files changed within that folder location.
+</p>
+<p>
+    <img src="../images/affected-paths-compressed.png" width="257" height="128">
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    None
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="svn-repository-view.html">SVN Repository view</a><br>
+    <a href="svn-history-view.html">SVN Resource History view</a>
+</p>
+</body>
+</html>
