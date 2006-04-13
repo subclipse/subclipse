@@ -19,6 +19,7 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -69,7 +70,7 @@ public class GetStatusCommand implements ISVNCommand {
     // get the URL using svn info command on the local resource
 	private SVNUrl getURL(ISVNStatus status) {
 		SVNUrl url = status.getUrl();
-		if (url == null) {
+		if (url == null && !(status.getTextStatus() == SVNStatusKind.UNVERSIONED)) {
 		    try { 
 		    	ISVNClientAdapter svnClient = repository.getSVNClient();
 		    	ISVNInfo info = svnClient.getInfo(status.getFile());

@@ -38,6 +38,7 @@ import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -347,7 +348,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
     // get the URL using svn info command on the local resource
 	private SVNUrl getURL(ISVNStatus status) {
 		SVNUrl url = status.getUrl();
-		if (url == null) {
+		if (url == null && !(status.getTextStatus() == SVNStatusKind.UNVERSIONED)) {
 		    try { 
 		    	ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().createSVNClient();
 		    	ISVNInfo info = svnClient.getInfo(status.getFile());
