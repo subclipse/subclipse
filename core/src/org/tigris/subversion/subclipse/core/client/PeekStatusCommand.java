@@ -21,6 +21,7 @@ import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -61,7 +62,7 @@ public class PeekStatusCommand {
 				if (file.equals(statuses[i].getFile()))
 				{
 					status = statuses[i];
-					if (status.getUrl() == null)
+					if (status.getUrl() == null && !(status.getTextStatus() == SVNStatusKind.UNVERSIONED))
 						info = client.getInfo(status.getFile());
 					break;
 				}
