@@ -150,30 +150,32 @@ public class AliasManager {
 	
 	private Alias[] getAliases(IResource resource, boolean checkParents)  {
 		ArrayList aliases = new ArrayList();
-		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-		try {
-			if (svnResource.isManaged()) {
-				ISVNProperty property = null;
-				property = svnResource.getSvnProperty("subclipse:tags"); //$NON-NLS-1$
-				if (property != null && property.getValue() != null) getAliases(aliases, property.getValue(), svnResource.getUrl().toString());
-				if (checkParents) {
-					IResource checkResource = resource;
-					while (checkResource.getParent() != null) {
-						checkResource = checkResource.getParent();
-						Alias[] parentAliases = getAliases(checkResource, false);
-						for (int i = 0; i < parentAliases.length; i++) {
-							if (aliases.contains(parentAliases[i])) {
-								Alias checkAlias = (Alias)aliases.get(aliases.indexOf(parentAliases[i]));
-								if (parentAliases[i].getRevision() < checkAlias.getRevision()) {
-									aliases.remove(checkAlias);
-									aliases.add(parentAliases[i]);
-								}
-							} else aliases.add(parentAliases[i]);
+		if (resource != null) {
+			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+			try {
+				if (svnResource.isManaged()) {
+					ISVNProperty property = null;
+					property = svnResource.getSvnProperty("subclipse:tags"); //$NON-NLS-1$
+					if (property != null && property.getValue() != null) getAliases(aliases, property.getValue(), svnResource.getUrl().toString());
+					if (checkParents) {
+						IResource checkResource = resource;
+						while (checkResource.getParent() != null) {
+							checkResource = checkResource.getParent();
+							Alias[] parentAliases = getAliases(checkResource, false);
+							for (int i = 0; i < parentAliases.length; i++) {
+								if (aliases.contains(parentAliases[i])) {
+									Alias checkAlias = (Alias)aliases.get(aliases.indexOf(parentAliases[i]));
+									if (parentAliases[i].getRevision() < checkAlias.getRevision()) {
+										aliases.remove(checkAlias);
+										aliases.add(parentAliases[i]);
+									}
+								} else aliases.add(parentAliases[i]);
+							}
 						}
 					}
 				}
+			} catch (SVNException e) {
 			}
-		} catch (SVNException e) {
 		}
 		Alias[] aliasArray = new Alias[aliases.size()];
 		aliases.toArray(aliasArray);
