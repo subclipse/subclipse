@@ -4,6 +4,7 @@
       label="Subclipse"
       version="1.1.0"
       provider-name="tigris.org"
+      plugin="org.tigris.subversion.subclipse.core"
       colocation-affinity="org.tigris.subversion.subclipse">
    <install-handler/>
 
@@ -51,24 +52,21 @@
          id="org.tigris.subversion.subclipse.core"
          download-size="0"
          install-size="0"
-         version="1.1.0"/>
+         version="1.1.0"
+         unpack="false"/>
 
    <plugin
          id="org.tigris.subversion.subclipse.ui"
          download-size="0"
          install-size="0"
-         version="1.1.0"/>
-
-   <plugin
-         id="org.tigris.subversion.subclipse"
-         download-size="0"
-         install-size="0"
-         version="1.1.0"/>
+         version="1.1.0"
+         unpack="false"/>
 
    <plugin
          id="org.tigris.subversion.subclipse.doc"
          download-size="0"
          install-size="0"
-         version="1.1.0"/>
+         version="1.1.0"
+         unpack="false"/>
 
 </feature>

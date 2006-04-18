@@ -3,5 +3,5 @@
       autobuild="false"
       scrub-output="false"
       use-console="true">
-   <feature id="org.tigris.subversion.subclipse" version="0.9.102"/>
+   <feature id="org.tigris.subversion.subclipse" version="1.1.0"/>
 </site-build>
