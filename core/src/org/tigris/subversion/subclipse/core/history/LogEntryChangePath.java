@@ -120,16 +120,19 @@ public class LogEntryChangePath extends PlatformObject {
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
     public Object getAdapter(Class adapter) {
+      // Could the specfied adapter possibly be a remote resource?
+      if (ISVNRemoteResource.class.isAssignableFrom(adapter)) {
         ISVNRemoteResource aRemoteResource = null;
-		try {
-			aRemoteResource = getRemoteResource();
-		} catch (SVNException e) {
-		}
-        
-		if (adapter.isInstance(aRemoteResource)) {
-            return aRemoteResource;
+        try {
+          aRemoteResource = getRemoteResource();
+        } catch (SVNException e) {
         }
-        return super.getAdapter(adapter);
+        // Is the actual resource type compatible with the requested type?
+        if (adapter.isInstance(aRemoteResource)) {
+          return aRemoteResource;
+        }
+      }
+      return super.getAdapter(adapter);
     }    
     
 }
