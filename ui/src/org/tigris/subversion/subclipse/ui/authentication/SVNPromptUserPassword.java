@@ -105,10 +105,11 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
 
     public String askQuestion(String askRealm, String askQuestion, boolean askShowAnswer,
             boolean askMaySave) {
-        answer = "";
+        answer = null;
         realm = askRealm;
         maySave = askMaySave;
         showAnswer = askShowAnswer;
+        question = askQuestion;
 		SVNUIPlugin.getStandardDisplay().syncExec(new Runnable() {
 			public void run() {
 		        QuestionDialog dialog = new QuestionDialog(Display.getCurrent().getActiveShell(),
