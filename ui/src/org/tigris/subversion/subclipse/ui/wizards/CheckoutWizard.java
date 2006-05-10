@@ -22,6 +22,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -64,11 +65,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 		this();
 		this.remoteFolders = remoteFolders;
 		if (remoteFolders.length == 1) {
-			BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-				public void run() {
-					checkForProjectFile();
-				}				
-			});			
+				checkForProjectFile();
 		}
 	}
 
@@ -132,7 +129,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 		return getNextPage(page, true);
 	}
 
-public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
+	public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
 		if (page == locationPage) {
 			if (locationPage.createNewLocation()) return createLocationPage;
 			else {
@@ -256,16 +253,41 @@ public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
 	}
 
 	private void checkForProjectFile() {
-		ISVNRemoteFolder folder = remoteFolders[0];
-		String url = folder.getUrl().toString() + "/.project"; //$NON-NLS-1$ 
-		try {
-			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-			client.getInfo(new SVNUrl(url));
-			hasProjectFile = true;
-			project = SVNWorkspaceRoot.getProject(folder,null);
-		} catch (Exception e) {
-			hasProjectFile = false;
-		}		
+		
+		if(!hasProjectFile && project == null)
+		{
+			try
+			{
+				new ProgressMonitorDialog(getShell()).run(true, false, new IRunnableWithProgress()
+				{
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException
+					{
+						
+						monitor = Policy.monitorFor(monitor);
+						monitor.beginTask("Getting remote project info", 100);
+						ISVNRemoteFolder folder = remoteFolders[0];
+						String url = folder.getUrl().toString() + "/.project"; //$NON-NLS-1$ 
+						try {
+							ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+							client.getInfo(new SVNUrl(url));
+							hasProjectFile = true;
+							monitor.worked(50);
+							project = SVNWorkspaceRoot.getProject(folder,null);
+						} catch (Exception e) {
+							hasProjectFile = false;
+						}		
+						finally
+						{
+							monitor.done();
+						}
+					}
+				});
+	     } catch (InterruptedException e) {
+	         // operation canceled
+	     } catch (InvocationTargetException e) {
+	         SVNUIPlugin.openError(getContainer().getShell(), Policy.bind("exception"), null, e.getCause(), SVNUIPlugin.PERFORM_SYNC_EXEC); //$NON-NLS-1$
+	     }
+		}
 	}
 
 	public boolean canFinish() {
@@ -297,11 +319,7 @@ public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
 
 	public boolean performFinish() {
 		if (remoteFolders.length == 1) {
-			BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-				public void run() {
-					checkForProjectFile();
-				}				
-			});
+			checkForProjectFile();
 			boolean useWizard = false;
 			if (!hasProjectFile)
 				useWizard = checkoutAsWithoutProjectFilePage.useWizard();
@@ -325,6 +343,8 @@ public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
 
 	public void setRemoteFolders(ISVNRemoteFolder[] remoteFolders) {
 		this.remoteFolders = remoteFolders;
+		this.hasProjectFile = false;
+		this.project = null;
 	}
 
 	public ISVNRemoteFolder[] getRemoteFolders() {
