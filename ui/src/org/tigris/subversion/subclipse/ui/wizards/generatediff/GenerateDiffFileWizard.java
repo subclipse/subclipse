@@ -121,12 +121,12 @@ public class GenerateDiffFileWizard extends Wizard {
 						return false;
 					}
 				}
-				getContainer().run(false, true, new GenerateDiffFileOperation(resource, file, false, optionsPage.isRecursive(), getShell()));
+				getContainer().run(true, true, new GenerateDiffFileOperation(resource, file, false, optionsPage.isRecursive(), getShell()));
 				if(type==mainPage.WORKSPACE) {
 					ws.getParent().refreshLocal(IResource.DEPTH_ONE, null);
 				}
 			} else {
-				getContainer().run(false, true, new GenerateDiffFileOperation(resource, null, true, optionsPage.isRecursive(), getShell()));
+				getContainer().run(true, true, new GenerateDiffFileOperation(resource, null, true, optionsPage.isRecursive(), getShell()));
 			}
 			return true;
 		} catch (InterruptedException e1) {
