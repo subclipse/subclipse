@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
@@ -65,16 +66,19 @@ public class NewRemoteFolderWizard extends Wizard {
 	 */
 	public boolean performFinish() {
         try {
-            SVNUIPlugin.runWithProgress(getContainer().getShell(), false /*cancelable*/, new IRunnableWithProgress() {
+      	  final String folderName = mainPage.getFolderName();
+      	  final String comment = commitCommentPage.getComment();
+      	  IRunnableWithProgress runnable = new IRunnableWithProgress() {
                 public void run(IProgressMonitor monitor) throws InvocationTargetException {
                     try {
-                        ISVNRemoteFolder parentFolder = mainPage.getParentFolder();
-                        parentFolder.createRemoteFolder(mainPage.getFolderName(),commitCommentPage.getComment(),monitor);
+                    	ISVNRemoteFolder parentFolder = mainPage.getParentFolder();
+								parentFolder.createRemoteFolder(folderName,comment,monitor);
                     } catch (SVNException e) {
                         throw new InvocationTargetException(e);
                     }
                 }
-            });
+            };
+            new ProgressMonitorDialog(getShell()).run(true, false, runnable);
         } catch (InterruptedException e) {
             // operation canceled
         } catch (InvocationTargetException e) {
