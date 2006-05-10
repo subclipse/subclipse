@@ -118,6 +118,7 @@
 	      	   name = "%CheckoutWizard.name"
 		   class="org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard"
 		   category="org.tigris.subversion.subclipse.ui.svn"
+		   project="true"
 		   icon="icons/full/wizards/newconnect_wiz.gif">
 	    	   <description>%CheckoutWizard.desc</description>
 		</wizard>
