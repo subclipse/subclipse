@@ -33,6 +33,9 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
+import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class SVNPropertyPage extends PropertyPage {
@@ -199,7 +202,21 @@ public class SVNPropertyPage extends PropertyPage {
             lockCreationDate.setText(status.getLockOwner() != null ? status
                     .getLockCreationDate().toString() : ""); //$NON-NLS-1$
             lockComment.setText(status.getLockOwner() != null ? status.getLockComment() : ""); //$NON-NLS-1$
-
+            // Get lock information from server if svn:needs-lock property is set
+            if (status.getLockOwner() == null && status.getUrlString() != null) {
+           		ISVNProperty prop = svnResource.getSvnProperty("svn:needs-lock");
+           		if (prop != null) {
+	           	    ISVNClientAdapter client = svnResource.getRepository().getSVNClient();
+	            	try {
+	            		ISVNInfo info = client.getInfo(status.getUrl());
+	                    lockOwner.setText(info.getLockOwner() != null ? info.getLockOwner() : ""); //$NON-NLS-1$
+	                    lockCreationDate.setText(info.getLockOwner() != null ? info
+	                            .getLockCreationDate().toString() : ""); //$NON-NLS-1$
+	                    lockComment.setText(info.getLockOwner() != null ? info.getLockComment() : ""); //$NON-NLS-1$
+	            	} catch (Exception e) {
+	            	}
+           		}
+            }
         } catch (Exception e) {
             SVNUIPlugin.log(new Status(IStatus.ERROR, SVNUIPlugin.ID, TeamException.UNABLE,
                     "Property Exception", e)); //$NON-NLS-1$
