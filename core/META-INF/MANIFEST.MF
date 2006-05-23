@@ -10,12 +10,12 @@ Bundle-ClassPath: .,
 Bundle-Activator: org.tigris.subversion.subclipse.core.SVNProviderPlugin
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.resources,
- org.eclipse.team.core,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.resources;bundle-version="3.2.0",
+ org.eclipse.team.core;bundle-version="3.2.0",
+ org.eclipse.core.runtime;bundle-version="3.2.0",
  org.eclipse.osgi,
  org.eclipse.compare
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Export-Package: org.tigris.subversion.subclipse.core,
  org.tigris.subversion.subclipse.core.client,
  org.tigris.subversion.subclipse.core.commands,
