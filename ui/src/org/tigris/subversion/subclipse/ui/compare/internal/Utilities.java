@@ -35,16 +35,12 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.ListenerList;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.ui.IKeyBindingService;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
 
@@ -52,13 +48,6 @@ import org.eclipse.ui.IWorkbenchPartSite;
  * Convenience and utility methods.
  */
 public class Utilities {
-	
-	public static void registerAction(IKeyBindingService kbs, IAction a, String id) {
-		if (kbs != null) {
-			a.setActionDefinitionId(id);
-			kbs.registerAction(a);
-		}
-	}
 	
 	public static IWorkbenchPartSite findSite(Control c) {
 		while (c != null && !c.isDisposed()) {
@@ -85,19 +74,6 @@ public class Utilities {
 		return dflt;
 	}
 	
-	public static void firePropertyChange(ListenerList ll, Object source, String property, Object old, Object newValue) {
-		if (ll != null) {
-			PropertyChangeEvent event= null;
-			Object[] listeners= ll.getListeners();
-			for (int i= 0; i < listeners.length; i++) {
-				IPropertyChangeListener l= (IPropertyChangeListener) listeners[i];
-				if (event == null)
-					event= new PropertyChangeEvent(source, property, old, newValue);
-				l.propertyChange(event);
-			}
-		}
-	}
-
 	public static boolean okToUse(Widget widget) {
 		return widget != null && !widget.isDisposed();
 	}
