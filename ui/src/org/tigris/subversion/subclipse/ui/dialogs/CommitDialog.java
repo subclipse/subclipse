@@ -523,4 +523,8 @@ public class CommitDialog extends Dialog {
     public boolean isKeepLocks() {
         return keepLocks;
     }
+
+	public void setComment(String proposedComment) {
+		commitCommentArea.setOldComment(proposedComment);
+	}
 }

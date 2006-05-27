@@ -28,6 +28,7 @@ public class ShowPropertiesSynchronizeAction extends SynchronizeModelAction {
 			    if (selection.size() != 1) return false;
 		        ISynchronizeModelElement element = (ISynchronizeModelElement)selection.getFirstElement();
 			    IResource resource = element.getResource();
+		        if (resource == null) return false;
                 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);			    
                 try {
                     return !svnResource.getStatus().isDeleted() && svnResource.getStatus().isManaged() && resource.exists();

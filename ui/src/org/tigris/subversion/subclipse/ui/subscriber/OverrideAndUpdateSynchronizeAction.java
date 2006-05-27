@@ -38,7 +38,7 @@ public class OverrideAndUpdateSynchronizeAction extends SynchronizeModelAction {
 			    while (iter.hasNext()) {
 			    	ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
 			    	IResource resource = element.getResource();
-			    	if (!resource.exists()) return false;
+			    	if (resource == null || !resource.exists()) return false;
 			    }
                 return true;
 			}

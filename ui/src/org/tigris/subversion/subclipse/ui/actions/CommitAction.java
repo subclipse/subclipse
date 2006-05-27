@@ -22,13 +22,17 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.window.Window;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
+import org.eclipse.team.internal.core.subscribers.ChangeSet;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
@@ -54,7 +58,12 @@ public class CommitAction extends WorkspaceAction {
     protected boolean commit;
     protected boolean keepLocks;
     protected IResource[] selectedResources;
+    private String proposedComment;
 	
+	public CommitAction(String proposedComment) {
+		this.proposedComment = proposedComment;
+	}
+
 	/*
      * get non added resources and prompts for resources to be added
      * prompts for comments
@@ -119,6 +128,11 @@ public class CommitAction extends WorkspaceAction {
 			 IResource resource = resources[i];
 			 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 			 
+			 // This check is for when the action is called with unmanaged resources
+			 if (svnResource.getRepository() == null) {
+				 continue;
+			 }
+			 
 			 // if only one resource selected, get url.  Commit dialog displays this.
 			 if (resources.length == 1) {
 				   url = svnResource.getStatus().getUrlString();
@@ -166,6 +180,11 @@ public class CommitAction extends WorkspaceAction {
 	           return false;	       
 	   }
 	   CommitDialog dialog = new CommitDialog(getShell(), modifiedResources, url, hasUnaddedResources, projectProperties);
+	   if (proposedComment == null || proposedComment.length() == 0) {
+		   dialog.setComment(getProposedComment(modifiedResources));
+	   } else {
+		   dialog.setComment(proposedComment);
+	   }
 	   boolean commitOK = (dialog.open() == Window.OK);
 	   url = null;
 	   commitComment = dialog.getComment();
@@ -273,5 +292,54 @@ public class CommitAction extends WorkspaceAction {
     }
     public void setSelectedResources(IResource[] selectedResources) {
         this.selectedResources = selectedResources;
+    }
+    
+    /*
+     * Get a proposed comment by looking at the active change sets
+     */
+    private String getProposedComment(IResource[] resourcesToCommit) {
+    	StringBuffer comment = new StringBuffer();
+    	ChangeSet[] sets = SVNProviderPlugin.getPlugin().getChangeSetManager().getSets();
+    	int numMatchedSets = 0;
+    	for (int i = 0; i < sets.length; i++) {
+    		ChangeSet set = sets[i];
+    		if (isUserSet(set) && containsOne(set, resourcesToCommit)) {
+    			if(numMatchedSets > 0) comment.append(System.getProperty("line.separator")); //$NON-NLS-1$
+    			comment.append(set.getComment());
+    			numMatchedSets++;
+    		}
+    	}
+    	return comment.toString();
+    }
+
+    private boolean isUserSet(ChangeSet set) {
+    	if (set instanceof ActiveChangeSet) {
+    		ActiveChangeSet acs = (ActiveChangeSet) set;
+    		return acs.isUserCreated();
+    	}
+    	return false;
+    }
+
+    private boolean containsOne(ChangeSet set, IResource[] resourcesToCommit) {
+    	for (int j = 0; j < resourcesToCommit.length; j++) {
+    		IResource resource = resourcesToCommit[j];
+    		if (set.contains(resource)) {
+    			return true;
+    		}
+    		if (set instanceof ActiveChangeSet) {
+    			ActiveChangeSet acs = (ActiveChangeSet) set;
+    			if (acs.getDiffTree().members(resource).length > 0)
+    				return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    public boolean hasOutgoingChanges() {
+    	try {
+    		return getModifiedResources(selectedResources, new NullProgressMonitor()).length > 0;
+    	} catch (SVNException e) {
+    	}
+    	return false;
     }
 }

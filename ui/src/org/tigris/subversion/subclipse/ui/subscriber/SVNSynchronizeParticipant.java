@@ -16,6 +16,8 @@ import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.team.internal.ui.synchronize.ChangeSetCapability;
+import org.eclipse.team.internal.ui.synchronize.IChangeSetProvider;
 import org.eclipse.team.ui.TeamUI;
 import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
@@ -39,7 +41,7 @@ import org.tigris.subversion.subclipse.ui.internal.ScopableSubscriberParticipant
  * 
  * @since 3.0
  */
-public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant {
+public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant implements IChangeSetProvider{
 	
 	/**
 	 * The particpant ID as defined in the plugin manifest
@@ -49,8 +51,10 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant {
 	/**
 	 * Contxt menu action group for synchronize view actions
 	 */
-	public static final String CONTEXT_MENU_CONTRIBUTION_GROUP_1 = "context_group_1"; //$NON-NLS-1$
-	
+	public static final String CONTEXT_MENU_CONTRIBUTION_GROUP_1 = "context_group_1";
+
+	private ChangeSetCapability capability;
+
 	/**
 	 * A custom label decorator that will show the remote mapped path for each
 	 * file.
@@ -174,7 +178,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant {
 		}
 
 	}
-	
+
 	/**
 	 * No arg contructor used for
 	 * creation of persisted participant after startup
@@ -218,5 +222,12 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant {
 		configuration.addMenuGroup(
 				ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 				CONTEXT_MENU_CONTRIBUTION_GROUP_1);
+	}
+
+	public ChangeSetCapability getChangeSetCapability() {
+        if (capability == null) {
+			capability = new SVNChangeSetCapability();
+        }
+        return capability;
 	}
 }

@@ -25,10 +25,12 @@ import org.tigris.subversion.subclipse.ui.actions.CommitAction;
 public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
     private IResource[] resources;
     private boolean resourcesCommitted;
+    private String proposedComment;
 
-	protected CommitSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, IResource[] resources) {
+	protected CommitSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, IResource[] resources, String proposedComment) {
 		super(configuration, elements);
 		this.resources = resources;
+		this.proposedComment = proposedComment;
 	}
 
     /* (non-Javadoc)
@@ -45,7 +47,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 		if (resourcesCommitted) return;
 		getShell().getDisplay().syncExec(new Runnable() {
 			public void run() {
-				CommitAction commitAction = new CommitAction();
+				CommitAction commitAction = new CommitAction(proposedComment);
 				commitAction.setSelectedResources(resources);
 				commitAction.run(null);
 			}			

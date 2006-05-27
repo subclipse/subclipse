@@ -127,7 +127,8 @@ public interface ISVNUIConstants {
     public final String PREF_SHOW_MODIFIED_RESOURCES = "pref_show_modified_resources"; //$NON-NLS-1$
     public final String PREF_SHOW_COMPARE_REVISION_IN_DIALOG = "pref_show_compare_revision_in_dialog"; //$NON-NLS-1$
     public final String PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT = "pref_select_unadded_resources_on_commit"; //$NON-NLS-1$ 
-   
+	public final String PREF_COMMIT_SET_DEFAULT_ENABLEMENT = "pref_enable_commit_sets"; //$NON-NLS-1$
+
 	// console preferences
 	public final String PREF_CONSOLE_COMMAND_COLOR = "pref_console_command_color"; //$NON-NLS-1$
 	public final String PREF_CONSOLE_MESSAGE_COLOR = "pref_console_message_color"; //$NON-NLS-1$
@@ -215,6 +216,7 @@ public interface ISVNUIConstants {
 
     public final int LAYOUT_FLAT = 1; //$NON-NLS-1$
     public final int LAYOUT_COMPRESSED = 2; //$NON-NLS-1$
-
+    
+	public final String PREF_ALLOW_EMPTY_COMMIT_COMMENTS= "pref_allow_empty_commit_comment"; //$NON-NLS-1$
 }
 

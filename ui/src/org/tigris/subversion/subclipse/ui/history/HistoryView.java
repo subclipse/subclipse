@@ -104,10 +104,10 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.commands.ChangeCommitPropertiesCommand;
+import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
-import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -1672,6 +1672,26 @@ public class HistoryView extends ViewPart implements IResourceStateChangeListene
 
 	public static HistoryView getView() {
 		return view;
+	}
+	
+	/*
+	 * Flatten the text in the multiline comment
+	 */
+	public static String flattenText(String string) {
+		StringBuffer buffer = new StringBuffer(string.length() + 20);
+		boolean skipAdjacentLineSeparator = true;
+		for (int i = 0; i < string.length(); i++) {
+			char c = string.charAt(i);
+			if (c == '\r' || c == '\n') {
+				if (!skipAdjacentLineSeparator)
+					buffer.append('/'); 
+				skipAdjacentLineSeparator = true;
+			} else {
+				buffer.append(c);
+				skipAdjacentLineSeparator = false;
+			}
+		}
+		return buffer.toString();
 	}
 
     public void createAffectedPathsViewer(int layout) {

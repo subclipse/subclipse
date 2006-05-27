@@ -46,6 +46,7 @@ public class IgnoreSynchronizeAction extends SynchronizeModelAction {
 			    if (selection.size() != 1) return false;
 		        ISynchronizeModelElement element = (ISynchronizeModelElement)selection.getFirstElement();
 			    IResource resource = element.getResource();
+		        if (resource == null) return false;
                 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);			    
                 try {
             	    //If the resource is a IProject then the action should not be enabled.

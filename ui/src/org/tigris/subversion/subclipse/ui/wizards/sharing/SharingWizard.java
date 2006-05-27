@@ -277,7 +277,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 					}
 				}
 			});
-			CommitAction commitAction = new CommitAction();
+			CommitAction commitAction = new CommitAction("");
 			IResource[] selectedResources = { project };
 			commitAction.setSelectedResources(selectedResources);
 			commitAction.run(null);
