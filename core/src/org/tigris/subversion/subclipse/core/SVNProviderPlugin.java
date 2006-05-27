@@ -30,14 +30,17 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.team.internal.core.subscribers.ActiveChangeSetManager;
 import org.osgi.framework.BundleContext;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
+import org.tigris.subversion.subclipse.core.mapping.SVNActiveChangeSetCollector;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
 import org.tigris.subversion.subclipse.core.resources.ISVNFileModificationValidatorPrompt;
 import org.tigris.subversion.subclipse.core.resources.RepositoryResourcesManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.FileModificationManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.SyncFileChangeListener;
 import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
+import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.core.util.ISimpleDialogsHelper;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNPromptUserPassword;
@@ -87,6 +90,8 @@ public class SVNProviderPlugin extends Plugin {
 	
 	private String dirname;
     
+	private SVNActiveChangeSetCollector changeSetManager;
+	
 	/**
 	 * This constructor required by the bundle loader (calls newInstance())
 	 *  
@@ -154,6 +159,8 @@ public class SVNProviderPlugin extends Plugin {
 
 		fileModificationManager.registerSaveParticipant();
 
+		// Must load the change set manager on startup since it listens to deltas
+		getChangeSetManager();
 	}
 
 	/**
@@ -186,6 +193,8 @@ public class SVNProviderPlugin extends Plugin {
 		workspace.removeSaveParticipant(this);
         
         svnClientManager.shutdown(null);
+        
+        getChangeSetManager().dispose();
 	}
 
 	private static List listeners = new ArrayList();
@@ -510,5 +519,12 @@ public class SVNProviderPlugin extends Plugin {
 //		} catch (SVNException e) {
 //			return getAdminDirectoryName().equals(name);
 //		}
+    }
+    
+    public synchronized ActiveChangeSetManager getChangeSetManager() {
+        if (changeSetManager == null) {
+            changeSetManager = new SVNActiveChangeSetCollector(SVNWorkspaceSubscriber.getInstance());
+        }
+        return changeSetManager;
     }
 }
