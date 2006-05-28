@@ -60,6 +60,10 @@ public class CommitAction extends WorkspaceAction {
     protected IResource[] selectedResources;
     private String proposedComment;
 	
+    public CommitAction() {
+    	
+    }
+    
 	public CommitAction(String proposedComment) {
 		this.proposedComment = proposedComment;
 	}
