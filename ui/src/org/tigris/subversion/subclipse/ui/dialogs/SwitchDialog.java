@@ -169,7 +169,7 @@ public class SwitchDialog extends Dialog {
             MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), Policy.bind("MergeDialog.urlError") + " " + urlCombo.getText()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             return;	            
         }	
-        HistoryDialog dialog = dialog = new HistoryDialog(getShell(), remoteResource);
+        HistoryDialog dialog = new HistoryDialog(getShell(), remoteResource);
         dialog.setSelectedResource(resource);
         if (dialog.open() == HistoryDialog.CANCEL) return;
         ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();

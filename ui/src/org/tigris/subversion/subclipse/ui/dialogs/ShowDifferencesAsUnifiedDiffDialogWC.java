@@ -325,7 +325,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
 	private void showLog(Object sourceButton) {
 		try {
 			SVNUrl url = new SVNUrl(toUrlText.getText().trim());
-			ISVNRemoteResource remoteResource = remoteResource = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getRemoteFile(url);
+			ISVNRemoteResource remoteResource = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getRemoteFile(url);
 			HistoryDialog dialog = new HistoryDialog(getShell(), remoteResource);
 			dialog.setSelectedResource(resource);
 	        if (dialog.open() == HistoryDialog.CANCEL) return;

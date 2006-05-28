@@ -185,7 +185,7 @@ public class ExportRemoteFolderDialog extends Dialog {
     }
     
 	protected void showLog() {
-        HistoryDialog dialog = dialog = new HistoryDialog(getShell(), remoteFolder);
+        HistoryDialog dialog = new HistoryDialog(getShell(), remoteFolder);
         if (dialog.open() == HistoryDialog.CANCEL) return;
         ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
         if (selectedEntries.length == 0) return;
