@@ -395,6 +395,13 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		}		
 	}
 
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNResource#getResource()
+     */
+    public IResource getResource() {
+    	return resource;
+    }
+    
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
 	 */

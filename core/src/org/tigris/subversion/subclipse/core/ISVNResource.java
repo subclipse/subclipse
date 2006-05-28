@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.core;
 
+import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 
@@ -60,5 +61,12 @@ public interface ISVNResource {
      * @throws SVNException
      */
     public SVNUrl getUrl();	
+    
+    /**
+     * Gets the underlying resource of this SVN resource if there is one
+     * @return Local resource or <code>null</code> if this is a remote resource with
+     * no corresponding local resource
+     */
+    public IResource getResource();
 	
 }

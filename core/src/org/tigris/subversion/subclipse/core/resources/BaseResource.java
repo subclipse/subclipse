@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.core.resources;
 import java.io.File;
 import java.util.Date;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.PlatformObject;
@@ -241,4 +242,14 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 		return (localResourceStatus != null) ? localResourceStatus.getPathString() : "";
 	}
 
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.ISVNResource#getResource()
+	 */
+	public IResource getResource() {
+		try {
+			return localResourceStatus.getResource();
+		} catch (SVNException e) {
+			return null;
+		}
+	}
 }

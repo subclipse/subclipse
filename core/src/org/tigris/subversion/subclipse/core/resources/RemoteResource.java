@@ -244,7 +244,13 @@ public abstract class RemoteResource
 	public byte[] asBytes() {
 		return new Long(getContentIdentifier()).toString().getBytes();
 	}
-	
+
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNResource#getResource()
+     */
+    public IResource getResource() {
+    	return null;
+    }
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
