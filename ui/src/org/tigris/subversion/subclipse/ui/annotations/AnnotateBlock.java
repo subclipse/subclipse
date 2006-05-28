@@ -10,6 +10,8 @@
  *     Cédric Chabanois (cchabanois@ifrance.com) - modified for Subversion 
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.annotations;
+import java.util.Date;
+
 import org.tigris.subversion.subclipse.ui.Policy;
 
 /**
@@ -17,14 +19,16 @@ import org.tigris.subversion.subclipse.ui.Policy;
  */
 public class AnnotateBlock {
 
-	long revision = -1;
-	String user = ""; //$NON-NLS-1$
-	int startLine = 0;
-	int endLine = 0;
+	private long revision = -1;
+	private String user = ""; //$NON-NLS-1$
+	private int startLine = 0;
+	private int endLine = 0;
+	private Date date;
 
-	public AnnotateBlock(long revision, String user, int startLine, int endLine) {
+	public AnnotateBlock(long revision, String user, Date date, int startLine, int endLine) {
 		this.revision = revision;
 		this.user = user;
+		this.date = date;
 		this.startLine = startLine;
 		this.endLine = endLine;
 	}
@@ -82,5 +86,33 @@ public class AnnotateBlock {
 	 */
 	public boolean contains(int i) {
 		return (i >= startLine && i <= endLine);
+	}
+	
+	/**
+	 * @return Returns the date.
+	 */
+	public Date getDate() {
+		return this.date;
+	}
+	
+	/**
+	 * @param date The date to set.
+	 */
+	public void setDate(Date date) {
+		this.date = date;
+	}
+	
+	/**
+	 * @return Returns the user.
+	 */
+	public String getUser() {
+		return this.user;
+	}
+	
+	/**
+	 * @param user The user to set.
+	 */
+	public void setUser(String user) {
+		this.user = user;
 	}
 }

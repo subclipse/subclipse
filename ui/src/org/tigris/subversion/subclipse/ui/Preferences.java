@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.ui;
 
 import java.io.File;
 
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -87,6 +88,8 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_MERGE_USE_EXTERNAL, false);
         store.setDefault(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION,""); //$NON-NLS-1$
         store.setDefault(ISVNUIConstants.PREF_MERGE_PROGRAM_PARAMETERS,""); //$NON-NLS-1$
+        
+        store.setDefault(ISVNUIConstants.PREF_USE_QUICKDIFFANNOTATE, MessageDialogWithToggle.PROMPT);
         
         setSvnClientInterface(store.getString(ISVNUIConstants.PREF_SVNINTERFACE));
         setSvnClientConfigDir(store.getString(ISVNUIConstants.PREF_SVNCONFIGDIR));

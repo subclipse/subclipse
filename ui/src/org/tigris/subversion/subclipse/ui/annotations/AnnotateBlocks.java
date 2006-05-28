@@ -24,6 +24,7 @@ public class AnnotateBlocks {
 			AnnotateBlock block = new AnnotateBlock(
 					svnAnnotations.getRevision(i),
 					svnAnnotations.getAuthor(i),
+					svnAnnotations.getChanged(i),
 					i,i);
 			add(block);
 		}
