@@ -12,9 +12,7 @@ package org.tigris.subversion.subclipse.core.mapping;
 
 import org.eclipse.team.core.subscribers.Subscriber;
 import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
-import org.eclipse.team.internal.core.subscribers.ActiveChangeSetManager;
 import org.eclipse.team.internal.core.subscribers.SubscriberChangeSetManager;
-import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 
 /**
  *
