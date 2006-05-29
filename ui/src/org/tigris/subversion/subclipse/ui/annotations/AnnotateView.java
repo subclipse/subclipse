@@ -34,6 +34,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.team.ui.history.IHistoryView;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorRegistry;
@@ -50,8 +51,11 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.history.SVNHistoryPage;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * A view showing the results of the SVN Annotate Command.  A linked
@@ -61,7 +65,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 public class AnnotateView extends ViewPart implements ISelectionChangedListener {
 
 	ITextEditor editor;
-	// HistoryView historyView;
+	IHistoryView historyView;
 	IWorkbenchPage page;
 
 	ListViewer viewer;
@@ -168,8 +172,10 @@ public class AnnotateView extends ViewPart implements ISelectionChangedListener 
 		}
 
 		// Get hook to the HistoryView
-		// historyView = (HistoryView) page.showView(HistoryView.VIEW_ID);
-		// historyView.showHistory(svnFile, false /* don't refetch */);
+		historyView = (IHistoryView)page.showView(ISVNUIConstants.HISTORY_VIEW_ID);
+		if (historyView != null) {
+			historyView.showHistoryFor(svnFile);
+		}
 	}
 	
 	protected void disconnect() {
@@ -301,9 +307,10 @@ public class AnnotateView extends ViewPart implements ISelectionChangedListener 
 		
 		
 		// Select the revision in the history view.
-		// if(historyView != null) {
-		// 	historyView.selectRevision(new SVNRevision.Number(listSelection.getRevision()));
-		// }
+		if(historyView != null) {
+			SVNHistoryPage page = (SVNHistoryPage)historyView.getHistoryPage();
+			page.selectRevision(new SVNRevision.Number(listSelection.getRevision()));
+		}
 		lastSelectionWasText = false;			
 	}
 
