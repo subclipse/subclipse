@@ -31,7 +31,7 @@
       </view>
       <view
             name="%AnnotateView.name"
-            icon="icons/full/tortoise/blame.gif"
+            icon="icons/full/cview16/annotate_view.gif"
             category="org.tigris.subversion.subclipse"
             class="org.tigris.subversion.subclipse.ui.annotations.AnnotateView"
             id="org.tigris.subversion.subclipse.ui.annotations.AnnotateView">
@@ -246,7 +246,7 @@
             id="org.tigris.subversion.subclipse.ui.RemoteFileContributions">
          <action
                label="%AnnotateAction.label"
-               icon="icons/full/tortoise/blame.gif"
+               icon="icons/full/cview16/annotate_view.gif"
                class="org.tigris.subversion.subclipse.ui.actions.AnnotateAction"
                menubarPath="historyGroup"
                id="org.tigris.subversion.subclipse.ui.annotate">
@@ -308,7 +308,7 @@
          </action>
          <action
                label="%ShowAnnotationAction.label"
-               icon="icons/full/tortoise/blame.gif"
+               icon="icons/full/cview16/annotate_view.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.get_annotate_action_context"
                tooltip="%ShowAnnotationAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction"
@@ -625,7 +625,7 @@
          </action>
          <action
                label="%ShowAnnotationAction.label"
-               icon="icons/full/tortoise/blame.gif"
+               icon="icons/full/cview16/annotate_view.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.get_annotate_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction"
                tooltip="%ShowAnnotationAction.tooltip"
