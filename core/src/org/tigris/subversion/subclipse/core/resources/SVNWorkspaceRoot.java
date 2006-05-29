@@ -378,23 +378,24 @@ public class SVNWorkspaceRoot {
 		IPath resourcePath = pathForLocation(status.getPath());
 		if (resourcePath == null) 
 		{
-			if(status.getFile() != null && status.getFile().getName().equals(".metadata"))  //$NON-NLS-1$
-				return null;
-		    if (!nullResourceLogged) {
-		        String errorMsg = Policy.bind("SVNWorkspaceRoot.nullResource", status.getPathString());
-			    IConsoleListener console = SVNProviderPlugin.getPlugin().getConsoleListener();
-			    if (console != null) {
-			        console.logError(errorMsg);
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.2"));
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.3"));
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.4"));
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.5"));
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.6"));
-			    }
-			    nullResourceLogged = true;
-			    throw new SVNException(errorMsg);
-		    }
-		    throw new SVNException("");
+			return null;
+//			if(status.getFile() != null && status.getFile().getName().equals(".metadata"))  //$NON-NLS-1$
+//				return null;
+//		    if (!nullResourceLogged) {
+//		        String errorMsg = Policy.bind("SVNWorkspaceRoot.nullResource", status.getPathString());
+//			    IConsoleListener console = SVNProviderPlugin.getPlugin().getConsoleListener();
+//			    if (console != null) {
+//			        console.logError(errorMsg);
+//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.2"));
+//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.3"));
+//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.4"));
+//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.5"));
+//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.6"));
+//			    }
+//			    nullResourceLogged = true;
+//			    throw new SVNException(errorMsg);
+//		    }
+//		    throw new SVNException("");
 		}
 		int kind = getResourceType(resourcePath);			
 
