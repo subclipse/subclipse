@@ -50,6 +50,8 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownAdapter;
+import org.eclipse.ui.part.PluginTransfer;
+import org.eclipse.ui.part.PluginTransferData;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.part.WorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
@@ -167,7 +169,16 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
                       return;
                   }
               }
-          }
+          } else if (PluginTransfer.getInstance().isSupportedType(event.dataType)) {
+            final Object[] array = selection.toArray();
+            for (int i = 0; i < array.length; i++) {
+                if (array[i] instanceof ISVNRemoteResource) {
+                    event.data = new PluginTransferData("org.tigris.subversion.subclipse.ui.svnRemoteDrop", RemoteResourceTransfer.getInstance().toByteArray((ISVNRemoteResource) array[i])); //$NON-NLS-1$
+                    return;
+                }
+            }
+           
+        } 
       }
 
       public void dragFinished( DragSourceEvent event) {
@@ -382,7 +393,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 
         repositoryDragSourceListener = new RepositoryDragSourceListener();
         treeViewer.addDragSupport( DND.DROP_LINK | DND.DROP_DEFAULT,
-                new Transfer[] { RemoteResourceTransfer.getInstance()},
+                new Transfer[] { RemoteResourceTransfer.getInstance(), PluginTransfer.getInstance()},
                 repositoryDragSourceListener);
         
         treeViewer.addSelectionChangedListener( new ISelectionChangedListener() {

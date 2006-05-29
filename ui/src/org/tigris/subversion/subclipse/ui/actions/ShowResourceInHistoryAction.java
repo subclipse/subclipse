@@ -17,10 +17,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.team.ui.history.IHistoryView;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.history.HistoryView;
 
 /**
  * Show history for selected local resource
@@ -34,9 +35,9 @@ public class ShowResourceInHistoryAction extends WorkspaceAction {
 			public void run(IProgressMonitor monitor) {
 				IResource[] resources = getSelectedResources();
 				if (resources.length != 1) return;
-				HistoryView view = (HistoryView)showView(HistoryView.VIEW_ID);
+				IHistoryView view = (IHistoryView) showView(ISVNUIConstants.HISTORY_VIEW_ID);
 				if (view != null) {
-					view.showHistory(resources[0], false);
+					view.showHistoryFor(resources[0]);
 				}
 			}
 		}, false /* cancelable */, PROGRESS_BUSYCURSOR);

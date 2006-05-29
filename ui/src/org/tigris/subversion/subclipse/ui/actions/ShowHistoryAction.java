@@ -16,9 +16,10 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.team.ui.history.IHistoryView;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.history.HistoryView;
 
 /**
  * Show history for selected remote file
@@ -32,9 +33,9 @@ public class ShowHistoryAction extends SVNAction {
 		run(new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				ISVNRemoteResource[] resources = getSelectedRemoteResources();
-				HistoryView view = (HistoryView)showView(HistoryView.VIEW_ID);
+				IHistoryView view = (IHistoryView)showView(ISVNUIConstants.HISTORY_VIEW_ID);
 				if (view != null) {
-					view.showHistory(resources[0], null /* no current revision */);
+					view.showHistoryFor(resources[0]);
 				}
 			}
 		}, false /* cancelable */, PROGRESS_BUSYCURSOR);

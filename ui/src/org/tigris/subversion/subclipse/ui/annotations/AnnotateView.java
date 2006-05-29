@@ -52,8 +52,6 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.history.HistoryView;
-import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * A view showing the results of the SVN Annotate Command.  A linked
@@ -63,7 +61,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 public class AnnotateView extends ViewPart implements ISelectionChangedListener {
 
 	ITextEditor editor;
-	HistoryView historyView;
+	// HistoryView historyView;
 	IWorkbenchPage page;
 
 	ListViewer viewer;
@@ -170,8 +168,8 @@ public class AnnotateView extends ViewPart implements ISelectionChangedListener 
 		}
 
 		// Get hook to the HistoryView
-		historyView = (HistoryView) page.showView(HistoryView.VIEW_ID);
-		historyView.showHistory(svnFile, false /* don't refetch */);
+		// historyView = (HistoryView) page.showView(HistoryView.VIEW_ID);
+		// historyView.showHistory(svnFile, false /* don't refetch */);
 	}
 	
 	protected void disconnect() {
@@ -303,9 +301,9 @@ public class AnnotateView extends ViewPart implements ISelectionChangedListener 
 		
 		
 		// Select the revision in the history view.
-		if(historyView != null) {
-			historyView.selectRevision(new SVNRevision.Number(listSelection.getRevision()));
-		}
+		// if(historyView != null) {
+		// 	historyView.selectRevision(new SVNRevision.Number(listSelection.getRevision()));
+		// }
 		lastSelectionWasText = false;			
 	}
 

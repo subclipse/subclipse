@@ -14,7 +14,6 @@ package org.tigris.subversion.subclipse.ui.preferences;
 
 import java.io.File;
 
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -41,7 +40,6 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.history.HistoryView;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapter;
@@ -314,17 +312,17 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
 		store.setValue(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH, entriesToFetch);
 		
-		HistoryView historyView = HistoryView.getView();
-		if (historyView != null) {
-			IAction getNextAction = historyView.getGetNextAction();
-			if (getNextAction != null) {
-				if (entriesToFetch <= 0) getNextAction.setEnabled(false);
-				else {
-					getNextAction.setEnabled(true);
-					getNextAction.setToolTipText(Policy.bind("HistoryView.getNext") + " " + entriesToFetch);
-				}
-			}
-		}
+//		HistoryView historyView = HistoryView.getView();
+//		if (historyView != null) {
+//			IAction getNextAction = historyView.getGetNextAction();
+//			if (getNextAction != null) {
+//				if (entriesToFetch <= 0) getNextAction.setEnabled(false);
+//				else {
+//					getNextAction.setEnabled(true);
+//					getNextAction.setToolTipText(Policy.bind("HistoryView.getNext") + " " + entriesToFetch);
+//				}
+//			}
+//		}
 		
         // save svn interface pref
         if (javahlRadio.getSelection() ){

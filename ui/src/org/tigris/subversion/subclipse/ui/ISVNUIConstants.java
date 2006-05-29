@@ -80,7 +80,7 @@ public interface ISVNUIConstants {
     public final String IMG_CONFLICT = "tortoise/conflict.gif"; //$NON-NLS-1$
     public final String IMG_REVERT = "tortoise/revert.gif"; //$NON-NLS-1$
     public final String IMG_RESOLVE = "tortoise/resolve.gif"; //$NON-NLS-1$
-    public final String IMG_LOG = "tortoise/log.gif"; //$NON-NLS-1$
+    public final String IMG_LOG = "cview16/history_view.gif"; //$NON-NLS-1$
     public final String IMG_MERGE = "tortoise/merge.gif"; //$NON-NLS-1$
     public final String IMG_IGNORE = "tortoise/ignore.gif"; //$NON-NLS-1$
     public final String IMG_ADD = "tortoise/add.gif"; //$NON-NLS-1$
@@ -219,5 +219,8 @@ public interface ISVNUIConstants {
     public final int LAYOUT_COMPRESSED = 2; //$NON-NLS-1$
     
 	public final String PREF_ALLOW_EMPTY_COMMIT_COMMENTS= "pref_allow_empty_commit_comment"; //$NON-NLS-1$
+
+	// This is in Internal class in team.ui, so we are mirroring it
+	public final static String HISTORY_VIEW_ID = "org.eclipse.team.ui.GenericHistoryView"; //$NON-NLS-1$
 }
 

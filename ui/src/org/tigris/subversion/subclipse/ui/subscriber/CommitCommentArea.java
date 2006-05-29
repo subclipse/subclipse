@@ -37,7 +37,6 @@ import org.eclipse.team.internal.ui.dialogs.DialogArea;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.history.HistoryView;
 
 /**
  * This area provides the widgets for providing the CVS commit comment
@@ -164,13 +163,33 @@ public class CommitCommentArea extends DialogArea {
 			fCombo.add(fMessage);
             for (int i = 0; i < fCommentTemplates.length; i++) {
                 fCombo.add(Policy.bind("CommitCommentArea_6") + ": " + //$NON-NLS-1$
-                		HistoryView.flattenText(fCommentTemplates[i]));
+                		flattenText(fCommentTemplates[i]));
             }
             for (int i = 0; i < fComments.length; i++) {
-                fCombo.add(HistoryView.flattenText(fComments[i]));
+                fCombo.add(flattenText(fComments[i]));
             }
             fCombo.setText(fMessage);
 		}
+        
+        /*
+         * Flatten the text in the multiline comment
+         */
+        private String flattenText(String string) {
+            StringBuffer buffer = new StringBuffer(string.length() + 20);
+            boolean skipAdjacentLineSeparator = true;
+            for (int i = 0; i < string.length(); i++) {
+                char c = string.charAt(i);
+                if (c == '\r' || c == '\n') {
+                    if (!skipAdjacentLineSeparator)
+                        buffer.append('/'); 
+                    skipAdjacentLineSeparator = true;
+                } else {
+                    buffer.append(c);
+                    skipAdjacentLineSeparator = false;
+                }
+            }
+            return buffer.toString();
+        }
         
         public void widgetSelected(SelectionEvent e) {
             int index = fCombo.getSelectionIndex();

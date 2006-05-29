@@ -12,13 +12,14 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
+import org.eclipse.team.ui.history.IHistoryView;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.history.HistoryView;
 
 
 public class ShowHistorySynchronizeOperation extends SVNSynchronizeOperation {
@@ -48,10 +49,13 @@ public class ShowHistorySynchronizeOperation extends SVNSynchronizeOperation {
 			public void run(IProgressMonitor monitor) {
 				getShell().getDisplay().syncExec(new Runnable() {
 					public void run() {
-						HistoryView view = (HistoryView)showView(HistoryView.VIEW_ID);
+						IHistoryView view = (IHistoryView)showView(ISVNUIConstants.HISTORY_VIEW_ID);
 						if (view != null) {
-							if (resource == null) view.showHistory(remoteResource, true); 
-							else view.showHistory(resource, true);
+							if (resource == null) {
+                              view.showHistoryFor(remoteResource); 
+                            } else {
+                              view.showHistoryFor(resource);
+                            }
 						}					   
 					}
 				});   

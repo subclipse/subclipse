@@ -20,7 +20,7 @@
 	<context id="resource_history_view_context">
 		<description>This view shows you the revision history of the selected file or folder as they are found in the repository.</description>
 		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-history-view.html" label="Reference: SVN Resource History View" />
-		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/show-in-history.html" label="Reference: Team -> Show in Resource History"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/show-in-history.html" label="Reference: Team -> Show History"/>
 	</context>
 
 	<context id="console_view_context">

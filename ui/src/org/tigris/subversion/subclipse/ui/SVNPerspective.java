@@ -16,7 +16,6 @@ import org.eclipse.team.ui.synchronize.ISynchronizeView;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.tigris.subversion.subclipse.ui.history.HistoryView;
 import org.tigris.subversion.subclipse.ui.repository.RepositoriesView;
 
 public class SVNPerspective implements IPerspectiveFactory {
@@ -44,7 +43,7 @@ public class SVNPerspective implements IPerspectiveFactory {
 		layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
 		layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
 		layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
-		layout.addShowViewShortcut(HistoryView.VIEW_ID);
+		layout.addShowViewShortcut(ISVNUIConstants.HISTORY_VIEW_ID);
 		layout.addShowViewShortcut(RepositoriesView.VIEW_ID);
 		layout.addShowViewShortcut(ISynchronizeView.VIEW_ID);
 		
@@ -61,7 +60,7 @@ public class SVNPerspective implements IPerspectiveFactory {
 		IFolderLayout top =
 			layout.createFolder("top", IPageLayout.LEFT, 0.40f, editorArea);	//$NON-NLS-1$
 		top.addView(RepositoriesView.VIEW_ID);
-		layout.addView(HistoryView.VIEW_ID, IPageLayout.BOTTOM, 0.70f, editorArea);
+		layout.addView(ISVNUIConstants.HISTORY_VIEW_ID, IPageLayout.BOTTOM, 0.70f, editorArea);
 		layout.setEditorAreaVisible(true);
 	}
 }

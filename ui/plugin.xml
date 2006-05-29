@@ -16,13 +16,6 @@
             id="org.tigris.subversion.subclipse.ui.repository.RepositoriesView">
       </view>
       <view
-            name="%historyview.name"
-            icon="icons/full/tortoise/log.gif"
-            category="org.tigris.subversion.subclipse"
-            class="org.tigris.subversion.subclipse.ui.history.HistoryView"
-            id="org.tigris.subversion.subclipse.ui.history.HistoryView">
-      </view>
-      <view
             name="%PendingOperationsView.name"
             icon="icons/full/tortoise/showchanged.gif"
             category="org.tigris.subversion.subclipse"
@@ -186,7 +179,7 @@
          </action>               
          <action
                label="%ShowHistoryAction.label"
-               icon="icons/full/tortoise/log.gif"
+               icon="icons/full/cview16/history_view.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.show_in_history_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.ShowHistoryAction"
                menubarPath="historyGroup"
@@ -580,7 +573,7 @@
          </action>
          <action
                label="%ShowHistoryAction.label"
-               icon="icons/full/tortoise/log.gif"
+               icon="icons/full/cview16/history_view.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.show_in_history_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.ShowResourceInHistoryAction"
                tooltip="%ShowHistoryAction.tooltip"
@@ -1005,5 +998,23 @@ For example:
          </enablement>
       </consolePatternMatchListener>
    </extension>	  
+
+   <!-- history support -->
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+			<factory
+            adaptableType="org.tigris.subversion.subclipse.core.SVNTeamProvider"
+            class="org.tigris.subversion.subclipse.ui.repository.model.SVNAdapterFactory">
+         <adapter type="org.eclipse.team.ui.history.IHistoryPageSource"/>
+      </factory>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.dropActions">
+      <action
+            class="org.tigris.subversion.subclipse.ui.history.RemoteResourceDropAdapter"
+            id="org.tigris.subversion.subclipse.ui.svnRemoteDrop"/>
+   </extension>
+
 
 </plugin>
