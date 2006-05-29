@@ -14,7 +14,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.swt.SWT;
@@ -48,7 +48,7 @@ import org.tigris.subversion.svnclientadapter.ISVNProperty;
 /**
  * Dialog to set a svn property 
  */
-public class SetSvnPropertyDialog extends Dialog {
+public class SetSvnPropertyDialog extends TrayDialog {
 	private ISVNProperty property;   // null when we set a new property
 	private ISVNLocalResource svnResource;	
 	private Combo propertyNameText;

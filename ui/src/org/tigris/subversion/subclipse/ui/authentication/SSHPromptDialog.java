@@ -2,7 +2,7 @@ package org.tigris.subversion.subclipse.ui.authentication;
 
 import java.util.Properties;
 
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -27,7 +27,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
-public class SSHPromptDialog extends Dialog {
+public class SSHPromptDialog extends TrayDialog {
     private String realm;
     private String username;
     private String password;

@@ -2,7 +2,7 @@ package org.tigris.subversion.subclipse.ui.authentication;
 
 import java.util.Properties;
 
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Text;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
-public class SSLClientCertificate extends Dialog {
+public class SSLClientCertificate extends TrayDialog {
     private String realm;
     private String certificate;
     private String passphrase;

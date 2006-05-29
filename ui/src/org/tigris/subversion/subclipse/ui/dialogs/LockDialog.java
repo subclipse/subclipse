@@ -1,7 +1,7 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ColumnPixelData;
@@ -32,7 +32,7 @@ import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 import org.tigris.subversion.subclipse.ui.settings.CommentProperties;
 import org.tigris.subversion.subclipse.ui.util.TableSetter;
 
-public class LockDialog extends Dialog {
+public class LockDialog extends TrayDialog {
 	private static final int WIDTH_HINT = 500;
 	private final static int SELECTION_HEIGHT_HINT = 100;
     

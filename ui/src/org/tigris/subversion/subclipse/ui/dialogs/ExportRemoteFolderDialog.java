@@ -2,7 +2,7 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 
 import java.io.File;
 
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -30,7 +30,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ExportRemoteFolderOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
-public class ExportRemoteFolderDialog extends Dialog {
+public class ExportRemoteFolderDialog extends TrayDialog {
 	private ISVNRemoteFolder remoteFolder;
 	private IWorkbenchPart targetPart;
 	private Text directoryText;

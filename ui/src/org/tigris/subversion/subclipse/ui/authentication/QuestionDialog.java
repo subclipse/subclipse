@@ -1,6 +1,6 @@
 package org.tigris.subversion.subclipse.ui.authentication;
 
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -14,7 +14,7 @@ import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 
-public class QuestionDialog extends Dialog {
+public class QuestionDialog extends TrayDialog {
     private String realm;
     private String question;
     private boolean showAnswer;

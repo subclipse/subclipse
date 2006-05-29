@@ -5,7 +5,7 @@ import java.io.File;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -48,7 +48,7 @@ import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class ShowDifferencesAsUnifiedDiffDialogWC extends Dialog {
+public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 	private IResource resource;
 	private IWorkbenchPart targetPart;
 	private Button compareButton;

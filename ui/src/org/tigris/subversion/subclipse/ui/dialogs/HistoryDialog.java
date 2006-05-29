@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Document;
@@ -46,7 +46,7 @@ import org.tigris.subversion.subclipse.ui.history.ChangePathsTableProvider;
 import org.tigris.subversion.subclipse.ui.history.HistoryTableProvider;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
-public class HistoryDialog extends Dialog {
+public class HistoryDialog extends TrayDialog {
 	private IResource selectedResource;
     private IResource resource;
     private ISVNRemoteResource remoteResource;

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.util;
 
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * A simple superclass for detail button dialogs.
  */
-abstract public class DetailsDialog extends Dialog {
+abstract public class DetailsDialog extends TrayDialog {
 	/**
 	 * The Details button.
 	 */

@@ -5,7 +5,7 @@ import java.net.MalformedURLException;
 import java.text.ParseException;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -40,7 +40,7 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class MergeDialog extends Dialog {
+public class MergeDialog extends TrayDialog {
     
     private static final int URL_WIDTH_HINT = 450;
     private static final int REVISION_WIDTH_HINT = 40;

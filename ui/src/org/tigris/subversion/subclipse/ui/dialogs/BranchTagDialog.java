@@ -1,7 +1,7 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -40,7 +40,7 @@ import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class BranchTagDialog extends Dialog {
+public class BranchTagDialog extends TrayDialog {
     
     private static final int URL_WIDTH_HINT = 450;
     private static final int REVISION_WIDTH_HINT = 40;

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
@@ -43,7 +43,7 @@ import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.util.TableSetter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
-public class RevertDialog extends Dialog {
+public class RevertDialog extends TrayDialog {
     
 	private static final int WIDTH_HINT = 500;
 	private final static int SELECTION_HEIGHT_HINT = 250;

@@ -2,7 +2,7 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 
 import java.util.Date;
 
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -35,7 +35,7 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
-public class RemoteResourcePropertiesDialog extends Dialog {
+public class RemoteResourcePropertiesDialog extends TrayDialog {
 	private ISVNRemoteResource remoteResource;
 	private ISVNInfo svnInfo;
 	private ISVNProperty[] properties;

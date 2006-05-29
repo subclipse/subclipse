@@ -12,7 +12,7 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceColors;
@@ -36,7 +36,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 /**
  * the dialog used to add patterns to svn:ignore 
  */
-public class IgnoreResourcesDialog extends Dialog {
+public class IgnoreResourcesDialog extends TrayDialog {
 	// resources that should be ignored
 	private IResource[] resources;
 

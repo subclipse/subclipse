@@ -15,8 +15,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
@@ -57,7 +57,7 @@ import org.tigris.subversion.svnclientadapter.SVNKeywords;
  *      if (dialog.open() != AddKeywordsDialog.OK) return;
  *      dialog.updateKeywords(); 
  */
-public class AddKeywordsDialog extends Dialog {
+public class AddKeywordsDialog extends TrayDialog {
 
 	private static final int WIDTH_HINT = 700; 
 	private final static int SELECTION_HEIGHT_HINT = 150;

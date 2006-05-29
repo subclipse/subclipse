@@ -1,6 +1,6 @@
 package org.tigris.subversion.subclipse.ui.authentication;
 
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -12,7 +12,7 @@ import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 
-public class TrustSSLServerDialog extends Dialog {
+public class TrustSSLServerDialog extends TrayDialog {
     private String info;
     private boolean allowPermanently;
     
