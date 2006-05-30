@@ -26,7 +26,9 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.team.core.TeamException;
+import org.osgi.service.prefs.BackingStoreException;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -98,7 +100,30 @@ public class SVNRepositories
      * Return a list of the know repository locations
      */
     public ISVNRepositoryLocation[] getKnownRepositories() {
-        return (ISVNRepositoryLocation[])repositories.values().toArray(new ISVNRepositoryLocation[repositories.size()]);
+    	IEclipsePreferences prefs = (IEclipsePreferences) SVNRepositoryLocation.getParentPreferences();
+		try {
+			String[] keys = prefs.childrenNames();
+			for (int i = 0; i < keys.length; i++) {
+				String key = keys[i];
+				try {
+					IEclipsePreferences node = (IEclipsePreferences) prefs.node(key);
+					String location = node.get(SVNRepositoryLocation.PREF_LOCATION, null);
+					if (location != null) {
+						repositories.put(location, SVNRepositoryLocation.fromString(location));
+					} else {
+						node.removeNode();
+						prefs.flush();
+					}
+				} catch (SVNException e) {
+					// Log and continue
+					SVNProviderPlugin.log(e);
+				}
+			}
+		} catch (BackingStoreException e) {
+			// Log and continue (although all repos will be missing)
+			SVNProviderPlugin.log(SVNException.wrapException(e)); 
+		}
+		return (ISVNRepositoryLocation[])repositories.values().toArray(new ISVNRepositoryLocation[repositories.size()]);
     }
 
     public void refreshRepositoriesFolders() {

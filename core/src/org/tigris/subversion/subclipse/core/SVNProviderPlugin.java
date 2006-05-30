@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.internal.core.subscribers.ActiveChangeSetManager;
 import org.osgi.framework.BundleContext;
@@ -44,6 +45,7 @@ import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.core.util.ISimpleDialogsHelper;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNPromptUserPassword;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 
 /**
  * The plugin itself
@@ -506,6 +508,13 @@ public class SVNProviderPlugin extends Plugin {
     	return dirname;
     }
     
+	/**
+	 * Return the SVN preferences node in the instance scope
+	 */
+	public org.osgi.service.prefs.Preferences getInstancePreferences() {
+		return new InstanceScope().getNode(getBundle().getSymbolicName());
+	}
+	
     public boolean isAdminDirectory(String name) {
     	if (".svn".equals(name) || getAdminDirectoryName().equals(name))
     		return true;

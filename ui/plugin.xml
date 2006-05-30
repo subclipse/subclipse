@@ -710,6 +710,12 @@
       </wizard>
    </extension>
    <extension
+   		point="org.eclipse.ui.keywords">
+    <keyword
+            label="%PreferenceKeywords.SVN"
+            id="org.tigris.subversion.subclipse.ui.svn"/>
+   </extension>   
+   <extension
          point="org.eclipse.ui.preferencePages">
       <page
             name="%PreferencePage.name"
@@ -725,6 +731,7 @@
             category="org.tigris.subversion.subclipse.ui.SVNPreferences"
             class="org.tigris.subversion.subclipse.ui.preferences.SVNDecoratorPreferencesPage"
             id="org.tigris.subversion.subclipse.ui.SVNDecoratorPreferences">
+            <keywordReference id="org.tigris.subversion.subclipse.ui.svn"/>
       </page>
    </extension>
    <extension
@@ -743,6 +750,7 @@
             category="org.tigris.subversion.subclipse.ui.SVNPreferences"
             class="org.tigris.subversion.subclipse.ui.conflicts.DiffMergePreferencePage"
             id="org.tigris.subversion.subclipse.ui.DiffMergePreferences">
+            <keywordReference id="org.tigris.subversion.subclipse.ui.svn"/>
       </page>
    </extension>
    <extension
@@ -1016,5 +1024,20 @@ For example:
             id="org.tigris.subversion.subclipse.ui.svnRemoteDrop"/>
    </extension>
 
+
+   <extension
+         point="org.eclipse.ui.preferenceTransfer">
+       <transfer
+            id="org.tigris.subversion.subclipse.transfer.repos"
+            icon="icons/full/cview16/repo_rep.gif"
+            name="%RepoPreference.Name">
+            <mapping scope="instance">
+            	<entry node="org.tigris.subversion.subclipse.core/repositories"/>
+            </mapping>
+			<description>
+            	%RepoPreference.Description
+		    </description>
+	   </transfer>
+   </extension>
 
 </plugin>
