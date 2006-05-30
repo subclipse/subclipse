@@ -3,6 +3,7 @@ package org.tigris.subversion.subclipse.ui.history;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -511,7 +512,13 @@ public class SVNHistoryPage extends HistoryPage {
         } else {
           if(linkList != null && linkList.isLinkAt(offset)) {
             text.setCursor(busyCursor);
-            Program.launch(linkList.getLinkAt(offset));
+			try {
+				URL url = new URL(linkList.getLinkAt(offset));
+				PlatformUI.getWorkbench().getBrowserSupport().createBrowser("Subclipse").openURL(url);
+			} catch (Exception e1) {
+				Program.launch(linkList.getLinkAt(offset));
+			}
+//            Program.launch(linkList.getLinkAt(offset));
             text.setCursor(null);
           }
         }
@@ -1008,13 +1015,6 @@ public class SVNHistoryPage extends HistoryPage {
 
             final ISVNResource svnResource = ourSelection.getRemoteResource() != null ? ourSelection
                 .getRemoteResource() : ourSelection.getResource();
-
-            SVNUrl repositoryUrl = null;
-            if(ourSelection.getResource() != null) {
-              repositoryUrl = ourSelection.getResource().getUrl();
-            } else {
-              repositoryUrl = ourSelection.getRemoteResource().getUrl();
-            }
 
             SetCommitPropertiesDialog dialog = new SetCommitPropertiesDialog(getSite().getShell(), ourSelection
                 .getRevision(), resource, projectProperties);
