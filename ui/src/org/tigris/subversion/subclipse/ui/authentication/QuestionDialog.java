@@ -44,13 +44,24 @@ public class QuestionDialog extends TrayDialog {
 		rtnGroup.setLayoutData(
 		new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING));
 		
+		Label realmLabel = new Label(rtnGroup, SWT.NONE);
+		realmLabel.setText(Policy.bind("PasswordPromptDialog.repository")); //$NON-NLS-1$
+		Text realmText = new Text(rtnGroup, SWT.BORDER);
+		GridData gd = new GridData();
+		gd.widthHint = WIDTH;
+		realmText.setLayoutData(gd);
+		realmText.setEditable(false);
+		realmText.setText(realm);
+		
 		Label questionLabel = new Label(rtnGroup, SWT.NONE);
 		questionLabel.setText(question);
 		
-		answerText = new Text(rtnGroup, SWT.NONE);
-		GridData gd = new GridData();
-		gd.widthHint = WIDTH;
-		answerText.setLayoutData(gd);
+		if (showAnswer) {
+			answerText = new Text(rtnGroup, SWT.NONE);
+			gd = new GridData();
+			gd.widthHint = WIDTH;
+			answerText.setLayoutData(gd);
+		}
 		
 		if (maySave) {
 		    saveButton = new Button(rtnGroup, SWT.CHECK);
@@ -63,13 +74,14 @@ public class QuestionDialog extends TrayDialog {
 		// set F1 help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(rtnGroup, IHelpContextIds.QUESTION_DIALOG);	
 
-		answerText.setFocus();
+		if (showAnswer)
+			answerText.setFocus();
 		
 		return rtnGroup;
 	}
 	
     protected void okPressed() {
-        answer = answerText.getText().trim();
+    	if (showAnswer)	answer = answerText.getText().trim();
         if (maySave) save = saveButton.getSelection();
         super.okPressed();
     }	
