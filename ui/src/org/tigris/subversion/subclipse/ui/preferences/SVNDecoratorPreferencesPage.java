@@ -151,7 +151,6 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		b.setText(buttonText);
 		GridData data = new GridData();
 		data.horizontalAlignment = GridData.FILL;
-		data.heightHint = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_HEIGHT);
 		int widthHint = convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
 		data.widthHint = Math.max(widthHint, b.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
 		b.setLayoutData(data);

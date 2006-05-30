@@ -201,7 +201,6 @@ class PatchFileSelectionPage extends WizardPage {
 		browseButton = new Button(nameGroup, SWT.NULL);
 		browseButton.setText(Policy.bind("GenerateSVNDiff.Browse")); //$NON-NLS-1$
 		data = new GridData(GridData.HORIZONTAL_ALIGN_END);
-		data.heightHint = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_HEIGHT);
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
 		browseButton.setLayoutData(data);
 		browseButton.addListener(SWT.Selection, new Listener() {

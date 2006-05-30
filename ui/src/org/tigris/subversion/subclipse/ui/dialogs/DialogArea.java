@@ -121,7 +121,6 @@ public abstract class DialogArea {
 		// we need to explicitly set the font to the parent's font for dialogs
 		button.setFont(parent.getFont());
 		GridData data = new GridData(style);
-		data.heightHint = Dialog.convertVerticalDLUsToPixels(fontMetrics, IDialogConstants.BUTTON_HEIGHT);
 		int widthHint = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.BUTTON_WIDTH);
 		data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
 		button.setLayoutData(data);
