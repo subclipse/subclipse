@@ -254,7 +254,6 @@ public class SVNHistoryPage extends HistoryPage {
 
             this.projectProperties = ProjectProperties.getProjectProperties(res);
             this.historyTableProvider.setRemoteResource(this.remoteResource);
-            this.historyTableProvider.setResource(res);
             this.tableHistoryViewer.setInput(this.remoteResource);
             // setContentDescription(Policy.bind("HistoryView.titleWithArgument",
             // baseResource.getName())); //$NON-NLS-1$
@@ -272,7 +271,6 @@ public class SVNHistoryPage extends HistoryPage {
 
       this.projectProperties = ProjectProperties.getProjectProperties(this.remoteResource);
       this.historyTableProvider.setRemoteResource(this.remoteResource);
-      this.historyTableProvider.setResource(null);
       this.tableHistoryViewer.setInput(this.remoteResource);
       // setContentDescription(Policy.bind("HistoryView.titleWithArgument",
       // remoteResource.getName())); //$NON-NLS-1$

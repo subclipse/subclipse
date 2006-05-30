@@ -320,7 +320,6 @@ public class SvnPropertiesView extends ViewPart {
 
 	private Action getSetKeywordsAction() {
 		if (setKeywordsAction == null) {
-			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
 			setKeywordsAction = new Action(Policy.bind("SvnPropertiesView.addKeywordsLabel")) { //$NON-NLS-1$
 				public void run() {
 					try {
@@ -343,7 +342,6 @@ public class SvnPropertiesView extends ViewPart {
 
 	private Action getModifyPropertyAction() {
 		if (modifyPropertyAction == null) {
-			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
 			modifyPropertyAction = new Action(Policy.bind("SvnPropertiesView.modifyPropertyLabel")) { //$NON-NLS-1$
 				public void run() {
 					SVNPropertyModifyAction delegate = new SVNPropertyModifyAction();
@@ -358,7 +356,6 @@ public class SvnPropertiesView extends ViewPart {
 
 	private Action getDeletePropertyAction() {
 		if (deletePropertyAction == null) {
-			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
 			deletePropertyAction = new Action(Policy.bind("SvnPropertiesView.deletePropertyLabel")) { //$NON-NLS-1$
 				public void run() {
 					SVNPropertyDeleteAction delegate = new SVNPropertyDeleteAction();

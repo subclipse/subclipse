@@ -66,7 +66,6 @@ public class CommitDialog extends TrayDialog {
     private CommitCommentArea commitCommentArea;
     private IResource[] resourcesToCommit;
     private String url;
-    private boolean unaddedResources;
     private ProjectProperties projectProperties;
     private Object[] selectedResources;
     private CheckboxTableViewer listViewer;
@@ -103,7 +102,6 @@ public class CommitDialog extends TrayDialog {
 		}
 		this.resourcesToCommit = resourcesToCommit;
 		this.url = url;
-		this.unaddedResources = unaddedResources;
 		this.projectProperties = projectProperties;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
 		setter = new TableSetter();
@@ -501,7 +499,6 @@ public class CommitDialog extends TrayDialog {
 	}
 	
 	private void setChecks() {
-	    boolean selectUnadded = SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT);
 	    listViewer.setAllChecked(true);
 	    deselect();
 		selectedResources = listViewer.getCheckedElements();

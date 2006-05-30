@@ -69,7 +69,6 @@ public abstract class SVNOperation extends TeamOperation {
 	 * @see org.eclipse.team.ui.TeamOperation#getOperationIcon()
 	 */
 	protected URL getOperationIcon() {
-		URL url = null;
 		try {
 			URL baseURL = SVNUIPlugin.getPlugin().getBundle().getEntry("/"); //$NON-NLS-1$
 			return  new URL(baseURL, ISVNUIConstants.ICON_PATH + ISVNUIConstants.IMG_CHECKOUT);

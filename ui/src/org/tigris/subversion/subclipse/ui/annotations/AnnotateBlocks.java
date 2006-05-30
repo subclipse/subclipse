@@ -19,7 +19,6 @@ public class AnnotateBlocks {
 	private List blocks = new LinkedList();
 	
 	public AnnotateBlocks(ISVNAnnotations svnAnnotations) {
-		List annotationBlocks = new LinkedList();
 		for (int i = 0; svnAnnotations.getLine(i) != null;i++) {
 			AnnotateBlock block = new AnnotateBlock(
 					svnAnnotations.getRevision(i),

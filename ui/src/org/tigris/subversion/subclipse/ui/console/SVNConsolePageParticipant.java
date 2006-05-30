@@ -24,13 +24,9 @@ import org.eclipse.ui.part.IPageBookViewPage;
  */
 public class SVNConsolePageParticipant implements IConsolePageParticipant {
 
-	private SVNOutputConsole console;
-	private IPageBookViewPage page;
 	private ConsoleRemoveAction consoleRemoveAction;
 	
 	public void init(IPageBookViewPage page, IConsole console) {
-		this.console = (SVNOutputConsole)console;
-		this.page = page;
 		this.consoleRemoveAction = new ConsoleRemoveAction();
 		IActionBars bars = page.getSite().getActionBars();
 		bars.getToolBarManager().appendToGroup(IConsoleConstants.LAUNCH_GROUP, consoleRemoveAction);
@@ -38,8 +34,6 @@ public class SVNConsolePageParticipant implements IConsolePageParticipant {
 
 	public void dispose() {
 		this.consoleRemoveAction = null;
-		this.page = null;
-		this.console = null;
 	}
 
 	public void activated() {

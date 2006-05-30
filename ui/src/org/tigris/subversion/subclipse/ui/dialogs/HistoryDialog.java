@@ -47,7 +47,6 @@ import org.tigris.subversion.subclipse.ui.history.HistoryTableProvider;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class HistoryDialog extends TrayDialog {
-	private IResource selectedResource;
     private IResource resource;
     private ISVNRemoteResource remoteResource;
 	private HistoryTableProvider historyTableProvider;
@@ -100,7 +99,6 @@ public class HistoryDialog extends TrayDialog {
 		
 		historyTableProvider = new HistoryTableProvider();
 		historyTableProvider.setRemoteResource(remoteResource);
-		historyTableProvider.setResource(selectedResource);
 		tableHistoryViewer = historyTableProvider.createTable(composite);
 		data = new GridData(GridData.FILL_BOTH);
 		data.widthHint = WIDTH_HINT;
@@ -372,8 +370,4 @@ public class HistoryDialog extends TrayDialog {
     public ILogEntry[] getSelectedLogEntries() {
         return selectedEntries;
     }
-
-	public void setSelectedResource(IResource selectedResource) {
-		this.selectedResource = selectedResource;
-	}
 }

@@ -14,7 +14,6 @@ package org.tigris.subversion.subclipse.ui.history;
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -55,7 +54,6 @@ public class HistoryTableProvider {
 	private SVNRevision.Number currentRevision;
 	private TableViewer viewer;
 	private Font currentRevisionFont;
-	private IResource resource;
 		
 	/**
 	 * Constructor for HistoryTableProvider.
@@ -383,9 +381,5 @@ public class HistoryTableProvider {
      */
 	public ISVNRemoteResource getRemoteResource() {
 		return this.currentRemoteResource;
-	}
-
-	public void setResource(IResource resource) {
-		this.resource = resource;
 	}
 }

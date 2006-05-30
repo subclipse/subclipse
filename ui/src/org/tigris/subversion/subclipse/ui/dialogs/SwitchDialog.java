@@ -170,7 +170,6 @@ public class SwitchDialog extends TrayDialog {
             return;	            
         }	
         HistoryDialog dialog = new HistoryDialog(getShell(), remoteResource);
-        dialog.setSelectedResource(resource);
         if (dialog.open() == HistoryDialog.CANCEL) return;
         ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
         if (selectedEntries.length == 0) return;

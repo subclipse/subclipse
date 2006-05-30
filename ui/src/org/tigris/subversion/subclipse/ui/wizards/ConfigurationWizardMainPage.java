@@ -123,7 +123,6 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 
 		Listener listener = new Listener() {
 			public void handleEvent(Event event) {
-                String reposUrlString = urlCombo.getText();
 				validateFields();
 			}
 		};
@@ -185,18 +184,6 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 		group.setLayout(layout);
 		return group;
 	}
-
-    private SVNUrl getRepositoryUrl() {
-        String urlString = urlCombo.getText();
-        if (urlString.length() == 0) {
-            return null;
-        }
-        try {
-            return new SVNUrl(urlString);
-        } catch (MalformedURLException e) {
-            return null;
-        }
-    }
 
 	/**
 	 * @see SVNWizardPage#finish

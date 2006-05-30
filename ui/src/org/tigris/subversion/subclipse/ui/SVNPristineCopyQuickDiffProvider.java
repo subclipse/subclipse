@@ -37,7 +37,6 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IElementStateListener;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.quickdiff.IQuickDiffReferenceProvider;
-import org.tigris.subversion.subclipse.core.ISVNFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -224,7 +223,6 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 				return false;
 			}
 			
-			int kind = info.getKind();			
 			if(fLastSyncState == null) {
 				needToUpdateReferenceDocument = true;
 			} else if(! fLastSyncState.equals(info)) {
@@ -246,7 +244,6 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 
 	private SyncInfo getSyncState(IResource resource) throws TeamException {
 		if (resource == null) return null;
-		ISVNFile SVNFile = getManagedSVNFile();
 		return SVNWorkspaceSubscriber.getInstance().getSyncInfo(resource);
 	}
 	

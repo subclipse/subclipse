@@ -28,7 +28,6 @@ public class SSLClientCertificate extends TrayDialog {
     private boolean maySave;
     private Combo keyFileCombo;
     private Text passphraseText;
-    private Button keyFileButton;
     private Button browseButton;
     private Button saveButton;
     private Button okButton;

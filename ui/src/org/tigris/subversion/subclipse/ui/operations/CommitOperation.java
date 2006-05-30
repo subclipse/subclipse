@@ -23,7 +23,7 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class CommitOperation extends SVNOperation {
-    private IResource[] selectedResources;
+//    private IResource[] selectedResources;
     private IResource[] resourcesToAdd;
     private IResource[] resourcesToDelete;
     private IResource[] resourcesToCommit;
@@ -33,7 +33,7 @@ public class CommitOperation extends SVNOperation {
 
     public CommitOperation(IWorkbenchPart part, IResource[] selectedResources, IResource[] resourcesToAdd, IResource[] resourcesToDelete, IResource[] resourcesToCommit, String commitComment, boolean keepLocks) {
         super(part);
-        this.selectedResources = selectedResources;
+//        this.selectedResources = selectedResources;
         this.resourcesToAdd = resourcesToAdd;
         this.resourcesToDelete = resourcesToDelete;
         this.resourcesToCommit = resourcesToCommit;

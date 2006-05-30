@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.dialogs.SaveAsDialog;
-import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
@@ -34,7 +33,6 @@ public class SVNPropertySaveAction extends SVNPropertyAction {
 	protected void execute(IAction action)
 		throws InvocationTargetException, InterruptedException {
 		ISVNProperty svnProperty = getSelectedSvnProperties()[0];
-		ISVNLocalResource svnResource = getSVNLocalResource(svnProperty);
 
 		SaveAsDialog dialog = new SaveAsDialog(getShell());
 

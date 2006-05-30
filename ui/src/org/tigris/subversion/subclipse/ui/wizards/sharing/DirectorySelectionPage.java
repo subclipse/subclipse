@@ -99,7 +99,6 @@ public class DirectorySelectionPage extends SVNWizardPage {
 		browseButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent se) {
                 SharingWizard wizard = (SharingWizard)getWizard();
-                String location = null;
                 try {
                    ISVNRepositoryLocation repositoryLocation = wizard.getLocation();
                    ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), wizard.getProject());

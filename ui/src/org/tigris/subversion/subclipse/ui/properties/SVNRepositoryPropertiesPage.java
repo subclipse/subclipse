@@ -61,7 +61,6 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
         
         GridLayout layout;
         Label label;
-        Text text;
         GridData data;
         
         Composite composite = new Composite(parent, SWT.NONE);
