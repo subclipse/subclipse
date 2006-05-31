@@ -23,7 +23,7 @@
 		<topic label="Commit" href="html/reference/commit.html" />
 		<topic label="Create Patch" href="html/reference/create-patch.html" />
 		<topic label="Apply Patch" href="html/reference/apply-patch.html" />
-		<topic label="Show in Resource History" href="html/reference/svn-history-view.html" />
+		<topic label="Show History" href="html/reference/svn-history-view.html" />
 		<topic label="Show Annotation" href="html/reference/svn-annotations.html" />
 		<topic label="Show Properties" href="html/reference/svn-properties-view.html" />
 		<topic label="Set Property" href="html/reference/set-property.html" />
