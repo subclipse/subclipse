@@ -25,6 +25,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.team.core.TeamException;
@@ -108,8 +109,12 @@ public class SVNRepositories
 				try {
 					IEclipsePreferences node = (IEclipsePreferences) prefs.node(key);
 					String location = node.get(SVNRepositoryLocation.PREF_LOCATION, null);
-					if (location != null) {
-						repositories.put(location, SVNRepositoryLocation.fromString(location));
+					if (location != null && !exactMatchExists(location)) {
+						ISVNRepositoryLocation repos = SVNRepositoryLocation.fromString(location);
+						try {
+							repos.validateConnection(new NullProgressMonitor());
+						} catch(SVNException swallow){}
+						addToRepositoriesCache(repos);
 					} else {
 						node.removeNode();
 						prefs.flush();
@@ -267,7 +272,8 @@ public class SVNRepositories
         
         int count = dis.readInt();
         for(int i = 0; i < count;i++){
-        	ISVNRepositoryLocation root = getRepository(dis.readUTF());
+        	ISVNRepositoryLocation root = SVNRepositoryLocation.fromString(dis.readUTF());
+        	addToRepositoriesCache(root);
             if (version >= REPOSITORIES_STATE_FILE_VERSION_2) {
                 String label = dis.readUTF();
                 if (!label.equals("")) {
@@ -323,12 +329,28 @@ public class SVNRepositories
 
 	/**
 	 * Answer whether the provided repository location is known by the provider or not.
-	 * The location string corresponds to the Strin returned by ICVSRepositoryLocation#getLocation()
+	 * The location string corresponds to the Strin returned by ISVNRepositoryLocation#getLocation()
 	 */
 	public boolean isKnownRepository(String location) {
 		Set keys = repositories.keySet();
 		for(Iterator iter = keys.iterator();iter.hasNext();){
 			if(location.indexOf((String)iter.next())!=-1){
+				return true;
+			}
+    		
+		}
+		return false;
+	}
+
+	/**
+	 * Answer whether the provided repository location already has an exact match location
+	 * The location string corresponds to the Strin returned by ISVNRepositoryLocation#getLocation()
+	 */
+	public boolean exactMatchExists(String location) {
+		Set keys = repositories.keySet();
+		for(Iterator iter = keys.iterator();iter.hasNext();){
+			String url = (String)iter.next();
+			if (url.equals(location)){
 				return true;
 			}
     		
