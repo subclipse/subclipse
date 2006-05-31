@@ -17,6 +17,7 @@ import java.util.TreeSet;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -136,8 +137,14 @@ public class AddResourcesCommand implements ISVNCommand {
                 try {
                     svnClient.addFile(localResource.getIResource().getLocation().toFile());
                     // If file has read-only attribute set, remove it
-                    if (localResource.getIResource().getType() == IResource.FILE && localResource.getIResource().isReadOnly())
-                        localResource.getIResource().setReadOnly(false);
+                    ResourceAttributes attrs = localResource.getIResource().getResourceAttributes();
+                    if (localResource.getIResource().getType() == IResource.FILE && attrs.isReadOnly()) {
+                        attrs.setReadOnly(false);
+                    	try {
+							localResource.getIResource().setResourceAttributes(attrs);
+						} catch (CoreException swallow) {
+						}
+                    }
                 } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 }    
