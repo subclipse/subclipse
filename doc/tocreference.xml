@@ -12,9 +12,9 @@
 	<topic label="Views">
 		<topic label="Annotate View" href="html/reference/svn-annotations.html" />
 		<topic label="Console View" href="html/reference/svn-console.html" />
+		<topic label="History View" href="html/reference/svn-history-view.html" />
 		<topic label="Pending Operations View" href="html/reference/pending-operations-view.html" />
 		<topic label="Properties View" href="html/reference/svn-properties-view.html" />
-		<topic label="Resource History View" href="html/reference/svn-history-view.html" />
 		<topic label="Repository View" href="html/reference/svn-repository-view.html" />
 	</topic>
 	<topic label="Team Menu">
