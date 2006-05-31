@@ -12,8 +12,12 @@
 package org.tigris.subversion.subclipse.ui.wizards.sharing;
 
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -52,6 +56,7 @@ public class RepositorySelectionPage extends SVNWizardPage {
 	private Button useNewRepo;
 	
 	private ISVNRepositoryLocation result;
+	private ISVNRepositoryLocation[] locations;
 	
 	/**
 	 * RepositorySelectionPage constructor.
@@ -119,8 +124,17 @@ public class RepositorySelectionPage extends SVNWizardPage {
 		});
 
 		setControl(composite);
+		
+       	IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+            	locations = SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations(monitor);			}
+    	};
+        try {
+			new ProgressMonitorDialog(getShell()).run(true, false, runnable);
+		} catch (Exception e) {
+            SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
+		}
 
-        ISVNRepositoryLocation[] locations = SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations();
         Arrays.sort(locations, new RepositoryComparator());
         AdaptableList input = new AdaptableList(locations);
         table.setInput(input);

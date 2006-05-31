@@ -25,6 +25,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -100,11 +101,14 @@ public class SVNRepositories
     /** 
      * Return a list of the know repository locations
      */
-    public ISVNRepositoryLocation[] getKnownRepositories() {
+    public ISVNRepositoryLocation[] getKnownRepositories(IProgressMonitor monitor) {
+        IProgressMonitor progress = Policy.monitorFor(monitor);
     	IEclipsePreferences prefs = (IEclipsePreferences) SVNRepositoryLocation.getParentPreferences();
 		try {
 			String[] keys = prefs.childrenNames();
+	        progress.beginTask(Policy.bind("SVNRepositories.refresh"), keys.length); //$NON-NLS-1$
 			for (int i = 0; i < keys.length; i++) {
+				progress.worked(1);
 				String key = keys[i];
 				try {
 					IEclipsePreferences node = (IEclipsePreferences) prefs.node(key);
@@ -128,11 +132,12 @@ public class SVNRepositories
 			// Log and continue (although all repos will be missing)
 			SVNProviderPlugin.log(SVNException.wrapException(e)); 
 		}
+		progress.done();
 		return (ISVNRepositoryLocation[])repositories.values().toArray(new ISVNRepositoryLocation[repositories.size()]);
     }
 
-    public void refreshRepositoriesFolders() {
-        ISVNRepositoryLocation[] repositories = getKnownRepositories();
+    public void refreshRepositoriesFolders(IProgressMonitor monitor) {
+        ISVNRepositoryLocation[] repositories = getKnownRepositories(monitor);
         for (int i = 0; i < repositories.length;i++) {
             repositories[i].refreshRootFolder();
         }

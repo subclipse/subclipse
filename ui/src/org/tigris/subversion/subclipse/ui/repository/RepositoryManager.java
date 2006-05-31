@@ -58,8 +58,8 @@ public class RepositoryManager {
 	/**
 	 * Answer an array of all known remote roots.
 	 */
-	public ISVNRepositoryLocation[] getKnownRepositoryLocations() {
-		return SVNProviderPlugin.getPlugin().getRepositories().getKnownRepositories();
+	public ISVNRepositoryLocation[] getKnownRepositoryLocations(IProgressMonitor monitor) {
+		return SVNProviderPlugin.getPlugin().getRepositories().getKnownRepositories(monitor);
 	}
 	
 	/**

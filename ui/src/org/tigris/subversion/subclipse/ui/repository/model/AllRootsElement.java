@@ -35,7 +35,7 @@ public class AllRootsElement extends SVNModelElement  implements IAdaptable  {
 	}
 	public Object[] internalGetChildren(Object o, IProgressMonitor monitor) {
         ISVNRepositoryLocation[] locations =
-            SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations();
+            SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations(null);
         Arrays.sort(locations, new RepositoryComparator());
         return locations; 	
     }

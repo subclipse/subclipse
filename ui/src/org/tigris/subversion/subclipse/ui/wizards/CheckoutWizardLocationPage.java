@@ -88,7 +88,7 @@ public class CheckoutWizardLocationPage extends WizardPage {
 	}
 	
 	public void refreshLocations() {
-        ISVNRepositoryLocation[] locations = SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations();
+        ISVNRepositoryLocation[] locations = SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations(null);
         Arrays.sort(locations, new RepositoryComparator());
         AdaptableList input = new AdaptableList(locations);
         table.setInput(input);

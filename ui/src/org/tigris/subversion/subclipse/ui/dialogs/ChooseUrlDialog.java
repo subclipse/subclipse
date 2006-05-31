@@ -1,14 +1,18 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -162,8 +166,18 @@ public class ChooseUrlDialog extends TrayDialog {
 
     protected void refreshViewer(boolean refreshRepositoriesFolders) {
         if (treeViewer == null) return;
-        if (refreshRepositoriesFolders)
-            SVNProviderPlugin.getPlugin().getRepositories().refreshRepositoriesFolders();
+        if (refreshRepositoriesFolders) {
+        	IRunnableWithProgress runnable = new IRunnableWithProgress() {
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                	SVNProviderPlugin.getPlugin().getRepositories().refreshRepositoriesFolders(monitor);
+				}
+        	};
+            try {
+				new ProgressMonitorDialog(getShell()).run(true, false, runnable);
+			} catch (Exception e) {
+	            SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
+			}
+        }
         treeViewer.refresh();
     }
 

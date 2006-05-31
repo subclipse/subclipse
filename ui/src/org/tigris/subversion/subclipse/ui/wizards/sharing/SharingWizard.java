@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -70,7 +71,10 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 	
 	// The status of the project directory
 	private LocalResourceStatus projectStatus;  
-
+	
+	// The repository locations
+	private ISVNRepositoryLocation[] locations;
+	
 	public SharingWizard() {
 		IDialogSettings workbenchSettings = SVNUIPlugin.getPlugin().getDialogSettings();
 		IDialogSettings section = workbenchSettings.getSection("NewLocationWizard");//$NON-NLS-1$
@@ -100,7 +104,16 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
             // - the create location page
             // - the module selection page
             // - the finish page 
-			ISVNRepositoryLocation[] locations = SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations();
+    		
+           	IRunnableWithProgress runnable = new IRunnableWithProgress() {
+    			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                	locations = SVNUIPlugin.getPlugin().getRepositoryManager().getKnownRepositoryLocations(monitor);			}
+        	};
+            try {
+    			new ProgressMonitorDialog(getShell()).run(true, false, runnable);
+    		} catch (Exception e) {
+                SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
+    		}
 			if (locations.length > 0) {
 				locationPage = new RepositorySelectionPage("importPage", Policy.bind("SharingWizard.importTitle"), sharingImage); //$NON-NLS-1$ //$NON-NLS-2$
 				locationPage.setDescription(Policy.bind("SharingWizard.importTitleDescription")); //$NON-NLS-1$
