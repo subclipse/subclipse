@@ -21,8 +21,8 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.1.x"/>
-      <discovery label="%updateSiteName" url="http://subclipse.tigris.org/update_1.1.x"/>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.2.x"/>
+      <discovery label="%updateSiteName" url="http://subclipse.tigris.org/update_1.2.x"/>
    </url>
 
    <requires>
