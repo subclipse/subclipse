@@ -348,7 +348,8 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
     // get the URL using svn info command on the local resource
 	private SVNUrl getURL(ISVNStatus status) {
 		SVNUrl url = status.getUrl();
-		if (url == null && !(status.getTextStatus() == SVNStatusKind.UNVERSIONED)) {
+		if (url == null && !(status.getTextStatus() == SVNStatusKind.UNVERSIONED) 
+				&& !(status.getTextStatus() == SVNStatusKind.IGNORED)) {
 		    try { 
 		    	ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().createSVNClient();
 		    	ISVNInfo info = svnClient.getInfo(status.getFile());
