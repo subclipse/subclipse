@@ -1,6 +1,7 @@
 package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,6 +12,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
+import org.eclipse.team.internal.core.subscribers.ChangeSet;
+import org.eclipse.team.internal.ui.synchronize.ChangeSetDiffNode;
 import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
@@ -63,20 +66,30 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 	    if (selection.size() == 1) {
 	        ISynchronizeModelElement element = (ISynchronizeModelElement)selection.getFirstElement();
 		    IResource resource = element.getResource();
-		    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-            try {
-                url = svnResource.getStatus().getUrlString();
-                if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
-            } catch (SVNException e) {
-                e.printStackTrace();
-            }	    
+		    if (resource != null) {
+			    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+	            try {
+	                url = svnResource.getStatus().getUrlString();
+	                if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
+	            } catch (SVNException e) {
+	                e.printStackTrace();
+	            }
+		    }
 	    }
-	    ArrayList selectedElements = new ArrayList();
+	    List selectedElements = new ArrayList();
 	    Iterator iter = selection.iterator();
 		while (iter.hasNext()) {
 			ISynchronizeModelElement synchronizeModelElement = (ISynchronizeModelElement)iter.next();
-			IResource resource = synchronizeModelElement.getResource();
-			selectedElements.add(resource);
+			if (synchronizeModelElement instanceof ChangeSetDiffNode) {
+				// If we find a ChangeSet we ignore the rest, even following Change Sets.
+				selectedElements.clear();
+				ChangeSet set = ((ChangeSetDiffNode)synchronizeModelElement).getSet();
+				selectedElements = Arrays.asList(set.getResources());
+				break;
+			} else {
+				IResource resource = synchronizeModelElement.getResource();
+				selectedElements.add(resource);
+			}
 		}
 		IResource[] resources = new IResource[selectedElements.size()];
 		selectedElements.toArray(resources); 
