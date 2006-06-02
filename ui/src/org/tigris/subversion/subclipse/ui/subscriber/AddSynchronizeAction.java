@@ -29,7 +29,7 @@ public class AddSynchronizeAction extends SynchronizeModelAction {
 			    while (iter.hasNext()) {
 			    	ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
 			    	IResource resource = element.getResource();
-			    	if (resource == null) continue;
+			    	if (resource == null) return false;
 			    	if (resource.isLinked()) return false;
 	                ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);			    
 	                try {
