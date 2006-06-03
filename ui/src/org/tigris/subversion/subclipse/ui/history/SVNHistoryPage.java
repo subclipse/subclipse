@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * Copyright(c) 2006 by the authors indicated in the @author tags.
+ *
+ * All Rights are Reserved by the various authors.
+ *******************************************************************************/
+
 package org.tigris.subversion.subclipse.ui.history;
 
 import java.io.File;
@@ -5,10 +16,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -38,7 +46,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -112,7 +119,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 /**
  * <code>IHistoryPage</code> for generic history view 
  * 
- * @author Euegene Kuleshov (migration from legacy HistoryView)
+ * @author Euegene Kuleshov (migration from legacy history view)
  */
 public class SVNHistoryPage extends HistoryPage {
 
@@ -143,9 +150,9 @@ public class SVNHistoryPage extends HistoryPage {
   FetchChangePathJob fetchChangePathJob = null;
   AliasManager tagManager;
 
-  public IResource resource;
-  public ISVNRemoteResource remoteResource;
-  private ISelection selection;
+  IResource resource;
+  ISVNRemoteResource remoteResource;
+  ISelection selection;
 
   private IAction getNextAction;
   private IAction getAllAction;
@@ -439,20 +446,18 @@ public class SVNHistoryPage extends HistoryPage {
     if(changePathsViewer != null) {
       changePathsViewer.getControl().dispose();
     }
-
+    
     innerSashForm = new SashForm(svnHistoryPageControl, SWT.HORIZONTAL);
 
     switch(layout) {
       case ISVNUIConstants.LAYOUT_COMPRESSED:
-        changePathsViewer = new ChangePathsTreeViewer(innerSashForm);
-        changePathsViewer.setContentProvider(new ChangePathsTreeContentProvider());
+        changePathsViewer = new ChangePathsTreeViewer(innerSashForm, this);
         break;
       default:
-        changePathsViewer = new ChangePathsTableProvider(innerSashForm);
-        changePathsViewer.setContentProvider(new ChangePathsTableContentProvider());
+        changePathsViewer = new ChangePathsTableProvider(innerSashForm, this);
         break;
     }
-
+    
     changePathsViewer.addSelectionChangedListener(new ISelectionChangedListener() {
       public void selectionChanged(SelectionChangedEvent event) {
         SVNHistoryPage.this.selection = changePathsViewer.getSelection();
@@ -1518,141 +1523,7 @@ public class SVNHistoryPage extends HistoryPage {
     }
   }
 
-  static final LogEntryChangePath[] EMPTY_CHANGE_PATHS = new LogEntryChangePath[ 0];
 
-  class ChangePathsTableContentProvider implements IStructuredContentProvider {
-
-    public Object[] getElements(Object inputElement) {
-      if( !isShowChangePaths() || !(inputElement instanceof ILogEntry)) {
-        return EMPTY_CHANGE_PATHS;
-      }
-
-      ILogEntry logEntry = (ILogEntry) inputElement;
-      if(SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand()) {
-        if(currentLogEntryChangePath != null) {
-          return currentLogEntryChangePath;
-        }
-        scheduleFetchChangePathJob(logEntry);
-        return EMPTY_CHANGE_PATHS;
-      }
-
-      return logEntry.getLogEntryChangePaths();
-    }
-
-    public void dispose() {
-    }
-
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-      currentLogEntryChangePath = null;
-    }
-
-  }
-
-  class ChangePathsTreeContentProvider implements ITreeContentProvider {
-
-    public Object[] getChildren(Object parentElement) {
-      if(parentElement instanceof HistoryFolder) {
-        return ((HistoryFolder) parentElement).getChildren();
-      }
-      return null;
-    }
-
-    public Object getParent(Object element) {
-      return null;
-    }
-
-    public boolean hasChildren(Object element) {
-      if(element instanceof HistoryFolder) {
-        HistoryFolder folder = (HistoryFolder) element;
-        return folder.getChildren().length > 0;
-      }
-      return false;
-    }
-
-    public Object[] getElements(Object inputElement) {
-      if( !isShowChangePaths() || !(inputElement instanceof ILogEntry)) {
-        return EMPTY_CHANGE_PATHS;
-      }
-
-      if(currentLogEntryChangePath != null) {
-
-      }
-
-      ILogEntry logEntry = (ILogEntry) inputElement;
-      if(SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand()) {
-        if(currentLogEntryChangePath != null) {
-          return getGroups(currentLogEntryChangePath);
-        }
-        scheduleFetchChangePathJob(logEntry);
-        return EMPTY_CHANGE_PATHS;
-      }
-
-      return getGroups(logEntry.getLogEntryChangePaths());
-    }
-
-    private Object[] getGroups(LogEntryChangePath[] changePaths) {
-      // 1st pass. Collect folder names
-      Set folderNames = new HashSet();
-      for(int i = 0; i < changePaths.length; i++) {
-        folderNames.add(getFolderName(changePaths[ i]));
-      }
-
-      // 2nd pass. Sorting out explicitly changed folders
-      TreeMap folders = new TreeMap();
-      for(int i = 0; i < changePaths.length; i++) {
-        LogEntryChangePath changePath = changePaths[ i];
-        String path = changePath.getPath();
-        if(folderNames.contains(path)) {
-          // changed folder
-          HistoryFolder folder = (HistoryFolder) folders.get(path);
-          if(folder == null) {
-            folder = new HistoryFolder(changePath);
-            folders.put(path, folder);
-          }
-        } else {
-          // changed resource
-          path = getFolderName(changePath);
-          HistoryFolder folder = (HistoryFolder) folders.get(path);
-          if(folder == null) {
-            folder = new HistoryFolder(path);
-            folders.put(path, folder);
-          }
-          folder.add(changePath);
-        }
-      }
-
-      // 3rd pass. Optimize folders with one or no children
-      ArrayList groups = new ArrayList();
-      for(Iterator it = folders.values().iterator(); it.hasNext();) {
-        HistoryFolder folder = (HistoryFolder) it.next();
-        Object[] children = folder.getChildren();
-        if(children.length == 1) {
-          LogEntryChangePath changePath = (LogEntryChangePath) children[ 0];
-          groups.add(new HistoryFolder(changePath));
-        } else if(children.length > 1) {
-          groups.add(folder);
-        }
-      }
-
-      return groups.toArray();
-    }
-
-    private String getFolderName(LogEntryChangePath changePath) {
-      String path = changePath.getPath();
-      int n = path.lastIndexOf('/');
-      return n > -1 ? path.substring(0, n) : path;
-    }
-
-    public void dispose() {
-    }
-
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-      currentLogEntryChangePath = null;
-    }
-
-  }
-  
-  
   public static class ToggleAffectedPathsLayoutAction extends Action {
     private final SVNHistoryPage page;
     private final int layout;
@@ -1688,7 +1559,5 @@ public class SVNHistoryPage extends HistoryPage {
     }
     
   }
-  
-  
 
 }

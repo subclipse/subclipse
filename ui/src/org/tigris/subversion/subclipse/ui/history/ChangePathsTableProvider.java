@@ -12,11 +12,14 @@ package org.tigris.subversion.subclipse.ui.history;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IFontProvider;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -28,6 +31,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -41,31 +45,35 @@ public class ChangePathsTableProvider extends TableViewer {
     ILogEntry currentLogEntry;
     Font currentPathFont;
         
+    public ChangePathsTableProvider(Composite parent, IContentProvider contentProvider) {
+      super(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
+      
+      TableLayout layout = new TableLayout();
+      GridData data = new GridData(GridData.FILL_BOTH);
+      
+      Table table = (Table) getControl();
+      table.setHeaderVisible(true);
+      table.setLinesVisible(true);
+      table.setLayoutData(data);    
+      table.setLayout(layout);
+      table.addDisposeListener(new DisposeListener() {
+        public void widgetDisposed(DisposeEvent e) {
+          if(currentPathFont != null) {
+            currentPathFont.dispose();
+          }
+        }
+      });
+      
+      createColumns(table, layout);
+      
+      setLabelProvider(new ChangePathLabelProvider());
+      setContentProvider(contentProvider);
+    }
     /**
      * Constructor for HistoryTableProvider.
      */
-    public ChangePathsTableProvider(Composite parent) {
-        super(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
-        
-        TableLayout layout = new TableLayout();
-        GridData data = new GridData(GridData.FILL_BOTH);
-        
-        Table table = (Table) getControl();
-        table.setHeaderVisible(true);
-        table.setLinesVisible(true);
-        table.setLayoutData(data);    
-        table.setLayout(layout);
-        table.addDisposeListener(new DisposeListener() {
-            public void widgetDisposed(DisposeEvent e) {
-                if(currentPathFont != null) {
-                    currentPathFont.dispose();
-                }
-            }
-        });
-        
-        createColumns(table, layout);
-
-        setLabelProvider(new ChangePathLabelProvider());
+    public ChangePathsTableProvider(Composite parent, SVNHistoryPage page) {
+      this(parent, new ChangePathsTableContentProvider(page));
     }
 
     protected void inputChanged(Object input, Object oldInput) {
@@ -122,9 +130,8 @@ public class ChangePathsTableProvider extends TableViewer {
                     	return Policy.bind("ChangePathsTableProvider.copiedfrom",  //$NON-NLS-1$
                                 changePath.getCopySrcPath(),
                                 changePath.getCopySrcRevision().toString());
-                    } else {
-                    	return ""; //$NON-NLS-1$
                     }
+                    return ""; //$NON-NLS-1$
             }
             return ""; //$NON-NLS-1$
         }
@@ -163,4 +170,41 @@ public class ChangePathsTableProvider extends TableViewer {
         
     }
 
+    
+    static final LogEntryChangePath[] EMPTY_CHANGE_PATHS = new LogEntryChangePath[ 0];
+
+    static class ChangePathsTableContentProvider implements IStructuredContentProvider {
+
+      private final SVNHistoryPage page;
+
+      ChangePathsTableContentProvider(SVNHistoryPage page) {
+        this.page = page;
+      }
+
+      public Object[] getElements(Object inputElement) {
+        if( !this.page.isShowChangePaths() || !(inputElement instanceof ILogEntry)) {
+          return EMPTY_CHANGE_PATHS;
+        }
+
+        ILogEntry logEntry = (ILogEntry) inputElement;
+        if(SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand()) {
+          if(this.page.currentLogEntryChangePath != null) {
+            return this.page.currentLogEntryChangePath;
+          }
+          this.page.scheduleFetchChangePathJob(logEntry);
+          return EMPTY_CHANGE_PATHS;
+        }
+
+        return logEntry.getLogEntryChangePaths();
+      }
+
+      public void dispose() {
+      }
+
+      public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        this.page.currentLogEntryChangePath = null;
+      }
+
+    }
+    
 }

@@ -10,11 +10,18 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.history;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeMap;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.IFontProvider;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -23,7 +30,9 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Tree;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -40,7 +49,7 @@ class ChangePathsTreeViewer extends TreeViewer {
     ILogEntry currentLogEntry;
     Font currentPathFont;
         
-    public ChangePathsTreeViewer(Composite parent) {
+    public ChangePathsTreeViewer(Composite parent, SVNHistoryPage page) {
         super(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI /*| SWT.FULL_SELECTION*/);
         // tree.setHeaderVisible(true);
         // tree.setLinesVisible(true);
@@ -55,11 +64,17 @@ class ChangePathsTreeViewer extends TreeViewer {
         });
     
         setLabelProvider(new ChangePathLabelProvider());
+        setContentProvider(new ChangePathsTreeContentProvider(page));
     }
     
     protected void inputChanged(Object input, Object oldInput) {
         super.inputChanged( input, oldInput);
         this.currentLogEntry = (ILogEntry) input;
+        
+        // showItem(((org.eclipse.swt.widgets.Tree)getControl()).getItems()[0]);
+        expandAll();
+        setSelection(Collections.singletonList(((org.eclipse.swt.widgets.Tree)getControl()).getItems()[0]));
+        ((Tree) getControl()).showSelection();
     }
     
     
@@ -133,8 +148,8 @@ class ChangePathsTreeViewer extends TreeViewer {
          * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
          */
         public Font getFont(Object element) {
-            if(!(element instanceof LogEntryChangePath) || 
-                element==null || currentLogEntry==null) {
+            if(element==null || currentLogEntry==null ||
+                !(element instanceof LogEntryChangePath)) {
               return null;
             }
           
@@ -163,6 +178,106 @@ class ChangePathsTreeViewer extends TreeViewer {
             return null;
         }
         
+    }
+    
+    
+    static final LogEntryChangePath[] EMPTY_CHANGE_PATHS = new LogEntryChangePath[0];
+    
+    static class ChangePathsTreeContentProvider implements ITreeContentProvider {
+
+      private final SVNHistoryPage page;
+
+      ChangePathsTreeContentProvider(SVNHistoryPage page) {
+        this.page = page;
+      }
+
+      public Object[] getChildren(Object parentElement) {
+        if(parentElement instanceof HistoryFolder) {
+          return ((HistoryFolder) parentElement).getChildren();
+        }
+        return null;
+      }
+
+      public Object getParent(Object element) {
+        return null;
+      }
+
+      public boolean hasChildren(Object element) {
+        if(element instanceof HistoryFolder) {
+          HistoryFolder folder = (HistoryFolder) element;
+          return folder.getChildren().length > 0;
+        }
+        return false;
+      }
+
+      public Object[] getElements(Object inputElement) {
+        if( !this.page.isShowChangePaths() || !(inputElement instanceof ILogEntry)) {
+          return EMPTY_CHANGE_PATHS;
+        }
+
+        if(this.page.currentLogEntryChangePath != null) {
+
+        }
+
+        ILogEntry logEntry = (ILogEntry) inputElement;
+        if(SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand()) {
+          if(this.page.currentLogEntryChangePath != null) {
+            return getGroups(this.page.currentLogEntryChangePath);
+          }
+          this.page.scheduleFetchChangePathJob(logEntry);
+          return EMPTY_CHANGE_PATHS;
+        }
+
+        return getGroups(logEntry.getLogEntryChangePaths());
+      }
+
+      private Object[] getGroups(LogEntryChangePath[] changePaths) {
+        // 1st pass. Collect folder names
+        Set folderNames = new HashSet();
+        for(int i = 0; i < changePaths.length; i++) {
+          folderNames.add(getFolderName(changePaths[ i]));
+        }
+
+        // 2nd pass. Sorting out explicitly changed folders
+        TreeMap folders = new TreeMap();
+        for(int i = 0; i < changePaths.length; i++) {
+          LogEntryChangePath changePath = changePaths[ i];
+          String path = changePath.getPath();
+          if(folderNames.contains(path)) {
+            // changed folder
+            HistoryFolder folder = (HistoryFolder) folders.get(path);
+            if(folder == null) {
+              folder = new HistoryFolder(changePath);
+              folders.put(path, folder);
+            }
+          } else {
+            // changed resource
+            path = getFolderName(changePath);
+            HistoryFolder folder = (HistoryFolder) folders.get(path);
+            if(folder == null) {
+              folder = new HistoryFolder(path);
+              folders.put(path, folder);
+            }
+            folder.add(changePath);
+          }
+        }
+
+        return folders.values().toArray(new Object[folders.size()]);
+      }
+
+      private String getFolderName(LogEntryChangePath changePath) {
+        String path = changePath.getPath();
+        int n = path.lastIndexOf('/');
+        return n > -1 ? path.substring(0, n) : path;
+      }
+
+      public void dispose() {
+      }
+
+      public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        this.page.currentLogEntryChangePath = null;
+      }
+
     }
     
 }

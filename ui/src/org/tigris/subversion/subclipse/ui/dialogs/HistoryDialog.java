@@ -164,23 +164,22 @@ public class HistoryDialog extends TrayDialog {
         pathGroup.setLayout(new GridLayout());
         pathGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		changePathsTableProvider = new ChangePathsTableProvider(pathGroup);
-        changePathsTableProvider.setContentProvider(new IStructuredContentProvider() {
-
-			public Object[] getElements(Object inputElement) {
-                if ((inputElement == null) || (!(inputElement instanceof ILogEntry))) {
-                    return null;
+		changePathsTableProvider = new ChangePathsTableProvider(pathGroup, 
+            new IStructuredContentProvider() {
+                public Object[] getElements(Object inputElement) {
+                  if ((inputElement == null) || (!(inputElement instanceof ILogEntry))) {
+                      return null;
+                  }
+                  ILogEntry logEntry = (ILogEntry)inputElement;
+                    return logEntry.getLogEntryChangePaths();
                 }
-                ILogEntry logEntry = (ILogEntry)inputElement;
-				return logEntry.getLogEntryChangePaths();
-			}
-
-			public void dispose() {
-			}
-
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			}
-        });
+    
+                public void dispose() {
+                }
+    
+                public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+                }
+          });
 		
 		stopOnCopyButton = new Button(composite, SWT.CHECK);
 		stopOnCopyButton.setText(Policy.bind("HistoryView.stopOnCopy"));
