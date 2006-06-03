@@ -11,8 +11,6 @@
 package org.tigris.subversion.subclipse.ui.actions;
  
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,7 +19,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.window.Window;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -29,9 +26,6 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.RevertDialog;
 import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
-import org.tigris.subversion.svnclientadapter.ISVNStatus;
-import org.tigris.subversion.svnclientadapter.SVNConstants;
-import org.tigris.subversion.svnclientadapter.SVNStatusUtils;
 
 /**
  * Action to restore pristine working copy file 
