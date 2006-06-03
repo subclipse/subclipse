@@ -4,6 +4,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableLayout;
@@ -70,7 +72,13 @@ public class LockDialog extends TrayDialog {
                 }		        
 		    };
 		    commitCommentArea.setModifyListener(modifyListener);
-		}        
+		}   
+		commitCommentArea.addPropertyChangeListener(new IPropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty() == CommitCommentArea.OK_REQUESTED)
+					okPressed();
+			}
+		});
         settings = SVNUIPlugin.getPlugin().getDialogSettings();
         setter = new TableSetter();
     }
