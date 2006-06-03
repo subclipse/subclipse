@@ -63,6 +63,7 @@ public class CommitDialog extends TrayDialog {
 	private static final int WIDTH_HINT = 500;
 	private final static int SELECTION_HEIGHT_HINT = 100;
     
+	private SashForm sashForm;
     private CommitCommentArea commitCommentArea;
     private IResource[] resourcesToCommit;
     private String url;
@@ -118,7 +119,7 @@ public class CommitDialog extends TrayDialog {
 		composite.setLayout(new GridLayout());
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
         
-        SashForm sashForm = new SashForm(composite, SWT.VERTICAL);
+        sashForm = new SashForm(composite, SWT.VERTICAL);
         sashForm.setLayout(new GridLayout());
         sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
                 
@@ -134,8 +135,14 @@ public class CommitDialog extends TrayDialog {
         cBottom2.setLayout(new GridLayout());
         cBottom2.setLayoutData(new GridData(GridData.FILL_BOTH));
         
-        sashForm.setWeights(new int[] {3, 4});
-
+		try {
+			int[] weights = new int[2];
+			weights[0] = settings.getInt("CommitDialog.weights.0"); //$NON-NLS-1$
+			weights[1] = settings.getInt("CommitDialog.weights.1"); //$NON-NLS-1$
+			sashForm.setWeights(weights);
+		} catch (Exception e) {
+			sashForm.setWeights(new int[] {3, 4});			
+		}
 		
 		if (projectProperties != null) {
 		    addBugtrackingArea(cTop);
@@ -329,6 +336,9 @@ public class CommitDialog extends TrayDialog {
         setter.saveColumnWidths(listViewer.getTable(), "CommitDialog"); //$NON-NLS-1$
         setter.saveSorterColumn("CommitDialog", sorterColumn); //$NON-NLS-1$
         setter.saveSorterReversed("CommitDialog", sorterReversed); //$NON-NLS-1$
+        int[] weights = sashForm.getWeights();
+        for (int i = 0; i < weights.length; i++) 
+        	settings.put("CommitDialog.weights." + i, weights[i]); //$NON-NLS-1$ 
     }
 
     /**
