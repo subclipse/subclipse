@@ -23,6 +23,8 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNStatusUtils;
 
@@ -43,19 +45,24 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 			    if (!outgoingFilter.select(info)) return false;
 			    IStructuredSelection selection = getStructuredSelection();
 			    Iterator iter = selection.iterator();
+			    boolean removeUnAdded  = SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE);
+			    
 			    while (iter.hasNext()) {
 			    	ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
 			    	IResource resource = element.getResource();
 			    	if (resource == null) continue;
 			    	if (resource.isLinked()) return false;
+			    	if(!removeUnAdded)
+			    	{
 	                ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);			    
 	                try {
 	                	if (!svnResource.isManaged()) return false;
 	                } catch (SVNException e) {
 	                    return false;
 	                }
+			    	}
 			    }
-                return true;
+             return true;
 			}
 		};
 	}    
@@ -119,7 +126,8 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 			 command.run(iProgressMonitor);
 			 ISVNStatus[] statuses = command.getStatuses();
 			 for (int j = 0; j < statuses.length; j++) {
-			     if (SVNStatusUtils.isReadyForRevert(statuses[j])) {
+			     if (SVNStatusUtils.isReadyForRevert(statuses[j])  ||
+			   		  !SVNStatusUtils.isManaged(statuses[j])) {
 			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
 			         if (currentResource != null)
 			             modified.add(currentResource);

@@ -6,9 +6,12 @@ import java.util.Comparator;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -56,13 +59,13 @@ public class RevertResourcesCommand implements ISVNCommand {
         try {
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
-            
             for (int i = 0; i < resources.length; i++) {
-                // If a folder add is reverted, all the adds underneath it will be reverted too.
+                LocalResourceStatus status = SVNWorkspaceRoot.getSVNResourceFor( resources[i] ).getStatus();
+					// If a folder add is reverted, all the adds underneath it will be reverted too.
                 // Don't try to revert them. Because the resources are sorted by path we can just
                 // keep going along the IResource array until we find one that doesn't have the 
                 // current as a base path. 
-                if (resources[i].getType() == IResource.FOLDER && SVNWorkspaceRoot.getSVNResourceFor( resources[i] ).getStatus().isAdded()) {
+                if (resources[i].getType() == IResource.FOLDER && status.isAdded()) {
                     svnClient.revert(resources[i].getLocation().toFile(), true);
                     monitor.worked(100);
                     SVNWorkspaceRoot.getSVNFolderFor( (IContainer)resources[i] ).refreshStatus(IResource.DEPTH_INFINITE);
@@ -73,9 +76,20 @@ public class RevertResourcesCommand implements ISVNCommand {
                         i++;
                     }
                 } else {
-                    svnClient.revert(resources[i].getLocation().toFile(), false);
-                    monitor.worked(100);
+                	if (!status.isManaged()) {
+                		try {
+								resources[i].delete(true, monitor);
+						}
+						catch (CoreException ex) {
+							throw SVNException.wrapException(ex);
+						}
+                	}
+                	else {
+	                    svnClient.revert(resources[i].getLocation().toFile(), false);
+	                    monitor.worked(100);
+                	}
                 }
+                	
             }
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);

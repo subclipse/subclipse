@@ -60,6 +60,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button fetchChangePathOnDemand;
     private Button showTagsInRemoteHistory;
     private Button selectUnadded;
+    private Button removeOnReplace;
     private Text logEntriesToFetchText;
     private Button defaultConfigLocationRadio;
     private Button useDirectoryLocationRadio;
@@ -137,6 +138,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		showCompareRevisionInDialog = createCheckBox(composite, Policy.bind("SVNPreferencePage.showCompareMergeInSync")); //$NON-NLS-1$
 		
 		selectUnadded = createCheckBox(composite, Policy.bind("SVNPreferencePage.selectUnadded")); //$NON-NLS-1$
+		
+		removeOnReplace = createCheckBox(composite, Policy.bind("SVNPreferencePage.removeOnReplace")); //$NON-NLS-1$
 		
 		fetchChangePathOnDemand = createCheckBox(composite, Policy.bind("SVNPreferencePage.fetchChangePathOnDemand")); //$NON-NLS-1$
 		
@@ -247,6 +250,9 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
 		selectUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT));
 		
+		store.setDefault(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE, true);
+		removeOnReplace.setSelection(store.getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE));
+		
 		logEntriesToFetchText.setText(Integer.toString(store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH)));
 		
 		quickDiffAnnotateYes.setSelection(MessageDialogWithToggle.ALWAYS.equals(store.getString(ISVNUIConstants.PREF_USE_QUICKDIFFANNOTATE)));
@@ -296,6 +302,9 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
         // save select unadded resources on commit pref
 		store.setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, selectUnadded.getSelection());
+		
+		 // save remove unadded resources on replace
+		store.setValue(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE, removeOnReplace.getSelection());
 
 		if (quickDiffAnnotateYes.getSelection()) {
 			store.setValue(ISVNUIConstants.PREF_USE_QUICKDIFFANNOTATE, MessageDialogWithToggle.ALWAYS);

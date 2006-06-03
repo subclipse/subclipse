@@ -10,13 +10,16 @@
 package org.tigris.subversion.subclipse.ui.operations;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -66,15 +69,27 @@ public class ReplaceOperation extends UpdateOperation {
     protected void execute(SVNTeamProvider provider, IResource[] resources, IProgressMonitor monitor) throws SVNException, InterruptedException {
         monitor.beginTask(null, 100);
 		try {
+			boolean removeUnAdded  = SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE);
             // first we revert to base (otherwise it will do a merge instead of
             // replace resources)
 		    for (int i = 0; i < resources.length; i++) {
                 IResource resource = resources[i];
 
                 ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-    			if (localResource.isDirty()) {
-    				localResource.revert();
-    			}
+                if(!localResource.isManaged() && removeUnAdded)
+        			{
+        				try
+    					{
+    						resource.delete(true, monitor);
+    					}
+    					catch (CoreException ex)
+    					{
+    						throw SVNException.wrapException(ex);
+    					}
+        			}
+                else if (localResource.isDirty()) {
+               	 localResource.revert();
+                }
             }
 
 		    // We are already at the base revision after a revert, no need to update
