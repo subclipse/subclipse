@@ -31,6 +31,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
@@ -68,13 +69,16 @@ class ChangePathsTreeViewer extends TreeViewer {
     }
     
     protected void inputChanged(Object input, Object oldInput) {
-        super.inputChanged( input, oldInput);
+        super.inputChanged(input, oldInput);
         this.currentLogEntry = (ILogEntry) input;
-        
-        // showItem(((org.eclipse.swt.widgets.Tree)getControl()).getItems()[0]);
+
+        // expand all, select and show first element. is there a better way? 
         expandAll();
-        setSelection(Collections.singletonList(((org.eclipse.swt.widgets.Tree)getControl()).getItems()[0]));
-        ((Tree) getControl()).showSelection();
+        final TreeItem[] items = ((Tree) getControl()).getItems();
+        if(items!=null && items.length>0) {
+          setSelection(Collections.singletonList(items[0]));
+          ((Tree) getControl()).showSelection();
+        }
     }
     
     

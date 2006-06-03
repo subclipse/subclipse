@@ -42,6 +42,8 @@ import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.TextViewer;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -1193,32 +1195,7 @@ public class SVNHistoryPage extends HistoryPage {
   // Get Get Next action (toolbar)
   public IAction getGetNextAction() {
     if(getNextAction == null) {
-      IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
-      int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
-      SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
-      getNextAction = new Action(
-          Policy.bind("HistoryView.getNext"), plugin.getImageDescriptor(ISVNUIConstants.IMG_GET_NEXT)) { //$NON-NLS-1$
-        public void run() {
-          final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
-          if(fetchNextLogEntriesJob == null) {
-            fetchNextLogEntriesJob = new FetchNextLogEntriesJob();
-          }
-          if(fetchNextLogEntriesJob.getState() != Job.NONE) {
-            fetchNextLogEntriesJob.cancel();
-            try {
-              fetchNextLogEntriesJob.join();
-            } catch(InterruptedException e) {
-              SVNUIPlugin.log(new SVNException(Policy
-                  .bind("HistoryView.errorFetchingEntries", remoteResource.getName()), e)); //$NON-NLS-1$
-            }
-          }
-          fetchNextLogEntriesJob.setRemoteFile(remoteResource);
-          Utils.schedule(fetchNextLogEntriesJob, getSite());
-        }
-      };
-      getNextAction.setToolTipText(Policy.bind("HistoryView.getNext") + " " + entriesToFetch); //$NON-NLS-1$
-      if(entriesToFetch <= 0)
-        getNextAction.setEnabled(false);
+      getNextAction = new GetNextAction();
     }
     return getNextAction;
   }
@@ -1323,6 +1300,48 @@ public class SVNHistoryPage extends HistoryPage {
     return lastElement;
   }
 
+  
+  private final class GetNextAction extends Action implements IPropertyChangeListener {
+    GetNextAction() {
+      super(Policy.bind("HistoryView.getNext"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_GET_NEXT));
+      updateFromProperties();
+      SVNUIPlugin.getPlugin().getPreferenceStore().addPropertyChangeListener(this);
+    }
+
+    public void run() {
+      final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
+      if(fetchNextLogEntriesJob == null) {
+        fetchNextLogEntriesJob = new FetchNextLogEntriesJob();
+      }
+      if(fetchNextLogEntriesJob.getState() != Job.NONE) {
+        fetchNextLogEntriesJob.cancel();
+        try {
+          fetchNextLogEntriesJob.join();
+        } catch(InterruptedException e) {
+          SVNUIPlugin.log(new SVNException(Policy
+              .bind("HistoryView.errorFetchingEntries", remoteResource.getName()), e)); //$NON-NLS-1$
+        }
+      }
+      fetchNextLogEntriesJob.setRemoteFile(remoteResource);
+      Utils.schedule(fetchNextLogEntriesJob, getSite());
+    }
+
+    public void propertyChange(PropertyChangeEvent event) {
+      if(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH.equals(event.getProperty())) {
+        updateFromProperties();
+      }
+    }
+
+    private void updateFromProperties() {
+      int entriesToFetch = SVNUIPlugin.getPlugin().getPreferenceStore().getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+      setToolTipText(Policy.bind("HistoryView.getNext") + " " + entriesToFetch); //$NON-NLS-1$
+      if(entriesToFetch <= 0) {
+        setEnabled(false);
+      }
+    }
+  }
+
+  
   private class FetchLogEntriesJob extends Job {
     public ISVNRemoteResource remoteResource;
 
