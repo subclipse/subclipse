@@ -9,6 +9,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IColorProvider;
@@ -30,6 +31,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -90,11 +92,15 @@ public class ConfigureTagsDialog extends TrayDialog {
 	private boolean tagUpdatePending = false;
 	private Alias previousAlias;
 	
+	 private IDialogSettings settings;
+	
     private static final int LIST_HEIGHT_HINT = 250;
     private static final int LIST_WIDTH_HINT = 450;
 
 	public ConfigureTagsDialog(Shell parentShell, IResource resource) {
 		super(parentShell);
+		int shellStyle = getShellStyle();
+		setShellStyle(shellStyle | SWT.RESIZE);
 		this.resource = resource;
 		deleteAction = new DeleteAction();
 		deleteAction.setText(Policy.bind("ConfigureTagsDialog.delete")); //$NON-NLS-1$
@@ -102,6 +108,7 @@ public class ConfigureTagsDialog extends TrayDialog {
 		addBranchAction.setText(Policy.bind("ConfigureTagsDialog.addBranch")); //$NON-NLS-1$
 		addTagAction = new AddTagAction();
 		addTagAction.setText(Policy.bind("ConfigureTagsDialog.addTag")); //$NON-NLS-1$	
+		settings = SVNUIPlugin.getPlugin().getDialogSettings();	
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -114,7 +121,7 @@ public class ConfigureTagsDialog extends TrayDialog {
 		GridLayout urlLayout = new GridLayout();
 		urlLayout.numColumns = 2;
 		urlGroup.setLayout(urlLayout);
-		urlGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+		urlGroup.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
 		Label urlLabel = new Label(urlGroup, SWT.NONE);
 		urlLabel.setText(Policy.bind("ConfigureTagsDialog.url")); //$NON-NLS-1$
@@ -148,7 +155,7 @@ public class ConfigureTagsDialog extends TrayDialog {
 		GridLayout tagLayout = new GridLayout();
 		tagLayout.numColumns = 3;
 		tagGroup.setLayout(tagLayout);
-		tagGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+		tagGroup.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
 		revisionLabel = new Label(tagGroup, SWT.NONE);
 		revisionLabel.setText(Policy.bind("ConfigureTagsDialog.revision")); //$NON-NLS-1$
@@ -318,6 +325,7 @@ public class ConfigureTagsDialog extends TrayDialog {
 	}
 	
 	protected void cancelPressed() {
+		saveLocation();
 		if (updates) {
 			if (!MessageDialog.openQuestion(getShell(), Policy.bind("ConfigureTagsDialog.title"), //$NON-NLS-1$
 					Policy.bind("ConfigureTagsDialog.confirmExit"))) return; //$NON-NLS-1$			
@@ -326,6 +334,7 @@ public class ConfigureTagsDialog extends TrayDialog {
 	}
 
 	protected void okPressed() {
+		saveLocation();
 		if (updates) {
 			try {
 				svnResource.setSvnProperty("subclipse:tags", getPropertyValue(), false); //$NON-NLS-1$
@@ -336,6 +345,35 @@ public class ConfigureTagsDialog extends TrayDialog {
 		}
 		super.okPressed();
 	}
+	
+    private void saveLocation() {
+        int x = getShell().getLocation().x;
+        int y = getShell().getLocation().y;
+        settings.put("ConfigureTagsDialog.location.x", x); //$NON-NLS-1$
+        settings.put("ConfigureTagsDialog.location.y", y); //$NON-NLS-1$
+        x = getShell().getSize().x;
+        y = getShell().getSize().y;
+        settings.put("ConfigureTagsDialog.size.x", x); //$NON-NLS-1$
+        settings.put("ConfigureTagsDialog.size.y", y); //$NON-NLS-1$   
+    }
+    
+    protected Point getInitialLocation(Point initialSize) {
+	    try {
+	        int x = settings.getInt("ConfigureTagsDialog.location.x"); //$NON-NLS-1$
+	        int y = settings.getInt("ConfigureTagsDialog.location.y"); //$NON-NLS-1$
+	        return new Point(x, y);
+	    } catch (NumberFormatException e) {}
+        return super.getInitialLocation(initialSize);
+    }
+    
+    protected Point getInitialSize() {
+	    try {
+	        int x = settings.getInt("ConfigureTagsDialog.size.x"); //$NON-NLS-1$
+	        int y = settings.getInt("ConfigureTagsDialog.size.y"); //$NON-NLS-1$
+	        return new Point(x, y);
+	    } catch (NumberFormatException e) {}
+        return super.getInitialSize();
+    }	
 
 	private void setTagGroupEnablement(boolean enable) {
 		revisionLabel.setEnabled(enable);

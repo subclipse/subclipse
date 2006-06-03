@@ -10,6 +10,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -25,6 +26,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -73,9 +75,13 @@ public class ChooseUrlDialog extends TrayDialog {
     private ISVNRepositoryLocation repositoryLocation;
     private boolean foldersOnly = false;
     private boolean includeBranchesAndTags = true;
+    
+    private IDialogSettings settings;
 
     public ChooseUrlDialog(Shell parentShell, IResource resource) {
         super(parentShell);
+		int shellStyle = getShellStyle();
+		setShellStyle(shellStyle | SWT.RESIZE);
         this.resource = resource;
         refreshAction = new Action(Policy.bind("ChooseUrlDialog.refresh"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REFRESH_ENABLED)) { //$NON-NLS-1$
             public void run() {
@@ -98,6 +104,7 @@ public class ChooseUrlDialog extends TrayDialog {
                 refreshViewer(true);
             }
         };
+        settings = SVNUIPlugin.getPlugin().getDialogSettings();
     }
 
 	protected Control createDialogArea(Composite parent) {
@@ -182,6 +189,7 @@ public class ChooseUrlDialog extends TrayDialog {
     }
 
     protected void okPressed() {
+    	saveLocation();
         ISelection selection = treeViewer.getSelection();
         if (!selection.isEmpty() && (selection instanceof IStructuredSelection)) {
             IStructuredSelection structured = (IStructuredSelection)selection;
@@ -209,6 +217,40 @@ public class ChooseUrlDialog extends TrayDialog {
         }
         super.okPressed();
     }
+    
+    protected void cancelPressed() {
+        saveLocation();
+        super.cancelPressed();
+    }
+    
+    private void saveLocation() {
+        int x = getShell().getLocation().x;
+        int y = getShell().getLocation().y;
+        settings.put("ChooseUrlDialog.location.x", x); //$NON-NLS-1$
+        settings.put("ChooseUrlDialog.location.y", y); //$NON-NLS-1$
+        x = getShell().getSize().x;
+        y = getShell().getSize().y;
+        settings.put("ChooseUrlDialog.size.x", x); //$NON-NLS-1$
+        settings.put("ChooseUrlDialog.size.y", y); //$NON-NLS-1$   
+    }
+    
+    protected Point getInitialLocation(Point initialSize) {
+	    try {
+	        int x = settings.getInt("ChooseUrlDialog.location.x"); //$NON-NLS-1$
+	        int y = settings.getInt("ChooseUrlDialog.location.y"); //$NON-NLS-1$
+	        return new Point(x, y);
+	    } catch (NumberFormatException e) {}
+        return super.getInitialLocation(initialSize);
+    }
+    
+    protected Point getInitialSize() {
+	    try {
+	        int x = settings.getInt("ChooseUrlDialog.size.x"); //$NON-NLS-1$
+	        int y = settings.getInt("ChooseUrlDialog.size.y"); //$NON-NLS-1$
+	        return new Point(x, y);
+	    } catch (NumberFormatException e) {}
+        return super.getInitialSize();
+    }	
 
     public String getUrl() {
         return url;
