@@ -126,8 +126,9 @@ public class ConfigureTagsDialog extends TrayDialog {
 		Label urlLabel = new Label(urlGroup, SWT.NONE);
 		urlLabel.setText(Policy.bind("ConfigureTagsDialog.url")); //$NON-NLS-1$
 		Text urlText = new Text(urlGroup, SWT.BORDER);
-		GridData data = new GridData();
-		data.widthHint = 600;
+//		GridData data = new GridData();
+//		data.widthHint = 600;
+		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		urlText.setLayoutData(data);
 		urlText.setEditable(false);
 		svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);		
