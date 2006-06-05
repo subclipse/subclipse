@@ -146,7 +146,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
                 
                 if (svnResource instanceof ISVNLocalFolder) {
                     try {
-                        ISVNLocalResource[] members = (ISVNLocalResource[])((ISVNLocalFolder)svnResource).members(null, ISVNFolder.ALL_EXISTING_MEMBERS);
+                        ISVNLocalResource[] members = (ISVNLocalResource[])((ISVNLocalFolder)svnResource).members(null, ISVNFolder.ALL_EXISTING_UNIGNORED_MEMBERS);
                         for (int i= 0; i < members.length; i++) {
                             IStructureComparator child= createChild(members[i]);
                             if (child != null)

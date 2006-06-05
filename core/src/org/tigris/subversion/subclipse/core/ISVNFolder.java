@@ -50,6 +50,11 @@ public interface ISVNFolder extends ISVNResource {
 		| MANAGED_MEMBERS
 		| EXISTING_MEMBERS
 		| PHANTOM_MEMBERS;
+	public static final int ALL_EXISTING_UNIGNORED_MEMBERS = FILE_MEMBERS 
+		| FOLDER_MEMBERS 
+		| UNMANAGED_MEMBERS 
+		| MANAGED_MEMBERS 
+		| EXISTING_MEMBERS;
 
 	/**
 	 * Answer the immediate children of the resource 
