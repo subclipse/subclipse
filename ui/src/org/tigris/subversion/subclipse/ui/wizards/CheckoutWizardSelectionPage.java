@@ -4,21 +4,24 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.eclipse.ui.progress.DeferredTreeContentManager;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.repository.RepositoryFilters;
-import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
 
 public class CheckoutWizardSelectionPage extends WizardPage {
     private static final int LIST_HEIGHT_HINT = 250;
@@ -42,7 +45,7 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 
 		treeViewer = new TreeViewer(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
-        RemoteContentProvider contentProvider = new RemoteContentProvider();
+		RepositoryContentProvider contentProvider = new RepositoryContentProvider();
         treeViewer.setContentProvider(contentProvider);
         treeViewer.addFilter(RepositoryFilters.FOLDERS_ONLY);
         treeViewer.setLabelProvider(new WorkbenchLabelProvider());
@@ -59,7 +62,11 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 				ArrayList folderArray = new ArrayList();
 				IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 				Iterator iter = selection.iterator();
-				while (iter.hasNext()) folderArray.add(iter.next());
+				while (iter.hasNext()) {
+					Object object = iter.next();
+					if (object instanceof ISVNRepositoryLocation) folderArray.add(((ISVNRepositoryLocation)object).getRootFolder());
+					else folderArray.add(object);
+				}
 				ISVNRemoteFolder[] remoteFolders = new ISVNRemoteFolder[folderArray.size()];
 				folderArray.toArray(remoteFolders);
 				wizard.setRemoteFolders(remoteFolders);
@@ -83,8 +90,37 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 	public void setLocation(ISVNRepositoryLocation repositoryLocation) {
 		this.repositoryLocation = repositoryLocation;
 		if (treeViewer != null) {
-			treeViewer.setInput(repositoryLocation);
+			treeViewer.setInput(repositoryLocation.getLocation());
 			treeViewer.refresh();
+			treeViewer.expandToLevel(2);
+		}
+	}
+	
+	class RepositoryContentProvider extends WorkbenchContentProvider {
+		private DeferredTreeContentManager manager;
+		
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+			if (viewer instanceof AbstractTreeViewer) {
+				manager = new DeferredTreeContentManager(this, (AbstractTreeViewer) viewer);
+			}
+			super.inputChanged(viewer, oldInput, newInput);
+		}
+		
+		public boolean hasChildren(Object element) {
+			if (element == null) return false;
+			else return true;
+		}
+		
+		public Object[] getChildren(Object parentElement) {
+			if (parentElement instanceof String) {
+				Object[] root = { repositoryLocation };
+				return root;
+			}
+			if (manager != null) {
+				Object[] children = manager.getChildren(parentElement);
+				return children;
+			}
+			return super.getChildren(parentElement);
 		}
 	}
 
