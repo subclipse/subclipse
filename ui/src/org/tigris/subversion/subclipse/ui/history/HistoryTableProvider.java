@@ -268,6 +268,7 @@ public class HistoryTableProvider {
 		HistorySorter sorter = new HistorySorter(COL_REVISION);
 		sorter.setReversed(true);
 		viewer.setSorter(sorter);
+		table.setSortDirection(SWT.DOWN);
 
         table.addDisposeListener(new DisposeListener() {
             public void widgetDisposed(DisposeEvent e) {
@@ -292,6 +293,7 @@ public class HistoryTableProvider {
 		col.setText(Policy.bind("HistoryView.revision")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
 		layout.addColumnData(new ColumnWeightData(10, true));
+		table.setSortColumn(col);
 		
 		// tags
 		col = new TableColumn(table, SWT.NONE);
