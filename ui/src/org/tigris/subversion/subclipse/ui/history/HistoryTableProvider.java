@@ -353,6 +353,11 @@ public class HistoryTableProvider {
 				} else {
 					tableViewer.setSorter(new HistorySorter(column));
 				}
+				tableViewer.getTable().setSortColumn((TableColumn)e.widget);
+				if (tableViewer.getTable().getSortDirection() == SWT.UP)
+					tableViewer.getTable().setSortDirection(SWT.DOWN);
+				else
+					tableViewer.getTable().setSortDirection(SWT.UP);
 			}
 		};
 	}
