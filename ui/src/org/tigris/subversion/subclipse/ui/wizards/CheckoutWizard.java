@@ -155,9 +155,9 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 							if (hasProjectFile) {
 								if (checkoutAsWithProjectFilePage != null) {
 									checkoutAsWithProjectFilePage.setText(Policy.bind("CheckoutWizardCheckoutAsPage.single", remoteFolders[0].getName())); //$NON-NLS-1$
-//									IProject project = SVNWorkspaceRoot.getProject(remoteFolders[0],null);
-//									checkoutAsWithProjectFilePage.setProject(project.getName());
-//									checkoutAsWithProjectFilePage.setProject(remoteFolders[0].getName());
+									if (project == null)
+										project = SVNWorkspaceRoot.getProject(remoteFolders[0],null);
+									if (project != null) checkoutAsWithProjectFilePage.setProject(project.getName());
 								}
 							} else {
 								if (checkoutAsWithoutProjectFilePage != null) {
