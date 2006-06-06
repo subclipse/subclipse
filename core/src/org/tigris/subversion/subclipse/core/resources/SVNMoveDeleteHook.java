@@ -124,6 +124,8 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                         throw new SVNException(Policy.bind("SVNMoveHook.moveFileException"));
                     provider.add(new IResource[] { destination.getParent() },
                             IResource.DEPTH_ZERO, new NullProgressMonitor());
+                    ISVNLocalResource parent = SVNWorkspaceRoot.getSVNResourceFor(destination.getParent());
+                    if (parent != null) parent.refreshStatus();
                 }
 
                 // force is set to true because when we rename (refactor) a
