@@ -3,6 +3,10 @@ package org.tigris.subversion.subclipse.ui.wizards;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -15,12 +19,16 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.progress.DeferredTreeContentManager;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.repository.RepositoryFilters;
 
 public class CheckoutWizardSelectionPage extends WizardPage {
@@ -73,6 +81,23 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 				setPageComplete(!treeViewer.getSelection().isEmpty());
 			}
 		});
+		
+        final Action refreshAction = new Action(Policy.bind("RepositoriesView.refreshPopup"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REFRESH)) { //$NON-NLS-1$
+            public void run() {
+            	refreshViewerNode();
+            }
+        };
+        MenuManager menuMgr = new MenuManager();
+        Tree tree = treeViewer.getTree();
+        Menu menu = menuMgr.createContextMenu(tree);
+        menuMgr.addMenuListener(new IMenuListener() {
+            public void menuAboutToShow(IMenuManager manager) {
+                manager.add(refreshAction);
+            }
+
+        });
+        menuMgr.setRemoveAllWhenShown(true);
+        tree.setMenu(menu);
 
 		setMessage(Policy.bind("CheckoutWizardSelectionPage.text")); //$NON-NLS-1$
 
@@ -95,6 +120,17 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 			treeViewer.expandToLevel(2);
 		}
 	}
+	
+    protected void refreshViewerNode() {
+    	IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
+        Iterator iter = selection.iterator();
+        while (iter.hasNext()) {
+        	Object object = iter.next();
+        	if (object instanceof ISVNRepositoryLocation) ((ISVNRepositoryLocation)object).refreshRootFolder();
+        	if (object instanceof ISVNRemoteFolder) ((ISVNRemoteFolder)object).refresh();
+        	treeViewer.refresh(object); 
+        }
+    }
 	
 	class RepositoryContentProvider extends WorkbenchContentProvider {
 		private DeferredTreeContentManager manager;
