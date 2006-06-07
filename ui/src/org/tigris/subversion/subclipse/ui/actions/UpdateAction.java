@@ -15,6 +15,8 @@ package org.tigris.subversion.subclipse.ui.actions;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -25,12 +27,24 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  * the changes will be merged into the local file such that the user must
  * resolve the conflicts. 
  */
-public class UpdateAction extends WorkspaceAction {
+public class UpdateAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate {
+
+	/*
+	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
+	 */
+	public void init(IWorkbenchWindow window) {
+	}
+
 	/*
 	 * @see IActionDelegate#run(IAction)
 	 */
 	public void execute(IAction action) throws InterruptedException, InvocationTargetException {
-	    new UpdateOperation(getTargetPart(), getSelectedResources(), SVNRevision.HEAD, true).run();
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+	    	    new UpdateOperation(getTargetPart(), getSelectedResources(), SVNRevision.HEAD, true).run();
+        } 		
 	}
 
 	/**
@@ -46,5 +60,12 @@ public class UpdateAction extends WorkspaceAction {
 	protected boolean isEnabledForAddedResources() {
 		return false;
 	}
+
+	/*
+	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
+	 */
+	public void dispose()
+	{
+	}    
 
 }

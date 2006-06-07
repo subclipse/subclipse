@@ -10,34 +10,63 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.actions;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.ui.TeamUI;
 import org.eclipse.team.ui.synchronize.ISynchronizeParticipant;
 import org.eclipse.team.ui.synchronize.ResourceScope;
 import org.eclipse.team.ui.synchronize.SubscriberParticipant;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
 
 /**
  * Action to synchronize the selected resources. This results
  * in a file-system participant being added to the synchronize view.
  */
-public class SynchronizeAction extends WorkspaceAction {
+public class SynchronizeAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate{
+
+	/*
+	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
+	 */
+	public void init(IWorkbenchWindow window) {
+	}
+
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
-	public void execute(IAction action) {
-		IResource[] resources = getSelectedResources();
-		// First check if there is an existing matching participant
-		SVNSynchronizeParticipant participant = (SVNSynchronizeParticipant)SubscriberParticipant.getMatchingParticipant(SVNSynchronizeParticipant.ID, resources);
-		// If there isn't, create one and add to the manager
-		if (participant == null) {
-			participant = new SVNSynchronizeParticipant(new ResourceScope(resources));
-			TeamUI.getSynchronizeManager().addSynchronizeParticipants(new ISynchronizeParticipant[] {participant});
-		}
-		participant.refresh(resources, "Synchronizing", "Synchronizing " + participant.getName(), getTargetPart().getSite());
-
+	public void execute(IAction action) throws InterruptedException, InvocationTargetException {
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+    		IResource[] resources = getSelectedResources();
+    		// First check if there is an existing matching participant
+    		SVNSynchronizeParticipant participant = (SVNSynchronizeParticipant)SubscriberParticipant.getMatchingParticipant(SVNSynchronizeParticipant.ID, resources);
+    		// If there isn't, create one and add to the manager
+    		if (participant == null) {
+    			participant = new SVNSynchronizeParticipant(new ResourceScope(resources));
+    			TeamUI.getSynchronizeManager().addSynchronizeParticipants(new ISynchronizeParticipant[] {participant});
+    		}
+    		// If called by the accelerator key, for some reason targetPart is null, thus the check
+    		if(getTargetPart() == null) {
+    			//System.out.println("site:null"+ SVNUIPlugin.getActivePage().getActivePart().getSite());
+    			participant.refresh(resources, "Synchronizing", "Synchronizing " + participant.getName(), SVNUIPlugin.getActivePage().getActivePart().getSite());
+    		} else {
+    			participant.refresh(resources, "Synchronizing", "Synchronizing " + participant.getName(), getTargetPart().getSite());
+    		}
+        } 
 	}
+
+    /*
+	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
+	 */
+	public void dispose()
+	{
+	}    
 
 }

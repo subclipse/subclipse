@@ -28,13 +28,17 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
@@ -222,6 +226,23 @@ public abstract class TeamAction extends ActionDelegate implements IObjectAction
 			if (action != null) {
 				setActionEnablement(action);
 			}
+		}
+		if (sel instanceof ITextSelection){
+				IEditorPart part = getTargetPage().getActiveEditor();
+				if (part != null) {
+					IEditorInput input = part.getEditorInput();
+					IResource r = (IResource) input.getAdapter(IResource.class);
+					if (r != null) {
+						switch(r.getType()){
+							case IResource.FILE:
+								this.selection = new StructuredSelection(r);
+								if (action != null) {
+									setActionEnablement(action);
+								}
+							break;
+						}
+					}	//	set selection to current editor file;
+				}
 		}
 	}
 	

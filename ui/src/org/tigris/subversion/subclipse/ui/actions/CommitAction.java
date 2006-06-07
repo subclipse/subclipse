@@ -30,6 +30,8 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
 import org.eclipse.team.internal.core.subscribers.ChangeSet;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -50,7 +52,7 @@ import org.tigris.subversion.svnclientadapter.SVNStatusUtils;
  * If selected, unversioned resources will be added to version control,
  * and committed.
  */
-public class CommitAction extends WorkspaceAction {
+public class CommitAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate {
 	protected String commitComment;
     protected IResource[] resourcesToCommit;
     protected String url;
@@ -69,6 +71,12 @@ public class CommitAction extends WorkspaceAction {
 	}
 
 	/*
+	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
+	 */
+	public void init(IWorkbenchWindow window) {
+	}
+	
+	/*
      * get non added resources and prompts for resources to be added
      * prompts for comments
      * add non added files
@@ -79,46 +87,51 @@ public class CommitAction extends WorkspaceAction {
 		final IResource[] resources = getSelectedResources();
 	    final List resourcesToBeAdded = new ArrayList();
 	    final List resourcesToBeDeleted = new ArrayList();
-		run(new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) throws InvocationTargetException {
-				try {
-				    // search for modified or added, non-ignored resources in the selection.
-				    IResource[] modified = getModifiedResources(resources, monitor);
-					
-				    // if no changes since last commit, do not show commit dialog.
-				    if (modified.length == 0) {
-					    MessageDialog.openInformation(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.noChanges")); //$NON-NLS-1$ //$NON-NLS-2$
-					    commit = false;
-					} else {
-					    ProjectProperties projectProperties = ProjectProperties.getProjectProperties(modified[0]);
-					    commit = confirmCommit(modified, projectProperties);
-					}
+            if (action != null && !action.isEnabled()) { 
+            	action.setEnabled(true);
+            } 
+            else {
+            	run(new IRunnableWithProgress() {
+        			public void run(IProgressMonitor monitor) throws InvocationTargetException {
+        				try {
+        				    // search for modified or added, non-ignored resources in the selection.
+        				    IResource[] modified = getModifiedResources(resources, monitor);
+        					
+        				    // if no changes since last commit, do not show commit dialog.
+        				    if (modified.length == 0) {
+        					    MessageDialog.openInformation(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.noChanges")); //$NON-NLS-1$ //$NON-NLS-2$
+        					    commit = false;
+        					} else {
+        					    ProjectProperties projectProperties = ProjectProperties.getProjectProperties(modified[0]);
+        					    commit = confirmCommit(modified, projectProperties);
+        					}
 
-				    // if commit was not canceled, create a list of any
-				    // unversioned resources that were selected and a list of any missing
-				    // resources that were selected.
-					if (commit) {
-					    for (int i = 0; i < resourcesToCommit.length; i++) {
-					        IResource resource = resourcesToCommit[i];
-					        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-					        if (!svnResource.isManaged()) resourcesToBeAdded.add(resource);
-					        if (svnResource.getStatus().isMissing()) resourcesToBeDeleted.add(resource);
-					    }
-					}
-				} catch (TeamException e) {
-					throw new InvocationTargetException(e);
-				}
-			}
-		}, true /* cancelable */, PROGRESS_BUSYCURSOR); //$NON-NLS-1$
-		
-		if (!commit) {
-			return; // user canceled
-		}
-		
-		new CommitOperation(getTargetPart(), resources, 
-				(IResource[]) resourcesToBeAdded.toArray(new IResource[resourcesToBeAdded.size()]),
-				(IResource[]) resourcesToBeDeleted.toArray(new IResource[resourcesToBeDeleted.size()]),
-				resourcesToCommit, commitComment, keepLocks).run();
+        				    // if commit was not canceled, create a list of any
+        				    // unversioned resources that were selected and a list of any missing
+        				    // resources that were selected.
+        					if (commit) {
+        					    for (int i = 0; i < resourcesToCommit.length; i++) {
+        					        IResource resource = resourcesToCommit[i];
+        					        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+        					        if (!svnResource.isManaged()) resourcesToBeAdded.add(resource);
+        					        if (svnResource.getStatus().isMissing()) resourcesToBeDeleted.add(resource);
+        					    }
+        					}
+        				} catch (TeamException e) {
+        					throw new InvocationTargetException(e);
+        				}
+        			}
+        		}, true /* cancelable */, PROGRESS_BUSYCURSOR); //$NON-NLS-1$
+        		
+        		if (!commit) {
+        			return; // user canceled
+        		}
+        		
+        		new CommitOperation(getTargetPart(), resources, 
+        				(IResource[]) resourcesToBeAdded.toArray(new IResource[resourcesToBeAdded.size()]),
+        				(IResource[]) resourcesToBeDeleted.toArray(new IResource[resourcesToBeDeleted.size()]),
+        				resourcesToCommit, commitComment, keepLocks).run();
+            }
 	}
 	
 	/**
@@ -346,4 +359,13 @@ public class CommitAction extends WorkspaceAction {
     	}
     	return false;
     }
+
+
+    /*
+	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
+	 */
+	public void dispose()
+	{
+	}    
+    
 }

@@ -99,12 +99,16 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 		public void initialize(ISynchronizePageConfiguration configuration) {
 			super.initialize(configuration);
 			CommitSynchronizeAction commitAction = new CommitSynchronizeAction(Policy.bind("SyncAction.commit"), configuration); //$NON-NLS-1$
+			commitAction.setId("org.tigris.subversion.subclipse.ui.syncViewCommit");
+			commitAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.commit");
 			commitAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_COMMIT));
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					commitAction);
 			UpdateSynchronizeAction updateAction = new UpdateSynchronizeAction(Policy.bind("SyncAction.update"), configuration); //$NON-NLS-1$
+			updateAction.setId("org.tigris.subversion.subclipse.ui.syncViewUpdate");
+			updateAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.update");
 			updateAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_UPDATE));
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
