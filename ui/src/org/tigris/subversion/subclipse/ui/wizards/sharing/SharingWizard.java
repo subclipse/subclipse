@@ -137,13 +137,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
      */
 	public boolean canFinish() {
 		IWizardPage page = getContainer().getCurrentPage();
-		if (page == locationPage) {
-			if (locationPage.getLocation() == null) {
-				return createLocationPage.isPageComplete();
-			} else {
-				return directoryPage.useProjectName() || directoryPage.getDirectoryName() != null;
-			}
-		} else if (page == directoryPage) {
+		if (page == directoryPage) {
 			return directoryPage.useProjectName() || directoryPage.getDirectoryName() != null;
 		} else if (page == finishPage) {
 			return true;
