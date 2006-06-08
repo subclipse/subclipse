@@ -123,7 +123,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 /**
  * <code>IHistoryPage</code> for generic history view 
  * 
- * @author Euegene Kuleshov (migration from legacy history view)
+ * @author Eugene Kuleshov (migration from legacy history view)
  */
 public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeListener {
 
@@ -191,6 +191,19 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	  SVNProviderPlugin.addResourceStateChangeListener(this);
   }
 
+  public void dispose() {
+    super.dispose();
+
+    SVNProviderPlugin.removeResourceStateChangeListener(this);
+
+    if(busyCursor!=null) {
+      busyCursor.dispose();
+    }
+    if(handCursor!=null) {
+      handCursor.dispose();
+    }
+  }
+  
   public Control getControl() {
     return svnHistoryPageControl;
   }

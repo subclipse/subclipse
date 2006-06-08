@@ -8,7 +8,7 @@ import org.eclipse.ui.part.Page;
 /**
  * <code>IHistoryPageSource</code> implementation for Subclipse history
  * 
- * @author Euegene Kuleshov
+ * @author Eugene Kuleshov
  */
 public class SVNHistoryPageSource extends HistoryPageSource {
 
