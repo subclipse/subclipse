@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
@@ -84,6 +85,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
@@ -123,7 +125,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * 
  * @author Euegene Kuleshov (migration from legacy history view)
  */
-public class SVNHistoryPage extends HistoryPage {
+public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeListener {
 
   private SashForm svnHistoryPageControl;
   private SashForm innerSashForm;
@@ -186,7 +188,7 @@ public class SVNHistoryPage extends HistoryPage {
 
   
   public SVNHistoryPage(Object object) {
-    // TODO Auto-generated constructor stub
+	  SVNProviderPlugin.addResourceStateChangeListener(this);
   }
 
   public Control getControl() {
@@ -234,7 +236,9 @@ public class SVNHistoryPage extends HistoryPage {
       public void run() {
         if(resource != null) {
           try {
-            projectProperties = ProjectProperties.getProjectProperties(resource);
+        	  remoteResource = SVNWorkspaceRoot.getBaseResourceFor(resource);
+        	  historyTableProvider.setRemoteResource(remoteResource);
+              projectProperties = ProjectProperties.getProjectProperties(resource);
           } catch(SVNException e) {
           }
         }
@@ -1577,6 +1581,59 @@ public class SVNHistoryPage extends HistoryPage {
       }
     }
     
+  }
+
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.IResourceStateChangeListener#resourceSyncInfoChanged(org.eclipse.core.resources.IResource[])
+   */
+  public void resourceSyncInfoChanged(IResource[] changedResources) {
+      for (int i = 0; i < changedResources.length; i++) {
+          IResource changedResource = changedResources[i];
+          if( changedResource.equals( resource ) ) {
+				resourceChanged();
+          }
+      }
+  }
+
+	/**
+	 * This method updates the history table, highlighting the current revison
+	 * without refetching the log entries to preserve bandwidth.
+	 * The user has to a manual refresh to get the new log entries. 
+	 */
+  private void resourceChanged() {
+      getSite().getShell().getDisplay().asyncExec(new Runnable() {
+      	public void run() {
+      		revisionStart = SVNRevision.HEAD;
+      		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+      		try {
+                  if (localResource != null && !localResource.getStatus().isAdded()) {
+                  	ISVNRemoteResource baseResource = localResource.getBaseResource();
+                  	historyTableProvider.setRemoteResource(baseResource);
+                  	tableHistoryViewer.refresh();
+                  }
+              } catch (SVNException e) {
+                  SVNUIPlugin.openError(getHistoryPageSite().getShell(), null, null, e);
+              }
+      	}
+      });
+  }
+
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.IResourceStateChangeListener#resourceModified(org.eclipse.core.resources.IResource[])
+   */
+  public void resourceModified(IResource[] changedResources) {
+  }
+
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.IResourceStateChangeListener#projectConfigured(org.eclipse.core.resources.IProject)
+   */
+  public void projectConfigured(IProject project) {
+  }
+
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.IResourceStateChangeListener#projectDeconfigured(org.eclipse.core.resources.IProject)
+   */
+  public void projectDeconfigured(IProject project) {
   }
 
 }
