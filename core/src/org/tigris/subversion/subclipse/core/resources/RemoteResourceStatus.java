@@ -106,7 +106,9 @@ public class RemoteResourceStatus extends ResourceStatus {
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;
 
-		this.nodeKind = info.getNodeKind().toInt();
+    	aValue = info.getNodeKind();
+    	if (aValue != null)
+    		this.nodeKind = ((SVNNodeKind) aValue).toInt();
 
         aValue = info.getLastChangedDate();
         if (aValue == null) {
