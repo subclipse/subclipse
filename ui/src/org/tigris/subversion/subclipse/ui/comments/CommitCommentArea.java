@@ -171,6 +171,7 @@ public class CommitCommentArea extends DialogArea {
 		previousCommentsCombo.setText(""); //$NON-NLS-1$
 		
 		if (commentProperties == null && oldComment == null) text.setText(""); //$NON-NLS-1$
+		comment = text.getText();
 	}
 
 	/*
