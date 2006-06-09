@@ -77,7 +77,7 @@ public abstract class SVNSynchronizeOperation extends SynchronizeModelOperation 
 	/*
 	 * Divide the sync info for the operation by project
 	 */
-	private Map getProjectSyncInfoSetMap(SyncInfoSet syncSet) {
+	protected Map getProjectSyncInfoSetMap(SyncInfoSet syncSet) {
 		Map map = new HashMap();
 		SyncInfo[] infos = syncSet.getSyncInfos();
 		for (int i = 0; i < infos.length; i++) {

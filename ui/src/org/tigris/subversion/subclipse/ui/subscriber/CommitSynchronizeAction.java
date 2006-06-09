@@ -10,11 +10,9 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.ui.subscriber;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
+import org.eclipse.compare.structuremergeviewer.IDiffContainer;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -27,6 +25,10 @@ import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
 import org.eclipse.team.ui.synchronize.SynchronizeModelOperation;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.Util;
 
 /**
  * Put action that appears in the synchronize view. It's main purpose is
@@ -49,26 +51,45 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 	 * @see org.eclipse.team.ui.synchronize.SynchronizeModelAction#getSubscriberOperation(org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration, org.eclipse.compare.structuremergeviewer.IDiffElement[])
 	 */
 	protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
-		List selectedElements = new ArrayList();
-		IStructuredSelection selection = getStructuredSelection();
+		String url = null;
+	    IStructuredSelection selection = getStructuredSelection();
 		Iterator iter = selection.iterator();
 		String proposedComment = "";
 		while (iter.hasNext()) {
 			ISynchronizeModelElement synchronizeModelElement = (ISynchronizeModelElement)iter.next();
-			if (synchronizeModelElement instanceof ChangeSetDiffNode) {
-				// If we find a ChangeSet we ignore the rest, even following Change Sets.
-				selectedElements.clear();
-				ChangeSet set = ((ChangeSetDiffNode)synchronizeModelElement).getSet();
-				proposedComment = set.getComment();
-				selectedElements = Arrays.asList(set.getResources());
-				break;
-			} else {
-				IResource resource = synchronizeModelElement.getResource();
-				selectedElements.add(resource);
+			proposedComment = getProposedComment(proposedComment, synchronizeModelElement);
+			if (!(synchronizeModelElement instanceof ChangeSetDiffNode)) {
+				if (url == null && selection.size() == 1) {
+				    IResource resource = synchronizeModelElement.getResource();
+				    if (resource != null) {
+					    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+			            try {
+			                url = svnResource.getStatus().getUrlString();
+			                if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
+			            } catch (SVNException e) {
+			                e.printStackTrace();
+			            }	    
+				    }
+				}
 			}
 		}
-		IResource[] resources = new IResource[selectedElements.size()];
-		selectedElements.toArray(resources);
-	    return new CommitSynchronizeOperation(configuration, elements, resources, proposedComment);
+	    return new CommitSynchronizeOperation(configuration, elements, url, proposedComment);
 	}	
+	
+	private String getProposedComment(String proposedComment, ISynchronizeModelElement synchronizeModelElement) {
+		if (synchronizeModelElement instanceof ChangeSetDiffNode) {
+			if (proposedComment.length() > 0) proposedComment = proposedComment + System.getProperty("line.separator"); //$NON-NLS-1$
+			ChangeSet set = ((ChangeSetDiffNode)synchronizeModelElement).getSet();
+			return proposedComment + set.getComment();
+		}
+		IDiffContainer parent = synchronizeModelElement.getParent();
+		while (parent != null) {
+			if (parent instanceof ChangeSetDiffNode) {
+				if (proposedComment.length() > 0) proposedComment = proposedComment + System.getProperty("line.separator"); //$NON-NLS-1$
+				ChangeSet set = ((ChangeSetDiffNode)parent).getSet();
+				return proposedComment + set.getComment();				
+			} else parent = parent.getParent();
+		}
+		return proposedComment;
+	}
 }
