@@ -9,6 +9,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class ProjectProperties {
     protected String label = "Issue Number:"; //$NON-NLS-1$
@@ -198,7 +199,7 @@ public class ProjectProperties {
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         ISVNProperty property = null;
         ISVNProperty labelProperty = null;
-        if (svnResource.isManaged()) {
+        if (svnResource.isManaged() && !(svnResource.getBaseResource().getUrl() == null)) {
             property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
             labelProperty = svnResource.getSvnProperty("bugtraq:label"); //$NON-NLS-1$
         }
