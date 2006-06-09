@@ -160,6 +160,8 @@ public class SVNStatusSyncInfo extends SyncInfo {
             return SyncInfo.INCOMING | SyncInfo.CHANGE;
         }
         else if( repositoryKind == SVNStatusKind.EXTERNAL ) {
+            if (localKind == SVNStatusKind.EXTERNAL && baseStatusInfo.getUrl() == null)
+            	return SyncInfo.IN_SYNC;
         	if ( localKind == SVNStatusKind.EXTERNAL)
         		return SyncInfo.OUTGOING | SyncInfo.CHANGE;
         }
