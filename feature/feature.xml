@@ -27,17 +27,19 @@
 
    <requires>
       <import plugin="org.eclipse.core.resources" version="3.2.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.team.core" version="3.2.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime" version="3.2.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.osgi"/>
+      <import plugin="org.eclipse.compare"/>
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.team.ui"/>
-      <import plugin="org.eclipse.compare"/>
+      <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.eclipse.help"/>
    </requires>
 
    <plugin
