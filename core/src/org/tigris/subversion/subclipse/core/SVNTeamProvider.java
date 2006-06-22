@@ -258,4 +258,8 @@ public class SVNTeamProvider extends RepositoryProvider {
     public boolean canHandleLinkedResources() {
         return true;
     }
+
+	public boolean canHandleLinkedResourceURI() {
+		return true;
+	}
 }
