@@ -52,7 +52,7 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 		if (!prompted) {
 			getShell().getDisplay().syncExec(new Runnable() {
 				public void run() {
-					revertAndUpdate = MessageDialog.openQuestion(getShell(), Policy.bind("SyncAction.override"), Policy.bind("SyncAction.override.confirm"));
+					revertAndUpdate = MessageDialog.openQuestion(getShell(), Policy.bind("SyncAction.override.title"), Policy.bind("SyncAction.override.confirm"));
 				}
 			});
 			prompted = true;
