@@ -96,6 +96,7 @@ public class CheckoutWizardLocationPage extends WizardPage {
             newButton.setSelection(true); 
             existingButton.setSelection(false);
             table.getTable().setEnabled(false);
+            setPageComplete(true);
         } else {
             existingButton.setSelection(true); 
             newButton.setSelection(false);
@@ -130,9 +131,9 @@ public class CheckoutWizardLocationPage extends WizardPage {
      */
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
-		if (visible) {
-			existingButton.setFocus();
-		}
+//		if (visible) {
+//			existingButton.setFocus();
+//		}
 	}
 	
 	public boolean createNewLocation() {
