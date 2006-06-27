@@ -980,7 +980,7 @@ For example:
    </extension>
 	  
 	<extension point="org.eclipse.ui.actionSets">
-		<actionSet label="%SVNActionSet.label" visible="true"
+		<actionSet label="%SVNActionSet.label" visible="false"
 			id="org.tigris.subversion.subclipse.actionSet">
 			<menu label="%SVNGroupMenu.label"
 			id="org.tigris.subversion.subclipse.svnmenu"
