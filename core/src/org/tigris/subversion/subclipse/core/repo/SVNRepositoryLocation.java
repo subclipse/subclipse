@@ -39,7 +39,6 @@ import org.tigris.subversion.subclipse.core.client.NotificationListener;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -227,28 +226,28 @@ public class SVNRepositoryLocation
 	 */
 	public ISVNRemoteFile getRemoteFile(SVNUrl url) throws SVNException{
 		ISVNClientAdapter svnClient = getSVNClient();
-		ISVNDirEntry dirEntry = null;
+		ISVNInfo info = null;
 		try {
 			if (this.getRepositoryRoot().equals(url))
 			    return new RemoteFile(this, url, SVNRevision.HEAD);
 			else
-			    dirEntry = svnClient.getDirEntry(url, SVNRevision.HEAD);
+			    info = svnClient.getInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		} catch (SVNClientException e) {
 			throw new SVNException(
 				"Can't get latest remote resource for "
 					+ url);
 		}
 
-		if (dirEntry == null)
+		if (info == null)
 			return null; // no remote file
 		else {
 			return new RemoteFile(null, // we don't know its parent
 			this,
 				url,
 				SVNRevision.HEAD,
-				dirEntry.getLastChangedRevision(),
-				dirEntry.getLastChangedDate(),
-				dirEntry.getLastCommitAuthor());
+				info.getLastChangedRevision(),
+				info.getLastChangedDate(),
+				info.getLastCommitAuthor());
 		}		
 	}
 

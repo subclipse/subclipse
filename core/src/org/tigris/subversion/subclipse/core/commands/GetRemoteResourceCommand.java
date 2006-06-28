@@ -18,7 +18,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -55,27 +55,27 @@ public class GetRemoteResourceCommand implements ISVNCommand {
         
         remoteResource = null;
         ISVNClientAdapter svnClient = repository.getSVNClient();
-        ISVNDirEntry dirEntry;
+        ISVNInfo info;
         try {
-            dirEntry = svnClient.getDirEntry(url,revision);
+            info = svnClient.getInfo(url, revision, revision);
         } catch (SVNClientException e) {
             throw new SVNException("Can't get remote resource "+url+" at revision "+revision,e);   
         }
         
-        if (dirEntry == null) {
+        if (info == null) {
             remoteResource = null; // no remote file
         }
         else
         {
-            if (dirEntry.getNodeKind() == SVNNodeKind.FILE)
+            if (info.getNodeKind() == SVNNodeKind.FILE)
                 remoteResource = new RemoteFile(
                     null,  // we don't know its parent
                     repository,
                     url,
                     revision,
-                    dirEntry.getLastChangedRevision(),
-                    dirEntry.getLastChangedDate(),
-                    dirEntry.getLastCommitAuthor()
+                    info.getLastChangedRevision(),
+                    info.getLastChangedDate(),
+                    info.getLastCommitAuthor()
                 );
              else
                 remoteResource = new RemoteFolder(
@@ -83,9 +83,9 @@ public class GetRemoteResourceCommand implements ISVNCommand {
                     repository,
                     url,
                     revision,
-                    dirEntry.getLastChangedRevision(),
-                    dirEntry.getLastChangedDate(),
-                    dirEntry.getLastCommitAuthor()
+                    info.getLastChangedRevision(),
+                    info.getLastChangedDate(),
+                    info.getLastCommitAuthor()
                 );                
         }
         monitor.done();
