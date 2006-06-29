@@ -33,7 +33,9 @@ import org.eclipse.team.core.ProjectSetCapability;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.RepositoryProviderType;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.team.core.subscribers.Subscriber;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 
 
@@ -290,6 +292,14 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 		}
 		
     }
+
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.team.core.RepositoryProviderType#getSubscriber()
+	 */
+	public Subscriber getSubscriber() {
+		return SVNWorkspaceSubscriber.getInstance();
+	}
 	
 	
 }
