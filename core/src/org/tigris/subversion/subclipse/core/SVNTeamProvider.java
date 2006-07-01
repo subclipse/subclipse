@@ -22,14 +22,12 @@ import org.eclipse.core.resources.team.IMoveDeleteHook;
 import org.eclipse.core.resources.team.ResourceRuleFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.variants.IResourceVariant;
 import org.tigris.subversion.subclipse.core.commands.AddResourcesCommand;
 import org.tigris.subversion.subclipse.core.commands.CheckinResourcesCommand;
 import org.tigris.subversion.subclipse.core.commands.SwitchToUrlCommand;
-import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNFileModificationValidator;
@@ -137,17 +135,7 @@ public class SVNTeamProvider extends RepositoryProvider {
 	 */
 	public void setProject(IProject project) {
 		super.setProject(project);
-		try {
-			this.workspaceRoot = new SVNWorkspaceRoot(project);
-			// Ensure that the project has SVN info
-			LocalResourceStatus status = SVNWorkspaceRoot.peekResourceStatusFor(workspaceRoot.getLocalRoot().getIResource());
-			if (status == null || !status.hasRemote()) {
-				throw new SVNException(new SVNStatus(IStatus.ERROR, Policy.bind("SVNTeamProvider.noFolderInfo", project.getName()))); //$NON-NLS-1$
-			}
-		} catch (SVNException e) {
-			// Log any problems creating the CVS managed resource
-			SVNProviderPlugin.log(e);
-		}
+		this.workspaceRoot = new SVNWorkspaceRoot(project);
 	}
 
 	/**
