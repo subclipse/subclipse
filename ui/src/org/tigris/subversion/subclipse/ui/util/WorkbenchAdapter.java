@@ -1,21 +1,14 @@
-/*
- * Created on Feb 18, 2004
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
-package org.tigris.subversion.subclipse.ui.util;
-
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
+ * Copyright (c) 2004, 2006 Subclipse project and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ *     Subclipse project committers - initial API and implementation
+ ******************************************************************************/
+package org.tigris.subversion.subclipse.ui.util;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;

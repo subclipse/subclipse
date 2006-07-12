@@ -1,12 +1,12 @@
-/******************************************************************************
- * This program and the accompanying materials are made available under
- * the terms of the Common Public License v1.0 which accompanies this
- * distribution, and is available at the following URL:
- * http://www.eclipse.org/legal/cpl-v10.html
- * Copyright(c) 2003-2005 by the authors indicated in the @author tags.
+/*******************************************************************************
+ * Copyright (c) 2005, 2006 Subclipse project and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * All Rights are Reserved by the various authors.
- *
+ * Contributors:
+ *     Subclipse project committers - initial API and implementation
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.subscriber;
 
