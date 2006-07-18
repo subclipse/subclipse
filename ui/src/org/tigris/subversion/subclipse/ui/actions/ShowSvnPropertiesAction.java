@@ -14,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -42,11 +41,28 @@ public class ShowSvnPropertiesAction extends WorkspaceAction {
 
 	}
 
-    /* (non-Javadoc)
-     * @see org.eclipse.team.internal.ui.actions.TeamAction#isEnabled()
-     */
-    protected boolean isEnabled() throws TeamException {
-        return (selection.size() == 1);
-    }
+	protected boolean isEnabledForAddedResources() {
+		return true;
+	}
+
+	protected boolean isEnabledForIgnoredResources() {
+		return false;
+	}
+
+	protected boolean isEnabledForInaccessibleResources() {
+		return false;
+	}
+
+	protected boolean isEnabledForManagedResources() {
+		return true;
+	}
+
+	protected boolean isEnabledForMultipleResources() {
+		return false;
+	}
+
+	protected boolean isEnabledForUnmanagedResources() {
+		return false;
+	}
 
 }

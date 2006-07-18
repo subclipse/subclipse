@@ -22,6 +22,8 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.LockResourcesCommand;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -55,5 +57,28 @@ public class LockAction extends WorkspaceAction {
             }, true /* cancelable */, PROGRESS_DIALOG);
         }
     }
+    /**
+     * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForSVNResource(org.tigris.subversion.subclipse.core.ISVNResource)
+     */
+    protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
+        try {
+        	boolean enabled = super.isEnabledForSVNResource(svnResource);
+        	if (enabled)
+        		return !svnResource.getStatus().isLocked();
+        	else
+        		return enabled;
+        } catch (SVNException e) {
+            return false;
+        }
+    }
+	protected boolean isEnabledForAddedResources() {
+		return false;
+	}
+	protected boolean isEnabledForIgnoredResources() {
+		return false;
+	}
+	protected boolean isEnabledForUnmanagedResources() {
+		return false;
+	}
 
 }

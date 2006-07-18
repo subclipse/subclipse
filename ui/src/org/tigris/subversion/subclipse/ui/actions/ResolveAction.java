@@ -13,6 +13,8 @@ package org.tigris.subversion.subclipse.ui.actions;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.jface.action.IAction;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ResolveOperation;
 
@@ -31,26 +33,15 @@ public class ResolveAction extends WorkspaceAction {
 		return Policy.bind("ResolveAction.error"); //$NON-NLS-1$
 	}
 
-	/**
-	 * @see org.eclipse.team.internal.ccvs.ui.actions.WorkspaceAction#isEnabledForManagedResources()
-	 */
-	protected boolean isEnabledForManagedResources() {
-		return true;
-	}
-
-	/**
-	 * @see org.eclipse.team.internal.ccvs.ui.actions.WorkspaceAction#isEnabledForUnmanagedResources()
-	 */
-	protected boolean isEnabledForUnmanagedResources() {
-		return false;
-	}
-
-    /*
-     *  (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForInaccessibleResources()
+    /**
+     * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForSVNResource(org.tigris.subversion.subclipse.core.ISVNResource)
      */
-    protected boolean isEnabledForInaccessibleResources() {
-        return true;
+    protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
+        try {
+            return svnResource.getStatus().isTextConflicted();
+        } catch (SVNException e) {
+            return false;
+        }
     }
 	
 }
