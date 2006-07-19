@@ -101,7 +101,7 @@ public class CommitCommentArea extends DialogArea {
 		    text = new RuleredText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		else
 		    text = new RuleredText(composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, widthMarker);
-		if (oldComment != null) {
+		if (oldComment != null && oldComment.length() > 0) {
 		    text.setText(oldComment);
 		    text.setCaretOffset(oldComment.length());
 		} else if ((commentProperties != null) && (commentProperties.getLogTemplate() != null)) {
