@@ -27,7 +27,7 @@ import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.SVNUrlUtils;
+import org.tigris.subversion.svnclientadapter.utils.SVNUrlUtils;
 
 /**
  * The purpose of this class and its subclasses is to implement the corresponding

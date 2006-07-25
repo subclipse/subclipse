@@ -45,7 +45,7 @@ import org.tigris.subversion.subclipse.ui.dialogs.DiffNewFilesDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.RevertDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
-import org.tigris.subversion.svnclientadapter.SVNStatusUtils;
+import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 
 /**
  * An operation to run the SVN diff operation on a set of resources. The result

@@ -23,7 +23,6 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
-import org.tigris.subversion.svnclientadapter.SVNStatusUtils;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -264,7 +263,7 @@ public class LocalResourceStatus extends ResourceStatus {
      * @return if managed by svn
      */
     public boolean isManaged() {
-        return SVNStatusUtils.isManaged(getTextStatus());
+        return org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils.isManaged(getTextStatus());
     }
 
     /**
@@ -273,7 +272,7 @@ public class LocalResourceStatus extends ResourceStatus {
      * @return has version in repository
      */
     public boolean hasRemote() {
-        return SVNStatusUtils.hasRemote(getTextStatus());
+        return org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils.hasRemote(getTextStatus());
     }
 
     /**

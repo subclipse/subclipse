@@ -29,7 +29,7 @@ import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.SVNUrlUtils;
+import org.tigris.subversion.svnclientadapter.utils.SVNUrlUtils;
 
 /**
  * Represents handles to SVN resource on the base (pristine copy).
