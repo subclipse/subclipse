@@ -501,7 +501,7 @@ public class SVNLightweightDecorator
 				    			IResource current = resource;
 				    			while (current.getType() != IResource.ROOT) {
 				    				current = current.getParent();
-				    				if (SVNWorkspaceRoot.getSVNResourceFor(current).isManaged()) {
+				    				if (current.exists() && SVNWorkspaceRoot.getSVNResourceFor(current).isManaged()) {
 				    					resourcesToUpdate.add(current);
 				    				}
 				    			}                
