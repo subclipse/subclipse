@@ -147,9 +147,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   ILogEntry lastEntry;
   SVNRevision revisionStart = SVNRevision.HEAD;
 
-  FetchLogEntriesJob fetchLogEntriesJob = null;
-  FetchAllLogEntriesJob fetchAllLogEntriesJob = null;
-  FetchNextLogEntriesJob fetchNextLogEntriesJob = null;
+  AbstractFetchJob fetchLogEntriesJob = null;
+  AbstractFetchJob fetchAllLogEntriesJob = null;
+  AbstractFetchJob fetchNextLogEntriesJob = null;
   FetchChangePathJob fetchChangePathJob = null;
   AliasManager tagManager;
 
@@ -357,9 +357,12 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           return null;
         final ISVNRemoteResource remoteResource = (ISVNRemoteResource) inputElement;
 
-        if(fetchLogEntriesJob == null) {
-          fetchLogEntriesJob = new FetchLogEntriesJob();
-        }
+        IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+        int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+        if (entriesToFetch > 0)
+        	fetchLogEntriesJob = new FetchLogEntriesJob();
+        else
+        	fetchLogEntriesJob = new FetchAllLogEntriesJob();
         if(fetchLogEntriesJob.getState() != Job.NONE) {
           fetchLogEntriesJob.cancel();
           try {
@@ -1358,7 +1361,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
   
-  private class FetchLogEntriesJob extends Job {
+  private class FetchLogEntriesJob extends AbstractFetchJob {
     public ISVNRemoteResource remoteResource;
 
     public FetchLogEntriesJob() {
@@ -1424,7 +1427,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
   }
 
-  private class FetchNextLogEntriesJob extends Job {
+  private class FetchNextLogEntriesJob extends AbstractFetchJob {
     public ISVNRemoteResource remoteResource;
 
     public FetchNextLogEntriesJob() {
@@ -1447,12 +1450,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           ILogEntry[] nextEntries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd,
               stopOnCopy, limit + 1, tagManager);
           long entriesLength = nextEntries.length;
+          ILogEntry[] fetchedEntries = null;
           if(entriesLength > limit) {
-            ILogEntry[] fetchedEntries = new ILogEntry[ nextEntries.length - 1];
+            fetchedEntries = new ILogEntry[ nextEntries.length - 1];
             for(int i = 0; i < nextEntries.length - 1; i++)
               fetchedEntries[ i] = nextEntries[ i];
             getNextAction.setEnabled(true);
           } else {
+              fetchedEntries = new ILogEntry[ nextEntries.length];
+              for(int i = 0; i < nextEntries.length; i++)
+                fetchedEntries[ i] = nextEntries[ i];
             getNextAction.setEnabled(false);
           }
           ArrayList entryArray = new ArrayList();
@@ -1460,8 +1467,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             entries = new ILogEntry[ 0];
           for(int i = 0; i < entries.length; i++)
             entryArray.add(entries[ i]);
-          for(int i = 0; i < nextEntries.length; i++)
-            entryArray.add(nextEntries[ i]);
+          for(int i = 0; i < fetchedEntries.length; i++)
+            entryArray.add(fetchedEntries[ i]);
           entries = new ILogEntry[ entryArray.size()];
           entryArray.toArray(entries);
           getSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -1486,8 +1493,17 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       }
     }
   }
+  
+  private abstract class AbstractFetchJob extends Job {
+	    public AbstractFetchJob(String name) {
+		super(name);
+	}
 
-  private class FetchAllLogEntriesJob extends Job {
+		public abstract void setRemoteFile(ISVNRemoteResource resource);
+
+  }
+
+  private class FetchAllLogEntriesJob extends AbstractFetchJob {
     public ISVNRemoteResource remoteResource;
 
     public FetchAllLogEntriesJob() {
