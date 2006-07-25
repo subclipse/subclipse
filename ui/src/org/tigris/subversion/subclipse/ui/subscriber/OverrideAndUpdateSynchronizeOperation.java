@@ -21,16 +21,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
-import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
-import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
-import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.RevertResourcesCommand;
 import org.tigris.subversion.subclipse.core.commands.UpdateResourcesCommand;
-import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -80,24 +76,7 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 	            monitor.done();
 			}
 		}
-		SVNRevision revision = null;
-		SyncInfo[] syncInfos = set.getSyncInfos();
-		for (int i = 0; i < syncInfos.length; i++) {
-			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
-			IResourceVariant remote = syncInfo.getRemote();
-			if (remote != null && remote instanceof ISVNRemoteResource) {
-				SVNRevision rev = ((ISVNRemoteResource)remote).getLastChangedRevision();
-				if (rev instanceof SVNRevision.Number) {
-					long nbr = ((SVNRevision.Number)rev).getNumber();
-					if (revision == null) revision = rev;
-					else {
-						long revisionNumber = ((SVNRevision.Number)revision).getNumber();
-						if (nbr > revisionNumber) revision = rev;
-					}
-				}
-			}
-		}
-		if (revision == null) revision = SVNRevision.HEAD;		
+		SVNRevision revision = SVNRevision.HEAD;
 		monitor.beginTask(null, 100);
 		try {			
 		    SVNWorkspaceSubscriber.getInstance().updateRemote(resourceArray);
