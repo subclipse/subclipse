@@ -74,7 +74,7 @@ public class GetStatusCommand implements ISVNCommand {
 		if (url == null && !(status.getTextStatus() == SVNStatusKind.UNVERSIONED)) {
 		    try { 
 		    	ISVNClientAdapter svnClient = repository.getSVNClient();
-		    	ISVNInfo info = svnClient.getInfo(status.getFile());
+		    	ISVNInfo info = svnClient.getInfoFromWorkingCopy(status.getFile());
 		    	url = info.getUrl();
 		    } catch (SVNException e) {
 			} catch (SVNClientException e) {

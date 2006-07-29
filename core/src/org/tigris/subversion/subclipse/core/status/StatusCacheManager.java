@@ -353,7 +353,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 				&& !(status.getTextStatus() == SVNStatusKind.IGNORED)) {
 		    try { 
 		    	ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().createSVNClient();
-		    	ISVNInfo info = svnClient.getInfo(status.getFile());
+		    	ISVNInfo info = svnClient.getInfoFromWorkingCopy(status.getFile());
 		    	url = info.getUrl();
 		    } catch (SVNException e) {
 			} catch (SVNClientException e) {
