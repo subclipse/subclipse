@@ -151,7 +151,7 @@ public class CommitDialog extends TrayDialog {
 			weights[1] = settings.getInt("CommitDialog.weights.1"); //$NON-NLS-1$
 			sashForm.setWeights(weights);
 		} catch (Exception e) {
-			sashForm.setWeights(new int[] {3, 4});			
+			sashForm.setWeights(new int[] {5, 4});			
 		}
 		
 		if (projectProperties != null) {
