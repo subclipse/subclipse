@@ -10,8 +10,10 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resourcesListeners;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -44,8 +46,6 @@ import org.tigris.subversion.svnclientadapter.SVNConstants;
  */
 public class FileModificationManager implements IResourceChangeListener, ISaveParticipant {
 	
-	protected Set modifiedResources = new HashSet();
-
 	// consider the following changes types and ignore the others (e.g. marker and description changes are ignored)
 	protected int INTERESTING_CHANGES = IResourceDelta.CONTENT | 
 	                                    IResourceDelta.MOVED_FROM | 
@@ -61,11 +61,46 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
 		try {
+			final List modifiedResources = new ArrayList();
+			final List modifiedInfiniteDepthResources = new ArrayList();
+
 			event.getDelta().accept(new IResourceDeltaVisitor() {
 				public boolean visit(IResourceDelta delta) {
 					IResource resource = delta.getResource();
-					
-					if (resource.getType()==IResource.PROJECT) {
+
+					if (resource.getType()==IResource.FILE) {
+						if (delta.getKind() == IResourceDelta.CHANGED && resource.exists()) {
+							if((delta.getFlags() & INTERESTING_CHANGES) != 0) {
+								modifiedResources.add(resource);
+								return true;
+							}
+						} else if (delta.getKind() == IResourceDelta.ADDED) {
+							modifiedResources.add(resource);                        
+							return true;
+						} else if (delta.getKind() == IResourceDelta.REMOVED) {
+							// provide notifications for deletions since they may not have been managed
+							// The move/delete hook would have updated the parent counts properly
+							modifiedResources.add(resource);
+							return true;
+						}
+					}				
+					else if(resource.getType()==IResource.FOLDER) {
+						if (SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())) {
+							if (handleSVNDir((IContainer)resource, delta.getKind())) {
+								return false;
+							}
+						}
+						if (delta.getKind() == IResourceDelta.ADDED) {
+							modifiedInfiniteDepthResources.add(resource);
+							return false;
+						}
+						else if (delta.getKind() == IResourceDelta.REMOVED) {
+							modifiedInfiniteDepthResources.add(resource);
+							return false;
+						}
+						return true;
+					}				
+					else if (resource.getType()==IResource.PROJECT) {
 						IProject project = (IProject)resource;
 						if (!project.isAccessible()) {
 							return false;
@@ -76,26 +111,14 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 						if (RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId()) == null) {
 							return false; // not a svn handled project
 						}
-					}
-					
-					if(resource.getType()==IResource.FOLDER && SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())) {
-						if (handleSVNDir((IContainer)resource, delta.getKind()))
-							{
-								return false;
-							}
-					}
-					
-					if (resource.getType()==IResource.FILE && delta.getKind() == IResourceDelta.CHANGED && resource.exists()) {
-						int flags = delta.getFlags();
-						if((flags & INTERESTING_CHANGES) != 0) {
-               				modifiedResources.add(resource);
+						if (delta.getKind() == IResourceDelta.ADDED) {
+							modifiedInfiniteDepthResources.add(resource);
+							return false;
 						}
-					} else if (delta.getKind() == IResourceDelta.ADDED) {
-                        modifiedResources.add(resource);                        
-					} else if (delta.getKind() == IResourceDelta.REMOVED) {
-						// provide notifications for deletions since they may not have been managed
-						// The move/delete hook would have updated the parent counts properly
-						modifiedResources.add(resource);
+						else if (delta.getKind() == IResourceDelta.REMOVED) {
+							modifiedInfiniteDepthResources.add(resource);
+							return false;
+						}
 					}
 					return true;
 				}
@@ -106,12 +129,31 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
                 IResource[] resources = (IResource[])modifiedResources.toArray(new IResource[modifiedResources.size()]);
 				refreshStatus(resources);
                 SVNProviderPlugin.broadcastModificationStateChanges(resources);
-				modifiedResources.clear();
+			}
+			if (!modifiedInfiniteDepthResources.isEmpty()) {
+                IResource[] resources = (IResource[])modifiedInfiniteDepthResources.toArray(new IResource[modifiedInfiniteDepthResources.size()]);
+                refreshStatusInfitite(resources);
+                SVNProviderPlugin.broadcastModificationStateChanges(resources);
 			}
 		} catch (CoreException e) {
 			SVNProviderPlugin.log(e.getStatus());
 		}
 	}
+
+	/**
+	 * Refresh (reset/reload) the status of all the given resources.
+	 * @param resources Array of IResources to refresh
+     */
+    private void refreshStatusInfitite(IResource[] resources) 
+    {
+    	for (int i = 0; i < resources.length; i++) {
+    		try {
+                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resources[i], IResource.DEPTH_INFINITE);
+    		} catch (SVNException e) {
+    		    e.printStackTrace();
+    		}			
+		}
+    }
 
 	/**
 	 * Refresh (reset/reload) the status of all the given resources.
