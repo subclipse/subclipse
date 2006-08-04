@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
 
 /**
  * Local sync info cache using ResourceInfo.syncInfo for storage.
@@ -33,6 +34,7 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 public class SynchronizerSyncInfoCache implements IStatusCache {
 	
 	protected static final byte[] BYTES_REMOVED = new byte[0];
+	protected static final byte[] UNVERSIONED_STATUS = new byte[-1];
 	protected SyncInfoSynchronizedAccessor accessor = new SyncInfoSynchronizedAccessor();
 
 	/* (non-Javadoc)
@@ -40,7 +42,12 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 	 */
 	public LocalResourceStatus getStatus(IResource resource){
 		try {
-			return LocalResourceStatus.fromBytes(getCachedSyncBytes(resource));
+			byte[] syncBytes = getCachedSyncBytes(resource);
+			if (isUnversionedSyncBytes(syncBytes)) {
+	            return new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false), null);
+			} else {
+				return LocalResourceStatus.fromBytes(getCachedSyncBytes(resource));
+			}
 		} catch (SVNException e) {
 			SVNProviderPlugin.log(e);
 			return null;
@@ -54,11 +61,15 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 		try {
 			IResource resource = status.getResource();
 			if (resource == null) return null;
-			if (status.isUnversioned() && !(resource.exists() || resource.isPhantom()))
+			if (!(resource.exists() || resource.isPhantom()))
 			{
 				return resource;
 			}
-			setCachedSyncBytes(resource, status.getBytes());
+			if (status.isUnversioned()) {
+				setCachedSyncBytes(resource, UNVERSIONED_STATUS);
+			} else {
+				setCachedSyncBytes(resource, status.getBytes());
+			}
 			return resource;
 		} catch (SVNException e) {
 		    if (!"".equals(e.getMessage())) // We send these exceptions so that the log does not go nuts
@@ -80,6 +91,11 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 			SVNProviderPlugin.log(e);
 			return null;			
 		}
+	}
+	
+	private boolean isUnversionedSyncBytes(byte[] syncBytes)
+	{
+		return (syncBytes.length == UNVERSIONED_STATUS.length) && (syncBytes[0] == UNVERSIONED_STATUS[0]);
 	}
 	
 	private byte[] getCachedSyncBytes(IResource resource) throws SVNException {
@@ -193,6 +209,11 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 		// Map of sync bytes that were set without a scheduling rule
 		private Map pendingCacheWrites = new HashMap();
 
+		protected SyncInfoSynchronizedAccessor()
+		{
+			super();
+		}
+		
 		/*
 		 * Retieve the cached sync bytes from the synchronizer. A null
 		 * is returned if there are no cached sync bytes.
