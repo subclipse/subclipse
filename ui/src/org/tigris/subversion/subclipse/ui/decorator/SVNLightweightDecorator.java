@@ -498,12 +498,12 @@ public class SVNLightweightDecorator
 			    		try {
 			    			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 							if (!svnResource.isManaged() && !svnResource.isIgnored()) {
-				    			IResource current = resource;
+				    			IResource current = resource.getParent();
 				    			while (current.getType() != IResource.ROOT) {
-				    				current = current.getParent();
 				    				if (current.exists() && SVNWorkspaceRoot.getSVNResourceFor(current).isManaged()) {
 				    					resourcesToUpdate.add(current);
 				    				}
+				    				current = current.getParent();
 				    			}                
 							}
 						} catch (SVNException e) {
