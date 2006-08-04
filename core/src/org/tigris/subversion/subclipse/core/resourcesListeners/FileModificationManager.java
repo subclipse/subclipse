@@ -85,18 +85,18 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 						}
 					}				
 					else if(resource.getType()==IResource.FOLDER) {
-						if (SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())) {
-							if (handleSVNDir((IContainer)resource, delta.getKind())) {
-								return false;
-							}
-						}
 						if (delta.getKind() == IResourceDelta.ADDED) {
 							modifiedInfiniteDepthResources.add(resource);
+							handleSVNDir(((IContainer) resource).getFolder(new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName())), delta.getKind());
 							return false;
 						}
 						else if (delta.getKind() == IResourceDelta.REMOVED) {
 							modifiedInfiniteDepthResources.add(resource);
 							return false;
+						} else if (SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())) {
+							if (handleSVNDir((IContainer)resource, delta.getKind())) {
+								return false;
+							}
 						}
 						return true;
 					}				
