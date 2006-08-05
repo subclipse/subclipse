@@ -34,7 +34,7 @@ import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
 public class SynchronizerSyncInfoCache implements IStatusCache {
 	
 	protected static final byte[] BYTES_REMOVED = new byte[0];
-	protected static final byte[] UNVERSIONED_STATUS = new byte[-1];
+	protected static final byte[] UNVERSIONED_STATUS = new byte[] {-1};
 	protected SyncInfoSynchronizedAccessor accessor = new SyncInfoSynchronizedAccessor();
 
 	/* (non-Javadoc)
@@ -95,6 +95,8 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 	
 	private boolean isUnversionedSyncBytes(byte[] syncBytes)
 	{
+		if (syncBytes == null)
+			return true;
 		return (syncBytes.length == UNVERSIONED_STATUS.length) && (syncBytes[0] == UNVERSIONED_STATUS[0]);
 	}
 	
