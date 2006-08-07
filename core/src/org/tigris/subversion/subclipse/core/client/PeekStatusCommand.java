@@ -93,10 +93,11 @@ public class PeekStatusCommand {
 
     // getStatuses returns null URL for svn:externals folder.  This will
     // get the URL using svn info command on the local resource
-	private SVNUrl getURL(ISVNStatus status) {
-		SVNUrl url = status.getUrl();
+	private String getURL(ISVNStatus status) {
+		String url = status.getUrlString();
 		if (url == null && info != null) {
-	    	url = info.getUrl();
+	    	SVNUrl svnurl = info.getUrl();
+	    	url = (svnurl != null) ? svnurl.toString() : null;
 		}
 		return url;
 	}

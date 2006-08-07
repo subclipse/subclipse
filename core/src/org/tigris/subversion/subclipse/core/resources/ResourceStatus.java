@@ -56,7 +56,7 @@ public class ResourceStatus implements Serializable {
     protected static final int FORMAT_VERSION_2 = 2;
 
     protected String url;
-    protected String path; // absolute path -- not stored in bytes in this class. Superclasses may store it ...
+    protected File file; // file (absolute path) -- not stored in bytes in this class. Subclasses may store it ...
     protected long lastChangedRevision;
     protected long lastChangedDate;
     protected String lastCommitAuthor;
@@ -73,19 +73,19 @@ public class ResourceStatus implements Serializable {
 	 * @param url - Only needed when status.getUrl is Null, such as
 	 *  for an svn:externals folder
 	 */
-	public ResourceStatus(ISVNStatus status, SVNUrl url) {
+	public ResourceStatus(ISVNStatus status, String url) {
 		super();
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;
 
-    	aValue = status.getUrl();
+    	aValue = status.getUrlString();
         if (aValue == null) {
         	if (url == null)
         		this.url = null;
         	else
-        		this.url = url.toString();
+        		this.url = url;
         } else {
-            this.url = ((SVNUrl) aValue).toString();
+            this.url = (String) aValue;
         }
 
         aValue = status.getLastChangedRevision();
@@ -108,19 +108,19 @@ public class ResourceStatus implements Serializable {
 
         this.nodeKind = status.getNodeKind().toInt();
         
-        this.path = status.getFile().getAbsolutePath();
+        this.file = status.getFile();
 	}
 	
     public String toString()
     {
-    	return ((path != null) ? path : "") + " (" + lastChangedRevision + ") " + getTextStatus().toString();
+    	return ((file != null) ? file.getAbsolutePath() : "") + " (" + lastChangedRevision + ") " + getTextStatus().toString();
     }
 	
     /**
      * @return Returns the file.
      */
     public File getFile() {
-        return new File(path);
+        return file;
     }
 
     /**
@@ -128,7 +128,7 @@ public class ResourceStatus implements Serializable {
      * (It is absolute since it was constructed as status.getFile().getAbsolutePath())
      */
     public IPath getPath() {
-        return new Path(path);
+        return new Path(getPathString());
     }
 
     /**
@@ -136,7 +136,7 @@ public class ResourceStatus implements Serializable {
      * (It is absolute since it was constructed as status.getFile().getAbsolutePath())
      */
     public String getPathString() {
-        return path;
+        return file.getAbsolutePath();
     }
 
     public SVNStatusKind getTextStatus() {

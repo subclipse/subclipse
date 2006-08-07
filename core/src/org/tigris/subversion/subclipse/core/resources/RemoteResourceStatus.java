@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
@@ -157,7 +158,7 @@ public class RemoteResourceStatus extends ResourceStatus {
     	super.getBytesInto(dos);
         try {
             // file
-            dos.writeUTF(path);
+            dos.writeUTF(file.getAbsolutePath());
 
         } catch (IOException e) {
             return null;
@@ -183,8 +184,7 @@ public class RemoteResourceStatus extends ResourceStatus {
     protected int initFromBytes(DataInputStream dis) throws SVNException {
     	int version = super.initFromBytes(dis);
         try {
-            // path
-            path = dis.readUTF();
+            file = new File(dis.readUTF());
         } catch (IOException e) {
             throw new SVNException(
                     "cannot create LocalResourceStatus from bytes", e);

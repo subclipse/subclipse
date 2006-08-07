@@ -55,7 +55,7 @@ public class LocalResourceStatus extends ResourceStatus {
 	 * @param url - Only needed when status.getUrl is Null, such as
 	 *  for an svn:externals folder
 	 */
-    public LocalResourceStatus(ISVNStatus status, SVNUrl url) {
+    public LocalResourceStatus(ISVNStatus status, String url) {
     	super(status, url);
     	
     	/** a temporary variable serving as immediate cache for various status values */
@@ -68,8 +68,7 @@ public class LocalResourceStatus extends ResourceStatus {
             this.urlCopiedFrom = ((SVNUrl) aValue).toString();
         }
 
-        this.path = status.getFile().getAbsolutePath();        
-        this.readOnly = !status.getFile().canWrite();
+        this.readOnly = !getFile().canWrite();
 
         aValue = status.getConflictNew();
         if (aValue == null) {
@@ -137,7 +136,7 @@ public class LocalResourceStatus extends ResourceStatus {
             }
 
             // file
-            dos.writeUTF(path);
+            dos.writeUTF(file.getAbsolutePath());
 
             // conflict old
             if (pathConflictOld == null) {
@@ -217,8 +216,8 @@ public class LocalResourceStatus extends ResourceStatus {
                 urlCopiedFrom = url;
             }
 
-            // path
-            path = dis.readUTF();
+            // file
+            file = new File(dis.readUTF());
 
             // conflict old
             pathConflictOld = dis.readUTF();
