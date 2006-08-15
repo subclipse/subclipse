@@ -331,7 +331,7 @@ public class ResourceStatus implements Serializable {
 
 		// lastCommitAuthor
 		String lastCommitAuthorString = dis.readUTF();
-		if ((url == null) && (lastCommitAuthorString.equals(""))) {
+		if ((url == null) || (lastCommitAuthorString.equals(""))) {
 		    lastCommitAuthor = null;
 		} else {
 		    lastCommitAuthor = lastCommitAuthorString;
@@ -567,7 +567,7 @@ public class ResourceStatus implements Serializable {
         public final String readString() throws IOException {
         	int length = this.dis.readInt();
         	if (length == 0) {
-        		return "";
+        		return null;
         	}
         	char[] chars = new char[length];
         	for (int i = 0; i < length; i++) {
