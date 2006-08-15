@@ -10,10 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,6 +33,8 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  */
 public class LocalResourceStatus extends ResourceStatus {
+
+	/** Singleton instance of the status "None" */
 	public static final LocalResourceStatus NONE = new LocalResourceStatusNone();
 	
     protected String urlCopiedFrom;
@@ -47,8 +45,28 @@ public class LocalResourceStatus extends ResourceStatus {
     protected long lockCreationDate;
     protected String lockComment;
     protected boolean readOnly;
+    protected boolean isCopied;    
+    protected boolean isWcLocked;
+    protected boolean isSwitched;
+
     
     static final long serialVersionUID = 1L;
+
+    /**
+     * Factory method created instance from byte[]
+     * @param bytes
+     * @return a new instance created from given bytes or null
+     * @throws SVNException
+     */
+    public static LocalResourceStatus fromBytes(byte[] bytes) throws SVNException
+    {
+    	return ((bytes != null) && (bytes.length > 0)) ? new LocalResourceStatus(bytes) : null;
+    }
+
+    protected LocalResourceStatus()
+    {
+    	super();
+    }
 
 	/**
 	 * @param status
@@ -99,96 +117,12 @@ public class LocalResourceStatus extends ResourceStatus {
             this.lockCreationDate = -1;
         else
             this.lockCreationDate = ((Date) aValue).getTime();
+        
+        this.isCopied = status.isCopied();
+        this.isWcLocked = status.isWcLocked();
+        this.isSwitched = status.isSwitched();
     }
 
-    public SVNUrl getUrlCopiedFrom() {
-        if (urlCopiedFrom == null) {
-            return null;
-        } else {
-            try {
-                return new SVNUrl(urlCopiedFrom);
-            } catch (MalformedURLException e) {
-                return null;
-            }
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#getBytes()
-     */
-    public byte[] getBytes() {    	
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        getBytesInto(new DataOutputStream(out));
-        return out.toByteArray();
-    }
-
-    /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#getBytesInto(java.io.DataOutputStream)
-     */
-    protected DataOutputStream getBytesInto(DataOutputStream dos) {
-    	super.getBytesInto(dos);
-        try {
-            // urlCopiedFrom
-            if (urlCopiedFrom == null) {
-                dos.writeUTF("");
-            } else {
-                dos.writeUTF(urlCopiedFrom);
-            }
-
-            // file
-            dos.writeUTF(file.getAbsolutePath());
-
-            // conflict old
-            if (pathConflictOld == null) {
-                dos.writeUTF("");
-            } else {
-                dos.writeUTF(pathConflictOld);
-            }
-
-            // conflict new
-            if (pathConflictNew == null) {
-                dos.writeUTF("");
-            } else {
-                dos.writeUTF(pathConflictNew);
-            }
-
-            // conflict working
-            if (pathConflictWorking == null) {
-                dos.writeUTF("");
-            } else {
-                dos.writeUTF(pathConflictWorking);
-            }
-            
-            // lock owner
-            if(lockOwner == null)
-                dos.writeUTF("");
-            else
-                dos.writeUTF(lockOwner);
-            
-            // lock creation date
-            dos.writeLong(lockCreationDate);
-            
-            // lock comment
-            if (lockComment == null)
-                dos.writeUTF("");
-            else
-                dos.writeUTF(lockComment);
-            
-            //read only
-            dos.writeBoolean(readOnly);
-
-        } catch (IOException e) {
-            return null;
-        }
-        return dos;
-    }
-
-    public static LocalResourceStatus fromBytes(byte[] bytes) throws SVNException
-    {
-    	return ((bytes != null) && (bytes.length > 0)) ? new LocalResourceStatus(bytes) : null;
-    }
-
-    protected LocalResourceStatus() {}
 
     /**
      * (Re)Construct an object from the given bytes 
@@ -197,57 +131,67 @@ public class LocalResourceStatus extends ResourceStatus {
      */
     protected LocalResourceStatus(byte[] bytes) throws SVNException {
     	super();    	
-        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-        DataInputStream dis = new DataInputStream(in);
-    	initFromBytes(dis);
+    	if (bytes.length < 4) {
+    		return;
+    	}
+    	StatusFromBytesStream in = new StatusFromBytesStream(bytes);
+    	initFromBytes(in);
+    }
+
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#getBytesInto(org.tigris.subversion.subclipse.core.resources.ResourceStatus.StatusToBytesStream)
+     */
+    protected void getBytesInto(StatusToBytesStream dos) {
+    	super.getBytesInto(dos);
+        try {
+            // urlCopiedFrom
+            dos.writeString(urlCopiedFrom);
+
+            // conflict old
+            dos.writeString(pathConflictOld);
+
+            // conflict new
+            dos.writeString(pathConflictNew);
+
+            // conflict working
+            dos.writeString(pathConflictWorking);
+            
+            // lock owner
+            dos.writeString(lockOwner);
+            
+            // lock creation date
+            dos.writeLong(lockCreationDate);
+            
+            // lock comment
+            dos.writeString(lockComment);
+            
+            dos.writeBoolean(isCopied);
+            dos.writeBoolean(isWcLocked);
+            dos.writeBoolean(isSwitched);
+
+            //read only
+            dos.writeBoolean(readOnly);
+
+            // file
+            dos.writeString(file.getAbsolutePath());
+
+        } catch (IOException e) {
+            return;
+        }
     }
     
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#initFromBytes(java.io.DataInputStream)
      */
-    protected int initFromBytes(DataInputStream dis) throws SVNException {
+    protected int initFromBytes(StatusFromBytesStream dis) throws SVNException {
     	int version = super.initFromBytes(dis);
         try {
-            // urlCopiedFrom
-            String urlCopiedFromString = dis.readUTF();
-            if (urlCopiedFromString.equals("")) {
-                urlCopiedFrom = null;
+            if (version == FORMAT_VERSION_3) {
+                readFromVersion3Stream(dis);            	
+            } else if (version == FORMAT_VERSION_2) {
+            	readFromVersion2Stream(dis);
             } else {
-                urlCopiedFrom = url;
-            }
-
-            // file
-            file = new File(dis.readUTF());
-
-            // conflict old
-            pathConflictOld = dis.readUTF();
-            if (pathConflictOld.equals(""))
-                pathConflictOld = null;
-
-            // conflict new
-            pathConflictNew = dis.readUTF();
-            if (pathConflictNew.equals(""))
-                pathConflictNew = null;
-
-            // conflict new
-            pathConflictWorking = dis.readUTF();
-            if (pathConflictWorking.equals(""))
-                pathConflictWorking = null;
-            
-            if (version >= FORMAT_VERSION_2) {
-                lockOwner = dis.readUTF();
-                if (lockOwner.equals(""))
-                    lockOwner = null;
-                lockCreationDate = dis.readLong();
-                lockComment = dis.readUTF();
-                if (lockComment.equals(""))
-                    lockComment = null;
-                readOnly = dis.readBoolean();
-            } else {
-                lockOwner = null;
-                lockCreationDate = 0L;
-                lockComment = null;
-                readOnly = false;
+            	readFromVersion1Stream(dis);            	
             }
         } catch (IOException e) {
             throw new SVNException(
@@ -255,6 +199,100 @@ public class LocalResourceStatus extends ResourceStatus {
         }
         return version;
     }
+
+	private void readFromVersion3Stream(StatusFromBytesStream dis) throws IOException {
+        // urlCopiedFrom
+		urlCopiedFrom = dis.readString();
+
+        // conflict old
+		pathConflictOld = dis.readString();
+
+        // conflict new
+		pathConflictNew = dis.readString();
+
+        // conflict working
+		pathConflictWorking = dis.readString();
+        
+        // lock owner
+		lockOwner = dis.readString();
+        
+        // lock creation date
+		lockCreationDate = dis.readLong();
+        
+        // lock comment
+		lockComment = dis.readString();
+
+		isCopied = dis.readBoolean();
+		isWcLocked = dis.readBoolean();
+		isSwitched = dis.readBoolean();
+		
+        //read only
+		readOnly = dis.readBoolean();
+
+        // file
+		file = new File(dis.readString());
+
+	}
+
+	/**
+	 * Just for backwards compatibility with workspaces stored with previous version
+	 * @param dis
+	 * @throws IOException
+	 * @deprecated
+	 */
+	private void readFromVersion2Stream(StatusFromBytesStream dis) throws IOException {
+		
+		readFromVersion1Stream(dis);
+		
+		lockOwner = dis.readUTF();
+		if (lockOwner.equals(""))
+			lockOwner = null;
+		lockCreationDate = dis.readLong();
+		lockComment = dis.readUTF();
+		if (lockComment.equals(""))
+			lockComment = null;
+		readOnly = dis.readBoolean();
+	}
+
+	/**
+	 * Just for backwards compatibility with workspaces stored with previous version
+	 * @param dis
+	 * @throws IOException
+	 * @deprecated
+	 */
+	private void readFromVersion1Stream(StatusFromBytesStream dis) throws IOException {
+		// urlCopiedFrom
+		String urlCopiedFromString = dis.readUTF();
+		if (urlCopiedFromString.equals("")) {
+		    urlCopiedFrom = null;
+		} else {
+		    urlCopiedFrom = url;
+		}
+
+		// file
+		file = new File(dis.readUTF());
+
+		// conflict old
+		pathConflictOld = dis.readUTF();
+		if (pathConflictOld.equals(""))
+		    pathConflictOld = null;
+
+		// conflict new
+		pathConflictNew = dis.readUTF();
+		if (pathConflictNew.equals(""))
+		    pathConflictNew = null;
+
+		// conflict new
+		pathConflictWorking = dis.readUTF();
+		if (pathConflictWorking.equals(""))
+		    pathConflictWorking = null;
+		
+		//Pre version 2
+	    lockOwner = null;
+	    lockCreationDate = 0L;
+	    lockComment = null;
+	    readOnly = false;
+	}
 
     /**
      * Returns if is managed by svn (added, normal, modified ...)
@@ -278,7 +316,7 @@ public class LocalResourceStatus extends ResourceStatus {
      * text is considered dirty if text status has status added, deleted,
      * replaced, modified, merged or conflicted.
      * 
-     * @return
+     * @return true if the resource text is dirty
      */
     public boolean isTextDirty() {
         SVNStatusKind theTextStatus = getTextStatus();
@@ -294,7 +332,7 @@ public class LocalResourceStatus extends ResourceStatus {
     /**
      * prop is considered dirty if prop status is either conflicted or modified
      * 
-     * @return
+     * @return true if the resource property is dirty
      */
     public boolean isPropDirty() {
         SVNStatusKind thePropStatus = getPropStatus();
@@ -304,7 +342,7 @@ public class LocalResourceStatus extends ResourceStatus {
 
     /**
      * resource is considered dirty if properties are dirty or text is dirty
-     * @return
+     * @return true if the resource text or property is dirty
      */
     public boolean isDirty() {
         return isTextDirty() || isPropDirty();
@@ -354,12 +392,20 @@ public class LocalResourceStatus extends ResourceStatus {
         return getPropStatus().equals(SVNStatusKind.CONFLICTED);
     }
     
-    public boolean isCopied() {
-        return urlCopiedFrom != null;
-    }
-    
     public boolean isLocked() {
         return lockOwner != null;
+    }
+
+    public SVNUrl getUrlCopiedFrom() {
+        if (urlCopiedFrom == null) {
+            return null;
+        } else {
+            try {
+                return new SVNUrl(urlCopiedFrom);
+            } catch (MalformedURLException e) {
+                return null;
+            }
+        }
     }
 
     /**
@@ -420,11 +466,39 @@ public class LocalResourceStatus extends ResourceStatus {
     public String getLockComment() {
         return lockComment;
     }
-            
+       
+    /**
+     * @return true when the resource was copied
+     */
+    public boolean isCopied()
+    {
+    	return isCopied;
+    }
+    
+    
+    /**
+     * @return true when the working copy directory is locked. 
+     */
+    public boolean isWcLocked()
+    {
+    	return isWcLocked;
+    }
+    
+    /**
+     * @return true when the resource was switched relative to its parent.
+     */
+    public boolean isSwitched()
+    {
+    	return isSwitched;
+    }
+
+    /**
+     * Special LocalResourceStatus subclass representing status "None".
+     */
     public static class LocalResourceStatusNone extends LocalResourceStatus {
         static final long serialVersionUID = 1L;
 
-    	public LocalResourceStatusNone()
+    	protected LocalResourceStatusNone()
     	{
     		super();
     		this.nodeKind = SVNNodeKind.UNKNOWN.toInt();

@@ -10,10 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -38,27 +34,33 @@ import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus
  */
-/**
- * @author Martin
- *
- */
 public class RemoteResourceStatus extends ResourceStatus {
 
+	/** Singleton instance of the status "None" */
 	public static final RemoteResourceStatus NONE = new RemoteResourceStatusNone();
 
     static final long serialVersionUID = 1L;
 
-    protected long revision;
+    protected long repositoryRevision;
 
+    /**
+     * Factory method created instance from byte[]
+     * @param bytes
+     * @return a new instance created from given bytes or null
+     * @throws SVNException
+     */
     public static RemoteResourceStatus fromBytes(byte[] bytes) throws SVNException
     {
     	return ((bytes != null) && (bytes.length > 0)) ? new RemoteResourceStatus(bytes) : null;
     }
 
-    protected RemoteResourceStatus() {}
-
+    protected RemoteResourceStatus() 
+    {
+    	super();
+    }
+    
     /**
-     * 
+     * Constructor
      * @param realStatus
      * @param revision
      */
@@ -69,9 +71,9 @@ public class RemoteResourceStatus extends ResourceStatus {
         this.propStatus = realStatus.getRepositoryPropStatus().toInt();
         
         if (revision == null) {
-        	this.revision = SVNRevision.SVN_INVALID_REVNUM;
+        	this.repositoryRevision = SVNRevision.SVN_INVALID_REVNUM;
         } else {
-        	this.revision = revision.getNumber();
+        	this.repositoryRevision = revision.getNumber();
         }
         
         if (SVNStatusKind.EXTERNAL.equals(realStatus.getTextStatus()))
@@ -79,19 +81,31 @@ public class RemoteResourceStatus extends ResourceStatus {
         	this.textStatus = realStatus.getTextStatus().toInt();
         }
 	}
-	
+
+    /**
+     * (Re)Construct an object from the given bytes 
+     * @param bytes
+     * @throws SVNException
+     */
+    protected RemoteResourceStatus(byte[] bytes) throws SVNException {
+    	super();    	
+    	StatusFromBytesStream in = new StatusFromBytesStream(bytes);
+    	initFromBytes(in);
+    }
+
 	/**
 	 * Answer the revision number. Contrary to getRevision() of
 	 * localResourceStatus, this is the revision of the repository at the time
 	 * of fetching this status via svn status call ... 
 	 * (And meanwhile the localResourceStatus was changed, 
 	 * so it even does not store it's revision anymore)
+	 * @return revision of the resource in repository
 	 */
 	public Number getRepositoryRevision() {
-		if (revision == SVNRevision.SVN_INVALID_REVNUM) {
+		if (repositoryRevision == SVNRevision.SVN_INVALID_REVNUM) {
 			return null;
 		} else {
-			return new SVNRevision.Number(revision);
+			return new SVNRevision.Number(repositoryRevision);
 		}
 	}
     
@@ -127,13 +141,6 @@ public class RemoteResourceStatus extends ResourceStatus {
 
         this.lastCommitAuthor = info.getLastCommitAuthor();
 
-//        aValue = info.getRevision();
-//        if (aValue == null) {
-//            this.revision = SVNRevision.SVN_INVALID_REVNUM;
-//        } else {
-//            this.revision = ((SVNRevision.Number) aValue).getNumber();
-//        }
-
     	aValue = info.getUrl();
         if (aValue == null) {
             this.url = null;
@@ -141,88 +148,82 @@ public class RemoteResourceStatus extends ResourceStatus {
             this.url = ((SVNUrl) aValue).toString();
         }
 	}
-	
-    /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#getBytes()
-     */
-    public byte[] getBytes() {    	
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        getBytesInto(new DataOutputStream(out));
-        return out.toByteArray();
-    }
 
     /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#getBytesInto(java.io.DataOutputStream)
+     * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#getBytesInto(org.tigris.subversion.subclipse.core.resources.ResourceStatus.StatusToBytesStream)
      */
-    protected DataOutputStream getBytesInto(DataOutputStream dos) {
+    protected void getBytesInto(StatusToBytesStream dos) {
     	super.getBytesInto(dos);
         try {
+        	
+        	// repositoryRevision
+            dos.writeLong(repositoryRevision);
+
             // file
-            dos.writeUTF(file.getAbsolutePath());
+            dos.writeString(file.getAbsolutePath());
 
         } catch (IOException e) {
-            return null;
+            return;
         }
-        return dos;
-    }
-
-    /**
-     * (Re)Construct an object from the given bytes 
-     * @param bytes
-     * @throws SVNException
-     */
-    protected RemoteResourceStatus(byte[] bytes) throws SVNException {
-    	super();    	
-        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-        DataInputStream dis = new DataInputStream(in);
-    	initFromBytes(dis);
     }
     
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.resources.ResourceStatus#initFromBytes(java.io.DataInputStream)
      */
-    protected int initFromBytes(DataInputStream dis) throws SVNException {
-    	int version = super.initFromBytes(dis);
+    protected int initFromBytes(StatusFromBytesStream dis) throws SVNException {
+    	int version = super.initFromBytes(dis);    	
         try {
-            file = new File(dis.readUTF());
+        	if (version == FORMAT_VERSION_3) {
+        		readFromVersion3Stream(dis);            	
+        	} else {
+        		readFromVersion2Stream(dis);
+        	}
         } catch (IOException e) {
             throw new SVNException(
-                    "cannot create LocalResourceStatus from bytes", e);
+                    "cannot create RemoteResourceStatus from bytes", e);
         }
         return version;
     }
 
-    /**
-     * Answer the revision number - for internal purposes only.
-     * This method is expected to be called from getBytesInto() method only!  
-     *
-     * @return
-     */
-    protected long getRevisionNumber()
-    {
-    	return revision;
-    }
+	private void readFromVersion3Stream(StatusFromBytesStream dis) throws IOException {
+
+    	// repositoryRevision
+		repositoryRevision = dis.readLong();
+
+        // file
+        file = new File(dis.readString());
+	}
+
+	/**
+	 * Just for backwards compatibility with workspaces stored with previous versions
+	 * @param dis
+	 * @throws IOException
+	 * @deprecated
+	 */
+	private void readFromVersion2Stream(StatusFromBytesStream dis) throws IOException {
+        file = new File(dis.readUTF());		
+	}
     
     /**
      * Set the revision number - for internal purposes only.
      * This method is expected to be called from initFromBytes() method only!  
-     *
-     * @return
      */
     protected void setRevisionNumber(long revision)
     {
-    	this.revision = revision;
+    	this.repositoryRevision = revision;
     }
 
-    
+    /**
+     * Special RemoteResourceStatus subclass representing status "None".
+     */
     public static class RemoteResourceStatusNone extends RemoteResourceStatus {
         static final long serialVersionUID = 1L;
 
-    	public RemoteResourceStatusNone()
+    	protected RemoteResourceStatusNone()
     	{
     		super();
     		this.nodeKind = SVNNodeKind.UNKNOWN.toInt();
-            this.revision = SVNRevision.SVN_INVALID_REVNUM;
+            this.repositoryRevision = SVNRevision.SVN_INVALID_REVNUM;
             this.textStatus = SVNStatusKind.NONE.toInt();
             this.propStatus = SVNStatusKind.NONE.toInt();
             //this.path = status.getFile().getAbsolutePath();
