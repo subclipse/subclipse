@@ -42,7 +42,7 @@ public class SVNPropertyPage extends PropertyPage {
 
     private Text ignoredValue;
     private Text managedValue;
-    private Text hasRemoteValue;
+    private Text switchedValue;
     private Text urlValue;
     private Text lastChangedRevisionValue;
     private Text lastChangedDateValue;
@@ -68,15 +68,23 @@ public class SVNPropertyPage extends PropertyPage {
         Composite composite = createDefaultComposite(parent);
 
         //Label for path field
-        Label pathLabel = new Label(composite, SWT.NONE);
-        pathLabel.setText(Policy.bind("SVNPropertyPage.path")); //$NON-NLS-1$
+        Label label = new Label(composite, SWT.NONE);
+        label.setText(Policy.bind("SVNPropertyPage.path")); //$NON-NLS-1$
 
         // Path text field
         Text pathValueText = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
-        GridData gd = new GridData();
-        gd.horizontalSpan = 2;
-        pathValueText.setLayoutData(gd);
+//        GridData gd = new GridData();
+//        gd.horizontalSpan = 2;
+//        pathValueText.setLayoutData(gd);
         pathValueText.setText(((IResource) getElement()).getFullPath().toString());
+
+        label = new Label(composite, SWT.NONE);
+        label.setText(Policy.bind("SVNPropertyPage.url")); //$NON-NLS-1$
+        urlValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+
+        label = new Label(composite, SWT.NONE);
+        label.setText(Policy.bind("SVNPropertyPage.revision")); //$NON-NLS-1$
+        revisionValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
     }
 
     private void addSeparator(Composite parent) {
@@ -99,12 +107,8 @@ public class SVNPropertyPage extends PropertyPage {
         managedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
 
         label = new Label(composite, SWT.NONE);
-        label.setText(Policy.bind("SVNPropertyPage.hasRemote")); //$NON-NLS-1$
-        hasRemoteValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
-
-        label = new Label(composite, SWT.NONE);
-        label.setText(Policy.bind("SVNPropertyPage.url")); //$NON-NLS-1$
-        urlValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        label.setText(Policy.bind("SVNPropertyPage.switched")); //$NON-NLS-1$
+        switchedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.changedRevision")); //$NON-NLS-1$
@@ -137,10 +141,6 @@ public class SVNPropertyPage extends PropertyPage {
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.added")); //$NON-NLS-1$
         addedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
-
-        label = new Label(composite, SWT.NONE);
-        label.setText(Policy.bind("SVNPropertyPage.revision")); //$NON-NLS-1$
-        revisionValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.copied")); //$NON-NLS-1$
@@ -182,7 +182,7 @@ public class SVNPropertyPage extends PropertyPage {
 
             ignoredValue.setText(new Boolean(status.isIgnored()).toString());
             managedValue.setText(new Boolean(status.isManaged()).toString());
-            hasRemoteValue.setText(new Boolean(status.isIgnored()).toString());
+            switchedValue.setText(new Boolean(status.isSwitched()).toString());
             urlValue.setText(status.getUrlString() != null ? status.getUrlString() : ""); //$NON-NLS-1$
             lastChangedRevisionValue.setText(status.getLastChangedRevision() != null ? status
                     .getLastChangedRevision().toString() : ""); //$NON-NLS-1$
