@@ -215,14 +215,16 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	
 	private IStatus refresh(IResource resource, int depth, IProgressMonitor monitor) {
 		try {
-			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.refreshingSynchronizationData"));
+			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.refreshingSynchronizationData", resource.getFullPath().toString()));
+			monitor.worked(100);
 			SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, IResource.DEPTH_INFINITE);
 			monitor.worked(300);
 
+			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.retrievingSynchronizationData"));
 			IResource[] changedResources = findChanges(resource, depth, Policy.infiniteSubMonitorFor(monitor, 400));
 
 			fireTeamResourceChange(SubscriberChangeEvent.asSyncChangedDeltas(this, changedResources));
-			monitor.worked(300);
+			monitor.worked(200);
 			return Status.OK_STATUS;
 		} catch (TeamException e) {
 			return new TeamStatus(IStatus.ERROR, SVNProviderPlugin.ID, 0, Policy.bind("SVNWorkspaceSubscriber.errorWhileSynchronizing.2", resource.getFullPath().toString(), e.getMessage()), e, resource); //$NON-NLS-1$
@@ -231,7 +233,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
     private IResource[] findChanges(IResource resource, int depth, IProgressMonitor monitor) throws TeamException {
         try {
-        	monitor.beginTask(Policy.bind("SVNWorkspaceSubscriber.retrievingSynchronizationData"), 100);
+        	monitor.beginTask("", 100);
 
         	remoteSyncStateStore.flushBytes(resource, depth);
 
@@ -240,6 +242,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
             boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
             StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, false, true );
             cmd.run(monitor);
+            monitor.worked(70);
 
             RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
 
@@ -254,7 +257,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
                 	registerChangedResourceParent(changedResource);
                 }
 			}
-            
+            monitor.worked(30);            
             return (IResource[]) result.toArray(new IResource[result.size()]);
         } catch (SVNException e) {
             throw new TeamException("Error getting status for resource " + resource + " " + e.getMessage(), e);
