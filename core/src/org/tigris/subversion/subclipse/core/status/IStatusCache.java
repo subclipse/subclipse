@@ -21,6 +21,12 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
  */
 public interface IStatusCache {
 
+	/**
+	 * @param resource
+	 * @return true when the resource's status is present in cache
+	 */
+	boolean hasCachedStatus(IResource resource);
+	
     /**
      * Get the status of the given resource (which does not need to exist)
      * @param resource

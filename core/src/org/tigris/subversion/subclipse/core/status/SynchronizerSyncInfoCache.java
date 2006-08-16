@@ -34,6 +34,19 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 	
 	protected static final byte[] BYTES_REMOVED = new byte[0];
 	protected SyncInfoSynchronizedAccessor accessor = new SyncInfoSynchronizedAccessor();
+	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#hasCachedStatus(org.eclipse.core.resources.IResource)
+	 */
+	public boolean hasCachedStatus(IResource resource)
+	{
+		try {
+			return getCachedSyncBytes(resource) != null;
+		} catch (SVNException e) {
+			SVNProviderPlugin.log(e);
+			return false;
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#getStatus(org.eclipse.core.resources.IResource)
@@ -188,7 +201,7 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 		}
 	}
 	
-	private static class SyncInfoSynchronizedAccessor
+	protected final static class SyncInfoSynchronizedAccessor
 	{
 		// Map of sync bytes that were set without a scheduling rule
 		private Map pendingCacheWrites = new HashMap();

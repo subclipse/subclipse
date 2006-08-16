@@ -11,6 +11,8 @@
 package org.tigris.subversion.subclipse.core;
 
 
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -21,7 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * <p>
  * Clients may implement this interface.
  * </p>
- * @see 
+ * @see IWorkspace#run(IWorkspaceRunnable, IProgressMonitor)
  */
 public interface ISVNRunnable {
 	/**
@@ -36,7 +38,7 @@ public interface ISVNRunnable {
 	 * 
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting and cancellation are not desired
-	 * @exception CoreException if this operation fails.
+	 * @exception SVNException if this operation fails.
 	 */
 	public void run(IProgressMonitor monitor) throws SVNException;
 }

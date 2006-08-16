@@ -71,6 +71,15 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
         statusUpdateStrategy = recursiveStatusUpdate ? (StatusUpdateStrategy)new RecursiveStatusUpdateStrategy(statusCache) : (StatusUpdateStrategy)new NonRecursiveStatusUpdateStrategy(statusCache);
     }
     
+	/**
+	 * @param resource
+	 * @return true when the resource's status is present in cache
+	 */
+	public boolean hasCachedStatus(IResource resource)
+	{
+		return statusCache.hasCachedStatus(resource);
+	}
+
     /**
      * A resource which ancestor is not managed is not managed
      * @param resource
