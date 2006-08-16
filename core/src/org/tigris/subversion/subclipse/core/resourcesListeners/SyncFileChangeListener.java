@@ -95,7 +95,6 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 						if(Policy.DEBUG_METAFILE_CHANGES) {
 							System.out.println("[svn] duplicte ADD change event registered in SyncFileChangeListener: " + resource); //$NON-NLS-1$
 						}
-						System.out.println("SFL: Duplicite ADD event" + resource);
 						return false;
 					}
 					

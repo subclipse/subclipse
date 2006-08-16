@@ -111,7 +111,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
      */
     public boolean isSupervised(IResource resource) throws TeamException {
 		try {
-			if (SVNWorkspaceRoot.isLinkedResource(resource)) return false;
+			if (resource.isTeamPrivateMember() || SVNWorkspaceRoot.isLinkedResource(resource)) return false;
 			RepositoryProvider provider = RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
 			if (provider == null) return false;
 			// TODO: what happens for resources that don't exist?
@@ -119,7 +119,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			ISVNLocalResource svnThing = SVNWorkspaceRoot.getSVNResourceFor(resource);
 			if (svnThing.isIgnored()) {
 				// An ignored resource could have an incoming addition (conflict)
-				return false;//getRemoteTree().hasResourceVariant(resource);
+				return (remoteSyncStateStore.getBytes(resource) != null) || (remoteSyncStateStore.members(resource) != null);
 			}
 			return true;
 		} catch (TeamException e) {
@@ -136,7 +136,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
      * @see org.eclipse.team.core.subscribers.Subscriber#members(org.eclipse.core.resources.IResource)
      */
     public IResource[] members(IResource resource) throws TeamException {
-		if(resource.getType() == IResource.FILE) {
+		if ((resource.getType() == IResource.FILE) || (!isSupervised(resource))){
 			return new IResource[0];
 		}	
 		try {
