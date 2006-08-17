@@ -89,6 +89,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_LOCKED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_NEEDSLOCK, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_DELETED, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_SWITCHED, baseURL);
 		createImageDescriptor(ISVNUIConstants.IMG_ADD_PROPERTY, baseURL);
 		createImageDescriptor(ISVNUIConstants.IMG_COMMIT, baseURL);
 		createImageDescriptor(ISVNUIConstants.IMG_UPDATE, baseURL);
