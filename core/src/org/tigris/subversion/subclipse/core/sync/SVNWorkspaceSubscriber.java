@@ -119,7 +119,8 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			ISVNLocalResource svnThing = SVNWorkspaceRoot.getSVNResourceFor(resource);
 			if (svnThing.isIgnored()) {
 				// An ignored resource could have an incoming addition (conflict)
-				return (remoteSyncStateStore.getBytes(resource) != null) || (remoteSyncStateStore.members(resource) != null);
+				return (remoteSyncStateStore.getBytes(resource) != null) || 
+						((remoteSyncStateStore.members(resource) != null) && (remoteSyncStateStore.members(resource).length > 0));
 			}
 			return true;
 		} catch (TeamException e) {
