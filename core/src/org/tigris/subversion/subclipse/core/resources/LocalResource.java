@@ -31,11 +31,13 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.commands.AddIgnoredPatternCommand;
 import org.tigris.subversion.subclipse.core.commands.GetRemoteResourceCommand;
+import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -91,8 +93,8 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#isIgnored()
 	 */
 	public boolean isIgnored() throws SVNException {
-		// If the resource is a derived or linked resource, it is ignored
-		if (resource.isDerived() || resource.isLinked()) {
+		// If the resource is a derived, team private or linked resource, it is ignored
+		if (resource.isDerived() || resource.isTeamPrivateMember() || resource.isLinked() ) {
 			return true;
 		}
 
@@ -110,6 +112,10 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			return true;
 		}
 
+		if (isParentInSvnIgnore()) {
+			return true;
+		}
+		
 		LocalResourceStatus status = getStatus();
 		
 		// a managed resource is never ignored
@@ -131,6 +137,31 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
         return false;
 	}
 
+	/**
+	 * Check whether any of the resources parent does not have svn status IGNORED present in cache.
+	 * @return true if there's parent with IGNORED status in cache, false otherwise
+	 * @throws SVNException
+	 */
+	protected boolean isParentInSvnIgnore() throws SVNException
+	{
+		StatusCacheManager cacheMgr = SVNProviderPlugin.getPlugin().getStatusCacheManager();
+		IResource parent = resource.getParent();
+		
+		//Traverse up to the first parent with status present in cache
+    	while ((parent != null) && !cacheMgr.hasCachedStatus(parent)) {
+    		parent = parent.getParent();
+    	}
+    	//Check if the first parent with status has status IGNORED
+    	if (parent != null) {
+    		LocalResourceStatus status = cacheMgr.getStatus(parent);
+    		if ((status != null) && (SVNStatusKind.IGNORED.equals(status.getTextStatus()))) {
+    			return true;
+    		}
+    	}
+    	//It's not under svn:ignore (at least according to cached statuses)
+		return false;
+	}
+	
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#setIgnored()
      */
