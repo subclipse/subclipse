@@ -47,6 +47,9 @@ public class OpenRemoteFileAction extends SVNAction {
 					IEditorDescriptor descriptor = registry.getDefaultEditor(filename);
 					String id;
 					if (descriptor == null) {
+						descriptor = registry.findEditor(IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
+					}
+					if (descriptor == null) {
 						id = "org.eclipse.ui.DefaultTextEditor"; //$NON-NLS-1$
 					} else {
 						id = descriptor.getId();

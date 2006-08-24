@@ -11,13 +11,22 @@
 package org.tigris.subversion.subclipse.ui.editor;
 
  
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.variants.IResourceVariant;
+import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.model.IWorkbenchAdapter;
@@ -29,7 +38,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 /**
  * An editor input for a file in a repository.
  */
-public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorInput {
+public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorInput, IPathEditorInput {
 	private ISVNRemoteFile file;
 	protected IStorage storage;
 
@@ -200,4 +209,36 @@ public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorI
     public ISVNRemoteFile getSVNRemoteFile() {
         return file;
     }
+
+	public IPath getPath() {
+		try {
+			return new Path(writeToTempFile().getAbsolutePath());
+		} catch (Exception e) {
+			SVNUIPlugin.log(0, e.getMessage(), e);
+		}
+		return null;
+	}
+	
+	private File writeToTempFile() throws IOException, CoreException {
+
+		// Save InputStream to the file.
+		InputStream in = this.getStorage().getContents();
+		File temp = File.createTempFile("svn", "." + this.getContentType());
+		temp.deleteOnExit();
+		BufferedOutputStream fOut = null;
+		try {
+			fOut = new BufferedOutputStream(new FileOutputStream(temp));
+			byte[] buffer = new byte[32 * 1024];
+			int bytesRead = 0;
+			while ((bytesRead = in.read(buffer)) != -1) {
+				fOut.write(buffer, 0, bytesRead);
+			}
+		} catch (Exception e) {
+			throw new IOException("Failed to get file contents: " + e.toString());
+		} finally {
+			in.close();
+			fOut.close();
+		}
+		return temp;
+	}
 }
