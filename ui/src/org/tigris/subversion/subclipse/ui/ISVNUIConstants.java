@@ -58,8 +58,13 @@ public interface ISVNUIConstants {
 	public final String IMG_COLLAPSE_ALL_ENABLED = "elcl16/collapseall.gif"; //$NON-NLS-1$
 	public final String IMG_LINK_WITH_EDITOR_ENABLED = "elcl16/synced.gif"; //$NON-NLS-1$
 
-    public final String IMG_AFFECTED_PATHS_FLAT_LAYOUT = "elcl16/flatLayout.gif"; //$NON-NLS-1$
-    public final String IMG_AFFECTED_PATHS_COMPRESSED_LAYOUT = "elcl16/compressedLayout.gif"; //$NON-NLS-1$
+    public final String IMG_AFFECTED_PATHS_FLAT_MODE = "elcl16/flatLayout.gif"; //$NON-NLS-1$
+    public final String IMG_AFFECTED_PATHS_COMPRESSED_MODE = "elcl16/compressedLayout.gif"; //$NON-NLS-1$
+    
+    public final String IMG_AFFECTED_PATHS_HORIZONTAL_LAYOUT = "elcl16/horizontal.gif"; //$NON-NLS-1$
+    public final String IMG_AFFECTED_PATHS_VERTICAL_LAYOUT = "elcl16/vertical.gif"; //$NON-NLS-1$
+    
+    public final String IMG_COMMENTS = "elcl16/comments.gif"; //$NON-NLS-1$
     
 	// wizards
 	public final String IMG_NEWLOCATION = "wizards/newlocation_wiz.gif"; //$NON-NLS-1$
@@ -100,7 +105,8 @@ public interface ISVNUIConstants {
 	public final String PREF_SHOW_COMMENTS = "pref_show_comments"; //$NON-NLS-1$
 	public final String PREF_WRAP_COMMENTS = "pref_wrap_comments"; //$NON-NLS-1$
 	public final String PREF_SHOW_PATHS = "pref_show_paths"; //$NON-NLS-1$
-    public final String PREF_AFFECTED_PATHS_LAYOUT = "pref_affected_paths_layout"; //$NON-NLS-1$
+    public final String PREF_AFFECTED_PATHS_MODE = "pref_affected_paths_layout"; //$NON-NLS-1$
+    public final String PREF_AFFECTED_PATHS_LAYOUT = "pref_affected_paths_layout2"; //$NON-NLS-1$
 	public final String PREF_HISTORY_VIEW_EDITOR_LINKING = "pref_history_view_linking"; //$NON-NLS-1$
 	public final String PREF_PRUNE_EMPTY_DIRECTORIES = "pref_prune_empty_directories";	 //$NON-NLS-1$
 	public final String PREF_TIMEOUT = "pref_timeout";	 //$NON-NLS-1$
@@ -217,8 +223,11 @@ public interface ISVNUIConstants {
 	public final int OPTION_PROMPT = 2; //$NON-NLS-1$
 	public final int OPTION_AUTOMATIC = 3; //$NON-NLS-1$
 
-    public final int LAYOUT_FLAT = 1; //$NON-NLS-1$
-    public final int LAYOUT_COMPRESSED = 2; //$NON-NLS-1$
+    public final int MODE_FLAT = 1; //$NON-NLS-1$
+    public final int MODE_COMPRESSED = 2; //$NON-NLS-1$
+    
+    public final int LAYOUT_HORIZONTAL = 1; //$NON-NLS-1$
+    public final int LAYOUT_VERTICAL = 2; //$NON-NLS-1$
     
 	public final String PREF_ALLOW_EMPTY_COMMIT_COMMENTS= "pref_allow_empty_commit_comment"; //$NON-NLS-1$
 

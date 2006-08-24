@@ -121,8 +121,13 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_FOLDER, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_FILEMISSING_PENDING,baseURL);
 
-        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_LAYOUT, baseURL);
-        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_LAYOUT, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_MODE, baseURL);
+        
+        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_HORIZONTAL_LAYOUT, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_VERTICAL_LAYOUT, baseURL);
+
+        createImageDescriptor(ISVNUIConstants.IMG_COMMENTS, baseURL);
         
         // views
         createImageDescriptor(ISVNUIConstants.IMG_SVN_CONSOLE, baseURL);

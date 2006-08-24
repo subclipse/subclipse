@@ -174,7 +174,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction revertChangesAction;
   private IAction refreshAction;
 
-  private ToggleAffectedPathsLayoutAction[] toggleAffectedPathsLayoutActions;
+  private ToggleAffectedPathsOptionAction[] toggleAffectedPathsLayoutActions;
+  private ToggleAffectedPathsOptionAction[] toggleAffectedPathsModeActions;
 
   private TextViewerAction copyAction;
   private TextViewerAction selectAllAction;
@@ -319,13 +320,30 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     this.svnHistoryPageControl = new SashForm(parent, SWT.VERTICAL);
     this.svnHistoryPageControl.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-    this.toggleAffectedPathsLayoutActions = new ToggleAffectedPathsLayoutAction[] {
-        new ToggleAffectedPathsLayoutAction(this, ISVNUIConstants.LAYOUT_FLAT),
-        new ToggleAffectedPathsLayoutAction(this, ISVNUIConstants.LAYOUT_COMPRESSED),
+    this.toggleAffectedPathsModeActions = new ToggleAffectedPathsOptionAction[] {
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsFlatLayout", 
+            ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE, 
+            ISVNUIConstants.PREF_AFFECTED_PATHS_MODE, 
+            ISVNUIConstants.MODE_FLAT),
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsCompressedLayout", 
+            ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_MODE, 
+            ISVNUIConstants.PREF_AFFECTED_PATHS_MODE, 
+            ISVNUIConstants.MODE_COMPRESSED),
+      };
+    
+    this.toggleAffectedPathsLayoutActions = new ToggleAffectedPathsOptionAction[] {
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsHorizontalLayout", 
+            ISVNUIConstants.IMG_AFFECTED_PATHS_HORIZONTAL_LAYOUT, 
+            ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT, 
+            ISVNUIConstants.LAYOUT_HORIZONTAL),
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsVerticalLayout", 
+            ISVNUIConstants.IMG_AFFECTED_PATHS_VERTICAL_LAYOUT, 
+            ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT, 
+            ISVNUIConstants.LAYOUT_VERTICAL),
       };
     
     createTableHistory(svnHistoryPageControl);
-    createAffectedPathsViewer(store.getInt(ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT));
+    createAffectedPathsViewer();
     contributeActions();
 
     svnHistoryPageControl.setWeights(new int[] { 70, 30});
@@ -455,12 +473,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     manager.add(new Separator("additions-end")); //$NON-NLS-1$
   }
 
-  public void createAffectedPathsViewer(int layout) {
-    for(int i = 0; i < toggleAffectedPathsLayoutActions.length; i++) {
-      ToggleAffectedPathsLayoutAction action = toggleAffectedPathsLayoutActions[ i];
-      action.setChecked(layout == action.getLayout());
-    }
-
+  public void createAffectedPathsViewer() {
+    int[] weights = null;
+    weights = svnHistoryPageControl.getWeights();
     if(innerSashForm != null) {
       innerSashForm.dispose();
     }
@@ -468,10 +483,19 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       changePathsViewer.getControl().dispose();
     }
     
-    innerSashForm = new SashForm(svnHistoryPageControl, SWT.HORIZONTAL);
+    IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+    int mode = store.getInt(ISVNUIConstants.PREF_AFFECTED_PATHS_MODE);
+    int layout = store.getInt(ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT);
+    
+    if(layout==ISVNUIConstants.LAYOUT_HORIZONTAL) {
+      innerSashForm = new SashForm(svnHistoryPageControl, SWT.HORIZONTAL);
+    } else {
+      innerSashForm = new SashForm(svnHistoryPageControl, SWT.VERTICAL);
+      createText(innerSashForm);
+    }
 
-    switch(layout) {
-      case ISVNUIConstants.LAYOUT_COMPRESSED:
+    switch(mode) {
+      case ISVNUIConstants.MODE_COMPRESSED:
         changePathsViewer = new ChangePathsTreeViewer(innerSashForm, this);
         break;
       default:
@@ -491,9 +515,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       }
     });
 
-    createText(innerSashForm);
+    if(layout==ISVNUIConstants.LAYOUT_HORIZONTAL) {
+      createText(innerSashForm);
+    }
+    
     setViewerVisibility();
+    
     innerSashForm.layout();
+    if(weights!=null && weights.length==2) {
+      svnHistoryPageControl.setWeights(weights);
+    }
     svnHistoryPageControl.layout();
 
     updatePanels(tableHistoryViewer.getSelection());
@@ -612,7 +643,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
     final IPreferenceStore store = plugin.getPreferenceStore();
 
-    toggleShowComments = new Action(Policy.bind("HistoryView.showComments")) { //$NON-NLS-1$
+    toggleShowComments = new Action(Policy.bind("HistoryView.showComments"), //$NON-NLS-1$
+        SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_COMMENTS)) {
       public void run() {
         showComments = isChecked();
         setViewerVisibility();
@@ -636,7 +668,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     // IHelpContextIds.SHOW_TAGS_IN_HISTORY_ACTION);
 
     // Toggle path visible action
-    toggleShowAffectedPathsAction = new Action(Policy.bind("HistoryView.showAffectedPaths")) { //$NON-NLS-1$
+    toggleShowAffectedPathsAction = new Action(Policy.bind("HistoryView.showAffectedPaths"), //$NON-NLS-1$
+        SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE)) {
       public void run() {
         showAffectedPaths = isChecked();
         setViewerVisibility();
@@ -663,19 +696,27 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 
     // Contribute toggle text visible to the toolbar drop-down
     IMenuManager actionBarsMenu = actionBars.getMenuManager();
+    actionBarsMenu.add(getGetNextAction());
+    actionBarsMenu.add(getGetAllAction());
+    actionBarsMenu.add(toggleStopOnCopyAction);
+    actionBarsMenu.add(new Separator());
     actionBarsMenu.add(toggleWrapCommentsAction);
     actionBarsMenu.add(new Separator());
     actionBarsMenu.add(toggleShowComments);
     actionBarsMenu.add(toggleShowAffectedPathsAction);
-    actionBarsMenu.add(toggleStopOnCopyAction);
     actionBarsMenu.add(new Separator());
-    
+    actionBarsMenu.add(toggleAffectedPathsModeActions[0]);
+    actionBarsMenu.add(toggleAffectedPathsModeActions[1]);
+    actionBarsMenu.add(new Separator());
     actionBarsMenu.add(toggleAffectedPathsLayoutActions[0]);
     actionBarsMenu.add(toggleAffectedPathsLayoutActions[1]);
     
     // Create the local tool bar
     IToolBarManager tbm = actionBars.getToolBarManager();
     // tbm.add(getRefreshAction());
+    tbm.add(new Separator());
+    tbm.add(toggleShowComments);
+    tbm.add(toggleShowAffectedPathsAction);
     tbm.add(new Separator());
     tbm.add(getGetNextAction());
     tbm.add(getGetAllAction());
@@ -1575,37 +1616,31 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
 
-  public static class ToggleAffectedPathsLayoutAction extends Action {
+  public static class ToggleAffectedPathsOptionAction extends Action {
     private final SVNHistoryPage page;
-    private final int layout;
+    private final String preferenceName;
+    private final int value;
 
-    public ToggleAffectedPathsLayoutAction( SVNHistoryPage page, int layout) {
-      super("", AS_RADIO_BUTTON);
+    public ToggleAffectedPathsOptionAction(SVNHistoryPage page, 
+          String label, String icon, String preferenceName, int value) {
+      super(Policy.bind(label), AS_RADIO_BUTTON);
       this.page = page;
-      this.layout = layout;
+      this.preferenceName = preferenceName;
+      this.value = value;
+      setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(icon));
       
-      String id = null; 
-      switch(layout) {
-        case ISVNUIConstants.LAYOUT_FLAT:
-          setText(Policy.bind("HistoryView.affectedPathsFlatLayout")); //$NON-NLS-1$
-          id = ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_LAYOUT;
-          break;
-        case ISVNUIConstants.LAYOUT_COMPRESSED:
-          setText(Policy.bind("HistoryView.affectedPathsCompressedLayout")); //$NON-NLS-1$
-          id = ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_LAYOUT;
-          break;
-      }
-      setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(id));
+      IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+      setChecked(value==store.getInt(preferenceName));
     }
     
-    public int getLayout() {
-      return this.layout;
+    public int getValue() {
+      return this.value;
     }
 
     public void run() {
       if (isChecked()) {
-        SVNUIPlugin.getPlugin().getPreferenceStore().setValue(ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT, layout);
-        page.createAffectedPathsViewer(layout);
+        SVNUIPlugin.getPlugin().getPreferenceStore().setValue(preferenceName, value);
+        page.createAffectedPathsViewer();
       }
     }
     
