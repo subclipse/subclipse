@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -41,7 +41,7 @@ import org.tigris.subversion.subclipse.ui.operations.ExportRemoteFolderOperation
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class ExportRemoteFolderDialog extends TrayDialog {
-	private ISVNRemoteFolder remoteFolder;
+	private ISVNRemoteResource remoteFolder;
 	private IWorkbenchPart targetPart;
 	private Text directoryText;
 	private Text revisionText;
@@ -50,7 +50,7 @@ public class ExportRemoteFolderDialog extends TrayDialog {
     private Button revisionButton;
 	private Button okButton;
 
-	public ExportRemoteFolderDialog(Shell parentShell, ISVNRemoteFolder remoteFolder, IWorkbenchPart targetPart) {
+	public ExportRemoteFolderDialog(Shell parentShell, ISVNRemoteResource remoteFolder, IWorkbenchPart targetPart) {
 		super(parentShell);
 		this.remoteFolder = remoteFolder;
 		this.targetPart = targetPart;

@@ -14,14 +14,14 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.ui.dialogs.ExportRemoteFolderDialog;
 
 public class ExportRemoteFolderAction extends SVNAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
-		ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
-		ExportRemoteFolderDialog dialog = new ExportRemoteFolderDialog(getShell(), folders[0], getTargetPart());
+		ISVNRemoteResource[] resources = getSelectedRemoteResources();
+		ExportRemoteFolderDialog dialog = new ExportRemoteFolderDialog(getShell(), resources[0], getTargetPart());
 		dialog.open();
 	}
 
