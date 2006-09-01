@@ -32,6 +32,8 @@ public class ShowHistoryAction extends SVNAction {
 		run(new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				ISVNRemoteResource[] resources = getSelectedRemoteResources();
+				if (resources.length == 0)
+					resources = getSelectedRemoteFolders();
 				IHistoryView view = (IHistoryView)showView(ISVNUIConstants.HISTORY_VIEW_ID);
 				if (view != null) {
 					view.showHistoryFor(resources[0]);
@@ -44,7 +46,9 @@ public class ShowHistoryAction extends SVNAction {
 	 */
 	protected boolean isEnabled() {
 		ISVNRemoteResource[] resources = getSelectedRemoteResources();
-		return resources.length == 1;
+		if (resources.length == 1) return true;
+		if (resources.length == 0 && getSelectedRemoteFolders().length == 1) return true;
+		return false;
 	}
 	/**
 	 * @see org.tigris.subversion.subclipse.ui.actions.SVNAction#getErrorTitle()
