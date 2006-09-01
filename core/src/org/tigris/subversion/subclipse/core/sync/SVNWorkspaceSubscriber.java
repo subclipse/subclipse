@@ -241,7 +241,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 //            ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
 
             boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
-            StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, true, true );
+            StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, false, true );
             cmd.run(monitor);
             monitor.worked(70);
 
