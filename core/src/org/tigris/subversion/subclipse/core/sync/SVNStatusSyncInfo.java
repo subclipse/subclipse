@@ -139,16 +139,27 @@ public class SVNStatusSyncInfo extends SyncInfo {
         //this makes sense for directories only - they still exists when they are being deleted
         else if ( isDeletion(localKind))
         {
-        	if ((IResource.FOLDER == local.getType()) 
-        			&& (isNotModified(repositoryKind))) return SyncInfo.OUTGOING | SyncInfo.DELETION;
+        	if (IResource.FOLDER == local.getType()) {
+        		if (isNotModified(repositoryKind)) {
+        			if (isOutOfDate())
+        				return SyncInfo.CONFLICTING | SyncInfo.DELETION;
+        			else
+        				return SyncInfo.OUTGOING | SyncInfo.DELETION;
+        		} else
+        			return SyncInfo.CONFLICTING | SyncInfo.DELETION;
+        	}
         }
         else if( isChange(localKind) ) {
             if( isChange( repositoryKind )
              || isAddition( repositoryKind ) 
              || isDeletion( repositoryKind ))
                 return SyncInfo.CONFLICTING | SyncInfo.CHANGE;
-            else
-                return SyncInfo.OUTGOING | SyncInfo.CHANGE;
+            else {
+            	if (IResource.FOLDER == local.getType() && isOutOfDate())
+            		return SyncInfo.CONFLICTING | SyncInfo.CHANGE;
+            	else
+            		return SyncInfo.OUTGOING | SyncInfo.CHANGE;
+            }
         }
         else if( isAddition( localKind ) ) {
             if( isAddition( repositoryKind ) )
@@ -156,8 +167,11 @@ public class SVNStatusSyncInfo extends SyncInfo {
             return SyncInfo.OUTGOING | SyncInfo.ADDITION;
         }
         else if( isNotModified(localKind) ) {
-            if( isNotModified( repositoryKind) )
+            if( isNotModified( repositoryKind) ) {
+            	if (IResource.FOLDER == local.getType() && isOutOfDate())
+            		return SyncInfo.INCOMING | SyncInfo.CHANGE;
                 return SyncInfo.IN_SYNC;
+            }
             if( repositoryKind == SVNStatusKind.DELETED )
                 return SyncInfo.INCOMING | SyncInfo.DELETION;
             if( repositoryKind == SVNStatusKind.ADDED )
@@ -177,6 +191,17 @@ public class SVNStatusSyncInfo extends SyncInfo {
         }
         
         return super.calculateKind();
+    }
+    
+    private boolean isOutOfDate() {
+    	if (remoteStatusInfo == null)
+    		return false;
+    	if (baseStatusInfo == null)
+    		return false;
+    	if (remoteStatusInfo.getLastChangedRevision().getNumber() > baseStatusInfo.getLastChangedRevision().getNumber())
+    		return true;
+    	else
+    		return false;
     }
     
     private boolean isDeletion(SVNStatusKind kind) {
