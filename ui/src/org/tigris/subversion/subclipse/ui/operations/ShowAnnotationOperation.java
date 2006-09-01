@@ -243,10 +243,10 @@ public class ShowAnnotationOperation extends SVNOperation {
 				revision= new Revision() {
 					public Object getHoverInfo() {
 							return "<b>" + block.getUser() + " " + revisionString + " " + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(block.getDate()) + "</b>" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-							"<p>" + logEntry.getComment() + "</p>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							(logEntry != null ? "<p>" + logEntry.getComment() + "</p>" : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
 					
-					private String getCommitterId() {
+					public String getAuthor() {
 						return block.getUser();
 					}
 					
@@ -259,8 +259,9 @@ public class ShowAnnotationOperation extends SVNOperation {
 					}
 					
 					public RGB getColor() {
-						return colors.getCommitterRGB(getCommitterId());
+						return colors.getCommitterRGB(getAuthor());
 					}
+					
 				};
 				sets.put(revisionString, revision);
 				info.addRevision(revision);
