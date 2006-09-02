@@ -257,6 +257,19 @@
          </action>
       </objectContribution>
       <objectContribution
+            objectClass="org.tigris.subversion.subclipse.core.history.ILogEntry"
+            id="org.tigris.subversion.subclipse.core.history.ILogEntryContributions">
+          
+         <action
+               label="%ExportRemoteFolderAction.label"
+               icon="icons/full/tortoise/export.gif"
+               class="org.tigris.subversion.subclipse.ui.actions.ExportRemoteFolderAction"
+               menubarPath="exportImportGroup"
+               id="org.tigris.subversion.subclipse.ui.ExportRemoteFolder">
+         </action>         
+            
+      </objectContribution>
+      <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.ISVNRemoteFile"
             id="org.tigris.subversion.subclipse.ui.RemoteFileContributions">
          <action

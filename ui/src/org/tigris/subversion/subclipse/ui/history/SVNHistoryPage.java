@@ -466,6 +466,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
         if(resource != null)
           manager.add(getRevertChangesAction());
+        
+        manager.add(new Separator("exportImportGroup")); //$NON-NLS-1$
       }
     }
     manager.add(new Separator("additions")); //$NON-NLS-1$
