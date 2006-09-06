@@ -37,6 +37,7 @@ import org.eclipse.team.core.variants.IResourceVariantComparator;
 import org.eclipse.team.core.variants.ResourceVariantByteStore;
 import org.eclipse.team.core.variants.SessionResourceVariantByteStore;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -241,7 +242,8 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 //            ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
 
             boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
-            StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, false, true );
+            boolean showOutOfDate = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS);
+            StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, showOutOfDate, true );
             cmd.run(monitor);
             monitor.worked(70);
 

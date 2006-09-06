@@ -40,6 +40,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
+import org.tigris.subversion.subclipse.ui.actions.ShowOutOfDateFoldersAction;
 import org.tigris.subversion.subclipse.ui.authentication.SVNPromptUserPassword;
 import org.tigris.subversion.subclipse.ui.console.SVNOutputConsole;
 import org.tigris.subversion.subclipse.ui.repository.RepositoryManager;
@@ -80,6 +81,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 //	};
     
     private SVNMarkerListener markerListener;
+    
+    private ShowOutOfDateFoldersAction showOutOfDateFoldersAction;
 	
 	
     public static void log(CoreException e) {
@@ -405,6 +408,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		SVNProviderPlugin.getPlugin().setSvnPromptUserPassword(new SVNPromptUserPassword());
 		SVNProviderPlugin.getPlugin().setSimpleDialogsHelper(new SimpleDialogsHelper());
 		SVNProviderPlugin.getPlugin().setSvnFileModificationValidatorPrompt(new SVNFileModificationValidatorPrompt());
+		
+		showOutOfDateFoldersAction = new ShowOutOfDateFoldersAction();
 	}
 	
 	/**
@@ -490,5 +495,9 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	 */
 	public SVNOutputConsole getConsole() {
 		return console;
+	}
+	
+	public ShowOutOfDateFoldersAction getShowOutOfDateFoldersAction() {
+		return showOutOfDateFoldersAction;
 	}
 }
