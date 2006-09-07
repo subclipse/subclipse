@@ -146,7 +146,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
         //this makes sense for directories only - they still exists when they are being deleted
         else if ( isDeletion(localKind))
         {
-        	if (IResource.FOLDER == local.getType()) {
+        	if ((IResource.FOLDER == local.getType() || IResource.PROJECT == local.getType())) {
         		if (isNotModified(repositoryKind)) {
         			if (isOutOfDate())
         				return SyncInfo.CONFLICTING | SyncInfo.DELETION;
@@ -162,7 +162,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
              || isDeletion( repositoryKind ))
                 return SyncInfo.CONFLICTING | SyncInfo.CHANGE;
             else {
-            	if (IResource.FOLDER == local.getType() && isOutOfDate())
+            	if ((IResource.FOLDER == local.getType() || IResource.PROJECT == local.getType()) && isOutOfDate())
             		return SyncInfo.CONFLICTING | SyncInfo.CHANGE;
             	else
             		return SyncInfo.OUTGOING | SyncInfo.CHANGE;
@@ -175,7 +175,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
         }
         else if( isNotModified(localKind) ) {
             if( isNotModified( repositoryKind) ) {
-            	if (IResource.FOLDER == local.getType() && isOutOfDate())
+            	if ((IResource.FOLDER == local.getType() || IResource.PROJECT == local.getType()) && isOutOfDate())
             		return SyncInfo.INCOMING | SyncInfo.CHANGE;
                 return SyncInfo.IN_SYNC;
             }

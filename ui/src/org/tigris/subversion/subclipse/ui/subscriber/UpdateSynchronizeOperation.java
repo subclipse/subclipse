@@ -75,7 +75,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
     	// Get a list of just the folders.
         List folders = new ArrayList();
         for (int i = 0; i < resourceArray.length; i++) {
-            if (resourceArray[i].getType() == IResource.FOLDER) 
+            if (resourceArray[i].getType() == IResource.FOLDER || resourceArray[i].getType() == IResource.PROJECT) 
                 folders.add(resourceArray[i]);
         }
         
