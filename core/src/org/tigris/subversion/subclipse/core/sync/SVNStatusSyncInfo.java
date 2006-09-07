@@ -117,6 +117,13 @@ public class SVNStatusSyncInfo extends SyncInfo {
 	public String getLocalContentIdentifier() {
 		return (baseStatusInfo.getLastChangedRevision() != null) ? baseStatusInfo.getLastChangedRevision().toString() : null;
 	}
+	
+	/**
+	 * Returns the remote status information of this SyncInfo
+	 */
+	public RemoteResourceStatus getRemoteResourceStatus() {
+		return remoteStatusInfo;
+	}
 
     /* (non-Javadoc)
      * @see org.eclipse.team.core.synchronize.SyncInfo#calculateKind()

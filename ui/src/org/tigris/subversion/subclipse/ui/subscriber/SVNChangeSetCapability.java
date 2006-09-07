@@ -65,7 +65,7 @@ public class SVNChangeSetCapability extends ChangeSetCapability {
      * @see org.eclipse.team.ui.synchronize.ChangeSetCapability#supportsCheckedInChangeSets()
      */
     public boolean supportsCheckedInChangeSets() {
-        return false;
+        return true;
     }
 
     /* (non-Javadoc)

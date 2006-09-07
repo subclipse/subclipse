@@ -40,6 +40,7 @@ public class EditConflictsSynchronizeAction extends SynchronizeModelAction {
 			    if (selection.size() != 1) return false;
 		        ISynchronizeModelElement element = (ISynchronizeModelElement)selection.getFirstElement();
 			    IResource resource = element.getResource();
+			    if (resource == null) return false;
 			    if (!(resource instanceof IFile)) return false;
                 ISVNLocalResource svnResource = SVNWorkspaceRoot
                 .getSVNResourceFor(resource);			    
