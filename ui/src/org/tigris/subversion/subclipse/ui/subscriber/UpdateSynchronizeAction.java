@@ -11,11 +11,10 @@
 package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter.SyncInfoDirectionFilter;
@@ -38,16 +37,14 @@ public class UpdateSynchronizeAction extends SynchronizeModelAction {
 	 * @see org.eclipse.team.ui.synchronize.SynchronizeModelAction#getSubscriberOperation(org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration, org.eclipse.compare.structuremergeviewer.IDiffElement[])
 	 */
 	protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
-		ArrayList selectedElements = new ArrayList();
-		IStructuredSelection selection = getStructuredSelection();
-		Iterator iter = selection.iterator();
-		while (iter.hasNext()) {
-			ISynchronizeModelElement synchronizeModelElement = (ISynchronizeModelElement)iter.next();
-			IResource resource = synchronizeModelElement.getResource();
-			selectedElements.add(resource);
+		List selectedResources = new ArrayList(elements.length);
+		for (int i=0; i<elements.length; i++) {
+			if (elements[i] instanceof ISynchronizeModelElement) {
+				selectedResources.add(((ISynchronizeModelElement)elements[i]).getResource());
+			}
 		}
-		IResource[] resources = new IResource[selectedElements.size()];
-		selectedElements.toArray(resources);
+		IResource[] resources = new IResource[selectedResources.size()];
+		selectedResources.toArray(resources);
 		return new UpdateSynchronizeOperation(configuration, elements, resources);
 	}
 

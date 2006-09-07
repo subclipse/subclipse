@@ -11,6 +11,8 @@
 package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
@@ -39,31 +41,20 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	}
 
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-		IResource[] resourceArray = extractResources(resources, set);
+		IResource[] resourceArray = trimResources(extractResources(resources, set));
 		SVNRevision revision = null;
-		// If any folders are selected, we will update to HEAD so as
-		// to not back-revision any committed files which could be at
-		// a higher rev than the selected files
-		for (int i = 0; i < resourceArray.length; i++) {
-            if (resourceArray[i].getType() != IResource.FILE) {
-                revision = SVNRevision.HEAD;
-                break;
-            }
-        }
-		if (revision == null) {
-			SyncInfo[] syncInfos = set.getSyncInfos();
-			for (int i = 0; i < syncInfos.length; i++) {
-				SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
-				IResourceVariant remote = syncInfo.getRemote();
-				if (remote != null && remote instanceof ISVNRemoteResource) {
-					SVNRevision rev = ((ISVNRemoteResource)remote).getLastChangedRevision();
-					if (rev instanceof SVNRevision.Number) {
-						long nbr = ((SVNRevision.Number)rev).getNumber();
-						if (revision == null) revision = rev;
-						else {
-							long revisionNumber = ((SVNRevision.Number)revision).getNumber();
-							if (nbr > revisionNumber) revision = rev;
-						}
+		SyncInfo[] syncInfos = set.getSyncInfos();
+		for (int i = 0; i < syncInfos.length; i++) {
+			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
+			IResourceVariant remote = syncInfo.getRemote();
+			if (remote != null && remote instanceof ISVNRemoteResource) {
+				SVNRevision rev = ((ISVNRemoteResource)remote).getLastChangedRevision();
+				if (rev instanceof SVNRevision.Number) {
+					long nbr = ((SVNRevision.Number)rev).getNumber();
+					if (revision == null) revision = rev;
+					else {
+						long revisionNumber = ((SVNRevision.Number)revision).getNumber();
+						if (nbr > revisionNumber) revision = rev;
 					}
 				}
 			}
@@ -71,5 +62,38 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 		if (revision == null) revision = SVNRevision.HEAD;
 		new UpdateOperation(getPart(), resourceArray, revision, true).run();
 	}
-
+	
+	/**
+	 * This method takes the array of resources to be updated and removes any
+	 * items that have a parent folder that is also being updated, since the
+	 * recursive update of a parent folder will cause the resource to be updated
+	 * anyway.  This will make the update run faster.
+	 * @param resourceArray
+	 * @return
+	 */
+    private IResource[] trimResources(IResource[] resourceArray) {
+    	// Get a list of just the folders.
+        List folders = new ArrayList();
+        for (int i = 0; i < resourceArray.length; i++) {
+            if (resourceArray[i].getType() == IResource.FOLDER) 
+                folders.add(resourceArray[i]);
+        }
+        
+        List trimmedList = new ArrayList();
+        for (int i = 0; i < resourceArray.length; i++) {
+            if (!parentIncluded(resourceArray[i], folders))
+                trimmedList.add(resourceArray[i]);
+        }
+        
+        IResource[] trimmedArray = new IResource[trimmedList.size()];
+		trimmedList.toArray(trimmedArray);
+		return trimmedArray;
+    }
+    
+    private boolean parentIncluded(IResource resource, List folders) {
+        IResource parent = resource.getParent();
+        if (parent == null) return false;
+        if (folders.contains(parent)) return true;
+        return parentIncluded(parent, folders);
+    }
 }
