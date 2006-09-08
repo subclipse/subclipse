@@ -42,14 +42,17 @@ public class CopyAction extends WorkspaceAction {
 		if (result == null || result.length == 0) return;
 		final Path path = (Path)result[0];
 		IProject selectedProject;
-		if (path.segmentCount() == 1)
+		File target = null;
+		if (path.segmentCount() == 1) {
 			selectedProject = ResourcesPlugin.getWorkspace().getRoot().getProject(path.toString());
-		else {
+			target = selectedProject.getLocation().toFile();
+		} else {
 			IFile targetFile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
 			selectedProject = targetFile.getProject();
+			target = targetFile.getLocation().toFile();
 		}
 		final IProject targetProject = selectedProject;
-		final File destPath = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation() + File.separator + path.toString());
+		final File destPath = target;
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
 				try {
