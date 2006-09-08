@@ -85,9 +85,15 @@ public class ProjectProperties {
     public LinkList getLinkList(String commitMessage) {
         ArrayList links = new ArrayList();
         ArrayList urls = new ArrayList();
+        String bugID = "%BUGID%"; //$NON-NLS-1$
         if (message != null) {
-	        int index = message.indexOf("%BUGID%"); //$NON-NLS-1$
+	        int index = message.indexOf(bugID);
 	        if (index != -1) {
+	        	String remainder = null;
+	        	if (message.length() > index + bugID.length())
+	        		remainder = message.substring(index + bugID.length());
+	        	else
+	        		remainder = "";
 		        String tag = message.substring(0, index);
 		        index = commitMessage.indexOf(tag);
 		        if (index != -1) {
@@ -106,6 +112,7 @@ public class ProjectProperties {
 			                issue = new StringBuffer();
 			            } else {
 			                if (commitMessage.substring(index, index + 1).equals("\n") || commitMessage.substring(index, index + 1).equals("\r")) break; //$NON-NLS-1$ //$NON-NLS-2$
+			                if (commitMessage.substring(index).trim().equals(remainder.trim())) break;
 			                if (commitMessage.substring(index, index + 1).equals(" ")) {
 			                    int lineIndex = commitMessage.indexOf("\n", index);
 			                    if (lineIndex == -1) lineIndex = commitMessage.indexOf("\r", index);
