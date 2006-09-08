@@ -217,16 +217,16 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	
 	private IStatus refresh(IResource resource, int depth, IProgressMonitor monitor) {
 		try {
-			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.refreshingSynchronizationData", resource.getFullPath().toString()));
+//			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.refreshingSynchronizationData", resource.getFullPath().toString()));
 			monitor.worked(100);
-			SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, IResource.DEPTH_INFINITE);
-			monitor.worked(300);
+//			SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, IResource.DEPTH_INFINITE);
+//			monitor.worked(300);
 
 			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.retrievingSynchronizationData"));
 			IResource[] changedResources = findChanges(resource, depth, Policy.infiniteSubMonitorFor(monitor, 400));
 
 			fireTeamResourceChange(SubscriberChangeEvent.asSyncChangedDeltas(this, changedResources));
-			monitor.worked(200);
+			monitor.worked(400);
 			return Status.OK_STATUS;
 		} catch (TeamException e) {
 			return new TeamStatus(IStatus.ERROR, SVNProviderPlugin.ID, 0, Policy.bind("SVNWorkspaceSubscriber.errorWhileSynchronizing.2", resource.getFullPath().toString(), e.getMessage()), e, resource); //$NON-NLS-1$
