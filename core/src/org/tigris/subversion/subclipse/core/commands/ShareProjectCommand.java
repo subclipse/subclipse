@@ -43,6 +43,8 @@ public class ShareProjectCommand implements ISVNCommand {
 	protected IProject project;
 
 	protected String remoteDirName;
+	
+	protected String comment;
 
     /**
      * if remoteDirName is null, the name of the project is used    
@@ -79,8 +81,11 @@ public class ShareProjectCommand implements ISVNCommand {
 			// perform the workspace modifications in a runnable
             SVNProviderPlugin.run(new ISVNRunnable() {
     				public void run(IProgressMonitor pm) throws SVNException {
-							String message = Policy
-									.bind("SVNProvider.initialImport"); //$NON-NLS-1$
+    						String message;
+    						if (comment == null)
+    							message = Policy.bind("SVNProvider.initialImport"); //$NON-NLS-1$
+    						else
+    							message = comment;
 
 							try {
 								// create the remote dir
@@ -127,6 +132,10 @@ public class ShareProjectCommand implements ISVNCommand {
 		if (!alreadyExists)
 			SVNProviderPlugin.getPlugin().getRepositories()
 					.addOrUpdateRepository(location);
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 }

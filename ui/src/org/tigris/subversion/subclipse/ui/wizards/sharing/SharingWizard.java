@@ -266,7 +266,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 							}
 							
 							// Create the remote module for the project
-							SVNWorkspaceRoot.shareProject(location, project, getRemoteDirectoryName(), new SubProgressMonitor(monitor, 50));
+							SVNWorkspaceRoot.shareProject(location, project, getRemoteDirectoryName(), finishPage.getComment(), new SubProgressMonitor(monitor, 50));
 							
 							try{
 								project.refreshLocal(IProject.DEPTH_INFINITE, new SubProgressMonitor(monitor, 50));
@@ -283,7 +283,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 					}
 				}
 			});
-			CommitAction commitAction = new CommitAction("");
+			CommitAction commitAction = new CommitAction(finishPage.getComment());
 			IResource[] selectedResources = { project };
 			commitAction.setSelectedResources(selectedResources);
 			commitAction.run(null);
