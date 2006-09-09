@@ -237,6 +237,13 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 				ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 				CONTEXT_MENU_CONTRIBUTION_GROUP_1);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.team.ui.synchronize.AbstractSynchronizeParticipant#isViewerContributionsSupported()
+	 */
+	protected boolean isViewerContributionsSupported() {
+		return true;
+	}
 
 	public ChangeSetCapability getChangeSetCapability() {
         if (capability == null) {
