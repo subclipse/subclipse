@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.ui.wizards;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -117,7 +118,26 @@ public class CheckoutWizardProjectPage extends WizardPage {
 		if (locationText == null) {
 			CheckoutWizard wizard = (CheckoutWizard)getWizard();
 			return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + File.separator + wizard.getProjectName();
-		} else return locationText.getText().trim();
+		} else return normalizeCase(locationText.getText().trim());
+	}
+	
+	private String normalizeCase(String location) {
+		File dir = new File(location);
+		String caseFixed;
+		String original= dir.getAbsolutePath();
+		try {
+			caseFixed = dir.getCanonicalPath();
+		} catch (IOException e) {
+			return location;
+		}
+		// Make sure the path name did not change.  If the
+		// path is a symlink, then getCanonical will change
+		// the path to the real path and we just have to go
+		// with the original.
+		if (caseFixed.equalsIgnoreCase(original))
+			return caseFixed;
+		else
+			return location;
 	}
 
 }
