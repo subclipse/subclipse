@@ -92,6 +92,8 @@ public class CommitDialog extends TrayDialog {
     
     private Button okButton;
     private CommentProperties commentProperties;
+    
+    private boolean sharing;
 
     public CommitDialog(Shell parentShell, IResource[] resourcesToCommit, String url, boolean unaddedResources, ProjectProperties projectProperties) {
         super(parentShell);
@@ -531,7 +533,7 @@ public class CommitDialog extends TrayDialog {
              IResource resource = (IResource)items[i].getData();
              ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
              try {
-              if (!selectUnadded && !svnResource.isManaged()) items[i].setChecked(false);
+              if (!sharing && !selectUnadded && !svnResource.isManaged()) items[i].setChecked(false);
               else if (svnResource.getStatus().isMissing()) items[i].setChecked(false);
              } catch (SVNException e1) {}
           }    
@@ -543,5 +545,9 @@ public class CommitDialog extends TrayDialog {
 
 	public void setComment(String proposedComment) {
 		commitCommentArea.setOldComment(proposedComment);
+	}
+
+	public void setSharing(boolean sharing) {
+		this.sharing = sharing;
 	}
 }

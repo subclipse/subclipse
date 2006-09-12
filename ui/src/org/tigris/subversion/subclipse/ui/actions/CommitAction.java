@@ -37,7 +37,9 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.CommitDialog;
 import org.tigris.subversion.subclipse.ui.operations.CommitOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
@@ -60,6 +62,7 @@ public class CommitAction extends WorkspaceAction implements IWorkbenchWindowAct
     protected boolean keepLocks;
     protected IResource[] selectedResources;
     private String proposedComment;
+    private boolean sharing;
 	
     public CommitAction() {
     	
@@ -169,8 +172,11 @@ public class CommitAction extends WorkspaceAction implements IWorkbenchWindowAct
 			                 	hasUnaddedResources = true;
 			                 	if ((currentResource.getType() != IResource.FILE) && !isSymLink(currentResource))
 			                 		unversionedFolders.add(currentResource);
-			                 	else
-					                if (!modified.contains(currentResource)) modified.add(currentResource);
+			                 	else {
+			                 		if (sharing || SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT)) {
+			                 			if (!modified.contains(currentResource)) modified.add(currentResource);
+			                 		}
+			                 	}
 			                 } else
 			                	 if (!modified.contains(currentResource)) modified.add(currentResource);
 			             }
@@ -179,9 +185,11 @@ public class CommitAction extends WorkspaceAction implements IWorkbenchWindowAct
 			 }
 	    }
 	    // get unadded resources and add them to the list.
-	    IResource[] unaddedResources = getUnaddedResources(unversionedFolders, iProgressMonitor);
-	    for (int i = 0; i < unaddedResources.length; i++)
-	    	if (!modified.contains(unaddedResources[i])) modified.add(unaddedResources[i]);
+	    if (sharing || SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT)) {
+		    IResource[] unaddedResources = getUnaddedResources(unversionedFolders, iProgressMonitor);
+		    for (int i = 0; i < unaddedResources.length; i++)
+		    	if (!modified.contains(unaddedResources[i])) modified.add(unaddedResources[i]);
+	    }
 	    return (IResource[]) modified.toArray(new IResource[modified.size()]);
 	}
 
@@ -196,6 +204,7 @@ public class CommitAction extends WorkspaceAction implements IWorkbenchWindowAct
 	           return false;	       
 	   }
 	   CommitDialog dialog = new CommitDialog(getShell(), modifiedResources, url, hasUnaddedResources, projectProperties);
+	   dialog.setSharing(sharing);
 	   if (proposedComment == null || proposedComment.length() == 0) {
 		   dialog.setComment(getProposedComment(modifiedResources));
 	   } else {
@@ -365,6 +374,10 @@ public class CommitAction extends WorkspaceAction implements IWorkbenchWindowAct
 	 */
 	public void dispose()
 	{
+	}
+
+	public void setSharing(boolean sharing) {
+		this.sharing = sharing;
 	}    
     
 }

@@ -59,6 +59,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button fetchChangePathOnDemand;
     private Button showTagsInRemoteHistory;
     private Button showOutOfDateFolders;
+    private Button showUnadded;
     private Button selectUnadded;
     private Button removeOnReplace;
     private Text logEntriesToFetchText;
@@ -136,6 +137,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		composite.setLayout(layout);
 		
 		showCompareRevisionInDialog = createCheckBox(composite, Policy.bind("SVNPreferencePage.showCompareMergeInSync")); //$NON-NLS-1$
+		
+		showUnadded = createCheckBox(composite, Policy.bind("SVNPreferencePage.showUnadded")); //$NON-NLS-1$
 		
 		selectUnadded = createCheckBox(composite, Policy.bind("SVNPreferencePage.selectUnadded")); //$NON-NLS-1$
 		
@@ -252,7 +255,17 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
 		showOutOfDateFolders.setSelection(SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS));
 		
+		showUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT));
+		
 		selectUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT));
+
+		if (!showUnadded.getSelection()) selectUnadded.setVisible(false);
+		
+		showUnadded.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent se) {
+				selectUnadded.setVisible(showUnadded.getSelection());
+			}			
+		});
 		
 		store.setDefault(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE, true);
 		removeOnReplace.setSelection(store.getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE));
@@ -308,6 +321,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 			SVNProviderPlugin.getPlugin().getPluginPreferences().setValue(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS, showOutOfDateFolders.getSelection());
 			SVNUIPlugin.getPlugin().getShowOutOfDateFoldersAction().setChecked(showOutOfDateFolders.getSelection());
 		}
+		
+		store.setValue(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT, showUnadded.getSelection());
 		
         // save select unadded resources on commit pref
 		store.setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, selectUnadded.getSelection());

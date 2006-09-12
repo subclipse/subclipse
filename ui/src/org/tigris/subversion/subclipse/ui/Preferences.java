@@ -75,6 +75,7 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_SAVE_DIRTY_EDITORS, ISVNUIConstants.OPTION_PROMPT);
         
         store.setDefault(ISVNUIConstants.PREF_SHOW_COMPARE_REVISION_IN_DIALOG, false);
+        store.setDefault(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT, true);
         store.setDefault(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, false);
         store.setDefault(ISVNUIConstants.PREF_COMMIT_SET_DEFAULT_ENABLEMENT, false);
         
