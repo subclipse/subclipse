@@ -118,7 +118,11 @@ public class CheckoutWizardProjectPage extends WizardPage {
 		if (locationText == null) {
 			CheckoutWizard wizard = (CheckoutWizard)getWizard();
 			return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + File.separator + wizard.getProjectName();
-		} else return normalizeCase(locationText.getText().trim());
+		} else return locationText.getText().trim();
+	}
+	
+	public String getCanonicalLocation() {
+		return normalizeCase(getLocation());
 	}
 	
 	private String normalizeCase(String location) {
