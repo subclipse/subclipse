@@ -28,8 +28,10 @@ public class ChangeCommitPropertiesCommand implements ISVNCommand {
     private SVNRevision.Number revisionNo;
     private String logMessage;
     private String author;
-    
-    public ChangeCommitPropertiesCommand(ISVNRepositoryLocation theRepositoryLocation, SVNRevision.Number theRevisionNo, String theLogMessage, String theAuthor) {
+    private boolean logMessageChanged = false;
+    private boolean authorChanged = false;
+
+	public ChangeCommitPropertiesCommand(ISVNRepositoryLocation theRepositoryLocation, SVNRevision.Number theRevisionNo, String theLogMessage, String theAuthor) {
     	this.repositoryLocation = theRepositoryLocation; 
         this.revisionNo = theRevisionNo;
         this.logMessage = theLogMessage;
@@ -47,10 +49,14 @@ public class ChangeCommitPropertiesCommand implements ISVNCommand {
             OperationManager.getInstance().beginOperation(svnClient);
             
             try {
-            	if (logMessage != null)
+            	if (logMessage != null) {
             		svnClient.setRevProperty(repositoryLocation.getUrl(), revisionNo, "svn:log", logMessage, true);
-            	if (author != null)
+            		logMessageChanged = true;
+            	}
+            	if (author != null) {
             		svnClient.setRevProperty(repositoryLocation.getUrl(), revisionNo, "svn:author", author, true);
+            		authorChanged = true;
+            	}
             }
             catch (SVNClientException e) {
                 throw SVNException.wrapException(e);
@@ -61,4 +67,12 @@ public class ChangeCommitPropertiesCommand implements ISVNCommand {
             monitor.done();
         }
 	}
+	
+	   public boolean isAuthorChanged() {
+			return authorChanged;
+		}
+
+		public boolean isLogMessageChanged() {
+			return logMessageChanged;
+		}
 }

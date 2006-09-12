@@ -1109,19 +1109,20 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                 public void run(IProgressMonitor monitor) throws InvocationTargetException {
                   try {
                     command.run(monitor);
-                    if(ourSelection instanceof LogEntry) {
-                      LogEntry logEntry = (LogEntry) ourSelection;
-                      logEntry.setComment(commitComment);
-                      logEntry.setAuthor(author);
-                    }
-                    getSite().getShell().getDisplay().asyncExec(new Runnable() {
-                      public void run() {
-                        tableHistoryViewer.refresh();
-                        tableHistoryViewer.setSelection(selection, true);
-                      }
-                    });
                   } catch(SVNException e) {
                     throw new InvocationTargetException(e);
+                  } finally {
+                       if(ourSelection instanceof LogEntry) {
+                          LogEntry logEntry = (LogEntry) ourSelection;
+                          if (command.isLogMessageChanged()) logEntry.setComment(commitComment);
+                          if (command.isAuthorChanged()) logEntry.setAuthor(author);
+                        }
+                        getSite().getShell().getDisplay().asyncExec(new Runnable() {
+                          public void run() {
+                            tableHistoryViewer.refresh();
+                            tableHistoryViewer.setSelection(selection, true);
+                          }
+                        });                	  
                   }
                 }
               });
