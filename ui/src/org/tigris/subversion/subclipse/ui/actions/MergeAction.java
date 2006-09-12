@@ -30,8 +30,11 @@ public class MergeAction extends WorkspaceAction {
             SVNUrl svnUrl1 = dialog.getFromUrl();
             SVNRevision svnRevision1 = dialog.getFromRevision();
             SVNUrl svnUrl2 = dialog.getToUrl();
-            SVNRevision svnRevision2 = dialog.getToRevision();            
-            new MergeOperation(getTargetPart(), getSelectedResources(), svnUrl1, svnRevision1, svnUrl2, svnRevision2).run();      
+            SVNRevision svnRevision2 = dialog.getToRevision();  
+            MergeOperation mergeOperation = new MergeOperation(getTargetPart(), getSelectedResources(), svnUrl1, svnRevision1, svnUrl2, svnRevision2);
+            mergeOperation.setForce(dialog.isForce());
+            mergeOperation.setIgnoreAncestry(dialog.isIgnoreAncestry());
+            mergeOperation.run();
         }   
     }
     

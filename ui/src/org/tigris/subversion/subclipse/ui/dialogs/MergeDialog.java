@@ -68,6 +68,9 @@ public class MergeDialog extends TrayDialog {
     private Button toHeadButton;
     private Button toRevisionButton;
     
+    private Button ignoreAncestryButton;
+    private Button forceButton;
+    
     private Button okButton;
     private Button diffButton;
     private Button dryRunButton;
@@ -78,6 +81,8 @@ public class MergeDialog extends TrayDialog {
     private SVNRevision fromRevision;
     private SVNUrl toUrl;
     private SVNRevision toRevision;
+    private boolean force;
+    private boolean ignoreAncestry;
     private ISVNLocalResource svnResource;
     private File diffFile;
     private File file;
@@ -282,6 +287,18 @@ public class MergeDialog extends TrayDialog {
 		fromRevisionText.addModifyListener(modifyListener);
 		toUrlCombo.getCombo().addModifyListener(modifyListener);
 		toRevisionText.addModifyListener(modifyListener);
+
+		Composite ignoreComposite = new Composite(composite, SWT.NULL);
+		GridLayout ignoreLayout = new GridLayout();
+		ignoreLayout.numColumns = 2;
+		ignoreComposite.setLayout(ignoreLayout);
+		data = new GridData(GridData.FILL_HORIZONTAL);
+		ignoreComposite.setLayoutData(data);
+		
+		ignoreAncestryButton = new Button(ignoreComposite, SWT.CHECK);
+		ignoreAncestryButton.setText(Policy.bind("MergeDialog.ignoreAncestry")); //$NON-NLS-1$
+		forceButton = new Button(ignoreComposite, SWT.CHECK);
+		forceButton.setText(Policy.bind("MergeDialog.force")); //$NON-NLS-1$
 		
 		Group workingGroup = new Group(composite, SWT.NULL);
 		GridLayout workingLayout = new GridLayout();
@@ -360,7 +377,7 @@ public class MergeDialog extends TrayDialog {
             BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
                 public void run() {
                     try {
-                        svnClient.merge(fromUrl, fromRevision, toUrl, toRevision, file, false, true, true);
+                        svnClient.merge(fromUrl, fromRevision, toUrl, toRevision, file, forceButton.getSelection(), true, true, ignoreAncestryButton.getSelection());
                     } catch (SVNClientException e) {
                         MessageDialog.openError(getShell(), Policy.bind("MergeDialog.dryRun"), e.toString()); //$NON-NLS-1$
                     }
@@ -461,6 +478,8 @@ public class MergeDialog extends TrayDialog {
     }
 	
     protected void okPressed() {
+    	force = forceButton.getSelection();
+    	ignoreAncestry = ignoreAncestryButton.getSelection();
         fromUrlCombo.saveUrl();
         if (!toUrlCombo.getText().equals(fromUrlCombo.getText())) toUrlCombo.saveUrl();
         try {
@@ -523,4 +542,11 @@ public class MergeDialog extends TrayDialog {
     public SVNUrl getToUrl() {
         return toUrl;
     }
+	public boolean isForce() {
+		return force;
+	}
+	public boolean isIgnoreAncestry() {
+		return ignoreAncestry;
+	}
+
 }

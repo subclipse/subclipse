@@ -36,6 +36,9 @@ public class MergeCommand implements ISVNCommand {
     
     private SVNWorkspaceRoot root;
     
+    private boolean force = false;
+    private boolean ignoreAncestry = false;
+    
     public MergeCommand(SVNWorkspaceRoot root, IResource resource, SVNUrl svnUrl1, SVNRevision svnRevision1, SVNUrl svnUrl2, SVNRevision svnRevision2) {
         super();
         this.root = root;
@@ -53,7 +56,7 @@ public class MergeCommand implements ISVNCommand {
             OperationManager.getInstance().beginOperation(svnClient);
             monitor.subTask(resource.getName());
             File file = resource.getLocation().toFile();
-            svnClient.merge(svnUrl1, svnRevision1, svnUrl2, svnRevision2, file, false, true);
+            svnClient.merge(svnUrl1, svnRevision1, svnUrl2, svnRevision2, file, force, true, false, ignoreAncestry);
             try {
                 // Refresh the resource after merge
                 resource.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
@@ -67,5 +70,13 @@ public class MergeCommand implements ISVNCommand {
             monitor.done();
         }        
     }
+    
+	public void setForce(boolean force) {
+		this.force = force;
+	}
+
+	public void setIgnoreAncestry(boolean ignoreAncestry) {
+		this.ignoreAncestry = ignoreAncestry;
+	}
 
 }
