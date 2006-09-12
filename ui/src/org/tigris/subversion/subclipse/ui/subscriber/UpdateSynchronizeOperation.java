@@ -27,6 +27,7 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	private IResource[] resources;
@@ -44,10 +45,15 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 		IResource[] resourceArray = trimResources(extractResources(resources, set));
 		SVNRevision revision = null;
 		SyncInfo[] syncInfos = set.getSyncInfos();
+		boolean containsDeletes = false;
 		for (int i = 0; i < syncInfos.length; i++) {
 			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
 			IResourceVariant remote = syncInfo.getRemote();
 			if (remote != null && remote instanceof ISVNRemoteResource) {
+				if (syncInfo.getRemoteResourceStatus().getTextStatus() == SVNStatusKind.DELETED) {
+					containsDeletes = true;
+					continue;
+				} 
 				SVNRevision rev = ((ISVNRemoteResource)remote).getLastChangedRevision();
 				if (rev instanceof SVNRevision.Number) {
 					long nbr = ((SVNRevision.Number)rev).getNumber();
@@ -59,7 +65,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 				}
 			}
 		}
-		if (revision == null) revision = SVNRevision.HEAD;
+		if (revision == null || containsDeletes) revision = SVNRevision.HEAD;
 		new UpdateOperation(getPart(), resourceArray, revision, true).run();
 	}
 	
