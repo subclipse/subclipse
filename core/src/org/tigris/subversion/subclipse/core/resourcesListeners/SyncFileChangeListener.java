@@ -91,11 +91,17 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 					
 					//We seem to receive repetitive ADD change events.
 					//Since we do not want to refresh the statuses again, we finish the visitor if we already have the statuses
-					if ((resource.getType() == IResource.FOLDER) && (kind == IResourceDelta.ADDED) && (cacheManager.hasCachedStatus(resource))) {
-						if(Policy.DEBUG_METAFILE_CHANGES) {
-							System.out.println("[svn] duplicte ADD change event registered in SyncFileChangeListener: " + resource); //$NON-NLS-1$
+					try {
+						if ((resource.getType() == IResource.FOLDER) && (kind == IResourceDelta.ADDED) 
+								&& (cacheManager.hasCachedStatus(resource)) && (cacheManager.getStatus(resource).isManaged())) {
+							if(Policy.DEBUG_METAFILE_CHANGES) {
+								System.out.println("[svn] duplicte ADD change event registered in SyncFileChangeListener: " + resource); //$NON-NLS-1$
+							}
+							return false;
 						}
-						return false;
+					} catch (SVNException e) {
+						//The get status failed, so just proceed deeper as normal.
+						return true;
 					}
 					
 					// if the file has changed but not in a way that we care
