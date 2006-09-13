@@ -100,6 +100,8 @@ public class OperationManager implements ISVNNotifyListener {
 				svnClient.removeNotifyListener(this);
 				for (Iterator it = changedResources.iterator(); it.hasNext();) {
 					IResource resource = (IResource) it.next();
+					//Ensure the .svn has the team private flag set before refresh. 
+					handleSVNDir((IContainer) resource);
                     try {
                         // .svn directory will be refreshed so all files in the
                         // directory including resource will
@@ -206,4 +208,23 @@ public class OperationManager implements ISVNNotifyListener {
 
 	public void setCommand(int command) {
 	}
+	
+	protected boolean handleSVNDir(IContainer svnDir) {
+		if (!svnDir.exists() || !svnDir.isTeamPrivateMember()) 
+		{
+			try {
+				if (!svnDir.exists()) {
+					svnDir.refreshLocal(IResource.DEPTH_ZERO,new NullProgressMonitor());
+				}
+				svnDir.setTeamPrivateMember(true);			
+				if(Policy.DEBUG_METAFILE_CHANGES) {
+					System.out.println("[svn] found a new SVN meta folder, marking as team-private: " + svnDir.getFullPath()); //$NON-NLS-1$
+				}
+			} catch(CoreException e) {
+				SVNProviderPlugin.log(SVNException.wrapException(svnDir, Policy.bind("OperationManager.errorSettingTeamPrivateFlag"), e)); //$NON-NLS-1$
+			}
+		}
+		return svnDir.isTeamPrivateMember();
+	}
+
 }

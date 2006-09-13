@@ -87,7 +87,11 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 					else if(resource.getType()==IResource.FOLDER) {
 						if (delta.getKind() == IResourceDelta.ADDED) {
 							modifiedInfiniteDepthResources.add(resource);
-							handleSVNDir(((IContainer) resource).getFolder(new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName())), delta.getKind());
+							if (SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())) {
+								handleSVNDir((IContainer) resource, delta.getKind());
+							} else {
+								handleSVNDir(((IContainer) resource).getFolder(new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName())), delta.getKind());
+							}
 							return false;
 						}
 						else if (delta.getKind() == IResourceDelta.REMOVED) {
