@@ -842,7 +842,59 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
 	            defaultsTo="org.eclipse.jface.textfont"
 	            id="svn_comment_font">
 	         <description>%commitCommentFont.description</description>
-	    </fontDefinition>   	
+	    </fontDefinition> 
+		<colorDefinition 
+	        id="svn_outgoing_change_foreground_color"
+	        categoryId="org.tigris.subversion.subclipse.ui.fontsandcolors"
+	        label="%OutgoingChangeForegroundColor.label"
+	        value="COLOR_LIST_FOREGROUND">
+	        <description>
+	        %OutgoingChangeForegroundColor.description
+	        </description>
+      	</colorDefinition>
+	    <colorDefinition 
+	        id="svn_outgoing_change_background_color"
+	        categoryId="org.tigris.subversion.subclipse.ui.fontsandcolors"
+	        label="%OutgoingChangeBackgroundColor.label"
+	        value="COLOR_LIST_BACKGROUND">
+	        <description>
+	        %OutgoingChangeBackgroundColor.description
+	        </description>
+	    </colorDefinition>  
+	    <fontDefinition
+	        id="svn_outgoing_change_font"
+	        categoryId="org.tigris.subversion.subclipse.ui.fontsandcolors"   
+	        label="%OutgoingChangeFont.label">
+	        <description>
+	        %OutgoingChangeFont.description
+	        </description>
+	    </fontDefinition>
+	    <colorDefinition 
+	        id="svn_ignored_resource_foreground_color"
+	        categoryId="org.tigris.subversion.subclipse.ui.fontsandcolors"
+	        label="%IgnoredResourceForegroundColor.label"
+	        value="COLOR_LIST_FOREGROUND">
+	        <description>
+	        %IgnoredResourceForegroundColor.description
+	        </description>
+	    </colorDefinition>
+	    <colorDefinition 
+	        id="svn_ignored_resource_background_color"
+	        categoryId="org.tigris.subversion.subclipse.ui.fontsandcolors"
+	        label="%IgnoredResourceBackgroundColor.label"
+	        value="COLOR_LIST_BACKGROUND">
+	        <description>
+	        %IgnoredResourceBackgroundColor.description
+	        </description>
+	    </colorDefinition>  
+	    <fontDefinition
+	        id="svn_ignored_resource_font"
+	        categoryId="org.tigris.subversion.subclipse.ui.fontsandcolors"     
+	        label="%IgnoredResourceFont.label">
+	        <description>
+	        %IgnoredResourceFont.description
+	        </description>
+	    </fontDefinition>	      	
 	</extension>
 	
 	<extension point="org.eclipse.core.resources.markers"

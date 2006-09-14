@@ -37,6 +37,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.ui.ISharedImages;
 import org.eclipse.team.ui.TeamImages;
+import org.eclipse.team.ui.TeamUI;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.themes.ITheme;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -54,7 +57,17 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  */
 public class SVNLightweightDecorator
 	extends LabelProvider
-	implements ILightweightLabelDecorator, IResourceStateChangeListener {
+	implements ILightweightLabelDecorator, IResourceStateChangeListener, IPropertyChangeListener {
+	
+	private static String[] fonts = new String[]  {
+		SVNDecoratorConfiguration.IGNORED_FONT,
+		SVNDecoratorConfiguration.OUTGOING_CHANGE_FONT};
+
+	private static String[] colors = new String[] {
+		 SVNDecoratorConfiguration.OUTGOING_CHANGE_BACKGROUND_COLOR,
+		 SVNDecoratorConfiguration.OUTGOING_CHANGE_FOREGROUND_COLOR,
+		 SVNDecoratorConfiguration.IGNORED_BACKGROUND_COLOR,
+		 SVNDecoratorConfiguration.IGNORED_FOREGROUND_COLOR};
 
 	// Images cached for better performance
 	private static ImageDescriptor dirty;
@@ -166,7 +179,35 @@ public class SVNLightweightDecorator
 					};
 		store.addPropertyChangeListener(propertyListener);
 		SVNProviderPlugin.addResourceStateChangeListener(this);
+		
+		// This is an optimization to ensure that while decorating our fonts and colors are
+		// pre-created and decoration can occur without having to syncExec.
+		ensureFontAndColorsCreated(fonts, colors);
+
+		PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().addPropertyChangeListener(this);
 //		SVNProviderPlugin.broadcastDecoratorEnablementChanged(true /* enabled */);
+	}
+	
+	/**
+	 * This method will ensure that the fonts and colors used by the decorator
+	 * are cached in the registries. This avoids having to syncExec when
+	 * decorating since we ensure that the fonts and colors are pre-created.
+	 * 
+	 * @param fonts fonts ids to cache
+	 * @param colors color ids to cache
+	 */
+	private void ensureFontAndColorsCreated(final String[] fonts, final String[] colors) {
+		SVNUIPlugin.getStandardDisplay().syncExec(new Runnable() {
+			public void run() {
+				ITheme theme  = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
+				for (int i = 0; i < colors.length; i++) {
+					theme.getColorRegistry().get(colors[i]);
+				}
+				for (int i = 0; i < fonts.length; i++) {
+					theme.getFontRegistry().get(fonts[i]);
+				}
+			}
+		});
 	}
 	
 	private boolean getBoolean(PropertyChangeEvent event) {
@@ -231,12 +272,14 @@ public class SVNLightweightDecorator
 		if (svnProvider == null)
 			return;
 
+		boolean isIgnored = false;
 		// if the resource is ignored return an empty decoration. This will
 		// force a decoration update event and clear the existing SVN decoration.
 		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		try {
 			if (svnResource.isIgnored()) {
-				return;
+				isIgnored = true;
+//				return;
 			}
 		} catch (SVNException e) {
 			// The was an exception in isIgnored. Don't decorate
@@ -246,22 +289,39 @@ public class SVNLightweightDecorator
 
 		// determine a if resource has outgoing changes (e.g. is dirty).
 		boolean isDirty = false;
-
-		if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
-	        isDirty = SVNLightweightDecorator.isDirty(svnResource);
-		}
-		
+		boolean isUnversioned = false;
 		LocalResourceStatus status = null;
-		try {
-			status = svnResource.getStatus();
-		} catch (SVNException e1) {
-			SVNUIPlugin.log(e1.getStatus());
+		if (!isIgnored) {
+			if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
+		        isDirty = SVNLightweightDecorator.isDirty(svnResource);
+			}
+			try {
+				status = svnResource.getStatus();
+				isUnversioned = status.isUnversioned();
+			} catch (SVNException e1) {
+				SVNUIPlugin.log(e1.getStatus());
+			}
+			decorateTextLabel(svnResource, status, decoration, isDirty);
 		}
-		decorateTextLabel(svnResource, status, decoration, isDirty);
-		
-		ImageDescriptor overlay = getOverlay(svnResource, status, isDirty, svnProvider);
-		if(overlay != null) { //actually sending null arg would work but this makes logic clearer
-			decoration.addOverlay(overlay);
+		if (!isUnversioned) computeColorsAndFonts(isIgnored, isDirty, decoration);
+		if (!isIgnored) {
+			ImageDescriptor overlay = getOverlay(svnResource, status, isDirty, svnProvider);
+			if(overlay != null) { //actually sending null arg would work but this makes logic clearer
+				decoration.addOverlay(overlay);
+			}
+		}
+	}
+	
+	private void computeColorsAndFonts(boolean isIgnored, boolean isDirty, IDecoration decoration) {
+		ITheme current = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
+		if(isIgnored) {
+			decoration.setBackgroundColor(current.getColorRegistry().get(SVNDecoratorConfiguration.IGNORED_BACKGROUND_COLOR));
+			decoration.setForegroundColor(current.getColorRegistry().get(SVNDecoratorConfiguration.IGNORED_FOREGROUND_COLOR));
+			decoration.setFont(current.getFontRegistry().get(SVNDecoratorConfiguration.IGNORED_FONT));
+		} else if(isDirty) {
+			decoration.setBackgroundColor(current.getColorRegistry().get(SVNDecoratorConfiguration.OUTGOING_CHANGE_BACKGROUND_COLOR));
+			decoration.setForegroundColor(current.getColorRegistry().get(SVNDecoratorConfiguration.OUTGOING_CHANGE_FOREGROUND_COLOR));
+			decoration.setFont(current.getFontRegistry().get(SVNDecoratorConfiguration.OUTGOING_CHANGE_FONT));
 		}
 	}
 
@@ -547,13 +607,37 @@ public class SVNLightweightDecorator
 			}
 		});
 	}
-    
-    
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse.jface.util.PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent event) {
+		if (isEventOfInterest(event)) {
+			ensureFontAndColorsCreated(fonts, colors);
+		    refresh();
+		}	
+	}
+
+    private boolean isEventOfInterest(PropertyChangeEvent event) {
+        String prop = event.getProperty();
+        return prop.equals(TeamUI.GLOBAL_IGNORES_CHANGED) 
+        	|| prop.equals(TeamUI.GLOBAL_FILE_TYPES_CHANGED) 
+        	|| prop.equals(SVNUIPlugin.P_DECORATORS_CHANGED)
+			|| prop.equals(SVNDecoratorConfiguration.OUTGOING_CHANGE_BACKGROUND_COLOR)
+			|| prop.equals(SVNDecoratorConfiguration.OUTGOING_CHANGE_FOREGROUND_COLOR)
+			|| prop.equals(SVNDecoratorConfiguration.OUTGOING_CHANGE_FONT)
+			|| prop.equals(SVNDecoratorConfiguration.IGNORED_FOREGROUND_COLOR)
+			|| prop.equals(SVNDecoratorConfiguration.IGNORED_BACKGROUND_COLOR)
+			|| prop.equals(SVNDecoratorConfiguration.IGNORED_FONT);
+    }
+        
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#dispose()
 	 */
 	public void dispose() {
 		super.dispose();
+		PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().removePropertyChangeListener(this);
+		TeamUI.removePropertyChangeListener(this);
 		SVNUIPlugin.getPlugin().getPreferenceStore().removePropertyChangeListener(propertyListener);
         SVNProviderPlugin.removeResourceStateChangeListener(this);        
 //		SVNProviderPlugin.broadcastDecoratorEnablementChanged(false /* disabled */);
