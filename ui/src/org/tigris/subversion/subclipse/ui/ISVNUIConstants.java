@@ -47,10 +47,12 @@ public interface ISVNUIConstants {
 	public final String IMG_LINK_WITH_EDITOR = "clcl16/synced.gif"; //$NON-NLS-1$
 	public final String IMG_GET_ALL = "clcl16/get_all.gif"; //$NON-NLS-1$
 	public final String IMG_GET_NEXT = "clcl16/get_next.gif"; //$NON-NLS-1$
+    public final String IMG_FILTER_HISTORY = "clcl16/filter_history.gif"; //$NON-NLS-1$
 	
 	// toolbar (disabled)
 	public final String IMG_REFRESH_DISABLED = "dlcl16/refresh.gif"; //$NON-NLS-1$
 	public final String IMG_CLEAR_DISABLED = "dlcl16/clear_co.gif"; //$NON-NLS-1$
+    public final String IMG_FILTER_HISTORY_DISABLED = "dlcl16/filter_history.gif"; //$NON-NLS-1$
 	
 	// toolbar (enabled)
 	public final String IMG_REFRESH_ENABLED = "elcl16/refresh.gif"; //$NON-NLS-1$
@@ -65,6 +67,8 @@ public interface ISVNUIConstants {
     public final String IMG_AFFECTED_PATHS_VERTICAL_LAYOUT = "elcl16/vertical.gif"; //$NON-NLS-1$
     
     public final String IMG_COMMENTS = "elcl16/comments.gif"; //$NON-NLS-1$
+
+    public final String IMG_FILTER_HISTORY_ENABLED = "elcl16/filter_history.gif"; //$NON-NLS-1$
     
 	// wizards
 	public final String IMG_NEWLOCATION = "wizards/newlocation_wiz.gif"; //$NON-NLS-1$

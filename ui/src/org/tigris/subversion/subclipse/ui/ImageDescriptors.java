@@ -56,6 +56,9 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_LINK_WITH_EDITOR, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_GET_ALL, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_GET_NEXT, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_FILTER_HISTORY, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_FILTER_HISTORY_ENABLED, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_FILTER_HISTORY_DISABLED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_LINK_WITH_EDITOR_ENABLED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_COLLAPSE_ALL, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_COLLAPSE_ALL_ENABLED, baseURL);

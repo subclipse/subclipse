@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Search SVN Resource History</title>
+</head>
+<body>
+<h1>Search SVN Resource History</h1>
+<p>
+    The history can be searched from the SVN Resource History View using the <span class="menu">Find</span>
+        button or by pressing <span class="control">Ctrl+F</span> when the History View
+        is selected.
+</p>
+<h2>Overview</h2>
+<p>
+    Browsing the history of a resource gives a good overview of changes made to it.
+        Using the search functionality of the <a href="svn-history-view.html">SVN Resource History View</a>
+        specific logs can be filtered. The search is performed on the fetched entries
+        in the history view. It is possible to have the search fetch additional logs
+        matching the period in which to search.
+</p>
+<h2>Process</h2>
+<p>
+    <img src="../images/search-history.png" width="450" height="283">
+</p>
+<p>
+    In the search dialog the selected resource is displayed. This resource is the
+        same as the one for which logs are displayed in the history view. By enabling
+        special characters it is possible to search with very basic pattern matching.
+        The special characters can be used in the author field and the comment field.
+</p>
+<p>
+    The comment combo box keeps a list of previous searched comments in this Eclipse
+        session. Searching all logs results in searching all fetched logs. When the
+        option is enabled for automatically fetching additional logs the search all option
+        results in fetching all logs for the selected resource. This operation might take some
+        time.
+</p>
+<p>
+    When the option for searching all logs is disabled a start and end date can be given
+        to select a search period. When the option for automatically fetching logs is
+        selected the search process fetches logs up to the start date given. It fetches
+        logs just like the <span class="control">Next</span> action of the history view.
+</p>
+<p>
+    Click <span class="control">OK</span> to search the logs with the given criteria.
+</p>
+<blockquote>
+    <p>
+        A combination of searching all logs and automatically fetching additional logs 
+            results in fetching all logs of the selected resource. This operation might take
+            some time.
+    </p>
+</blockquote>
+<p class="tasks">
+    Related Tasks
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="show-in-history.html">Team &gt; Show History</a><br>
+    <a href="svn-history-view.html">History View</a>
+</p>
+</body>
+</html>

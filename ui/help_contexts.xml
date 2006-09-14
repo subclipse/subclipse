@@ -243,6 +243,12 @@
 		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/configures-tags.html" label="Reference: Team -> Configure Tags"/>
 		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
 	</context>
+	
+	<context id="search_history_dialog_context">
+		<description>Allows searching the SVN Resource History View.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/search-history.html" label="Reference: SVN Resource History Search"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-history-view.html" label="Reference: SVN Resource History View"/>
+	</context>
 		
 	<!-- Wizards -->
 

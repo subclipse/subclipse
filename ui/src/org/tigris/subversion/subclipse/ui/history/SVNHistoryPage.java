@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
@@ -53,12 +54,15 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
@@ -108,12 +112,14 @@ import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
+import org.tigris.subversion.subclipse.ui.dialogs.HistorySearchDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.SetCommitPropertiesDialog;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
 import org.tigris.subversion.subclipse.ui.operations.MergeOperation;
 import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
+import org.tigris.subversion.subclipse.ui.util.EmptySearchViewerFilter;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -124,10 +130,11 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * 
  * @author Eugene Kuleshov (migration from legacy history view)
  */
-public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeListener {
+public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeListener, KeyListener {
 
   private SashForm svnHistoryPageControl;
   private SashForm innerSashForm;
+  private HistorySearchDialog historySearchDialog;
 
   HistoryTableProvider historyTableProvider;
   TableViewer tableHistoryViewer;
@@ -157,6 +164,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   ISVNRemoteResource remoteResource;
   ISelection selection;
 
+  private IAction searchAction;
+  private IAction clearSearchAction;
   private IAction getNextAction;
   private IAction getAllAction;
   private IAction toggleStopOnCopyAction;
@@ -256,6 +265,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           }
         }
         tableHistoryViewer.refresh();
+       	tableHistoryViewer.resetFilters();
+       	getClearSearchAction().setEnabled(false);
       }
     });
   }
@@ -281,6 +292,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             this.projectProperties = ProjectProperties.getProjectProperties(res);
             this.historyTableProvider.setRemoteResource(this.remoteResource);
             this.tableHistoryViewer.setInput(this.remoteResource);
+        	this.tableHistoryViewer.resetFilters();
+        	getClearSearchAction().setEnabled(false);
             // setContentDescription(Policy.bind("HistoryView.titleWithArgument",
             // baseResource.getName())); //$NON-NLS-1$
             // setTitleToolTip(baseResource.getRepositoryRelativePath());
@@ -298,6 +311,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       this.projectProperties = ProjectProperties.getProjectProperties(this.remoteResource);
       this.historyTableProvider.setRemoteResource(this.remoteResource);
       this.tableHistoryViewer.setInput(this.remoteResource);
+  	  this.tableHistoryViewer.resetFilters();
+  	  getClearSearchAction().setEnabled(false);
       // setContentDescription(Policy.bind("HistoryView.titleWithArgument",
       // remoteResource.getName())); //$NON-NLS-1$
       // setTitleToolTip(remoteResource.getRepositoryRelativePath());
@@ -362,7 +377,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   protected void createTableHistory(Composite parent) {
     this.historyTableProvider = new HistoryTableProvider();
     this.tableHistoryViewer = historyTableProvider.createTable(parent);
-
+    this.tableHistoryViewer.getTable().addKeyListener(this);
     // set the content provider for the table
     this.tableHistoryViewer.setContentProvider(new IStructuredContentProvider() {
 
@@ -716,6 +731,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     // Create the local tool bar
     IToolBarManager tbm = actionBars.getToolBarManager();
     // tbm.add(getRefreshAction());
+    tbm.add(new Separator());
+    tbm.add(getSearchAction());
+    tbm.add(getClearSearchAction());
     tbm.add(new Separator());
     tbm.add(toggleShowComments);
     tbm.add(toggleShowAffectedPathsAction);
@@ -1226,6 +1244,58 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     return refreshAction;
   }
 
+  // Search action (toolbar)
+  private IAction getSearchAction() {
+	  if (searchAction == null) {
+	      SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
+		  searchAction = new Action(
+				  Policy.bind("HistoryView.search"), plugin.getImageDescriptor(ISVNUIConstants.IMG_FILTER_HISTORY)) { //$NON-NLS-1$
+			  public void run() {
+				  if (historySearchDialog == null) {
+					  historySearchDialog = new HistorySearchDialog(getSite().getShell(), remoteResource);
+				  }
+				  historySearchDialog.setRemoteResource(remoteResource);
+				  if (historySearchDialog.open() == Window.OK) {
+					  searchAction.setEnabled(false);
+					  Utils.schedule(new SearchHistoryJob(), SVNUIPlugin.getPlugin().getWorkbench().getActiveWorkbenchWindow()
+					            .getActivePage().getActivePart().getSite());
+				  }
+			  }
+		  };
+		  searchAction.setDisabledImageDescriptor(plugin.getImageDescriptor(ISVNUIConstants.IMG_FILTER_HISTORY_DISABLED));
+	  }
+	  return searchAction;
+  }
+  
+  // Clear search action (toolbar)
+  private IAction getClearSearchAction() {
+	  if (clearSearchAction == null) {
+	      SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
+		  clearSearchAction = new Action(
+				  Policy.bind("HistoryView.clearSearch"), plugin.getImageDescriptor(ISVNUIConstants.IMG_CLEAR)) { //$NON-NLS-1$
+			  public void run() {
+				  BusyIndicator.showWhile(tableHistoryViewer.getTable().getDisplay(), new Runnable() {
+					  public void run() {
+						  ViewerFilter[] filters = tableHistoryViewer.getFilters();
+						  for (int i=0; i<filters.length; i++) {
+							  ViewerFilter filter = filters[i];
+							  if (filter instanceof HistorySearchViewerFilter) {
+								  tableHistoryViewer.removeFilter(filter);
+							  }
+							  else if (filter instanceof EmptySearchViewerFilter) {
+								  tableHistoryViewer.removeFilter(filter);
+							  }
+				  		  }
+						  setEnabled(false);
+					  }
+				  });
+			  }
+		  };
+		  clearSearchAction.setDisabledImageDescriptor(plugin.getImageDescriptor(ISVNUIConstants.IMG_CLEAR_DISABLED));
+	  }
+	  return clearSearchAction;
+  }
+  
     // Get Get All action (toolbar)
   private IAction getGetAllAction() {
     if(getAllAction == null) {
@@ -1599,6 +1669,121 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
   }
 
+  private class SearchHistoryJob extends Job {
+
+	  public SearchHistoryJob() {
+		  super(Policy.bind("HistoryView.searchHistoryJob")); //$NON-NLS-1$
+	  }
+	  
+	  public IStatus run(IProgressMonitor monitor) {
+		  
+		  Date startDate = historySearchDialog.getStartDate();
+		  setEmptyViewerFilter();
+		  
+		  // Fetch log entries until start date
+		  if (historySearchDialog.getAutoFetchLogs()) {
+			  if (!historySearchDialog.getSearchAllLogs()) {
+				  Date lastDate = null;
+				  if (lastEntry != null) {
+					  lastDate = lastEntry.getDate();
+				  }
+				  int numEntries = entries.length;
+				  int prevNumEntries = -1;
+				  while ((numEntries != prevNumEntries) && 
+						  ((lastDate == null) ||
+								  (startDate == null) ||
+								  (startDate.compareTo(lastDate) <= 0))) {
+				  
+					  if (monitor.isCanceled()) {
+						  getSearchAction().setEnabled(true);
+						  removeEmptyViewerFilter();
+						  return Status.CANCEL_STATUS;
+					  }
+				  
+					  final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
+					  if(fetchNextLogEntriesJob == null) {
+						  fetchNextLogEntriesJob = new FetchNextLogEntriesJob();
+					  }
+					  if(fetchNextLogEntriesJob.getState() != Job.NONE) {
+						  fetchNextLogEntriesJob.cancel();
+					  }
+					  fetchNextLogEntriesJob.setRemoteFile(remoteResource);
+					  Utils.schedule(fetchNextLogEntriesJob, getSite());
+					  try {
+						  fetchNextLogEntriesJob.join();
+					  } catch(InterruptedException e) {
+						  SVNUIPlugin.log(new SVNException(
+								 Policy.bind("HistoryView.errorFetchingEntries", remoteResource.getName()), e)); //$NON-NLS-1$
+					  }
+			      
+					  if (entries.length == 0) {
+						  break;
+					  }
+					  lastDate = lastEntry.getDate();
+					  prevNumEntries = numEntries;
+					  numEntries = entries.length;
+				  }
+			  }
+			  else {
+		          final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
+		          if(fetchAllLogEntriesJob == null) {
+		        	  fetchAllLogEntriesJob = new FetchAllLogEntriesJob();
+		          }
+		          if(fetchAllLogEntriesJob.getState() != Job.NONE) {
+		        	  fetchAllLogEntriesJob.cancel();
+		          }
+		          fetchAllLogEntriesJob.setRemoteFile(remoteResource);
+		          Utils.schedule(fetchAllLogEntriesJob, getSite());
+			  }
+		  }
+		  
+		  final HistorySearchViewerFilter viewerFilter = new HistorySearchViewerFilter(
+				  historySearchDialog.getUser(), 
+				  historySearchDialog.getComment(), 
+				  historySearchDialog.getStartDate(), 
+				  historySearchDialog.getEndDate(), 
+				  historySearchDialog.getRegExp());
+		  
+		  getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+				    BusyIndicator.showWhile(tableHistoryViewer.getTable().getDisplay(), new Runnable() {
+				        public void run() {
+				        	getClearSearchAction().run();
+				        	tableHistoryViewer.addFilter(viewerFilter);
+				        	getClearSearchAction().setEnabled(true);
+				        	getSearchAction().setEnabled(true);
+				        }
+				    });
+				}
+		  });
+		  
+		  removeEmptyViewerFilter();
+		  
+		  return Status.OK_STATUS;
+	  }
+	  
+	  private void setEmptyViewerFilter() {
+		  getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					tableHistoryViewer.addFilter(new EmptySearchViewerFilter());
+				}
+			});
+	  }
+
+	  private void removeEmptyViewerFilter() {
+		  getSite().getShell().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					ViewerFilter[] filters = tableHistoryViewer.getFilters();
+					for (int i=0; i<filters.length; i++) {
+						if (filters[i] instanceof EmptySearchViewerFilter) {
+							tableHistoryViewer.removeFilter(filters[i]);
+						}
+					}
+				}
+			});
+	  }
+}
+
   class FetchChangePathJob extends Job {
     public ILogEntry logEntry;
 
@@ -1683,6 +1868,23 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       	}
       });
   }
+
+  /* (non-Javadoc)
+   * @see org.eclipse.swt.events.KeyListener#keyPressed(org.eclipse.swt.events.KeyEvent)
+   */
+  public void keyPressed(KeyEvent e) {
+      if (e.keyCode == 'f' && e.stateMask == SWT.CTRL) {
+          getSearchAction().run();
+      }
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.eclipse.swt.events.KeyListener#keyReleased(org.eclipse.swt.events.KeyEvent)
+   */
+  public void keyReleased(KeyEvent e) {
+  }
+
 
   /* (non-Javadoc)
    * @see org.tigris.subversion.subclipse.core.IResourceStateChangeListener#resourceModified(org.eclipse.core.resources.IResource[])

@@ -60,6 +60,8 @@ public interface IHelpContextIds {
 
 	public static final String COMMIT_SET_DIALOG = PREFIX + "commit_set_dialog_context"; //$NON-NLS-1$
 
+	public static final String SEARCH_HISTORY_DIALOG = PREFIX + "search_history_dialog_context"; //$NON-NLS-1$
+
 	// Wizard Pages
 	public static final String SHARING_AUTOCONNECT_PAGE = PREFIX + "sharing_autoconnect_page_context"; //$NON-NLS-1$
 	public static final String SHARING_SELECT_REPOSITORY_PAGE = PREFIX + "sharing_select_repository_page_context"; //$NON-NLS-1$
