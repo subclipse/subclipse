@@ -313,6 +313,7 @@ public class SVNLightweightDecorator
 	}
 	
 	private void computeColorsAndFonts(boolean isIgnored, boolean isDirty, IDecoration decoration) {
+		if (!SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_USE_FONT_DECORATORS)) return;
 		ITheme current = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
 		if(isIgnored) {
 			decoration.setBackgroundColor(current.getColorRegistry().get(SVNDecoratorConfiguration.IGNORED_BACKGROUND_COLOR));

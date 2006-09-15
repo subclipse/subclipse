@@ -169,6 +169,7 @@ public interface ISVNUIConstants {
     public final String PREF_EXTERNAL_FLAG = "pref_external_flag"; //$NON-NLS-1$
 	
 	public final String PREF_CALCULATE_DIRTY = "pref_calculate_dirty";	 //$NON-NLS-1$
+	public final String PREF_USE_FONT_DECORATORS = "pref_use_font_decorators";	 //$NON-NLS-1$
 	
 	public final String PREF_SHOW_SYNCINFO_AS_TEXT = "pref_show_syncinfo_as_text"; //$NON-NLS-1$
 

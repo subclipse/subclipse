@@ -45,6 +45,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -53,6 +54,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.decorator.SVNDecoratorConfiguration;
 import org.tigris.subversion.subclipse.ui.decorator.SVNLightweightDecorator;
+import org.tigris.subversion.subclipse.ui.internal.SWTUtils;
 
 /**
  * The preference page for decoration
@@ -79,6 +81,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
     private Text externalFlag;
 
 	private Button showDirty;
+	private Button enableFontDecorators;
 	
 	class StringPair {
 		String s1;
@@ -119,8 +122,10 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		GridData data = new GridData();
 		data.horizontalAlignment = GridData.FILL;
 		composite.setLayoutData(data);
-		createLabel(composite, Policy.bind("SVNDecoratorPreferencesPage.generalDescription"), 1); //$NON-NLS-1$		
-		showDirty = createCheckBox(composite, Policy.bind("SVNDecoratorPreferencesPage.computeDeep")); //$NON-NLS-1$		
+		SWTUtils.createPreferenceLink((IWorkbenchPreferenceContainer) getContainer(), composite, "org.eclipse.ui.preferencePages.Decorators", Policy.bind("SVNDecoratorPreferencesPage.labelDecorationsLink")); //$NON-NLS-1$		 		
+		showDirty = createCheckBox(composite, Policy.bind("SVNDecoratorPreferencesPage.computeDeep")); //$NON-NLS-1$
+		enableFontDecorators = createCheckBox(composite, Policy.bind("SVNDecoratorPreferencesPage.useFontDecorators")); //$NON-NLS-1$			
+		SWTUtils.createPreferenceLink((IWorkbenchPreferenceContainer) getContainer(), composite, "org.eclipse.ui.preferencePages.ColorsAndFonts", Policy.bind("SVNDecoratorPreferencesPage.colorsAndFontsLink")); //$NON-NLS-1$		 				
 		return composite;
 	}
 
@@ -336,6 +341,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowNewResource.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION));
 		
 		showDirty.setSelection(store.getBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
+		enableFontDecorators.setSelection(store.getBoolean(ISVNUIConstants.PREF_USE_FONT_DECORATORS));
 		
 		setValid(true);
 	}
@@ -367,6 +373,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		store.setValue(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION, imageShowNewResource.getSelection());
 		
 		store.setValue(ISVNUIConstants.PREF_CALCULATE_DIRTY, showDirty.getSelection());
+		store.setValue(ISVNUIConstants.PREF_USE_FONT_DECORATORS, enableFontDecorators.getSelection());
         
         // Update the strategy used to calculate the dirty state
 		SVNProviderPlugin.getPlugin().getPluginPreferences().setValue(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE, showDirty.getSelection());
@@ -400,6 +407,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowNewResource.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION));
 		
 		showDirty.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
+		enableFontDecorators.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_USE_FONT_DECORATORS));
     }
 
 	/**
