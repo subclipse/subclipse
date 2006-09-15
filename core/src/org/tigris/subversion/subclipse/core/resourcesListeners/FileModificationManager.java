@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -30,12 +28,9 @@ import org.eclipse.core.resources.ISavedState;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.team.core.RepositoryProvider;
-import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 /**
  * This class performs several functions related to determining the modified
@@ -87,20 +82,11 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 					else if(resource.getType()==IResource.FOLDER) {
 						if (delta.getKind() == IResourceDelta.ADDED) {
 							modifiedInfiniteDepthResources.add(resource);
-							if (SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())) {
-								handleSVNDir((IContainer) resource, delta.getKind());
-							} else {
-								handleSVNDir(((IContainer) resource).getFolder(new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName())), delta.getKind());
-							}
 							return false;
 						}
 						else if (delta.getKind() == IResourceDelta.REMOVED) {
 							modifiedInfiniteDepthResources.add(resource);
 							return false;
-						} else if (SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())) {
-							if (handleSVNDir((IContainer)resource, delta.getKind())) {
-								return false;
-							}
 						}
 						return true;
 					}				
@@ -223,35 +209,6 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	 * @see org.eclipse.core.resources.ISaveParticipant#saving(org.eclipse.core.resources.ISaveContext)
 	 */
 	public void saving(ISaveContext context) {
-	}
-
-	/**
-	 * If it's a new SVN directory with the canonical child metafiles then mark it as team-private. 
-	 * Makr it is team private even when it is changed but not marked team private yet.
-	 * @param svnDir IContainer which is expected to be svn meta directory
-	 * @param kind resourceDelta kind of change
-	 * @return true when the folder folder really is svn meta directory
-	 */	
-	protected boolean handleSVNDir(IContainer svnDir, int kind) {
-		if((kind & IResourceDelta.ALL_WITH_PHANTOMS)!=0) {
-			if ((kind==IResourceDelta.ADDED) || ((kind==IResourceDelta.CHANGED) && !svnDir.isTeamPrivateMember())) 
-			{
-				// should this dir be made team-private? If it contains Entries then yes!
-				IFile entriesFile = svnDir.getFile(new Path(SVNConstants.SVN_ENTRIES));
-
-				if (entriesFile.exists() &&  !svnDir.isTeamPrivateMember()) {
-					try {
-						svnDir.setTeamPrivateMember(true);			
-						if(Policy.DEBUG_METAFILE_CHANGES) {
-							System.out.println("[svn] found a new SVN meta folder, marking as team-private: " + svnDir.getFullPath()); //$NON-NLS-1$
-						}
-					} catch(CoreException e) {
-						SVNProviderPlugin.log(SVNException.wrapException(svnDir, Policy.bind("SyncFileChangeListener.errorSettingTeamPrivateFlag"), e)); //$NON-NLS-1$
-					}
-				}
-			}
-		}
-		return svnDir.isTeamPrivateMember();
 	}
 
 }

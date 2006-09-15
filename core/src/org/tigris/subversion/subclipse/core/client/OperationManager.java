@@ -11,17 +11,19 @@
 package org.tigris.subversion.subclipse.core.client;
 
 import java.io.File;
-import java.util.LinkedHashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.tigris.subversion.subclipse.core.Policy;
@@ -209,17 +211,25 @@ public class OperationManager implements ISVNNotifyListener {
 	public void setCommand(int command) {
 	}
 	
-	protected boolean handleSVNDir(IContainer svnDir) {
+	protected boolean handleSVNDir(final IContainer svnDir) {
 		if (!svnDir.exists() || !svnDir.isTeamPrivateMember()) 
 		{
 			try {
-				if (!svnDir.exists()) {
-					svnDir.refreshLocal(IResource.DEPTH_ZERO,new NullProgressMonitor());
-				}
-				svnDir.setTeamPrivateMember(true);			
-				if(Policy.DEBUG_METAFILE_CHANGES) {
-					System.out.println("[svn] found a new SVN meta folder, marking as team-private: " + svnDir.getFullPath()); //$NON-NLS-1$
-				}
+				// important to have both the refresh and setting of team-private in the
+				// same runnable so that the team-private flag is set before other delta listeners 
+				// sees the SVN folder creation.
+				ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+					public void run(IProgressMonitor monitor) throws CoreException {
+						if (!svnDir.exists()) {
+							svnDir.refreshLocal(IResource.DEPTH_ZERO,new NullProgressMonitor());
+						}
+						if (svnDir.exists())
+							svnDir.setTeamPrivateMember(true);			
+						if(Policy.DEBUG_METAFILE_CHANGES) {
+							System.out.println("[svn] found a new SVN meta folder, marking as team-private: " + svnDir.getFullPath()); //$NON-NLS-1$
+						}
+					} 
+				}, svnDir.getParent(), IWorkspace.AVOID_UPDATE, null);
 			} catch(CoreException e) {
 				SVNProviderPlugin.log(SVNException.wrapException(svnDir, Policy.bind("OperationManager.errorSettingTeamPrivateFlag"), e)); //$NON-NLS-1$
 			}

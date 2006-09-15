@@ -20,6 +20,8 @@ import org.tigris.subversion.subclipse.core.ISVNRunnable;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -92,9 +94,14 @@ public class ShareProjectCommand implements ISVNCommand {
 								SVNUrl url = location.getUrl().appendPath(remoteDirName);
 								svnClient.mkdir(url, true, message);
 
-								// checkout it so that we have .svn
-								svnClient.checkout(url, project.getLocation()
-										.toFile(), SVNRevision.HEAD, false);
+								try {
+									OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm));
+									// checkout it so that we have .svn
+									svnClient.checkout(url, project.getLocation()
+											.toFile(), SVNRevision.HEAD, false);
+								} finally {
+									OperationManager.getInstance().endOperation();
+								}
 							} catch (SVNClientException e) {
 								throw new SVNException(
 										"Error while creating module: "

@@ -39,12 +39,12 @@ import org.tigris.subversion.subclipse.core.resources.ISVNFileModificationValida
 import org.tigris.subversion.subclipse.core.resources.RepositoryResourcesManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.FileModificationManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.SyncFileChangeListener;
+import org.tigris.subversion.subclipse.core.resourcesListeners.TeamPrivateListener;
 import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.core.util.ISimpleDialogsHelper;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNPromptUserPassword;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 
 /**
  * The plugin itself
@@ -71,6 +71,7 @@ public class SVNProviderPlugin extends Plugin {
 	// SVN specific resource delta listeners
 	private FileModificationManager fileModificationManager;
 	private SyncFileChangeListener metaFileSyncListener;
+	private TeamPrivateListener teamPrivateListener;
 
 	// the list of all repositories currently handled by this provider
 	private SVNRepositories repositories;
@@ -144,6 +145,9 @@ public class SVNProviderPlugin extends Plugin {
 		// Initialize SVN change listeners. Note tha the report type is important.
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
+		// this listener will listen to additions of svn meta directories
+		teamPrivateListener = new TeamPrivateListener();
+
 		// this listener will listen to modifications to files
 		fileModificationManager = new FileModificationManager();
 
@@ -151,6 +155,8 @@ public class SVNProviderPlugin extends Plugin {
 		// subdir)
 		metaFileSyncListener = new SyncFileChangeListener();
 
+		workspace.addResourceChangeListener(teamPrivateListener,
+				IResourceChangeEvent.POST_CHANGE);
 		workspace.addResourceChangeListener(statusCacheManager,
 				IResourceChangeEvent.PRE_BUILD);
 		workspace.addResourceChangeListener(metaFileSyncListener,
@@ -158,6 +164,7 @@ public class SVNProviderPlugin extends Plugin {
 		workspace.addResourceChangeListener(fileModificationManager,
 				IResourceChangeEvent.POST_CHANGE);
 
+		teamPrivateListener.registerSaveParticipant();
 		fileModificationManager.registerSaveParticipant();
 
 		// Must load the change set manager on startup since it listens to deltas
@@ -175,6 +182,7 @@ public class SVNProviderPlugin extends Plugin {
 		workspace.removeResourceChangeListener(statusCacheManager);
 		workspace.removeResourceChangeListener(metaFileSyncListener);
 		workspace.removeResourceChangeListener(fileModificationManager);
+		workspace.removeResourceChangeListener(teamPrivateListener);
 
 		// save the state which includes the known repositories
 		if (repositories != null) {
