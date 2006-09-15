@@ -363,6 +363,12 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	private boolean checkoutUsingWizard() {
 		CheckoutUsingProjectWizardAction checkoutAction = new CheckoutUsingProjectWizardAction(remoteFolders);
 		try {
+			if (remoteFolders.length == 1) {
+				if (hasProjectFile)
+					checkoutAction.setSvnRevision(checkoutAsWithProjectFilePage.getRevision());
+				else
+					checkoutAction.setSvnRevision(checkoutAsWithoutProjectFilePage.getRevision());
+			} else checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
 			checkoutAction.execute(null);
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), Policy
@@ -375,6 +381,12 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	private boolean checkoutAsProjectInto() {
 		CheckoutIntoAction checkoutAction = new CheckoutIntoAction(remoteFolders, projectName, projectPage.getCanonicalLocation(), getShell());
 		try {
+			if (remoteFolders.length == 1) {
+				if (hasProjectFile)
+					checkoutAction.setSvnRevision(checkoutAsWithProjectFilePage.getRevision());
+				else
+					checkoutAction.setSvnRevision(checkoutAsWithoutProjectFilePage.getRevision());
+			} else checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
 			checkoutAction.execute(null);
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), Policy
@@ -387,6 +399,12 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	private boolean checkoutAsProject() {
 		CheckoutAsProjectAction checkoutAction = new CheckoutAsProjectAction(remoteFolders, projectName, getShell());
 		try {
+			if (remoteFolders.length == 1) {
+				if (hasProjectFile)
+					checkoutAction.setSvnRevision(checkoutAsWithProjectFilePage.getRevision());
+				else
+					checkoutAction.setSvnRevision(checkoutAsWithoutProjectFilePage.getRevision());
+			} else checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
 			checkoutAction.execute(null);
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), Policy

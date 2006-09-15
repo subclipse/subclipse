@@ -59,6 +59,8 @@ public class CheckoutCommand implements ISVNCommand {
 	private IProject[] projects;
 	
 	private IPath projectRoot;
+	
+	private SVNRevision svnRevision = SVNRevision.HEAD;
 
 	public CheckoutCommand(ISVNRemoteFolder[] resources, IProject[] projects) {
 		this(resources, projects, null);
@@ -188,7 +190,7 @@ public class CheckoutCommand implements ISVNCommand {
 			subPm.beginTask("", Policy.INFINITE_PM_GUESS_FOR_CHECKOUT);
 //			subPm.setTaskName("");
 			OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm));
-			svnClient.checkout(resource.getUrl(), destPath, SVNRevision.HEAD, true);
+			svnClient.checkout(resource.getUrl(), destPath, svnRevision, true);
 		} catch (SVNClientException e) {
 			throw new SVNException("cannot checkout");
 		} finally {
@@ -333,6 +335,10 @@ public class CheckoutCommand implements ISVNCommand {
 				monitor.done();
 			}
 		}
+	}
+
+	public void setSvnRevision(SVNRevision svnRevision) {
+		this.svnRevision = svnRevision;
 	}
 
 }

@@ -21,11 +21,13 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class CheckoutAsProjectOperation extends SVNOperation {
     private ISVNRemoteFolder[] remoteFolders;
     private IProject[] localFolders;
     private IPath projectRoot;
+    private SVNRevision svnRevision = SVNRevision.HEAD;
 
     public CheckoutAsProjectOperation(IWorkbenchPart part, ISVNRemoteFolder[] remoteFolders, IProject[] localFolders) {
     	this(part, remoteFolders, localFolders, null);
@@ -69,10 +71,15 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 			} else {
 				command = new CheckoutCommand(remote, local, projectRoot);
 			}
+			command.setSvnRevision(svnRevision);
 	    	command.run(monitor);
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		}
     }
+
+	public void setSvnRevision(SVNRevision svnRevision) {
+		this.svnRevision = svnRevision;
+	}
     
 }

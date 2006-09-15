@@ -36,6 +36,7 @@ import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.operations.CheckoutAsProjectOperation;
 import org.tigris.subversion.subclipse.ui.util.IPromptCondition;
 import org.tigris.subversion.subclipse.ui.util.PromptingDialog;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * Add a remote resource to the workspace. Current implementation:
@@ -44,6 +45,7 @@ import org.tigris.subversion.subclipse.ui.util.PromptingDialog;
  */
 public class CheckoutUsingProjectWizardAction extends SVNAction {
 	ISVNRemoteFolder[] folders;
+	private SVNRevision svnRevision = SVNRevision.HEAD;
 
     public CheckoutUsingProjectWizardAction(ISVNRemoteFolder[] folders) {
 		super();
@@ -120,7 +122,9 @@ public class CheckoutUsingProjectWizardAction extends SVNAction {
 				}
 			}
 		}, true /* cancelable */, PROGRESS_DIALOG);
-		new CheckoutAsProjectOperation(getTargetPart(), new ISVNRemoteFolder[] { remoteFolder }, new IProject[] { project }).run();
+		CheckoutAsProjectOperation checkoutAsProjectOperation = new CheckoutAsProjectOperation(getTargetPart(), new ISVNRemoteFolder[] { remoteFolder }, new IProject[] { project });
+		checkoutAsProjectOperation.setSvnRevision(svnRevision);
+		checkoutAsProjectOperation.run();
 	}
 
 	
@@ -244,5 +248,9 @@ public class CheckoutUsingProjectWizardAction extends SVNAction {
             }
         };
     }
+
+	public void setSvnRevision(SVNRevision svnRevision) {
+		this.svnRevision = svnRevision;
+	}
 
 }
