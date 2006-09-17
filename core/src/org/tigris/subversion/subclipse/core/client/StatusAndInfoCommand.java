@@ -82,9 +82,18 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
         });
 
         for (int i = 0; i < statuses.length; i++) {
-        	if ((SVNStatusKind.UNVERSIONED.equals(statuses[i].getTextStatus()) || (SVNStatusKind.ADDED.equals(statuses[i].getTextStatus()))))
+        	ISVNStatus status = statuses[i];
+        	SVNStatusKind localTextStatus = status.getTextStatus();
+
+        	if (SVNStatusKind.UNVERSIONED.equals(localTextStatus)
+        			|| SVNStatusKind.ADDED.equals(localTextStatus)
+        			|| SVNStatusKind.IGNORED.equals(localTextStatus)
+        		)
         	{
-        		result[i] = RemoteResourceStatus.NONE;
+        		if (SVNStatusKind.NONE.equals(status.getRepositoryTextStatus()))
+        			result[i] = RemoteResourceStatus.NONE;
+        		else
+            		result[i] = new RemoteResourceStatus(statuses[i], getRevisionFor(statuses[i]));
         	}
         	else
         	{

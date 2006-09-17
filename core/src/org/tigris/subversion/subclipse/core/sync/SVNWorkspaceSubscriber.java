@@ -47,6 +47,7 @@ import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener {
 
@@ -251,9 +252,13 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
             List result = new ArrayList(statuses.length);
             for (int i = 0; i < statuses.length; i++) {
-            	IResource changedResource = statuses[i].getResource();
-				
-                if ((changedResource != null) && isSupervised(changedResource))
+            	RemoteResourceStatus status = statuses[i];
+            	IResource changedResource = status.getResource();
+
+                if (changedResource == null)
+                	continue;
+
+                if (isSupervised(changedResource) || (status.getTextStatus() != SVNStatusKind.NONE))
                 {
                 	result.add(changedResource);
                 	remoteSyncStateStore.setBytes( changedResource, statuses[i].getBytes() );
