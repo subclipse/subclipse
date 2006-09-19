@@ -205,10 +205,15 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 				
 		// create a tab folder for the page
 		TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
-		tabFolder.setLayoutData(new GridData(GridData.FILL_BOTH));		
+		tabFolder.setLayoutData(new GridData(GridData.FILL_BOTH));
+		
+		// general decoration options
+		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
+		tabItem.setText(Policy.bind("SVNDecoratorPreferencesPage.generalTabFolder"));//$NON-NLS-1$
+		tabItem.setControl(createGeneralDecoratorPage(tabFolder));
 		
 		// text decoration options
-		TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
+		tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText(Policy.bind("SVNDecoratorPreferencesPage.textLabel"));//$NON-NLS-1$		
 		tabItem.setControl(createTextDecoratorPage(tabFolder));
 
@@ -216,11 +221,6 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		tabItem = new TabItem(tabFolder, SWT.NONE);
 		tabItem.setText(Policy.bind("Icon_Overlays_24"));//$NON-NLS-1$		
 		tabItem.setControl(createIconDecoratorPage(tabFolder));
-		
-		// general decoration options
-		tabItem = new TabItem(tabFolder, SWT.NONE);
-		tabItem.setText(Policy.bind("SVNDecoratorPreferencesPage.generalTabFolder"));//$NON-NLS-1$
-		tabItem.setControl(createGeneralDecoratorPage(tabFolder));
 		
 		initializeValues();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IHelpContextIds.DECORATORS_PREFERENCE_PAGE);
