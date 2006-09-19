@@ -21,6 +21,9 @@ import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
 import org.eclipse.team.ui.synchronize.SynchronizeModelOperation;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 
 public class MarkMergedSynchronizeAction extends SynchronizeModelAction {
 
@@ -42,6 +45,12 @@ public class MarkMergedSynchronizeAction extends SynchronizeModelAction {
 			    	ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
 			    	IResource resource = element.getResource();
 			    	if (resource == null || !resource.exists()) return false;
+			    	ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);			    
+	                try {
+	                	if (!svnResource.isManaged() || svnResource.isAdded()) return false;
+	                } catch (SVNException e) {
+	                    return false;
+	                }			    		
 			    }
                 return true;
 			}

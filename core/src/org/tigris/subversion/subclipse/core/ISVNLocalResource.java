@@ -64,6 +64,12 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 	public boolean isManaged() throws SVNException;
 
 	/**
+	 * @return true if this resource is locally added by SVN
+	 * @throws SVNException
+	 */
+	public boolean isAdded() throws SVNException;
+
+	/**
 	 * @return true if this resource is managed by SVN and has a remote counter
 	 *         part
 	 * @throws SVNException

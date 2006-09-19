@@ -34,6 +34,8 @@ public class AddSynchronizeAction extends SynchronizeModelAction {
 	protected FastSyncInfoFilter getSyncInfoFilter() {
 		return new FastSyncInfoFilter() {
 			public boolean select(SyncInfo info) {
+				SyncInfoDirectionFilter filter = new SyncInfoDirectionFilter(new int[] {SyncInfo.OUTGOING});
+				if (!filter.select(info)) return false;
 			    IStructuredSelection selection = getStructuredSelection();
 			    Iterator iter = selection.iterator();
 			    while (iter.hasNext()) {

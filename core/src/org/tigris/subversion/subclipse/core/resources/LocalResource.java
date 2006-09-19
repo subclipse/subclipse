@@ -177,6 +177,13 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		return !this.resource.isDerived() && getStatus().isManaged();
 	}
     
+	/*
+	 * @see ISVNLocalResource#isAdded()
+	 */
+	public boolean isAdded() throws SVNException {
+		return getStatus().isAdded();
+	}
+    
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#hasRemote()
      */

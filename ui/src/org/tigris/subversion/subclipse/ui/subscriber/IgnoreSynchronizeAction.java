@@ -42,6 +42,8 @@ public class IgnoreSynchronizeAction extends SynchronizeModelAction {
 	protected FastSyncInfoFilter getSyncInfoFilter() {
 		return new FastSyncInfoFilter() {
 			public boolean select(SyncInfo info) {
+				SyncInfoDirectionFilter filter = new SyncInfoDirectionFilter(new int[] {SyncInfo.OUTGOING});
+				if (!filter.select(info)) return false;
 			    IStructuredSelection selection = getStructuredSelection();
 			    if (selection.size() != 1) return false;
 		        ISynchronizeModelElement element = (ISynchronizeModelElement)selection.getFirstElement();
