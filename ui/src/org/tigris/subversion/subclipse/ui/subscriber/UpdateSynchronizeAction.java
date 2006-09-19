@@ -65,7 +65,7 @@ public class UpdateSynchronizeAction extends SynchronizeModelAction {
 			    while (iter.hasNext()) {
 			    	ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
 			    	IResource resource = element.getResource();
-			    	if (resource == null || !resource.exists()) return false;
+			    	if (resource == null || !resource.exists()) return true;
 			    	ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);			    
 	                try {
 	                	if (!svnResource.isManaged() || svnResource.isAdded()) return false;
