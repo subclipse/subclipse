@@ -267,7 +267,6 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 			}			
 		});
 		
-		store.setDefault(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE, true);
 		removeOnReplace.setSelection(store.getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE));
 		
 		logEntriesToFetchText.setText(Integer.toString(store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH)));
