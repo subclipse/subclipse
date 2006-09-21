@@ -17,13 +17,21 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.IgnoreResourcesDialog;
 import org.tigris.subversion.subclipse.ui.operations.IgnoreOperation;
 
-public class IgnoreAction extends WorkspaceAction {
+public class IgnoreAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate {
+
+	/*
+	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
+	 */
+	public void init(IWorkbenchWindow window) {
+	}	
 	
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
         run(new IRunnableWithProgress() {
@@ -71,6 +79,13 @@ public class IgnoreAction extends WorkspaceAction {
 	 */
 	protected boolean isEnabledForUnmanagedResources() {
 		return true;
+	}
+
+	/*
+	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
+	 */
+	public void dispose()
+	{
 	}
 	
 }

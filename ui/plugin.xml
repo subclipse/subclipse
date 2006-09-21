@@ -394,6 +394,7 @@
                helpContextId="org.tigris.subversion.subclipse.ui.team_ignore_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.IgnoreAction"
                tooltip="%IgnoreAction.tooltip"
+			   definitionId="org.tigris.subversion.subclipse.ui.ignore"
                menubarPath="team.main/group3"
                id="org.tigris.subversion.subclipse.ui.ignore">
          </action>
@@ -403,6 +404,7 @@
                helpContextId="org.tigris.subversion.subclipse.ui.team_add_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.AddAction"
                tooltip="%AddAction.tooltip"
+			   definitionId="org.tigris.subversion.subclipse.ui.add"
                menubarPath="team.main/group3"
                id="org.tigris.subversion.subclipse.ui.add">
          </action>
@@ -467,6 +469,7 @@
                icon="icons/full/ctool16/copy_edit.gif"
                class="org.tigris.subversion.subclipse.ui.actions.CopyAction"
                menubarPath="team.main/group5"
+			   definitionId="org.tigris.subversion.subclipse.ui.copy"
                id="org.tigris.subversion.subclipse.ui.copy">
          </action>                         
          <action
@@ -492,6 +495,7 @@
                class="org.tigris.subversion.subclipse.ui.actions.RevertAction"
                tooltip="%RevertAction.tooltip"
                menubarPath="team.main/group6"
+			   definitionId="org.tigris.subversion.subclipse.ui.revert"
                id="org.tigris.subversion.subclipse.ui.revert">
          </action>
          <action
@@ -1086,6 +1090,45 @@ For example:
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
 				id="org.tigris.subversion.subclipse.ui.synchronize">
 			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.revert"
+				label="%RevertCommand.label"
+                icon="icons/full/tortoise/revert.gif"
+                helpContextId="org.tigris.subversion.subclipse.ui.team_revert_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.RevertAction"
+				tooltip="%RevertAction.tooltip" toolbarPath="SVNGroupMenu"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.revert">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.add"
+				label="%AddCommand.label"
+                icon="icons/full/tortoise/add.gif"
+                helpContextId="org.tigris.subversion.subclipse.ui.team_add_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.AddAction"
+				tooltip="%AddAction.tooltip" toolbarPath="SVNGroupMenu"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.add">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.ignore"
+				label="%IgnoreCommand.label"
+                icon="icons/full/tortoise/ignore.gif"
+                helpContextId="org.tigris.subversion.subclipse.ui.team_ignore_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.IgnoreAction"
+				tooltip="%IgnoreAction.tooltip" toolbarPath="SVNGroupMenu"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.ignore">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.copy"
+				label="%CopyCommand.label"
+                icon="icons/full/ctool16/copy_edit.gif"
+				class="org.tigris.subversion.subclipse.ui.actions.CopyAction"
+				tooltip="%CopyAction.tooltip" toolbarPath="SVNGroupMenu"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.copy">
+			</action>
 		</actionSet>
 	</extension>
    <extension
@@ -1154,6 +1197,22 @@ For example:
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
 			name="%SynchronizeCommand.label"
 			id="org.tigris.subversion.subclipse.ui.synchronize" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%RevertCommand.label"
+			id="org.tigris.subversion.subclipse.ui.revert" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%AddCommand.label"
+			id="org.tigris.subversion.subclipse.ui.add" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%IgnoreCommand.label"
+			id="org.tigris.subversion.subclipse.ui.ignore" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%CopyCommand.label"
+			id="org.tigris.subversion.subclipse.ui.copy" />
 	</extension>
 
    <extension
