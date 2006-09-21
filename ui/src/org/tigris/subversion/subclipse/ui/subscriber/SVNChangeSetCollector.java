@@ -13,7 +13,6 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoTree;
 import org.eclipse.team.core.variants.IResourceVariant;
@@ -22,13 +21,16 @@ import org.eclipse.team.internal.core.subscribers.CheckedInChangeSet;
 import org.eclipse.team.internal.ui.synchronize.SyncInfoSetChangeSetCollector;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
-import org.tigris.subversion.subclipse.core.history.AliasManager;
-import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 
@@ -149,20 +151,23 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 	    	IResourceVariant remoteResource = info.getRemote();
 	    	if (remoteResource instanceof ISVNRemoteResource) {
 	    		ISVNRemoteResource svnRemoteResource = (ISVNRemoteResource)remoteResource;
-	    		SVNStatusSyncInfo svnSyncInfo = (SVNStatusSyncInfo)info;
-    			RemoteResourceStatus remoteResourceStatus = svnSyncInfo.getRemoteResourceStatus();
-	    		SVNRevision.Number revNumber = remoteResourceStatus.getLastChangedRevision();
 	    		try {
-					AliasManager aliasManager = new AliasManager(remoteResourceStatus.getResource());
-					ILogEntry[] logEntries = svnRemoteResource.getLogEntries(null, revNumber, revNumber, revNumber, false, 0, aliasManager);
-					if (logEntries.length != 0) {
-						String logComment = logEntries[0].getComment();
+					ISVNClientAdapter client = svnRemoteResource.getRepository().getSVNClient();
+		    		SVNUrl url = svnRemoteResource.getRepository().getRepositoryRoot();
+		    		SVNRevision rev = svnRemoteResource.getLastChangedRevision();
+		    		ISVNLogMessage[] logMessages = client.getLogMessages(url, rev, rev, false);
+					if (logMessages.length != 0) {
+						String logComment = logMessages[0].getMessage();
 						if (logComment.trim().length() != 0) {
 							fetchedComment = flattenComment(logComment); 
+						} else {
+							fetchedComment = "";
 						}
 					}
-				} catch (TeamException e) {
-					SVNUIPlugin.log(e);
+				} catch (SVNException e1) {
+					SVNUIPlugin.log(e1);
+				} catch (SVNClientException e) {
+					SVNUIPlugin.log(SVNException.wrapException(e));
 				}
     		}
 	    	return fetchedComment;
