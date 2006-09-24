@@ -280,6 +280,13 @@ public class SVNWorkspaceRoot {
 		return command.getLocalResourceStatus();	
     }
 
+    public static LocalResourceStatus peekResourceStatusFor(IPath path) throws SVNException
+    {
+		PeekStatusCommand command = new PeekStatusCommand(path);
+		command.execute(SVNProviderPlugin.getPlugin().createSVNClient());
+		return command.getLocalResourceStatus();	
+    }
+    
 	/**
      * get the repository for this project 
 	 */

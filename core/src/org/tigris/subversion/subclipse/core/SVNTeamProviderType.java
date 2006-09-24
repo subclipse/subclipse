@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -235,11 +236,10 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 	/* (non-Javadoc)
      * @see org.eclipse.team.core.RepositoryProviderType#metaFilesDetected(org.eclipse.core.resources.IProject, org.eclipse.core.resources.IContainer[])
      */
-	/**
-	 * @deprecated not used in Eclipse 3.0 anymore ?
-	 */
     public void metaFilesDetected(IProject project, IContainer[] containers) {
+    	SVNProviderPlugin plugin = SVNProviderPlugin.getPlugin();
 		boolean isProject = false;
+		boolean isSvnProject = plugin.isManagedBySubversion(project);
 		
         for (int i = 0; i < containers.length; i++) {
             IContainer container = containers[i];
@@ -248,17 +248,23 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 			if (!isProject && container.getType() == IResource.PROJECT)
 				isProject = true;
 			
-            if (SVNProviderPlugin.getPlugin().isAdminDirectory(container.getName())) { //$NON-NLS-1$
+            if (plugin.isAdminDirectory(container.getName())) { //$NON-NLS-1$
                 svnDir = container;
             } else {
-                IResource resource = container.findMember(SVNProviderPlugin.getPlugin().getAdminDirectoryName()); //$NON-NLS-1$
+                IResource resource = container.findMember(plugin.getAdminDirectoryName()); //$NON-NLS-1$
                 if (resource != null && resource.getType() != IResource.FILE) {
                     svnDir = (IContainer)resource;
                 }
             }
             try {
-                if (svnDir != null && !svnDir.isTeamPrivateMember())
-                    svnDir.setTeamPrivateMember(true);
+                if (svnDir != null && !svnDir.isTeamPrivateMember()) {
+                	if (!isSvnProject) {
+                		if (plugin.isManagedBySubversion(svnDir.getParent()))
+                    		svnDir.setTeamPrivateMember(true);
+                	} else {
+                		svnDir.setTeamPrivateMember(true);
+                	}
+                }
             } catch (CoreException e) {
                 SVNProviderPlugin.log(IStatus.ERROR, "Could not flag meta-files as team-private for " + svnDir.getFullPath(), e); //$NON-NLS-1$
             }
@@ -267,27 +273,17 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 		if (!isProject)
 			return; // Nothing more to do, all remaining operations are on projects
 
-		 		 // Somehow sometimes it doesn't work using project.findMember(SVNConstants.SVN_DIRNAME) 
-		 		 // here, this could be due to timing issue with workspace addition, so use trusty File 
-		 		 // instead.
-		
-		 		 File svnDir = project.getLocation().append(SVNProviderPlugin.getPlugin().getAdminDirectoryName()).toFile(); //$NON-NLS-1$
-		
-		if (svnDir != null && svnDir.exists() && svnDir.isDirectory()) {
+		if (isSvnProject) {
 			// It's a project and has toplevel .svn directory, lets share it!
 			getAutoShareJob().share(project);
 		} else {
 			// It's a project and doesn't have .svn dir, let's see if we can add it!
-		 		 		 File parentSvnDir = project.getLocation().append("../" + SVNProviderPlugin.getPlugin().getAdminDirectoryName()).
-		 		 		 		 		 toFile(); //$NON-NLS-1$
+			IPath parentDir = project.getLocation().append("../"); //$NON-NLS-1$
 			
-			if (parentSvnDir != null && parentSvnDir.exists()
-					&& parentSvnDir.isDirectory()) {
-
+			if (plugin.isManagedBySubversion(parentDir)) {
 				createAutoAddJob(project);
 			}
 		}
-		
     }
 
 

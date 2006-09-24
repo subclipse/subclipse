@@ -208,6 +208,10 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
             private void recursiveUnmanage(IContainer container,
                     IProgressMonitor pm) {
                 try {
+                    // We must not delete svn directories for linked resources.
+                	if (container.isLinked())
+                		return;
+
                     pm.beginTask(null, 10);
                     pm.subTask(container.getFullPath().toOSString());
 

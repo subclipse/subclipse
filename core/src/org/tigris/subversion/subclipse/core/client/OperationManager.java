@@ -112,13 +112,18 @@ public class OperationManager implements ISVNNotifyListener {
                         if(Policy.DEBUG_METAFILE_CHANGES) {
                             System.out.println("[svn]" + SVNProviderPlugin.getPlugin().getAdminDirectoryName() + " dir refreshed : " + resource.getFullPath()); //$NON-NLS-1$
                         }
+                        // Refreshing the root directory at this point will
+                        // avoid problems with linked source folders.
+                        if (resource.getParent().getType() == IResource.PROJECT)
+                            resource.getParent().refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
                     } catch (CoreException e) {
                         throw SVNException.wrapException(e);
                     }                    
-                    
 				}
 			}
 		} finally {
+			if (lock.getNestingCount() == 1)
+				changedResources.clear();
 			lock.release();
 			operationNotifyListener = null;
 		}

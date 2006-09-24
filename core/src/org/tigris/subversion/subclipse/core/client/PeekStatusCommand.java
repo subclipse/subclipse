@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.core.client;
 import java.io.File;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -32,6 +33,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  */
 public class PeekStatusCommand {
     private final IResource resource;
+    private final IPath     path;
 
     private ISVNStatus status = null;
     private ISVNInfo info = null;
@@ -39,6 +41,12 @@ public class PeekStatusCommand {
 
     public PeekStatusCommand(IResource resource) {
         this.resource = resource;
+        this.path     = null;
+    }
+
+    public PeekStatusCommand(IPath path) {
+        this.resource = null;
+        this.path     = path;
     }
 
     public void execute(ISVNClientAdapter client) throws SVNException {
@@ -56,7 +64,11 @@ public class PeekStatusCommand {
 
         try{
             client.addNotifyListener( revisionListener );
-            File file = resource.getLocation().toFile();
+            File file;
+            if (resource != null)
+            	file = resource.getLocation().toFile();
+            else
+            	file = path.toFile();
             status = null;
             ISVNStatus[] statuses = client.getStatus( file, false, true, false);
             for (int i = 0; i < statuses.length; i++) {

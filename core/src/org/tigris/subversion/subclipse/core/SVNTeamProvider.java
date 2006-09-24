@@ -71,37 +71,12 @@ public class SVNTeamProvider extends RepositoryProvider {
 			// we no longer need the sync info cached. This does not affect the actual SVN
 			// meta directories on disk, and will remain unless a client calls unmanage().		
 			SVNProviderPlugin.getPlugin().getStatusCacheManager().purgeCache(getProject(), true);
-			deconfigureTeamPrivateResource(getProject());
 		} catch (SVNException e)
 		{
 			SVNProviderPlugin.log(e);
 		}
 
 		SVNProviderPlugin.broadcastProjectDeconfigured(getProject());
-	}
-
-	private void deconfigureTeamPrivateResource(IProject project)
-	{
-		try {
-			project.accept(
-					new IResourceVisitor() {
-						public boolean visit(IResource resource) throws CoreException {
-							if ((resource.getType() == IResource.FOLDER)
-									&& (resource.getName().equals(SVNProviderPlugin.getPlugin().getAdminDirectoryName()))
-									&& (resource.isTeamPrivateMember()))
-							{
-								resource.setTeamPrivateMember(false);
-								return false;
-							}
-							else
-							{
-								return true;
-							}
-						}
-					}, IResource.DEPTH_INFINITE, IContainer.INCLUDE_PHANTOMS | IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS);
-		} catch (CoreException e) {
-			SVNProviderPlugin.log(SVNException.wrapException(e));
-		}
 	}
 
 	private void configureTeamPrivateResource(IProject project)
