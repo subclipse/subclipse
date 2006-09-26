@@ -369,7 +369,7 @@ public class BranchTagDialog extends TrayDialog {
     
     private void setOkButtonStatus() {
         if ((commentProperties != null) && (commentProperties.getMinimumLogMessageSize() != 0)) {
-            if (commitCommentArea.getText().getText().trim().length() < commentProperties.getMinimumLogMessageSize()) {
+            if (commitCommentArea.getComment().trim().length() < commentProperties.getMinimumLogMessageSize()) {
                 okButton.setEnabled(false);
                 return;
             }

@@ -35,6 +35,7 @@ import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 
 /**
  * Dialog for creating and editing commit set
@@ -64,7 +65,7 @@ public class CommitSetDialog extends TrayDialog {
         
 		int shellStyle = getShellStyle();
 		setShellStyle(shellStyle | SWT.RESIZE | SWT.MAX);
-		commitCommentArea = new CommitCommentArea();
+		commitCommentArea = new CommitCommentArea(this, this.getDialogBoundsSettings());
     }
     
     /* (non-Javadoc)

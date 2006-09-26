@@ -78,7 +78,7 @@ public class LockDialog extends TrayDialog {
 		if ((commentProperties != null) && (commentProperties.getMinimumLockMessageSize() != 0)) {
 		    ModifyListener modifyListener = new ModifyListener() {
                 public void modifyText(ModifyEvent e) {
-                    okButton.setEnabled(commitCommentArea.getText().getText().trim().length() >= commentProperties.getMinimumLockMessageSize());
+                    okButton.setEnabled(commitCommentArea.getComment().trim().length() >= commentProperties.getMinimumLockMessageSize());
                 }		        
 		    };
 		    commitCommentArea.setModifyListener(modifyListener);

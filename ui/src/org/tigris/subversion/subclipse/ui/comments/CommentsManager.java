@@ -16,13 +16,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -37,10 +40,13 @@ import org.xml.sax.SAXException;
 public class CommentsManager {
     // The previously remembered comment
     static String[] previousComments = new String[0];
+    static String[] commentTemplates = new String[0];
     static final int MAX_COMMENTS = 10;
     private static final String COMMENT_HIST_FILE = "commitCommentHistory.xml"; //$NON-NLS-1$
-    static final String ELEMENT_COMMIT_COMMENT = "CommitComment"; //$NON-NLS-1$
-    static final String ELEMENT_COMMIT_HISTORY = "CommitComments"; //$NON-NLS-1$
+    private static final String COMMENT_TEMPLATES_FILE = "commentTemplates.xml"; //$NON-NLS-1$
+	static final String ELEMENT_COMMIT_COMMENT = "CommitComment"; //$NON-NLS-1$
+	static final String ELEMENT_COMMIT_HISTORY = "CommitComments"; //$NON-NLS-1$
+    static final String ELEMENT_COMMENT_TEMPLATES = "CommitCommentTemplates"; //$NON-NLS-1$
 
 
     /**
@@ -126,4 +132,82 @@ public class CommentsManager {
          }
     }
 
+    private void readCommentTemplates(InputStream stream) throws IOException, TeamException {
+		try {
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+			SAXParser parser = factory.newSAXParser();
+			parser.parse(new InputSource(stream),
+					new CommentTemplatesContentHandler());
+		} catch (SAXException ex) {
+			throw new SVNException(NLS.bind(
+					Policy.bind("RepositoryManager.parsingProblem"),
+					new String[] { COMMENT_TEMPLATES_FILE }), ex);
+		} catch (ParserConfigurationException ex) {
+			throw new SVNException(NLS.bind(
+					Policy.bind("RepositoryManager.parsingProblem"),
+					new String[] { COMMENT_TEMPLATES_FILE }), ex);
+		}
+	}
+	
+	protected void saveCommentTemplates() throws TeamException {
+		IPath pluginStateLocation = SVNUIPlugin.getPlugin().getStateLocation();
+		File tempFile = pluginStateLocation.append(
+				COMMENT_TEMPLATES_FILE + ".tmp").toFile(); //$NON-NLS-1$
+		File histFile = pluginStateLocation.append(COMMENT_TEMPLATES_FILE)
+				.toFile();
+		try {
+			XMLWriter writer = new XMLWriter(new BufferedOutputStream(
+					new FileOutputStream(tempFile)));
+			try {
+				writeCommentTemplates(writer);
+			} finally {
+				writer.close();
+			}
+			if (histFile.exists()) {
+				histFile.delete();
+			}
+			boolean renamed = tempFile.renameTo(histFile);
+			if (!renamed) {
+				throw new TeamException(new Status(IStatus.ERROR,
+						SVNUIPlugin.ID, TeamException.UNABLE, NLS.bind(
+								Policy.bind("RepositoryManager.rename"),
+								new String[] { tempFile.getAbsolutePath() }),
+						null));
+			}
+		} catch (IOException e) {
+			throw new TeamException(new Status(IStatus.ERROR, SVNUIPlugin.ID,
+					TeamException.UNABLE, NLS.bind(
+							Policy.bind("RepositoryManager.save"),
+							new String[] { histFile.getAbsolutePath() }), e));
+		}
+	}
+	
+	private void writeCommentTemplates(XMLWriter writer) {
+		writer.startTag(ELEMENT_COMMENT_TEMPLATES, null, false);
+		for (int i = 0; i < commentTemplates.length; i++)
+			writer.printSimpleTag(ELEMENT_COMMIT_COMMENT, commentTemplates[i]);
+		writer.endTag(ELEMENT_COMMENT_TEMPLATES);
+	}
+	
+	private boolean containsCommentTemplate(String comment) {
+		for (int i = 0; i < commentTemplates.length; i++) {
+			if (commentTemplates[i].equals(comment)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Get list of comment templates.
+	 */
+	public String[] getCommentTemplates() {
+		return commentTemplates;
+	}
+	
+	public void replaceAndSaveCommentTemplates(String[] templates)
+			throws TeamException {
+		commentTemplates = templates;
+		saveCommentTemplates();
+	}
 }

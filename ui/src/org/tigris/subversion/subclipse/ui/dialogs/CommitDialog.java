@@ -108,7 +108,7 @@ public class CommitDialog extends TrayDialog {
 		if ((commentProperties != null) && (commentProperties.getMinimumLogMessageSize() != 0)) {
 		    ModifyListener modifyListener = new ModifyListener() {
                 public void modifyText(ModifyEvent e) {
-                    okButton.setEnabled(commitCommentArea.getText().getText().trim().length() >= commentProperties.getMinimumLogMessageSize());
+                    okButton.setEnabled(commitCommentArea.getComment().length() >= commentProperties.getMinimumLogMessageSize());
                 }		        
 		    };
 		    commitCommentArea.setModifyListener(modifyListener);
@@ -544,7 +544,7 @@ public class CommitDialog extends TrayDialog {
     }
 
 	public void setComment(String proposedComment) {
-		commitCommentArea.setOldComment(proposedComment);
+		commitCommentArea.setProposedComment(proposedComment);
 	}
 
 	public void setSharing(boolean sharing) {

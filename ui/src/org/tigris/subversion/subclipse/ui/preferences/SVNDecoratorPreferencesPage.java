@@ -92,6 +92,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	private Button imageShowHasRemote;
 	private Button imageShowAdded;
 	private Button imageShowNewResource;
+	private Button imageShowExternal;
 	
 	private Text fileTextFormat;
 	
@@ -111,19 +112,21 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	private static ImageDescriptor dirty;
 	private static ImageDescriptor added;
 	private static ImageDescriptor checkedIn;
+	private static ImageDescriptor external;
 
 	private static ThemeListener fThemeListener;
 	
 	static {		
-		final PreviewFile project= new PreviewFile("Project", IResource.PROJECT, false, false, false, false, true, null, "v1_0"); //$NON-NLS-1$ //$NON-NLS-2$
+		final PreviewFile project= new PreviewFile("Project", IResource.PROJECT, false, false, false, false, true, false, null, "v1_0"); //$NON-NLS-1$ //$NON-NLS-2$
 		final ArrayList children= new ArrayList();
-		children.add(new PreviewFile("Folder", IResource.FOLDER, false, false, false, false, true, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("ignored.txt", IResource.FILE, false, false, false, true, false, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("dirty.cpp", IResource.FILE, false, false, true, false, true, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("added.java", IResource.FILE, true, false, true, false, false, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("todo.txt", IResource.FILE, false, true, false, false, false, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("bugs.txt", IResource.FILE, false, false, true, false, true, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("archive.zip", IResource.FILE, false, false, true, false, true, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("Folder", IResource.FOLDER, false, false, false, false, true, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("External Folder", IResource.FOLDER, false, false, false, false, true, true, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("ignored.txt", IResource.FILE, false, false, false, true, false, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("dirty.cpp", IResource.FILE, false, false, true, false, true, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("added.java", IResource.FILE, true, false, true, false, false, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("todo.txt", IResource.FILE, false, true, false, false, false, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("bugs.txt", IResource.FILE, false, false, true, false, true, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("archive.zip", IResource.FILE, false, false, true, false, true, false, null, null)); //$NON-NLS-1$
 		project.children= children;
 		ROOT= Collections.singleton(project);
 	}
@@ -133,6 +136,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		checkedIn = new CachedImageDescriptor(TeamImages.getImageDescriptor(org.eclipse.team.ui.ISharedImages.IMG_CHECKEDIN_OVR));
 		added = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_ADDED));
 		newResource = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_QUESTIONABLE));
+		external = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_EXTERNAL));
 	}
 
 	private Preview fPreview;
@@ -337,7 +341,8 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowDirty = createCheckBox(imageGroup, Policy.bind("Sho&w_outgoing_25")); //$NON-NLS-1$
 		imageShowHasRemote = createCheckBox(imageGroup, Policy.bind("Show_has_&remote_26")); //$NON-NLS-1$
 		imageShowAdded = createCheckBox(imageGroup, Policy.bind("S&how_is_added_27")); //$NON-NLS-1$
-		imageShowNewResource = createCheckBox(imageGroup, Policy.bind("SVNDecoratorPreferencesPage.newResources")); //$NON-NLS-1$		
+		imageShowNewResource = createCheckBox(imageGroup, Policy.bind("SVNDecoratorPreferencesPage.newResources")); //$NON-NLS-1$
+		imageShowExternal = createCheckBox(imageGroup, Policy.bind("SVNDecoratorPreferencesPage.externalResources")); //$NON-NLS-1$
 		return imageGroup;
 	}
 	
@@ -372,6 +377,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowAdded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_ADDED_DECORATION));
 		imageShowHasRemote.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION));
 		imageShowNewResource.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION));
+		imageShowExternal.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION));
 
 		showDirty.setSelection(store.getBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
 		enableFontDecorators.setSelection(store.getBoolean(ISVNUIConstants.PREF_USE_FONT_DECORATORS));
@@ -386,6 +392,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowAdded.addSelectionListener(selectionListener);
 		imageShowHasRemote.addSelectionListener(selectionListener);
 		imageShowNewResource.addSelectionListener(selectionListener);
+		imageShowExternal.addSelectionListener(selectionListener);
 		
 		setValid(true);
 	}
@@ -415,6 +422,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		store.setValue(ISVNUIConstants.PREF_SHOW_ADDED_DECORATION, imageShowAdded.getSelection());
 		store.setValue(ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION, imageShowHasRemote.getSelection());
 		store.setValue(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION, imageShowNewResource.getSelection());
+		store.setValue(ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION, imageShowExternal.getSelection());
 		
 		store.setValue(ISVNUIConstants.PREF_CALCULATE_DIRTY, showDirty.getSelection());
 		store.setValue(ISVNUIConstants.PREF_USE_FONT_DECORATORS, enableFontDecorators.getSelection());
@@ -449,6 +457,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowAdded.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_ADDED_DECORATION));
 		imageShowHasRemote.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION));
 		imageShowNewResource.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION));
+		imageShowExternal.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION));
 		
 		showDirty.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
 		enableFontDecorators.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_USE_FONT_DECORATORS));
@@ -563,10 +572,10 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
     private static class PreviewFile {
 		public final String name;
 		public final int type;
-		public final boolean added, dirty, hasRemote, ignored, newResource;
-		public Collection children; 
+		public final boolean added, dirty, hasRemote, ignored, newResource, external;
+		public Collection children;
 		
-		public PreviewFile(String name, int type, boolean added, boolean newResource, boolean dirty, boolean ignored, boolean hasRemote, String mode, String tag)  {
+		public PreviewFile(String name, int type, boolean added, boolean newResource, boolean dirty, boolean ignored, boolean hasRemote, boolean external, String mode, String tag)  {
 			this.name= name;
 			this.type= type;
 			this.added= added;
@@ -574,6 +583,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 			this.dirty= dirty;
 			this.hasRemote= hasRemote;
 			this.newResource= newResource;
+			this.external = external;
 			this.children= Collections.EMPTY_LIST;
 		}
     }
@@ -597,17 +607,6 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		}
 		
 		public void refresh() {
-			Map bindings = new HashMap();
-			  
-			bindings.put(SVNDecoratorConfiguration.RESOURCE_REVISION, "74"); //$NON-NLS-1$
-	        bindings.put(SVNDecoratorConfiguration.RESOURCE_AUTHOR, "cchab"); //$NON-NLS-1$
-	        bindings.put(SVNDecoratorConfiguration.RESOURCE_DATE, DateFormat.getInstance().format(new Date())); //$NON-NLS-1$
-	        bindings.put(SVNDecoratorConfiguration.RESOURCE_URL, "http://localhost:8080/svn/repos/trunk/project1"); //$NON-NLS-1$
-	        bindings.put(SVNDecoratorConfiguration.RESOURCE_URL_SHORT, "trunk/project1"); //$NON-NLS-1$
-	        bindings.put(SVNDecoratorConfiguration.RESOURCE_LABEL, "label"); //$NON-NLS-1$
-			bindings.put(SVNDecoratorConfiguration.DIRTY_FLAG, dirtyFlag.getText());
-			bindings.put(SVNDecoratorConfiguration.ADDED_FLAG, addedFlag.getText());
-	        bindings.put(SVNDecoratorConfiguration.EXTERNAL_FLAG, externalFlag.getText());
 			fViewer.refresh(true);
 			setColorsAndFonts();
 		}
@@ -705,6 +704,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	        bindings.put(SVNDecoratorConfiguration.RESOURCE_LABEL, "label"); //$NON-NLS-1$
 			if (previewFile.dirty) bindings.put(SVNDecoratorConfiguration.DIRTY_FLAG, dirtyFlag.getText());
 			if (previewFile.added) bindings.put(SVNDecoratorConfiguration.ADDED_FLAG, addedFlag.getText());
+			if (previewFile.external) bindings.put(SVNDecoratorConfiguration.EXTERNAL_FLAG, externalFlag.getText());
 			
 			if (previewFile.type == IResource.FILE)
 				return SVNDecoratorConfiguration.decorate(previewFile.name, fileTextFormat.getText(), bindings); //$NON-NLS-1$
@@ -720,6 +720,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 			if (imageShowNewResource.getSelection() && previewFile.newResource) return newResource;
 			if (imageShowAdded.getSelection() && previewFile.added) return added;
 			if (imageShowDirty.getSelection() && previewFile.dirty) return dirty;
+			if (imageShowExternal.getSelection() && previewFile.external) return external;
 			if (imageShowHasRemote.getSelection() && previewFile.hasRemote) return checkedIn;
 			return null;
 		}

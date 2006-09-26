@@ -56,11 +56,11 @@ public class SharingWizardFinishPage extends SVNWizardPage {
             commentProperties = CommentProperties.getCommentProperties(project);
         } catch (SVNException e) {}
 		commitCommentArea = new CommitCommentArea(null, null, commentProperties); //$NON-NLS-1$
-		commitCommentArea.setOldComment(Policy.bind("SharingWizard.initialImport")); //$NON-NLS-1$
+		commitCommentArea.setProposedComment(Policy.bind("SharingWizard.initialImport")); //$NON-NLS-1$
 		if ((commentProperties != null) && (commentProperties.getMinimumLogMessageSize() != 0)) {
 		    ModifyListener modifyListener = new ModifyListener() {
                 public void modifyText(ModifyEvent e) {
-                    setPageComplete(commitCommentArea.getText().getText().trim().length() >= commentProperties.getMinimumLogMessageSize());
+                    setPageComplete(commitCommentArea.getComment().trim().length() >= commentProperties.getMinimumLogMessageSize());
                 }		        
 		    };
 		    commitCommentArea.setModifyListener(modifyListener);

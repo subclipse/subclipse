@@ -81,6 +81,7 @@ public interface IHelpContextIds {
 	public static final String SVN_PREFERENCE_DIALOG = PREFIX + "svn_preference_page_context"; //$NON-NLS-1$
 	public static final String SVN_RESOURCE_PROPERTIES_PAGE = PREFIX + "svn_resource_properties_page_context"; //$NON-NLS-1$
 	public static final String DIFF_MERGE_PREFERENCE_PAGE  = PREFIX + "diff_merge_preferences_page_context"; //$NON-NLS-1$
+	public static final String COMMENT_TEMPLATE_PREFERENCE_PAGE = PREFIX + "comment_template_preference_page_context"; //$NON-NLS-1$
 	
 	// Views
 	public static final String CONSOLE_VIEW = PREFIX + "console_view_context"; //$NON-NLS-1$

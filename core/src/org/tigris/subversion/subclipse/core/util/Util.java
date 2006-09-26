@@ -84,4 +84,20 @@ public class Util {
         return null;
     }
 
+	public static String flattenText(String string) {
+		StringBuffer buffer = new StringBuffer(string.length() + 20);
+		boolean skipAdjacentLineSeparator = true;
+		for (int i = 0; i < string.length(); i++) {
+			char c = string.charAt(i);
+			if (c == '\r' || c == '\n') {
+				if (!skipAdjacentLineSeparator)
+					buffer.append(SERVER_SEPARATOR); 
+				skipAdjacentLineSeparator = true;
+			} else {
+				buffer.append(c);
+				skipAdjacentLineSeparator = false;
+			}
+		}
+		return buffer.toString();
+	}
 }
