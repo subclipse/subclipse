@@ -61,17 +61,46 @@ public class CommentsManager {
      * Method addComment.
      * @param string
      */
-    public void addComment(String comment) {
-        // Only add the comment if the first entry isn't the same already
-        if (previousComments.length > 0 && previousComments[0].equals(comment)) return;
-        // Insert the comment as the first element
-        String[] newComments = new String[Math.min(previousComments.length + 1, MAX_COMMENTS)];
-        newComments[0] = comment;
-        for (int i = 1; i < newComments.length; i++) {
-            newComments[i] = previousComments[i-1];
-        }
-        previousComments = newComments;
-    }
+	public void addComment(String comment) {
+		// Make comment first element if it's already there
+		int index = getCommentIndex(comment);
+		if (index != -1) {
+			makeFirstElement(index);
+			return;
+		}
+		if (containsCommentTemplate(comment))
+			return;
+		
+		// Insert the comment as the first element
+		String[] newComments = new String[Math.min(previousComments.length + 1, MAX_COMMENTS)];
+		newComments[0] = comment;
+		for (int i = 1; i < newComments.length; i++) {
+			newComments[i] = previousComments[i-1];
+		}
+		previousComments = newComments;
+	}
+	
+	private int getCommentIndex(String comment) {
+		for (int i = 0; i < previousComments.length; i++) {
+			if (previousComments[i].equals(comment)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	private void makeFirstElement(int index) {
+		String[] newComments = new String[previousComments.length];
+		newComments[0] = previousComments[index];
+		System.arraycopy(previousComments, 0, newComments, 1, index);
+		int maxIndex = previousComments.length - 1;
+		if (index != maxIndex) {
+			int nextIndex = (index + 1);
+			System.arraycopy(previousComments, nextIndex, newComments,
+					nextIndex, (maxIndex - index));
+		}
+		previousComments = newComments;
+	}
 
     /**
      * load the comment history 
@@ -97,7 +126,7 @@ public class CommentsManager {
                 is.close();
             }
         } catch (IOException e) {
-            SVNUIPlugin.log(new Status(Status.ERROR, SVNUIPlugin.ID, TeamException.UNABLE, Policy.bind("RepositoryManager.ioException"), e)); //$NON-NLS-1$
+            SVNUIPlugin.log(new Status(IStatus.ERROR, SVNUIPlugin.ID, TeamException.UNABLE, Policy.bind("RepositoryManager.ioException"), e)); //$NON-NLS-1$
         } catch (TeamException e) {
             SVNUIPlugin.log(e.getStatus());
         }
@@ -125,13 +154,31 @@ public class CommentsManager {
                  }
                  boolean renamed = tempFile.renameTo(histFile);
                  if (!renamed) {
-                         throw new TeamException(new Status(Status.ERROR, SVNUIPlugin.ID, TeamException.UNABLE, Policy.bind("RepositoryManager.rename", tempFile.getAbsolutePath()), null)); //$NON-NLS-1$
+                         throw new TeamException(new Status(IStatus.ERROR, SVNUIPlugin.ID, TeamException.UNABLE, Policy.bind("RepositoryManager.rename", tempFile.getAbsolutePath()), null)); //$NON-NLS-1$
                  }
          } catch (IOException e) {
-                 throw new TeamException(new Status(Status.ERROR, SVNUIPlugin.ID, TeamException.UNABLE, Policy.bind("RepositoryManager.save",histFile.getAbsolutePath()), e)); //$NON-NLS-1$
+                 throw new TeamException(new Status(IStatus.ERROR, SVNUIPlugin.ID, TeamException.UNABLE, Policy.bind("RepositoryManager.save",histFile.getAbsolutePath()), e)); //$NON-NLS-1$
          }
     }
 
+    public void loadCommentTemplates() {
+		IPath pluginStateLocation = SVNUIPlugin.getPlugin().getStateLocation();
+		File histFile = pluginStateLocation.append(COMMENT_TEMPLATES_FILE).toFile();
+        if (!histFile.exists()) return;
+        try {
+            BufferedInputStream is = new BufferedInputStream(new FileInputStream(histFile));
+            try {
+                readCommentTemplates(is);
+            } finally {
+                is.close();
+            }
+		} catch (IOException e) {
+            SVNUIPlugin.log(new Status(IStatus.ERROR, SVNUIPlugin.ID, TeamException.UNABLE, Policy.bind("RepositoryManager.ioException"), e)); //$NON-NLS-1$
+        } catch (TeamException e) {
+            SVNUIPlugin.log(e.getStatus());
+        }
+    }
+    
     private void readCommentTemplates(InputStream stream) throws IOException, TeamException {
 		try {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -149,7 +196,7 @@ public class CommentsManager {
 		}
 	}
 	
-	protected void saveCommentTemplates() throws TeamException {
+	public void saveCommentTemplates() throws TeamException {
 		IPath pluginStateLocation = SVNUIPlugin.getPlugin().getStateLocation();
 		File tempFile = pluginStateLocation.append(
 				COMMENT_TEMPLATES_FILE + ".tmp").toFile(); //$NON-NLS-1$

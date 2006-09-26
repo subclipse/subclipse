@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -478,7 +477,6 @@ public class CommitCommentArea extends DialogArea {
     private TextBox fTextBox;
     private ComboBox fComboBox;
     
-    private IProject fMainProject;
     private String fProposedComment;
     private Composite fComposite;
 	private String enterCommentMessage;
@@ -599,11 +597,6 @@ public class CommitCommentArea extends DialogArea {
         return getComment(true);
     }
 
-    
-    public void setProject(IProject iProject) {
-        this.fMainProject = iProject;
-    }
-    
     public void setFocus() {
         if (fTextBox != null) {
             fTextBox.setFocus();

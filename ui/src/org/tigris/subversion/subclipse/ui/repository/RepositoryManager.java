@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
@@ -144,6 +145,7 @@ public class RepositoryManager {
      */	
 	public void startup() {
         commentsManager.loadCommentHistory();
+        commentsManager.loadCommentTemplates();
         keyFilesManager.loadKeyFileHistory();
 		
         // we listen to changes to repository so that we can advise concerned views
@@ -178,6 +180,7 @@ public class RepositoryManager {
      */
 	public void shutdown() throws TeamException {
         commentsManager.saveCommentHistory();
+        commentsManager.saveCommentTemplates();
         keyFilesManager.saveKeyFilesHistory();
 	}
 
@@ -287,10 +290,10 @@ public class RepositoryManager {
         shell.getDisplay().syncExec(new Runnable() {
             public void run() {
                 result[0] = dialog.open();
-                if (result[0] != ReleaseCommentDialog.OK) return;
+                if (result[0] != Window.OK) return;
             }
         });
-        if (result[0] != ReleaseCommentDialog.OK) return null;
+        if (result[0] != Window.OK) return null;
         return dialog.getComment();
     }	
 
