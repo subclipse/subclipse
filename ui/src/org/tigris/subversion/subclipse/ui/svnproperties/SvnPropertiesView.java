@@ -64,7 +64,6 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.SVNPropertyDeleteAction;
 import org.tigris.subversion.subclipse.ui.actions.SVNPropertyModifyAction;
-import org.tigris.subversion.subclipse.ui.dialogs.AddKeywordsDialog;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
@@ -84,7 +83,6 @@ public class SvnPropertiesView extends ViewPart {
 	private Action addPropertyAction;
 	private Action modifyPropertyAction;
 	private Action deletePropertyAction;
-	private Action setKeywordsAction;
 	private Label statusLabel;
 	private ISelectionListener pageSelectionListener;
 	private IResourceStateChangeListener resourceStateChangeListener;
@@ -318,28 +316,6 @@ public class SvnPropertiesView extends ViewPart {
 		return addPropertyAction;
 	}
 
-	private Action getSetKeywordsAction() {
-		if (setKeywordsAction == null) {
-			setKeywordsAction = new Action(Policy.bind("SvnPropertiesView.addKeywordsLabel")) { //$NON-NLS-1$
-				public void run() {
-					try {
-						AddKeywordsDialog dialog = new AddKeywordsDialog(getSite().getShell(),new IResource[] { resource.getIResource() });
-						if (dialog.open() != AddKeywordsDialog.OK) return;
-						dialog.updateKeywords();
-					} catch (SVNException e) {
-						SVNUIPlugin.openError(
-						getSite().getShell(), 
-						Policy.bind("SvnPropertiesView.errorAddKeywordsTitle"), //$NON-NLS-1$
-						Policy.bind("SvnPropertiesView.errorAddKeywordsMessage"),//$NON-NLS-1$ 
-						e);
-					}
-				}
-			};
-			setKeywordsAction.setToolTipText(Policy.bind("SvnPropertiesView.addKeywordsTooltip")); //$NON-NLS-1$
-		}
-		return setKeywordsAction;		
-	}
-
 	private Action getModifyPropertyAction() {
 		if (modifyPropertyAction == null) {
 			modifyPropertyAction = new Action(Policy.bind("SvnPropertiesView.modifyPropertyLabel")) { //$NON-NLS-1$
@@ -444,14 +420,6 @@ public class SvnPropertiesView extends ViewPart {
 		}
 		manager.add(action);
 
-		action = getSetKeywordsAction();
-		try { 		
-			action.setEnabled(resource.isManaged());
-		} catch (SVNException e) {
-			action.setEnabled(false);
-		}
-		manager.add(action);		
-		
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
     

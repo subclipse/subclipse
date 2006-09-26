@@ -402,14 +402,6 @@
                id="org.tigris.subversion.subclipse.ui.add">
          </action>
          <action
-               label="%AddKeywords.label"
-               helpContextId="org.tigris.subversion.subclipse.ui.team_add_keywords_action_context"
-               tooltip="%AddKeywords.tooltip"
-               class="org.tigris.subversion.subclipse.ui.actions.AddKeywordsAction"
-               menubarPath="team.main/group3"
-               id="org.tigris.subversion.subclipse.ui.AddKeywords">
-         </action>
-         <action
                label="%SetSvnProperty.label"
                icon="icons/full/ctool16/svn_prop_add.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.team_set_svnpropery_action_context"
