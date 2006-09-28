@@ -50,7 +50,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
 			IResourceVariant remote = syncInfo.getRemote();
 			if (remote != null && remote instanceof ISVNRemoteResource) {
-				if (syncInfo.getRemoteResourceStatus().getTextStatus() == SVNStatusKind.DELETED) {
+				if (syncInfo.getRemoteResourceStatus() != null && syncInfo.getRemoteResourceStatus().getTextStatus() == SVNStatusKind.DELETED) {
 					containsDeletes = true;
 					continue;
 				} 
