@@ -13,6 +13,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.Transfer;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 
 /**
  * Copy selected remote resources to clipboard
@@ -37,5 +38,12 @@ public class CopyRemoteResourceAction extends SVNAction {
 	 */
 	protected boolean isEnabled() {
 		return getSelectedRemoteResources().length == 1;
+	}
+
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_COPY;
 	}
 }

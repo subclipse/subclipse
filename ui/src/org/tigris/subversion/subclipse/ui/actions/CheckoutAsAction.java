@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard;
 
@@ -43,6 +44,13 @@ public class CheckoutAsAction extends SVNAction {
 	    CheckoutWizard wizard = new CheckoutWizard(folders);
 	    WizardDialog dialog = new WizardDialog(shell, wizard);
 	    dialog.open();
+	}
+
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_CHECKOUTAS;
 	}
 
 }

@@ -17,8 +17,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.window.Window;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -32,17 +30,11 @@ import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
 /**
  * Action to restore pristine working copy file 
  */
-public class RevertAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate {
+public class RevertAction extends WorkbenchWindowAction {
     
     private String url;
 	private IResource[] resourcesToRevert;
     
-	/*
-	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
-	 */
-	public void init(IWorkbenchWindow window) {
-	}
-
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
 		final IResource[] resources = getSelectedResources();
         try {
@@ -108,11 +100,14 @@ public class RevertAction extends WorkspaceAction implements IWorkbenchWindowAct
         return true;
     }
 
-    /*
-	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-	 */
-	public void dispose()
+	protected String getImageId()
 	{
+		return ISVNUIConstants.IMG_MENU_REVERT;
+	}
+
+	protected String getMenuId()
+	{
+		return "org.tigris.subversion.subclipse.ui.revert"; //$NON-NLS-1$
 	}
 	
 }

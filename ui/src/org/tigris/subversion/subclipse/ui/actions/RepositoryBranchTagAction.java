@@ -20,6 +20,7 @@ import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -56,6 +57,13 @@ public class RepositoryBranchTagAction extends SVNAction {
 
 	protected boolean isEnabled() throws TeamException {
 		return getSelectedRemoteResources().length == 1;
+	}
+
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_BRANCHTAG;
 	}
 
 }

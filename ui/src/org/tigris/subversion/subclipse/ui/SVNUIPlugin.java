@@ -452,7 +452,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
     public ImageDescriptor getImageDescriptor(String id) {
         if (imageDescriptors == null) {
             imageDescriptors = new ImageDescriptors();
-            imageDescriptors.initializeImages(baseURL);
+            imageDescriptors.initializeImages(baseURL,
+            		getPreferenceStore().getInt(ISVNUIConstants.PREF_MENU_ICON_SET));
         }
         return imageDescriptors.getImageDescriptor(id);
     }

@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ExportOperation;
 
@@ -26,6 +27,13 @@ public class ExportAction extends WorkspaceAction {
 		String directory = dialog.open();
 		if (directory == null) return;
 		new ExportOperation(getTargetPart(), getSelectedResources(), directory).run();
+	}
+
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_EXPORT;
 	}
 
 }

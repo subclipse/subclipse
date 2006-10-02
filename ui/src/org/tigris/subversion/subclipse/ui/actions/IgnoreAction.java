@@ -17,22 +17,15 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.IgnoreResourcesDialog;
 import org.tigris.subversion.subclipse.ui.operations.IgnoreOperation;
 
-public class IgnoreAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate {
+public class IgnoreAction extends WorkbenchWindowAction {
 
-	/*
-	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
-	 */
-	public void init(IWorkbenchWindow window) {
-	}	
-	
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
         run(new IRunnableWithProgress() {
             public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -81,11 +74,14 @@ public class IgnoreAction extends WorkspaceAction implements IWorkbenchWindowAct
 		return true;
 	}
 
-	/*
-	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-	 */
-	public void dispose()
+	protected String getImageId()
 	{
+		return ISVNUIConstants.IMG_MENU_IGNORE;
+	}
+
+	protected String getMenuId()
+	{
+		return "org.tigris.subversion.subclipse.ui.ignore"; //$NON-NLS-1$
 	}
 	
 }

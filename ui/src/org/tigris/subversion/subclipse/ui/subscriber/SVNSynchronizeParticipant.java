@@ -110,7 +110,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 			UpdateSynchronizeAction updateAction = new UpdateSynchronizeAction(Policy.bind("SyncAction.update"), configuration); //$NON-NLS-1$
 			updateAction.setId("org.tigris.subversion.subclipse.ui.syncViewUpdate");
 			updateAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.update");
-			updateAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_UPDATE));
+			updateAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_UPDATE));
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
@@ -119,7 +119,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 			CommitSynchronizeAction commitAction = new CommitSynchronizeAction(Policy.bind("SyncAction.commit"), configuration); //$NON-NLS-1$
 			commitAction.setId("org.tigris.subversion.subclipse.ui.syncViewCommit");
 			commitAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.commit");
-			commitAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_COMMIT));
+			commitAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_COMMIT));
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
@@ -136,7 +136,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					overrideAction);						
 			MarkMergedSynchronizeAction markMergedAction = new MarkMergedSynchronizeAction(Policy.bind("SyncAction.markMerged"), configuration); //$NON-NLS-1$
-			markMergedAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MERGE));
+			markMergedAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_MARKMERGED));
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
@@ -148,7 +148,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 					new Separator());
 			
 			AddSynchronizeAction addAction = new AddSynchronizeAction(Policy.bind("SyncAction.add"), configuration); //$NON-NLS-1$
-			addAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_ADD));
+			addAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_ADD));
 			addAction.setId("org.tigris.subversion.subclipse.ui.syncViewAdd");
 			addAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.add");
 			appendToGroup(
@@ -156,7 +156,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					addAction);				
 			IgnoreSynchronizeAction ignoreAction = new IgnoreSynchronizeAction(Policy.bind("SyncAction.ignore"), configuration); //$NON-NLS-1$
-			ignoreAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_IGNORE));			
+			ignoreAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_IGNORE));			
 			ignoreAction.setId("org.tigris.subversion.subclipse.ui.syncViewIgnore");
 			ignoreAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.ignore");
 			appendToGroup(
@@ -164,7 +164,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					ignoreAction);	
 			RevertSynchronizeAction revertAction = new RevertSynchronizeAction(Policy.bind("SyncAction.revert"), configuration); //$NON-NLS-1$
-			revertAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REVERT));
+			revertAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_REVERT));
 			revertAction.setId("org.tigris.subversion.subclipse.ui.syncViewRevert");
 			revertAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.revert");
 			appendToGroup(
@@ -173,25 +173,25 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 					revertAction);
 			
 			ShowHistorySynchronizeAction historyAction = new ShowHistorySynchronizeAction(Policy.bind("SyncAction.history"), configuration); //$NON-NLS-1$
-			historyAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_LOG));			
+			historyAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY));			
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					historyAction);	
 			ShowPropertiesSynchronizeAction propertiesAction = new ShowPropertiesSynchronizeAction(Policy.bind("SyncAction.properties"), configuration); //$NON-NLS-1$
-			propertiesAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROPERTIES));			
+			propertiesAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWPROPERTY));			
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					propertiesAction);				
 			EditConflictsSynchronizeAction conflictsAction = new EditConflictsSynchronizeAction(Policy.bind("SyncAction.conflicts"), configuration); //$NON-NLS-1$				
-			conflictsAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_CONFLICT));
+			conflictsAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_EDITCONFLICT));
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					conflictsAction);
 			ResolveSynchronizeAction resolveAction = new ResolveSynchronizeAction(Policy.bind("SyncAction.resolve"), configuration); //$NON-NLS-1$
-			resolveAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_RESOLVE));
+			resolveAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_RESOLVE));
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,

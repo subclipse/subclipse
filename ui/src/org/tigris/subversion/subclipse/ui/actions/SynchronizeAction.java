@@ -18,8 +18,7 @@ import org.eclipse.team.ui.TeamUI;
 import org.eclipse.team.ui.synchronize.ISynchronizeParticipant;
 import org.eclipse.team.ui.synchronize.ResourceScope;
 import org.eclipse.team.ui.synchronize.SubscriberParticipant;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
 
@@ -27,15 +26,8 @@ import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
  * Action to synchronize the selected resources. This results
  * in a file-system participant being added to the synchronize view.
  */
-public class SynchronizeAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate{
+public class SynchronizeAction extends WorkbenchWindowAction {
 
-	/*
-	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
-	 */
-	public void init(IWorkbenchWindow window) {
-	}
-
-	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
@@ -62,11 +54,14 @@ public class SynchronizeAction extends WorkspaceAction implements IWorkbenchWind
         } 
 	}
 
-    /*
-	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-	 */
-	public void dispose()
+	protected String getImageId()
 	{
-	}    
+		return ISVNUIConstants.IMG_MENU_SYNC;
+	}
+
+	protected String getMenuId()
+	{
+		return "org.tigris.subversion.subclipse.ui.synchronize"; //$NON-NLS-1$
+	}
 
 }

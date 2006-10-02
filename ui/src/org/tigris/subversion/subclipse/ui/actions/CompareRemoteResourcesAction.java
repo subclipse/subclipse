@@ -18,6 +18,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.ResourceEditionNode;
 import org.tigris.subversion.subclipse.ui.compare.SVNCompareEditorInput;
@@ -52,6 +53,13 @@ public class CompareRemoteResourcesAction extends SVNAction {
 		ISVNRemoteResource[] resources = getSelectedRemoteResources();
 		if (resources.length != 2) return false;
 		return resources[0].isContainer() == resources[1].isContainer();
+	}
+
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_COMPARE;
 	}
 
 }

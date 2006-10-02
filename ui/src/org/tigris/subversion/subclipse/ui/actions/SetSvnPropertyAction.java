@@ -19,6 +19,7 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.svnproperties.SetSvnPropertyDialog;
 
@@ -79,6 +80,13 @@ public class SetSvnPropertyAction extends WorkspaceAction {
 	 */
 	protected boolean isEnabledForMultipleResources() {
 		return false;
+	}
+
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_PROPSET;
 	}	
 	
 }

@@ -36,7 +36,6 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.internal.TeamAction;
 import org.tigris.subversion.subclipse.ui.util.IPromptCondition;
 
 /**
@@ -44,7 +43,7 @@ import org.tigris.subversion.subclipse.ui.util.IPromptCondition;
  * facilities for enablement handling, standard error handling, selection
  * retrieval and prompting.
  */
-abstract public class SVNAction extends TeamAction {
+abstract public class SVNAction extends ReplaceableIconAction {
 	
 	private List accumulatedStatus = new ArrayList();
 	

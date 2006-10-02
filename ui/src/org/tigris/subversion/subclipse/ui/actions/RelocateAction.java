@@ -17,6 +17,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositoryLocation;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.wizards.RelocateWizard;
 
 public class RelocateAction extends SVNAction {
@@ -37,6 +38,13 @@ public class RelocateAction extends SVNAction {
 
 	protected boolean isEnabled() throws TeamException {
 		return selection.size() == 1;
+	}
+
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_RELOCATE;
 	}
 
 }

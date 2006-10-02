@@ -21,27 +21,20 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.team.core.TeamException;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 
 /**
  * AddAction performs a 'svn add' command on the selected resources. If a
  * container is selected, its children are recursively added.
  */
-public class AddAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate {
+public class AddAction extends WorkbenchWindowAction {
 
-	/*
-	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
-	 */
-	public void init(IWorkbenchWindow window) {
-	}	
-	
 	/*
 	 * @see SVNAction#execute()
 	 */
@@ -138,11 +131,14 @@ public class AddAction extends WorkspaceAction implements IWorkbenchWindowAction
 		return super.isEnabledForSVNResource(svnResource);
 	}
 
-	/*
-	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-	 */
-	public void dispose()
+	protected String getImageId()
 	{
+		return ISVNUIConstants.IMG_MENU_ADD;
+	}
+
+	protected String getMenuId()
+	{
+		return "org.tigris.subversion.subclipse.ui.add"; //$NON-NLS-1$
 	}
 
 }

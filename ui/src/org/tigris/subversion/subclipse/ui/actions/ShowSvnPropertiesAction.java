@@ -17,6 +17,7 @@ import org.eclipse.jface.action.IAction;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView;
 
 
@@ -27,7 +28,7 @@ import org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView;
  * 
  */
 public class ShowSvnPropertiesAction extends WorkspaceAction {
-	
+
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
         IResource resource = (IResource)getSelectedResources()[0];
 		final ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
@@ -63,6 +64,13 @@ public class ShowSvnPropertiesAction extends WorkspaceAction {
 
 	protected boolean isEnabledForUnmanagedResources() {
 		return false;
+	}
+	
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_SHOWPROPERTY;
 	}
 
 }

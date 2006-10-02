@@ -29,8 +29,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
 import org.eclipse.team.internal.core.subscribers.ChangeSet;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -53,7 +51,7 @@ import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
  * If selected, unversioned resources will be added to version control,
  * and committed.
  */
-public class CommitAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate {
+public class CommitAction extends WorkbenchWindowAction {
 	protected String commitComment;
     protected IResource[] resourcesToCommit;
     protected String url;
@@ -72,12 +70,6 @@ public class CommitAction extends WorkspaceAction implements IWorkbenchWindowAct
 		this.proposedComment = proposedComment;
 	}
 
-	/*
-	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
-	 */
-	public void init(IWorkbenchWindow window) {
-	}
-	
 	/*
      * get non added resources and prompts for resources to be added
      * prompts for comments
@@ -368,16 +360,18 @@ public class CommitAction extends WorkspaceAction implements IWorkbenchWindowAct
     	return false;
     }
 
-
-    /*
-	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-	 */
-	public void dispose()
-	{
-	}
-
 	public void setSharing(boolean sharing) {
 		this.sharing = sharing;
 	}    
+
+	protected String getImageId()
+	{
+		return ISVNUIConstants.IMG_MENU_COMMIT;
+	}
+
+	protected String getMenuId()
+	{
+		return "org.tigris.subversion.subclipse.ui.commit"; //$NON-NLS-1$
+	}
     
 }

@@ -70,4 +70,11 @@ public class ShowResourceInHistoryAction extends WorkspaceAction {
 		return /* (!svnResource.isFolder() && */ super.isEnabledForSVNResource(svnResource);
 	}
 
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_SHOWHISTORY;
+	}
+
 }

@@ -13,8 +13,7 @@ package org.tigris.subversion.subclipse.ui.actions;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -25,14 +24,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  * the changes will be merged into the local file such that the user must
  * resolve the conflicts. 
  */
-public class UpdateAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate {
-
-	/*
-	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
-	 */
-	public void init(IWorkbenchWindow window) {
-	}
-
+public class UpdateAction extends WorkbenchWindowAction {
 	/*
 	 * @see IActionDelegate#run(IAction)
 	 */
@@ -59,11 +51,14 @@ public class UpdateAction extends WorkspaceAction implements IWorkbenchWindowAct
 		return false;
 	}
 
-	/*
-	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-	 */
-	public void dispose()
+	protected String getImageId()
 	{
-	}    
+		return ISVNUIConstants.IMG_MENU_UPDATE;
+	}
 
+	protected String getMenuId()
+	{
+		return "org.tigris.subversion.subclipse.ui.update"; //$NON-NLS-1$
+	}
+	
 }

@@ -290,7 +290,7 @@ public class SvnPropertiesView extends ViewPart {
 	private Action getAddPropertyAction() {
 		if (addPropertyAction == null) {
 			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
-			addPropertyAction = new Action(Policy.bind("SvnPropertiesView.addPropertyLabel"), plugin.getImageDescriptor(ISVNUIConstants.IMG_ADD_PROPERTY)) { //$NON-NLS-1$
+			addPropertyAction = new Action(Policy.bind("SvnPropertiesView.addPropertyLabel"), plugin.getImageDescriptor(ISVNUIConstants.IMG_MENU_PROPSET)) { //$NON-NLS-1$
 				public void run() {
 					SetSvnPropertyDialog dialog = new SetSvnPropertyDialog(getSite().getShell(),resource);
 					if (dialog.open() != SetSvnPropertyDialog.OK) return;

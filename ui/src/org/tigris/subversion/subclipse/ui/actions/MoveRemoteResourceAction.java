@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.ui.actions;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.wizards.MoveRemoteResourceWizard;
 
 /**
@@ -39,6 +40,13 @@ public class MoveRemoteResourceAction extends SVNAction {
 	 */
 	protected boolean isEnabled() {
 		return (selection.size() == 1) && (selection.getFirstElement() instanceof ISVNRemoteResource); 
+	}
+
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_MOVE;
 	}
 
 }

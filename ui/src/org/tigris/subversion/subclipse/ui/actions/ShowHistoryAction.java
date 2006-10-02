@@ -57,4 +57,11 @@ public class ShowHistoryAction extends SVNAction {
 		return Policy.bind("ShowHistoryAction.showHistory"); //$NON-NLS-1$
 	}
 
+	/*
+	 * @see org.tigris.subversion.subclipse.ui.actions.ReplaceableIconAction#getImageId()
+	 */
+	protected String getImageId() {
+		return ISVNUIConstants.IMG_MENU_SHOWHISTORY;
+	}
+
 }

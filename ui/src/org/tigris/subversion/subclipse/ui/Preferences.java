@@ -93,6 +93,8 @@ private IPreferenceStore store;
         store.setDefault(ISVNUIConstants.PREF_MERGE_PROGRAM_PARAMETERS,""); //$NON-NLS-1$
         
         store.setDefault(ISVNUIConstants.PREF_USE_QUICKDIFFANNOTATE, MessageDialogWithToggle.PROMPT);
+
+        store.setDefault(ISVNUIConstants.PREF_MENU_ICON_SET, ISVNUIConstants.MENU_ICON_SET_DEFAULT);
         
         setSvnClientInterface(store.getString(ISVNUIConstants.PREF_SVNINTERFACE));
         setSvnClientConfigDir(store.getString(ISVNUIConstants.PREF_SVNCONFIGDIR));

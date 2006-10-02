@@ -219,4 +219,9 @@ public class EditConflictsAction extends WorkspaceAction {
          result.append( input.substring(startIdx) );
          return result.toString();
       }
+
+	protected String getImageId()
+	{
+		return ISVNUIConstants.IMG_MENU_EDITCONFLICT;
+	}
 }
