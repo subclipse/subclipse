@@ -283,11 +283,14 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 					}
 				}
 			});
-			CommitAction commitAction = new CommitAction(finishPage.getComment());
-			commitAction.setSharing(true);
-			IResource[] selectedResources = { project };
-			commitAction.setSelectedResources(selectedResources);
-			commitAction.run(null);
+
+			if (autoconnectPage == null || (projectStatus == null)) {
+				CommitAction commitAction = new CommitAction(finishPage.getComment());
+				commitAction.setSharing(true);
+				IResource[] selectedResources = { project };
+				commitAction.setSelectedResources(selectedResources);
+				commitAction.run(null);
+			}
 //			if (doSync[0]) {
 //			    IResource[] resources = { project };
 //			    SVNSynchronizeParticipant participant = (SVNSynchronizeParticipant)SubscriberParticipant.getMatchingParticipant(SVNSynchronizeParticipant.ID, resources);
