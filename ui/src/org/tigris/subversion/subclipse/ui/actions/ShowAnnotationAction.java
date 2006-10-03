@@ -18,6 +18,7 @@ import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.operations.ShowAnnotationOperation;
 
 public class ShowAnnotationAction extends WorkspaceAction {
@@ -74,5 +75,10 @@ public class ShowAnnotationAction extends WorkspaceAction {
 			}
 		}
 		return null;
+	}
+
+	protected String getImageId()
+	{
+		return ISVNUIConstants.IMG_MENU_ANNOTATE;
 	}
 }

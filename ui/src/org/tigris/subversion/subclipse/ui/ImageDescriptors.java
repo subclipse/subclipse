@@ -137,8 +137,6 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_SVN_CONSOLE, baseURL);
 
         // Menues
-        createImageDescriptor(ISVNUIConstants.IMG_MENU_COPY,         "ctool16/copy_edit.gif", baseURL);
-        
         switch(iconSet) {
         	case ISVNUIConstants.MENU_ICON_SET_TORTOISESVN:
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_UPDATE,       "tortoise/update.gif", baseURL);
@@ -168,6 +166,8 @@ public class ImageDescriptors {
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_MARKMERGED,   "tortoise/merge.gif", baseURL);
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_MERGE,        "tortoise/merge.gif", baseURL);
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY,  "cview16/history_view.gif", baseURL);
+		        createImageDescriptor(ISVNUIConstants.IMG_MENU_ANNOTATE,     "cview16/annotate_view.gif", baseURL);
+		        createImageDescriptor(ISVNUIConstants.IMG_MENU_COPY,         "ctool16/copy_edit.gif", baseURL);
 		        break;
         	case ISVNUIConstants.MENU_ICON_SET_SUBVERSIVE:
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_UPDATE,       "subversive/update.gif", baseURL);
@@ -181,10 +181,16 @@ public class ImageDescriptors {
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_SWITCH,       "subversive/switch.gif", baseURL);
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_MERGE,        "subversive/merge.gif", baseURL);
         		createImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY,  "subversive/showhistory.gif", baseURL);
+		        createImageDescriptor(ISVNUIConstants.IMG_MENU_EXPORT,       "subversive/export.gif", baseURL);
+		        createImageDescriptor(ISVNUIConstants.IMG_MENU_IMPORTFOLDER, "subversive/import.gif", baseURL);
+		        createImageDescriptor(ISVNUIConstants.IMG_MENU_ANNOTATE,     "subversive/annotate.gif", baseURL);
+		        createImageDescriptor(ISVNUIConstants.IMG_MENU_COPY,         "subversive/copy.gif", baseURL);
 		        break;
         	default: // CVS
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_MERGE,        "tortoise/merge.gif", baseURL);
         		createImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY,  "cview16/history_view.gif", baseURL);
+		        createImageDescriptor(ISVNUIConstants.IMG_MENU_ANNOTATE,     "cview16/annotate_view.gif", baseURL);
+		        createImageDescriptor(ISVNUIConstants.IMG_MENU_COPY,         "ctool16/copy_edit.gif", baseURL);
         		break;
         }
     }

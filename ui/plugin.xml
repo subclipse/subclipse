@@ -256,7 +256,6 @@
             id="org.tigris.subversion.subclipse.ui.RemoteFileContributions">
          <action
                label="%AnnotateAction.label"
-               icon="icons/full/cview16/annotate_view.gif"
                class="org.tigris.subversion.subclipse.ui.actions.AnnotateAction"
                menubarPath="historyGroup"
                id="org.tigris.subversion.subclipse.ui.annotate">
@@ -308,7 +307,6 @@
          </action>
          <action
                label="%ShowAnnotationAction.label"
-               icon="icons/full/cview16/annotate_view.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.get_annotate_action_context"
                tooltip="%ShowAnnotationAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction"
@@ -420,7 +418,6 @@
          </action>
          <action
                label="%CopyAction.label"
-               icon="icons/full/ctool16/copy_edit.gif"
                class="org.tigris.subversion.subclipse.ui.actions.CopyAction"
                menubarPath="team.main/group5"
 			   definitionId="org.tigris.subversion.subclipse.ui.copy"
@@ -622,7 +619,6 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
          </action>
          <action
                label="%ShowAnnotationAction.label"
-               icon="icons/full/cview16/annotate_view.gif"
                helpContextId="org.tigris.subversion.subclipse.ui.get_annotate_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction"
                tooltip="%ShowAnnotationAction.tooltip"
@@ -1076,7 +1072,7 @@ For example:
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.copy"
 				label="%CopyCommand.label"
-                icon="icons/full/ctool16/copy_edit.gif"
+                icon="icons/full/empty/empty.gif"
 				class="org.tigris.subversion.subclipse.ui.actions.CopyAction"
 				tooltip="%CopyAction.tooltip" toolbarPath="SVNGroupMenu"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"

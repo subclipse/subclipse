@@ -26,20 +26,13 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 
-public class CopyAction extends WorkspaceAction implements IWorkbenchWindowActionDelegate {
-
-	/*
-	 * @see IWorkbenchWindowActionDelegate#init(IWorkbenchWindow)
-	 */
-	public void init(IWorkbenchWindow window) {
-	}	
+public class CopyAction extends WorkbenchWindowAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		final IResource[] resources = getSelectedResources();
@@ -113,11 +106,14 @@ public class CopyAction extends WorkspaceAction implements IWorkbenchWindowActio
 		return true;
 	}
 
-	/*
-	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-	 */
-	public void dispose()
+	protected String getImageId()
 	{
+		return ISVNUIConstants.IMG_MENU_COPY;
+	}
+
+	protected String getMenuId()
+	{
+		return "org.tigris.subversion.subclipse.ui.copy"; //$NON-NLS-1$
 	}
 	
 }

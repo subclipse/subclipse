@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.dialogs.AnnotateDialog;
 
 public class AnnotateAction extends SVNAction {
@@ -27,6 +28,11 @@ public class AnnotateAction extends SVNAction {
 
 	protected boolean isEnabled() throws TeamException {
 		return getSelectedRemoteFiles().length == 1;
+	}
+
+	protected String getImageId()
+	{
+		return ISVNUIConstants.IMG_MENU_ANNOTATE;
 	}
 
 }

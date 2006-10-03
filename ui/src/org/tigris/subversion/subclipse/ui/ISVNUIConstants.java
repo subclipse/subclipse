@@ -104,6 +104,7 @@ public interface ISVNUIConstants {
     public final String IMG_MENU_MARKMERGED = "Menu Mark Merged"; //$NON-NLS-1$
     public final String IMG_MENU_MERGE = "Menu Merge"; //$NON-NLS-1$
     public final String IMG_MENU_SHOWHISTORY = "Menu Show History"; //$NON-NLS-1$
+    public final String IMG_MENU_ANNOTATE = "Menu Annotate"; //$NON-NLS-1$
 	
 	// preferences
 	public final String PREF_SHOW_COMMENTS = "pref_show_comments"; //$NON-NLS-1$
