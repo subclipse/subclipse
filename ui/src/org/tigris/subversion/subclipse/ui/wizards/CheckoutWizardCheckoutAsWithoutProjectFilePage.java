@@ -223,7 +223,9 @@ public class CheckoutWizardCheckoutAsWithoutProjectFilePage extends WizardPage {
 			try {
 				svnRevision = SVNRevision.getRevision(revisionText.getText().trim());
 			} catch (ParseException e) {}
-		return svnRevision;
+			if (svnRevision == null)
+				return SVNRevision.HEAD;
+			return svnRevision;
 	}
 
 }
