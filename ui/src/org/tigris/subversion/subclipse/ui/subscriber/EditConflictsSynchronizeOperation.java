@@ -67,13 +67,13 @@ public class EditConflictsSynchronizeOperation extends SVNSynchronizeOperation {
 	                try {
 	                    IFile conflictNewFile = (IFile) File2Resource
 	                            .getResource(svnResource.getStatus()
-	                                    .getFileConflictNew());
+	                                    .getConflictNew());
 	                    IFile conflictOldFile = (IFile) File2Resource
 	                            .getResource(svnResource.getStatus()
-	                                    .getFileConflictOld());
+	                                    .getConflictOld());
 	                    IFile conflictWorkingFile = (IFile) File2Resource
 	                            .getResource(svnResource.getStatus()
-	                                    .getFileConflictWorking());
+	                                    .getConflictWorking());
 	
 	                    IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin()
 	                            .getPreferenceStore();

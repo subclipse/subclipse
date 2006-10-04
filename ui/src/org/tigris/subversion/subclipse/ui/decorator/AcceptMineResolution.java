@@ -45,7 +45,7 @@ public class AcceptMineResolution implements IMarkerResolution {
 		try {
 	        IFile file = (IFile)marker.getResource();
 			ISVNLocalFile svnFile = (ISVNLocalFile) SVNWorkspaceRoot.getSVNResourceFor(file);
-			File mine = svnFile.getStatus().getFileConflictWorking();
+			File mine = svnFile.getStatus().getConflictWorking();
 			// If the file was removed or there was no conflict there is nothing we can do
 			if (mine == null) {
 				return;
