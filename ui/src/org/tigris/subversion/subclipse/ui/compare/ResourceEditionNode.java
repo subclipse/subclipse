@@ -206,7 +206,9 @@ public class ResourceEditionNode
 	    if (localResource == null) return null;
 		Object[] lrn = localResource.getChildren();
 		String remotePath=remoteNode.getRepositoryRelativePath();
-		remotePath = remotePath.substring(remotePath.indexOf("/",1));
+		int idx = remotePath.indexOf("/",1);
+		if (idx > 0)
+			remotePath = remotePath.substring(idx);
 		for(int i=0;i<lrn.length;i++){
 			String localPath=((SVNLocalResourceNode)lrn[i]).getResource().getFullPath().toString();
 			localPath = localPath.substring(localPath.indexOf("/",1));
