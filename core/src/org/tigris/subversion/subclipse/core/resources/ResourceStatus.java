@@ -47,7 +47,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
  * 
  * @see org.tigris.subversion.svnclientadapter.ISVNStatus
  */
-public class ResourceStatus implements Serializable {
+public abstract class ResourceStatus implements ISVNStatus, Serializable {
 
     static final long serialVersionUID = 1L;
 
@@ -130,15 +130,15 @@ public class ResourceStatus implements Serializable {
      * @return Returns the absolute resource path.
      * (It is absolute since it was constructed as status.getFile().getAbsolutePath())
      */
-    public IPath getPath() {
-        return new Path(getPathString());
+    public IPath getIPath() {
+        return new Path(getPath());
     }
 
     /**
      * @return Returns the absolute resource path (as String).
      * (It is absolute since it was constructed as status.getFile().getAbsolutePath())
      */
-    public String getPathString() {
+    public String getPath() {
         return file.getAbsolutePath();
     }
 

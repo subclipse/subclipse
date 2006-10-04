@@ -177,7 +177,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
      */
     public IPath getPath()
     {
-    	return localResourceStatus.getPath();
+    	return localResourceStatus.getIPath();
     }    
     
     /* (non-Javadoc)
@@ -239,7 +239,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	 */
 	public String toString()
 	{
-		return (localResourceStatus != null) ? localResourceStatus.getPathString() : "";
+		return (localResourceStatus != null) ? localResourceStatus.getPath() : "";
 	}
 
 	/* (non-Javadoc)

@@ -213,6 +213,68 @@ public class RemoteResourceStatus extends ResourceStatus {
     	this.repositoryRevision = revision;
     }
 
+	public SVNStatusKind getRepositoryPropStatus() {
+		return getPropStatus();
+	}
+
+	public SVNStatusKind getRepositoryTextStatus() {
+		return getTextStatus();
+	}
+
+	public Number getRevision() {
+		return getRepositoryRevision();
+	}
+
+	public File getConflictNew() {
+		//This is remote/repository status. It's irrelevant here. 
+		return null;
+	}
+
+	public File getConflictOld() {
+		//This is remote/repository status. It's irrelevant here. 
+		return null;
+	}
+
+	public File getConflictWorking() {
+		//This is remote/repository status. It's irrelevant here. 
+		return null;
+	}
+
+	public boolean isCopied() {
+		//This is remote/repository status. It's irrelevant here. 
+		return false;
+	}
+
+	public boolean isSwitched() {
+		//This is remote/repository status. It's irrelevant here. 
+		return false;
+	}
+
+	public boolean isWcLocked() {
+		//This is remote/repository status. It's irrelevant here. 
+		return false;
+	}   
+
+	public String getLockComment() {
+		// TODO Locks are not yet supported for RemoteResourceStatus
+		throw new UnsupportedOperationException("Locks are not suported for RemoteResourceStatus");
+	}
+
+	public Date getLockCreationDate() {
+		// TODO Locks are not yet supported for RemoteResourceStatus
+		throw new UnsupportedOperationException("Locks are not suported for RemoteResourceStatus");
+	}
+
+	public String getLockOwner() {
+		// TODO Locks are not yet supported for RemoteResourceStatus
+		throw new UnsupportedOperationException("Locks are not suported for RemoteResourceStatus");
+	}
+
+	public SVNUrl getUrlCopiedFrom() {
+		// TODO UrlCopied from is not yet suported for RemoteResourceStatus
+		throw new UnsupportedOperationException("UrlCopied from is not yet suported for RemoteResourceStatus");
+	}
+
     /**
      * Special RemoteResourceStatus subclass representing status "None".
      */
@@ -233,5 +295,5 @@ public class RemoteResourceStatus extends ResourceStatus {
     	{
     		return null;
     	}
-    }   
+    }
 }

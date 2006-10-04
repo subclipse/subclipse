@@ -20,6 +20,7 @@ import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 /**
  * This class has an interface which is very similar to ISVNStatus but we make
@@ -413,7 +414,7 @@ public class LocalResourceStatus extends ResourceStatus {
      * 
      * @return
      */
-    public File getFileConflictOld() {
+    public File getConflictOld() {
         if (pathConflictOld == null) {
             return null;
         } else {
@@ -426,7 +427,7 @@ public class LocalResourceStatus extends ResourceStatus {
      * 
      * @return
      */
-    public File getFileConflictNew() {
+    public File getConflictNew() {
         if (pathConflictNew == null) {
             return null;
         } else {
@@ -439,7 +440,7 @@ public class LocalResourceStatus extends ResourceStatus {
      * 
      * @return
      */
-    public File getFileConflictWorking() {
+    public File getConflictWorking() {
         if (pathConflictWorking == null) {
             return null;
         } else {
@@ -491,6 +492,18 @@ public class LocalResourceStatus extends ResourceStatus {
     {
     	return isSwitched;
     }
+
+	public SVNStatusKind getRepositoryPropStatus() {
+		throw new UnsupportedOperationException("LocalResourceStatus does not provide repository statuses");
+	}
+
+	public SVNStatusKind getRepositoryTextStatus() {
+		throw new UnsupportedOperationException("LocalResourceStatus does not provide repository statuses");
+	}
+
+	public Number getRevision() {
+		throw new UnsupportedOperationException("LocalResourceStatus does not provide (repository) revision");
+	}
 
     /**
      * Special LocalResourceStatus subclass representing status "None".

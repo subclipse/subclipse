@@ -382,7 +382,7 @@ public class SVNWorkspaceRoot {
     {
     	if (status.getFile() == null) return null;
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IPath resourcePath = pathForLocation(status.getPath());
+		IPath resourcePath = pathForLocation(status.getIPath());
 		if (resourcePath == null) 
 		{
 			return null;
