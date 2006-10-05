@@ -82,8 +82,10 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 				Iterator iter = selection.iterator();
 				while (iter.hasNext()) {
 					Object object = iter.next();
-					if (object instanceof ISVNRepositoryLocation) folderArray.add(((ISVNRepositoryLocation)object).getRootFolder());
-					else folderArray.add(object);
+					if (object instanceof ISVNRemoteFolder) {
+						if (object instanceof ISVNRepositoryLocation) folderArray.add(((ISVNRepositoryLocation)object).getRootFolder());
+						else folderArray.add(object);
+					}
 				}
 				ISVNRemoteFolder[] remoteFolders = new ISVNRemoteFolder[folderArray.size()];
 				folderArray.toArray(remoteFolders);
