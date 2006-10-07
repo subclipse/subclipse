@@ -565,11 +565,7 @@ public class CommitCommentArea extends DialogArea {
         if (comment == null)
             return ""; //$NON-NLS-1$
         
-        final String stripped= strip(comment);
-        if (save && comment.length() > 0)
-            SVNUIPlugin.getPlugin().getRepositoryManager().getCommentsManager().addComment(comment);
-
-        return stripped;
+        return comment;
     }
     
     public String getCommentWithPrompt(Shell shell) {
@@ -643,22 +639,6 @@ public class CommitCommentArea extends DialogArea {
             SVNUIPlugin.log(e);
             return ""; //$NON-NLS-1$
         }
-    }
-
-    private String strip(String comment) {
-        // strip template from the comment entered
-        try {
-            final String commitTemplate = getCommitTemplate();
-            if (comment.startsWith(commitTemplate)) {
-                return comment.substring(commitTemplate.length());
-            } else if (comment.endsWith(commitTemplate)) {
-                return comment.substring(0, comment.length() - commitTemplate.length());
-            }
-        } catch (SVNException e) {
-            // we couldn't get the commit template. Log the error and continue
-            SVNUIPlugin.log(e);
-        }
-        return comment;
     }
 
     private String getCommitTemplate() throws SVNException {
