@@ -15,22 +15,30 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
-import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNAnnotations;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
- * Represents the base revision of a file 
+ * Represents the base revision of a file.
  * 
  */
 public class BaseFile extends BaseResource implements ISVNRemoteFile {
 	
+	/**
+	 * Constructor
+	 * @param localResourceStatus
+	 */
 	public BaseFile(LocalResourceStatus localResourceStatus)
 	{
 		super(localResourceStatus);
 	}	
 
+	/**
+	 * Constructor
+	 * @param localResourceStatus
+	 * @param charset
+	 */
 	public BaseFile(LocalResourceStatus localResourceStatus, String charset) {
 		super(localResourceStatus, charset);
 	}
@@ -65,22 +73,15 @@ public class BaseFile extends BaseResource implements ISVNRemoteFile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteFile#getAnnotations(org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteFile#getAnnotations(org.tigris.subversion.svnclientadapter.SVNRevision, org.tigris.subversion.svnclientadapter.SVNRevision)
 	 */
-	public ISVNAnnotations getAnnotations(IProgressMonitor monitor) throws TeamException {
-		monitor = Policy.monitorFor(monitor);
-		monitor.beginTask(Policy.bind("RemoteFile.getAnnotations"), 100);//$NON-NLS-1$
+	public ISVNAnnotations getAnnotations(SVNRevision fromRevision,
+			SVNRevision toRevision) throws TeamException {
 		try {
-			ISVNClientAdapter svnClient = getRepository().getSVNClient();
-			try {
-				return svnClient.annotate(localResourceStatus.getFile(), null,
-						getRevision());
-			} catch (SVNClientException e) {
-				throw new TeamException(
-						"Failed in BaseFile.getAnnotations()", e);
-			}
-		} finally {
-			monitor.done();
-		}	
-	}		
+			return getRepository().getSVNClient().annotate(
+					localResourceStatus.getFile(), fromRevision, toRevision);
+		} catch (SVNClientException e) {
+			throw new TeamException("Failed in BaseFile.getAnnotations()", e);
+		}
+	}
 }

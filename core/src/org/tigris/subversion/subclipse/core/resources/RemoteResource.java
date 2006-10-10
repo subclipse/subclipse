@@ -20,11 +20,9 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
-import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
-import org.tigris.subversion.subclipse.core.history.ILogEntry;
-import org.tigris.subversion.subclipse.core.history.AliasManager;
+import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.tigris.subversion.svnclientadapter.utils.SVNUrlUtils;
@@ -48,6 +46,11 @@ public abstract class RemoteResource
     protected Date date;
     protected String author;
 
+    /**
+     * Constructor
+     * @param local
+     * @param bytes
+     */
 	public RemoteResource(IResource local, byte[] bytes){
 		String nfo = new String(bytes);
 		
@@ -58,9 +61,17 @@ public abstract class RemoteResource
 		url = res.getUrl();
 		repository = res.getRepository();
 	}
-	
+
 	/**
 	 * Constructor for RemoteResource.
+	 * 
+	 * @param parent
+	 * @param repository
+	 * @param url
+	 * @param revision
+	 * @param lastChangedRevision
+	 * @param date
+	 * @param author
 	 */
 	public RemoteResource(
 		RemoteFolder parent,
@@ -82,7 +93,10 @@ public abstract class RemoteResource
 	}
 
     /**
-     * this constructor is used for the folder corresponding to repository location
+     * This constructor is used for the folder corresponding to repository location
+     * @param repository
+     * @param url
+     * @param revision
      */
     public RemoteResource(ISVNRepositoryLocation repository, SVNUrl url, SVNRevision revision) {
         this.parent = null;
@@ -186,31 +200,7 @@ public abstract class RemoteResource
 	public String getAuthor() {
 		return author;
 	}
-
-    /**
-     * @see ISVNRemoteResource#getLogEntries()
-     */
-    public ILogEntry[] getLogEntries(IProgressMonitor monitor) throws SVNException {
-        GetLogsCommand command = new GetLogsCommand(this);
-        command.run(monitor);
-        return command.getLogEntries();
-    }
-
-    /**
-     * @see ISVNRemoteResource#getLogEntries()
-     */
-    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) throws TeamException {
-        GetLogsCommand command = new GetLogsCommand(this);
-        command.setPegRevision(pegRevision);
-        command.setRevisionStart(revisionStart);
-        command.setRevisionEnd(revisionEnd);
-        command.setStopOnCopy(stopOnCopy);
-        command.setLimit(limit);
-        command.setTagManager(tagManager);
-        command.run(monitor);
-        return command.getLogEntries();    	
-    }
-
+    
     /*
      * (non-Javadoc)
      * @see org.eclipse.team.core.variants.IResourceVariant#getContentIdentifier()
@@ -251,6 +241,21 @@ public abstract class RemoteResource
     	return null;
     }
 	
+    public ISVNLogMessage[] getLogMessages(SVNRevision pegRevision,
+			SVNRevision revisionStart, SVNRevision revisionEnd,
+			boolean stopOnCopy, boolean fetchChangePath, long limit)
+			throws TeamException {
+
+		try {
+			return repository.getSVNClient().getLogMessages(getUrl(),
+					pegRevision, revisionStart, revisionEnd, stopOnCopy, fetchChangePath,
+					limit);
+		} catch (SVNClientException e) {
+			throw new TeamException("Failed in RemoteResource.getLogMessages()",
+					e);
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

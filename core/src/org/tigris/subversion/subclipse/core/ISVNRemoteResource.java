@@ -17,8 +17,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.variants.IResourceVariant;
-import org.tigris.subversion.subclipse.core.history.ILogEntry;
-import org.tigris.subversion.subclipse.core.history.AliasManager;
+import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -31,13 +30,16 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 public interface ISVNRemoteResource extends ISVNResource, IAdaptable, IResourceVariant {
 	
 	/**
-	 * Does the remote resource represented by this handle exist on the server. This
-	 * method may contact the server and be long running.
+	 * Does the remote resource represented by this handle exist on the server?
+	 * This method may contact the server and be long running.
+	 * @param monitor
+	 * @return true when a resource exists 
+     * @throws TeamException
 	 */
 	public boolean exists(IProgressMonitor monitor) throws TeamException;
 	
 	/**
-	 * Answers the repository relative path of this remote folder.
+	 * @return the repository relative path of this remote folder.
 	 */
 	public String getRepositoryRelativePath();
 	
@@ -63,42 +65,43 @@ public interface ISVNRemoteResource extends ISVNResource, IAdaptable, IResourceV
     public SVNRevision getRevision();
 
     /**
-     * @return the date of modification for this remote resource
-     * @return null if this date is not available
+     * @return the date of modification for this remote resource or null if this date is not available
      */
     public Date getDate();
 
     /**
-     * @return the author of this remote resource
-     * @return null if the author is not available
+     * @return the author of this remote resource or null if the author is not available
      */
     public String getAuthor();
 
     /**
      * Get all the log entries of the remote resource
+     * 
+     * 
+     * @param pegRevision
+     * @param revisionStart
+     * @param revisionEnd
+     * @param stopOnCopy
+     * @param fetchChangePath
+     * @param limit
+     * @return array of LogMessages
+     * @throws TeamException
      */
-    public ILogEntry[] getLogEntries(IProgressMonitor monitor) throws TeamException;
+    public ISVNLogMessage[] getLogMessages(SVNRevision pegRevision,
+			SVNRevision revisionStart, SVNRevision revisionEnd,
+			boolean stopOnCopy, boolean fetchChangePath, long limit)
+			throws TeamException;
     
     /**
-     * Get log entries of the remote resource
-     * @param monitor 		progress monitor
-     * @param pegRevision   peg revision for URL
-     * @param revisionStart first revision to show
-     * @param revisionEnd   last revision to show
-     * @param stopOnCopy    do not continue on copy operations
-     * @param limit         limit the number of log messages (if 0 or less no
-     *                      limit)
-     * @param tagManager    used to determine tags for revision                     
-     * @return array of LogMessages
+     * @return the parent remote folder
      */
-    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) throws TeamException;
-
     public ISVNRemoteFolder getParent();
     
     /**
      * Get the members of this remote resource (at the same revision than this resource)
      * @param progress a progress monitor
      * @return ISVNRemoteResource[] and array of members (children resources)
+     * @throws TeamException
      */
     public ISVNRemoteResource[] members(IProgressMonitor progress) throws TeamException;
 

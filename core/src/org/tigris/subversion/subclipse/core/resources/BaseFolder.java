@@ -27,11 +27,15 @@ import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 
 /**
- * represents the base revision of a folder
+ * Represents the base revision of a folder.
  * 
  */
 public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
 	
+	/**
+	 * Constructor
+	 * @param localResourceStatus
+	 */
 	public BaseFolder(LocalResourceStatus localResourceStatus)
 	{
 		super(localResourceStatus);		

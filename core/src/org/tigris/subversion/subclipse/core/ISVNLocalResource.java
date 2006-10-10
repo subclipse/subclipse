@@ -20,7 +20,7 @@ import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
- * SVN Local resource
+ * The interface represents a resource that exists in a local SVN working copy repository.
  * 
  * @see ISVNLocalFile
  * @see ISVNLocalFolder
@@ -34,6 +34,7 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 	 * @return the synchronization information for this resource, or
 	 *         <code>null</code> if the resource does not have synchronization
 	 *         information available.
+	 * @throws SVNException
 	 */
 	public LocalResourceStatus getStatus() throws SVNException;
 
@@ -49,6 +50,7 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 	
 	/**
 	 * refresh the status of the resource (which is cached)
+	 * @throws SVNException
 	 */
 	public void refreshStatus() throws SVNException;
 
@@ -98,10 +100,8 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 	public ISVNRemoteResource getLatestRemoteResource() throws SVNException;
 
 	/**
-	 * get the base version for this local resource
-	 * 
-	 * @return @throws
-	 *         SVNException
+	 * @return the base version for this local resource
+	 * @throws SVNException
 	 */
 	public ISVNRemoteResource getBaseResource() throws SVNException;
 
@@ -122,6 +122,7 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
      * <li>text status is added, deleted, replaced, modified, merged or conflicted.</li>
      * <li>prop status is either conflicted or modified 
      * </ul>
+	 * @throws SVNException
      */    
     public boolean isDirty() throws SVNException;
     
@@ -129,6 +130,7 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 
 	/**
 	 * Add the following file to the parent's ignore list
+	 * @throws SVNException
 	 */
 	public void setIgnored() throws SVNException;
 
@@ -136,56 +138,63 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 	 * Answer whether the resource could be ignored. Even if a resource is
 	 * ignored, it can still be added to a repository, at which time it should
 	 * never be ignored by the SVN client.
-	 *  
+	 * @throws SVNException
 	 */
 	public boolean isIgnored() throws SVNException;
 
 	/**
 	 * Remove file or directory from version control.
+	 * @throws SVNException
 	 */
 	public void delete() throws SVNException;
 
 	/**
 	 * Restore pristine working copy file (undo all local edits)
+	 * @throws SVNException
 	 */
 	public void revert() throws SVNException;
 
 	/**
 	 * Set a svn property
+	 * @throws SVNException
 	 */
 	public void setSvnProperty(String name, String value, boolean recurse)
 			throws SVNException;
 
 	/**
 	 * Set a svn property
+	 * @throws SVNException
 	 */
 	public void setSvnProperty(String name, File value, boolean recurse)
 			throws SVNException;
 
 	/**
-	 * Get a svn property
+	 * @param name a name of the svn property
+	 * @return a svn property
+	 * @throws SVNException
 	 */
 	public ISVNProperty getSvnProperty(String name) throws SVNException;
 
 	/**
-	 * Get the svn properties for this resource
+	 * @return the svn properties for this resource
+	 * @throws SVNException
 	 */
 	public ISVNProperty[] getSvnProperties() throws SVNException;
 
 	/**
 	 * Delete a svn property
+	 * @throws SVNException
 	 */
 	public void deleteSvnProperty(String name, boolean recurse)
 			throws SVNException;
 
 	/**
 	 * @throws SVNException
-	 *  
 	 */
 	public void resolve() throws SVNException;
 
 	/**
-	 * get the workspace root ie the project
+	 * @return the workspace root (i.e. the project)
 	 */
 	public SVNWorkspaceRoot getWorkspaceRoot();
 

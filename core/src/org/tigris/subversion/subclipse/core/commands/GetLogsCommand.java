@@ -11,6 +11,9 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -18,18 +21,18 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
-import org.tigris.subversion.subclipse.core.resources.RemoteFile;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.subclipse.core.history.Tags;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
-import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Command to get the logs of a remote resource
+ * 
  */
 public class GetLogsCommand implements ISVNCommand {
+	
 	private ISVNRemoteResource remoteResource;
 	private SVNRevision pegRevision = SVNRevision.HEAD;
 	private SVNRevision revisionStart = new SVNRevision.Number(0);
@@ -38,65 +41,65 @@ public class GetLogsCommand implements ISVNCommand {
 	private long limit = 0;
 	private AliasManager tagManager;
     private ILogEntry[] logEntries;
-    
-    public GetLogsCommand(ISVNRemoteResource remoteResource) {
+   
+    /**
+     * Constructor
+     * 
+     * @param remoteResource
+     * @param pegRevision   peg revision for URL
+     * @param revisionStart first revision to show
+     * @param revisionEnd   last revision to show
+     * @param stopOnCopy    do not continue on copy operations
+     * @param limit         limit the number of log messages (if 0 or less no
+     *                      limit)
+     * @param tagManager    used to determine tags for revision                     
+     */
+    public GetLogsCommand(ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) {
         this.remoteResource = remoteResource;
-    }
-    
+        this.pegRevision = pegRevision;
+        this.revisionStart = revisionStart;
+        this.revisionEnd = revisionEnd;
+        this.stopOnCopy = stopOnCopy;
+        this.limit = limit;
+        this.tagManager = tagManager;
+    }    
     
     /**
      * execute the command
-     * @param monitor
+     * @param aMonitor
      * @throws SVNException
      */
-    public void run(IProgressMonitor monitor) throws SVNException {
+    public void run(IProgressMonitor aMonitor) throws SVNException {
         logEntries = null;
-        ISVNClientAdapter client = remoteResource.getRepository().getSVNClient();
-        monitor = Policy.monitorFor(monitor);
+        IProgressMonitor monitor = Policy.monitorFor(aMonitor);
         monitor.beginTask(Policy.bind("RemoteFile.getLogEntries"), 100); //$NON-NLS-1$
         
         ISVNLogMessage[] logMessages;
         try {
-        	// Conditional behavior to retieve the log messages 
-        	if (SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand()) {
-            logMessages =
-                client.getLogMessages(
-                    remoteResource.getUrl(),
+            logMessages = remoteResource.getLogMessages(
                     pegRevision,
                     revisionStart,
                     revisionEnd, 
                     stopOnCopy,
-                    false,
+                    !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(),
                     limit);
-        	} else {
-        		logMessages =
-                    client.getLogMessages(
-                        remoteResource.getUrl(),
-                        pegRevision,
-                        revisionStart,
-                        revisionEnd, 
-                        stopOnCopy,
-                        true,
-                        limit);	
-        	}
-        } catch (SVNClientException e) {
+
+            if (remoteResource.isFolder()) {
+                logEntries = LogEntry.createLogEntriesFrom((ISVNRemoteFolder) remoteResource, logMessages, getTags(logMessages));   
+            } else {
+            	logEntries = LogEntry.createLogEntriesFrom((ISVNRemoteFile) remoteResource, logMessages, getTags(logMessages), getUrls(logMessages));
+            }
+
+        } catch (TeamException e) {
             throw SVNException.wrapException(e);
+        } finally {
+        	monitor.done();
         }
-        
-        if (remoteResource.isFolder()) {
-            // if we get the history for a folder, we get the history for all
-            // its members
-            logEntries = createLogEntriesForFolder(logMessages);   
-        } else {
-        	logEntries = createLogEntriesForFile(logMessages);
-        }
-             
-        monitor.done();
     }    
     
     /**
      * get the result of the command
-     * @return
+     * @return log entries for the supplied resource and range
      */
     public ILogEntry[] getLogEntries() {
     	return logEntries;
@@ -113,7 +116,7 @@ public class GetLogsCommand implements ISVNCommand {
      * get the urls of the resource for each revision in logMessages
      * It will always be the same url if the resource has never been moved
      * @param logMessages
-     * @return
+     * @return an array of corresponding resource urls
      */
     private SVNUrl[] getUrls(ISVNLogMessage[] logMessages) {
         SVNUrl[] urls = new SVNUrl[logMessages.length];
@@ -186,86 +189,16 @@ public class GetLogsCommand implements ISVNCommand {
             }
         return urls;
     }
-    
-    /**
-     * create the LogEntry for the logMessages
-     * @param logMessages
-     * @return
-     */
-    private ILogEntry[] createLogEntriesForFolder(ISVNLogMessage[] logMessages) {
-        // if we get the history for a folder, we get the history for all
-        // its members
-    	// so there is no remoteResource associated with each LogEntry
-        ILogEntry[] result = new ILogEntry[logMessages.length]; 
+
+	private Tags[] getTags(ISVNLogMessage[] logMessages) throws NumberFormatException {
+		Tags[] tags = new Tags[logMessages.length]; 
         for (int i = 0; i < logMessages.length;i++) {
-        	result[i] = new LogEntry(logMessages[i], remoteResource, null); 
         	if (tagManager != null) {
-        		String rev = result[i].getRevision().toString();
+        		String rev = logMessages[i].getRevision().toString();
         		int revNo = Integer.parseInt(rev);
-        		result[i].setTags(tagManager.getTags(revNo));
+        		tags[i] = new Tags(tagManager.getTags(revNo));
         	}
         }
-        return result;
-    }
-    
-    /**
-     * create the LogEntry for the logMessages
-     * @param logMessages
-     * @return
-     */
-    private ILogEntry[] createLogEntriesForFile(ISVNLogMessage[] logMessages) {
-        SVNUrl[] urls = getUrls(logMessages);
-        ILogEntry[] result = new ILogEntry[logMessages.length]; 
-        for (int i = 0; i < logMessages.length;i++) {
-            ISVNLogMessage logMessage = logMessages[i];
-            ISVNRemoteResource correspondingResource;
-            correspondingResource = new RemoteFile(
-                        null,
-                        remoteResource.getRepository(), 
-                        urls[i], 
-                        logMessage.getRevision(), 
-                        logMessage.getRevision(), 
-                        logMessage.getDate(), 
-                        logMessage.getAuthor());  
-            result[i] = new LogEntry(logMessage, remoteResource, correspondingResource);
-        	if (tagManager != null) {
-        		String rev = result[i].getRevision().toString();
-        		int revNo = Integer.parseInt(rev);
-        		result[i].setTags(tagManager.getTags(revNo));
-        	}        
-        }
-        return result;
-    }
-
-
-	public void setLimit(long limit) {
-		this.limit = limit;
+		return tags;
 	}
-
-
-	public void setRevisionEnd(SVNRevision revisionEnd) {
-		this.revisionEnd = revisionEnd;
-	}
-
-
-	public void setRevisionStart(SVNRevision revisionStart) {
-		this.revisionStart = revisionStart;
-	}
-
-
-	public void setStopOnCopy(boolean stopOnCopy) {
-		this.stopOnCopy = stopOnCopy;
-	}
-
-
-	public void setPegRevision(SVNRevision pegRevision) {
-		this.pegRevision = pegRevision;
-	}
-
-
-	public void setTagManager(AliasManager tagManager) {
-		this.tagManager = tagManager;
-	}
-    
-    
 }

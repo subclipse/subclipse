@@ -14,9 +14,12 @@ package org.tigris.subversion.subclipse.core.history;
 import java.util.Date;
 
 import org.eclipse.core.runtime.PlatformObject;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
@@ -44,14 +47,55 @@ public class LogEntry extends PlatformObject implements ILogEntry {
      * @param resource the corresponding remote resource or null
      * @param repository
      */
-	public LogEntry(
+	private LogEntry(
             ISVNLogMessage logMessage,
             ISVNResource resource,
-            ISVNRemoteResource remoteResource) {
+            ISVNRemoteResource remoteResource,
+            Alias[] tags) {
         this.logMessage = logMessage;
         this.remoteResource = remoteResource;
         this.resource = resource;
+        this.tags = tags;
 	}
+
+    /**
+     * create the LogEntry for the logMessages
+     * @param logMessages
+     * @return
+     */
+    public static ILogEntry[] createLogEntriesFrom(ISVNRemoteFolder remoteFolder, ISVNLogMessage[] logMessages, Tags[] tags) {
+        // if we get the history for a folder, we get the history for all
+        // its members
+    	// so there is no remoteResource associated with each LogEntry
+        ILogEntry[] result = new ILogEntry[logMessages.length]; 
+        for (int i = 0; i < logMessages.length;i++) {
+        	result[i] = new LogEntry(logMessages[i], remoteFolder, null, (tags[i] != null) ? tags[i].getTags() : null); 
+        }
+        return result;
+    }
+
+    /**
+     * create the LogEntry for the logMessages
+     * @param logMessages
+     * @return
+     */
+    public static ILogEntry[] createLogEntriesFrom(ISVNRemoteFile remoteFile, ISVNLogMessage[] logMessages, Tags[] tags, SVNUrl[] urls) {
+        ILogEntry[] result = new ILogEntry[logMessages.length]; 
+        for (int i = 0; i < logMessages.length;i++) {
+            ISVNLogMessage logMessage = logMessages[i];
+            ISVNRemoteResource correspondingResource;
+            correspondingResource = new RemoteFile(
+                        null,
+                        remoteFile.getRepository(), 
+                        urls[i], 
+                        logMessage.getRevision(), 
+                        logMessage.getRevision(), 
+                        logMessage.getDate(), 
+                        logMessage.getAuthor());  
+            result[i] = new LogEntry(logMessage, remoteFile, correspondingResource, (tags[i] != null) ? tags[i].getTags() : null);
+        }
+        return result;
+    }
 
     /*
      * (non-Javadoc)

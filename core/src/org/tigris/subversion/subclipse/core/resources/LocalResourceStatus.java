@@ -310,7 +310,7 @@ public class LocalResourceStatus extends ResourceStatus {
      * @return has version in repository
      */
     public boolean hasRemote() {
-        return org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils.hasRemote(getTextStatus());
+        return org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils.hasRemote(this);
     }
 
     /**

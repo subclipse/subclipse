@@ -22,10 +22,9 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
-import org.tigris.subversion.subclipse.core.history.ILogEntry;
-import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.util.Assert;
+import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -36,7 +35,7 @@ import org.tigris.subversion.svnclientadapter.utils.SVNUrlUtils;
  * Synchronization information is taken from the .svn subdirectories. 
  *
  * @see BaseFolder
- * @see BaselFile
+ * @see BaseFile
  */
 public abstract class BaseResource extends PlatformObject implements ISVNRemoteResource {
 
@@ -45,6 +44,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 
 	/**
 	 * Constructor for BaseResource.
+	 * @param localResourceStatus
 	 */
 	public BaseResource(LocalResourceStatus localResourceStatus)
 	{
@@ -54,6 +54,8 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 
 	/**
 	 * Constructor for BaseResource.
+	 * @param localResourceStatus
+	 * @param charset
 	 */
 	public BaseResource(LocalResourceStatus localResourceStatus, String charset)
 	{
@@ -65,7 +67,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	/**
 	 * Create a BaseFile or BaseFolder according to nodeKind of the given status.
 	 * @param localResourceStatus
-	 * @return
+	 * @return newly constructed BaseFile or BaseFolder instance
 	 */
 	public static BaseResource from(LocalResourceStatus localResourceStatus)
 	{
@@ -164,7 +166,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 
     /**
      * Get resource file
-     * @return
+     * @return a file corresponding to base resource
      */
     public File getFile()
     {
@@ -173,7 +175,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 
     /**
      * Get resource path
-     * @return
+     * @return a path corresponding to base resource
      */
     public IPath getPath()
     {
@@ -187,31 +189,24 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
         return SVNUrlUtils.getRelativePath(getRepository().getUrl(), getUrl(), true);
     }    
 
-    /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#getLogEntries(org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public ILogEntry[] getLogEntries(IProgressMonitor monitor) throws SVNException {
-        GetLogsCommand command = new GetLogsCommand(this);
-        command.run(monitor);
-        return command.getLogEntries();
-    }
-    
-    /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#getLogEntries(org.eclipse.core.runtime.IProgressMonitor, , SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit)
-     */
-    public ILogEntry[] getLogEntries(IProgressMonitor monitor, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) throws SVNException {
-        GetLogsCommand command = new GetLogsCommand(this);
-        command.setPegRevision(pegRevision);
-        command.setRevisionStart(revisionStart);
-        command.setRevisionEnd(revisionEnd);
-        command.setStopOnCopy(stopOnCopy);
-        command.setLimit(limit);
-        command.setTagManager(tagManager);
-        command.run(monitor);
-        return command.getLogEntries();   
-    }
+    public ISVNLogMessage[] getLogMessages(SVNRevision pegRevision,
+			SVNRevision revisionStart, SVNRevision revisionEnd,
+			boolean stopOnCopy, boolean fetchChangePath, long limit)
+			throws TeamException {
 
-	/* (non-Javadoc)
+		try {
+			return getRepository().getSVNClient().getLogMessages(getFile(),
+					revisionStart, revisionEnd, stopOnCopy, fetchChangePath,
+					limit);
+		} catch (SVNClientException e) {
+			throw new TeamException("Failed in BaseResource.getLogMessages()",
+					e);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#exists(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public boolean exists(IProgressMonitor monitor) throws TeamException
@@ -227,8 +222,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	}
 	
 	/**
-	 * charset same as local resource.
-	 * @return
+	 * @return charset same as local resource.
 	 */
 	public String getCharset(){
 		return charset;
