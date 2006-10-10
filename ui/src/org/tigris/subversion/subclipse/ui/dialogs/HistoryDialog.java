@@ -45,6 +45,7 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
@@ -237,7 +238,7 @@ public class HistoryDialog extends TrayDialog {
 						boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
 						int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
 						long limit = entriesToFetch;
-						entries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1, tagManager);
+						entries = getLogEntries(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1, tagManager);
 						long entriesLength = entries.length;
 						if (entriesLength > limit) {
 							ILogEntry[] fetchedEntries = new ILogEntry[entries.length - 1];
@@ -276,7 +277,7 @@ public class HistoryDialog extends TrayDialog {
 							boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
 							int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
 							long limit = entriesToFetch;
-							ILogEntry[] nextEntries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1, tagManager);
+							ILogEntry[] nextEntries = getLogEntries(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit + 1, tagManager);
 							long entriesLength = nextEntries.length;
 							if (entriesLength > limit) {
 								ILogEntry[] fetchedEntries = new ILogEntry[nextEntries.length - 1];
@@ -326,7 +327,7 @@ public class HistoryDialog extends TrayDialog {
 							revisionStart = SVNRevision.HEAD;
 							boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
 							long limit = 0;
-							entries = remoteResource.getLogEntries(null, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager);
+							entries = getLogEntries(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager);
 							getNextButton.setEnabled(false);	
 			            }
 					} catch (TeamException e) {
@@ -337,6 +338,13 @@ public class HistoryDialog extends TrayDialog {
 		   tableHistoryViewer.refresh();
 		}
 
+	protected ILogEntry[] getLogEntries(ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) throws TeamException
+	{
+		GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager);
+		logCmd.run(null);
+		return logCmd.getLogEntries(); 					
+	}
+	
     protected void cancelPressed() {
         saveLocation();
         super.cancelPressed();

@@ -99,10 +99,12 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.ChangeCommitPropertiesCommand;
+import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -285,7 +287,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       if(teamProvider != null) {
         try {
           ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(res);
-          if(localResource != null && !localResource.getStatus().isAdded() && localResource.getStatus().isManaged()) {
+          LocalResourceStatus localResourceStatus = (localResource != null) ? localResource.getStatus() : null;
+          if(localResource != null && localResourceStatus.isManaged() && (!localResourceStatus.isAdded() || localResourceStatus.isCopied())) {
             this.resource = res;
             this.remoteResource = localResource.getBaseResource();
 
@@ -1505,7 +1508,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
           int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
           long limit = entriesToFetch;
-          entries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy,
+          entries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy,
               limit + 1, tagManager);
           long entriesLength = entries.length;
           if(entriesLength > limit) {
@@ -1561,7 +1564,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
           int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
           long limit = entriesToFetch;
-          ILogEntry[] nextEntries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd,
+          ILogEntry[] nextEntries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd,
               stopOnCopy, limit + 1, tagManager);
           long entriesLength = nextEntries.length;
           ILogEntry[] fetchedEntries = null;
@@ -1615,6 +1618,12 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 
 		public abstract void setRemoteFile(ISVNRemoteResource resource);
 
+		protected ILogEntry[] getLogEntries(IProgressMonitor monitor, ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) throws TeamException
+		{
+			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager);
+			logCmd.run(monitor);
+			return logCmd.getLogEntries(); 					
+		}
   }
 
   private class FetchAllLogEntriesJob extends AbstractFetchJob {
@@ -1644,7 +1653,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           SVNRevision revisionEnd = new SVNRevision.Number(0);
           boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
           long limit = 0;
-          entries = remoteResource.getLogEntries(monitor, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit,
+          entries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit,
               tagManager);
           final SVNRevision.Number revisionId = remoteResource.getLastChangedRevision();
           getSite().getShell().getDisplay().asyncExec(new Runnable() {

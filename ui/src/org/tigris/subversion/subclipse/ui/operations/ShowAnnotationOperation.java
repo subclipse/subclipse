@@ -217,9 +217,7 @@ public class ShowAnnotationOperation extends SVNOperation {
 		RevisionInformation info= new RevisionInformation();
 		HashMap sets= new HashMap();
 		
-		GetLogsCommand logCommand = new GetLogsCommand(this.remoteFile);
-		logCommand.setRevisionStart(this.fromRevision);
-		logCommand.setRevisionEnd(this.toRevision);
+		GetLogsCommand logCommand = new GetLogsCommand(this.remoteFile, SVNRevision.HEAD, this.fromRevision, this.toRevision, false, 0, null);
 
 		try {
 			logCommand.run(monitor);

@@ -26,6 +26,7 @@ import org.eclipse.team.ui.SaveablePartDialog;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -86,7 +87,9 @@ public class CompareWithRevisionAction extends WorkspaceAction {
 					AliasManager tagManager = null;
 					IResource[] resources = getSelectedResources();
 					if (resources.length == 1) tagManager = new AliasManager(resources[0]);
-					entries[0] = file[0].getLogEntries(Policy.subMonitorFor(monitor, 100), SVNRevision.HEAD, SVNRevision.HEAD, new SVNRevision.Number(0), false, 0, tagManager);
+					GetLogsCommand logCmd = new GetLogsCommand(file[0], SVNRevision.HEAD, SVNRevision.HEAD, new SVNRevision.Number(0), false, 0, tagManager);
+					logCmd.run(Policy.subMonitorFor(monitor, 100));
+					entries[0] = logCmd.getLogEntries(); 					
 					monitor.done();
 				} catch (TeamException e) {
 					throw new InvocationTargetException(e);
