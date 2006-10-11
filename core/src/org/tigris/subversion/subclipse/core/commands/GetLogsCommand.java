@@ -56,9 +56,9 @@ public class GetLogsCommand implements ISVNCommand {
      */
     public GetLogsCommand(ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) {
         this.remoteResource = remoteResource;
-        this.pegRevision = pegRevision;
+        this.pegRevision = (pegRevision != null) ? pegRevision : SVNRevision.HEAD;
         this.revisionStart = revisionStart;
-        this.revisionEnd = revisionEnd;
+        this.revisionEnd = (revisionEnd != null) ? revisionEnd : SVNRevision.HEAD;
         this.stopOnCopy = stopOnCopy;
         this.limit = limit;
         this.tagManager = tagManager;
