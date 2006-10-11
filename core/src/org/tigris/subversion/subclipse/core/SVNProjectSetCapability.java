@@ -169,9 +169,9 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
                 }
             }
         } finally {
+    		Platform.getJobManager().endRule(rule);
             monitor.done();
         }
-		Platform.getJobManager().endRule(rule);
         return (IProject[]) result.toArray(new IProject[result.size()]);
     }
 
