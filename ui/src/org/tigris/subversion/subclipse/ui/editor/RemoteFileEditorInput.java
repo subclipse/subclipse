@@ -33,6 +33,7 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -153,7 +154,8 @@ public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorI
 	 */
 	public String getName() {
 		String name = file.getName();
-		return Policy.bind("nameAndRevision", name, file.getLastChangedRevision().toString()); //$NON-NLS-1$
+		SVNRevision.Number revision = file.getLastChangedRevision();
+		return Policy.bind("nameAndRevision", name, (revision != null) ? revision.toString() : ""); //$NON-NLS-1$
 	}
 	/**
 	 * Returns the logical parent of the given object in its tree.

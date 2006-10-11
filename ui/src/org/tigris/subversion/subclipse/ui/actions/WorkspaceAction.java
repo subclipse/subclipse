@@ -26,6 +26,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.util.PromptingDialog;
@@ -140,18 +141,25 @@ public abstract class WorkspaceAction extends SVNAction {
 		boolean managed = false;
 		boolean ignored = false;
 		boolean added = false;
+		boolean copied = false;
 		if (svnResource.isIgnored()) {
 			ignored = true;
 		} else {
             managed = svnResource.isManaged();
 			if (managed) {
-                added = svnResource.getStatus().isAdded();
+				LocalResourceStatus status = svnResource.getStatus();
+				copied = status.isCopied();
+                added = status.isAdded();
             }
 		}
 		if (managed && ! isEnabledForManagedResources()) return false;
 		if ( ! managed && ! isEnabledForUnmanagedResources()) return false;
 		if ( ignored && ! isEnabledForIgnoredResources()) return false;
-		if (added && ! isEnabledForAddedResources()) return false;
+		if (copied && added) {
+			if (! isEnabledForCopiedResources()) return false;			
+		} else if (added && ! isEnabledForAddedResources()) {
+			return false;
+		}
 		return true;
 	}
 	
@@ -186,7 +194,16 @@ public abstract class WorkspaceAction extends SVNAction {
 	protected boolean isEnabledForAddedResources() {
 		return true;
 	}
-	
+
+	/**
+	 * Method isEnabledForCopiedResources.
+	 * @return boolean
+	 */
+	protected boolean isEnabledForCopiedResources() {
+		//By default, handle copied as added.
+		return isEnabledForAddedResources();
+	}
+
 	/**
 	 * Method isEnabledForAddedResources.
 	 * @return boolean
