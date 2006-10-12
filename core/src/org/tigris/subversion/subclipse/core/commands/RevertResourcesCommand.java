@@ -10,20 +10,24 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.commands;
 
+import java.io.File;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
  * Revert changes made to the local verion of a file.  This is equivalent to replace with base revision
@@ -66,18 +70,33 @@ public class RevertResourcesCommand implements ISVNCommand {
         // sort first, so that all children of a folder directly follow it in the array
         Arrays.sort( resources, resourceComparator );        
         try {
+        	final OperationManager operationManager = OperationManager.getInstance();
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
-            OperationManager.getInstance().beginOperation(svnClient);
+            operationManager.beginOperation(svnClient);
             for (int i = 0; i < resources.length; i++) {
                 LocalResourceStatus status = SVNWorkspaceRoot.getSVNResourceFor( resources[i] ).getStatus();
-					// If a folder add is reverted, all the adds underneath it will be reverted too.
+				// If a folder add is reverted, all the adds underneath it will be reverted too.
                 // Don't try to revert them. Because the resources are sorted by path we can just
                 // keep going along the IResource array until we find one that doesn't have the 
                 // current as a base path. 
                 if (resources[i].getType() == IResource.FOLDER && status.isAdded()) {
                     svnClient.revert(resources[i].getLocation().toFile(), true);
                     monitor.worked(100);
-                    SVNWorkspaceRoot.getSVNFolderFor( (IContainer)resources[i] ).refreshStatus(IResource.DEPTH_INFINITE);
+
+                    // Add the subdirectories to the list of resources which must
+                    // be refreshed.
+                    try {
+	                    resources[i].accept(new IResourceVisitor() {
+	            			public boolean visit(IResource aResource) {
+	            				if (aResource.getType() == IResource.FOLDER)
+	    	                    	operationManager.onNotify(aResource.getLocation().toFile(), SVNNodeKind.UNKNOWN);
+	            				
+	            				return true;
+	            			}
+	            		}, IResource.DEPTH_INFINITE, false);
+                    } catch (CoreException e) {
+                    	SVNProviderPlugin.log(Status.WARNING, "", e);
+                    }
                     // If folder path has no ending / we can have problem where dir foobar will look like subdir of foo
                     String baseFullPath = resources[i].getFullPath().addTrailingSeparator().toString();
                     while (i < resources.length - 1 && resources[i+1].getFullPath().toString().startsWith( baseFullPath )) {
@@ -94,7 +113,12 @@ public class RevertResourcesCommand implements ISVNCommand {
 						}
                 	}
                 	else {
-	                    svnClient.revert(resources[i].getLocation().toFile(), false);
+                		File path = resources[i].getLocation().toFile();
+	                    svnClient.revert(path, false);
+	                    // If only properties were changed, svn 1.4.0 does not 
+	                    // notify the change. As workaround, do it manually.
+	                    if (resources[i].getType() != IResource.FILE)
+	                    	operationManager.onNotify(path, SVNNodeKind.UNKNOWN);
 	                    monitor.worked(100);
                 	}
                 }

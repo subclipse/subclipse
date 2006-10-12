@@ -139,11 +139,19 @@ public class OperationManager implements ISVNNotifyListener {
             IPath pathEntries = pathEclipse.removeLastSegments(1).append(
             		SVNProviderPlugin.getPlugin().getAdminDirectoryName());
             IResource entries = workspaceRoot.getContainerForLocation(pathEntries);
-            if (entries == null) //probably the pathEclipse was project itself
+            if (entries != null) //probably the pathEclipse was project itself
             {
-            	entries = workspaceRoot.getProject(pathEclipse.lastSegment()).getFolder(new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
+                changedResources.add(entries);
             }
-            changedResources.add(entries);
+            
+            if (path.isDirectory()) {
+            	IResource resource = workspaceRoot.getContainerForLocation(pathEclipse);
+				if (resource != null && resource.getType() != IResource.ROOT) {
+					IResource svnDir = ((IContainer) resource).getFolder(new Path(
+                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
+                    changedResources.add(svnDir);
+				}
+            }
         }
         else
         {

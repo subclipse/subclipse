@@ -241,7 +241,8 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 	
 	protected IContainer handleChangedEntries(IResource resource, int kind) {		
 		IContainer changedContainer = resource.getParent();
-		if(changedContainer.exists()) {
+		IContainer parent           = changedContainer.getParent();
+		if((parent != null) && parent.exists()) {
 			return changedContainer;
 		} else {
 			return null;
@@ -250,7 +251,8 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 
 	protected IContainer handleChangedDirProps(IResource resource, int kind) {		
 		IContainer changedContainer = resource.getParent();
-		if(changedContainer.exists()) {
+		IContainer parent           = changedContainer.getParent();
+		if((parent != null) && parent.exists()) {
 			return changedContainer;
 		} else {
 			return null;
@@ -259,7 +261,8 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 
 	protected IContainer handleChangedPropFile(IResource resource, int kind) {		
 		IContainer changedContainer = resource.getParent().getParent();
-		if(changedContainer.exists()) {
+		IContainer parent           = changedContainer.getParent();
+		if((parent != null) && parent.exists()) {
 			return changedContainer;
 		} else {
 			return null;
