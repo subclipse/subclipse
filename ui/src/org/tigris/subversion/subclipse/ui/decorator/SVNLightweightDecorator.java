@@ -47,6 +47,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
@@ -363,7 +364,7 @@ public class SVNLightweightDecorator
     			  
 				bindings.put(
 					SVNDecoratorConfiguration.RESOURCE_URL,
-					status.getUrlString());
+					Util.unescape(status.getUrlString()));
 				
                 // short url is the path relative to root url of repository
                 SVNUrl repositoryRoot = svnResource.getRepository().getRepositoryRoot();
@@ -377,7 +378,7 @@ public class SVNLightweightDecorator
                        shortUrl = status.getUrlString();
                     bindings.put(
                             SVNDecoratorConfiguration.RESOURCE_URL_SHORT, 
-                            shortUrl);
+                            Util.unescape(shortUrl));
                 }
 			}
 			
