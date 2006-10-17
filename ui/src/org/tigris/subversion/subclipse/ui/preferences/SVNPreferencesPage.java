@@ -41,7 +41,6 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
-import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapter;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.javasvn.JavaSvnClientAdapterFactory;
 
@@ -420,7 +419,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 					MessageDialog.openError(
 							getShell(),
 							"Error Loading JavaHL Library",
-							JhlClientAdapter.getLibraryLoadErrors());
+							JhlClientAdapterFactory.getLibraryLoadErrors());
 				}
 			}
 		}
