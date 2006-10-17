@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.core;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
@@ -220,7 +219,9 @@ public class SVNProviderPlugin extends Plugin {
 	 */
 	public static void addResourceStateChangeListener(
 			IResourceStateChangeListener listener) {
-		listeners.add(listener);
+		synchronized(listeners) {
+			listeners.add(listener);
+		}
 	}
 
 	/*
@@ -228,7 +229,9 @@ public class SVNProviderPlugin extends Plugin {
 	 */
 	public static void removeResourceStateChangeListener(
 			IResourceStateChangeListener listener) {
-		listeners.remove(listener);
+		synchronized(listeners) {
+			listeners.remove(listener);
+		}
 	}
 
 	/**
@@ -236,9 +239,13 @@ public class SVNProviderPlugin extends Plugin {
 	 * changed
 	 */
 	public static void broadcastSyncInfoChanges(final IResource[] resources) {
-		for (Iterator it = listeners.iterator(); it.hasNext();) {
-			final IResourceStateChangeListener listener = (IResourceStateChangeListener) it
-					.next();
+		IResourceStateChangeListener[] toNotify;
+		synchronized(listeners) {
+			toNotify = (IResourceStateChangeListener[])listeners.toArray(new IResourceStateChangeListener[listeners.size()]);
+		}
+
+		for (int i = 0; i < toNotify.length; ++i) {
+			final IResourceStateChangeListener listener = toNotify[i];
 			ISafeRunnable code = new ISafeRunnable() {
 				public void run() throws Exception {
 					listener.resourceSyncInfoChanged(resources);
@@ -275,9 +282,13 @@ public class SVNProviderPlugin extends Plugin {
 	 */
 	public static void broadcastModificationStateChanges(
 			final IResource[] resources) {
-		for (Iterator it = listeners.iterator(); it.hasNext();) {
-			final IResourceStateChangeListener listener = (IResourceStateChangeListener) it
-					.next();
+		IResourceStateChangeListener[] toNotify;
+		synchronized(listeners) {
+			toNotify = (IResourceStateChangeListener[])listeners.toArray(new IResourceStateChangeListener[listeners.size()]);
+		}
+
+		for (int i = 0; i < toNotify.length; ++i) {
+			final IResourceStateChangeListener listener = toNotify[i];
 			ISafeRunnable code = new ISafeRunnable() {
 				public void run() throws Exception {
 					listener.resourceModified(resources);
@@ -296,9 +307,13 @@ public class SVNProviderPlugin extends Plugin {
 	 * invoked when a project is mapped
 	 */
 	protected static void broadcastProjectConfigured(final IProject project) {
-		for (Iterator it = listeners.iterator(); it.hasNext();) {
-			final IResourceStateChangeListener listener = (IResourceStateChangeListener) it
-					.next();
+		IResourceStateChangeListener[] toNotify;
+		synchronized(listeners) {
+			toNotify = (IResourceStateChangeListener[])listeners.toArray(new IResourceStateChangeListener[listeners.size()]);
+		}
+
+		for (int i = 0; i < toNotify.length; ++i) {
+			final IResourceStateChangeListener listener = toNotify[i];
 			ISafeRunnable code = new ISafeRunnable() {
 				public void run() throws Exception {
 					listener.projectConfigured(project);
@@ -317,9 +332,13 @@ public class SVNProviderPlugin extends Plugin {
 	 * after a provider has been unmaped
 	 */
 	protected static void broadcastProjectDeconfigured(final IProject project) {
-		for (Iterator it = listeners.iterator(); it.hasNext();) {
-			final IResourceStateChangeListener listener = (IResourceStateChangeListener) it
-					.next();
+		IResourceStateChangeListener[] toNotify;
+		synchronized(listeners) {
+			toNotify = (IResourceStateChangeListener[])listeners.toArray(new IResourceStateChangeListener[listeners.size()]);
+		}
+
+		for (int i = 0; i < toNotify.length; ++i) {
+			final IResourceStateChangeListener listener = toNotify[i];
 			ISafeRunnable code = new ISafeRunnable() {
 				public void run() throws Exception {
 					listener.projectDeconfigured(project);
