@@ -11,7 +11,6 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
@@ -115,7 +114,7 @@ public class ShareProjectCommand implements ISVNCommand {
 							// hasRemote value
 							SVNProviderPlugin.getPlugin()
 									.getStatusCacheManager().refreshStatus(
-											project, IResource.DEPTH_INFINITE);
+											project, true);
 
 							try {
 								//Register it with Team. 

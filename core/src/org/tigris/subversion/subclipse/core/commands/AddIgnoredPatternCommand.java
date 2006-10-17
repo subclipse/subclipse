@@ -63,7 +63,7 @@ public class AddIgnoredPatternCommand implements ISVNCommand {
                 for (int i = 0; i < members.length;i++) {
                     possiblesIgnores[i] = ((ISVNLocalResource)members[i]).getIResource();
                 }
-                folder.refreshStatus(IResource.DEPTH_ONE);
+                folder.refreshStatus(false);
                 SVNProviderPlugin.broadcastSyncInfoChanges(possiblesIgnores);
                 broadcastNestedFolders(possiblesIgnores);
             }

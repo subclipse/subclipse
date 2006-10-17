@@ -68,7 +68,7 @@ public class RelocateWizard extends Wizard {
             SVNRepositories repositories = SVNProviderPlugin.getPlugin().getRepositories();
             repositories.addOrUpdateRepository(newRepository);
 			for (int i = 0; i < sharedProjects.length; i++) {
-				SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(sharedProjects[i], IResource.DEPTH_INFINITE);
+				SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(sharedProjects[i], true);
 				sharedProjects[i].refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 				RepositoryProvider provider = RepositoryProvider.getProvider(sharedProjects[i], SVNProviderPlugin.getTypeId());
 				provider.setProject(sharedProjects[i]);

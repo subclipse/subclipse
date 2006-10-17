@@ -243,15 +243,15 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 					if (cachedEntry != null)
 					{
 						IResource resource = (IResource) cachedEntry.getKey();
+						byte[] value = (byte []) cachedEntry.getValue();
+						if (value == BYTES_REMOVED)
+							value = null;
 						try {
-							if (resource.exists() || resource.isPhantom())
-							{
-								ResourcesPlugin.getWorkspace().getSynchronizer().setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, resource, (byte []) cachedEntry.getValue());
-							}
-							removeFromPendingCacheIfEqual((IResource) cachedEntry.getKey(), (byte []) cachedEntry.getValue());
+							ResourcesPlugin.getWorkspace().getSynchronizer().setSyncInfo(StatusCacheManager.SVN_BC_SYNC_KEY, resource, value);
 						} catch (CoreException e) {
 							SVNProviderPlugin.log(SVNException.wrapException(e));
 						}
+						removeFromPendingCacheIfEqual((IResource) cachedEntry.getKey(), (byte []) cachedEntry.getValue());
 					}
 				}
 			}

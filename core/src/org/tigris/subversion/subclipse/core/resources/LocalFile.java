@@ -11,7 +11,6 @@
 package org.tigris.subversion.subclipse.core.resources;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResourceVisitor;
@@ -48,7 +47,7 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#refreshStatus()
      */
     public void refreshStatus() throws SVNException {
-    	SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, IResource.DEPTH_ZERO);
+    	SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource.getParent(), false);
     }
 	
 	/* (non-Javadoc)

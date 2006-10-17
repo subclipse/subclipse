@@ -115,15 +115,15 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#refreshStatus()
      */
     public void refreshStatus() throws SVNException {
-        refreshStatus(IResource.DEPTH_ZERO);
+        refreshStatus(false);
     }
 
     /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.ISVNLocalFolder#refreshStatus(int)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFolder#refreshStatus(boolean)
      */
-    public void refreshStatus(int depth) throws SVNException {
+    public void refreshStatus(boolean recursive) throws SVNException {
         SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(
-                resource, depth);
+                (IContainer)resource, recursive);
     }
 
     /**

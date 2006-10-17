@@ -21,14 +21,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public interface ISVNLocalFolder extends ISVNLocalResource, ISVNFolder {
 
     /**
-     * refresh the status of this folde and its children according to depth 
-     * DEPTH_ZERO : only this folder
-     * DEPTH_ONE  : this folder and its immediate children
-     * DEPTH_INFINITE : this folder and its children (recursively)
-     * @param depth
+     * refresh the status of this folde and its children according to recursive 
+     * false : this folder and its immediate children
+     * true  : this folder and its children (recursively)
+     * @param recursive
      * @see ISVNLocalResource#refreshStatus
      */
-    public void refreshStatus(int depth) throws SVNException;
+    public void refreshStatus(boolean recursive) throws SVNException;
 
     public void acceptChildren(ISVNResourceVisitor visitor) throws SVNException;
     

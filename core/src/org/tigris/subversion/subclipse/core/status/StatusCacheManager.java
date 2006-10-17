@@ -81,31 +81,6 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 	}
 
     /**
-     * A resource which ancestor is not managed is not managed
-     * @param resource
-     * @return true if an ancestor of the resource is not managed and false 
-     *         if we don't know 
-     */
-    private boolean isAncestorNotManaged(IResource resource) {
-        IResource parent = resource.getParent();
-        if (parent == null) {
-            return false;
-        }
-        
-        while (parent != null) {
-            LocalResourceStatus statusParent = statusCache.getStatus(parent);
-            
-            if (statusParent != null) {
-            	if (!statusParent.isManaged()) {
-            		return true;
-            	}
-            }
-            parent = parent.getParent();
-        }
-        return false;
-    }
-    
-    /**
      * update the cache using the given statuses
      * @param statuses
  	 * @param rule the scheduling rule to use when running this operation
@@ -225,7 +200,10 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      */
     private LocalResourceStatus basicGetStatus(IResource resource, StatusUpdateStrategy strategy) throws SVNException 
 	{
-        LocalResourceStatus status = null;
+    	if (!resource.exists())
+    		return LocalResourceStatus.NONE;
+
+    	LocalResourceStatus status = null;
 
    /* Code commented so that svn:externals that are multi-level deep will be 
     * decorated.  In this scenario, there can be unversioned files in the middle
@@ -268,13 +246,16 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 	 * infinite always ...
 	 * 
 	 * @param resource
-	 * @param depth
+	 * @param recursive
 	 * @return array of resources which were refreshed (including all phantoms
 	 *         and their children)
 	 * @throws SVNException
 	 */
-    public IResource[] refreshStatus(final IResource resource, final int depth) throws SVNException {
+    public IResource[] refreshStatus(final IContainer resource, final boolean recursive) throws SVNException {
     	if (SVNWorkspaceRoot.isLinkedResource(resource)) { return new IResource[0]; }
+
+		final int depth = (recursive) ? IResource.DEPTH_INFINITE : IResource.DEPTH_ONE;
+
     	final StatusUpdateStrategy strategy = 
     		(depth == IResource.DEPTH_INFINITE) 
 							? (StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(statusCache)

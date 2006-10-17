@@ -311,7 +311,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 				}
 				//ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
 				//svnContainer.refreshStatus(IResource.DEPTH_ONE);
-				IResource[] refreshed = SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(container, IResource.DEPTH_ONE);
+				IResource[] refreshed = SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(container, false);
 
 				SVNProviderPlugin.broadcastSyncInfoChanges(refreshed);
 			}                			

@@ -208,7 +208,7 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 
 				RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
 				plugin.getStatusCacheManager().refreshStatus(project,
-						IResource.DEPTH_INFINITE);
+						true);
 				
 			}catch(Exception e){
                 SVNProviderPlugin.log(IStatus.ERROR, "Could not auto-add project " + project.getName(), e); //$NON-NLS-1$
