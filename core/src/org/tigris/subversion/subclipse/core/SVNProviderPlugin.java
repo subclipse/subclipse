@@ -207,9 +207,10 @@ public class SVNProviderPlugin extends Plugin {
 		// shutdown.
 		workspace.removeSaveParticipant(this);
         
-        svnClientManager.shutdown(null);
+        if (svnClientManager != null)
+        	svnClientManager.shutdown(null);
         
-        getChangeSetManager().dispose();
+       	getChangeSetManager().dispose();
 	}
 
 	private static List listeners = new ArrayList();
