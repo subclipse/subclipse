@@ -22,6 +22,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
+import org.eclipse.team.ui.synchronize.ISynchronizePageSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -40,6 +42,7 @@ public class CommitOperation extends SVNOperation {
     private String commitComment;
     private boolean keepLocks;
     private ISVNClientAdapter svnClient;
+    private ISynchronizePageConfiguration configuration;
 
     public CommitOperation(IWorkbenchPart part, IResource[] selectedResources, IResource[] resourcesToAdd, IResource[] resourcesToDelete, IResource[] resourcesToCommit, String commitComment, boolean keepLocks) {
         super(part);
@@ -114,6 +117,10 @@ public class CommitOperation extends SVNOperation {
 //			throw SVNException.wrapException(e);
 		} finally {
 			monitor.done();
+			// refresh the Synch view
+			if (configuration != null) {
+				configuration.getParticipant().run(getPart(configuration));
+			}
 		}
     }
 
@@ -161,6 +168,23 @@ public class CommitOperation extends SVNOperation {
 			list.add(resources[i]);
 		}
 		return result;
+	}
+
+	public void setConfiguration(ISynchronizePageConfiguration configuration) {
+		this.configuration = configuration;
+	}
+	
+	/*
+	 * Helper method for extracting the part safely from a configuration
+	 */
+	private static IWorkbenchPart getPart(ISynchronizePageConfiguration configuration) {
+		if (configuration != null) {
+			ISynchronizePageSite site = configuration.getSite();
+			if (site != null) {
+				return site.getPart();
+			}
+		}
+		return null;
 	}
 
 }
