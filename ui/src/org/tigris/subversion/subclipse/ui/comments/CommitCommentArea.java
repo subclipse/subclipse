@@ -564,7 +564,8 @@ public class CommitCommentArea extends DialogArea {
         final String comment= fTextBox.getText();
         if (comment == null)
             return ""; //$NON-NLS-1$
-        
+        if (comment.trim().length() > 0)
+        	SVNUIPlugin.getPlugin().getRepositoryManager().getCommentsManager().addComment(comment.trim());
         return comment;
     }
     
