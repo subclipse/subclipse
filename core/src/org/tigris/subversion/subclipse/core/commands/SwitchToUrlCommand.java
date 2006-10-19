@@ -58,11 +58,6 @@ public class SwitchToUrlCommand implements ISVNCommand {
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm));
             File file = resource.getLocation().toFile();
             svnClient.switchToUrl(file, svnUrl, svnRevision, true);
-            try {
-                // Refresh the resource after merge
-                resource.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-            } catch (CoreException e1) {
-            }
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
