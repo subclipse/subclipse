@@ -136,9 +136,4 @@ public class AddAction extends WorkbenchWindowAction {
 		return ISVNUIConstants.IMG_MENU_ADD;
 	}
 
-	protected String getMenuId()
-	{
-		return "org.tigris.subversion.subclipse.ui.add"; //$NON-NLS-1$
-	}
-
 }

@@ -59,9 +59,4 @@ public class SynchronizeAction extends WorkbenchWindowAction {
 		return ISVNUIConstants.IMG_MENU_SYNC;
 	}
 
-	protected String getMenuId()
-	{
-		return "org.tigris.subversion.subclipse.ui.synchronize"; //$NON-NLS-1$
-	}
-
 }

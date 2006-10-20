@@ -55,10 +55,5 @@ public class UpdateAction extends WorkbenchWindowAction {
 	{
 		return ISVNUIConstants.IMG_MENU_UPDATE;
 	}
-
-	protected String getMenuId()
-	{
-		return "org.tigris.subversion.subclipse.ui.update"; //$NON-NLS-1$
-	}
 	
 }

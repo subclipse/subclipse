@@ -110,10 +110,5 @@ public class CopyAction extends WorkbenchWindowAction {
 	{
 		return ISVNUIConstants.IMG_MENU_COPY;
 	}
-
-	protected String getMenuId()
-	{
-		return "org.tigris.subversion.subclipse.ui.copy"; //$NON-NLS-1$
-	}
 	
 }

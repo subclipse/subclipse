@@ -49,8 +49,4 @@ public class CheckoutWizardAction extends WorkbenchWindowAction {
 		return true;
 	}
 
-	protected String getMenuId()
-	{
-		return "org.tigris.subversion.subclipse.ui.checkout"; //$NON-NLS-1$
-	}
 }

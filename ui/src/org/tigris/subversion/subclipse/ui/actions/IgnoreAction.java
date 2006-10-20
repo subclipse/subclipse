@@ -78,10 +78,5 @@ public class IgnoreAction extends WorkbenchWindowAction {
 	{
 		return ISVNUIConstants.IMG_MENU_IGNORE;
 	}
-
-	protected String getMenuId()
-	{
-		return "org.tigris.subversion.subclipse.ui.ignore"; //$NON-NLS-1$
-	}
 	
 }

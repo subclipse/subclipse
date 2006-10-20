@@ -368,10 +368,5 @@ public class CommitAction extends WorkbenchWindowAction {
 	{
 		return ISVNUIConstants.IMG_MENU_COMMIT;
 	}
-
-	protected String getMenuId()
-	{
-		return "org.tigris.subversion.subclipse.ui.commit"; //$NON-NLS-1$
-	}
     
 }

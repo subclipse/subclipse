@@ -104,10 +104,5 @@ public class RevertAction extends WorkbenchWindowAction {
 	{
 		return ISVNUIConstants.IMG_MENU_REVERT;
 	}
-
-	protected String getMenuId()
-	{
-		return "org.tigris.subversion.subclipse.ui.revert"; //$NON-NLS-1$
-	}
 	
 }
