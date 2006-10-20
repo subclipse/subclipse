@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
-import org.eclipse.team.ui.synchronize.ISynchronizePageSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -31,6 +30,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
@@ -119,7 +119,10 @@ public class CommitOperation extends SVNOperation {
 			monitor.done();
 			// refresh the Synch view
 			if (configuration != null) {
-				configuration.getParticipant().run(getPart(configuration));
+				SVNSynchronizeParticipant sync = (SVNSynchronizeParticipant) configuration.getParticipant();
+				IResource[] roots = sync.getResources();
+				// TODO: reduce this array to just the roots that were affected by this commit
+				sync.refresh(roots, monitor);
 			}
 		}
     }
@@ -172,19 +175,6 @@ public class CommitOperation extends SVNOperation {
 
 	public void setConfiguration(ISynchronizePageConfiguration configuration) {
 		this.configuration = configuration;
-	}
-	
-	/*
-	 * Helper method for extracting the part safely from a configuration
-	 */
-	private static IWorkbenchPart getPart(ISynchronizePageConfiguration configuration) {
-		if (configuration != null) {
-			ISynchronizePageSite site = configuration.getSite();
-			if (site != null) {
-				return site.getPart();
-			}
-		}
-		return null;
 	}
 
 }
