@@ -107,11 +107,6 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			return false;
 		}
 		
-		// check the global ignores from Team
-		if (Team.isIgnoredHint(resource)) {
-			return true;
-		}
-
 		if (isParentInSvnIgnore()) {
 			return true;
 		}
@@ -128,6 +123,11 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
             return true;
         }
 		
+		// check the global ignores from Team
+		if (Team.isIgnoredHint(resource)) {
+			return true;
+		}
+
 		// check the parent, if the parent is ignored
 		// then this resource is ignored also
 		ISVNLocalFolder parent = getParent();
