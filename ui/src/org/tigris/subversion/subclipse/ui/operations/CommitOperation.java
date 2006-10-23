@@ -121,7 +121,10 @@ public class CommitOperation extends SVNOperation {
 			if (configuration != null) {
 				SVNSynchronizeParticipant sync = (SVNSynchronizeParticipant) configuration.getParticipant();
 				IResource[] roots = sync.getResources();
-				// TODO: reduce this array to just the roots that were affected by this commit
+				// Reduce the array to just the roots that were affected by this
+				// commit
+				if (roots.length > 1)
+					roots = reduceRoots(roots);
 				sync.refresh(roots, monitor);
 			}
 		}
@@ -177,4 +180,19 @@ public class CommitOperation extends SVNOperation {
 		this.configuration = configuration;
 	}
 
+	private IResource[] reduceRoots(IResource[] roots) {
+		List rootArray = new ArrayList();
+		for (int i = 0; i < roots.length; i++) {
+			for (int j = 0; j < resourcesToCommit.length; j++) {
+				if (resourcesToCommit[j].getFullPath().toString().startsWith(roots[i].getFullPath().toString())) {
+					rootArray.add(roots[i]);
+					break;
+				}
+			}		
+		}
+		roots = new IResource[rootArray.size()];
+		rootArray.toArray(roots);
+		return roots;
+	}
+	
 }
