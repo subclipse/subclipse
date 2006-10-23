@@ -166,7 +166,9 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
      * @see org.eclipse.team.core.subscribers.Subscriber#getSyncInfo(org.eclipse.core.resources.IResource)
      */
     public SyncInfo getSyncInfo(IResource resource) throws TeamException {
-        if( ! isSupervised( resource ) )
+        if (resource == null)
+        	return null;
+    	if( ! isSupervised( resource ) )
             return null;
         
         //LocalResourceStatus localStatus = SVNWorkspaceRoot.getSVNResourceFor( resource );
