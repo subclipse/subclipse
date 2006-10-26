@@ -7,7 +7,7 @@
 -->
 
 <toc label="Reference" link_to="toc.xml#reference"> 
-	<topic label="Repository Exporing Perspective" href="html/reference/svn-repository.html" />
+	<topic label="Repository Exploring Perspective" href="html/reference/svn-repository.html" />
 	<topic label="Team Synchronize Perspective" href="html/reference/team-synchronize.html" />
 	<topic label="Views">
 		<topic label="Annotate View" href="html/reference/svn-annotations.html" />
