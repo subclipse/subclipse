@@ -51,3 +51,4 @@ Export-Package: org.tigris.subversion.subclipse.ui,
  org.tigris.subversion.subclipse.ui.wizards,
  org.tigris.subversion.subclipse.ui.wizards.generatediff,
  org.tigris.subversion.subclipse.ui.wizards.sharing
+Bundle-RequiredExecutionEnvironment: J2SE-1.4

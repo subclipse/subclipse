@@ -35,3 +35,4 @@ Export-Package: org.tigris.subversion.subclipse.core,
  org.tigris.subversion.svnclientadapter.javahl,
  org.tigris.subversion.svnclientadapter.utils,
  org.tigris.subversion.svnclientadapter.javasvn
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
