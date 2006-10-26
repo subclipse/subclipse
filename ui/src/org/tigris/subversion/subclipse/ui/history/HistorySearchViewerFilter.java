@@ -206,7 +206,7 @@ public class HistorySearchViewerFilter extends ViewerFilter {
 		if (toSearch == null) {
 			return false;
 		}
-		return toSearch.contains(expression);
+		return toSearch.indexOf(expression) > 0;
 	}
 	
 }
