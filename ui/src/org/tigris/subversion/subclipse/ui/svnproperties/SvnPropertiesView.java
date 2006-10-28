@@ -414,7 +414,10 @@ public class SvnPropertiesView extends ViewPart {
 
 		Action action = getAddPropertyAction();
 		try { 		
-			action.setEnabled(resource.isManaged());
+			if (resource != null)
+				action.setEnabled(resource.isManaged());
+			else
+				action.setEnabled(false);
 		} catch (SVNException e) {
 			action.setEnabled(false);
 		}
