@@ -681,6 +681,9 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
             category="org.eclipse.team.ui.TeamPreferences"
             class="org.tigris.subversion.subclipse.ui.preferences.SVNPreferencesPage"
             id="org.tigris.subversion.subclipse.ui.SVNPreferences">
+         <keywordReference
+               id="org.tigris.subversion.subclipse.ui.svn">
+         </keywordReference>
       </page>
    </extension>
    <extension
@@ -689,7 +692,11 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
             category="org.tigris.subversion.subclipse.ui.SVNPreferences"
             class="org.tigris.subversion.subclipse.ui.preferences.SVNMenuIconsPreferencesPage"
             id="org.tigris.subversion.subclipse.ui.SVNMenuIconsPreferences"
-            name="%MenuIconsPreferencePage.name"/>
+            name="%MenuIconsPreferencePage.name">
+         <keywordReference
+               id="org.tigris.subversion.subclipse.ui.svn">
+         </keywordReference>
+      </page>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -708,6 +715,9 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
             category="org.tigris.subversion.subclipse.ui.SVNPreferences"
             class="org.tigris.subversion.subclipse.ui.console.ConsolePreferencesPage"
             id="org.tigris.subversion.subclipse.ui.ConsolePreferences">
+         <keywordReference
+               id="org.tigris.subversion.subclipse.ui.svn">
+         </keywordReference>
       </page>
    </extension>
    <extension
