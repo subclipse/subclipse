@@ -13,7 +13,9 @@ package org.tigris.subversion.subclipse.core.commands;
 import java.io.File;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -55,6 +57,11 @@ public class MergeCommand implements ISVNCommand {
             monitor.subTask(resource.getName());
             File file = resource.getLocation().toFile();
             svnClient.merge(svnUrl1, svnRevision1, svnUrl2, svnRevision2, file, force, true, false, ignoreAncestry);
+            try {
+                // Refresh the resource after merge
+                resource.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+            } catch (CoreException e1) {
+            }
             monitor.worked(100);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
