@@ -188,6 +188,11 @@
 		<topic href="/org.tigris.subversion.subclipse.doc/html/advanced/managing-passwords.html" label="Advanced: Managing Usernames and Passwords"/>
 	</context>
 
+	<context id="user_prompt_dialog_context">
+		<description>Supply a valid username to identify yourself to SVN within the SSH session.  This is independent of the SSH credentials you have already supplied.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
+	</context>
+
 	<context id="question_dialog_context">
 		<description>Answer a question being asked by the SVN adapter.</description>
 		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/preferences.html" label="Reference: Preferences"/>

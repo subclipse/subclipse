@@ -113,6 +113,25 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
         return rtnCode;
     }
 
+    public boolean promptUser(String promptRealm, String promptUsername, boolean promptMaySave) {
+        rtnCode = false;
+        username = promptUsername;
+        realm = promptRealm;
+        maySave = promptMaySave;
+   		SVNUIPlugin.getStandardDisplay().syncExec(new Runnable() {
+			public void run() {
+		        UserPromptDialog dialog = new UserPromptDialog(SVNUIPlugin.getStandardDisplay().getActiveShell(),
+		                realm, username, maySave);
+		        if (dialog.open() == UserPromptDialog.OK) {
+		            username = dialog.getUsername();
+		            allowedSave = dialog.isSave();
+		            rtnCode = true;
+		        }				
+			}
+		});      
+        return rtnCode;
+    }
+
     public String askQuestion(String askRealm, String askQuestion, boolean askShowAnswer,
             boolean askMaySave) {
         answer = null;

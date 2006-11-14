@@ -41,6 +41,7 @@ public interface IHelpContextIds {
 	public static final String SET_SVN_PROPERTY_DIALOG = PREFIX + "set_svn_property_dialog_context"; //$NON_NLS-1$
 
 	public static final String PASSWORD_PROMPT_DIALOG = PREFIX + "password_prompt_dialog_context"; //$NON_NLS-1$
+	public static final String USER_PROMPT_DIALOG = PREFIX + "user_prompt_dialog_context"; //$NON_NLS-1$
 	public static final String QUESTION_DIALOG = PREFIX + "question_dialog_context"; //$NON_NLS-1$
 	public static final String SSH_PROMPT_DIALOG = PREFIX + "ssh_prompt_dialog_context"; //$NON_NLS-1$
 	public static final String TRUST_SSL_SERVER_DIALOG = PREFIX + "trust_ssl_server_dialog_context"; //$NON_NLS-1$
