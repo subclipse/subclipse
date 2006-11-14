@@ -5,7 +5,7 @@ Bundle-Version: 1.1.8
 Bundle-ClassPath: .,
  lib/svnClientAdapter.jar,
  lib/svnjavahl.jar,
- lib/javasvn.jar,
+ lib/svnkit.jar,
  lib/ganymed.jar
 Bundle-Activator: org.tigris.subversion.subclipse.core.SVNProviderPlugin
 Bundle-Vendor: %providerName

@@ -102,13 +102,13 @@ the Subversion project.  JavaHL is an official part of the Subversion project, n
 svnClientAdapter is a Java project that was developed for Subclipse.  It provides an even higher level
 of abstraction to the Subversion libraries.  It also allows for different ways of accessing Subversion
 functionality.  Historically, the two options were to use the JavaHL library or the Subversion
-command line.  Recently, a third option was added and that is to use the <a href="http://tmate.org/svn/">
-JavaSVN</a> library which is a 100% Pure Java implementation of the protocols used by Subversion.  
+command line.  Recently, a third option was added and that is to use the <a href="http://svnkit.com/">
+SVNKit</a> library which is a 100% Pure Java implementation of the protocols used by Subversion.  
 This option has the advantage of not requiring any native libraries installed on the client.  Of course,
-since JavaSVN does not utilize the Subversion libraries it does not have the guaranteed compatability that
-you can expect from JavaHL or the command line adapters.  That being said, JavaSVN is tested against the same
+since SVNKit does not utilize the Subversion libraries it does not have the guaranteed compatability that
+you can expect from JavaHL or the command line adapters.  That being said, SVNKit is tested against the same
 test suite that tests the Subversion command line, and passes those tests.<br /><br />
-JavaSVN does not currently support the file:// protocol but there are plans to add support for accessing
+SVNKit does not currently support the file:// protocol but there are plans to add support for accessing
 fsfs repositories in the future.</p>
 
 </div>
@@ -119,7 +119,7 @@ fsfs repositories in the future.</p>
 <h3>Which adapter should I use?</h3>
 
 <p>If the JavaHL library is available on your system, or easily attainable, then it is
-probably the best choice.  That being said, JavaSVN is a great option and offers a number of
+probably the best choice.  That being said, SVNKit is a great option and offers a number of
 significant features that JavaHL does not currently offer.  JavaHL is currently your only
 option if you have to use file:// protocol.  In that scenario, you should really consider
 running a local svnserve instance and using the svn:// protocol.</p>
@@ -135,7 +135,7 @@ running a local svnserve instance and using the svn:// protocol.</p>
 username and password.  Since version 0.9.30 of Subclipse the best thing to do is always leave
 these fields empty.  The exception is if you are using the command line adapter.  As of version 0.9.100
 the dialogs no longer show the username and password fields.  
-Why should you leave them blank?  Because the JavaHL and JavaSVN
+Why should you leave them blank?  Because the JavaHL and SVNKit
 adapters are intelligent enough to prompt you for this information when they need to.  You can also
 then allow the adapter to cache this information.  The adapters are also intelligent enough to prompt
 you when the password has changed.  Conversely, if you specify a username and password within Subclipse
@@ -235,8 +235,8 @@ your repository is performed by the Subversion libraries.  Consequently, the con
 is the same as what you would do for the Subversion command line.  See: <a 
 href="http://svnbook.red-bean.com/en/1.1/ch07.html#svn-ch-7-sect-1">
 http://svnbook.red-bean.com/en/1.1/ch07.html#svn-ch-7-sect-1</a> for more information.</p>
-<p>If you are using the JavaSVN command-line client adapter then see: <a
-href="http://tmate.org/svn/kb/config-settings.html">http://tmate.org/svn/kb/config-settings.html</a>
+<p>If you are using the SVNKit command-line client adapter then see: <a
+href="http://svnkit.com/kb/user-guide-config-settings.html">http://svnkit.com/kb/user-guide-config-settings.html</a>
 for more information.</p>
 
 </div>
@@ -246,7 +246,7 @@ for more information.</p>
 <div class="h3" id="http-ssl" title="http-ssl">
 <h3>How do I specify SSL client certificates?</h3>
 
-<p>If you are using the JavaHL or JavaSVN adapters, then, at least in theory, you
+<p>If you are using the JavaHL or SVNKit adapters, then, at least in theory, you
 should be prompted when/if you need to supply the server with a client certificate.
 Just as you are when using the command-line.  As of the writing of this FAQ entry, at least
 JavaHL has not implemented this prompting.  Consequently, you need to store your client
@@ -270,15 +270,15 @@ Windows users, here is a great explanation of how to set this up from our mailin
 archives: <a href="http://subclipse.tigris.org/servlets/ReadMsg?list=users&msgNo=3334">
 Configuring svn+ssh:// on Windows</a>.
 </p>
-<p>As of Subclipse 0.9.35 if you are using the JavaSVN client adapter you should be
+<p>As of Subclipse 0.9.35 if you are using the SVNKit client adapter you should be
 dynamically prompted for your SSH username, password, keyfile, port etc...  When defining the
 repository connection in Subclipse, simply specify the URL like svn+ssh://hostname/repos.  Do
 not include your username in the URL and do not provide a username and password in the connection
-dialog.  At runtime, JavaSVN will prompt you for your SSH credentials and optionally cache them in
+dialog.  At runtime, SVNKit will prompt you for your SSH credentials and optionally cache them in
 the Eclipse keyring.  If you are not prompted for your credentials, it may be because you have
-previously attempted to manually configure JavaSVN.  If so, then you should "undo" all of that
+previously attempted to manually configure SVNKit.  If so, then you should "undo" all of that
 manual configuration.  The older manual configuration is documented at: <a
-href="http://tmate.org/svn/kb/config-settings.html">http://tmate.org/svn/kb/config-settings.html</a>.</p>
+href="http://svnkit.com/kb/user-guide-config-settings.html">http://svnkit.com/kb/user-guide-config-settings.html</a>.</p>
 </div>
 
 </div>
@@ -407,9 +407,9 @@ this:</p>
 <p><b>NOTE:</b> We recently discovered that this basic issue was causing another problem users were seeing.  In this case
 it happens when you use File -&gt; Import to import a project and you do not specify the correct case when importing.  This
 leads to the same null resource problem.  In this scenario, we are now logging a very detailed error in the SVN Console and
-Eclipse error log.  It also points to this FAQ.  In recreating the problem it appeared that the JavaSVN adapter did not
+Eclipse error log.  It also points to this FAQ.  In recreating the problem it appeared that the SVNKit adapter did not
 have the problem.  Possibly because it is using the same Java API's as Eclipse the case does not get canonicalized as it does
-when using the JavaHL native C libraries.  Other than switching to JavaSVN, the way to solve the problem in this scenario would
+when using the JavaHL native C libraries.  Other than switching to SVNKit, the way to solve the problem in this scenario would
 be to delete the project from the workspace and re-import it.  Use the Eclipse file chooser to select the project so that the
 case matches the OS.</p>
 
