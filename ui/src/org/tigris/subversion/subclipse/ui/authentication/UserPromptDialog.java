@@ -62,16 +62,17 @@ public class UserPromptDialog extends TrayDialog {
 		realmText.setText(realm);
 		
 		Label userLabel = new Label(rtnGroup, SWT.NONE);
-		userLabel.setText(Policy.bind("PasswordPromptDialog.username")); //$NON-NLS-1$
+		userLabel.setText(Policy.bind("UserPromptDialog.username")); //$NON-NLS-1$
 		userText = new Text(rtnGroup, SWT.BORDER);
 		gd = new GridData();
 		gd.widthHint = WIDTH;
 		userText.setLayoutData(gd);
 		userText.setText(username == null? "": username);
+		userText.selectAll();
 		
 		if (maySave) {
 		    saveButton = new Button(rtnGroup, SWT.CHECK);
-		    saveButton.setText(Policy.bind("PasswordPromptDialog.save")); //$NON-NLS-1$
+		    saveButton.setText(Policy.bind("UserPromptDialog.save")); //$NON-NLS-1$
 		    gd = new GridData();
 		    gd.horizontalSpan = 2;
 		    saveButton.setLayoutData(gd);
