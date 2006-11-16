@@ -23,7 +23,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.decorator.SVNDecoratorConfiguration;
 import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
-import org.tigris.subversion.svnclientadapter.javasvn.JavaSvnClientAdapterFactory;
+import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapterFactory;
 
 /**
  * Initializes preferences and updates markers when preferences are changed
@@ -108,7 +108,9 @@ private IPreferenceStore store;
      */
     private void setSvnClientInterface(String clientInterface) {
         if (CmdLineClientAdapterFactory.COMMANDLINE_CLIENT.equals(clientInterface))
-            clientInterface = JavaSvnClientAdapterFactory.JAVASVN_CLIENT;
+            clientInterface = SvnKitClientAdapterFactory.SVNKIT_CLIENT;
+        if ("javasvn".equals(clientInterface))
+            clientInterface = SvnKitClientAdapterFactory.SVNKIT_CLIENT;
         SVNProviderPlugin.getPlugin().getSVNClientManager().setSvnClientInterface(clientInterface);
     }
 

@@ -42,7 +42,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
-import org.tigris.subversion.svnclientadapter.javasvn.JavaSvnClientAdapterFactory;
+import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapterFactory;
 
 /**
  * SVN Preference Page
@@ -53,7 +53,7 @@ import org.tigris.subversion.svnclientadapter.javasvn.JavaSvnClientAdapterFactor
 public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage {
 
     private Button javahlRadio;
-    private Button javaSvnRadio;
+    private Button svnKitRadio;
     private Button showCompareRevisionInDialog;
     private Button fetchChangePathOnDemand;
     private Button showTagsInRemoteHistory;
@@ -178,14 +178,14 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		layout = new GridLayout();
 		group.setLayout(layout); 	
 		javahlRadio = createRadio(group, Policy.bind("SVNPreferencePage.svnjavahl"),1); //$NON-NLS-1$
-		javaSvnRadio = createRadio(group, Policy.bind("SVNPreferencePage.javasvn"),1); //$NON-NLS-1$
+		svnKitRadio = createRadio(group, Policy.bind("SVNPreferencePage.javasvn"),1); //$NON-NLS-1$
         Listener checkInterfaceListener = new Listener() {
             public void handleEvent(Event event) {
                 verifyValidation();
             }
         };
         javahlRadio.addListener(SWT.Selection,checkInterfaceListener);
-        javaSvnRadio.addListener(SWT.Selection,checkInterfaceListener);
+        svnKitRadio.addListener(SWT.Selection,checkInterfaceListener);
 		
         createLabel(composite, "", 2); //$NON-NLS-1$
         
@@ -276,9 +276,11 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
 		String clientInterface = store.getString(ISVNUIConstants.PREF_SVNINTERFACE);
 		if (CmdLineClientAdapterFactory.COMMANDLINE_CLIENT.equals(clientInterface))
-		    clientInterface = JavaSvnClientAdapterFactory.JAVASVN_CLIENT;
+		    clientInterface = SvnKitClientAdapterFactory.SVNKIT_CLIENT;
+		if ("javasvn".equals(clientInterface))
+		    clientInterface = SvnKitClientAdapterFactory.SVNKIT_CLIENT;
         javahlRadio.setSelection(clientInterface.equals(JhlClientAdapterFactory.JAVAHL_CLIENT));
-        javaSvnRadio.setSelection(clientInterface.equals(JavaSvnClientAdapterFactory.JAVASVN_CLIENT));
+        svnKitRadio.setSelection(clientInterface.equals(SvnKitClientAdapterFactory.SVNKIT_CLIENT));
         
         String configLocation = store.getString(ISVNUIConstants.PREF_SVNCONFIGDIR); 
         directoryLocationText.setText(configLocation);
@@ -359,7 +361,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
         if (javahlRadio.getSelection() ){
             store.setValue(ISVNUIConstants.PREF_SVNINTERFACE, JhlClientAdapterFactory.JAVAHL_CLIENT);
         }else{
-            store.setValue(ISVNUIConstants.PREF_SVNINTERFACE, JavaSvnClientAdapterFactory.JAVASVN_CLIENT);
+            store.setValue(ISVNUIConstants.PREF_SVNINTERFACE, SvnKitClientAdapterFactory.SVNKIT_CLIENT);
         }
         
         // save config location pref
@@ -423,8 +425,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 				}
 			}
 		}
-        if (javaSvnRadio.getSelection()) {
-			if (!SVNClientAdapterFactory.isSVNClientAvailable(JavaSvnClientAdapterFactory.JAVASVN_CLIENT)) {
+        if (svnKitRadio.getSelection()) {
+			if (!SVNClientAdapterFactory.isSVNClientAvailable(SvnKitClientAdapterFactory.SVNKIT_CLIENT)) {
 				setErrorMessage(Policy.bind("SVNPreferencePage.javaSvnNotAvailable")); //$NON-NLS-1$
 			}
 		}

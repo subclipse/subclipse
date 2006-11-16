@@ -21,8 +21,8 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
-import org.tigris.subversion.svnclientadapter.javasvn.JavaSvnClientAdapterFactory;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
+import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapterFactory;
 
 /**
  * Handles the creation of SVNClients
@@ -34,7 +34,7 @@ public class SVNClientManager {
     private File configDir = null;
     private boolean fetchChangePathOnDemand = true;
     private boolean javahl = false;
-    private boolean javasvn = false;
+    private boolean svnkit = false;
     
     public void startup(IProgressMonitor monitor) throws CoreException {
     }
@@ -64,16 +64,18 @@ public class SVNClientManager {
             }
         } else {
 	        if (CmdLineClientAdapterFactory.COMMANDLINE_CLIENT.equals(svnClientInterface))
-                svnClientInterface = JavaSvnClientAdapterFactory.JAVASVN_CLIENT;
+                svnClientInterface = SvnKitClientAdapterFactory.SVNKIT_CLIENT;
 	        if (JhlClientAdapterFactory.JAVAHL_CLIENT.equals(svnClientInterface))
 	            loadJavaHLAdapter();
-	        if (JavaSvnClientAdapterFactory.JAVASVN_CLIENT.equals(svnClientInterface))
-	            loadJavaSVNAdapter();
+	        if (SvnKitClientAdapterFactory.SVNKIT_CLIENT.equals(svnClientInterface))
+	            loadSVNKitAdapter();
+	        if ("javasvn".equals(svnClientInterface))
+	            loadSVNKitAdapter();
 	        if (SVNClientAdapterFactory.isSVNClientAvailable(svnClientInterface)) {
 	            this.svnClientInterface = svnClientInterface;
 	        } else {
-	            if (this.svnClientInterface == null && SVNClientAdapterFactory.isSVNClientAvailable(JavaSvnClientAdapterFactory.JAVASVN_CLIENT))
-	                this.svnClientInterface = JavaSvnClientAdapterFactory.JAVASVN_CLIENT;
+	            if (this.svnClientInterface == null && SVNClientAdapterFactory.isSVNClientAvailable(SvnKitClientAdapterFactory.SVNKIT_CLIENT))
+	                this.svnClientInterface = SvnKitClientAdapterFactory.SVNKIT_CLIENT;
 	        }
         }
         
@@ -137,7 +139,7 @@ public class SVNClientManager {
 	
 	public void loadAdapters() {
 	    loadJavaHLAdapter();
-	    loadJavaSVNAdapter();
+	    loadSVNKitAdapter();
 	}
 	
 	private void loadJavaHLAdapter() {
@@ -146,16 +148,16 @@ public class SVNClientManager {
 		    try {
 	            JhlClientAdapterFactory.setup();
 	        } catch (SVNClientException e) {
-	            loadJavaSVNAdapter(); // try to make sure there is at least one adapter available
+	            loadSVNKitAdapter(); // try to make sure there is at least one adapter available
 	        }
         }
 	}
 	
-	private void loadJavaSVNAdapter() {
-        if (!javasvn) {
-            javasvn = true;
+	private void loadSVNKitAdapter() {
+        if (!svnkit) {
+            svnkit = true;
 		    try {
-	            JavaSvnClientAdapterFactory.setup();
+	            SvnKitClientAdapterFactory.setup();
 	        } catch (SVNClientException e) {
 	        }
         }
