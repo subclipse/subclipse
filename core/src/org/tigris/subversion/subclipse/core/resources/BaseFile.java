@@ -62,7 +62,7 @@ public class BaseFile extends BaseResource implements ISVNRemoteFile {
 	 */
 	public IStorage getStorage(IProgressMonitor monitor) throws TeamException
 	{
-		return new BaseResourceStorage(this);
+		return BaseResourceStorageFactory.current().createResourceStorage(this);
 	}
 
 	/* (non-Javadoc)
