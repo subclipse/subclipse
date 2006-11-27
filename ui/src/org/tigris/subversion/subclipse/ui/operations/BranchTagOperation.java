@@ -12,11 +12,14 @@ package org.tigris.subversion.subclipse.ui.operations;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.BranchTagCommand;
+import org.tigris.subversion.subclipse.core.commands.GetRemoteResourceCommand;
+import org.tigris.subversion.subclipse.core.commands.SwitchToUrlCommand;
 import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -31,6 +34,7 @@ public class BranchTagOperation extends RepositoryProviderOperation {
     private boolean createOnServer;
     private String message;
     private Alias newAlias;
+	private boolean switchAfterTagBranch;
 
     public BranchTagOperation(IWorkbenchPart part, IResource[] resources, SVNUrl sourceUrl, SVNUrl destinationUrl, boolean createOnServer, SVNRevision revision, String message) {
         super(part, resources);
@@ -55,6 +59,26 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 	    	BranchTagCommand command = new BranchTagCommand(provider.getSVNWorkspaceRoot(),resources[0], sourceUrl, destinationUrl, message, createOnServer, revision);
 	        command.run(Policy.subMonitorFor(monitor,1000));
 	        if (newAlias != null) updateBranchTagProperty(resources[0]);
+	        if(switchAfterTagBranch) {
+	        	String lastPathSegment = sourceUrl.getLastPathSegment();
+	        	SVNUrl switchDestinationUrl = destinationUrl.appendPath(lastPathSegment);
+	        	
+	        	// the copy command's destination URL can either be a path to an existing directory
+	        	// or a path to a new directory. In the former case the last path segment of the
+	        	// source path is automatically created at the destination
+	        	GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(provider.getSVNWorkspaceRoot().getRepository(), switchDestinationUrl, SVNRevision.HEAD);
+	        	try {
+	        		getRemoteResourceCommand.run(null);
+	        	} catch(SVNException e) {
+	        		if(e.getStatus().getCode() == TeamException.UNABLE) {
+	        			switchDestinationUrl = destinationUrl;
+	        		} else {
+	        			throw e;
+	        		}
+	        	}
+		        SwitchToUrlCommand switchToUrlCommand = new SwitchToUrlCommand(provider.getSVNWorkspaceRoot(), resources[0], switchDestinationUrl, SVNRevision.HEAD);
+		        switchToUrlCommand.run(Policy.subMonitorFor(monitor,100));
+	        }
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		} finally {
@@ -99,6 +123,10 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 
 	public void setNewAlias(Alias newAlias) {
 		this.newAlias = newAlias;
+	}
+	
+	public void switchAfterTagBranchOperation(boolean switchAfterTagBranchOperation) {
+		this.switchAfterTagBranch = switchAfterTagBranchOperation;
 	}
 
 }
