@@ -160,7 +160,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
 	 */
 	public SVNStatusKind getStatusKind()
 	{
-		if (!SVNStatusKind.NORMAL.equals(getTextStatus()) && !SVNStatusKind.NONE.equals(getTextStatus()))
+		if (!SVNStatusKind.NORMAL.equals(getTextStatus()) && !SVNStatusKind.EXTERNAL.equals(getTextStatus()) && !SVNStatusKind.NONE.equals(getTextStatus()))
 		{
 			return getTextStatus(); 
 		}

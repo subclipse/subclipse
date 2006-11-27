@@ -196,6 +196,10 @@ public class SVNStatusSyncInfo extends SyncInfo {
             if (localKind == SVNStatusKind.EXTERNAL)
             	return SyncInfo.IN_SYNC;
         }
+        else if ((localKind == SVNStatusKind.EXTERNAL) && (remoteStatusInfo == null))
+        {
+        	return SyncInfo.IN_SYNC;
+        }
         
         return super.calculateKind();
     }
