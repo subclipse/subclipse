@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+  <extension point="org.eclipse.mylar.team.providers">
+    <repository class="org.tigris.subversion.subclipse.mylar.SubclipseTeamRepositoryProvider"/>
+  </extension>
+   
+  <extension point="org.eclipse.core.runtime.adapters">
+    <factory adaptableType="org.eclipse.mylar.tasks.core.ILinkedTaskInfo"
+             class="org.tigris.subversion.subclipse.mylar.SubclipseLinkedTaskInfoAdapterFactory">
+      <adapter type="org.tigris.subversion.subclipse.core.history.LogEntry"/>
+      <adapter type="org.tigris.subversion.subclipse.ui.subscriber.SVNChangeSetCollector.SVNCheckedInChangeSet"/>
+    </factory>
+  </extension>
+    
+</plugin>
