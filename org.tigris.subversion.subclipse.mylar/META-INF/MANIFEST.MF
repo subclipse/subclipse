@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-Vendor: %pluginProvider
-Bundle-Version: 1.1.9
+Bundle-Version: 1.0.0
 Bundle-Localization: plugin
 Bundle-SymbolicName: org.tigris.subversion.subclipse.mylar;singleton:=true
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
