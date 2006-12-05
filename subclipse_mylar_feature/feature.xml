@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.tigris.subversion.subclipse.mylar"
+      label="Subclipse Mylar Integration"
+      version="1.1.9"
+      provider-name="tigris.org"
+      colocation-affinity="org.tigris.subversion.subclipse">
+   <install-handler/>
+
+   <description url="%changesURL">
+      %description
+   </description>
+
+   <copyright url="http://subclipse.tigris.org/">
+      http://subclipse.tigris.org/
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.2.x"/>
+      <discovery label="%updateSiteName" url="http://subclipse.tigris.org/update_1.2.x"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.core.resources" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.runtime" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.team.core" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.mylar.tasks.core" version="0.9.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.mylar.tasks.ui" version="0.9.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.mylar.team" version="0.9.1" match="greaterOrEqual"/>
+      <import plugin="org.tigris.subversion.subclipse.core" version="1.1.9" match="greaterOrEqual"/>
+      <import plugin="org.tigris.subversion.subclipse.ui" version="1.1.9" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui" version="3.2.0" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="org.tigris.subversion.subclipse.mylar"
+         download-size="0"
+         install-size="0"
+         version="1.1.9"
+         unpack="false"/>
+
+</feature>
