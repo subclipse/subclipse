@@ -37,7 +37,7 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 	/**
 	 * Change set used to store incoming changes in
 	 */
-	private class SVNCheckedInChangeSet extends CheckedInChangeSet {
+	public class SVNCheckedInChangeSet extends CheckedInChangeSet {
 		
 		private long revision;
 		private String author;
