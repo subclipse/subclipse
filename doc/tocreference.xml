@@ -13,7 +13,6 @@
 		<topic label="Annotate View" href="html/reference/svn-annotations.html" />
 		<topic label="Console View" href="html/reference/svn-console.html" />
 		<topic label="History View" href="html/reference/svn-history-view.html" />
-		<topic label="Pending Operations View" href="html/reference/pending-operations-view.html" />
 		<topic label="Properties View" href="html/reference/svn-properties-view.html" />
 		<topic label="Repository View" href="html/reference/svn-repository-view.html" />
 	</topic>
@@ -27,7 +26,6 @@
 		<topic label="Show Annotation" href="html/reference/svn-annotations.html" />
 		<topic label="Show Properties" href="html/reference/svn-properties-view.html" />
 		<topic label="Set Property" href="html/reference/set-property.html" />
-		<topic label="Add keywords" href="html/reference/add-keywords.html" />
 		<topic label="Lock" href="html/reference/lock.html" />
 		<topic label="Add to Version Control" href="html/reference/add.html" />
 		<topic label="Add to svn:ignore" href="html/reference/ignore.html" />
@@ -40,8 +38,6 @@
 		<topic label="Edit conflicts" href="html/reference/edit-conflicts.html" />
 		<topic label="Revert" href="html/reference/revert.html" />
 		<topic label="Mark Resolved" href="html/reference/mark-resolved.html" />
-		<topic label="Mark as Deleted" href="html/reference/mark-as-deleted.html" />
-		<topic label="Show pending operations" href="html/reference/show-pending-operations.html" />
 		<topic label="Cleanup" href="html/reference/cleanup.html" />
 		<topic label="Share" href="html/reference/share.html" />
 		<topic label="Disconnect" href="html/reference/disconnect.html" />
