@@ -130,13 +130,24 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 	    		if (syncInfo instanceof SVNStatusSyncInfo) {
 	    			SVNStatusSyncInfo svnSyncInfo = (SVNStatusSyncInfo)syncInfo;
 	    			RemoteResourceStatus remoteResourceStatus = svnSyncInfo.getRemoteResourceStatus();
-	    			revision = remoteResourceStatus.getLastChangedRevision().getNumber();
-	    			author = remoteResourceStatus.getLastCommitAuthor();
-	    			if ((author == null) || (author.length() == 0)) {
+	    			if (remoteResourceStatus != null) {
+		    			SVNRevision.Number revnum = remoteResourceStatus.getLastChangedRevision();
+		    			if (revnum != null)
+		    				revision = revnum.getNumber();
+		    			else
+		    				revision = SVNRevision.INVALID_REVISION.getNumber();
+		    			author = remoteResourceStatus.getLastCommitAuthor();
+		    			if ((author == null) || (author.length() == 0)) {
+		    				author = Policy.bind("SynchronizeView.noAuthor"); //$NON-NLS-1$
+		    			}
+		    			date = remoteResourceStatus.getLastChangedDate();
+		    			comment = fetchComment(svnSyncInfo);
+	    			} else {
+	    				revision = SVNRevision.INVALID_REVISION.getNumber();
 	    				author = Policy.bind("SynchronizeView.noAuthor"); //$NON-NLS-1$
+	    				comment = "";
+	    				date = null;
 	    			}
-	    			date = remoteResourceStatus.getLastChangedDate();
-	    			comment = fetchComment(svnSyncInfo);
 	    		}
 	    	}
 	    }
