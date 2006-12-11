@@ -52,32 +52,33 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
         boolean stealLock = false;
         // reduce the array to just read only files
         IFile[] readOnlyFiles = getReadOnly(files);
-        int managedCount = readOnlyFiles.length; 
+        if (readOnlyFiles.length == 0) return Status.OK_STATUS;
+        int managedCount = readOnlyFiles.length;
 	    SVNTeamProvider svnTeamProvider = null;
-	    RepositoryProvider provider = RepositoryProvider.getProvider(files[0].getProject());
-	    if ((provider != null) && (provider instanceof SVNTeamProvider)) {
-            IFile[] managedFiles = checkManaged(files);
-            managedCount = managedFiles.length;
-            if (managedCount > 0) {
-                if (context != null) {
-                    ISVNFileModificationValidatorPrompt svnFileModificationValidatorPrompt = 
-                        SVNProviderPlugin.getPlugin().getSvnFileModificationValidatorPrompt();
-                    if (svnFileModificationValidatorPrompt != null) {
-                        if (!svnFileModificationValidatorPrompt.prompt(managedFiles, context))
-                            return Status.CANCEL_STATUS;
-                        comment = svnFileModificationValidatorPrompt.getComment();
-                        stealLock = svnFileModificationValidatorPrompt.isStealLock();
-                    }
-                }
-                svnTeamProvider = (SVNTeamProvider) provider;
-                LockResourcesCommand command = new LockResourcesCommand(svnTeamProvider.getSVNWorkspaceRoot(), managedFiles, stealLock, comment);
-                try {
-                    command.run(new NullProgressMonitor());
-                } catch (SVNException e) {
-                    e.printStackTrace();
-                    return Status.CANCEL_STATUS;
-                }
-            }
+	    IFile[] managedFiles = checkManaged(readOnlyFiles);
+	    managedCount = managedFiles.length;
+	    if (managedCount > 0) {
+	    	if (context != null) {
+	    		ISVNFileModificationValidatorPrompt svnFileModificationValidatorPrompt = 
+	    			SVNProviderPlugin.getPlugin().getSvnFileModificationValidatorPrompt();
+	    		if (svnFileModificationValidatorPrompt != null) {
+	    			if (!svnFileModificationValidatorPrompt.prompt(managedFiles, context))
+	    				return Status.CANCEL_STATUS;
+	    			comment = svnFileModificationValidatorPrompt.getComment();
+	    			stealLock = svnFileModificationValidatorPrompt.isStealLock();
+	    		}
+	    	}
+	    	RepositoryProvider provider = RepositoryProvider.getProvider(managedFiles[0].getProject());
+	    	if ((provider != null) && (provider instanceof SVNTeamProvider)) {
+	    		svnTeamProvider = (SVNTeamProvider) provider;
+	    		LockResourcesCommand command = new LockResourcesCommand(svnTeamProvider.getSVNWorkspaceRoot(), managedFiles, stealLock, comment);
+	    		try {
+	    			command.run(new NullProgressMonitor());
+	    		} catch (SVNException e) {
+	    			e.printStackTrace();
+	    			return Status.CANCEL_STATUS;
+	    		}
+	    	}
         }
 	    // This is to prompt the user to flip the read only bit
 	    // on files that are not managed by SVN
