@@ -130,7 +130,7 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
 
 	private boolean isReadOnly(IFile file) {
 		if (file == null) return false;
-		File fsFile = file.getFullPath().toFile();
+		File fsFile = file.getLocation().toFile();
 		if (fsFile == null || fsFile.canWrite())
 			return false;
 		else
