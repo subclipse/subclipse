@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
+import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -119,7 +120,8 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
     private IFile[] getReadOnly(IFile[] files) {
         List result = new ArrayList(files.length);
         for (int i = 0; i < files.length; i++) {
-            if (files[i].isReadOnly()) {
+        	File file = files[i].getFullPath().toFile();
+            if (file != null && !file.canWrite()) {
                 result.add(files[i]);
             }
         }
