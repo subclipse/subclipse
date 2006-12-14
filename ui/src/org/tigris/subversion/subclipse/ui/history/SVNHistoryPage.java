@@ -800,7 +800,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     } else {
       svnHistoryPageControl.setMaximizedControl(tableHistoryViewer.getControl());
     }
-
     changePathsViewer.refresh();
     textViewer.getTextWidget().setWordWrap(wrapCommentsText);
   }
@@ -868,8 +867,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
   public boolean isShowChangePaths() {
-    // return toggleShowAffectedPathsAction.isChecked();
-    return true;
+	  return showAffectedPaths;
   }
 
   private IAction getOpenRemoteFileAction() {

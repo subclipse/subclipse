@@ -27,7 +27,9 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
@@ -509,4 +511,20 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	public ShowOutOfDateFoldersAction getShowOutOfDateFoldersAction() {
 		return showOutOfDateFoldersAction;
 	}
+	
+	public static Image getImage(String key) {
+		return getPlugin().getImageRegistry().get(key);
+	}	
+	
+	protected void initializeImageRegistry(ImageRegistry reg) {
+		super.initializeImageRegistry(reg);
+		reg.put(ISVNUIConstants.IMG_FILEADD_PENDING, getImageDescriptor(ISVNUIConstants.IMG_FILEADD_PENDING));
+		reg.put(ISVNUIConstants.IMG_FILEDELETE_PENDING, getImageDescriptor(ISVNUIConstants.IMG_FILEDELETE_PENDING));
+		reg.put(ISVNUIConstants.IMG_FILEMODIFIED_PENDING, getImageDescriptor(ISVNUIConstants.IMG_FILEMODIFIED_PENDING));
+		reg.put(ISVNUIConstants.IMG_FOLDERADD_PENDING, getImageDescriptor(ISVNUIConstants.IMG_FOLDERADD_PENDING));
+		reg.put(ISVNUIConstants.IMG_FOLDERDELETE_PENDING, getImageDescriptor(ISVNUIConstants.IMG_FOLDERDELETE_PENDING));
+		reg.put(ISVNUIConstants.IMG_FOLDERMODIFIED_PENDING, getImageDescriptor(ISVNUIConstants.IMG_FOLDERMODIFIED_PENDING));
+		reg.put(ISVNUIConstants.IMG_FOLDER, getImageDescriptor(ISVNUIConstants.IMG_FOLDER));
+	}
+	
 }
