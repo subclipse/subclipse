@@ -13,8 +13,6 @@ package org.tigris.subversion.subclipse.core.commands;
 import java.io.File;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourceAttributes;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
@@ -57,27 +55,11 @@ public class LockResourcesCommand implements ISVNCommand {
             OperationManager.getInstance().beginOperation(svnClient);
 
             svnClient.lock(resourceFiles,message,force);
-            // Ensure resource is writable.  SVN will only change read-only
-            // flag if the svn:needs-lock property is set.
-            for (int i = 0; i < resources.length; i++) {
-				makeWritable(resources[i]);
-			}
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
             OperationManager.getInstance().endOperation();
             monitor.done();
-        }
-	}
-	
-	private void makeWritable(IResource resource) {
-        ResourceAttributes attrs = resource.getResourceAttributes();
-        if (resource.getType() == IResource.FILE && attrs.isReadOnly()) {
-            attrs.setReadOnly(false);
-        	try {
-				resource.setResourceAttributes(attrs);
-			} catch (CoreException swallow) {
-			}
         }
 	}
     

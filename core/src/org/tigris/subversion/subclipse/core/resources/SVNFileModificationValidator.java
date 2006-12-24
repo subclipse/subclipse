@@ -27,11 +27,13 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.RepositoryProvider;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.LockResourcesCommand;
+import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
 public class SVNFileModificationValidator implements IFileModificationValidator {
 	
@@ -112,8 +114,13 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
 			IFile file = files[i];
 			if (isReadOnly(file)) {
 	    	    try {
-	    	    	if (SVNWorkspaceRoot.getSVNResourceFor(file).isManaged())
-		                result.addManaged(file);
+	    	    	ISVNLocalResource resource = SVNWorkspaceRoot.getSVNResourceFor(file);
+	    	    	if (resource.isManaged()) {
+	    	    		if (hasNeedsLockProperty(resource))
+	    	    			result.addManaged(file);
+	    	    		else
+	    	    			result.addUnManaged(file);
+	    	    	}
 	    	    	else
 	    	    		result.addUnManaged(file);
 	            } catch (SVNException e) {
@@ -124,6 +131,17 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
         return result;
     }
 
+
+	private boolean hasNeedsLockProperty(ISVNLocalResource resource) {
+		try {
+			ISVNProperty needsLock = resource.getSvnProperty("svn:needs-lock"); //$NON-NLS-1$
+			if (needsLock != null && needsLock.getValue().length() > 0)
+				return true;
+		} catch (SVNException e) {
+			return false;
+		}
+		return false;
+	}
 
 	private boolean isReadOnly(IFile file) {
 		if (file == null) return false;
