@@ -205,9 +205,9 @@ public class SVNStatusSyncInfo extends SyncInfo {
     }
     
     private boolean isOutOfDate() {
-    	if (remoteStatusInfo == null)
+    	if (remoteStatusInfo == null || baseStatusInfo == null)
     		return false;
-    	if (baseStatusInfo == null)
+    	if (remoteStatusInfo.getLastChangedRevision() == null || baseStatusInfo.getLastChangedRevision() == null)
     		return false;
     	if (remoteStatusInfo.getLastChangedRevision().getNumber() > baseStatusInfo.getLastChangedRevision().getNumber())
     		return true;
