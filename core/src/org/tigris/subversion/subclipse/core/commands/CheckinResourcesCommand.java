@@ -77,25 +77,21 @@ public class CheckinResourcesCommand implements ISVNCommand {
         }
         
         // convert parents and resources to an array of File
-        final File[] parents = new File[parentsList.size()];
-        for (int i = 0; i < parentsList.size();i++)
-            parents[i] = ((IResource)parentsList.get(i)).getLocation().toFile();
-            
-        final File[] resourceFiles = new File[resources.length];
-        for (int i = 0; i < resources.length;i++)
-            resourceFiles[i] = resources[i].getLocation().toFile(); 
+        int parents = parentsList.size();
+        if (parents > 0)
+        	depth = IResource.DEPTH_ZERO; // change commit to non-recursive!!
+           
+        final File[] resourceFiles = new File[parents + resources.length];
+        for (int i = 0; i < parents;i++)
+        	resourceFiles[i] = ((IResource)parentsList.get(i)).getLocation().toFile();
+        for (int i = 0, j = parents; i < resources.length;i++, j++)
+            resourceFiles[j] = resources[i].getLocation().toFile(); 
         
         SVNProviderPlugin.run(new ISVNRunnable() {
             public void run(final IProgressMonitor pm) throws SVNException {
                 try {
                     pm.beginTask(null, resourceFiles.length);
                     OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm));
-                    
-                    // we commit the parents (not recursively)
-                    if (parents.length > 0) {
-                    	if (svnClient.canCommitAcrossWC()) svnClient.commitAcrossWC(parents,message,false,false,true);
-                    	else svnClient.commit(parents,message,false,false);
-                    }
                     
                     // then the resources the user has requested to commit
                     if (svnClient.canCommitAcrossWC()) svnClient.commitAcrossWC(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks,true);
