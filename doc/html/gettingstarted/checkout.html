@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Checkout</title>
+</head>
+<body>
+<h1>Checkout</h1>
+<h2>Overview</h2>
+<p>
+    Check out is the term used to describe the process of making a copy of a
+        project from a repository into your local workspace. In SVN, the check
+        out process creates a <a href="../reference/glossary.html#working">working
+        copy</a>. A working copy is a specially formatted folder structure which
+        contains additional .svn folders that store SVN information, as well
+        as a <a href="../reference/glossary.html#pristine">pristine copy</a> of
+        each item that is checked out.
+</p>
+<h2>Process</h2>
+<p>
+    To checkout directly against your <a href="../reference/glossary.html#repository">repository</a>,
+    navigate to the <span class="name"><a href="../reference/svn-repository.html">SVN
+    Repository Exploring Perspective</a></span>. If you have not yet defined
+    a connection to your repository, you will need to <a href="new-location.html">add
+    a new repository location</a>.
+</p>
+<p>
+    <img src="../images/checkout.png" width="296" height="493" style="margin-right: 10px;">
+</p>
+<p>
+    Select the desired repository directory and choose <span class="menu">Checkout</span> from
+    the context menu.
+</p>
+<p>
+    <img src="../images/checkout-from-svn-method.png" width="681" height="558">
+</p>
+<p>
+    If an Eclipse <span class="filefolder">.project</span> file already exists
+    in the selected repository folder, the check out wizard will automatically
+    default the method of checkout and using the project definition file. If
+    no .project file exists in the selected repository location, the wizard will
+    give you the option of checking out the folder as a regular Eclipse project
+    or launching the <span class="name">New Project Wizard</span>.
+</p>
+<p>
+    <img src="../images/checkout-from-svn-location.png" width="453" height="415">
+</p>
+<p>
+    The next step allows you to identify where the working copy should be created.
+        The default option is to create the working copy in your Eclispe workspace.
+        To select an alternative location, <span class="action">uncheck</span> the <span class="control">use
+        default workspace location</span> option and type or <span class="control">Browse</span> for
+        a new target location.
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    None
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="../reference/svn-repository.html">SVN Repository Exploring Perspective</a><br>
+    <a href="new-location.html">Creating a Repository Location</a>
+</p>
+</body>
+</html>

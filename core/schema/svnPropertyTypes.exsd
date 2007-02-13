@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.tigris.subversion.subclipse.core">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.tigris.subversion.subclipse.core" id="propertyTypes" name="SVN Property Type Definition"/>
+      </appInfo>
+      <documentation>
+         Extension point for defining new Subversion properties
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence minOccurs="0" maxOccurs="unbounded">
+           <element ref="svnPropertyTypes"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="svnPropertyTypes">
+      <complexType>
+         <sequence>
+            <element ref="description"/>
+         </sequence>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Name of this property. e.g: svn:external
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="allowRecurse" type="boolean" use="default" value="true">
+            <annotation>
+               <documentation>
+                  Allow recursive setting of property.
+               </documentation>
+            </annotation>
+         </attribute>         
+         <attribute name="type" use="default" value="String">
+            <annotation>
+               <documentation>
+                  Datatype used for editing the property.
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="String">
+                  </enumeration>
+                  <enumeration value="Number">
+                  </enumeration>
+                  <enumeration value="URL">
+                  </enumeration>
+                  <enumeration value="Boolean">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+         <attribute name="fileOrFolder" use="default" value="both">
+            <annotation>
+               <documentation>
+                  Show property for files, folders or both.
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="file">
+                  </enumeration>
+                  <enumeration value="folder">
+                  </enumeration>
+                  <enumeration value="both">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>        
+      </complexType>
+   </element>
+
+   <element name="description" type="string">
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         api
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+</schema>

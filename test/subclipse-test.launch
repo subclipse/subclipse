@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launchConfiguration type="org.eclipse.pde.ui.JunitLaunchConfig">
+<stringAttribute key="product" value="org.eclipse.platform.ide"/>
+<stringAttribute key="bootstrap" value=""/>
+<booleanAttribute key="useProduct" value="false"/>
+<booleanAttribute key="tracing" value="false"/>
+<stringAttribute key="location2" value="C:\Documents and Settings\Martin\My Documents"/>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=test"/>
+<booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
+<stringAttribute key="location3" value="/home/mml/junit-workbench-workspace"/>
+<booleanAttribute key="automaticAdd" value="true"/>
+<booleanAttribute key="includeFragments" value="false"/>
+<booleanAttribute key="clearws" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
+<stringAttribute key="location1" value="."/>
+<booleanAttribute key="default" value="true"/>
+<stringAttribute key="vmargs" value=""/>
+<booleanAttribute key="clearConfig" value="false"/>
+<booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
+<booleanAttribute key="useDefaultConfigArea" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
+<booleanAttribute key="useDefaultConfig" value="true"/>
+<stringAttribute key="progargs" value="-nl en_US -clean"/>
+<stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="test"/>
+<booleanAttribute key="askclear" value="false"/>
+<booleanAttribute key="includeOptional" value="true"/>
+<stringAttribute key="location0" value="../Subclipse_tests"/>
+</launchConfiguration>

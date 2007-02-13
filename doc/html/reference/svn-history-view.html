@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>History View</title>
+</head>
+<body>
+<h1>History View</h1>
+<p>
+    This view is accessed via the <span class="menu">Team &gt; Show History</span>
+    context menu.  Subclipse is using the common Team History view and framework provided
+    by Eclipse.  Another way to activate this view is to choose <span class="menu">Window &gt; Show
+    View &gt; Other...</span> and select <span class="name">Team</span> ... <span class="name">
+    History</span>.
+</p>
+<p>
+    <img src="../images/resource-history.png">
+</p>
+<h2>Features</h2>
+<p>
+    This view shows the history of a selected resource, as it exists in the SVN
+        repository. In SVN, both files and directories are versioned and have
+        a history. If the resource selected is in a <a href="glossary.html#working">working
+        copy</a>, the revision currently checked out is highlighted (in bold
+        face).
+<p>
+    The view itself consists of three distinct areas:
+<ul>
+    <li>
+        The revision table showing revision numbers, date/time of revision, the
+            name of the author, as well as the first line of the commit message.
+            You can click on any revision to show its full details.
+    </li>
+    <li>
+        The list of resources affected by this revision (modified, added, deleted
+            or changed properties).
+    </li>
+    <li>
+        The commit message for the selected revision.
+    </li>
+</ul>
+<dl>
+    <dt>Get file/contents</dt>
+    <dd>
+        Update the content and or revision of a local resource.
+    </dd>
+    <dt>Show differences </dt>
+    <dd>
+        You can request to view the revision history for any file or folder in
+            the repository.
+    </dd>
+    <dt>Revert</dt>
+    <dd>
+        You can revert the changes for a specific revision effectively undoing
+            the changes made as part of that change
+    </dd>
+    <dt>Branch/Tag</dt>
+    <dd>
+        Checkout the repository location to your local workspace as a working
+            copy.
+    </dd>
+    <dt>Update commit messages</dt>
+    <dd>
+        You can update commit properties (commit message, author etc.) associated
+            with a specific revision (commit) operation.
+    </dd>
+    <dt>View annotation</dt>
+    <dd>
+        View the revision history associated with individual lines of code/text
+            in a file.
+    </dd>
+    <dt>Compare</dt>
+    <dd>
+        Compare two specific file revisions.
+    </dd>
+</dl>
+<h2>Toolbar</h2>
+<p>
+    <img src="../images/resource-history-toolbar.png" width="181" height="24">
+</p>
+<dl>
+    <dt><img src="../images/nav-refresh.png" width="23" height="22"/> Refresh </dt>
+    <dd>
+        Refresh the contents of the current resource history display.
+    </dd>
+    <dt><img src="../images/nav-next25.png" width="23" height="22"/> Next nn </dt>
+    <dd>
+        By default, the resource history view only loads the revision table with
+            the latest revisions. The number of revisions returned is
+            set in the SVN preferences. This command retrieves the next block
+            of revisions from the repository.
+    </dd>
+    <dt><img src="../images/nav-getall.png" width="23" height="22"> Get All</dt>
+    <dd>
+        This command will retrieve all revisions from the repository for the
+            selected resource.
+    </dd>
+    <dt><img src="../images/btn-linktoeditor.png" width="23" height="22"> Link
+        with Editor</dt>
+    <dd>
+        The <span class="name">History View</span> can be linked
+        with the current editor. If linked, the content if the revision table
+        changes when you switch the resource being edited. Showing resource history
+        may be a longer running operation since it must retrieve the history
+        from the repository. If working with a remote repository on a WAN or
+        on the internet, you might want to turn off the "Link with Editor" button,
+        or explicitly close or hide the view when switching between resources
+        in the editor.
+    </dd>
+    <dt><img src="../images/btn-options.png" width="18" height="22"> Options</dt>
+    <dd>
+        This command displays a menu of <a href="resource-history-view-options.html">view
+        options</a> to control the behaviour and display of the <span class="name">
+        History View</span> .
+    </dd>
+</dl>
+<h2>Context menu</h2>
+<p>
+    The context menu is available for any item listed in the revision table.
+</p>
+<p>
+    The menu options available on the context menu vary depending on whether
+        you launched the resource history view from your working copy or the <span class="name">SVN
+        Repository View.</span>
+</p>
+<h3>Get Contents</h3>
+<p>
+    Use this option to update the contents of the selected file in your working
+        copy with the contents of the revision in the repository. The revision
+        number of your local file is not changed by this option.
+</p>
+<p>
+    This option is only valid when the resource history was launched for an individual
+        file in a local working copy.
+</p>
+<h3>Get Revision </h3>
+<p>
+    Use this option to replace the file in your working copy with the selected
+        revision in the repository. The revision number of your local file is
+        changed to the selected revision.
+</p>
+<p>
+    This option is only valid when the resource history was launched for an individual
+        file in a local working copy.
+</p>
+<h3>Create Unified Diff </h3>
+<p>
+    This menu option will create an output file of the changes in the selected
+        revision in <a href="glossary.html#unified">unified diff</a> format.
+        The comparison is made between the selected revision and the previous
+        revision.
+</p>
+<h3>Create Branch/Tag from Revision </h3>
+<p>
+    Use this option to create a <a href="copy-branch-tag.html">branch or tag</a> in
+    the repository based in the currently selected revision.
+</p>
+<h3>Set Commit Properties</h3>
+<p>
+    This option will allow you to <a href="set-commit-properties.html">update
+    the properties</a> (comment, author etc.) associated with a specific commit
+    operation.
+</p>
+<h3>Revert Changes from Revision </h3>
+<p>
+    Use this option to undo the changes that were made in a selected revision.
+</p>
+<p>
+    This option is only valid when the resource history was launched from a local
+        working copy.
+</p>
+<h3>Show Annotation</h3>
+<p>
+    This option launches the <span class="name">SVN Annotate View</span> for
+    the selected file. The <a href="svn-annotations.html">annotate view</a> allows
+    you to see the revision history associated with individual lines of code/text
+    in a file.
+</p>
+<p>
+    This option is only valid when the resource history was launched for an individual
+        file in a local working copy.
+</p>
+<h3>Compare</h3>
+<p>
+    Compares the selected revisions of the file using the default compare viewer
+        specified in your Eclipse workbench preferences.
+</p>
+<p>
+    This option is only valid when launched for two selected revisions of an
+        individual file in a local working copy.
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    <a href="../dailywork/branches.html">Branching and tagging</a><br>
+    <a href="../reference/configure-tags.html">Configure Branches/Tags</a>
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="svn-repository-view.html">SVN Repository View</a> <br>
+    <a href="show-as-unified-diff.html">Create Unified Diff</a>
+</p>
+</body>
+</html>

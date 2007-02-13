@@ -1,0 +1,221 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>SVN Repository View</title>
+</head>
+<body>
+<h1>SVN Repository View</h1>
+<p>
+    The <span class="name">SVN Repository View</span> is part of the <span class="name">SVN
+    Repository Exploring Perspective</span>.
+</p>
+<p>
+    <img src="../images/svn-perspective.png" width="345" height="173"/>
+</p>
+<h2>Features</h2>
+<p>
+    The SVN Repository view allows you to define and manage SVN repository locations
+        within the Eclipse workbench. Repository files and folders are presented
+        in a tree view with the top level of the tree representing a connection
+        to a specific SVN Repository location. Once you have a location defined,
+        you have access to a range of repository operations, including:
+</p>
+<dl>
+    <dt>History</dt>
+    <dd>
+        You can request to view the revision history for any file or folder in
+            the repository.
+    </dd>
+    <dt>Checkout</dt>
+    <dd>
+        Checkout the repository location to your local workspace as a working
+            copy.
+    </dd>
+    <dt>Import/Export</dt>
+    <dd>
+        Import local or networked resources directly into the repository or export
+            a selected repository resource.
+    </dd>
+    <dt>New, rename, delete</dt>
+    <dd>
+        You can manipulate the repository resources directly from within this
+            view including creating new folders and renaming and deleting files
+            and folders.
+    </dd>
+    <dt>Branch/Tag</dt>
+    <dd>
+        <a href="glossary.html#branch">Branch</a> or <a href="glossary.html#tag">tag</a> repository
+        resources in one simple operation.
+    </dd>
+    <dt>Copy, paste</dt>
+    <dd>
+        Copy and paste functionality allows you to copy individual files, or
+            entire folders, within the repository.
+    </dd>
+    <dt>Relocate</dt>
+    <dd>
+        Relocate your repository due to an IP address update, protocol change
+            or similar.
+    </dd>
+    <dt>Compare</dt>
+    <dd>
+        You can select two files or folders for comparison as a unified diff
+            file.
+    </dd>
+</dl>
+<h2>Toolbar</h2>
+<p>
+    <img src="../images/svn-perspective-toolbar.png" width="320" height="24"/>
+</p>
+<dl>
+    <dt><img src="../images/nav-home.png" width="23" height="22"/> Home</dt>
+    <dd>
+        Reset the view to the top level while retaining focus on the current
+            location.
+    </dd>
+    <dt><img src="../images/nav-back.png" width="23" height="22"/> Back</dt>
+    <dd>
+        This command steps back through the hierarchy views that were selected
+            via the <span class="control">Go Into</span> command.
+    </dd>
+    <dt><img src="../images/nav-into.png" width="23" height="22"/> Go Into</dt>
+    <dd>
+        Step into the currently selected folder and make it the top level of
+            the hierarchy.
+    </dd>
+    <dt><img src="../images/nav-refresh.png" width="23" height="22"/> Refresh </dt>
+    <dd>
+        Refresh the contents of the view.
+    </dd>
+    <dt><img src="../images/nav-collapse.png" width="23" height="22"/> Collapse
+        All </dt>
+    <dd>
+        This command collapses the tree expansion state of all resources in the
+            view.
+    </dd>
+    <dt><img src="../images/btn-newlocation.png" width="23" height="22"/> Add
+        SVN Repository </dt>
+    <dd>
+        This command evokes the <a href="../gettingstarted/new-location.html">Add
+        a new SVN Repository</a> location wizard.
+    </dd>
+</dl>
+<h2>Context menu</h2>
+<p>
+    The context menu options available differ slightly depending on the entry
+        selected in the SVN Repository View.
+</p>
+<h3>New &gt; New remote folder</h3>
+<p>
+    This menu option will evoke the <a href="new-remote-folder.html">New remote
+    folder</a> wizard.
+</p>
+<h3>New &gt; Repository Location</h3>
+<p>
+    This menu option will evoke the <a href="../gettingstarted/new-location.html">Add
+    a new SVN Repository</a> wizard.
+</p>
+<h3>History </h3>
+<p>
+    This menu option will show the revision history for the selected file or
+        folder in the <a href="svn-history-view.html">History</a> view.
+</p>
+<h3>Create Unified Diff </h3>
+<p>
+    This menu option allows two files or folders to be selected for comparison.
+        The output of the compare is saved to a file in <a href="glossary.html#unified">unified
+        diff</a> format.
+</p>
+<h3>Check Out</h3>
+<p>
+    If a <span class="filefolder">.project</span> file is found in the selected
+    directory, an option is available to <span class="menu">Check Out As Project</span>.
+    This option will create a working copy in a new folder in your active workspace.
+    If you want to create the working copy somewhere other than in your active
+    workspace, you can use the <span class="menu">Check Out As Project Into</span> option.
+    You can then specify an alternative target for the working copy. If there
+    is no <span class="filefolder">.project</span> file in the selected directory,
+    you can use the <span class="menu">Check Out As ... </span> option. This
+    option will allow you to specify the type of project you wish to check out
+    the location as and create a <span class="filefolder">.project</span> file
+    for you in the working copy.
+</p>
+<h3>Export</h3>
+<p>
+    <a href="export-remote-folder.html">Export</a> (copy) the selected resources
+    to a designated target location.
+</p>
+<h3>Import</h3>
+<p>
+    <a href="import-folder.html">Import</a> a local or networked resource into
+    the repository.
+</p>
+<h3>Rename/move</h3>
+<p>
+    This option will evoke the <a href="move-remote-resource.html">Move or rename
+    a remote resource</a> wizard.
+</p>
+<h3>Branch/Tag</h3>
+<p>
+    This option simplifies the copy and paste of repository resources by allowing
+        you to complete the branch and tag process as a <a href="copy-branch-tag.html">single
+        step operation</a>.
+</p>
+<h3>Copy/Paste</h3>
+<p>
+    These options allow you to copy and paste file and folder resources directly
+        in the repository. Paste is a commit operation and you will prompted
+        to enter a comment as part of the paste process.
+</p>
+<h3>Delete</h3>
+<p>
+    The delete option removes the selected resources from the repository. One
+        or more files or folders can be selected for delete in a single operation.
+        To select multiple resources, hold down the Shift and or Ctrl keys and
+        click on the resources you want to delete. Delete is a commit operation
+        and you will prompted to enter a comment as part of the delete process.
+</p>
+<h3>Copy URL to clipboard</h3>
+<p>
+    This option will copy the full repository URL for the selected resource to
+        the Windows clipboard. This is useful if you want to share the repository
+        URL with colleagues or reproduce the URL in an email, documentation or
+        similar.
+</p>
+<h3>Properties</h3>
+<p>
+    This option displays the <a href="svn-repository-properties.html">properties</a> for
+    the selected repository resource including the URL, last change author, revision
+    and date.
+</p>
+<h3>Refresh View </h3>
+<p>
+    Refresh the SVN Repository View and update the display with the latest information
+        from the repository.
+</p>
+<h3>Relocate</h3>
+<p>
+    The <a href="relocate-repository.html">Relocate</a> command is only used
+    if the URL of the repository root has changed due to a server IP address
+    change, protocol change (e.g. http:// to https://) or a change of the repository
+    root path in the server setup.
+</p>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    <a href="../gettingstarted/checkout.html">Checking out a Project</a><br>
+    <a href="../dailywork/branches.html">Branching and tagging</a>
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="svn-repository.html">SVN Repository Exploring Perspective</a><br>
+    <a href="svn-history-view.html">History View</a> <br>
+    <a href="show-as-unified-diff.html">Create Unified Diff</a>
+</p>
+</body>
+</html>

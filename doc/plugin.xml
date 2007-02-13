@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension point="org.eclipse.help.toc">
+      <toc file="toc.xml" primary="true" />
+      <toc file="tocgettingstarted.xml" />
+      <toc file="tocreference.xml" />
+      <toc file="dailywork.xml" />
+      <toc file="toc_platformGettingstarted.xml" />
+   </extension>
+</plugin>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<!--
+  Convention is: Omit prefixes for "SVN" (as in "SVN Resource History View") and don't use
+  menu qualifiers (such as "Team -> Foo". Just put "Foo".) We have enough context.
+-->
+
+<toc label="Reference" link_to="toc.xml#reference"> 
+	<topic label="Repository Exploring Perspective" href="html/reference/svn-repository.html" />
+	<topic label="Team Synchronize Perspective" href="html/reference/team-synchronize.html" />
+	<topic label="Views">
+		<topic label="Annotate View" href="html/reference/svn-annotations.html" />
+		<topic label="Console View" href="html/reference/svn-console.html" />
+		<topic label="History View" href="html/reference/svn-history-view.html" />
+		<topic label="Properties View" href="html/reference/svn-properties-view.html" />
+		<topic label="Repository View" href="html/reference/svn-repository-view.html" />
+	</topic>
+	<topic label="Team Menu">
+		<topic label="Synchronize with repository" href="html/reference/team-synchronize.html" />
+		<topic label="Update" href="html/reference/update.html" />
+		<topic label="Commit" href="html/reference/commit.html" />
+		<topic label="Create Patch" href="html/reference/create-patch.html" />
+		<topic label="Apply Patch" href="html/reference/apply-patch.html" />
+		<topic label="Show History" href="html/reference/svn-history-view.html" />
+		<topic label="Show Annotation" href="html/reference/svn-annotations.html" />
+		<topic label="Show Properties" href="html/reference/svn-properties-view.html" />
+		<topic label="Set Property" href="html/reference/set-property.html" />
+		<topic label="Lock" href="html/reference/lock.html" />
+		<topic label="Add to Version Control" href="html/reference/add.html" />
+		<topic label="Add to svn:ignore" href="html/reference/ignore.html" />
+		<topic label="Branch/Tag" href="html/reference/branch-tag.html" />
+		<topic label="Switch" href="html/reference/switch.html" />
+		<topic label="Merge" href="html/reference/merge.html" />
+		<topic label="Configure Branches/Tags" href="html/reference/configure-tags.html" />
+		<topic label="Copy" href="html/reference/copy.html" />
+		<topic label="Export" href="html/reference/export.html" />
+		<topic label="Edit conflicts" href="html/reference/edit-conflicts.html" />
+		<topic label="Revert" href="html/reference/revert.html" />
+		<topic label="Mark Resolved" href="html/reference/mark-resolved.html" />
+		<topic label="Cleanup" href="html/reference/cleanup.html" />
+		<topic label="Share" href="html/reference/share.html" />
+		<topic label="Disconnect" href="html/reference/disconnect.html" />
+	</topic>
+	<topic label="Compare Menu" href="html/reference/compare.html" />
+	<topic label="Replace Menu" href="html/reference/replace.html" />
+	<topic label="Other Actions">
+		<topic label="Check out" href="html/gettingstarted/checkout.html" />
+		<topic label="Preferences Pages" href="html/reference/preferences.html" />
+		<topic label="Resource Properties Tab" href="html/reference/properties.html" />
+		<topic label="Relocate Repository" href="html/reference/relocate-repository.html" />
+	</topic>
+	<topic label="Support for SVN Protocols" href="html/reference/protocol.html" />
+</toc>

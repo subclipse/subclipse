@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">
+<title>Lock</title>
+</head>
+<body>
+<h1>Lock</h1>
+<p>
+    This function is initiated via the <span class="menu">Team &gt; Lock </span> menu
+    option.
+</p>
+<h2>Overview</h2>
+<p>
+    This function enables you to lock one or more files for editing. This is
+    useful for ensuring that team members do not waste each others' time by editing
+    the same resource if it is hard or perhaps impossible to merge these changes
+    (for instance with binary files).
+</p>
+<h2>Process</h2>
+<p>
+    <img src="../images/lock-dialog.png" width="408" height="408">
+</p>
+<p>
+    To lock specific resources, select the file or files you wish to lock, and
+        choose <span class="menu">Lock </span>from the Team menu. This will bring
+        up the <span class="name">Lock</span> dialog where you can enter a comment
+        to associate with the lock.
+</p>
+<p>
+    If you commit a change to a locked file, the lock is usually released. To
+    persist the lock beyond the commit, you need to check the <span class="control">Keep
+    locks</span> option in the <a href="../reference/commit.html">commit dialog</a>.
+</p>
+<p>
+    If a different user has locked a file and you need to take control of the
+        resource, SVN makes it possible to <em>steal</em> the lock. This is accomplished
+        by checking the <span class="control">Steal Lock</span> option on the
+        Lock dialog.
+</p>
+<p>
+    <img src="../images/locked-marker.png" width="304" height="50">
+</p>
+<p>
+    Locked resources are identifed by the <em>tick mark</em> decorator.
+</p>
+<blockquote>
+    If you want to ensure that a specific file is <strong>always</strong> locked
+    before committing, you can set the SVN property <tt>svn:needs-lock</tt> on
+    the file (and commit). This ensures that a lock must be taken before committing
+    it.
+</blockquote>
+<p class="tasks">
+    Related Tasks
+</p>
+<p>
+    <a href="../dailywork/workcycle.html">Typical work cycle: Edit, Update, Commit</a>
+</p>
+<p class="reference">
+    Related Reference
+</p>
+<p>
+    <a href="../reference/unlock.html">Unlock</a><br>
+    <a href="../reference/set-property.html">Set Property</a><br>
+    <a href="../reference/svn-properties-view.html">SVN Properties View</a>
+</p>
+</body>
+</html>

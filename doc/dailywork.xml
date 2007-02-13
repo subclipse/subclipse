@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<!--
+  Convention is: Omit prefixes for "SVN" (as in "SVN Resource History View") and don't use
+  menu qualifiers (such as "Team -> Foo". Just put "Foo".) We have enough context.
+-->
+
+<toc label="Tasks" link_to="toc.xml#dailywork"> 
+	<topic label="Edit, Update, Commit" href="html/dailywork/workcycle.html" /> 
+	<topic label="Using the Synchronize View" href="html/dailywork/synchronize.html" /> 
+<!--<topic label="Comparing, QuickDiff and Restoring" href="html/dailywork/diffing.html" />--> 
+	<topic label="Creating and Applying Patches" href="html/dailywork/patches.html" /> 
+	<topic label="Maintaining branches" href="html/dailywork/branches.html" /> 
+</toc>

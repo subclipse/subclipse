@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension-point id="svnPropertyTypes" name="SVN Property Type Definitions" schema="schema/svnPropertyTypes.exsd"/>
+
+   <extension
+         point="org.eclipse.team.core.repository">
+      <repository
+            typeClass="org.tigris.subversion.subclipse.core.SVNTeamProviderType"
+            class="org.tigris.subversion.subclipse.core.SVNTeamProvider"
+            id="org.tigris.subversion.subclipse.core.svnnature"
+            metaFilePaths=".svn/entries,.project">
+      </repository>
+   </extension>
+   <extension
+         id="svnremove"
+         name="%svnRemove"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <super
+            type="org.tigris.subversion.subclipse.core.svnmarker">
+      </super>
+      <attribute
+            name="name">
+      </attribute>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.team.core.ignore">
+      <ignore
+            enabled="true"
+            pattern=".svn">
+      </ignore>
+      <ignore
+            enabled="true"
+            pattern="_svn">
+      </ignore>
+   </extension>
+   
+   <extension point="org.eclipse.core.runtime.preferences">
+   		<initializer class="org.tigris.subversion.subclipse.core.PreferenceInitializer"/>
+   </extension>   
+   
+   <extension
+         point="org.tigris.subversion.subclipse.core.svnPropertyTypes">
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
+            name="svn:executable">
+         <description>
+svn:executable
+If present, make the file executable.  The value you enter for this property will
+be canonicalized to *, so just enter *.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
+            name="svn:needs-lock">
+         <description>
+svn:needs-lock
+If present, makes the file read-only unless the file is locked.  The purpose of this
+property is to serve as a communication mechanism to let the user know that they should
+lock the file before attempting to edit it.  The value you enter for this property will
+be canonicalized to *, so just enter *.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
+            name="svn:mime-type">
+         <description>
+svn:mime-type
+The mimetype of the file. Used to determine whether to merge the file, and how
+to serve it from Apache. A mimetype beginning with &apos;text/&apos; (or an absent mimetype)
+is treated as text. Anything else is treated as binary.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="folder"
+            name="svn:ignore">
+         <description>
+svn:ignore
+A newline separated list of file patterns to ignore.  This property is set
+automatically when you use the Add to svn:ignore option.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
+            name="svn:keywords">
+         <description>
+svn:keywords
+Keywords to be expanded. Valid keywords are:
+
+URL, HeadURL               The URL for the head version of the object.
+Author, LastChangedBy      The last person to modify the file.
+Date, LastChangedDate      The date/time the object was last modified.
+Rev, LastChangedRevision   The last revision the object changed.
+Id                         A compressed summary of the previous 4 keywords.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="file"
+            name="svn:eol-style">
+         <description>
+svn:eol-style
+One of &apos;native&apos;, &apos;LF&apos;, &apos;CR&apos;, &apos;CRLF&apos;.
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="folder"
+            name="svn:externals">
+         <description>
+svn:externals
+A newline separated list of module specifiers, each of which consists of a relative
+directory path, optional revision flags, and an URL.
+
+For example:
+
+foo      http://example.com/repos/zig
+foo/bar  -r 1234  http://example.com/repos/zag
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="Boolean"
+            fileOrFolder="folder"
+            allowRecurse = "false"
+            name="DeferFileDelete">
+         <description>
+DeferFileDelete
+Set to &quot;true&quot; if your project is using some kind of generator or other process that
+updates versioned files by deleting and then recreating the files.  By setting this property
+you indicate that you do not want Delete operations to be immediately handled and turned into
+svn delete commands.  If the file is deleted and recreated, this will cause it to be recognized
+as a modification.  If the file is never recreated it will have a status of missing and can be
+deleted on commit or from the Show Pending Operations view.
+        </description>
+      </svnPropertyTypes>
+ </extension>
+</plugin>

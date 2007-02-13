@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.tigris.subversion.book"
+      label="Version Control with Subversion"
+      version="1.1.1"
+      provider-name="tigris.org"
+      colocation-affinity="org.tigris.subversion.book">
+
+   <install-handler/>
+
+   <description url="http://svnbook.red-bean.com/">
+      Version Control with Subversion
+
+For Subversion 1.1.1
+   </description>
+
+   <copyright url="http://svnbook.red-bean.com/">
+      Copyright © 2002, 2003, 2004 Ben Collins-Sussman, Brian W. Fitzpatrick,
+C. Michael Pilato
+   </copyright>
+
+   <license url="http://creativecommons.org/licenses/by/2.0/">
+      Attribution 2.0
+You are free:
+* to copy, distribute, display, and perform the work
+* to make derivative works
+* to make commercial use of the work
+Under the following conditions:
+by Attribution. You must give the original author credit.
+* For any reuse or distribution, you must make clear to others
+the license terms of this work.
+* Any of these conditions can be waived if you get permission
+from the copyright holder.
+Your fair use and other rights are in no way affected by the
+above.
+   </license>
+
+   <plugin
+         id="org.tigris.subversion.book"
+         download-size="540"
+         install-size="541"
+         version="1.1.1"/>
+
+</feature>

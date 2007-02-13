@@ -1,0 +1,38 @@
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css">		
+<title>Compare With menu</title>
+</head>
+
+<body>
+
+<h1>Compare With menu</h1>
+
+<p>The compare menu normally allows you to compare with local history (Eclipse's own version of saved files during a session),
+or to compare two selected resources.
+<p>However, once a project is connected to a repository, a few new entries are present in the Compare menu:</p>
+<ul>
+	<li><b>Compare With &gt; Base Revision</b> - this will compare the selected resource with the "pristine" version hidden away in the
+	project's working copy. This happens without contacting the repository.</li>
+	<li><b>Compare With &gt; Latest From Repository</b> - this will compare the selected resource with the latest version
+	    of this resource at the same location in the repository. This requires a lookup to see what the latest version is.
+	</li>	
+	<li><b>Compare With &gt; Revision...</b> - this will bring up a dialog showing the change history for the file.  You can then easily
+	compare the file against any previous revision from the repository.
+	</li>	
+	<li><b>Compare With &gt; Branch/Tag...</b> - This option allows you to compare your working copy with another URL from the
+	repository, presumably a different branch/tag of the same project.  You are given the option of viewing the output in the
+	Eclipse graphical compare engine, or using the SVN command to produce a unified diff.  The latter operation generally
+	runs a lot faster and is able to factor out differences in keywords.  Of course the graphical compare is a nicer way to view
+	the differences.
+	</li>	
+</ul>
+<p>These comparisons are very useful for reviewing the contents of you changes before you commit them.
+
+</body>
+</html>

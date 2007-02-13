@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.contexts"?>
+
+<!--
+  The topics are labelled so that the user can choose the "process" help (Tasks, Getting Started),
+  or see the "Reference" sections. Also, the links are given in context, so that e.g. menu items
+  are shown with menu ("Team -> Foo", not "Foo"), and SVN prefixes are always included
+  ("SVN Resource History View", not "History View").
+
+  The space should be adequate, since the pop-up can be as large as required. This is in contrast to the
+  TOC files, where context is given already.
+  
+  The well-known id's for each context are defined in org.tigris.subversion.subclipse.ui.IHelpContextIds.  
+-->
+
+<contexts>
+
+	<!-- Views -->
+
+	<context id="resource_history_view_context">
+		<description>This view shows you the revision history of the selected file or folder as they are found in the repository.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-history-view.html" label="Reference: SVN Resource History View" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/show-in-history.html" label="Reference: Team -> Show History"/>
+	</context>
+
+	<context id="console_view_context">
+		<description>The SVN console view lists the command line equivalents of the actions you perform using the command line client. You can turn the console off in the Preference page (found in Window -> Preferences -> Team -> SVN -> Console -> Show SVN output in the Console view), and control whether or not the SVN console tab is brought to the front on every SVN event.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-console.html" label="Reference: SVN Console View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
+	</context>
+
+	<context id="repositories_view_context">
+		<description>This view contains the SVN repository locations known in this workspace. Using the context menu, you can add and remove locations, browse repository contents and check out projects to work with them, as well as viewing resource histories (log), creating new folders, moving and renaming resources.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/gettingstarted/new-location.html" label="Getting Started: Creating a new Repository Location"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+	</context>
+
+	<context id="compare_revision_view_context">
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/compare.html" label="Reference: Compare Menu"/>
+	</context>
+
+	<context id="annotations_view_context">
+		<description>This shows the revision and committer of the different sections of the selected text file and works together with the resource history view to show which revisions contributed which lines of text in the file (you can select each section and the history view will be updated). Using this information, you can see which revision is to 'blame' for a specific line of the text file examined (or where praise is due.)</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-annotations.html" label="Reference: Team -> SVN Annotation View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/show-annotation.html" label="Reference: Team -> Show Annotation"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/history-view.html" label="Reference: SVN Resource History View" />
+	</context>
+
+	<context id="properties_view_context">
+		<description>The active SVN versioned properties for the selected resource.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-properties-view.html" label="Reference: SVN Properties View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-ignore.html" label="Refernce: Team -> Add to svn:ignore" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/add-keywords.html" label="Reference: Team -> Add keywords" />
+	</context>
+
+	<context id="pending_operations_view_context">
+		<description>This view contains the selected projects' pending operations against the known state of the remote repository, i.e. the outgoing changes. You may also use the 'Team Synchronization' to see both incoming and outgoing changes.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/pending-operations-view.html" label="Reference: Pending Operations View"/>
+	</context>
+
+	<!-- 
+	 	Jesper notes:
+	 	These are referenced but I doubt any user is EVER going to find them.
+	 	Just because we can add help text to an action doesn't mean we have to...
+	-->
+		
+	<context id="get_file_revision_action_context">
+		<description>This option replaces your working copy file with the selected revision.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/history-view.html" label="Reference: SVN Resource History View" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/switch.html" label="Reference: Team -> Switch"/>
+	</context>
+
+	<context id="get_file_contents_action_context">
+		<description>This option replaces the contents of your local file with the contents of the selected revision.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/history-view.html" label="Reference: SVN Resource History View" />
+	</context>
+
+	<context id="new_repository_location_action_context">
+		<description>Specify the URL of the new SVN repository location.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
+	</context>
+
+	<context id="remove_root_action_context">
+		<description>Confirm delete of SVN repository location.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+	</context>
+
+	<!-- Dialogs -->
+
+	<context id="release_comment_dialog_context">
+		<description>This dialog box is used for entering the "commit message" or "log message", the text associated with the revision that you are comitting. This is the text that will also be shown in SVN History view for the changed resource(s).</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/commit.html" label="Reference: Team -> Commit" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/history-view.html" label="Reference: SVN Resource History View" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/issuetracker.html" label="Tips: Issue Tracker Integration" />
+	</context>
+
+	<context id="switch_dialog_context">
+		<description>You can enter the URL of the repository location that you wish to switch to directly, or use the "Choose..." button to bring up a repository browser enabling you to choose the location by point-and-click. Usually, you want the HEAD revision of the selected location, but if you specify a specific revision number, ensure that the chosen repository location did indeed exist at that revision.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/switch.html" label="Reference: Team -> Switch"/>
+	</context>
+
+	<context id="branch_tag_dialog_context">
+		<description>Branching and tagging copies the current repository state (e.g. the 'trunk') to a new location under e.g. 'tags' or 'branches'.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/branch-tag.html" label="Reference: Team -> Branch/Tag"/>
+	</context>
+
+	<context id="merge_dialog_context">
+		<description>Using this dialog, you can merge a set of differences between two different revisions of a repository location, OR merge the difference between two separate repository locations.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/merge.html" label="Reference: Team -> Merge"/>
+	</context>
+
+	<context id="revert_dialog_context">
+		<description>You may choose which changes you wish to revert to the pristine state (this may differ from the state currently found in the repository). Reverting doesn't connect to the repository, all the pristine data are stored within your working copy. Double-click on a file in the list to view the differences.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/revert.html" label="Reference: Team -> Revert"/>
+	</context>
+
+	<context id="commit_dialog_context">
+        <description>You may choose the changes you with to commit. Double-click on a file in the list to view the differences. You should also enter a "commit message" or "log message" associated with the revision that you are comitting. This is the text that will also be shown in SVN History view for the changed resource(s).</description>
+        <topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit" />
+        <topic href="/org.tigris.subversion.subclipse.doc/html/reference/commit.html" label="Reference: Team -> Commit" />
+        <topic href="/org.tigris.subversion.subclipse.doc/html/reference/history-view.html" label="Reference: SVN Resource History View" />
+        <topic href="/org.tigris.subversion.subclipse.doc/html/reference/issuetracker.html" label="Tips: Issue Tracker Integration" />
+    </context>
+
+	<context id="compare_dialog_context">
+        <description>You can inspect the differences between your edited version of the file, and the version in the repository.</description>
+        <topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit" />
+        <topic href="/org.tigris.subversion.subclipse.doc/html/reference/history-view.html" label="Reference: SVN Resource History View" />
+    </context>
+  
+	<context id="disconnect_action_context">
+		<description>You can choose between erasing the SVN meta-data information or keeping it. Should you choose to keep the SVN directories, you may reconnect by choosing "Share" in the Team menu and selecting the "SVN" repository type. If you are in doubt, keep the '.svn' directories so you can continue tracking the contents against the repository.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/disconnect.html" label="Reference: Team -> Disconnect"/>
+	</context>
+
+	<context id="add_to_svnignore_dialog_context">
+		<description>You can choose between three ways of choosing which resources to ignore. If you are in doubt, leave the setting as it is, this will only ignore the files you specifically selected.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/add-to-svn-ignore.html" label="Reference: Team -> Add to svn:ignore..."/>
+	</context>
+
+	<context id="add_keywords_dialog_context">
+		<description>Choose one or more keywords to activate for the selected resource(s). When keywords are used the text contents (enclosed in $-signs), SVN will replace the keyword with its expansion text on every update of the resource.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/add-keywords.html" label="Reference: Team -> Add keywords..."/>
+	</context>
+
+	<context id="lock_dialog_context">
+		<description>You may chose which file(s) you wish to lock. Remember to either commit or unlock the file(s) after editing is done.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/lock.html" label="Reference: Team -> Lock"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/unlock.html" label="Reference: Team -> Unlock"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit"/>
+	</context>
+
+	<context id="unlock_dialog_context">
+		<description>The files shown are locked by you, and you may chose which file(s) to release the lock for. Others can then safely lock and edit those resources. Note that if you want to commit any changes to the resource(s), you need not unlock the file explicitly, committing will also do this, unless you choose to retain the lock.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/lock.html" label="Reference: Team -> Lock"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/unlock.html" label="Reference: Team -> Unlock"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/commit.html" label="Reference: Team -> Commit"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/workcycle.html" label="Tasks: Edit, Update, Commit"/>
+	</context>
+
+	<context id="import_folder_dialog_context">
+		<description>This option allows you to import files and folders into the repository, making the resources available for checkout.  Be certain that the location you are importing does not contain any files you do not want to add to the repository, such as binary or compiled objects.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/import-folder.html" label="Reference: Team -> Import"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
+	</context>
+
+	<context id="annotate_dialog_context">
+		<description>This dialog allows you to confirm which revisions of the selected file you wish to annotate.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-annotations.html" label="Reference: Team -> SVN Annotation View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/show-annotation.html" label="Reference: Team -> Show Annotation"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/history-view.html" label="Reference: SVN Resource History View" />
+	</context>
+
+	<context id="set_svn_property_dialog_context">
+		<description>This dialog allows you to set versioned SVN properties on resources.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/set-property.html" label="Reference: Team -> Set Property"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-properties-view.html" label="Reference: SVN Properties View"/>
+	</context>
+
+	<context id="password_prompt_dialog_context">
+		<description>Supply a valid username and password and optionally allow it to be cached.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/advanced/managing-passwords.html" label="Advanced: Managing Usernames and Passwords"/>
+	</context>
+
+	<context id="user_prompt_dialog_context">
+		<description>Supply a valid username to identify yourself to SVN within the SSH session.  This is independent of the SSH credentials you have already supplied.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
+	</context>
+
+	<context id="question_dialog_context">
+		<description>Answer a question being asked by the SVN adapter.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/preferences.html" label="Reference: Preferences"/>
+	</context>
+
+	<context id="ssh_prompt_dialog_context">
+		<description>Supply your SSH connection information</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/preferences.html" label="Reference: Preferences"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
+	</context>
+
+	<context id="trust_ssl_server_dialog_context">
+		<description>Review the server SSL certificate and accept or decline it.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/preferences.html" label="Reference: Preferences"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
+	</context>
+
+	<context id="choose_url_dialog_context">
+		<description>Select a URL from the repository.  Optionally, you may select a pre-configured branch or tag and have the URL created automatically.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/configures-tags.html" label="Reference: Team -> Configure Tags"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
+	</context>
+
+	<context id="history_dialog_context">
+		<description>Shows the revision history of the selected resource.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/history-view.html" label="Reference: SVN Resource History View" />
+	</context>
+
+	<context id="show_unified_diff_dialog_context">
+		<description>Specify where to save the unified diff.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/glossary.html" label="Reference: Glossary"/>
+	</context>
+
+	<context id="export_remote_folder_dialog_context">
+		<description>Specify where the output of the export operation should be stored.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/export.html" label="Reference: Team -> Export"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/export-remote-folder.html" label="Reference: Export Remote Folder"/>
+	</context>
+		
+	<context id="remote_resource_properties_dialog_context">
+		<description>Shows basic SVN information, including current lock information as well as versioned properties.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-properties.html" label="Reference: SVN Repository Properties"/>
+	</context>
+
+	<context id="branch_tag_property_update_dialog_context">
+		<description>Indicate whether the subclipse:tags property should be updated with the new branch/tag that was created.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/configures-tags.html" label="Reference: Team -> Configure Tags"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
+	</context>
+	
+	<context id="configure_tags_dialog_context">
+		<description>Allows you to configure the branches and tags related to the selected resource.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/configures-tags.html" label="Reference: Team -> Configure Tags"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/branches.html" label="Tasks: Maintaining branches"/>
+	</context>
+	
+	<context id="search_history_dialog_context">
+		<description>Allows searching the SVN Resource History View.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/search-history.html" label="Reference: SVN Resource History Search"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-history-view.html" label="Reference: SVN Resource History View"/>
+	</context>
+		
+	<!-- Wizards -->
+
+	<context id="sharing_autoconnect_page_context">
+		<description>SVN has detected that this project is already a part of a working copy.  Perhaps you already checked the project out using a different SVN client, such as the command line client 'svn'. Once you finish this wizard, you can use the SVN features that are part of the SVN plug-in.</description>
+	    <topic href="/org.tigris.subversion.subclipse.doc/html/gettingstarted/share-existing.html" label="Getting Started: Connect an Existing Project with SVN" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/share.html" label="Reference: Team -> Share" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/faq/subversion-mapping.html" label="SVN Quick Reference" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/glossary.html" label="Glossary" />
+	</context>
+
+	<context id="sharing_select_repository_page_context">
+		<description>In this dialog you should choose the relevant repository location for the project you wish to share, or choose a new one.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/faq/subversion-mapping.html" label="SVN Quick Reference" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/glossary.html" label="Glossary" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/share.html" label="Reference: Team -> Share" />
+	</context>
+
+	<context id="sharing_new_repository_page_context">
+		<description>Specify the URL of the repository location.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/share.html" label="Reference: Team -> Share" />
+	</context>
+
+	<context id="sharing_module_page_context">
+		<description>Specify the name of the folder to create in the repository.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/share.html" label="Reference: Team -> Share" />
+	</context>
+
+	<context id="sharing_finish_page_context">
+		<description>Press OK to confirm adding the project to the repository.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/share.html" label="Reference: Team -> Share" />
+	</context>
+
+	<context id="patch_selection_page_context">
+		<description>This wizard allows you to create a patch in unified diff format that contains your local changes.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/create-patch.html" label="Reference: Team -> Create Patch"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/patches.html" label="Tasks: Creating and Applying Patches"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/glossary.html" label="Glossary" />
+	</context>
+
+	<context id="patch_options_page_context">
+		<description>This wizard allows you to create a patch in unified diff format that contains your local changes.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/create-patch.html" label="Reference: Team -> Create Patch"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/patches.html" label="Tasks: Creating and Applying Patches"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/glossary.html" label="Glossary" />
+	</context>
+
+	<context id="create_remote_folder_page_context">
+		<description>Specify the name for the new folder.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/new-remote-folder.html" label="Reference: New Remote Folder"/>
+	</context>
+
+	<context id="move_rename_remote_resource_page_context">
+		<description>Specify the new name/location for the selected resource.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/move-remote-resource.html" label="Reference: Move/Rename Remote Resource"/>
+	</context>
+
+	<context id="comment_commit_page_context">
+		<description>Enter the log message (also called a commit comment) for the change you are making to the repository. Note that some repositories may have specific rules for commit messages, others have not, and may even accept a blank commit comment.</description>
+	</context>
+
+	<!-- Preference Pages -->
+
+	<context id="svn_preference_page_context">
+		<description>These preferences determine some general preferences for the SVN support in Eclipse, including the method for connecting to your SVN repositories.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
+	</context>
+
+	<context id="console_preference_page_context">
+		<description>These preferences determine whether or not the SVN Console output is generated, as well as how.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-console.html" label="Reference: SVN Console View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
+	</context>
+
+	<context id="decorators_preference_page_context">
+		<description>These preferences control the SVN decorator settings.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
+	</context>
+	
+	<context id="diff_merge_preferences_page_context">
+		<description>These preferences allows you to configure an external merge program, or use the built-in option.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/preferences.html" label="Reference: SVN Preferences Pages"/>
+	</context>
+
+	<!-- Property page -->
+	<context id="svn_resource_properties_page_context">
+		<description>This resource is managed by SVN. This page lists the information currently available about the resource in the current version of your working copy.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/properties.html" label="Reference: Properties"/>
+	</context>
+
+	<!-- Relocate repository -->
+	<context id="relocate_page_context">
+		<description>This option exists for the sole purpose of changing the URL of your repository and updating the connected projects.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/relocate-repository.html" label="Reference: Relocate Repository"/>
+	</context>
+
+	<!-- Change Revision Properties -->
+	<context id="change_revprops_context">
+		<description>This option allows you to edit the commit message and/or author of an existing commit.  The repository must have the pre-revprop-change hook enabled to allow this operation.</description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/set-commit-properties.html" label="Reference: Set Commit Properties"/>
+	</context>
+
+	<!-- 
+		Here's a typical example of the text you need when adding a context id in the UI.
+		
+		<context id="">
+		<description></description>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/dailywork/.html" label=""/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/.html" label=""/>
+		</context>
+		
+		Seemingly dead contexts ID:
+
+		"add_to_version_control_dialog_context" - The dialog in question is never used
+
+	-->
+
+</contexts>
