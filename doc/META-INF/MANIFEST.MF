@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Subclipse Documentation
 Bundle-SymbolicName: org.tigris.subversion.subclipse.doc; singleton:=true
-Bundle-Version: 1.1.9
+Bundle-Version: 1.2.0
 Bundle-Vendor: tigris.org
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.help
