@@ -61,7 +61,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.team.internal.ui.OverlayIcon;
 import org.eclipse.team.ui.TeamImages;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbench;
