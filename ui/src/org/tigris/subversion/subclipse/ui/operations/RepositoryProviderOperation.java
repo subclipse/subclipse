@@ -20,9 +20,9 @@ import java.util.Set;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
@@ -63,11 +63,11 @@ public abstract class RepositoryProviderOperation extends SVNOperation {
 			IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
 			ISchedulingRule rule = getSchedulingRule(provider);
 			try {
-				Platform.getJobManager().beginRule(rule, monitor);
+				Job.getJobManager().beginRule(rule, monitor);
 				monitor.setTaskName(getTaskName(provider));
 				execute(provider, providerResources, subMonitor);
 			} finally {
-				Platform.getJobManager().endRule(rule);
+				Job.getJobManager().endRule(rule);
 			}
 		}
 	}

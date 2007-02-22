@@ -26,9 +26,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.team.core.ProjectSetCapability;
 import org.eclipse.team.core.ProjectSetSerializationContext;
 import org.eclipse.team.core.RepositoryProvider;
@@ -153,7 +153,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
             IProgressMonitor monitor) throws TeamException {
 
         ISchedulingRule rule = projects[0].getWorkspace().getRuleFactory().modifyRule(projects[0]);
-		Platform.getJobManager().beginRule(rule, monitor);
+		Job.getJobManager().beginRule(rule, monitor);
         monitor.beginTask("", 1000 * projects.length); //$NON-NLS-1$
         List result = new ArrayList();
         try {
@@ -169,7 +169,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
                 }
             }
         } finally {
-    		Platform.getJobManager().endRule(rule);
+    		Job.getJobManager().endRule(rule);
             monitor.done();
         }
         return (IProject[]) result.toArray(new IProject[result.size()]);
