@@ -15,16 +15,20 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -43,6 +47,8 @@ import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.TextViewer;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
@@ -86,6 +92,8 @@ import org.eclipse.team.ui.history.IHistoryPageSite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
@@ -554,7 +562,27 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
    * Create the TextViewer for the logEntry comments
    */
   protected void createText(Composite parent) {
-    this.textViewer = new TextViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
+    // this.textViewer = new TextViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
+    SourceViewer result = new SourceViewer(parent, null, null, true, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
+    result.getTextWidget().setIndent(2);
+    result.configure(new TextSourceViewerConfiguration(EditorsUI.getPreferenceStore()) {
+      protected Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
+        return Collections.singletonMap("org.eclipse.ui.DefaultTextEditor", //$NON-NLS-1$
+            new IAdaptable() {
+              public Object getAdapter(Class adapter) {
+                if(adapter==IResource.class && getInput() instanceof IResource) {
+                  return getInput();
+                } else if(adapter==ISVNRemoteResource.class && getInput() instanceof ISVNRemoteResource) {
+                  return getInput();
+                }
+                return Platform.getAdapterManager().getAdapter(SVNHistoryPage.this, adapter);
+              }
+            });
+      }
+    });
+    
+    this.textViewer = result;
+    
     this.textViewer.addSelectionChangedListener(new ISelectionChangedListener() {
       public void selectionChanged(SelectionChangedEvent event) {
         copyAction.update();
