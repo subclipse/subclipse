@@ -566,7 +566,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     SourceViewer result = new SourceViewer(parent, null, null, true, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
     result.getTextWidget().setIndent(2);
     result.configure(new TextSourceViewerConfiguration(EditorsUI.getPreferenceStore()) {
-      protected Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
+      public Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
         return Collections.singletonMap("org.eclipse.ui.DefaultTextEditor", //$NON-NLS-1$
             new IAdaptable() {
               public Object getAdapter(Class adapter) {
