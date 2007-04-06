@@ -82,7 +82,7 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 				Iterator iter = selection.iterator();
 				while (iter.hasNext()) {
 					Object object = iter.next();
-					if (object instanceof ISVNRemoteFolder) {
+					if (object instanceof ISVNRemoteFolder || object instanceof ISVNRepositoryLocation) {
 						if (object instanceof ISVNRepositoryLocation) folderArray.add(((ISVNRepositoryLocation)object).getRootFolder());
 						else folderArray.add(object);
 					}

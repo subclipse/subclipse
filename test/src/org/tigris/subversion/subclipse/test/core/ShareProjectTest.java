@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.tigris.subversion.subclipse.test.core;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
@@ -59,7 +60,7 @@ public class ShareProjectTest extends SubclipseTest {
 		ISVNRepositoryLocation location = SVNRepositoryLocation.fromString("file:///home/invaliduser/svnrepos");
 		
 		try {
-			SVNWorkspaceRoot.shareProject(location,testProject.getProject(),null,null);
+			SVNWorkspaceRoot.shareProject(location,testProject.getProject(),null,null, new NullProgressMonitor());
 			fail("project should not have been shared");
 		} catch (TeamException e) {
 		}

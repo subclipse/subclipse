@@ -5,6 +5,6 @@ Bundle-SymbolicName: org.tigris.subversion.javahl.win32
 Bundle-Vendor: tigris.org 
 Bundle-Name: Subversion JavaHL Win32 Binaries
 Bundle-ClassPath: win32.jar
-Fragment-Host: org.tigris.subversion.subclipse.core;bundle-version="1.1.9"
-Bundle-Version: 1.1.9
+Fragment-Host: org.tigris.subversion.subclipse.core;bundle-version="1.2.0"
+Bundle-Version: 1.2.0
 Eclipse-PlatformFilter: (& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))

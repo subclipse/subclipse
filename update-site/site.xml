@@ -3,10 +3,10 @@
    <description url="http://subclipse.tigris.org/update_1.2.x">
       Eclipse Install/Update site for Subclipse
    </description>
-   <feature url="features/org.tigris.subversion.subclipse_1.1.9.jar" id="org.tigris.subversion.subclipse" version="1.1.9">
+   <feature url="features/org.tigris.subversion.subclipse.mylar_1.0.2.jar" id="org.tigris.subversion.subclipse.mylar" version="1.0.2">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse.mylar_1.0.2.jar" id="org.tigris.subversion.subclipse.mylar" version="1.0.2">
+   <feature url="features/org.tigris.subversion.subclipse_1.2.0.jar" id="org.tigris.subversion.subclipse" version="1.2.0">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse Plugin">

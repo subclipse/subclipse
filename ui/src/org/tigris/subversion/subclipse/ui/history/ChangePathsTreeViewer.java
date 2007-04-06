@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -143,8 +142,7 @@ class ChangePathsTreeViewer extends TreeViewer {
               }
             }
             if(id==null) return null;
-            ImageDescriptor descriptor = SVNUIPlugin.getPlugin().getImageDescriptor(id);
-            return descriptor==null ? null : descriptor.createImage();
+            return SVNUIPlugin.getImage(id);
         }
         
         /*
@@ -196,6 +194,7 @@ class ChangePathsTreeViewer extends TreeViewer {
       }
 
       public Object[] getChildren(Object parentElement) {
+    	if (page != null && !page.isShowChangePaths()) return null;
         if(parentElement instanceof HistoryFolder) {
           return ((HistoryFolder) parentElement).getChildren();
         }

@@ -13,9 +13,9 @@ package org.tigris.subversion.subclipse.ui.operations;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -50,7 +50,7 @@ public class CheckoutAsProjectOperation extends SVNOperation {
             IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
             ISchedulingRule rule = localFolders[i].getWorkspace().getRuleFactory().modifyRule(localFolders[i]);
 			try {
-				Platform.getJobManager().beginRule(rule, monitor);
+				Job.getJobManager().beginRule(rule, monitor);
 				monitor.setTaskName(Policy.bind("CheckoutAsProjectOperation.0", remoteFolders[i].getName())); //$NON-NLS-1$
 				IProject[] local = new IProject[1];
 				local[0] = localFolders[i];
@@ -58,7 +58,7 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 				remote[0] = remoteFolders[i];
 				execute(remote, local, subMonitor);
 			} finally {
-				Platform.getJobManager().endRule(rule);
+				Job.getJobManager().endRule(rule);
 			}            
         }
     }

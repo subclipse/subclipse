@@ -15,16 +15,20 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -41,8 +45,15 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextOperationTarget;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextViewer;
+import org.eclipse.jface.text.hyperlink.IHyperlink;
+import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
@@ -63,12 +74,8 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
@@ -86,6 +93,8 @@ import org.eclipse.team.ui.history.IHistoryPageSite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
@@ -192,8 +201,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private TextViewerAction selectAllAction;
 
   private LinkList linkList;
-  private boolean mouseDown = false; 
-  private boolean dragEvent = false;
   private Cursor handCursor;
   private Cursor busyCursor;
 
@@ -554,7 +561,79 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
    * Create the TextViewer for the logEntry comments
    */
   protected void createText(Composite parent) {
-    this.textViewer = new TextViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
+    // this.textViewer = new TextViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
+    SourceViewer result = new SourceViewer(parent, null, null, true, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY);
+    result.getTextWidget().setIndent(2);
+    result.configure(new TextSourceViewerConfiguration(EditorsUI.getPreferenceStore()) {
+      public Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
+        return Collections.singletonMap("org.eclipse.ui.DefaultTextEditor", //$NON-NLS-1$
+            new IAdaptable() {
+              public Object getAdapter(Class adapter) {
+                if(adapter==IResource.class && getInput() instanceof IResource) {
+                  return getInput();
+                } else if(adapter==ISVNRemoteResource.class && getInput() instanceof ISVNRemoteResource) {
+                  return getInput();
+                }
+                return Platform.getAdapterManager().getAdapter(SVNHistoryPage.this, adapter);
+              }
+            });
+      }
+      
+      public int getHyperlinkStateMask(ISourceViewer sourceViewer) {
+        return SWT.NONE;
+      }
+      
+      public IHyperlinkDetector[] getHyperlinkDetectors(ISourceViewer sourceViewer) {
+        IHyperlinkDetector[] detectors = super.getHyperlinkDetectors(sourceViewer);
+        IHyperlinkDetector[] newDetectors;
+        if(detectors==null) {
+          newDetectors = new IHyperlinkDetector[1];
+        } else {
+          newDetectors = new IHyperlinkDetector[detectors.length + 1];
+          System.arraycopy(detectors, 0, newDetectors, 0, detectors.length);
+        }
+        
+        newDetectors[newDetectors.length - 1] = new IHyperlinkDetector() {
+          public IHyperlink[] detectHyperlinks(ITextViewer textViewer,
+              IRegion region, boolean canShowMultipleHyperlinks) {
+            if(linkList==null || !linkList.isLinkAt(region.getOffset())) {
+              return null;
+            }
+
+            final String linkUrl = linkList.getLinkAt(region.getOffset());
+            final int[] linkRange = linkList.getLinkRange(region.getOffset());
+            
+            return new IHyperlink[] { new IHyperlink() {
+              public IRegion getHyperlinkRegion() {
+                return new Region(linkRange[0], linkRange[1]);
+              }
+              
+              public void open() {
+                try {
+                  URL url = new URL(linkUrl);
+                  PlatformUI.getWorkbench().getBrowserSupport().createBrowser("Subclipse").openURL(url);
+                } catch (Exception e1) {
+                  Program.launch(linkUrl);
+                }
+              }
+
+              public String getHyperlinkText() {
+                return null;
+              }
+
+              public String getTypeLabel() {
+                return null;
+              }
+            }};
+          }
+        };
+        
+        return newDetectors;
+      }
+    });
+    
+    this.textViewer = result;
+    
     this.textViewer.addSelectionChangedListener(new ISelectionChangedListener() {
       public void selectionChanged(SelectionChangedEvent event) {
         copyAction.update();
@@ -566,66 +645,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     if(font != null) {
       this.textViewer.getTextWidget().setFont(font);
     }
-    this.textViewer.getTextWidget().addMouseListener(new MouseAdapter() {
-      public void mouseDown(MouseEvent e) {
-        if(e.button != 1) {
-          return;
-        }
-        mouseDown = true;
-      }
-
-      public void mouseUp(MouseEvent e) {
-        mouseDown = false;
-        StyledText text = (StyledText) e.widget;
-        int offset = text.getCaretOffset();
-        if(dragEvent) {
-          // don't activate a link during a drag/mouse up operation
-          dragEvent = false;
-          if(linkList != null && linkList.isLinkAt(offset)) {
-            text.setCursor(handCursor);
-          }
-        } else {
-          if(linkList != null && linkList.isLinkAt(offset)) {
-            text.setCursor(busyCursor);
-			try {
-				URL url = new URL(linkList.getLinkAt(offset));
-				PlatformUI.getWorkbench().getBrowserSupport().createBrowser("Subclipse").openURL(url);
-			} catch (Exception e1) {
-				Program.launch(linkList.getLinkAt(offset));
-			}
-//            Program.launch(linkList.getLinkAt(offset));
-            text.setCursor(null);
-          }
-        }
-      }
-    });
-
-    this.textViewer.getTextWidget().addMouseMoveListener(new MouseMoveListener() {
-      public void mouseMove(MouseEvent e) {
-        // Do not change cursor on drag events
-        if(mouseDown) {
-          if( !dragEvent) {
-            StyledText text = (StyledText) e.widget;
-            text.setCursor(null);
-          }
-          dragEvent = true;
-          return;
-        }
-        StyledText text = (StyledText) e.widget;
-        int offset = -1;
-        try {
-          offset = text.getOffsetAtLocation(new Point(e.x, e.y));
-        } catch(IllegalArgumentException ex) {
-        }
-        if(offset == -1) {
-          text.setCursor(null);
-        } else if(linkList != null && linkList.isLinkAt(offset)) {
-          text.setCursor(handCursor);
-        } else {
-          text.setCursor(null);
-        }
-      }
-    });
 
     // Create actions for the text editor (copy and select all)
     copyAction = new TextViewerAction(this.textViewer, ITextOperationTarget.COPY);
@@ -771,6 +790,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     LogEntry entry = (LogEntry) ss.getFirstElement();
     textViewer.setDocument(new Document(entry.getComment()));
     StyledText text = textViewer.getTextWidget();
+    
+    // TODO move this logic into the hyperlink detector created in createText()
     if(projectProperties == null) {
       linkList = ProjectProperties.getUrls(entry.getComment());
     } else {
@@ -800,7 +821,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     } else {
       svnHistoryPageControl.setMaximizedControl(tableHistoryViewer.getControl());
     }
-
     changePathsViewer.refresh();
     textViewer.getTextWidget().setWordWrap(wrapCommentsText);
   }
@@ -868,8 +888,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
   public boolean isShowChangePaths() {
-    // return toggleShowAffectedPathsAction.isChecked();
-    return true;
+	  return showAffectedPaths;
   }
 
   private IAction getOpenRemoteFileAction() {

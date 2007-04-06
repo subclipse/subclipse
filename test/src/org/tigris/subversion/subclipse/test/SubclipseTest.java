@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.team.core.RepositoryProvider;
@@ -99,7 +100,7 @@ public abstract class SubclipseTest extends TestCase {
         removeDir(reposPath);
 
         svnClient.createRepository(reposPath,
-                ISVNClientAdapter.REPOSITORY_FSFS);
+                ISVNClientAdapter.REPOSITORY_FSTYPE_FSFS);
         assertTrue(reposPath.exists());
         // we need the corresponding url
         url = new SVNUrl(reposPath.toURI().toString().replaceFirst("file:/",
@@ -182,7 +183,7 @@ public abstract class SubclipseTest extends TestCase {
         }
         // remove all the repositories
         ISVNRepositoryLocation[] svnRepositoryLocations = repositories
-                .getKnownRepositories();
+                .getKnownRepositories(new NullProgressMonitor());
         for (int i = 0; i < svnRepositoryLocations.length; i++) {
             repositories.disposeRepository(svnRepositoryLocations[i]);
         }
@@ -216,7 +217,7 @@ public abstract class SubclipseTest extends TestCase {
      * @throws Exception
      */
     protected void shareProject(IProject project) throws TeamException {
-        SVNWorkspaceRoot.shareProject(repositoryLocation, project, null, null);
+        SVNWorkspaceRoot.shareProject(repositoryLocation, project, null, null, new NullProgressMonitor());
     }
 
     /**

@@ -13,9 +13,13 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.internal.ui.synchronize.ChangeSetCapability;
@@ -26,6 +30,7 @@ import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.ISynchronizeParticipantDescriptor;
 import org.eclipse.team.ui.synchronize.ISynchronizeScope;
 import org.eclipse.team.ui.synchronize.SynchronizePageActionGroup;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.PartInitException;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
@@ -96,6 +101,8 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	 * in the synchronize view
 	 */
 	private class SVNParticipantActionGroup extends SynchronizePageActionGroup {
+		Action expandAllAction;
+		
 		/* (non-Javadoc)
 		 * @see org.eclipse.team.ui.synchronize.SynchronizePageActionGroup#initialize(org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration)
 		 */
@@ -198,16 +205,39 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					resolveAction);
+			
+			final Viewer viewer = configuration.getPage().getViewer();
+			
+			if (viewer instanceof AbstractTreeViewer) {
+				expandAllAction = new Action(null, SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_EXPAND_ALL)) { //$NON-NLS-1$
+		            public void run() {
+						viewer.getControl().setRedraw(false);
+						((AbstractTreeViewer)viewer).expandToLevel(viewer.getInput(), AbstractTreeViewer.ALL_LEVELS);
+						viewer.getControl().setRedraw(true);
+		            }
+		        };
+				
+		        expandAllAction.setToolTipText(Policy.bind("SyncAction.expandAllTooltip")); //$NON-NLS-1$
+		        expandAllAction.setHoverImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_EXPAND_ALL));
+			}
 		}
-
+		
+		/*
+		 * (non-Javadoc)
+		 * @see org.eclipse.team.ui.synchronize.SynchronizePageActionGroup#fillActionBars(org.eclipse.ui.IActionBars)
+		 */
+		public void fillActionBars(IActionBars actionBars) {
+			IToolBarManager manager = actionBars.getToolBarManager();
+			
+			appendToGroup(manager, ISynchronizePageConfiguration.NAVIGATE_GROUP, expandAllAction);
+		}
 	}
 
 	/**
 	 * No arg contructor used for
 	 * creation of persisted participant after startup
 	 */
-	public SVNSynchronizeParticipant() {
-	}
+	public SVNSynchronizeParticipant() {}
 
 	public SVNSynchronizeParticipant(ISynchronizeScope scope) {
 		super(scope);
