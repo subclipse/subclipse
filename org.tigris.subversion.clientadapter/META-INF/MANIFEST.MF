@@ -7,3 +7,5 @@ Bundle-Activator: org.tigris.subversion.clientadapter.Activator
 Bundle-Vendor: tigris.org
 Require-Bundle: org.eclipse.core.runtime
 Eclipse-LazyStart: true
+Export-Package: org.tigris.subversion.svnclientadapter,
+ org.tigris.subversion.svnclientadapter.utils
