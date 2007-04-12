@@ -1,11 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Subversion Client Adapter
-Bundle-SymbolicName: org.tigris.subversion.clientadapter
+Bundle-SymbolicName: org.tigris.subversion.clientadapter;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Activator: org.tigris.subversion.clientadapter.Activator
 Bundle-Vendor: tigris.org
 Require-Bundle: org.eclipse.core.runtime
 Eclipse-LazyStart: true
-Export-Package: org.tigris.subversion.svnclientadapter,
+Export-Package: org.tigris.subversion.clientadapter,
+ org.tigris.subversion.svnclientadapter,
  org.tigris.subversion.svnclientadapter.utils
