@@ -34,7 +34,6 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
 
 /**
  * Wizard page for entering information about a SVN repository location.
@@ -42,6 +41,9 @@ import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFa
  */
 public class ConfigurationWizardMainPage extends SVNWizardPage {
 	private boolean showCredentials;
+
+	/** Client adapter implementation identifier */
+	private static final String COMMANDLINE_CLIENT = "commandline"; //$NON-NLS-1$
 	
 	// Widgets
 	
@@ -75,7 +77,7 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 	 */
 	public ConfigurationWizardMainPage(String pageName, String title, ImageDescriptor titleImage) {
 		super(pageName, title, titleImage);
-		showCredentials = SVNProviderPlugin.getPlugin().getSVNClientManager().getSvnClientInterface().equals(CmdLineClientAdapterFactory.COMMANDLINE_CLIENT);
+		showCredentials = SVNProviderPlugin.getPlugin().getSVNClientManager().getSvnClientInterface().equals(COMMANDLINE_CLIENT);
 	}
 	/**
 	 * Adds an entry to a history, while taking care of duplicate history items

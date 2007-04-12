@@ -35,7 +35,6 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.decorator.SVNLightweightDecorator;
 import org.tigris.subversion.subclipse.ui.dialogs.ChooseRootUrlDialog;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
 
 /**
  * Property page to modify settings for a given repository
@@ -52,6 +51,9 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
     private Text repositoryRootText;
     private Text repositoryUrlText;
     private boolean showCredentials;
+
+    /** Client adapter implementation identifier */
+    private static final String COMMANDLINE_CLIENT = "commandline"; //$NON-NLS-1$
     
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.preference.PreferencePage#createContents(org.eclipse.swt.widgets.Composite)
@@ -281,7 +283,7 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
                 location = (ISVNRepositoryLocation)adapter;
             }
         }
-		showCredentials = SVNProviderPlugin.getPlugin().getSVNClientManager().getSvnClientInterface().equals(CmdLineClientAdapterFactory.COMMANDLINE_CLIENT);
+		showCredentials = SVNProviderPlugin.getPlugin().getSVNClientManager().getSvnClientInterface().equals(COMMANDLINE_CLIENT);
 		if (!showCredentials) {
 		    if (location.getUsername() != null && !location.getUsername().trim().equals(""))
 		        showCredentials = true;
