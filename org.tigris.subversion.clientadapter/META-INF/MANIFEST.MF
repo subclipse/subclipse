@@ -10,3 +10,4 @@ Eclipse-LazyStart: true
 Export-Package: org.tigris.subversion.clientadapter,
  org.tigris.subversion.svnclientadapter,
  org.tigris.subversion.svnclientadapter.utils
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
