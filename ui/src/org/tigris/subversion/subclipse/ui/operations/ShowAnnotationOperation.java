@@ -262,7 +262,6 @@ public class ShowAnnotationOperation extends SVNOperation {
   		
 		} catch (Exception e) {
       // ignore
-		  e.printStackTrace();
     }
 		
 		final CommitterColors colors= CommitterColors.getDefault();
