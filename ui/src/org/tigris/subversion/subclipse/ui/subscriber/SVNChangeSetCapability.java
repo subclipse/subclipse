@@ -104,4 +104,18 @@ public class SVNChangeSetCapability extends ChangeSetCapability {
     public ActiveChangeSetManager getActiveChangeSetManager() {
     	return SVNProviderPlugin.getPlugin().getChangeSetManager();
     }
+    
+    /* (non-Javadoc)
+     * @see org.eclipse.team.internal.ui.synchronize.ChangeSetCapability#enableActiveChangeSetsFor(org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration)
+     */
+    public boolean enableActiveChangeSetsFor(ISynchronizePageConfiguration configuration) {
+    	return this.supportsActiveChangeSets() && configuration.getMode() != ISynchronizePageConfiguration.INCOMING_MODE;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.eclipse.team.internal.ui.synchronize.ChangeSetCapability#enableCheckedInChangeSetsFor(org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration)
+     */
+    public boolean enableCheckedInChangeSetsFor(ISynchronizePageConfiguration configuration) {
+    	return this.supportsCheckedInChangeSets() && configuration.getMode() != ISynchronizePageConfiguration.OUTGOING_MODE;
+    }
 }
