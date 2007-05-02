@@ -174,9 +174,17 @@ public class CommitCommentArea extends DialogArea {
             fTextField.addTraverseListener(this);
             fTextField.addModifyListener(this);
             fTextField.addFocusListener(this);
+            fTextField.setWordWrap(mustWrapWord());
         }
 
-		private boolean isSpellingAnnotationEnabled() {
+        private boolean mustWrapWord() {
+			if (commentProperties != null && commentProperties.getLogWidthMarker() > 0)	{
+				return false;
+			}
+			return true;
+		}
+	
+        private boolean isSpellingAnnotationEnabled() {
 			// Need to determine how to ask the proper question to the AnnotationPreferences
 			return true;
 		}
