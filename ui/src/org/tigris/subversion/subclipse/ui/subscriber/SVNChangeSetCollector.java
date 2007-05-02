@@ -12,11 +12,17 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoTree;
 import org.eclipse.team.core.variants.IResourceVariant;
-import org.eclipse.team.internal.core.subscribers.ChangeSet;
 import org.eclipse.team.internal.core.subscribers.CheckedInChangeSet;
 import org.eclipse.team.internal.ui.synchronize.SyncInfoSetChangeSetCollector;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
@@ -60,7 +66,11 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 			super();
 			add(infos);
 			initData();
-			String formattedDate = DateFormat.getInstance().format(date);
+			String formattedDate;
+			if (date == null)
+				formattedDate = "n/a";
+			else
+			    formattedDate = DateFormat.getInstance().format(date);
 			setName(revision + "  [" + author + "]  (" + formattedDate + ")  " + comment);
 		}
 		
@@ -199,29 +209,33 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 	 * @see org.eclipse.team.internal.ui.synchronize.SyncInfoSetChangeSetCollector#add(org.eclipse.team.core.synchronize.SyncInfo[])
 	 */
 	protected void add(SyncInfo[] infos) {
+		final Map sets = new HashMap();
+		
 		for (int i=0; i<infos.length; i++) {
 			SyncInfo syncInfo = infos[i];
 			if (syncInfo instanceof SVNStatusSyncInfo) {
 				SVNStatusSyncInfo svnSyncInfo = (SVNStatusSyncInfo)syncInfo;
-				RemoteResourceStatus resourceStatus = svnSyncInfo.getRemoteResourceStatus();
-				boolean added = false;
-				ChangeSet[] changeSets = getSets();
-				for (int j=0; j<changeSets.length; j++) {
-					ChangeSet changeSet = changeSets[j];
-					if (changeSet instanceof SVNCheckedInChangeSet) {
-						SVNCheckedInChangeSet svnChangeSet = (SVNCheckedInChangeSet)changeSet;
-						if (svnChangeSet.getRevision() == resourceStatus.getLastChangedRevision().getNumber()) {
-							svnChangeSet.add(svnSyncInfo);
-							added = true;
-							break;
-						}
+				if (SyncInfo.getDirection(svnSyncInfo.getKind()) == SyncInfo.INCOMING) {
+					SVNCheckedInChangeSet changeSet = (SVNCheckedInChangeSet) sets.get(svnSyncInfo.getRemote().getContentIdentifier());
+					if (changeSet == null) {
+						changeSet = new SVNCheckedInChangeSet(svnSyncInfo);
+						sets.put(svnSyncInfo.getRemote().getContentIdentifier(), changeSet);
+					} else {
+						changeSet.add(svnSyncInfo);
 					}
-				}
-				if (!added) {
-					add(new SVNCheckedInChangeSet(svnSyncInfo));
 				}
 			}
 		}
+		
+		this.performUpdate(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				for (Iterator it = sets.values().iterator(); it.hasNext();) {
+					SVNCheckedInChangeSet set = (SVNCheckedInChangeSet) it.next();
+
+					SVNChangeSetCollector.this.add(set);
+				}
+			}
+		}, true, new NullProgressMonitor());
 	}
 	
 	/**
