@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.operations;
 
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,10 +25,15 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.revisions.Revision;
 import org.eclipse.jface.text.revisions.RevisionInformation;
 import org.eclipse.jface.text.source.LineRange;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.internal.ui.Utils;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
@@ -227,23 +233,36 @@ public class ShowAnnotationOperation extends SVNOperation {
 		}
 
 		RevisionInformation info= new RevisionInformation();
+		
+		try {
+		  // Have to use reflection for compatibility with Eclipse 3.2 API		
+		  // info.setHoverControlCreator(new AnnotationControlCreator("Press F2 for focus."));
+		  // info.setInformationPresenterControlCreator(new AnnotationControlCreator(null));
 
-// disabled hyperlink support because of incompatibility with 3.2 API		
-//		final class AnnotationControlCreator implements IInformationControlCreator {
-//		  private final String statusFieldText;
-//		  
-//		  public AnnotationControlCreator(String statusFieldText) {
-//		    this.statusFieldText = statusFieldText;
-//		  }
-//		  
-//		  public IInformationControl createInformationControl(Shell parent) {
-//		    return new SourceViewerInformationControl(parent, SWT.TOOL,
-//		        SWT.NONE, JFaceResources.DEFAULT_FONT, statusFieldText);
-//		  }
-//		}
-//		
-//		info.setHoverControlCreator(new AnnotationControlCreator(EditorsUI.getTooltipAffordanceString()));
-//		info.setInformationPresenterControlCreator(new AnnotationControlCreator(null));
+		  Class infoClass = info.getClass();
+		  Class[] paramTypes = {IInformationControlCreator.class};
+      Method method1 = infoClass.getMethod("setHoverControlCreator", paramTypes);
+      Method method2 = infoClass.getMethod("setInformationPresenterControlCreator", paramTypes);
+  
+  		final class AnnotationControlCreator implements IInformationControlCreator {
+  		  private final String statusFieldText;
+  		  
+  		  public AnnotationControlCreator(String statusFieldText) {
+  		    this.statusFieldText = statusFieldText;
+  		  }
+  		  
+  		  public IInformationControl createInformationControl(Shell parent) {
+  		    return new SourceViewerInformationControl(parent, SWT.TOOL,
+  		        SWT.NONE, JFaceResources.DEFAULT_FONT, statusFieldText);
+  		  }
+  		}
+
+  		method1.invoke(info, new Object[] {new AnnotationControlCreator("Press F2 for focus.")});
+  		method2.invoke(info, new Object[] {new AnnotationControlCreator(null)});
+  		
+		} catch (Exception e) {
+      // ignore
+    }
 		
 		final CommitterColors colors= CommitterColors.getDefault();
 
