@@ -2,18 +2,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.tigris.subversion.subclipse.core; singleton:=true
 Bundle-Version: 1.2.0
-Bundle-ClassPath: .,
- lib/svnClientAdapter.jar,
- lib/svnjavahl.jar,
- lib/svnkit.jar,
- lib/ganymed.jar
 Bundle-Activator: org.tigris.subversion.subclipse.core.SVNProviderPlugin
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.2.0",
  org.eclipse.team.core;bundle-version="3.2.0",
  org.eclipse.core.runtime;bundle-version="3.2.0",
- org.eclipse.osgi
+ org.eclipse.osgi,
+ org.tigris.subversion.clientadapter;visibility:=reexport
 Eclipse-LazyStart: true
 Export-Package: org.tigris.subversion.subclipse.core,
  org.tigris.subversion.subclipse.core.client,
@@ -27,11 +23,5 @@ Export-Package: org.tigris.subversion.subclipse.core,
  org.tigris.subversion.subclipse.core.resourcesListeners,
  org.tigris.subversion.subclipse.core.status,
  org.tigris.subversion.subclipse.core.sync,
- org.tigris.subversion.subclipse.core.util,
- org.tigris.subversion.svnclientadapter,
- org.tigris.subversion.svnclientadapter.commandline,
- org.tigris.subversion.svnclientadapter.commandline.parser,
- org.tigris.subversion.svnclientadapter.javahl,
- org.tigris.subversion.svnclientadapter.svnkit,
- org.tigris.subversion.svnclientadapter.utils
+ org.tigris.subversion.subclipse.core.util
 Bundle-RequiredExecutionEnvironment: J2SE-1.4

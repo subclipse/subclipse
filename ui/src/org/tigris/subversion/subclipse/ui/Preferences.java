@@ -21,9 +21,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.tigris.subversion.subclipse.core.SVNClientManager;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.decorator.SVNDecoratorConfiguration;
-import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
-import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
-import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapterFactory;
 
 /**
  * Initializes preferences and updates markers when preferences are changed
@@ -81,7 +78,7 @@ private IPreferenceStore store;
 		store.setDefault(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE, true);
         store.setDefault(ISVNUIConstants.PREF_COMMIT_SET_DEFAULT_ENABLEMENT, false);
         
-        store.setDefault(ISVNUIConstants.PREF_SVNINTERFACE, JhlClientAdapterFactory.JAVAHL_CLIENT);
+        store.setDefault(ISVNUIConstants.PREF_SVNINTERFACE, "javahl"); //$NON-NLS-1$
         store.setDefault(ISVNUIConstants.PREF_SVNCONFIGDIR, ""); //$NON-NLS-1$
         
         store.setDefault(ISVNUIConstants.PREF_FETCH_CHANGE_PATH_ON_DEMAND, false);
@@ -107,10 +104,6 @@ private IPreferenceStore store;
      * @param clientInterface
      */
     private void setSvnClientInterface(String clientInterface) {
-        if (CmdLineClientAdapterFactory.COMMANDLINE_CLIENT.equals(clientInterface))
-            clientInterface = SvnKitClientAdapterFactory.SVNKIT_CLIENT;
-        if ("javasvn".equals(clientInterface))
-            clientInterface = SvnKitClientAdapterFactory.SVNKIT_CLIENT;
         SVNProviderPlugin.getPlugin().getSVNClientManager().setSvnClientInterface(clientInterface);
     }
 

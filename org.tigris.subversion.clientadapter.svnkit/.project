@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.tigris.subversion.subclipse.core</name>
+	<name>org.tigris.subversion.clientadapter.svnkit</name>
 	<comment></comment>
 	<projects>
 	</projects>

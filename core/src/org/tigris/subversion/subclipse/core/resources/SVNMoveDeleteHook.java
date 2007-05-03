@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.io.File;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -134,23 +132,9 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 // java class, the file is modified before being moved
                 // A modified file cannot be moved without force
 
-                if (SVNWorkspaceRoot.getSVNFileFor(source).getStatus()
-                        .isAdded()) {
-                    //can't move a file that's in state added, so copy to new
-                    // location
-                    //remove old location, add new location
-                    //fix for issue 87 -mml
-                    source.copy(destination.getFullPath(), updateFlags, monitor);
+               svnClient.move(source.getLocation().toFile(), 
+            		   destination.getLocation().toFile(), true);
 
-                    svnClient.addFile(destination.getLocation().toFile());
-                    svnClient.remove(
-                            new File[] { source.getLocation().toFile() }, true);
-                    tree.deletedFile(source);
-                } else {
-                    svnClient.move(source.getLocation().toFile(), destination
-                            .getLocation().toFile(), true);
-
-                }
                 //movedFile must be done before endOperation because
                 // destination file must not already exist in the workspace
                 // resource tree.
@@ -206,20 +190,8 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                     if (parent != null) parent.refreshStatus();
                }
 
-                if (SVNWorkspaceRoot.getSVNFolderFor(source).getStatus()
-                        .isAdded()) {
-                    //can't rename a folder that's in state added, so copy to
-                    // new location
-                    //remove old location, add new location
-                    //fix for issue 87 -mml
-                    source.copy(destination.getFullPath(), updateFlags, monitor);
-                    svnClient.remove(
-                            new File[] { source.getLocation().toFile() }, true);
-                    tree.deletedFolder(source);
-                } else {
-                    svnClient.move(source.getLocation().toFile(), destination
-                            .getLocation().toFile(), true);
-                }
+               svnClient.move(source.getLocation().toFile(), 
+            		   destination.getLocation().toFile(), true);
 
                 tree.movedFolderSubtree(source, destination);
                 destination.refreshLocal(IResource.DEPTH_INFINITE, monitor);

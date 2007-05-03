@@ -36,7 +36,7 @@ import org.eclipse.ui.part.FileEditorInput;
 public class PathMatcher implements IPatternMatchListenerDelegate {
 
 	private static Pattern[] PATTERNS = new Pattern[] {
-		Pattern.compile(".*\\s+[SAUCDGMR]\\s+([^\r\n]+)"),
+		Pattern.compile(".*\\s+[SAUCDGMRE]\\s+([^\r\n]+)"),
 		Pattern.compile(".*\\s+Sending\\s+([^\r\n]+)"),
 		Pattern.compile(".*\\s+Adding\\s+([^\r\n]+)"),
 		Pattern.compile(".*\\s+Deleting\\s+([^\r\n]+)"),

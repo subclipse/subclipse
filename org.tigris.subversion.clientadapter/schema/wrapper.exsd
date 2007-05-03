@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.tigris.subversion.clientadapter">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.tigris.subversion.clientadapter" id="wrapper" name="SVN Client Adapter Wrapper"/>
+      </appInfo>
+      <documentation>
+         This extension point is used to plug in SVN Client Adapters.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence>
+            <element ref="svnclient" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="svnclient">
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A unique name that will be used to reference this adapter
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A fully qualified name of the Java class that implements &lt;samp&gt;org.tigris.subversion.clientadapter.ISVNClientWrapper&lt;/samp&gt; interface
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.tigris.subversion.clientadapter.ISVNClientWrapper"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A translatable name that will be used for presenting this adapter in the UI
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         The following is an example of the extension point usage:
+
+&lt;p&gt;
+&lt;pre&gt;
+ &lt;extension point=&quot;org.tigris.subversion.clientadapter.wrapper&quot;&gt;
+  &lt;svnclient
+   id=&quot;com.example.xyz.type1&quot;
+   name=&quot;Custom SVN Client Wrapper&quot;
+   class=&quot;com.example.xyz.SVNClientWrapper&quot;&gt;
+  &lt;/svnclient&gt;
+ &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         Plug-ins that want to extend this extension point must implement
+&lt;samp&gt;org.tigris.subversion.clientadapter.ISVNClientWrapper&lt;/samp&gt; interface.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+</schema>
