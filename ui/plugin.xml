@@ -125,6 +125,7 @@
          point="org.eclipse.ui.popupMenus">
       <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.ISVNRepositoryLocation"
+            adaptable="true"
             id="org.tigris.subversion.subclipse.ui.RepositoryLocationContributions">
          <action
                label="%CreateRemoteFolderAction.label"
@@ -158,6 +159,7 @@
       </objectContribution>
       <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.ISVNRemoteResource"
+            adaptable = "true"
             id="org.tigris.subversion.subclipse.ui.RemoteResourceContributions">
          <action
                label="%CreateRemoteFolderAction.label"
@@ -241,6 +243,7 @@
       </objectContribution>
       <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.history.ILogEntry"
+            adaptable="true"
             id="org.tigris.subversion.subclipse.core.history.ILogEntryContributions">
           
          <action
@@ -253,6 +256,7 @@
       </objectContribution>
       <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.ISVNRemoteFile"
+            adaptable="true"
             id="org.tigris.subversion.subclipse.ui.RemoteFileContributions">
          <action
                label="%AnnotateAction.label"
@@ -271,6 +275,7 @@
       </objectContribution>
       <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.ISVNRemoteFolder"
+            adaptable="true"
             id="org.tigris.subversion.subclipse.ui.RemoteFolderContributions">
          <action
                label="%CheckoutAsAction.label"
@@ -289,6 +294,7 @@
       </objectContribution>
       <objectContribution
             objectClass="org.tigris.subversion.subclipse.core.history.LogEntry"
+            adaptable="true"
             id="org.tigris.subversion.subclipse.ui.LogEntryContributions">
          <action
                label="%OpenLogEntryAction.label"
@@ -315,6 +321,7 @@
       </objectContribution>
       <objectContribution
             objectClass="org.tigris.subversion.svnclientadapter.ISVNProperty"
+            adaptable="true"
             id="org.tigris.subversion.subclipse.ui.SVNPropertyContributions">
          <action
                label="%ModifySVNPropertyAction.label"
