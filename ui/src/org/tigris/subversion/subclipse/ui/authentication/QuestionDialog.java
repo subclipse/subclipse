@@ -66,12 +66,12 @@ public class QuestionDialog extends TrayDialog {
 		Label questionLabel = new Label(rtnGroup, SWT.NONE);
 		questionLabel.setText(question);
 		
-		if (showAnswer) {
-			answerText = new Text(rtnGroup, SWT.NONE);
-			gd = new GridData();
-			gd.widthHint = WIDTH;
-			answerText.setLayoutData(gd);
-		}
+		answerText = new Text(rtnGroup, SWT.NONE);
+		gd = new GridData();
+		gd.widthHint = WIDTH;
+		answerText.setLayoutData(gd);
+
+		if (!showAnswer) answerText.setEchoChar('*'); //$NON-NLS-1$
 		
 		if (maySave) {
 		    saveButton = new Button(rtnGroup, SWT.CHECK);
@@ -84,14 +84,13 @@ public class QuestionDialog extends TrayDialog {
 		// set F1 help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(rtnGroup, IHelpContextIds.QUESTION_DIALOG);	
 
-		if (showAnswer)
-			answerText.setFocus();
+		answerText.setFocus();
 		
 		return rtnGroup;
 	}
 	
     protected void okPressed() {
-    	if (showAnswer)	answer = answerText.getText().trim();
+    	answer = answerText.getText().trim();
         if (maySave) save = saveButton.getSelection();
         super.okPressed();
     }	

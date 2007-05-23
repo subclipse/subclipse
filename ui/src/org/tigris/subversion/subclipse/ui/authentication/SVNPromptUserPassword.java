@@ -141,13 +141,8 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
         question = askQuestion;
 		SVNUIPlugin.getStandardDisplay().syncExec(new Runnable() {
 			public void run() {
-				
-				
-			// Would think that next to last parameter would be showAnswer.	However, client is
-		    // passing false, causing the text field for the answer to not appear.  Hard coding
-		    // it to true for now.
 		        QuestionDialog dialog = new QuestionDialog(Display.getCurrent().getActiveShell(),
-		                realm, question, true, maySave);
+		                realm, question, showAnswer, maySave);
 		        if (dialog.open() == QuestionDialog.OK) {
 		            allowedSave = dialog.isSave();
 		            answer = dialog.getAnswer();
