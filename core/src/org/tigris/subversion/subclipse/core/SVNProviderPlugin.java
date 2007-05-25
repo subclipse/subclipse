@@ -533,7 +533,10 @@ public class SVNProviderPlugin extends Plugin {
     public String getAdminDirectoryName() {
     	if (dirname == null) {
     		try {
-				dirname = createSVNClient().getAdminDirectoryName();
+    			ISVNClientAdapter client = createSVNClient();
+    			if (client == null)
+    				return ".svn";
+				dirname = client.getAdminDirectoryName();
 			} catch (SVNException e) {
 				dirname = ".svn";
 			}
