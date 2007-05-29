@@ -14,6 +14,7 @@ package org.tigris.subversion.subclipse.ui.wizards.sharing;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -31,10 +32,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.ui.IConfigurationWizard;
 import org.eclipse.ui.IWorkbench;
+import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.LocalFolder;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
@@ -55,6 +58,9 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 
 	// The autoconnect page is used if .svn/ directories already exist.
 	private ConfigurationWizardAutoconnectPage autoconnectPage;
+	
+	// Warning page if .svn/ directories do not exist in root, but exist in subdirectories.
+	private SvnFoldersExistWarningPage warningPage;
 	
 	// The import page is used if .svn/ directories do not exist.
 	private RepositorySelectionPage locationPage;
@@ -98,6 +104,21 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 			addPage(autoconnectPage);
 		}
         else {
+        	try {
+        		ISVNLocalFolder localFolder = SVNWorkspaceRoot.getSVNFolderFor(project);
+        		if (localFolder instanceof LocalFolder) {
+        			IFolder[] svnFolders = ((LocalFolder)localFolder).getSVNFolders(null, false);
+        			if (svnFolders.length > 0) {
+        				warningPage = new SvnFoldersExistWarningPage("warningPage", Policy.bind("SharingWizard.importTitle"), sharingImage, svnFolders); //$NON-NLS-1$ //$NON-NLS-2$
+        				warningPage.setDescription(Policy.bind("SharingWizard.svnFolderExists")); //$NON-NLS-1$
+        				addPage(warningPage);        				
+        				// Remember to update getNextPage.
+        			}
+        		}
+			} catch (SVNException e) {
+				SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.PERFORM_SYNC_EXEC);
+			}
+        	
             // otherwise we add : 
             // - the repository selection page
             // - the create location page
@@ -148,6 +169,10 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
      * get the next page
      */
 	public IWizardPage getNextPage(IWizardPage page) {
+		if (page == warningPage) {
+			if (locationPage == null) return createLocationPage;
+			else return locationPage;
+		}
 		if (page == autoconnectPage) return null;
 		if (page == locationPage) {
 			if (locationPage.getLocation() == null) {
@@ -411,7 +436,9 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 		}
         return isSVNFolder; 
 	}
+	
     public IProject getProject() {
         return project;
-    }
+    }   
+    
 }
