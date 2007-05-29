@@ -172,11 +172,9 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
     public void accept(ISVNResourceVisitor visitor) throws SVNException {
         visitor.visitFolder(this);
     }
-
-    /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.ISVNLocalFolder#unmanage(org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void unmanage(IProgressMonitor monitor) throws SVNException {
+    
+    public IFolder[] getSVNFolders(IProgressMonitor monitor, final boolean unmanage) throws SVNException {
+    	final ArrayList svnFolders = new ArrayList();
         SVNProviderPlugin.run(new ISVNRunnable() {
             public void run(IProgressMonitor pm) throws SVNException {
                 pm = Policy.monitorFor(pm);
@@ -189,7 +187,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                     dirs.add(((ISVNLocalResource) members[i]).getIResource());
                 }
                 dirs.add(getIResource()); // we add the current folder to the
-                // list : we want to delete .svn dir
+                // list : we want to add .svn dir
                 // for it too
 
                 IProgressMonitor monitorDel = Policy.subMonitorFor(pm, 80);
@@ -198,17 +196,17 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                 for (int i = 0; i < dirs.size(); i++) {
                     monitorDel.worked(1);
                     IContainer container = (IContainer) dirs.get(i);
-                    recursiveUnmanage(container, monitorDel);
+                    recursiveGetSVNFolders(container, monitorDel, unmanage);
 
                 }
                 monitorDel.done();
                 pm.done();
             }
 
-            private void recursiveUnmanage(IContainer container,
-                    IProgressMonitor pm) {
+            private void recursiveGetSVNFolders(IContainer container,
+                    IProgressMonitor pm, boolean unmanage) {
                 try {
-                    // We must not delete svn directories for linked resources.
+                    // We must not add svn directories for linked resources.
                 	if (container.isLinked())
                 		return;
 
@@ -219,17 +217,18 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                     for (int i = 0; i < members.length; i++) {
                         pm.worked(1);
                         if (members[i].getType() != IResource.FILE) {
-                            recursiveUnmanage((IContainer) members[i], pm);
+                            recursiveGetSVNFolders((IContainer) members[i], pm, unmanage);
                         }
                     }
-                    // Post order traversal to make sure resources are not
-                    // orphaned
+                    // Post order traversal
                     IFolder svnFolder = container.getFolder(new Path(
                     		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
                     if (svnFolder.exists()) {
-                        try {
-                            svnFolder.delete(true, null);
-                        } catch (CoreException e) {
+                        svnFolders.add(svnFolder);
+                        if (unmanage) {
+                            try {
+                                svnFolder.delete(true, null);
+                            } catch (CoreException e) {}                        	
                         }
                     }
                 } catch (CoreException e) {
@@ -238,7 +237,17 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                     pm.done();
                 }
             }
-        }, Policy.subMonitorFor(monitor, 99));
+        }, Policy.subMonitorFor(monitor, 99)); 
+    	IFolder[] folderArray = new IFolder[svnFolders.size()];
+    	svnFolders.toArray(folderArray);
+    	return folderArray;
+    }
+
+    /* (non-Javadoc)
+     * @see org.tigris.subversion.subclipse.core.ISVNLocalFolder#unmanage(org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void unmanage(IProgressMonitor monitor) throws SVNException {
+    	getSVNFolders(monitor, true);
     }
 
     /* (non-Javadoc)
