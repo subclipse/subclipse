@@ -17,7 +17,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -317,7 +316,9 @@ public class SVNWorkspaceRoot {
 	 * @return boolean
 	 */
 	public static boolean isLinkedResource(IResource resource) {
+		return resource.isLinked(IResource.CHECK_ANCESTORS);
 		// check the resource directly first
+/* Commented out		
 		if (resource.isLinked()) return true;
 		// projects and root cannot be links
 		if (resource.getType() == IResource.PROJECT || resource.getType() == IResource.ROOT) {
@@ -327,6 +328,7 @@ public class SVNWorkspaceRoot {
 		String linkedParentName = resource.getProjectRelativePath().segment(0);
 		IFolder linkedParent = resource.getProject().getFolder(linkedParentName);
 		return linkedParent.isLinked();
+*/		
 	}
 	
 	/**
