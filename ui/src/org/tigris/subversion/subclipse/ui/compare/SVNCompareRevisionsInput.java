@@ -252,6 +252,8 @@ public class SVNCompareRevisionsInput extends CompareEditorInput implements ISav
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getContentsAction, IHelpContextIds.GET_FILE_CONTENTS_ACTION);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getRevisionAction, IHelpContextIds.GET_FILE_REVISION_ACTION);
 		
+		viewer.resetFilters();
+		
 		return viewer;
 	}
 

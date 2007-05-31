@@ -160,6 +160,7 @@ public class HistoryDialog extends TrayDialog {
 		});
 		
 		tableHistoryViewer.setInput(remoteResource);
+		tableHistoryViewer.resetFilters();
 		
         Composite commentGroup = new Composite(sashForm, SWT.NULL);
         commentGroup.setLayout(new GridLayout());
