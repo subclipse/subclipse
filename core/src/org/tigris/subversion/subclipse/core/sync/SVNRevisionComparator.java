@@ -28,16 +28,20 @@ public class SVNRevisionComparator implements IResourceVariantComparator {
 	 * @see org.eclipse.team.core.variants.IResourceVariantComparator#compare(org.eclipse.core.resources.IResource, org.eclipse.team.core.variants.IResourceVariant)
 	 */
 	public boolean compare(IResource local, IResourceVariant remote) {
-		ISVNLocalResource a = SVNWorkspaceRoot.getSVNResourceFor(local);
-		ISVNRemoteResource b = (ISVNRemoteResource)remote;
 		if( local == null && remote == null )
 		    return true;
 		if( local == null || remote == null )
 		    return false;
+		ISVNLocalResource a = SVNWorkspaceRoot.getSVNResourceFor(local);
+		ISVNRemoteResource b = (ISVNRemoteResource)remote;
 		try {
 			return a.getStatus().getLastChangedRevision().getNumber() == b.getLastChangedRevision().getNumber();
 		} catch (SVNException e) {
             Util.logError("Cannot compare local resource with remote resource",e);
+		} catch(NullPointerException npe) {
+			// When svn:externals are used several of the above methods can return null
+			// We have already checked for the important/expected nulls
+			return true;
 		}
 		return false;
 		
@@ -47,13 +51,19 @@ public class SVNRevisionComparator implements IResourceVariantComparator {
 	 * @see org.eclipse.team.core.variants.IResourceVariantComparator#compare(org.eclipse.team.core.variants.IResourceVariant, org.eclipse.team.core.variants.IResourceVariant)
 	 */
 	public boolean compare(IResourceVariant base, IResourceVariant remote) {
-		ISVNRemoteResource a = (ISVNRemoteResource)base;
-		ISVNRemoteResource b = (ISVNRemoteResource)remote;
 		if( base == remote )
 		    return true;
 		if( base == null || remote == null )
 		    return false;
-		return a.getLastChangedRevision().getNumber()==b.getLastChangedRevision().getNumber();
+		ISVNRemoteResource a = (ISVNRemoteResource)base;
+		ISVNRemoteResource b = (ISVNRemoteResource)remote;
+		try {
+			return a.getLastChangedRevision().getNumber()==b.getLastChangedRevision().getNumber();
+		} catch(NullPointerException npe) {
+			// When svn:externals are used several of the above methods can return null
+			// We have already checked for the important/expected nulls
+			return true;
+		}
 	}
 
 	/* (non-Javadoc)
