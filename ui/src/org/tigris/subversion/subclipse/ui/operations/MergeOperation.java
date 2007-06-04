@@ -29,6 +29,7 @@ public class MergeOperation extends RepositoryProviderOperation {
     
     private boolean force = false;
     private boolean ignoreAncestry = false;
+    private boolean recurse = true;
 
     public MergeOperation(IWorkbenchPart part, IResource[] resources, SVNUrl svnUrl1, SVNRevision svnRevision1, SVNUrl svnUrl2, SVNRevision svnRevision2) {
         super(part, resources);
@@ -52,6 +53,7 @@ public class MergeOperation extends RepositoryProviderOperation {
 	    	MergeCommand command = new MergeCommand(provider.getSVNWorkspaceRoot(),resources[0], svnUrl1, svnRevision1, svnUrl2, svnRevision2);
 	        command.setForce(force);
 	    	command.setIgnoreAncestry(ignoreAncestry);
+	    	command.setRecurse(recurse);
 	    	command.run(Policy.subMonitorFor(monitor,1000));
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
@@ -66,6 +68,10 @@ public class MergeOperation extends RepositoryProviderOperation {
 
 	public void setIgnoreAncestry(boolean ignoreAncestry) {
 		this.ignoreAncestry = ignoreAncestry;
+	}
+
+	public void setRecurse(boolean recurse) {
+		this.recurse = recurse;
 	}
 
 }
