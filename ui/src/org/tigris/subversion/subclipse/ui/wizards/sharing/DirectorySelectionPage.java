@@ -35,6 +35,7 @@ import org.tigris.subversion.subclipse.ui.wizards.SVNWizardPage;
  * wizard page to select remote directory that will correpond to the project 
  */
 public class DirectorySelectionPage extends SVNWizardPage {
+	private ISVNRepositoryLocationProvider repositoryLocationProvider;
 	Button useProjectNameButton;
 	Button useSpecifiedNameButton;
 	Text text;
@@ -44,8 +45,9 @@ public class DirectorySelectionPage extends SVNWizardPage {
 	String result;
 	boolean useProjectName = true;
 	
-	public DirectorySelectionPage(String pageName, String title, ImageDescriptor titleImage) {
+	public DirectorySelectionPage(String pageName, String title, ImageDescriptor titleImage, ISVNRepositoryLocationProvider repositoryLocationProvider) {
 		super(pageName, title, titleImage);
+		this.repositoryLocationProvider = repositoryLocationProvider;
 	}
 	
 	public void createControl(Composite parent) {
@@ -156,10 +158,9 @@ public class DirectorySelectionPage extends SVNWizardPage {
 	}
 	
 	private void setUrlText() {
-		SharingWizard wizard = (SharingWizard)getWizard();
 		try {
-		    if (useProjectNameButton.getSelection()) urlText.setText(wizard.getLocation().getLocation() + "/" + wizard.getProject().getName());
-		    else urlText.setText(wizard.getLocation().getLocation() + "/" + text.getText().trim());
+		    if (useProjectNameButton.getSelection()) urlText.setText(repositoryLocationProvider.getLocation().getLocation() + "/" + repositoryLocationProvider.getProject().getName());
+		    else urlText.setText(repositoryLocationProvider.getLocation().getLocation() + "/" + text.getText().trim());
 		} catch (Exception e) {}	    
 	}
 }

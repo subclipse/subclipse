@@ -143,7 +143,15 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 			createLocationPage.setDescription(Policy.bind("SharingWizard.enterInformationDescription")); //$NON-NLS-1$
 			addPage(createLocationPage);
 			createLocationPage.setDialogSettings(getDialogSettings());
-			directoryPage = new DirectorySelectionPage("modulePage", Policy.bind("SharingWizard.enterModuleName"), sharingImage); //$NON-NLS-1$ //$NON-NLS-2$
+			ISVNRepositoryLocationProvider repositoryLocationProvider = new ISVNRepositoryLocationProvider() {
+				public ISVNRepositoryLocation getLocation() throws TeamException {
+					return SharingWizard.this.getLocation();
+				}
+				public IProject getProject() {
+					return SharingWizard.this.getProject();
+				}				
+			};
+			directoryPage = new DirectorySelectionPage("modulePage", Policy.bind("SharingWizard.enterModuleName"), sharingImage, repositoryLocationProvider); //$NON-NLS-1$ //$NON-NLS-2$
 			directoryPage.setDescription(Policy.bind("SharingWizard.enterModuleNameDescription")); //$NON-NLS-1$
 			addPage(directoryPage);
 			finishPage = new SharingWizardFinishPage("finishPage", Policy.bind("SharingWizard.readyToFinish"), sharingImage); //$NON-NLS-1$ //$NON-NLS-2$
