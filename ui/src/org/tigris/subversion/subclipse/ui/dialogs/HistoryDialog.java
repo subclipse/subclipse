@@ -341,7 +341,7 @@ public class HistoryDialog extends TrayDialog {
 
 	protected ILogEntry[] getLogEntries(ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) throws TeamException
 	{
-		GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager);
+		GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager, false);
 		logCmd.run(null);
 		return logCmd.getLogEntries(); 					
 	}

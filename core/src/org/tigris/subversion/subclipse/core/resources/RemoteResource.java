@@ -243,13 +243,13 @@ public abstract class RemoteResource
 	
     public ISVNLogMessage[] getLogMessages(SVNRevision pegRevision,
 			SVNRevision revisionStart, SVNRevision revisionEnd,
-			boolean stopOnCopy, boolean fetchChangePath, long limit)
+			boolean stopOnCopy, boolean fetchChangePath, long limit, boolean includeMergedRevisions)
 			throws TeamException {
 
 		try {
 			return repository.getSVNClient().getLogMessages(getUrl(),
 					pegRevision, revisionStart, revisionEnd, stopOnCopy, fetchChangePath,
-					limit);
+					limit, includeMergedRevisions);
 		} catch (SVNClientException e) {
 			throw new TeamException("Failed in RemoteResource.getLogMessages()",
 					e);

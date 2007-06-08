@@ -1639,7 +1639,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 
 		protected ILogEntry[] getLogEntries(IProgressMonitor monitor, ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) throws TeamException
 		{
-			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager);
+			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager, false);
 			logCmd.run(monitor);
 			return logCmd.getLogEntries(); 					
 		}

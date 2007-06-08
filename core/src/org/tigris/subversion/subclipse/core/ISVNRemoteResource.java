@@ -84,12 +84,13 @@ public interface ISVNRemoteResource extends ISVNResource, IAdaptable, IResourceV
      * @param stopOnCopy
      * @param fetchChangePath
      * @param limit
+     * @param includeMergedRevisions 
      * @return array of LogMessages
      * @throws TeamException
      */
     public ISVNLogMessage[] getLogMessages(SVNRevision pegRevision,
 			SVNRevision revisionStart, SVNRevision revisionEnd,
-			boolean stopOnCopy, boolean fetchChangePath, long limit)
+			boolean stopOnCopy, boolean fetchChangePath, long limit, boolean includeMergedRevisions)
 			throws TeamException;
     
     /**

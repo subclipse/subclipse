@@ -39,6 +39,7 @@ public class GetLogsCommand implements ISVNCommand {
 	private SVNRevision revisionEnd = SVNRevision.HEAD;
 	private boolean stopOnCopy = false;
 	private long limit = 0;
+	private boolean includeMergedRevisions;
 	private AliasManager tagManager;
     private ILogEntry[] logEntries;
    
@@ -54,7 +55,7 @@ public class GetLogsCommand implements ISVNCommand {
      *                      limit)
      * @param tagManager    used to determine tags for revision                     
      */
-    public GetLogsCommand(ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) {
+    public GetLogsCommand(ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager, boolean includeMergedRevisions) {
         this.remoteResource = remoteResource;
         this.pegRevision = (pegRevision != null) ? pegRevision : SVNRevision.HEAD;
         this.revisionStart = revisionStart;
@@ -62,6 +63,7 @@ public class GetLogsCommand implements ISVNCommand {
         this.stopOnCopy = stopOnCopy;
         this.limit = limit;
         this.tagManager = tagManager;
+        this.includeMergedRevisions = includeMergedRevisions;
     }    
     
     /**
@@ -82,7 +84,7 @@ public class GetLogsCommand implements ISVNCommand {
                     revisionEnd, 
                     stopOnCopy,
                     !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(),
-                    limit);
+                    limit, includeMergedRevisions);
 
             if (remoteResource.isFolder()) {
                 logEntries = LogEntry.createLogEntriesFrom((ISVNRemoteFolder) remoteResource, logMessages, getTags(logMessages));   

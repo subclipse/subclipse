@@ -219,7 +219,7 @@ public class ShowAnnotationOperation extends SVNOperation {
     
     private RevisionInformation createRevisionInformation(final AnnotateBlocks annotateBlocks, IProgressMonitor monitor) {
     	Map logEntriesByRevision= new HashMap();
-    GetLogsCommand logCommand = new GetLogsCommand(this.remoteFile, SVNRevision.HEAD, this.fromRevision, this.toRevision, false, 0, null);
+    GetLogsCommand logCommand = new GetLogsCommand(this.remoteFile, SVNRevision.HEAD, this.fromRevision, this.toRevision, false, 0, null, false);
 		try {
 			logCommand.run(monitor);
 			ILogEntry[] logEntries = logCommand.getLogEntries();

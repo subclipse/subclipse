@@ -87,7 +87,7 @@ public class CompareWithRevisionAction extends WorkspaceAction {
 					AliasManager tagManager = null;
 					IResource[] resources = getSelectedResources();
 					if (resources.length == 1) tagManager = new AliasManager(resources[0]);
-					GetLogsCommand logCmd = new GetLogsCommand(file[0], SVNRevision.HEAD, SVNRevision.HEAD, new SVNRevision.Number(0), false, 0, tagManager);
+					GetLogsCommand logCmd = new GetLogsCommand(file[0], SVNRevision.HEAD, SVNRevision.HEAD, new SVNRevision.Number(0), false, 0, tagManager, false);
 					logCmd.run(Policy.subMonitorFor(monitor, 100));
 					entries[0] = logCmd.getLogEntries(); 					
 					monitor.done();
