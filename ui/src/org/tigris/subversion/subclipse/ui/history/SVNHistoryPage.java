@@ -126,6 +126,7 @@ import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.HistorySearchDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.SetCommitPropertiesDialog;
+import org.tigris.subversion.subclipse.ui.dialogs.ShowRevisionsDialog;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
 import org.tigris.subversion.subclipse.ui.operations.MergeOperation;
@@ -196,6 +197,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction showDifferencesAsUnifiedDiffAction;
   private IAction createTagFromRevisionAction;
   private IAction setCommitPropertiesAction;
+  private IAction showRevisionsAction;
   private IAction revertChangesAction;
   private IAction refreshAction;
 
@@ -560,6 +562,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           manager.add(getCreateTagFromRevisionAction());
           // }
           manager.add(getSetCommitPropertiesAction());
+          ILogEntry logEntry = (ILogEntry)((IStructuredSelection)sel).getFirstElement();
+          if (logEntry.getNumberOfChildren() > 0)
+        	  manager.add(getShowRevisionsAction());
         }
         if(resource != null)
           manager.add(getRevertChangesAction());
@@ -1266,6 +1271,25 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       };
     }
     return setCommitPropertiesAction;
+  }
+  
+  private IAction getShowRevisionsAction() {
+	  if (showRevisionsAction == null) {
+		  showRevisionsAction = new Action(Policy.bind("HistoryView.showRevisions")) {
+			  public void run() {
+		          ISelection selection = getSelection();
+		          if( !(selection instanceof IStructuredSelection))
+		            return;
+		          IStructuredSelection ss = (IStructuredSelection) selection;
+		          ILogEntry logEntry = (ILogEntry)ss.getFirstElement();
+		          ShowRevisionsDialog dialog = null;
+		          if (resource != null) dialog = new ShowRevisionsDialog(getSite().getShell(), logEntry, resource, includeTags);
+		          else if (remoteResource != null) dialog = new ShowRevisionsDialog(getSite().getShell(), logEntry, remoteResource, includeTags);
+		          if (dialog != null) dialog.open();
+			  }
+		  };
+	  }
+	  return showRevisionsAction;
   }
 
   // get revert changes action (context menu)
