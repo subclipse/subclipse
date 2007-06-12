@@ -37,8 +37,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
-import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
+import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
@@ -53,6 +53,8 @@ public class HistoryTableProvider {
 	private SVNRevision.Number currentRevision;
 	private TableViewer viewer;
 	private Font currentRevisionFont;
+	
+	private boolean includeMergeRevisions = true;;
 		
 	/**
 	 * Constructor for HistoryTableProvider.
@@ -62,11 +64,12 @@ public class HistoryTableProvider {
 	}
 
 	//column constants
-	private static final int COL_REVISION = 0;
-	private static final int COL_TAGS = 1;
-	private static final int COL_DATE = 2;
-	private static final int COL_AUTHOR = 3;
-	private static final int COL_COMMENT = 4;
+	private final static int COL_REVISION = 0;
+	private final static int COL_MERGED_REVISIONS = 1;
+	private final static int COL_TAGS = 2;
+	private final static int COL_DATE = 3;
+	private final static int COL_AUTHOR = 4;
+	private final static int COL_COMMENT = 5;
 
 	/**
 	 * The history label provider.
@@ -78,13 +81,17 @@ public class HistoryTableProvider {
 		public String getColumnText(Object element, int columnIndex) {
             ILogEntry entry = adaptToLogEntry(element);
 			if (entry == null) return ""; //$NON-NLS-1$
-			switch (columnIndex) {
+			int index = columnIndex;
+			if (columnIndex > 0 && !includeMergeRevisions) index++;
+			switch (index) {
 				case COL_REVISION:
 					String revision = entry.getRevision().toString();
 					if (currentRemoteResource != null && entry.getRevision().equals( currentRemoteResource.getLastChangedRevision())) {
 						revision = Policy.bind("currentRevision", revision); //$NON-NLS-1$
 					}
 					return revision;
+				case COL_MERGED_REVISIONS:
+					return entry.getMergedRevisionsAsString();					
 				case COL_TAGS:
 					return AliasManager.getAliasesAsString(entry.getTags());
 				case COL_DATE:
@@ -148,13 +155,14 @@ public class HistoryTableProvider {
 		
 //		private VersionCollator versionCollator = new VersionCollator();
 		
-		// column headings:	"Revision" "Tags" "Date" "Author" "Comment"
+		// column headings:	"Revision" "Merged Revisions" "Tags" "Date" "Author" "Comment"
 		private int[][] SORT_ORDERS_BY_COLUMN = {
-			{COL_REVISION, COL_TAGS, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* revision */
-			{COL_TAGS, COL_REVISION, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* tags */ 
-			{COL_DATE, COL_REVISION, COL_TAGS, COL_AUTHOR, COL_COMMENT},	/* date */
-			{COL_AUTHOR, COL_REVISION, COL_TAGS, COL_DATE, COL_COMMENT},	/* author */
-			{COL_COMMENT, COL_REVISION, COL_TAGS, COL_DATE, COL_AUTHOR}   /* comment */
+			{COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* revision */
+			{COL_MERGED_REVISIONS, COL_REVISION, COL_TAGS, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* merged revisions */
+			{COL_TAGS, COL_REVISION, COL_MERGED_REVISIONS, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* tags */ 
+			{COL_DATE, COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_AUTHOR, COL_COMMENT},	/* date */
+			{COL_AUTHOR, COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_DATE, COL_COMMENT},	/* author */
+			{COL_COMMENT, COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_DATE, COL_AUTHOR}   /* comment */
 		};
 		
 		/**
@@ -174,7 +182,7 @@ public class HistoryTableProvider {
 			if (e1 == null || e2 == null) {
 				result = super.compare(viewer, o1, o2);
 			} else {
-				int[] columnSortOrder = SORT_ORDERS_BY_COLUMN[columnNumber];
+				int[] columnSortOrder = SORT_ORDERS_BY_COLUMN[columnNumber];;
 				for (int i = 0; i < columnSortOrder.length; ++i) {
 					result = compareColumnValue(columnSortOrder[i], e1, e2);
 					if (result != 0)
@@ -189,9 +197,13 @@ public class HistoryTableProvider {
 		 * Compares two markers, based only on the value of the specified column.
 		 */
 		int compareColumnValue(int columnNumber, ILogEntry e1, ILogEntry e2) {
-			switch (columnNumber) {
+			int column = columnNumber;
+			if (column > 0 && !includeMergeRevisions) column++;
+			switch (column) {
 				case COL_REVISION: /* revision */
                     return (e1.getRevision().getNumber()<e2.getRevision().getNumber() ? -1 : (e1.getRevision()==e2.getRevision() ? 0 : 1));
+				case COL_MERGED_REVISIONS: /* merged revisions */
+					return getCollator().compare(e1.getMergedRevisionsAsString(), e2.getMergedRevisionsAsString());
 				case COL_TAGS: /* tags */
 					String tags1 = AliasManager.getAliasesAsString(e1.getTags());
 					String tags2 = AliasManager.getAliasesAsString(e2.getTags());
@@ -293,6 +305,15 @@ public class HistoryTableProvider {
 		col.addSelectionListener(headerListener);
 		layout.addColumnData(new ColumnWeightData(10, true));
 		table.setSortColumn(col);
+
+		// merged revisions
+		if (includeMergeRevisions) {
+			col = new TableColumn(table, SWT.NONE);		
+			col.setResizable(true);
+			col.setText(Policy.bind("HistoryView.mergedRevisions")); //$NON-NLS-1$
+			col.addSelectionListener(headerListener);
+			layout.addColumnData(new ColumnWeightData(30, true));
+		}
 		
 		// tags
 		col = new TableColumn(table, SWT.NONE);
@@ -321,8 +342,9 @@ public class HistoryTableProvider {
 		col.setText(Policy.bind("HistoryView.comment")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
 		layout.addColumnData(new ColumnWeightData(50, true));
+		
 	}
-
+	
 	/**
 	 * Adds the listener that sets the sorter.
 	 */
@@ -388,4 +410,9 @@ public class HistoryTableProvider {
 	public ISVNRemoteResource getRemoteResource() {
 		return this.currentRemoteResource;
 	}
+
+	public void setIncludeMergeRevisions(boolean includeMergeRevisions) {
+		this.includeMergeRevisions = includeMergeRevisions;
+	}
+
 }

@@ -77,6 +77,7 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -159,6 +160,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 
   private ProjectProperties projectProperties;
 
+  private Composite tableParent;
+
   // cached for efficiency
   ILogEntry[] entries;
   LogEntryChangePath[] currentLogEntryChangePath;
@@ -180,6 +183,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction getNextAction;
   private IAction getAllAction;
   private IAction toggleStopOnCopyAction;
+  private IAction toggleIncludeMergedRevisionsAction;
   private IAction toggleShowComments;
   private IAction toggleWrapCommentsAction;
   private IAction toggleShowAffectedPathsAction;
@@ -204,6 +208,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private Cursor handCursor;
   private Cursor busyCursor;
 
+  private IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
   
   public SVNHistoryPage(Object object) {
 	  SVNProviderPlugin.addResourceStateChangeListener(this);
@@ -273,6 +278,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           } catch(SVNException e) {
           }
         }
+        if (tableHistoryViewer.getInput() == null) tableHistoryViewer.setInput(remoteResource);
         tableHistoryViewer.refresh();
        	tableHistoryViewer.resetFilters();
        	getClearSearchAction().setEnabled(false);
@@ -337,7 +343,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     this.busyCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
     this.handCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_HAND);
 
-    IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
     this.showComments = store.getBoolean(ISVNUIConstants.PREF_SHOW_COMMENTS);
     this.wrapCommentsText = store.getBoolean(ISVNUIConstants.PREF_WRAP_COMMENTS);
     this.showAffectedPaths = store.getBoolean(ISVNUIConstants.PREF_SHOW_PATHS);
@@ -385,8 +390,28 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
   protected void createTableHistory(Composite parent) {
+	boolean redraw = false;
+	if (tableParent == null) {
+		tableParent = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		tableParent.setLayout(layout);
+		tableParent.setLayoutData(
+		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+	} else {
+		Control[] children = tableParent.getChildren();
+		for (int i = 0; i < children.length; i++) {
+			children[i].dispose();
+		}
+		redraw = true;
+	}
     this.historyTableProvider = new HistoryTableProvider();
-    this.tableHistoryViewer = historyTableProvider.createTable(parent);
+    historyTableProvider.setIncludeMergeRevisions(store.getBoolean(ISVNUIConstants.PREF_INCLUDE_MERGED_REVISIONS));
+    this.tableHistoryViewer = historyTableProvider.createTable(tableParent);
+    if (redraw) {
+    	tableParent.layout(true);
+    	tableParent.redraw();
+    }
     this.tableHistoryViewer.getTable().addKeyListener(this);
     // set the content provider for the table
     this.tableHistoryViewer.setContentProvider(new IStructuredContentProvider() {
@@ -400,7 +425,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           return null;
         final ISVNRemoteResource remoteResource = (ISVNRemoteResource) inputElement;
 
-        IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
         int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
         if (entriesToFetch > 0)
         	fetchLogEntriesJob = new FetchLogEntriesJob();
@@ -469,8 +493,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       tableHistoryViewer.getTable().setMenu(menu);
       getHistoryPageSite().getPart().getSite().registerContextMenu(menuMgr, tableHistoryViewer);
     }
+    if (redraw) {
+    	parent.layout(true);
+    	parent.redraw();
+    }
   }
-
+  
+  public void refreshTable() {
+	  createTableHistory(svnHistoryPageControl);
+  }
+  
   private void fillTableMenu(IMenuManager manager) {
     // file actions go first (view file)
     manager.add(new Separator(IWorkbenchActionConstants.GROUP_FILE));
@@ -510,7 +542,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       changePathsViewer.getControl().dispose();
     }
     
-    IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
     int mode = store.getInt(ISVNUIConstants.PREF_AFFECTED_PATHS_MODE);
     int layout = store.getInt(ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT);
     
@@ -680,7 +711,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 
   private void contributeActions() {
     SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
-    final IPreferenceStore store = plugin.getPreferenceStore();
 
     toggleShowComments = new Action(Policy.bind("HistoryView.showComments"), //$NON-NLS-1$
         SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_COMMENTS)) {
@@ -729,6 +759,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     };
     toggleStopOnCopyAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY));
     
+    // Toggle include merged revisions action
+    toggleIncludeMergedRevisionsAction = new Action(Policy.bind("HistoryView.includeMergedRevisions")) { //$NON-NLS-1$
+      public void run() {
+        store.setValue(ISVNUIConstants.PREF_INCLUDE_MERGED_REVISIONS, toggleIncludeMergedRevisionsAction.isChecked());
+    	refreshTable();
+    	refresh();
+      }
+    };
+    toggleIncludeMergedRevisionsAction.setChecked(store.getBoolean(ISVNUIConstants.PREF_INCLUDE_MERGED_REVISIONS));    
+    
     IHistoryPageSite parentSite = getHistoryPageSite();
     IPageSite pageSite = parentSite.getWorkbenchPageSite();
     IActionBars actionBars = pageSite.getActionBars();
@@ -738,6 +778,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     actionBarsMenu.add(getGetNextAction());
     actionBarsMenu.add(getGetAllAction());
     actionBarsMenu.add(toggleStopOnCopyAction);
+    actionBarsMenu.add(toggleIncludeMergedRevisionsAction);
     actionBarsMenu.add(new Separator());
     actionBarsMenu.add(toggleWrapCommentsAction);
     actionBarsMenu.add(new Separator());
@@ -1524,11 +1565,11 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           SVNRevision pegRevision = remoteResource.getRevision();
           SVNRevision revisionEnd = new SVNRevision.Number(0);
           boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
-          IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+          boolean includeMergedRevisions = toggleIncludeMergedRevisionsAction.isChecked();
           int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
           long limit = entriesToFetch;
           entries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy,
-              limit + 1, tagManager);
+              limit + 1, tagManager, includeMergedRevisions);
           long entriesLength = entries.length;
           if(entriesLength > limit) {
             ILogEntry[] fetchedEntries = new ILogEntry[ entries.length - 1];
@@ -1580,11 +1621,11 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           SVNRevision pegRevision = remoteResource.getRevision();
           SVNRevision revisionEnd = new SVNRevision.Number(0);
           boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
-          IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+          boolean includeMergedRevisions = toggleIncludeMergedRevisionsAction.isChecked();
           int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
           long limit = entriesToFetch;
           ILogEntry[] nextEntries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd,
-              stopOnCopy, limit + 1, tagManager);
+              stopOnCopy, limit + 1, tagManager, includeMergedRevisions);
           long entriesLength = nextEntries.length;
           ILogEntry[] fetchedEntries = null;
           if(entriesLength > limit) {
@@ -1637,9 +1678,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 
 		public abstract void setRemoteFile(ISVNRemoteResource resource);
 
-		protected ILogEntry[] getLogEntries(IProgressMonitor monitor, ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) throws TeamException
+		protected ILogEntry[] getLogEntries(IProgressMonitor monitor, ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager, boolean includeMergedRevisions) throws TeamException
 		{
-			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager, false);
+			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager, includeMergedRevisions);
 			logCmd.run(monitor);
 			return logCmd.getLogEntries(); 					
 		}
@@ -1671,9 +1712,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           revisionStart = SVNRevision.HEAD;
           SVNRevision revisionEnd = new SVNRevision.Number(0);
           boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
+          boolean includeMergedRevisions = toggleIncludeMergedRevisionsAction.isChecked();
           long limit = 0;
           entries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit,
-              tagManager);
+              tagManager, includeMergedRevisions);
           final SVNRevision.Number revisionId = remoteResource.getLastChangedRevision();
           getSite().getShell().getDisplay().asyncExec(new Runnable() {
             public void run() {
