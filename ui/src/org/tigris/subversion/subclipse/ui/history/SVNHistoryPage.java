@@ -1275,7 +1275,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   
   private IAction getShowRevisionsAction() {
 	  if (showRevisionsAction == null) {
-		  showRevisionsAction = new Action(Policy.bind("HistoryView.showRevisions")) {
+		  showRevisionsAction = new Action(Policy.bind("HistoryView.showMergedRevisions")) {
 			  public void run() {
 		          ISelection selection = getSelection();
 		          if( !(selection instanceof IStructuredSelection))

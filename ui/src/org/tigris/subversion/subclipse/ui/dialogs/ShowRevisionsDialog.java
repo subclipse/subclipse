@@ -102,7 +102,7 @@ public class ShowRevisionsDialog extends TrayDialog {
     }
     
 	protected Control createDialogArea(Composite parent) {
-	    getShell().setText(Policy.bind("HistoryView.showRevisions")); //$NON-NLS-1$
+	    getShell().setText(Policy.bind("HistoryView.showMergedRevisions")); //$NON-NLS-1$
 		
 	    Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
