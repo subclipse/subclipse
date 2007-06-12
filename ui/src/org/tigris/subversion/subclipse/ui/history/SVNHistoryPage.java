@@ -134,6 +134,7 @@ import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.EmptySearchViewerFilter;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -209,6 +210,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private Cursor busyCursor;
 
   private IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+  
+  private boolean includeTags = true;
   
   public SVNHistoryPage(Object object) {
 	  SVNProviderPlugin.addResourceStateChangeListener(this);
@@ -296,6 +299,13 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 
     if(input instanceof IResource) {
       IResource res = (IResource) input;
+      
+      boolean includeTags = tagsPropertySet(res);
+      if (includeTags != this.includeTags) {
+    	  this.includeTags = includeTags;
+    	  refreshTable();
+      }
+      
       RepositoryProvider teamProvider = RepositoryProvider.getProvider(res.getProject(), SVNProviderPlugin.getTypeId());
       if(teamProvider != null) {
         try {
@@ -324,6 +334,12 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       this.resource = null;
       this.remoteResource = (ISVNRemoteResource) input;
 
+      boolean includeTags = tagsPropertySet(remoteResource);
+      if (includeTags != this.includeTags) {
+    	  this.includeTags = includeTags;
+    	  refreshTable();
+      }
+      
       this.projectProperties = ProjectProperties.getProjectProperties(this.remoteResource);
       this.historyTableProvider.setRemoteResource(this.remoteResource);
       this.tableHistoryViewer.setInput(this.remoteResource);
@@ -337,6 +353,29 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
 
     return false;
+  }
+  
+  private boolean tagsPropertySet(IResource resource) {
+	  if (resource == null) return false;
+	  ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+	  try {
+		  if (svnResource.isManaged()) {
+			  ISVNProperty property = null;
+			  property = svnResource.getSvnProperty("subclipse:tags"); //$NON-NLS-1$
+			  if (property != null && property.getValue() != null) return true;
+		  }
+	  } catch (SVNException e) {}
+	  return false;
+  }
+  
+  private boolean tagsPropertySet(ISVNRemoteResource resource) {
+		try {
+			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
+			ISVNProperty property = null;
+			property = client.propertyGet(resource.getUrl(), "subclipse:tags"); //$NON-NLS-1$
+			if (property != null && property.getValue() != null) return true;
+		} catch (Exception e) {}
+		return false;
   }
 
   public void createControl(Composite parent) {
@@ -407,6 +446,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	}
     this.historyTableProvider = new HistoryTableProvider();
     historyTableProvider.setIncludeMergeRevisions(store.getBoolean(ISVNUIConstants.PREF_INCLUDE_MERGED_REVISIONS));
+    historyTableProvider.setIncludeTags(includeTags);
     this.tableHistoryViewer = historyTableProvider.createTable(tableParent);
     if (redraw) {
     	tableParent.layout(true);

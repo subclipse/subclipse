@@ -54,7 +54,8 @@ public class HistoryTableProvider {
 	private TableViewer viewer;
 	private Font currentRevisionFont;
 	
-	private boolean includeMergeRevisions = true;;
+	private boolean includeMergeRevisions = true;
+	private boolean includeTags = true;
 		
 	/**
 	 * Constructor for HistoryTableProvider.
@@ -83,6 +84,7 @@ public class HistoryTableProvider {
 			if (entry == null) return ""; //$NON-NLS-1$
 			int index = columnIndex;
 			if (columnIndex > 0 && !includeMergeRevisions) index++;
+			if (index > 1 && !includeTags) index++;
 			switch (index) {
 				case COL_REVISION:
 					String revision = entry.getRevision().toString();
@@ -199,6 +201,7 @@ public class HistoryTableProvider {
 		int compareColumnValue(int columnNumber, ILogEntry e1, ILogEntry e2) {
 			int column = columnNumber;
 			if (column > 0 && !includeMergeRevisions) column++;
+			if (column > 1 && !includeTags) column++;
 			switch (column) {
 				case COL_REVISION: /* revision */
                     return (e1.getRevision().getNumber()<e2.getRevision().getNumber() ? -1 : (e1.getRevision()==e2.getRevision() ? 0 : 1));
@@ -316,11 +319,13 @@ public class HistoryTableProvider {
 		}
 		
 		// tags
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText(Policy.bind("HistoryView.tags")); //$NON-NLS-1$
-		col.addSelectionListener(headerListener);
-		layout.addColumnData(new ColumnWeightData(30, true));
+		if (includeTags) {
+			col = new TableColumn(table, SWT.NONE);
+			col.setResizable(true);
+			col.setText(Policy.bind("HistoryView.tags")); //$NON-NLS-1$
+			col.addSelectionListener(headerListener);
+			layout.addColumnData(new ColumnWeightData(30, true));
+		}
 	
 		// creation date
 		col = new TableColumn(table, SWT.NONE);
@@ -413,6 +418,14 @@ public class HistoryTableProvider {
 
 	public void setIncludeMergeRevisions(boolean includeMergeRevisions) {
 		this.includeMergeRevisions = includeMergeRevisions;
+	}
+
+	public void setIncludeTags(boolean includeTags) {
+		this.includeTags = includeTags;
+	}
+
+	public boolean isIncludeTags() {
+		return includeTags;
 	}
 
 }
