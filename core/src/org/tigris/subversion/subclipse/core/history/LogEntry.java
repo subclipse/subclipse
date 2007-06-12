@@ -258,6 +258,31 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	public void setTags(Alias[] tags) {
 		this.tags = tags;
 	}
+	
+	public long getNumberOfChildren() {
+		return logMessage.getNumberOfChildren();
+	}
+	
+	public ILogEntry[] getChildMessages() {
+		ISVNLogMessage[] childMessages = logMessage.getChildMessages();
+		if (childMessages == null) return null;
+		ILogEntry[] childEntries = new ILogEntry[childMessages.length];
+		for (int i = 0; i < childMessages.length; i++) {
+			childEntries[i] = new LogEntry(childMessages[i], resource, remoteResource, null);
+		}
+		return childEntries;
+	}
+	
+	public String getMergedRevisionsAsString() {
+		ILogEntry[] childMessages = getChildMessages();
+		if (childMessages == null || childMessages.length == 0) return "";
+		StringBuffer mergedRevisions = new StringBuffer();
+		for (int i = 0; i < childMessages.length; i++) {
+			if (i > 0) mergedRevisions.append(", ");
+			mergedRevisions.append(childMessages[i].getRevision().getNumber());
+		}
+		return mergedRevisions.toString();
+	}
 
 }
 

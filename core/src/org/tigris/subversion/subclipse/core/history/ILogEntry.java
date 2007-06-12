@@ -72,5 +72,27 @@ public interface ILogEntry extends IAdaptable {
      */
     public void setTags(Alias[] tags);
     
+    /**
+     * Returns the number of child log messages.  When merge-sensitive
+     * log option was specified.
+     * @return the number of revisions merged by this commit
+     */
+
+    public long getNumberOfChildren();
+    
+    /**
+     * Returns the child log messages.  When merge-sensitive
+     * log option was specified.
+     * @return the revisions merged by this commit
+     */
+    public ILogEntry[] getChildMessages(); 
+    
+    /**
+     * Returns the merged revisions as a String
+     * when merge-sensitive log option was specified.
+     * @return the revisions merged by this commit in String form.
+     */
+    public String getMergedRevisionsAsString();    
+    
 }
 
