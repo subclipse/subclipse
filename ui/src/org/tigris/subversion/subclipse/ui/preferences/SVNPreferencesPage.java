@@ -59,6 +59,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button fetchChangePathOnDemand;
     private Button showTagsInRemoteHistory;
     private Button showOutOfDateFolders;
+    private Button useJavaHLCommitHack;
     private Button showUnadded;
     private Button selectUnadded;
     private Button removeOnReplace;
@@ -164,6 +165,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		showTagsInRemoteHistory = createCheckBox(composite, Policy.bind("SVNPreferencePage.showTags")); //$NON-NLS-1$
 		
 		showOutOfDateFolders = createCheckBox(composite, Policy.bind("SVNPreferencePage.showOutOfDateFolders")); //$NON-NLS-1$
+		
+		useJavaHLCommitHack = createCheckBox(composite, Policy.bind("SVNPreferencePage.useJavaHLCommitHack")); //$NON-NLS-1$
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
 		createLabel(composite, Policy.bind("SVNPreferencePage.logEntriesToFetch"), 1); //$NON-NLS-1$
@@ -270,7 +273,9 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		showTagsInRemoteHistory.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE));
 		
 		showOutOfDateFolders.setSelection(SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS));
-		
+
+		useJavaHLCommitHack.setSelection(store.getBoolean(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK));
+
 		showUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT));
 		
 		selectUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT));
@@ -335,6 +340,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		}
 		
 		store.setValue(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT, showUnadded.getSelection());
+
+		store.setValue(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK, useJavaHLCommitHack.getSelection());
 		
         // save select unadded resources on commit pref
 		store.setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, selectUnadded.getSelection());

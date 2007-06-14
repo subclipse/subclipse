@@ -129,6 +129,7 @@ public interface ISVNUIConstants {
 	public final String PREF_LOG_ENTRIES_TO_FETCH = "pref_log_entries_to_fetch"; //$NON-NLS-1$
 	public final String PREF_STOP_ON_COPY = "pref_stop_on_copy"; //$NON-NLS-1$
 	public final String PREF_INCLUDE_MERGED_REVISIONS = "include_merged_revisions"; //$NON-NLS-1$
+	public final String PREF_USE_JAVAHL_COMMIT_HACK = "pref_use_javahl_commit_hack"; //$NON-NLS-1$
 
 	public final String PREF_PROMPT_ON_MIXED_TAGS = "pref_prompt_on_mixed_tags"; //$NON-NLS-1$
 
