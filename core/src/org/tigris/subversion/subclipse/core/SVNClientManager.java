@@ -11,10 +11,12 @@
 package org.tigris.subversion.subclipse.core;
 
 import java.io.File;
+import java.util.HashMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.clientadapter.Activator;
+import org.tigris.subversion.subclipse.core.client.NotificationListener;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
@@ -27,6 +29,7 @@ public class SVNClientManager {
     private String svnClientInterface;  
     private File configDir = null;
     private boolean fetchChangePathOnDemand = true;
+    private HashMap clients = new HashMap();
     
     public void startup(IProgressMonitor monitor) throws CoreException {
     }
@@ -72,9 +75,10 @@ public class SVNClientManager {
      * @throws SVNClientException
      */
     public ISVNClientAdapter createSVNClient() throws SVNException {
-    	ISVNClientAdapter svnClient = Activator.getDefault().getClientAdapter(svnClientInterface);
-    	if (svnClient == null)
-    		svnClient = Activator.getDefault().getAnyClientAdapter();
+    	ISVNClientAdapter svnClient = this.getAdapter(svnClientInterface);
+    	if (svnClient == null) {
+    		svnClient = this.getAdapter(null);
+    	}
     	if (svnClient == null)
     		throw new SVNException("No client adapters available.");
     	if (configDir != null) {
@@ -86,8 +90,26 @@ public class SVNClientManager {
     	} 
     	if (SVNProviderPlugin.getPlugin().getSvnPromptUserPassword() != null)
     	    svnClient.addPasswordCallback(SVNProviderPlugin.getPlugin().getSvnPromptUserPassword());
+    	// Remove our listener from previous usage
+    	svnClient.removeNotifyListener(NotificationListener.getInstance());
     	return svnClient;
-    }    
+    }
+    
+    private ISVNClientAdapter getAdapter(String key) {
+    	ISVNClientAdapter client = null;
+    	if (key == null) {
+    		key = "default";
+     	}
+    	client = (ISVNClientAdapter) clients.get(key);
+    	if (client == null) {
+    		if (key.equals("default"))
+    	   		client = Activator.getDefault().getAnyClientAdapter();
+    		else
+    			client = Activator.getDefault().getClientAdapter(svnClientInterface);
+    		clients.put(key, client);
+    	}
+    	return client;
+    }
 
 	/**
 	 * @return Returns the fetchChangePathOnDemand.
