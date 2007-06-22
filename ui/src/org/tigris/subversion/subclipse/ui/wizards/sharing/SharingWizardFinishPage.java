@@ -30,12 +30,14 @@ import org.tigris.subversion.subclipse.ui.wizards.SVNWizardPage;
  * The finish page of the sharing wizard
  */
 public class SharingWizardFinishPage extends SVNWizardPage {
+	private ISVNRepositoryLocationProvider repositoryLocationProvider;
 
 	private CommitCommentArea commitCommentArea;
 	private CommentProperties commentProperties;
 	
-	public SharingWizardFinishPage(String pageName, String title, ImageDescriptor titleImage) {
+	public SharingWizardFinishPage(String pageName, String title, ImageDescriptor titleImage, ISVNRepositoryLocationProvider repositoryLocationProvider) {
 		super(pageName, title, titleImage);
+		this.repositoryLocationProvider = repositoryLocationProvider;
 	}
 
 	/*
@@ -50,8 +52,7 @@ public class SharingWizardFinishPage extends SVNWizardPage {
 		GridData data = new GridData();
 		data.widthHint = 350;
 		label.setLayoutData(data);
-		SharingWizard wizard = (SharingWizard)getWizard();
-		IProject project = wizard.getProject();
+		IProject project = repositoryLocationProvider.getProject();
         try {
             commentProperties = CommentProperties.getCommentProperties(project);
         } catch (SVNException e) {}

@@ -99,10 +99,9 @@ public class DirectorySelectionPage extends SVNWizardPage {
 		browseButton.setEnabled(false);
 		browseButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent se) {
-                SharingWizard wizard = (SharingWizard)getWizard();
                 try {
-                   ISVNRepositoryLocation repositoryLocation = wizard.getLocation();
-                   ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), wizard.getProject());
+                   ISVNRepositoryLocation repositoryLocation = repositoryLocationProvider.getLocation();
+                   ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), repositoryLocationProvider.getProject());
                    dialog.setRepositoryLocation(repositoryLocation);
                    if (dialog.open() == ChooseUrlDialog.OK && dialog.getUrl() != null) {
                        text.setText(dialog.getUrl().toString().substring(repositoryLocation.getLocation().length() + 1) + "/New Folder");

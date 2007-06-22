@@ -154,7 +154,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 			directoryPage = new DirectorySelectionPage("modulePage", Policy.bind("SharingWizard.enterModuleName"), sharingImage, repositoryLocationProvider); //$NON-NLS-1$ //$NON-NLS-2$
 			directoryPage.setDescription(Policy.bind("SharingWizard.enterModuleNameDescription")); //$NON-NLS-1$
 			addPage(directoryPage);
-			finishPage = new SharingWizardFinishPage("finishPage", Policy.bind("SharingWizard.readyToFinish"), sharingImage); //$NON-NLS-1$ //$NON-NLS-2$
+			finishPage = new SharingWizardFinishPage("finishPage", Policy.bind("SharingWizard.readyToFinish"), sharingImage, repositoryLocationProvider); //$NON-NLS-1$ //$NON-NLS-2$
 			finishPage.setDescription(Policy.bind("SharingWizard.readyToFinishDescription")); //$NON-NLS-1$
 			addPage(finishPage);
 		}
