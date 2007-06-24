@@ -127,6 +127,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_FOLDER, baseURL);
 //        createImageDescriptor(ISVNUIConstants.IMG_FILEMISSING_PENDING,baseURL);
 
+        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_TABLE_MODE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_MODE, baseURL);
         

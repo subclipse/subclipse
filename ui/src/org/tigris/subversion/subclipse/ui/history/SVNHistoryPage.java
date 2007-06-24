@@ -392,10 +392,14 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     this.svnHistoryPageControl.setLayoutData(new GridData(GridData.FILL_BOTH));
 
     this.toggleAffectedPathsModeActions = new ToggleAffectedPathsOptionAction[] {
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsTableLayout", 
+            ISVNUIConstants.IMG_AFFECTED_PATHS_TABLE_MODE, 
+            ISVNUIConstants.PREF_AFFECTED_PATHS_MODE, 
+            ISVNUIConstants.MODE_FLAT),
         new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsFlatLayout", 
             ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE, 
             ISVNUIConstants.PREF_AFFECTED_PATHS_MODE, 
-            ISVNUIConstants.MODE_FLAT),
+            ISVNUIConstants.MODE_FLAT2),
         new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsCompressedLayout", 
             ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_MODE, 
             ISVNUIConstants.PREF_AFFECTED_PATHS_MODE, 
@@ -604,6 +608,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     switch(mode) {
       case ISVNUIConstants.MODE_COMPRESSED:
         changePathsViewer = new ChangePathsTreeViewer(innerSashForm, this);
+        break;
+      case ISVNUIConstants.MODE_FLAT2:  
+        changePathsViewer = new ChangePathsFlatViewer(innerSashForm, this);
         break;
       default:
         changePathsViewer = new ChangePathsTableProvider(innerSashForm, this);
@@ -832,11 +839,13 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     actionBarsMenu.add(toggleShowComments);
     actionBarsMenu.add(toggleShowAffectedPathsAction);
     actionBarsMenu.add(new Separator());
-    actionBarsMenu.add(toggleAffectedPathsModeActions[0]);
-    actionBarsMenu.add(toggleAffectedPathsModeActions[1]);
+    for (int i = 0; i < toggleAffectedPathsModeActions.length; i++) {
+      actionBarsMenu.add(toggleAffectedPathsModeActions[i]);
+    }
     actionBarsMenu.add(new Separator());
-    actionBarsMenu.add(toggleAffectedPathsLayoutActions[0]);
-    actionBarsMenu.add(toggleAffectedPathsLayoutActions[1]);
+    for (int i = 0; i < toggleAffectedPathsLayoutActions.length; i++) {
+      actionBarsMenu.add(toggleAffectedPathsLayoutActions[i]);
+    }
     
     // Create the local tool bar
     IToolBarManager tbm = actionBars.getToolBarManager();
