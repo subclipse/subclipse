@@ -436,9 +436,13 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		tableParent = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
 		tableParent.setLayout(layout);
-		tableParent.setLayoutData(
-		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		GridData gridData = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		gridData.horizontalIndent = 0;
+		gridData.verticalIndent = 0;
+    tableParent.setLayoutData(gridData);
 	} else {
 		Control[] children = tableParent.getChildren();
 		for (int i = 0; i < children.length; i++) {
@@ -755,8 +759,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
   private void contributeActions() {
-    SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
-
     toggleShowComments = new Action(Policy.bind("HistoryView.showComments"), //$NON-NLS-1$
         SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_COMMENTS)) {
       public void run() {
@@ -905,7 +907,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       svnHistoryPageControl.setMaximizedControl(null);
       innerSashForm.setMaximizedControl(changePathsViewer.getControl());
     } else {
-      svnHistoryPageControl.setMaximizedControl(tableHistoryViewer.getControl());
+      svnHistoryPageControl.setMaximizedControl(tableParent);
     }
     changePathsViewer.refresh();
     textViewer.getTextWidget().setWordWrap(wrapCommentsText);

@@ -267,6 +267,8 @@ public class HistoryTableProvider {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		GridData data = new GridData(GridData.FILL_BOTH);
+		data.horizontalIndent = 0;
+		data.verticalIndent = 0;
 		table.setLayoutData(data);
 	
 		TableLayout layout = new TableLayout();
