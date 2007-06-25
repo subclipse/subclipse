@@ -198,6 +198,11 @@ public class SVNWorkspaceRoot {
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (int i = 0; i < projects.length; i++) {
 			IProject project = projects[i];
+			
+			// Map only to projects, which are managed by subclipse.
+			if (RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId()) == null)
+				continue;
+
 			IPath projectLocation = project.getLocation();
 			if (projectLocation != null && projectLocation.isPrefixOf(location)) {
 				int segmentsToRemove = projectLocation.segmentCount();
@@ -524,6 +529,6 @@ public class SVNWorkspaceRoot {
 
 		return root.getFolder(resourcePath);
     }
-
+    
 }
 

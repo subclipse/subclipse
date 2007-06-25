@@ -273,6 +273,11 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 		if (!isProject)
 			return; // Nothing more to do, all remaining operations are on projects
 
+		// Examine whether this project is a nested project. If yes, we don't
+		// share it automatically.
+		if (isNestedProject(project))
+			return;
+		
 		if (isSvnProject) {
 			// It's a project and has toplevel .svn directory, lets share it!
 			getAutoShareJob().share(project);
@@ -294,5 +299,22 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 		return SVNWorkspaceSubscriber.getInstance();
 	}
 	
-	
+	private boolean isNestedProject(IProject testProject)
+	{
+		IPath testProjectLocation = testProject.getLocation();
+
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (int i = 0; i < projects.length; i++) {
+			IProject project = projects[i];
+
+			if (project.equals(testProject))
+				continue;
+
+			IPath projectLocation = project.getLocation();
+			if ((projectLocation != null) && projectLocation.isPrefixOf(testProjectLocation))
+				return true;
+		}
+
+		return false;
+	}
 }
