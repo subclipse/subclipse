@@ -59,17 +59,17 @@ abstract public class SVNAction extends ReplaceableIconAction {
 			// Handle the exception and any accumulated errors
 			handle(e);
 		} catch (InterruptedException e) {
-			// Show any problems that have occured so far
+			// Show any problems that have occurred so far
 			handle(null);
 		}
 	}
 
 	/**
 	 * This method gets invoked before the <code>SVNAction#execute(IAction)</code>
-	 * method. It can preform any prechecking and initialization required before 
-	 * the action is executed. Sunclasses may override but must invoke this
+	 * method. It can preform any pre-checking and initialization required before 
+	 * the action is executed. Subclasses may override but must invoke this
 	 * inherited method to ensure proper initialization of this superclass is performed.
-	 * These included prepartion to accumulate IStatus and checking for dirty editors.
+	 * These included preparation to accumulate IStatus and checking for dirty editors.
 	 */
 	protected boolean beginExecution(IAction action) {
 		accumulatedStatus.clear();
@@ -88,7 +88,7 @@ abstract public class SVNAction extends ReplaceableIconAction {
 
 	/**
 	 * This method gets invoked after <code>SVNAction#execute(IAction)</code>
-	 * if no exception occured. Sunclasses may override but should invoke this
+	 * if no exception occurred. Subclasses may override but should invoke this
 	 * inherited method to ensure proper handling oy any accumulated IStatus.
 	 */
 	protected void endExecution() {
@@ -116,15 +116,15 @@ abstract public class SVNAction extends ReplaceableIconAction {
 	
 	/**
 	 * Return the title to be displayed on error dialogs.
-	 * Sunclasses should override to present a custon message.
+	 * Subclasses should override to present a custom message.
 	 */
 	protected String getErrorTitle() {
 		return Policy.bind("SVNAction.errorTitle"); //$NON-NLS-1$
 	}
 	
 	/**
-	 * Return the title to be displayed on error dialogs when warnigns occur.
-	 * Sunclasses should override to present a custon message.
+	 * Return the title to be displayed on error dialogs when warnings occur.
+	 * Subclasses should override to present a custom message.
 	 */
 	protected String getWarningTitle() {
 		return Policy.bind("SVNAction.warningTitle"); //$NON-NLS-1$
@@ -132,8 +132,8 @@ abstract public class SVNAction extends ReplaceableIconAction {
 
 	/**
 	 * Return the message to be used for the parent MultiStatus when 
-	 * mulitple errors occur during an action.
-	 * Sunclasses should override to present a custon message.
+	 * multiple errors occur during an action.
+	 * Subclasses should override to present a custom message.
 	 */
 	protected String getMultiStatusMessage() {
 		return Policy.bind("SVNAction.multipleProblemsMessage"); //$NON-NLS-1$
@@ -143,7 +143,7 @@ abstract public class SVNAction extends ReplaceableIconAction {
 	 * Return the status to be displayed in an error dialog for the given list
 	 * of non-OK status.
 	 * 
-	 * This method can be overridden bu subclasses. Returning an OK status will 
+	 * This method can be overridden by subclasses. Returning an OK status will 
 	 * prevent the error dialog from being shown.
 	 */
 	protected IStatus getStatusToDisplay(IStatus[] problems) {
@@ -321,7 +321,7 @@ abstract public class SVNAction extends ReplaceableIconAction {
 	 */
 	protected ISVNRemoteFile[] getSelectedRemoteFiles() {
 		ArrayList resources = null;
-		if (!selection.isEmpty()) {
+		if (selection != null && !selection.isEmpty()) {
 			resources = new ArrayList();
 			Iterator elements = selection.iterator();
 			while (elements.hasNext()) {
@@ -353,7 +353,7 @@ abstract public class SVNAction extends ReplaceableIconAction {
 	 */
 	protected ISVNRemoteResource[] getSelectedRemoteResources() {
 		ArrayList resources = null;
-		if (!selection.isEmpty()) {
+		if (selection != null && !selection.isEmpty()) {
 			resources = new ArrayList();
 			Iterator elements = selection.iterator();
 			while (elements.hasNext()) {

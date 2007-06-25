@@ -23,21 +23,26 @@ import org.tigris.subversion.subclipse.ui.Policy;
 /**
  * Show history for selected local resource
  */
-public class ShowResourceInHistoryAction extends WorkspaceAction {
+public class ShowResourceInHistoryAction extends WorkbenchWindowAction {
 	/*
 	 * @see IActionDelegate#run(IAction)
 	 */
 	public void execute(IAction action) throws InterruptedException, InvocationTargetException {
-		run(new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) {
-				IResource[] resources = getSelectedResources();
-				if (resources.length != 1) return;
-				IHistoryView view = (IHistoryView) showView(ISVNUIConstants.HISTORY_VIEW_ID);
-				if (view != null) {
-					view.showHistoryFor(resources[0]);
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+			run(new IRunnableWithProgress() {
+				public void run(IProgressMonitor monitor) {
+					IResource[] resources = getSelectedResources();
+					if (resources.length != 1) return;
+					IHistoryView view = (IHistoryView) showView(ISVNUIConstants.HISTORY_VIEW_ID);
+					if (view != null) {
+						view.showHistoryFor(resources[0]);
+					}
 				}
-			}
-		}, false /* cancelable */, PROGRESS_BUSYCURSOR);
+			}, false /* cancelable */, PROGRESS_BUSYCURSOR);
+        }
 	}
 
 	/**

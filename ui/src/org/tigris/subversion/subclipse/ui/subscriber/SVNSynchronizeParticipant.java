@@ -183,12 +183,16 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 			
 			ShowHistorySynchronizeAction historyAction = new ShowHistorySynchronizeAction(Policy.bind("SyncAction.history"), configuration); //$NON-NLS-1$
 			historyAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY));			
+			historyAction.setId("org.tigris.subversion.subclipse.ui.syncViewShowHistory");
+			historyAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.showhistory");
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					historyAction);	
 			ShowPropertiesSynchronizeAction propertiesAction = new ShowPropertiesSynchronizeAction(Policy.bind("SyncAction.properties"), configuration); //$NON-NLS-1$
 			propertiesAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWPROPERTY));			
+			propertiesAction.setId("org.tigris.subversion.subclipse.ui.syncViewShowSvnProperties");
+			propertiesAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.showsvnproperties");
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,

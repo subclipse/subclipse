@@ -83,7 +83,7 @@ public abstract class TeamAction extends ActionDelegate implements IObjectAction
 	 */
 	public static Object[] getSelectedAdaptables(ISelection selection, Class c) {
 		ArrayList result = null;
-		if (!selection.isEmpty()) {
+		if (selection != null && !selection.isEmpty()) {
 			result = new ArrayList();
 			Iterator elements = ((IStructuredSelection) selection).iterator();
 			while (elements.hasNext()) {

@@ -21,15 +21,21 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.operations.ShowAnnotationOperation;
 
-public class ShowAnnotationAction extends WorkspaceAction {
+public class ShowAnnotationAction extends WorkbenchWindowAction {
 
 	/**
 	 * Action to open a SVN Annotate View
 	 */
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
-		// Get the selected resource.
-		final ISVNRemoteFile cvsResource = getSingleSelectedSVNRemoteFile();
-		execute(cvsResource);
+		// try to enable action if not enabled, for keyboard activated actions
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+        	// Get the selected resource.
+			final ISVNRemoteFile cvsResource = getSingleSelectedSVNRemoteFile();
+			execute(cvsResource);
+        }
 	}
 
 	public void execute(final ISVNRemoteFile svnResource) throws InvocationTargetException, InterruptedException {

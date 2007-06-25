@@ -21,22 +21,27 @@ import org.tigris.subversion.subclipse.ui.operations.MergeOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class MergeAction extends WorkspaceAction {
+public class MergeAction extends WorkbenchWindowAction {
 
     protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
-        IResource[] resources = getSelectedResources(); 
-        for (int i = 0; i < resources.length; i++) {
-            MergeDialog dialog = new MergeDialog(getShell(), resources[i]);
-            if (dialog.open() == MergeDialog.CANCEL) break;
-            SVNUrl svnUrl1 = dialog.getFromUrl();
-            SVNRevision svnRevision1 = dialog.getFromRevision();
-            SVNUrl svnUrl2 = dialog.getToUrl();
-            SVNRevision svnRevision2 = dialog.getToRevision();  
-            MergeOperation mergeOperation = new MergeOperation(getTargetPart(), getSelectedResources(), svnUrl1, svnRevision1, svnUrl2, svnRevision2);
-            mergeOperation.setForce(dialog.isForce());
-            mergeOperation.setIgnoreAncestry(dialog.isIgnoreAncestry());
-            mergeOperation.run();
-        }   
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+	        IResource[] resources = getSelectedResources(); 
+	        for (int i = 0; i < resources.length; i++) {
+	            MergeDialog dialog = new MergeDialog(getShell(), resources[i]);
+	            if (dialog.open() == MergeDialog.CANCEL) break;
+	            SVNUrl svnUrl1 = dialog.getFromUrl();
+	            SVNRevision svnRevision1 = dialog.getFromRevision();
+	            SVNUrl svnUrl2 = dialog.getToUrl();
+	            SVNRevision svnRevision2 = dialog.getToRevision();  
+	            MergeOperation mergeOperation = new MergeOperation(getTargetPart(), getSelectedResources(), svnUrl1, svnRevision1, svnUrl2, svnRevision2);
+	            mergeOperation.setForce(dialog.isForce());
+	            mergeOperation.setIgnoreAncestry(dialog.isIgnoreAncestry());
+	            mergeOperation.run();
+	        }   
+        }
     }
     
 	/*

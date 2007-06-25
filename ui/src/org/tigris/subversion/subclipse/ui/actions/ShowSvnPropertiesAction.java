@@ -27,19 +27,25 @@ import org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView;
  * 
  * 
  */
-public class ShowSvnPropertiesAction extends WorkspaceAction {
+public class ShowSvnPropertiesAction extends WorkbenchWindowAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
-        IResource resource = (IResource)getSelectedResources()[0];
-		final ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-        try {        
-		    SvnPropertiesView view = (SvnPropertiesView)showView(SvnPropertiesView.VIEW_ID);
-		    if (view != null)
-		        view.showSvnProperties(svnResource);
-		} catch (SVNException e) {
-            throw new InvocationTargetException(e);
-		}
-
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+        	if (getSelectedResources() != null && getSelectedResources().length > 0) {
+		        IResource resource = (IResource)getSelectedResources()[0];
+				final ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+		        try {        
+				    SvnPropertiesView view = (SvnPropertiesView)showView(SvnPropertiesView.VIEW_ID);
+				    if (view != null)
+				        view.showSvnProperties(svnResource);
+				} catch (SVNException e) {
+		            throw new InvocationTargetException(e);
+				}
+        	}
+        }
 	}
 
 	protected boolean isEnabledForAddedResources() {

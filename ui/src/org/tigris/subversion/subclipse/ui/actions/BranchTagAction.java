@@ -20,22 +20,27 @@ import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
 import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class BranchTagAction extends WorkspaceAction {
+public class BranchTagAction extends WorkbenchWindowAction {
 
     protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
-        IResource[] resources = getSelectedResources();
-        for (int i = 0; i < resources.length; i++) {
-            BranchTagDialog dialog = new BranchTagDialog(getShell(), resources[i]);
-            if (dialog.open() == BranchTagDialog.CANCEL) break;
-            SVNUrl sourceUrl = dialog.getUrl();
-            SVNUrl destinationUrl = dialog.getToUrl();
-            String message = dialog.getComment();
-            boolean createOnServer = dialog.isCreateOnServer();
-            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, dialog.getRevision(), message);
-            branchTagOperation.setNewAlias(dialog.getNewAlias());
-            branchTagOperation.switchAfterTagBranchOperation(dialog.switchAfterTagBranch());
-            branchTagOperation.run();
-        }          
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+	        IResource[] resources = getSelectedResources();
+	        for (int i = 0; i < resources.length; i++) {
+	            BranchTagDialog dialog = new BranchTagDialog(getShell(), resources[i]);
+	            if (dialog.open() == BranchTagDialog.CANCEL) break;
+	            SVNUrl sourceUrl = dialog.getUrl();
+	            SVNUrl destinationUrl = dialog.getToUrl();
+	            String message = dialog.getComment();
+	            boolean createOnServer = dialog.isCreateOnServer();
+	            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, dialog.getRevision(), message);
+	            branchTagOperation.setNewAlias(dialog.getNewAlias());
+	            branchTagOperation.switchAfterTagBranchOperation(dialog.switchAfterTagBranch());
+	            branchTagOperation.run();
+	        }
+        }
     }
     
 	/*

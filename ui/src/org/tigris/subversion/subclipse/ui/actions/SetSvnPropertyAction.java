@@ -26,28 +26,35 @@ import org.tigris.subversion.subclipse.ui.svnproperties.SetSvnPropertyDialog;
 /**
  * Set a new svn property on a given resource 
  */
-public class SetSvnPropertyAction extends WorkspaceAction {
+public class SetSvnPropertyAction extends WorkbenchWindowAction {
 	
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
-		run(new WorkspaceModifyOperation() {
-			public void execute(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
-				IResource resource = getSelectedResources()[0];
-				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-				SetSvnPropertyDialog dialog = new SetSvnPropertyDialog(getShell(),svnResource);
-				if (dialog.open() != SetSvnPropertyDialog.OK) return;
-			
-				try {
-					if (dialog.getPropertyValue() != null) {
-						svnResource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyValue(),dialog.getRecurse());
-					} else {
-						svnResource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyFile(),dialog.getRecurse());
-					}
-				
-				} catch (SVNException e) {
-					throw new InvocationTargetException(e);
-				}
-			} 
-		}, false /* cancelable */, PROGRESS_BUSYCURSOR);
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+        	if(getSelectedResources().length > 0) {
+				run(new WorkspaceModifyOperation() {
+					public void execute(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
+						IResource resource = getSelectedResources()[0];
+						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+						SetSvnPropertyDialog dialog = new SetSvnPropertyDialog(getShell(),svnResource);
+						if (dialog.open() != SetSvnPropertyDialog.OK) return;
+					
+						try {
+							if (dialog.getPropertyValue() != null) {
+								svnResource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyValue(),dialog.getRecurse());
+							} else {
+								svnResource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyFile(),dialog.getRecurse());
+							}
+						
+						} catch (SVNException e) {
+							throw new InvocationTargetException(e);
+						}
+					} 
+				}, false /* cancelable */, PROGRESS_BUSYCURSOR);
+        	}
+        }
 	}
 
 	/*

@@ -461,6 +461,7 @@
                class="org.tigris.subversion.subclipse.ui.actions.SetSvnPropertyAction"
                tooltip="%SetSvnProperty.tooltip"
                menubarPath="team.main/group3"
+			   definitionId="org.tigris.subversion.subclipse.ui.setsvnproperty"
                id="org.tigris.subversion.subclipse.ui.SetSvnProperty">
          </action>
          <action
@@ -469,6 +470,7 @@
                class="org.tigris.subversion.subclipse.ui.actions.ShowSvnPropertiesAction"
                tooltip="%ShowSvnPropertiesAction.tooltip"
                menubarPath="team.main/group3"
+			   definitionId="org.tigris.subversion.subclipse.ui.showsvnproperties"
                id="org.tigris.subversion.subclipse.ui.showSvnProperties">
          </action>
          <action
@@ -494,6 +496,7 @@
                helpContextId="org.tigris.subversion.subclipse.ui.show_in_history_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.ShowResourceInHistoryAction"
                tooltip="%ShowHistoryAction.tooltip"
+			   definitionId="org.tigris.subversion.subclipse.ui.showresourceinhistoryaction"
                menubarPath="team.main/group2"
                id="org.tigris.subversion.subclipse.ui.ShowResourceInHistoryAction">
          </action>
@@ -504,6 +507,7 @@
                tooltip="%SwitchAction.tooltip"
                menubarPath="team.main/group2"
                enablesFor="1"
+			   definitionId="org.tigris.subversion.subclipse.ui.switch"
                id="org.tigris.subversion.subclipse.ui.switch">
          </action>
          <action
@@ -512,6 +516,7 @@
                class="org.tigris.subversion.subclipse.ui.actions.MergeAction"
                tooltip="%MergeAction.tooltip"
                menubarPath="team.main/group2"
+			   definitionId="org.tigris.subversion.subclipse.ui.merge"
                enablesFor="1"
                id="org.tigris.subversion.subclipse.ui.merge">
          </action>
@@ -522,6 +527,7 @@
                tooltip="%BranchTagAction.tooltip"
                menubarPath="team.main/group2"
                enablesFor="1"
+			   definitionId="org.tigris.subversion.subclipse.ui.branchtag"
                id="org.tigris.subversion.subclipse.ui.branchtag">
          </action>
          <action
@@ -630,6 +636,7 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
                class="org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction"
                tooltip="%ShowAnnotationAction.tooltip"
                menubarPath="team.main/group2"
+			   definitionId="org.tigris.subversion.subclipse.ui.showannotation"
                id="org.tigris.subversion.subclipse.ui.showAnnotation">
          </action>
       </objectContribution>
@@ -1023,88 +1030,163 @@ For example:
    </extension>
 	  
 	<extension point="org.eclipse.ui.actionSets">
-		<actionSet label="%SVNActionSet.label" visible="false"
+		<actionSet
+			label="%SVNActionSet.label"
+			visible="false"
 			id="org.tigris.subversion.subclipse.actionSet">
-			<menu label="%SVNGroupMenu.label"
-			id="org.tigris.subversion.subclipse.svnmenu"
-			path="window">
+			<menu
+				label="%SVNGroupMenu.label"
+				id="org.tigris.subversion.subclipse.svnmenu"
+				path="window">
 				<separator name="SVNGroupMenu"></separator>
 			</menu>
-         	<action
+			<action
 				definitionId="org.tigris.subversion.subclipse.ui.checkout"
-               	label="%CheckoutWizard.label"
-		   		icon="icons/full/wizards/newconnect_wiz.gif"
-               	tooltip="%CheckoutWizard.tooltip"
-               	class="org.tigris.subversion.subclipse.ui.actions.CheckoutWizardAction"
-			   	toolbarPath="SVNGroupMenu"
-               	id="org.tigris.subversion.subclipse.ui.checkout">
+				label="%CheckoutWizard.label"
+				icon="icons/full/wizards/newconnect_wiz.gif"
+				tooltip="%CheckoutWizard.tooltip"
+				class="org.tigris.subversion.subclipse.ui.actions.CheckoutWizardAction"
+				toolbarPath="SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.checkout">
 			</action>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.copy"
 				label="%CopyAction.label"
-                icon="icons/full/empty/empty.gif"
+				icon="icons/full/empty/empty.gif"
 				class="org.tigris.subversion.subclipse.ui.actions.CopyAction"
-				tooltip="%CopyAction.tooltip" 
+				tooltip="%CopyAction.tooltip"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
 				id="org.tigris.subversion.subclipse.ui.copy">
 			</action>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.revert"
 				label="%RevertAction.label"
-                icon="icons/full/empty/empty.gif"
-                helpContextId="org.tigris.subversion.subclipse.ui.team_revert_action_context"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.team_revert_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.RevertAction"
-				tooltip="%RevertAction.tooltip" 
+				tooltip="%RevertAction.tooltip"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
 				id="org.tigris.subversion.subclipse.ui.revert">
 			</action>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.ignore"
 				label="%IgnoreAction.label"
-                icon="icons/full/empty/empty.gif"
-                helpContextId="org.tigris.subversion.subclipse.ui.team_ignore_action_context"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.team_ignore_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.IgnoreAction"
-				tooltip="%IgnoreAction.tooltip" 
+				tooltip="%IgnoreAction.tooltip"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
 				id="org.tigris.subversion.subclipse.ui.ignore">
 			</action>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.add"
 				label="%AddAction.label"
-                icon="icons/full/empty/empty.gif"
-                helpContextId="org.tigris.subversion.subclipse.ui.team_add_action_context"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.team_add_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.AddAction"
-				tooltip="%AddAction.tooltip" 
+				tooltip="%AddAction.tooltip"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
 				id="org.tigris.subversion.subclipse.ui.add">
 			</action>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.update"
-				label="%UpdateAction.label" icon="icons/full/empty/empty.gif"
+				label="%UpdateAction.label"
+				icon="icons/full/empty/empty.gif"
 				class="org.tigris.subversion.subclipse.ui.actions.UpdateAction"
-				tooltip="%UpdateAction.tooltip" 
+				tooltip="%UpdateAction.tooltip"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
 				id="org.tigris.subversion.subclipse.ui.update">
 			</action>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.commit"
-				label="%CommitAction.label" icon="icons/full/empty/empty.gif"
-                allowLabelUpdate="false"
-                retarget="false"
-   				class="org.tigris.subversion.subclipse.ui.actions.CommitAction"
-				tooltip="%CommitAction.tooltip" 
+				label="%CommitAction.label"
+				icon="icons/full/empty/empty.gif"
+				allowLabelUpdate="false"
+				retarget="false"
+				class="org.tigris.subversion.subclipse.ui.actions.CommitAction"
+				tooltip="%CommitAction.tooltip"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
 				id="org.tigris.subversion.subclipse.ui.commit">
 			</action>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.synchronize"
-				label="%SynchronizeAction.label"
+				label="%SynchronizeCommand.label"
 				icon="icons/full/empty/empty.gif"
 				helpContextId="org.tigris.subversion.subclipse.ui.team_synchronize_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.SynchronizeAction"
-				tooltip="%SynchronizeAction.tooltip" 
+				tooltip="%SynchronizeAction.tooltip"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
 				id="org.tigris.subversion.subclipse.ui.synchronize">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.branchtag"
+				label="%BranchTagAction.label"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.team_branchtag_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.BranchTagAction"
+				tooltip="%BranchTagAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.branchtag">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.merge"
+				label="%MergeAction.label"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.team_merge_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.MergeAction"
+				tooltip="%MergeAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.merge">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.switch"
+				label="%SwitchCommand.label"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.team_switch_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.SwitchAction"
+				tooltip="%SwitchAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.switch">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.showresourceinhistoryaction"
+				label="%ShowHistoryAction.label"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.show_in_history_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.ShowResourceInHistoryAction"
+				tooltip="%ShowHistoryAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.showresourceinhistoryaction">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.setsvnproperty"
+				label="%SetSvnProperty.label"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.team_set_svnpropery_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.SetSvnPropertyAction"
+				tooltip="%SetSvnProperty.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.setsvnproperty">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.showsvnproperties"
+				label="%ShowSvnPropertiesAction.label"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.team_show_svn_properties_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.ShowSvnPropertiesAction"
+				tooltip="%ShowSvnPropertiesAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.showsvnproperties">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.showannotation"
+				label="%ShowAnnotationCommand.label"
+				icon="icons/full/empty/empty.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.get_annotate_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction"
+				tooltip="%ShowAnnotationAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu"
+				id="org.tigris.subversion.subclipse.ui.showAnnotation">
 			</action>
 		</actionSet>
 	</extension>
@@ -1168,32 +1250,60 @@ For example:
 			id="org.tigris.subversion.subclipse.ui.checkout" />
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
-			name="%CommitAction.label"
+			name="%CommitCommand.label"
 			id="org.tigris.subversion.subclipse.ui.commit" />
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
-			name="%UpdateAction.label"
+			name="%UpdateCommand.label"
 			id="org.tigris.subversion.subclipse.ui.update" />
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
-			name="%SynchronizeAction.label"
+			name="%SynchronizeCommand.label"
 			id="org.tigris.subversion.subclipse.ui.synchronize" />
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
-			name="%RevertAction.label"
+			name="%RevertCommand.label"
 			id="org.tigris.subversion.subclipse.ui.revert" />
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
-			name="%AddAction.label"
+			name="%AddCommand.label"
 			id="org.tigris.subversion.subclipse.ui.add" />
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
-			name="%IgnoreAction.label"
+			name="%IgnoreCommand.label"
 			id="org.tigris.subversion.subclipse.ui.ignore" />
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
-			name="%CopyAction.label"
+			name="%CopyCommand.label"
 			id="org.tigris.subversion.subclipse.ui.copy" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%ShowHistoryCommand.label"
+			id="org.tigris.subversion.subclipse.ui.showresourceinhistoryaction" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%BranchTagAction.label"
+			id="org.tigris.subversion.subclipse.ui.branchtag" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%MergeCommand.label"
+			id="org.tigris.subversion.subclipse.ui.merge" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%SwitchCommand.label"
+			id="org.tigris.subversion.subclipse.ui.switch" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%SetSvnProperty.label"
+			id="org.tigris.subversion.subclipse.ui.setsvnproperty" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%ShowSvnPropertiesAction.label"
+			id="org.tigris.subversion.subclipse.ui.showsvnproperties" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%ShowAnnotationCommand.label"
+			id="org.tigris.subversion.subclipse.ui.showannotation" />
 	</extension>
 
    <extension
