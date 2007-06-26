@@ -66,13 +66,9 @@ public class ShowAnnotationAction extends WorkbenchWindowAction {
 	 */
 	protected ISVNRemoteFile getSingleSelectedSVNRemoteFile() {
 		// Selected from a SVN Resource Navigator or History
-		if (this.getSelectedRemoteFiles().length > 0) {
+		if (this.getSelectedRemoteFiles().length == 1) {
 			ISVNRemoteFile[] svnResources = this.getSelectedRemoteFiles();
-			if (svnResources.length == 1) {
-				return svnResources[0];
-			}
-		} else {
-			return null;
+			return svnResources[0];
 		}
 
 		// Selected from a Resource Navigator
