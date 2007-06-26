@@ -30,32 +30,39 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.LockDialog;
 
-public class LockAction extends WorkspaceAction {
+public class LockAction extends WorkbenchWindowAction {
 
     protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
-        final IResource[] resources = getSelectedResources();
-        LockDialog dialog = new LockDialog(Display.getCurrent().getActiveShell(), resources);
-        if (dialog.open() == LockDialog.OK) {
-            final String comment = dialog.getComment();
-            final boolean stealLock = dialog.isStealLock();
-            run(new WorkspaceModifyOperation() {
-                protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException {
-                    try {
-    					Hashtable table = getProviderMapping(getSelectedResources());
-    					Set keySet = table.keySet();
-    					Iterator iterator = keySet.iterator();
-    					while (iterator.hasNext()) {
-    					    SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
-    				    	LockResourcesCommand command = new LockResourcesCommand(provider.getSVNWorkspaceRoot(), resources, stealLock, comment);
-    				        command.run(Policy.subMonitorFor(monitor,1000));    					
-    					}
-                    } catch (TeamException e) {
-    					throw new InvocationTargetException(e);
-    				} finally {
-    					monitor.done();
-    				}
-                }              
-            }, true /* cancelable */, PROGRESS_DIALOG);
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+        	if (getSelectedResources() != null && getSelectedResources().length > 0) {
+		        final IResource[] resources = getSelectedResources();
+		        LockDialog dialog = new LockDialog(Display.getCurrent().getActiveShell(), resources);
+		        if (dialog.open() == LockDialog.OK) {
+		            final String comment = dialog.getComment();
+		            final boolean stealLock = dialog.isStealLock();
+		            run(new WorkspaceModifyOperation() {
+		                protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException {
+		                    try {
+		    					Hashtable table = getProviderMapping(getSelectedResources());
+		    					Set keySet = table.keySet();
+		    					Iterator iterator = keySet.iterator();
+		    					while (iterator.hasNext()) {
+		    					    SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
+		    				    	LockResourcesCommand command = new LockResourcesCommand(provider.getSVNWorkspaceRoot(), resources, stealLock, comment);
+		    				        command.run(Policy.subMonitorFor(monitor,1000));    					
+		    					}
+		                    } catch (TeamException e) {
+		    					throw new InvocationTargetException(e);
+		    				} finally {
+		    					monitor.done();
+		    				}
+		                }              
+		            }, true /* cancelable */, PROGRESS_DIALOG);
+		        }
+        	}
         }
     }
     /**

@@ -28,28 +28,35 @@ import org.tigris.subversion.subclipse.core.commands.UnlockResourcesCommand;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 
-public class UnlockAction extends WorkspaceAction {
+public class UnlockAction extends WorkbenchWindowAction {
 
     protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
-        final IResource[] resources = getSelectedResources(); 
-        run(new WorkspaceModifyOperation() {
-            protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException {
-                try {
-					Hashtable table = getProviderMapping(getSelectedResources());
-					Set keySet = table.keySet();
-					Iterator iterator = keySet.iterator();
-					while (iterator.hasNext()) {
-					    SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
-				    	UnlockResourcesCommand command = new UnlockResourcesCommand(provider.getSVNWorkspaceRoot(), resources, false);
-				        command.run(Policy.subMonitorFor(monitor,1000));    					
-					}
-                } catch (TeamException e) {
-					throw new InvocationTargetException(e);
-				} finally {
-					monitor.done();
-				}
-            }              
-        }, true /* cancelable */, PROGRESS_DIALOG);        
+        if (action != null && !action.isEnabled()) { 
+        	action.setEnabled(true);
+        } 
+        else {
+        	if (getSelectedResources() != null && getSelectedResources().length > 0) {
+		        final IResource[] resources = getSelectedResources(); 
+		        run(new WorkspaceModifyOperation() {
+		            protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException {
+		                try {
+							Hashtable table = getProviderMapping(getSelectedResources());
+							Set keySet = table.keySet();
+							Iterator iterator = keySet.iterator();
+							while (iterator.hasNext()) {
+							    SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
+						    	UnlockResourcesCommand command = new UnlockResourcesCommand(provider.getSVNWorkspaceRoot(), resources, false);
+						        command.run(Policy.subMonitorFor(monitor,1000));    					
+							}
+		                } catch (TeamException e) {
+							throw new InvocationTargetException(e);
+						} finally {
+							monitor.done();
+						}
+		            }              
+		        }, true /* cancelable */, PROGRESS_DIALOG);        
+        	}
+        }
     }
 
     /**

@@ -19,7 +19,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ExportOperation;
 
-public class ExportAction extends WorkspaceAction {
+public class ExportAction extends WorkbenchWindowAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.SAVE);
