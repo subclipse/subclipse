@@ -39,7 +39,7 @@ public class ResolveAction extends WorkspaceAction {
      */
     protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
         try {
-            return svnResource.getStatus().isTextConflicted();
+            return svnResource.getStatus().isTextConflicted() || svnResource.getStatus().isPropConflicted();
         } catch (SVNException e) {
             return false;
         }
