@@ -746,6 +746,13 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
             id="org.tigris.subversion.subclipse.ui.DiffMergePreferences">
             <keywordReference id="org.tigris.subversion.subclipse.ui.svn"/>
       </page>
+      <page
+            name="%MergeFileAssociationPreferencePage.name"
+            category="org.tigris.subversion.subclipse.ui.DiffMergePreferences"
+            class="org.tigris.subversion.subclipse.ui.conflicts.MergeFileAssociationPreferencePage"
+            id="org.tigris.subversion.subclipse.ui.conflicts.MergeFileAssociationPreferencePage">
+            <keywordReference id="org.tigris.subversion.subclipse.ui.svn"/>
+      </page>      
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

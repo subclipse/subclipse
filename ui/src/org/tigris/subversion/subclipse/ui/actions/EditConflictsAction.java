@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.osgi.service.prefs.BackingStoreException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -31,6 +32,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.conflicts.ConflictsCompareInput;
+import org.tigris.subversion.subclipse.ui.conflicts.MergeFileAssociation;
 import org.tigris.subversion.svnclientadapter.utils.Command;
 
 /**
@@ -77,16 +79,9 @@ public class EditConflictsAction extends WorkspaceAction {
      * @throws InvocationTargetException
      */
     private void editConflictsExternal(IFile resource, IFile conflictOldFile,
-            IFile conflictWorkingFile, IFile conflictNewFile)
+            IFile conflictWorkingFile, IFile conflictNewFile, String mergeProgramLocation, String mergeProgramParameters)
             throws CoreException, InvocationTargetException, InterruptedException {
         try {
-            IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin()
-                    .getPreferenceStore();
-            String mergeProgramLocation = preferenceStore
-                    .getString(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION);
-            String mergeProgramParameters = preferenceStore
-                    .getString(ISVNUIConstants.PREF_MERGE_PROGRAM_PARAMETERS);
-
             if (mergeProgramLocation.equals("")) { //$NON-NLS-1$
                 throw new SVNException(Policy
                         .bind("EditConflictsAction.noMergeProgramConfigured")); //$NON-NLS-1$
@@ -151,17 +146,27 @@ public class EditConflictsAction extends WorkspaceAction {
                             .getResource(svnResource.getStatus()
                                     .getConflictWorking());
 
-                    IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin()
-                            .getPreferenceStore();
-                    if (preferenceStore
-                            .getBoolean(ISVNUIConstants.PREF_MERGE_USE_EXTERNAL)) {
-                        editConflictsExternal(resource, conflictOldFile,
-                                conflictWorkingFile, conflictNewFile);
-                    } else {
+                    MergeFileAssociation mergeFileAssociation = null;
+                    try {
+						mergeFileAssociation = SVNUIPlugin.getPlugin().getMergeFileAssociation(resource.getName());
+					} catch (BackingStoreException e) {
+						mergeFileAssociation = new MergeFileAssociation();
+					}
+					
+					if (mergeFileAssociation.getType() == MergeFileAssociation.BUILT_IN) {
                         editConflictsInternal(resource, conflictOldFile,
-                                conflictWorkingFile, conflictNewFile);
-                    }
-
+                                conflictWorkingFile, conflictNewFile);						
+					}
+					else if (mergeFileAssociation.getType() == MergeFileAssociation.DEFAULT_EXTERNAL) {
+			            IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin().getPreferenceStore();
+			            String mergeProgramLocation = preferenceStore.getString(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION);
+			            String mergeProgramParameters = preferenceStore.getString(ISVNUIConstants.PREF_MERGE_PROGRAM_PARAMETERS);						
+                        editConflictsExternal(resource, conflictOldFile,
+                                conflictWorkingFile, conflictNewFile, mergeProgramLocation, mergeProgramParameters);						
+					} else {
+                        editConflictsExternal(resource, conflictOldFile,
+                                conflictWorkingFile, conflictNewFile, mergeFileAssociation.getMergeProgram(), mergeFileAssociation.getParameters());												
+					}
                 } catch (SVNException e) {
                     throw new InvocationTargetException(e);
                 }

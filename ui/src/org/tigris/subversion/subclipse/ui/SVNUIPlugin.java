@@ -14,18 +14,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentTypeManager;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -37,6 +42,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -46,6 +52,7 @@ import org.tigris.subversion.subclipse.core.resources.BaseResourceStorageFactory
 import org.tigris.subversion.subclipse.ui.actions.ShowOutOfDateFoldersAction;
 import org.tigris.subversion.subclipse.ui.authentication.SVNPromptUserPassword;
 import org.tigris.subversion.subclipse.ui.compare.UIBaseResourceStorageFactory;
+import org.tigris.subversion.subclipse.ui.conflicts.MergeFileAssociation;
 import org.tigris.subversion.subclipse.ui.console.SVNOutputConsole;
 import org.tigris.subversion.subclipse.ui.repository.RepositoryManager;
 import org.tigris.subversion.subclipse.ui.repository.model.SVNAdapterFactory;
@@ -510,6 +517,45 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	
 	public ShowOutOfDateFoldersAction getShowOutOfDateFoldersAction() {
 		return showOutOfDateFoldersAction;
+	}
+	
+	public org.osgi.service.prefs.Preferences getInstancePreferences() {
+		return new InstanceScope().getNode(getBundle().getSymbolicName());
+	}	
+	
+	public MergeFileAssociation[] getMergeFileAssociations() throws BackingStoreException {
+		ArrayList associations = new ArrayList();
+		String[] childrenNames = MergeFileAssociation.getParentPreferences().childrenNames();
+		for (int i = 0; i < childrenNames.length; i++) {
+			org.osgi.service.prefs.Preferences node = MergeFileAssociation.getParentPreferences().node(childrenNames[i]);
+			MergeFileAssociation association = new MergeFileAssociation();
+			association.setFileType(childrenNames[i]);
+			association.setMergeProgram(node.get("mergeProgram", "")); //$NON-NLS-1$,  //$NON-NLS-1$
+			association.setParameters(node.get("parameters", "")); //$NON-NLS-1$,  //$NON-NLS-1$
+			association.setType(node.getInt("type",MergeFileAssociation.BUILT_IN));
+			associations.add(association);
+		}
+		MergeFileAssociation[] associationArray = new MergeFileAssociation[associations.size()];
+		associations.toArray(associationArray);	
+		Arrays.sort(associationArray);
+		return associationArray;
+	}
+	
+	public MergeFileAssociation getMergeFileAssociation(String fileName) throws BackingStoreException {
+		MergeFileAssociation[] mergeFileAssociations = getMergeFileAssociations();
+		for (int i = 0; i < mergeFileAssociations.length; i++) {
+			if (mergeFileAssociations[i].getFileType().equals(fileName)) return mergeFileAssociations[i];
+		}
+		for (int i = 0; i < mergeFileAssociations.length; i++) {
+			if (mergeFileAssociations[i].matches(fileName)) return mergeFileAssociations[i];
+		}
+		MergeFileAssociation mergeFileAssociation = new MergeFileAssociation();
+        IPreferenceStore preferenceStore = getPreferenceStore();
+        if (preferenceStore.getBoolean(ISVNUIConstants.PREF_MERGE_USE_EXTERNAL))
+        	mergeFileAssociation.setType(MergeFileAssociation.DEFAULT_EXTERNAL);
+        else
+        	mergeFileAssociation.setType(MergeFileAssociation.BUILT_IN);
+        return mergeFileAssociation;
 	}
 	
 	public static Image getImage(String key) {
