@@ -23,6 +23,9 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.resources.mapping.ResourceMapping;
+import org.eclipse.core.resources.mapping.ResourceTraversal;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
@@ -158,7 +161,29 @@ public abstract class TeamAction extends ActionDelegate implements IObjectAction
 	 * @return the selected resources
 	 */
 	protected IResource[] getSelectedResources() {
-		return (IResource[])getSelectedResources(IResource.class);
+		ArrayList resourceArray = new ArrayList();
+		IResource[] resources = (IResource[])getSelectedResources(IResource.class);
+		for (int i = 0; i < resources.length; i++) resourceArray.add(resources[i]);
+		ResourceMapping[] resourceMappings = (ResourceMapping[])getSelectedAdaptables(selection, ResourceMapping.class);
+		for (int i = 0; i < resourceMappings.length; i++) {
+			ResourceMapping resourceMapping = (ResourceMapping)resourceMappings[i];
+			try {
+				ResourceTraversal[] traversals = resourceMapping.getTraversals(null, null);
+				for (int j = 0; j < traversals.length; j++) {
+					IResource[] traversalResources = traversals[j].getResources();
+					for (int k = 0; k < traversalResources.length; k++) {
+						if (!resourceArray.contains(traversalResources[k]))
+							resourceArray.add(traversalResources[k]);
+					}
+				}
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
+		IResource[] selectedResources = new IResource[resourceArray.size()];
+		resourceArray.toArray(selectedResources);
+		return selectedResources;
 	}
 	
 	/**
