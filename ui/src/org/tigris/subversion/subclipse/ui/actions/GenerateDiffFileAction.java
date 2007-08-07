@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -65,6 +66,10 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 			}
 			
 		}, true, PROGRESS_BUSYCURSOR);
+		if (modifiedResources == null || modifiedResources.length == 0) {
+			MessageDialog.openInformation(getShell(), Policy.bind("GenerateSVNDiff.title"), Policy.bind("GenerateSVNDiff.noDiffsFoundMsg")); //$NON-NLS-1$ //$NON-NLS-1$
+			return;
+		}
 		IResource[] unaddedResources = new IResource[unaddedList.size()];
 		unaddedList.toArray(unaddedResources);
 		GenerateDiffFileWizard wizard = new GenerateDiffFileWizard(new StructuredSelection(modifiedResources), unaddedResources);
