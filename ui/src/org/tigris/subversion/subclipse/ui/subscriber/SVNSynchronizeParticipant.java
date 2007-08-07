@@ -134,6 +134,14 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
 					commitAction);
 			
+			GenerateDiffFileSynchronizeAction generateDiffFileAction = new GenerateDiffFileSynchronizeAction(Policy.bind("SyncAction.createPatch"), configuration); //$NON-NLS-1$
+			generateDiffFileAction.setId("org.tigris.subversion.subclipse.ui.syncViewCreatePatch");
+			commitAction.setActionDefinitionId("org.tigris.subversion.subclipse.ui.createPatch");
+			appendToGroup(
+					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
+					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
+					generateDiffFileAction);			
+			
 			appendToGroup(
 					ISynchronizePageConfiguration.P_CONTEXT_MENU, 
 					CONTEXT_MENU_CONTRIBUTION_GROUP_1,
