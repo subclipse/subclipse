@@ -15,6 +15,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -35,17 +36,16 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 public class GenerateDiffFileWizard extends Wizard {
 	
 	private PatchFileSelectionPage mainPage;
-	private PatchFileCreationOptionsPage optionsPage;
 	
 	private IStructuredSelection selection;
-	private IResource resource;
+	private IResource[] unaddedResources;
 
 	// end of PatchFileCreationOptionsPage
 	
-	public GenerateDiffFileWizard(IStructuredSelection selection, IResource resource) {
+	public GenerateDiffFileWizard(IStructuredSelection selection, IResource[] unaddedResources) {
 		super();
 		this.selection = selection;
-		this.resource = resource;
+		this.unaddedResources = unaddedResources;
 		setWindowTitle(Policy.bind("GenerateSVNDiff.title")); //$NON-NLS-1$
 		initializeDefaultPageImageDescriptor();
 	}
@@ -59,9 +59,6 @@ public class GenerateDiffFileWizard extends Wizard {
 		
 		pageTitle = Policy.bind("GenerateSVNDiff.AdvancedOptions"); //$NON-NLS-1$
 		pageDescription = Policy.bind("GenerateSVNDiff.ConfigureOptions"); //$NON-NLS-1$
-		optionsPage = new PatchFileCreationOptionsPage(this, pageTitle, pageTitle, SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_DIFF));
-		optionsPage.setDescription(pageDescription);
-		addPage(optionsPage);		
 	}
 		
 	/**
@@ -120,12 +117,12 @@ public class GenerateDiffFileWizard extends Wizard {
 						return false;
 					}
 				}
-				getContainer().run(true, true, new GenerateDiffFileOperation(resource, file, false, optionsPage.isRecursive(), getShell()));
+				getContainer().run(true, true, new GenerateDiffFileOperation(getResources(), unaddedResources, file, false, false, getShell()));
 				if(type==mainPage.WORKSPACE) {
 					ws.getParent().refreshLocal(IResource.DEPTH_ONE, null);
 				}
 			} else {
-				getContainer().run(true, true, new GenerateDiffFileOperation(resource, null, true, optionsPage.isRecursive(), getShell()));
+				getContainer().run(true, true, new GenerateDiffFileOperation(getResources(), unaddedResources, null, true, false, getShell()));
 			}
 			return true;
 		} catch (InterruptedException e1) {
@@ -137,5 +134,13 @@ public class GenerateDiffFileWizard extends Wizard {
 			SVNUIPlugin.openError(getShell(), Policy.bind("GenerateSVNDiff.error"), null, e2); //$NON-NLS-1$
 			return false;
 		}
+	}
+	
+	private IResource[] getResources() {
+		IResource[] resources = new IResource[selection.size()];
+		Iterator iter = selection.iterator();
+		int i = 0;
+		while (iter.hasNext()) resources[i++] = (IResource)iter.next();
+		return resources;
 	}
 }

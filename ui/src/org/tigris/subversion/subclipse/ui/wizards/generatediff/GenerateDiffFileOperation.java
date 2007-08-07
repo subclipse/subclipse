@@ -38,14 +38,11 @@ import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
-import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.DiffNewFilesDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.RevertDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.ISVNStatus;
-import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 
 /**
  * An operation to run the SVN diff operation on a set of resources. The result
@@ -55,13 +52,16 @@ import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 public class GenerateDiffFileOperation implements IRunnableWithProgress {
 
 	private File outputFile;
-	private IResource resource;
+	private IResource[] resources;
+	private IResource[] unaddedResources;
 	private Shell shell;
 	private boolean recursive;
 	private boolean toClipboard;
+	private ArrayList newFiles;
 
-	GenerateDiffFileOperation(IResource resource, File file, boolean toClipboard, boolean recursive, Shell shell) {
-		this.resource = resource;
+	GenerateDiffFileOperation(IResource[] resources, IResource[] unaddedResources, File file, boolean toClipboard, boolean recursive, Shell shell) {
+		this.resources = resources;
+		this.unaddedResources = unaddedResources;
 		this.outputFile = file;
 		this.shell = shell;
         this.recursive = recursive;
@@ -107,23 +107,14 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
             File tmpFile = File.createTempFile("sub",""); //$NON-NLS-1$ //$NON-NLS-2$
             tmpFile.deleteOnExit();
 
-            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-  			 GetStatusCommand command = new GetStatusCommand(svnResource, true, false);
-			 command.run(monitor);
-			 ISVNStatus[] statuses = command.getStatuses();
-          final ArrayList newFiles = new ArrayList(statuses.length/4);
-			 for (int j = 0; j < statuses.length; j++) {
-			     if (!SVNStatusUtils.isManaged(statuses[j])) {
-			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
-			         if (currentResource != null) newFiles.add(currentResource);
-			     }
-			 }
-			 if(newFiles.size() > 0)
+            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[0]);
+
+             newFiles = new ArrayList();
+			 if(unaddedResources.length > 0)
 			 {
 					Display.getDefault().syncExec(new Runnable() {
 						 public void run() {
-							 DiffNewFilesDialog dialog = new DiffNewFilesDialog(shell,(IResource[])newFiles.toArray(new IResource[newFiles.size()]));
-								newFiles.clear();
+							 DiffNewFilesDialog dialog = new DiffNewFilesDialog(shell,unaddedResources);
 							 	boolean revert = (dialog.open() == RevertDialog.OK);
 								if (revert) {
 									newFiles.addAll(Arrays.asList(dialog.getSelectedResources()));
@@ -142,6 +133,7 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 								SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
 								List list = (List)table.get(provider);
 								IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
+
 								provider.add(providerResources, IResource.DEPTH_INFINITE, subMonitor);
 							}
 						} catch (TeamException e) {
@@ -153,7 +145,11 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
          ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
 			try {
 					monitor.worked(100);
-                svnClient.diff(svnResource.getFile(),tmpFile,recursive);
+				File[] files = getVersionedFiles();
+//				File[] files = new File[resources.length];
+//				for (int i = 0; i < resources.length; i++)
+//					files[i] = new File(resources[i].getLocation().toOSString());
+                svnClient.diff(files,tmpFile,recursive);
  					monitor.worked(300);                
                 InputStream is = new FileInputStream(tmpFile);
                 byte[] buffer = new byte[30000];
@@ -170,7 +166,9 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 				for (int i = 0; i < newFiles.size(); i++)
 				{
 					IResource resource = (IResource) newFiles.get(i);
-					SVNWorkspaceRoot.getSVNResourceFor(resource).revert();
+					try {
+						SVNWorkspaceRoot.getSVNResourceFor(resource).revert();
+					} catch (Exception e) {}
 				} 
 			 }
 			
@@ -216,5 +214,29 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 			finally {
 			monitor.done();
 		}
+	}
+	
+	private File[] getVersionedFiles() {
+		ArrayList versionedFileList = new ArrayList();
+		ArrayList unaddedResourceList = new ArrayList();
+		for (int i = 0; i < unaddedResources.length; i++)
+			unaddedResourceList.add(unaddedResources[i]);
+		for (int i = 0; i < resources.length; i++) {
+			if (!containsResource(unaddedResourceList, resources[i]) || containsResource(newFiles, resources[i]))
+				versionedFileList.add(new File(resources[i].getLocation().toOSString()));
+		}	
+		File[] files = new File[versionedFileList.size()];
+		versionedFileList.toArray(files);
+		return files;
+	}
+	
+	private boolean containsResource(ArrayList list, IResource resource) {
+		if (list.contains(resource)) return true;
+		IResource parent = resource;
+		while (parent != null) {
+			parent = parent.getParent();
+			if (list.contains(parent)) return true;
+		}
+		return false;
 	}
 }
