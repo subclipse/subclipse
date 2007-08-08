@@ -15,7 +15,7 @@ public class GenerateDiffFileSynchronizeAction extends SynchronizeModelAction {
 	}	
 	
 	protected FastSyncInfoFilter getSyncInfoFilter() {
-		return new SyncInfoDirectionFilter(new int[] {SyncInfo.OUTGOING});
+		return new SyncInfoDirectionFilter(new int[] {SyncInfo.OUTGOING, SyncInfo.CONFLICTING });
 	}	
 	
 	protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
