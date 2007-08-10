@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -322,7 +323,7 @@ public class ResourceSelectionTree extends Composite {
 				if (resources[i] instanceof IContainer && !compressedFolderList.contains(resources[i]))
 					compressedFolderList.add(resources[i]);
 				IContainer parent = resources[i].getParent();
-				if (parent != null && !compressedFolderList.contains(parent)) {
+				if (parent != null && !(parent instanceof IWorkspaceRoot) && !compressedFolderList.contains(parent)) {
 					compressedFolderList.add(parent);
 				}
 			}
