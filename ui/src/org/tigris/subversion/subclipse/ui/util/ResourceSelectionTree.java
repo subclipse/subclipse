@@ -234,7 +234,8 @@ public class ResourceSelectionTree extends Composite {
 
         treeViewer.setGrayed(resource, false);
         if (resource instanceof IContainer) {
-        	setSubtreeChecked((IContainer)resource, state);
+        	if (!(resourceList.contains(resource)))
+        		setSubtreeChecked((IContainer)resource, state);
         }
         else updateParentState(resource);
 	}
@@ -255,7 +256,7 @@ public class ResourceSelectionTree extends Composite {
     }
     
     private void updateParentState(IResource child) {
-        if (child == null || child.getParent() == null) {
+        if (child == null || child.getParent() == null || resourceList.contains(child.getParent())) {
 			return;
 		}
         IContainer parent = child.getParent();
