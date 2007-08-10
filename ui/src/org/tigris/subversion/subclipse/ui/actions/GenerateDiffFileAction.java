@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,6 +37,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.wizards.generatediff.GenerateDiffFileWizard;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 
 /**
@@ -45,6 +47,7 @@ import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 public class GenerateDiffFileAction extends WorkspaceAction {
 	private IResource[] modifiedResources;
 	private ArrayList unaddedList;
+	private HashMap statusMap;
 	
 	/** (Non-javadoc)
 	 * Method declared on IActionDelegate.
@@ -52,6 +55,7 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 	 * @throws InvocationTargetException 
 	 */
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
+		statusMap = new HashMap();
 		unaddedList = new ArrayList();
 		String title = Policy.bind("GenerateSVNDiff.title"); //$NON-NLS-1$
 		final IResource[] resources = getSelectedResources();
@@ -72,7 +76,7 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 		}
 		IResource[] unaddedResources = new IResource[unaddedList.size()];
 		unaddedList.toArray(unaddedResources);
-		GenerateDiffFileWizard wizard = new GenerateDiffFileWizard(new StructuredSelection(modifiedResources), unaddedResources);
+		GenerateDiffFileWizard wizard = new GenerateDiffFileWizard(new StructuredSelection(modifiedResources), unaddedResources, statusMap);
 		wizard.setWindowTitle(title);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.setMinimumPageSize(350, 250);
@@ -146,12 +150,14 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 				                 	else
 				                 		if (!modified.contains(currentResource)) {
 				                 			modified.add(currentResource);
+				                 			statusMap.put(currentResource, statuses[j].getTextStatus());
 				                 			if (addToUnadded(currentResource)) unaddedList.add(currentResource);
 				                 		}
 			                	}
 			                 } else
 			                	 if (!modified.contains(currentResource)) {
 			                		 modified.add(currentResource);
+			                		 statusMap.put(currentResource, statuses[j].getTextStatus());
 			                	 }
 			             }
 			         }
@@ -162,7 +168,10 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 	    IResource[] unaddedResources = getUnaddedResources(unversionedFolders, iProgressMonitor);
 	    for (int i = 0; i < unaddedResources.length; i++) {
 	    	if (!modified.contains(unaddedResources[i])) {
-	    		if (unaddedResources[i].getType() == IResource.FILE) modified.add(unaddedResources[i]);
+	    		if (unaddedResources[i].getType() == IResource.FILE) {
+	    			modified.add(unaddedResources[i]);
+	    			statusMap.put(unaddedResources[i], SVNStatusKind.UNVERSIONED);
+	    		}
 	    		if (addToUnadded(unaddedResources[i])) unaddedList.add(unaddedResources[i]);
 	    	}
 	    }

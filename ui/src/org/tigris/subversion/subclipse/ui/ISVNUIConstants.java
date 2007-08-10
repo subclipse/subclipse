@@ -52,6 +52,7 @@ public interface ISVNUIConstants {
   public final String IMG_EXPAND_ALL_ENABLED = "elcl16/expandall.gif"; //$NON-NLS-1$
 
   public final String IMG_AFFECTED_PATHS_TABLE_MODE = "elcl16/tableLayout.gif"; //$NON-NLS-1$
+  public final String IMG_AFFECTED_PATHS_TREE_MODE = "elcl16/treeLayout.gif"; //$NON-NLS-1$
   public final String IMG_AFFECTED_PATHS_FLAT_MODE = "elcl16/flatLayout.gif"; //$NON-NLS-1$
   public final String IMG_AFFECTED_PATHS_COMPRESSED_MODE = "elcl16/compressedLayout.gif"; //$NON-NLS-1$
 

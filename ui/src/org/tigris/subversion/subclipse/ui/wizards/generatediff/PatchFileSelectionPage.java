@@ -11,39 +11,37 @@
 package org.tigris.subversion.subclipse.ui.wizards.generatediff;
 
 import java.io.File;
+import java.util.HashMap;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.util.ContainerContentProvider;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.util.ResourceSelectionTree;
+import org.tigris.subversion.subclipse.ui.util.WorkspaceDialog;
 
 
 
@@ -54,25 +52,27 @@ import org.tigris.subversion.subclipse.ui.util.ContainerContentProvider;
 class PatchFileSelectionPage extends WizardPage {
 	private Text filenameCombo;
 	private Button browseButton;
-	
-	private TreeViewer treeViewer;
-	private IContainer selectedContainer;
-	private Text workspaceFilename;
 	private Button saveInFilesystem;
 	private Button saveInWorkspace;
 	private Button saveToClipboard;
+	private ResourceSelectionTree resourceSelectionTree;
+	private IResource[] resources;
+	protected Text wsPathText;
+    private Button wsBrowseButton;
+    private boolean wsBrowsed = false;
+    private HashMap statusMap;
 	
 	public final int CLIPBOARD = 1;
 	public final int FILESYSTEM = 2;
 	public final int WORKSPACE = 3;
 	
-	// sizing constants
-	private static final int SIZING_SELECTION_PANE_HEIGHT = 125;
-	private static final int SIZING_SELECTION_PANE_WIDTH = 200;
-	
-	public PatchFileSelectionPage(String pageName, String title, ImageDescriptor image, IStructuredSelection selection) {
+	public PatchFileSelectionPage(String pageName, String title, ImageDescriptor image, IStructuredSelection selection, HashMap statusMap) {
 		super(pageName, title, image);
-		
+		this.statusMap = statusMap;
+		Object[] selectedResources = selection.toArray();
+		resources = new IResource[selectedResources.length];
+		for (int i = 0; i < selectedResources.length; i++)
+			resources[i] = (IResource)selectedResources[i];
 		setPageComplete(false);
 	}
 	
@@ -84,9 +84,7 @@ class PatchFileSelectionPage extends WizardPage {
 		
 		switch (getSaveType()) {
 			case WORKSPACE:
-				if (selectedContainer != null && getWorkspaceFile() != null) {
-					valid = true;
-				}
+				valid = validateWorkspaceLocation();
 				break;
 			case FILESYSTEM:
 				File file = new File(getFilesystemFile());
@@ -134,12 +132,8 @@ class PatchFileSelectionPage extends WizardPage {
 	 * the patch outside of the workspace.
 	 */
 	public IFile getWorkspaceFile() {
-		if(saveInWorkspace.getSelection() && selectedContainer !=null) {
-			String filename = workspaceFilename.getText();
-			if(filename==null || filename.length() == 0) {
-				return null;
-			}
-			return selectedContainer.getFile(new Path(workspaceFilename.getText()));
+		if(saveInWorkspace.getSelection() && wsPathText.getText().length() > 0) {
+			return ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(wsPathText.getText()));
 		}
 		return null;
 	}
@@ -225,7 +219,42 @@ class PatchFileSelectionPage extends WizardPage {
 			}
 		});
 		
-		createTreeViewer(composite);		
+        final Composite pathGroup = new Composite(composite,SWT.NONE);
+        layout = new GridLayout();
+        layout.numColumns = 2;
+        layout.marginWidth = 0;
+        pathGroup.setLayout(layout);
+        data = new GridData(SWT.FILL, SWT.FILL, true, false);
+        pathGroup.setLayoutData(data);
+		
+        wsPathText= new Text(pathGroup, SWT.BORDER);
+        gd= new GridData(GridData.FILL_HORIZONTAL);
+        gd.verticalAlignment = GridData.CENTER;
+        gd.grabExcessVerticalSpace = false;
+        gd.widthHint = IDialogConstants.ENTRY_FIELD_WIDTH;
+        wsPathText.setLayoutData(gd);
+        wsPathText.setEditable(false);
+        
+        wsBrowseButton = new Button(pathGroup, SWT.NULL);
+        gd = new GridData();
+		gd.horizontalAlignment = GridData.FILL;
+		int widthHint = convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
+		gd.widthHint = Math.max(widthHint, wsBrowseButton.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
+		wsBrowseButton.setLayoutData(gd);
+        wsBrowseButton.setText(Policy.bind("GenerateSVNDiff.Browse")); //$NON-NLS-1$	
+		wsBrowseButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+            	final WorkspaceDialog dialog = new WorkspaceDialog(getShell(), Policy.bind("GenerateSVNDiff.workspaceDialogTitle"), Policy.bind("GenerateSVNDiff.workspaceDialogMessage"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_DIFF), wsPathText); //$NON-NLS-1$ //$NON-NLS-1$		
+            	wsBrowsed = true;
+            	dialog.open();
+            	validatePage();
+			}
+		});
+		
+//		LabelProvider labelProvider = new SVNLightweightDecorator();
+		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resources, statusMap, null); //$NON-NLS-1$
+		resourceSelectionTree.getTreeViewer().setAllChecked(true);
+        
 		saveToClipboard.setSelection(true);
 		validatePage();
 		updateEnablements();
@@ -238,73 +267,8 @@ class PatchFileSelectionPage extends WizardPage {
 		filenameCombo.setText(filename);
 	}
 	
-	/**
-	 * Create the tree viewer that shows the container available in the workspace. The user
-	 * can then enter a filename in the text box below the viewer.
-	 */
-	protected void createTreeViewer(Composite parent) {
-		// Create tree viewer inside drill down.
-		new Label(parent, SWT.LEFT).setText(Policy.bind("GenerateSVNDiff.SelectFolderAndFilename"));		 //$NON-NLS-1$
-		
-		treeViewer = new TreeViewer(parent, SWT.BORDER);
-		ContainerContentProvider cp = new ContainerContentProvider();
-		cp.showClosedProjects(false);
-		GridData data = new GridData(GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL |
-							  		  GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
-		
-		data.widthHint = SIZING_SELECTION_PANE_WIDTH;
-		data.heightHint = SIZING_SELECTION_PANE_HEIGHT;
-				
-		treeViewer.getTree().setLayoutData(data);
-		treeViewer.setContentProvider(cp);
-		treeViewer.setLabelProvider(new WorkbenchLabelProvider());
-		treeViewer.addSelectionChangedListener(
-			new ISelectionChangedListener() {
-				public void selectionChanged(SelectionChangedEvent event) {
-					IStructuredSelection selection = (IStructuredSelection)event.getSelection();
-					containerSelectionChanged((IContainer) selection.getFirstElement()); // allow null
-					validatePage();
-				}
-			});
-		
-		treeViewer.addDoubleClickListener(
-			new IDoubleClickListener() {
-				public void doubleClick(DoubleClickEvent event) {
-					ISelection selection = event.getSelection();
-					if (selection instanceof IStructuredSelection) {
-						Object item = ((IStructuredSelection)selection).getFirstElement();
-						if (treeViewer.getExpandedState(item))
-							treeViewer.collapseToLevel(item, 1);
-						else
-							treeViewer.expandToLevel(item, 1);
-					}
-				}
-			});
-	
-		// This has to be done after the viewer has been laid out
-		treeViewer.setInput(ResourcesPlugin.getWorkspace());
-		
-		// name group
-		Composite nameGroup = new Composite(parent,SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		layout.marginWidth = 0;
-		nameGroup.setLayout(layout);
-		data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
-		nameGroup.setLayoutData(data);
-	
-		Label label = new Label(nameGroup,SWT.NONE);
-		label.setText(Policy.bind("GenerateSVNDiff.FileName")); //$NON-NLS-1$
-	
-		// resource name entry field
-		workspaceFilename = new Text(nameGroup,SWT.BORDER);
-		data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
-		workspaceFilename.setLayoutData(data);
-		workspaceFilename.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				validatePage();
-			}
-		});
+	public IResource[] getSelectedResources() {
+		return resourceSelectionTree.getSelectedResources();
 	}
 
 	/**
@@ -315,8 +279,10 @@ class PatchFileSelectionPage extends WizardPage {
 
 		browseButton.setEnabled(type==FILESYSTEM);
 		filenameCombo.setEnabled(type==FILESYSTEM);
-		treeViewer.getTree().setEnabled(type==WORKSPACE);
-		workspaceFilename.setEnabled(type==WORKSPACE);
+        wsPathText.setEnabled(type == WORKSPACE);
+        wsBrowseButton.setEnabled(type == WORKSPACE);
+        if (type == WORKSPACE)
+        	wsBrowsed=false;		
 	}
 	
 	/**
@@ -332,10 +298,41 @@ class PatchFileSelectionPage extends WizardPage {
 		}
 	}
 	
-	/**
-	 * Remember the container selected in the tree viewer.
-	 */
-	public void containerSelectionChanged(IContainer container) {
-		selectedContainer = container;
-	}
+    /**
+     * The following conditions must hold for the file system location to be valid:
+     * - a parent must be selected in the workspace tree view
+     * - the resource name must be valid 
+     */
+    private boolean validateWorkspaceLocation() {
+    	int type = getSaveType();
+        //make sure that the field actually has a filename in it - making
+    	//sure that the user has had a chance to browse the workspace first
+        if (wsPathText.getText().equals("")){ //$NON-NLS-1$
+        	if (type ==WORKSPACE && wsBrowsed)
+        		setErrorMessage(Policy.bind("GenerateSVNDiff.validFileName")); //$NON-NLS-1$	
+        	return false;
+        }
+        
+        //Make sure that all the segments but the last one (i.e. project + all
+        //folders) exist - file doesn't have to exist. It may have happened that
+        //some folder refactoring has been done since this path was last saved.
+        //
+        //Assume that the path will always be in format project/{folders}*/file - this
+        //is controlled by the workspace location dialog
+        
+        
+        IPath pathToWorkspaceFile = new Path(wsPathText.getText());
+        //Trim file name from path
+        IPath containerPath = pathToWorkspaceFile.removeLastSegments(1);
+        
+        IResource container =ResourcesPlugin.getWorkspace().getRoot().findMember(containerPath);
+        if (container == null) {
+        	if (type == WORKSPACE)
+        		setErrorMessage(Policy.bind("GenerateSVNDiff.validFileName")); //$NON-NLS-1$	
+            return false;
+        }
+        
+        return true;
+    }	
+	
 }

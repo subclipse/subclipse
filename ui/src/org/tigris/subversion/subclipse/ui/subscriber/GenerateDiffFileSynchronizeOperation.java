@@ -2,6 +2,7 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
@@ -10,6 +11,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -18,6 +20,7 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.wizards.generatediff.GenerateDiffFileWizard;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 public class GenerateDiffFileSynchronizeOperation extends SVNSynchronizeOperation {
 
@@ -33,10 +36,32 @@ public class GenerateDiffFileSynchronizeOperation extends SVNSynchronizeOperatio
 
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 		IResource[] resources = set.getResources();
+		HashMap statusMap = new HashMap();
 		unaddedList = new ArrayList();
 		for (int i = 0; i < resources.length; i++) {
 			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
+			SyncInfo syncInfo = set.getSyncInfo(resources[i]);
+			SVNStatusKind statusKind = null;
 			try {
+				if (!svnResource.isManaged()) {
+					statusKind = SVNStatusKind.UNVERSIONED;
+				} else {
+					switch (SyncInfo.getChange(syncInfo.getKind())) {
+					case SyncInfo.ADDITION:
+						statusKind = SVNStatusKind.ADDED;
+						break;
+					case SyncInfo.DELETION:
+						statusKind = SVNStatusKind.DELETED;
+						break;
+					case SyncInfo.CONFLICTING:
+						statusKind = SVNStatusKind.CONFLICTED;
+						break;				
+					default:
+						statusKind = SVNStatusKind.MODIFIED;
+						break;
+					}
+				}
+				statusMap.put(resources[i], statusKind);				
 				if (!svnResource.isManaged() && !svnResource.isIgnored())
 					unaddedList.add(resources[i]);
 			} catch (SVNException e) {
@@ -52,7 +77,7 @@ public class GenerateDiffFileSynchronizeOperation extends SVNSynchronizeOperatio
 		
 		IResource[] unversionedResources = new IResource[dedupedList.size()];
 		dedupedList.toArray(unversionedResources);
-		GenerateDiffFileWizard wizard = new GenerateDiffFileWizard(new StructuredSelection(resources), unversionedResources);
+		GenerateDiffFileWizard wizard = new GenerateDiffFileWizard(new StructuredSelection(resources), unversionedResources, statusMap);
 		wizard.setWindowTitle(Policy.bind("GenerateSVNDiff.title")); //$NON-NLS-1$
 		final WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.setMinimumPageSize(350, 250);

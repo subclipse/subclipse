@@ -130,6 +130,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_TABLE_MODE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_MODE, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_TREE_MODE, baseURL);
         
         createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_HORIZONTAL_LAYOUT, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_VERTICAL_LAYOUT, baseURL);

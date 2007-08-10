@@ -15,7 +15,8 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -39,13 +40,15 @@ public class GenerateDiffFileWizard extends Wizard {
 	
 	private IStructuredSelection selection;
 	private IResource[] unaddedResources;
+	private HashMap statusMap;
 
 	// end of PatchFileCreationOptionsPage
 	
-	public GenerateDiffFileWizard(IStructuredSelection selection, IResource[] unaddedResources) {
+	public GenerateDiffFileWizard(IStructuredSelection selection, IResource[] unaddedResources, HashMap statusMap) {
 		super();
 		this.selection = selection;
 		this.unaddedResources = unaddedResources;
+		this.statusMap = statusMap;
 		setWindowTitle(Policy.bind("GenerateSVNDiff.title")); //$NON-NLS-1$
 		initializeDefaultPageImageDescriptor();
 	}
@@ -53,7 +56,7 @@ public class GenerateDiffFileWizard extends Wizard {
 	public void addPages() {
 		String pageTitle = Policy.bind("GenerateSVNDiff.pageTitle"); //$NON-NLS-1$
 		String pageDescription = Policy.bind("GenerateSVNDiff.pageDescription"); //$NON-NLS-1$
-		mainPage = new PatchFileSelectionPage(pageTitle, pageTitle, SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_DIFF), selection);
+		mainPage = new PatchFileSelectionPage(pageTitle, pageTitle, SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_DIFF), selection, statusMap);
 		mainPage.setDescription(pageDescription);
 		addPage(mainPage);
 		
@@ -117,12 +120,12 @@ public class GenerateDiffFileWizard extends Wizard {
 						return false;
 					}
 				}
-				getContainer().run(true, true, new GenerateDiffFileOperation(getResources(), unaddedResources, file, false, false, getShell()));
+				getContainer().run(true, true, new GenerateDiffFileOperation(getResources(), getUnaddedResources(), file, false, false, getShell()));
 				if(type==mainPage.WORKSPACE) {
 					ws.getParent().refreshLocal(IResource.DEPTH_ONE, null);
 				}
 			} else {
-				getContainer().run(true, true, new GenerateDiffFileOperation(getResources(), unaddedResources, null, true, false, getShell()));
+				getContainer().run(true, true, new GenerateDiffFileOperation(getResources(), getUnaddedResources(), null, true, false, getShell()));
 			}
 			return true;
 		} catch (InterruptedException e1) {
@@ -137,10 +140,36 @@ public class GenerateDiffFileWizard extends Wizard {
 	}
 	
 	private IResource[] getResources() {
-		IResource[] resources = new IResource[selection.size()];
-		Iterator iter = selection.iterator();
-		int i = 0;
-		while (iter.hasNext()) resources[i++] = (IResource)iter.next();
-		return resources;
+		return mainPage.getSelectedResources();
+	}
+	
+	private IResource[] getUnaddedResources() {
+		ArrayList unaddedResourceList = new ArrayList();
+		for (int i = 0; i < unaddedResources.length; i++)
+			unaddedResourceList.add(unaddedResources[i]);
+		ArrayList selectedUnaddedResourceList = new ArrayList();
+		IResource[] selectedResources = getResources();
+		for (int i = 0; i < selectedResources.length; i++) {
+			if (unaddedResourceList.contains(selectedResources[i])) {
+				selectedUnaddedResourceList.add(selectedResources[i]);
+			} else {
+				IResource unaddedParent = getUnaddedParent(selectedResources[i], unaddedResourceList);
+				if (unaddedParent != null && !selectedUnaddedResourceList.contains(unaddedParent))
+					selectedUnaddedResourceList.add(unaddedParent);
+			}
+		}
+		IResource[] unaddedResourceArray = new IResource[selectedUnaddedResourceList.size()];
+		selectedUnaddedResourceList.toArray(unaddedResourceArray);
+		return unaddedResourceArray;
+	}
+	
+	private IResource getUnaddedParent(IResource resource, ArrayList unaddedResourceList) {
+		IResource parent = resource;
+		while (parent != null) {
+			parent = parent.getParent();
+			int index = unaddedResourceList.indexOf(parent);
+			if (index != -1) return (IResource)unaddedResourceList.get(index);
+		}
+		return null;
 	}
 }

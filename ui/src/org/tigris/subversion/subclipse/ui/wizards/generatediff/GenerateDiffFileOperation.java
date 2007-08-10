@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -40,8 +39,6 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.dialogs.DiffNewFilesDialog;
-import org.tigris.subversion.subclipse.ui.dialogs.RevertDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 
 /**
@@ -112,15 +109,17 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
              newFiles = new ArrayList();
 			 if(unaddedResources.length > 0)
 			 {
-					Display.getDefault().syncExec(new Runnable() {
-						 public void run() {
-							 DiffNewFilesDialog dialog = new DiffNewFilesDialog(shell,unaddedResources);
-							 	boolean revert = (dialog.open() == RevertDialog.OK);
-								if (revert) {
-									newFiles.addAll(Arrays.asList(dialog.getSelectedResources()));
-								}
-							 }
-					});
+//					Display.getDefault().syncExec(new Runnable() {
+//						 public void run() {
+//							 DiffNewFilesDialog dialog = new DiffNewFilesDialog(shell,unaddedResources);
+//							 	boolean revert = (dialog.open() == RevertDialog.OK);
+//								if (revert) {
+//									newFiles.addAll(Arrays.asList(dialog.getSelectedResources()));
+//								}
+//							 }
+//					});
+				    for (int i = 0; i < unaddedResources.length; i++)
+				    	newFiles.add(unaddedResources[i]);
 					if(newFiles.size() > 0)
 					{
 						try {
@@ -146,9 +145,6 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 			try {
 					monitor.worked(100);
 				File[] files = getVersionedFiles();
-//				File[] files = new File[resources.length];
-//				for (int i = 0; i < resources.length; i++)
-//					files[i] = new File(resources[i].getLocation().toOSString());
                 svnClient.diff(files,tmpFile,recursive);
  					monitor.worked(300);                
                 InputStream is = new FileInputStream(tmpFile);
