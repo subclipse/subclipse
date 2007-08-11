@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -150,14 +151,16 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 				                 	else
 				                 		if (!modified.contains(currentResource)) {
 				                 			modified.add(currentResource);
-				                 			statusMap.put(currentResource, statuses[j].getTextStatus());
+				                 			if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+				                 			else statusMap.put(currentResource, statuses[j].getTextStatus());
 				                 			if (addToUnadded(currentResource)) unaddedList.add(currentResource);
 				                 		}
 			                	}
 			                 } else
 			                	 if (!modified.contains(currentResource)) {
 			                		 modified.add(currentResource);
-			                		 statusMap.put(currentResource, statuses[j].getTextStatus());
+			                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+			                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());
 			                	 }
 			             }
 			         }

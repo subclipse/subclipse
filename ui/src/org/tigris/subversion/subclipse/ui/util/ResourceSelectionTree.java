@@ -38,6 +38,8 @@ public class ResourceSelectionTree extends Composite {
 	private IResource[] resources;
 	private ArrayList resourceList;
 	private IContainer[] compressedFolders;
+	private IContainer[] folders;
+	private ArrayList folderList;
 	private IContainer[] rootFolders;
 	private ArrayList compressedFolderList;
 	private CheckboxTreeViewer treeViewer;
@@ -45,7 +47,7 @@ public class ResourceSelectionTree extends Composite {
 	private String label;
 	private Button selectAllButton;
 	private Button deselectAllButton;
-//	private Action treeAction;
+	private Action treeAction;
 	private Action flatAction;
 	private Action compressedAction;
 	private IDialogSettings settings;
@@ -118,8 +120,8 @@ public class ResourceSelectionTree extends Composite {
 		
 		ToolBar toolbar = new ToolBar(buttonGroup, SWT.FLAT);
 		GridLayout toolbarLayout = new GridLayout();
-//		toolbarLayout.numColumns = 3;
-		toolbarLayout.numColumns = 2;
+		toolbarLayout.numColumns = 3;
+//		toolbarLayout.numColumns = 2;
 		toolbar.setLayout(toolbarLayout);
 		gridData = new GridData(GridData.FILL_BOTH);
 		toolbar.setLayoutData(gridData);		
@@ -129,7 +131,7 @@ public class ResourceSelectionTree extends Composite {
 			public void run() {
 				mode = MODE_FLAT;
 				settings.put(MODE_SETTING, MODE_FLAT);
-//				treeAction.setChecked(false);
+				treeAction.setChecked(false);
 				compressedAction.setChecked(false);
 				refresh();
 			}			
@@ -137,23 +139,23 @@ public class ResourceSelectionTree extends Composite {
 		flatAction .setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE));
 		toolbarManager.add(flatAction);
 		
-//		treeAction = new Action(Policy.bind("ResourceSelectionTree.tree"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
-//			public void run() {
-//				mode = MODE_TREE;
-//				settings.put(MODE_SETTING, MODE_TREE);
-//				flatAction.setChecked(false);
-//				compressedAction.setChecked(false);
-//				refresh();
-//			}					
-//		};
-//		treeAction .setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_TREE_MODE));
-//		toolbarManager.add(treeAction);
+		treeAction = new Action(Policy.bind("ResourceSelectionTree.tree"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
+			public void run() {
+				mode = MODE_TREE;
+				settings.put(MODE_SETTING, MODE_TREE);
+				flatAction.setChecked(false);
+				compressedAction.setChecked(false);
+				refresh();
+			}					
+		};
+		treeAction .setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_TREE_MODE));
+		toolbarManager.add(treeAction);
 		
 		compressedAction = new Action(Policy.bind("ResourceSelectionTree.compressedFolders"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
 			public void run() {
 				mode = MODE_COMPRESSED_FOLDERS;
 				settings.put(MODE_SETTING, MODE_COMPRESSED_FOLDERS);
-//				treeAction.setChecked(false);
+				treeAction.setChecked(false);
 				flatAction.setChecked(false);
 				refresh();
 			}					
@@ -174,9 +176,9 @@ public class ResourceSelectionTree extends Composite {
 		case MODE_FLAT:
 			flatAction.setChecked(true);
 			break;
-//		case MODE_TREE:
-//			treeAction.setChecked(true);
-//			break;			
+		case MODE_TREE:
+			treeAction.setChecked(true);
+			break;			
 		default:
 			break;
 		}
@@ -220,6 +222,7 @@ public class ResourceSelectionTree extends Composite {
 		
 		treeViewer.expandAll();
 		treeViewer.setAllChecked(true);
+		if (mode == MODE_TREE) treeViewer.collapseAll();
 		
         treeViewer.addCheckStateListener(new ICheckStateListener() {
             public void checkStateChanged(CheckStateChangedEvent event) {
@@ -256,13 +259,15 @@ public class ResourceSelectionTree extends Composite {
     }
     
     private void updateParentState(IResource child) {
-        if (child == null || child.getParent() == null || resourceList.contains(child.getParent())) {
+        if (mode == MODE_FLAT || child == null || child.getParent() == null || resourceList.contains(child.getParent())) {
 			return;
 		}
         IContainer parent = child.getParent();
         boolean childChecked = false;
         boolean childUnchecked = false;
-        IResource[] members = getChildResources(parent);
+        IResource[] members;
+        if (mode == MODE_COMPRESSED_FOLDERS) members = getChildResources(parent);
+        else members = getFolderChildren(parent);
         for (int i = members.length - 1; i >= 0; i--) {      	
         	if (!(members[i] instanceof IContainer)) { 	
 	            if (treeViewer.getChecked(members[i]) || treeViewer.getGrayed(members[i])) 
@@ -299,21 +304,19 @@ public class ResourceSelectionTree extends Composite {
 				}
 			}
 		}
+		if (mode == MODE_TREE) {
+			for (int i = 0; i < folders.length; i++) {
+				IResource[] children = getFolderChildren(folders[i]);
+				if (children.length > 0) {
+					updateParentState(children[0]);
+				}
+			}
+			treeViewer.collapseAll();
+		}
 	}
 	
 	private IContainer[] getRootFolders() {
-		if (rootFolders == null) {
-			ArrayList rootFolderList = new ArrayList();
-			compressedFolders = getCompressedFolders();
-			for (int i = 0; i < compressedFolders.length; i++) {
-				IContainer parent = compressedFolders[i].getParent();
-				if (parent == null || !compressedFolderList.contains(parent))
-					rootFolderList.add(compressedFolders[i]);
-			}
-			rootFolders = new IContainer[rootFolderList.size()];
-			rootFolderList.toArray(rootFolders);
-			Arrays.sort(rootFolders, comparator);
-		}
+		if (rootFolders == null) getFolders();
 		return rootFolders;
 	}
 	
@@ -349,6 +352,44 @@ public class ResourceSelectionTree extends Composite {
 		return childArray;
 	}
 	
+	private IResource[] getFolderChildren(IContainer parent) {
+		ArrayList children = new ArrayList();
+		folders = getFolders();
+		for (int i =0; i < folders.length; i++) {
+			if (folders[i].getParent() != null && folders[i].getParent().equals(parent)) children.add(folders[i]);
+		}
+		for (int i = 0; i < resources.length; i++) {
+			if (!(resources[i] instanceof IContainer) && resources[i].getParent() != null && resources[i].getParent().equals(parent))
+				children.add(resources[i]);
+		}
+		IResource[] childArray = new IResource[children.size()];
+		children.toArray(childArray);
+		return childArray;
+	}
+	
+	private IContainer[] getFolders() {
+		if (folders == null) {
+			folderList = new ArrayList();
+			for (int i = 0; i < resources.length; i++) {
+				if (resources[i] instanceof IContainer) folderList.add(resources[i]);
+				IResource parent = resources[i];
+				while (parent != null && !(parent instanceof IWorkspaceRoot)) {
+					if (folderList.contains(parent.getParent())) break;
+					if (parent.getParent() == null || parent.getParent() instanceof IWorkspaceRoot) {
+						rootFolders = new IContainer[1];
+						rootFolders[0] = (IContainer)parent;
+					}
+					parent = parent.getParent();
+					folderList.add(parent);
+				}
+			}
+			folders = new IContainer[folderList.size()];
+			folderList.toArray(folders);
+			Arrays.sort(folders, comparator);
+		}
+		return folders;
+	}
+	
 	private class ResourceSelectionContentProvider extends WorkbenchContentProvider {
 		public Object getParent(Object element) {
 			return null;
@@ -369,6 +410,9 @@ public class ResourceSelectionTree extends Composite {
 			if (parentElement instanceof IContainer) {
 				if (mode == MODE_COMPRESSED_FOLDERS) {
 					return getChildResources((IContainer)parentElement);
+				}
+				if (mode == MODE_TREE) {
+					return getFolderChildren((IContainer)parentElement);
 				}
 			}
 			return new Object[0];
@@ -391,11 +435,13 @@ public class ResourceSelectionTree extends Composite {
 			else if (mode == MODE_COMPRESSED_FOLDERS) {
 				if (element instanceof IContainer) {
 					IContainer container = (IContainer)element;
-					return container.getFullPath().makeRelative().toString();
+					text = container.getFullPath().makeRelative().toString();
 				}
 				else text = resource.getName();
 			}
-			else text = workbenchLabelProvider.getText(element);
+			else {
+				text = resource.getName();
+			}
 			if (statusKind == null) return text;
 			else return text + " (" + statusKind.toString() + ")";
 		}
