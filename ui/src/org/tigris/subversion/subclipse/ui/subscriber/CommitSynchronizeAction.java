@@ -15,6 +15,7 @@ import java.util.Iterator;
 import org.eclipse.compare.structuremergeviewer.IDiffContainer;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
@@ -38,6 +39,10 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 
 	public CommitSynchronizeAction(String text, ISynchronizePageConfiguration configuration) {
 		super(text, configuration);
+	}
+
+	public CommitSynchronizeAction(String text, ISynchronizePageConfiguration configuration, ISelectionProvider selectionProvider) {
+		super(text, configuration, selectionProvider);
 	}
 
 	/* (non-Javadoc)

@@ -60,6 +60,9 @@ public interface ISVNUIConstants {
   public final String IMG_AFFECTED_PATHS_VERTICAL_LAYOUT = "elcl16/vertical.gif"; //$NON-NLS-1$
 
   public final String IMG_COMMENTS = "elcl16/comments.gif"; //$NON-NLS-1$
+  
+  public final String IMG_UPDATE_ALL = "elcl16/update_all.gif"; //$NON-NLS-1$
+  public final String IMG_COMMIT_ALL = "elcl16/commit_all.gif"; //$NON-NLS-1$
 
   // wizards
   public final String IMG_NEWLOCATION = "wizards/newlocation_wiz.gif"; //$NON-NLS-1$

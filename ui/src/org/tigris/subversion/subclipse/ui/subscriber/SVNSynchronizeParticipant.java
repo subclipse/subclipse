@@ -22,6 +22,9 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
+import org.eclipse.team.core.synchronize.SyncInfo;
+import org.eclipse.team.core.synchronize.FastSyncInfoFilter.SyncInfoDirectionFilter;
 import org.eclipse.team.internal.ui.synchronize.ChangeSetCapability;
 import org.eclipse.team.internal.ui.synchronize.IChangeSetProvider;
 import org.eclipse.team.ui.TeamUI;
@@ -55,6 +58,8 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	 * The particpant ID as defined in the plugin manifest
 	 */
 	public static final String ID = "org.tigris.subversion.subclipse.participant"; //$NON-NLS-1$
+	
+	public static final String TOOLBAR_CONTRIBUTION_GROUP = "toolbar_group_1"; //$NON-NLS-1$
 	
 	/**
 	 * Contxt menu action group for synchronize view actions
@@ -102,12 +107,26 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	 */
 	private class SVNParticipantActionGroup extends SynchronizePageActionGroup {
 		Action expandAllAction;
+		private UpdateSynchronizeAction updateToolbar;
+		private CommitSynchronizeAction commitToolbar;
 		
 		/* (non-Javadoc)
 		 * @see org.eclipse.team.ui.synchronize.SynchronizePageActionGroup#initialize(org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration)
 		 */
 		public void initialize(ISynchronizePageConfiguration configuration) {
 			super.initialize(configuration);
+			
+			updateToolbar = new UpdateSynchronizeAction(null, configuration, getVisibleRootsSelectionProvider()) { //$NON-NLS-1$
+				protected FastSyncInfoFilter getSyncInfoFilter() {
+					return new SyncInfoDirectionFilter(new int[] {SyncInfo.INCOMING, SyncInfo.CONFLICTING});
+				}			
+			};
+			updateToolbar.setToolTipText(Policy.bind("SyncAction.updateAll")); //$NON-NLS-1$
+			updateToolbar.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_UPDATE_ALL));
+			
+			commitToolbar = new CommitSynchronizeAction(null, configuration, getVisibleRootsSelectionProvider()); //$NON-NLS-1$
+			commitToolbar.setToolTipText(Policy.bind("SyncAction.commitAll")); //$NON-NLS-1$
+			commitToolbar.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_COMMIT_ALL));
 			
 			ShowOutOfDateFoldersAction showOutOfDateFoldersAction = SVNUIPlugin.getPlugin().getShowOutOfDateFoldersAction();
 			showOutOfDateFoldersAction.setSvnSynchronizeParticipant(SVNSynchronizeParticipant.this);
@@ -242,6 +261,14 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 			IToolBarManager manager = actionBars.getToolBarManager();
 			
 			appendToGroup(manager, ISynchronizePageConfiguration.NAVIGATE_GROUP, expandAllAction);
+			appendToGroup(
+					manager,
+					TOOLBAR_CONTRIBUTION_GROUP,
+					updateToolbar);	
+			appendToGroup(
+					manager,
+					TOOLBAR_CONTRIBUTION_GROUP,
+					commitToolbar);						
 		}
 	}
 
@@ -276,6 +303,8 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 		
 		ILabelDecorator labelDecorator = new SVNParticipantLabelDecorator();
 		configuration.addLabelDecorator(labelDecorator);
+		
+		configuration.addMenuGroup(ISynchronizePageConfiguration.P_TOOLBAR_MENU, TOOLBAR_CONTRIBUTION_GROUP);
 		
 		// Add support for showing mode buttons
 		configuration.setSupportedModes(ISynchronizePageConfiguration.ALL_MODES);

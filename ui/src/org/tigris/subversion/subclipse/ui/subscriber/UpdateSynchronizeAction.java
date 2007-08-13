@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
@@ -35,6 +36,10 @@ public class UpdateSynchronizeAction extends SynchronizeModelAction {
 
 	public UpdateSynchronizeAction(String text, ISynchronizePageConfiguration configuration) {
 		super(text, configuration);
+	}
+
+	public UpdateSynchronizeAction(String text, ISynchronizePageConfiguration configuration, ISelectionProvider selectionProvider) {
+		super(text, configuration, selectionProvider);
 	}
 
 	/* (non-Javadoc)
