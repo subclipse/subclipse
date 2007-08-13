@@ -8,12 +8,14 @@ import java.util.HashMap;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -26,6 +28,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.team.core.diff.IDiff;
+import org.eclipse.team.core.diff.IThreeWayDiff;
+import org.eclipse.team.core.diff.ITwoWayDiff;
+import org.eclipse.team.ui.synchronize.AbstractSynchronizeLabelProvider;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -421,9 +427,26 @@ public class ResourceSelectionTree extends Composite {
 	
 	private class ResourceSelectionLabelProvider extends LabelProvider {
 		private WorkbenchLabelProvider workbenchLabelProvider = new WorkbenchLabelProvider();
+		private AbstractSynchronizeLabelProvider syncLabelProvider = new AbstractSynchronizeLabelProvider() {
+
+			protected ILabelProvider getDelegateLabelProvider() {
+				return workbenchLabelProvider;
+			}
+
+			protected boolean isDecorationEnabled() {
+				return true;
+			}
+
+			protected IDiff getDiff(Object element) {
+				IResource resource = (IResource)element;
+				return new ResourceSelectionDiff(resource);
+			}
+			
+		};
 		
 		public Image getImage(Object element) {
-			return workbenchLabelProvider.getImage(element);
+			return syncLabelProvider.getImage(element);
+//			return workbenchLabelProvider.getImage(element);
 		}
 
 		public String getText(Object element) {
@@ -444,6 +467,48 @@ public class ResourceSelectionTree extends Composite {
 			}
 			if (statusKind == null) return text;
 			else return text + " (" + statusKind.toString() + ")";
+		}
+		
+	}
+	
+	private class ResourceSelectionDiff implements IThreeWayDiff {
+		private IResource resource;
+		
+		public ResourceSelectionDiff(IResource resource) {
+			this.resource = resource;
+		}
+		
+		public int getDirection() {
+			return IThreeWayDiff.OUTGOING;
+		}
+
+		public ITwoWayDiff getLocalChange() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public ITwoWayDiff getRemoteChange() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public int getKind() {
+			SVNStatusKind statusKind = (SVNStatusKind)statusMap.get(resource);
+			if (statusKind == null) return IDiff.NO_CHANGE;
+			if (statusKind.equals(SVNStatusKind.CONFLICTED)) return IThreeWayDiff.CONFLICTING;
+			else if (statusKind.equals(SVNStatusKind.MODIFIED)) return IDiff.CHANGE;
+			else if (statusKind.equals(SVNStatusKind.ADDED)) return IDiff.ADD;
+			else if (statusKind.equals(SVNStatusKind.DELETED)) return IDiff.REMOVE;
+			return IDiff.NO_CHANGE;
+		}
+
+		public IPath getPath() {
+			return resource.getFullPath();
+		}
+
+		public String toDiffString() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 		
 	}
