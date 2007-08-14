@@ -15,7 +15,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -359,12 +358,19 @@ public class CommitOperation extends SVNOperation {
 			useJavaHLHack = false;
 			return;
 	    }
-		Set projects = new HashSet();
-		for (int i = 0; i < resources.length; i++) {
-			projects.add(resources[i].getProject());
-		}
-		if (projects.size() < 2)
-			useJavaHLHack = false;
+//
+// This was an optimization to turn this feature off when committing from
+// a single project.  The problem is that if the project uses svn:externals
+// from a different repository then you cannot commit everything together.
+// Removing this optimization makes it work since we group the commits by
+// repository.
+//
+//		Set projects = new HashSet();
+//		for (int i = 0; i < resources.length; i++) {
+//			projects.add(resources[i].getProject());
+//		}
+//		if (projects.size() < 2)
+//			useJavaHLHack = false;
 	}
 	
 	private class ProjectAndRepository {
