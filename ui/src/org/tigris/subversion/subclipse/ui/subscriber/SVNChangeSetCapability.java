@@ -54,9 +54,9 @@ public class SVNChangeSetCapability extends ChangeSetCapability {
     
 	public void editChangeSet(ISynchronizePageConfiguration configuration, ActiveChangeSet set) {
         CommitSetDialog dialog = new CommitSetDialog(configuration.getSite().getShell(), set, set.getResources(),
-        		Policy.bind("WorkspaceChangeSetCapability_7"), Policy.bind("WorkspaceChangeSetCapability_8")); // 
+        		Policy.bind("WorkspaceChangeSetCapability_7"), Policy.bind("WorkspaceChangeSetCapability_8"), true); // 
 		dialog.open();
-		if (dialog.getReturnCode() != Window.OK) return;
+//		if (dialog.getReturnCode() != Window.OK) return;
 		// Nothing to do here as the set was updated by the dialog 
 	}
 

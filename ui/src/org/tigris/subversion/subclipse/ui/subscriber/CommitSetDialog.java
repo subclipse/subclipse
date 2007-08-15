@@ -55,7 +55,15 @@ public class CommitSetDialog extends TrayDialog {
     private String comment;
 
     public CommitSetDialog(Shell parentShell, ActiveChangeSet set, IResource[] files, String title, String description) {
-        super(parentShell);
+        this(parentShell, set, files, title, description, false);
+    }
+    
+    public CommitSetDialog(Shell parentShell, ActiveChangeSet set, IResource[] files, String title, String description, boolean modeLess) {
+    	super(parentShell);
+    	if (modeLess) {
+    		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
+    		setBlockOnOpen(false);    		
+    	}
         this.set = set;
         this.title = title;
         this.description = description;
@@ -66,7 +74,7 @@ public class CommitSetDialog extends TrayDialog {
 		int shellStyle = getShellStyle();
 		setShellStyle(shellStyle | SWT.RESIZE | SWT.MAX);
 		commitCommentArea = new CommitCommentArea(this, this.getDialogBoundsSettings());
-    }
+    }    
     
     /* (non-Javadoc)
      * @see org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets.Composite)
