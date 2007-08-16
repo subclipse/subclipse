@@ -11,15 +11,20 @@
 package org.tigris.subversion.subclipse.core.util;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Unsorted static helper-methods 
@@ -116,5 +121,17 @@ public class Util {
 		} catch (UnsupportedEncodingException e) {
 			return s;
 		}
-	}	
+	}
+	
+	/**
+	 * Save local history
+	 * 
+	 * @param resource
+	 * @throws CoreException
+	 */
+	public static void saveLocalHistory(IResource resource) throws CoreException {
+		if (resource instanceof IFile) {
+			((IFile)resource).appendContents(new ByteArrayInputStream(new byte[0]),IResource.KEEP_HISTORY, null);
+		}
+	}
 }

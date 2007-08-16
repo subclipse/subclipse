@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.team.core.RepositoryProvider;
@@ -33,6 +34,7 @@ import org.tigris.subversion.subclipse.core.commands.AddIgnoredPatternCommand;
 import org.tigris.subversion.subclipse.core.commands.GetRemoteResourceCommand;
 import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
 import org.tigris.subversion.subclipse.core.util.Assert;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -336,6 +338,11 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
      */
     public void revert(boolean recurse) throws SVNException {
         try {
+    		try {
+				Util.saveLocalHistory(resource);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}        	
             ISVNClientAdapter svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
             svnClient.revert(getFile(), recurse);

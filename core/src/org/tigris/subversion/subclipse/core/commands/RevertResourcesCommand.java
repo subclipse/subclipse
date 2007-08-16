@@ -25,6 +25,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
@@ -113,6 +114,11 @@ public class RevertResourcesCommand implements ISVNCommand {
 						}
                 	}
                 	else {
+                		try {
+							Util.saveLocalHistory(resources[i]);
+						} catch (CoreException e) {
+							e.printStackTrace();
+						}
                 		File path = resources[i].getLocation().toFile();
 	                    svnClient.revert(path, false);
 	                    // If only properties were changed, svn 1.4.0 does not 
