@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.operations;
 
+import java.util.HashMap;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IWorkbenchPart;
@@ -21,13 +23,14 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class SwitchOperation extends RepositoryProviderOperation {
-    private SVNUrl svnUrl; 
     private SVNRevision svnRevision;
+    private HashMap urlMap = new HashMap();
     
-    public SwitchOperation(IWorkbenchPart part, IResource[] resources, SVNUrl svnUrl, SVNRevision svnRevision) {
+    public SwitchOperation(IWorkbenchPart part, IResource[] resources, SVNUrl[] svnUrls, SVNRevision svnRevision) {
         super(part, resources);
-        this.svnUrl = svnUrl;
         this.svnRevision = svnRevision;
+        for (int i = 0; i < resources.length; i++) 
+        	urlMap.put(resources[i], svnUrls[i]);
     }
     
     protected String getTaskName() {
@@ -39,10 +42,15 @@ public class SwitchOperation extends RepositoryProviderOperation {
     }
 
     protected void execute(SVNTeamProvider provider, IResource[] resources, IProgressMonitor monitor) throws SVNException, InterruptedException {
-        monitor.beginTask(null, 100);
-		try {			
-	    	SwitchToUrlCommand command = new SwitchToUrlCommand(provider.getSVNWorkspaceRoot(),resources[0], svnUrl, svnRevision);
-	        command.run(monitor);
+        monitor.beginTask("Switch to Branch/Tag", resources.length);
+		try {
+			for (int i = 0; i < resources.length; i++) {
+				monitor.subTask("Switching " + resources[i].getName() + ". . .");
+				SVNUrl svnUrl = (SVNUrl)urlMap.get(resources[i]);
+		    	SwitchToUrlCommand command = new SwitchToUrlCommand(provider.getSVNWorkspaceRoot(),resources[i], svnUrl, svnRevision);
+		        command.run(monitor);
+		        monitor.worked(1);
+			}
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		} finally {

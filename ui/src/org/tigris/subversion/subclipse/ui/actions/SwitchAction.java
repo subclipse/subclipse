@@ -14,6 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.SwitchDialog;
@@ -32,13 +35,11 @@ public class SwitchAction extends WorkbenchWindowAction {
         } 
         else {
 	        IResource[] resources = getSelectedResources(); 
-	        for (int i = 0; i < resources.length; i++) {
-	            SwitchDialog dialog = new SwitchDialog(getShell(), resources[i]);
-	            if (dialog.open() == SwitchDialog.CANCEL) break;
-	            SVNUrl svnUrl = dialog.getUrl();
-	            SVNRevision svnRevision = dialog.getRevision();
-	            new SwitchOperation(getTargetPart(), getSelectedResources(), svnUrl, svnRevision).run();
-	        }
+	        SwitchDialog dialog = new SwitchDialog(getShell(), resources);
+	        if (dialog.open() == SwitchDialog.CANCEL) return;
+            SVNUrl[] svnUrls = dialog.getUrls();
+            SVNRevision svnRevision = dialog.getRevision();
+            new SwitchOperation(getTargetPart(), resources, svnUrls, svnRevision).run();	        
         }
     }
     
@@ -71,7 +72,15 @@ public class SwitchAction extends WorkbenchWindowAction {
 	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForMultipleResources()
 	 */
 	protected boolean isEnabledForMultipleResources() {
-		return false;
+		// Must all be from same repository.
+		ISVNRepositoryLocation repository = null;
+		IResource[] selectedResources = getSelectedResources();
+		for (int i = 0; i < selectedResources.length; i++) {
+			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(selectedResources[i]);
+			if (repository != null && !svnResource.getRepository().equals(repository)) return false;
+			repository = svnResource.getRepository();
+		}
+		return true;
 	}	   
 
 	protected String getImageId()
