@@ -15,11 +15,15 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.DecoratingLabelProvider;
+import org.eclipse.jface.viewers.ILabelDecorator;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -202,7 +206,8 @@ public class SwitchDialog extends TrayDialog {
 			table.setLayout(tableLayout);
 			viewer = new TableViewer(table);
 			viewer.setContentProvider(new SwitchContentProvider());
-			viewer.setLabelProvider(new SwitchLabelProvider());
+			ILabelDecorator decorator = PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator();
+			viewer.setLabelProvider(new TableDecoratingLabelProvider(new SwitchLabelProvider(), decorator));
 			for (int i = 0; i < columnHeaders.length; i++) {
 				tableLayout.addColumnData(columnLayouts[i]);
 				TableColumn tc = new TableColumn(table, SWT.NONE,i);
@@ -319,7 +324,7 @@ public class SwitchDialog extends TrayDialog {
     	return commonRoot;
     }
     
-    private class SwitchResource {
+    private class SwitchResource implements IAdaptable {
     	private IResource resource;
     	private String partialPath;
     	public SwitchResource(IResource resource, String partialPath) {
@@ -338,18 +343,31 @@ public class SwitchDialog extends TrayDialog {
 		public void setPartialPath(String partialPath) {
 			this.partialPath = partialPath;
 		}
+		public Object getAdapter(Class adapter) {
+			if (IResource.class == adapter) return resource;
+			return null;
+		}
     }
     
 	class SwitchLabelProvider extends LabelProvider implements ITableLabelProvider {
+		WorkbenchLabelProvider workbenchLabelProvider = new WorkbenchLabelProvider();
 		
 		public String getColumnText(Object element, int columnIndex) {
+			return getText(element);
+		}
+		
+		public String getText(Object element) {
 			SwitchResource switchResource = (SwitchResource)element;
 			return switchResource.getPartialPath();
 		}
-		
+
 		public Image getColumnImage(Object element, int columnIndex) {
+			return getImage(element);
+		}
+
+		public Image getImage(Object element) {
 			SwitchResource switchResource = (SwitchResource)element;
-			return WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider().getImage(switchResource.getResource());
+			return workbenchLabelProvider.getImage(switchResource.getResource());
 		}
 	
 	}    
@@ -362,6 +380,40 @@ public class SwitchDialog extends TrayDialog {
 		public Object[] getElements(Object obj) {
 			return switchResources;
 		}
-	}    
+	}  
+	
+	class TableDecoratingLabelProvider extends DecoratingLabelProvider implements ITableLabelProvider {
+
+		ITableLabelProvider provider;
+		ILabelDecorator decorator;
+	
+		public TableDecoratingLabelProvider(ILabelProvider provider, ILabelDecorator decorator) {
+			super(provider, decorator);
+			this.provider = (ITableLabelProvider) provider;
+		    this.decorator = decorator;
+		}
+	
+		public Image getColumnImage(Object element, int columnIndex) {
+			Image image = provider.getColumnImage(element, columnIndex);
+	        if (decorator != null) {
+	            Image decorated = decorator.decorateImage(image, element);
+	            if (decorated != null) {
+	                return decorated;
+	            }
+	        }
+	        return image;
+		}
+	
+		public String getColumnText(Object element, int columnIndex) {
+			String text = provider.getColumnText(element, columnIndex);
+	        if (decorator != null) {
+	            String decorated = decorator.decorateText(text, element);
+	            if (decorated != null) {
+	                return decorated;
+	            }
+	        }
+	        return text;
+		}
+	}
 
 }
