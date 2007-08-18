@@ -29,6 +29,7 @@ public class GetAnnotationsCommand implements ISVNCommand {
     private final SVNRevision fromRevision;
     private final SVNRevision toRevision;
     private final ISVNRemoteFile remoteFile;
+    private final boolean includeMergedRevisions;
   
     /**
      * Constructor
@@ -36,10 +37,11 @@ public class GetAnnotationsCommand implements ISVNCommand {
      * @param fromRevision
      * @param toRevision
      */
-    public GetAnnotationsCommand(ISVNRemoteFile remoteFile, SVNRevision fromRevision, SVNRevision toRevision) {
+    public GetAnnotationsCommand(ISVNRemoteFile remoteFile, SVNRevision fromRevision, SVNRevision toRevision, boolean includeMergedRevisions) {
         this.remoteFile = remoteFile;
         this.fromRevision = fromRevision;
         this.toRevision = toRevision;
+        this.includeMergedRevisions = includeMergedRevisions;
     }
     
     /* (non-Javadoc)
@@ -49,7 +51,7 @@ public class GetAnnotationsCommand implements ISVNCommand {
 		IProgressMonitor monitor = Policy.monitorFor(aMonitor);
 		monitor.beginTask(Policy.bind("RemoteFile.getAnnotations"), 100);//$NON-NLS-1$
         try {        	
-            annotations = remoteFile.getAnnotations(fromRevision, toRevision);
+            annotations = remoteFile.getAnnotations(fromRevision, toRevision, includeMergedRevisions);
             monitor.worked(100);
         } catch (TeamException e) {
             throw SVNException.wrapException(e);
