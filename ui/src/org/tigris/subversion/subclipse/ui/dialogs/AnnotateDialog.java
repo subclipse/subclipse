@@ -50,6 +50,8 @@ public class AnnotateDialog extends TrayDialog {
 	private Button toLogButton;
 	private Button okButton;
 	private boolean success;
+	
+	private boolean includeMergedRevisions = true;
 
 	public AnnotateDialog(Shell parentShell, IWorkbenchPart targetPart, ISVNRemoteFile remoteFile) {
 		super(parentShell);
@@ -194,7 +196,7 @@ public class AnnotateDialog extends TrayDialog {
 						toRevision = new SVNRevision.Number(toRevisionLong);
 					}
 
-					new ShowAnnotationOperation(targetPart, remoteFile, fromRevision, toRevision).run();
+					new ShowAnnotationOperation(targetPart, remoteFile, fromRevision, toRevision, includeMergedRevisions).run();
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("AnnotateDialog.title"), e.getMessage());
 					success = false;

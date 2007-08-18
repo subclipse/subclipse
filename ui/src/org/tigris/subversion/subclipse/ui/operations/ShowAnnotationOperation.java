@@ -63,6 +63,8 @@ import org.tigris.subversion.subclipse.ui.annotations.AnnotateBlock;
 import org.tigris.subversion.subclipse.ui.annotations.AnnotateBlocks;
 import org.tigris.subversion.subclipse.ui.annotations.AnnotateView;
 import org.tigris.subversion.svnclientadapter.ISVNAnnotations;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -73,23 +75,26 @@ public class ShowAnnotationOperation extends SVNOperation {
     private final SVNRevision fromRevision;
     private final SVNRevision toRevision;
     private final ISVNRemoteFile remoteFile;
+    private final boolean includeMergedRevisions;
 
-    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, SVNRevision fromRevision) {
+    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, SVNRevision fromRevision, boolean includeMergedRevisions) {
         super(part);
         this.remoteFile = remoteFile;
         this.fromRevision = fromRevision;
         this.toRevision = remoteFile.getLastChangedRevision();
+        this.includeMergedRevisions = includeMergedRevisions;
     }
     
-    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, SVNRevision fromRevision, SVNRevision toRevision) {
+    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, SVNRevision fromRevision, SVNRevision toRevision, boolean includeMergedRevisions) {
         super(part);
         this.remoteFile = remoteFile;
         this.fromRevision = fromRevision;
         this.toRevision = toRevision;
+        this.includeMergedRevisions = includeMergedRevisions;
     }
     
-    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile) {
-        this(part, remoteFile, SVNRevision.START);
+    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, boolean includeMergedRevisions) {
+        this(part, remoteFile, SVNRevision.START, includeMergedRevisions);
     }
     
     /* (non-Javadoc)
@@ -113,7 +118,7 @@ public class ShowAnnotationOperation extends SVNOperation {
         monitor.beginTask(null, 100);
 
         try {
-            GetAnnotationsCommand command = new GetAnnotationsCommand(remoteFile, fromRevision, toRevision);
+            GetAnnotationsCommand command = new GetAnnotationsCommand(remoteFile, fromRevision, toRevision, includeMergedRevisions);
             command.run(new SubProgressMonitor(monitor, 100));
             final ISVNAnnotations annotations = command.getAnnotations();
             final AnnotateBlocks annotateBlocks = new AnnotateBlocks(annotations);
@@ -271,14 +276,20 @@ public class ShowAnnotationOperation extends SVNOperation {
 		for (Iterator blocks= annotateBlocks.getAnnotateBlocks().iterator(); blocks.hasNext();) {
 			final AnnotateBlock block= (AnnotateBlock) blocks.next();
 			final String revisionString= Long.toString(block.getRevision());
-			final LogEntry logEntry = (LogEntry) logEntriesByRevision.get(new Long(block.getRevision()));
-			
+			LogEntry logEntry = (LogEntry) logEntriesByRevision.get(new Long(block.getRevision()));
+			final String logMessage;
+			if (logEntry == null) {
+				logMessage = getSingleEntry(remoteFile, new Long(block.getRevision()));
+			} else {
+				logMessage = logEntry.getComment();
+			}
+				
 			Revision revision= (Revision) sets.get(revisionString);
 			if (revision == null) {
 				revision= new Revision() {
 					public Object getHoverInfo() {
 							return block.getUser() + " " + revisionString + " " + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(block.getDate()) + "\n\n" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							(logEntry != null ? logEntry.getComment() : ""); //$NON-NLS-1$
+							(logMessage != null ? logMessage : ""); //$NON-NLS-1$
 					}
 					
 					public String getAuthor() {
@@ -331,5 +342,19 @@ public class ShowAnnotationOperation extends SVNOperation {
 			    return true;
 		}
 		return false;
+	}
+	
+	private String getSingleEntry(ISVNRemoteFile file, Long revLong) {
+		try {
+			ISVNClientAdapter client = file.getRepository().getSVNClient();
+			SVNRevision revision = SVNRevision.getRevision(revLong.toString());
+			ISVNLogMessage [] messages = client.getLogMessages(file.getRepository().getRepositoryRoot(), revision, revision, false);
+			if (messages.length == 1)
+				return messages[0].getMessage();
+			else
+				return null;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

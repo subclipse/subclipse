@@ -44,7 +44,7 @@ public class ShowAnnotationAction extends WorkbenchWindowAction {
 			return;
 		}
 
-        new ShowAnnotationOperation(getTargetPart(), svnResource).run();
+        new ShowAnnotationOperation(getTargetPart(), svnResource, true).run();
 
 	}
 	
@@ -71,8 +71,6 @@ public class ShowAnnotationAction extends WorkbenchWindowAction {
 			if (svnResources.length == 1) {
 				return svnResources[0];
 			}
-		} else {
-			return null;
 		}
 
 		// Selected from a Resource Navigator
