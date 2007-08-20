@@ -80,6 +80,8 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 	// The repository locations
 	private ISVNRepositoryLocation[] locations;
 	
+	private boolean shareCanceled;
+	
 	public SharingWizard() {
 		IDialogSettings workbenchSettings = SVNUIPlugin.getPlugin().getDialogSettings();
 		IDialogSettings section = workbenchSettings.getSection("NewLocationWizard");//$NON-NLS-1$
@@ -202,11 +204,12 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 	 * @see IWizard#performFinish
 	 */
 	public boolean performFinish() {
+		shareCanceled = false;
 		if (!WorkspacePathValidator.validateWorkspacePath()) return true;
 		final boolean[] result = new boolean[] { true };
 		try {
 			final boolean[] doSync = new boolean[] { false };
-			final boolean[] projectExists = new boolean[] { false };
+//			final boolean[] projectExists = new boolean[] { false };
 			getContainer().run(true /* fork */, true /* cancel */, new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) throws InvocationTargetException {
 					try {
@@ -260,6 +263,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 							// Check if the directory exists on the server
 							ISVNRepositoryLocation location = null;
 							boolean isKnown = false;
+							boolean createDirectory = true;
 							try {
 								location = getLocation();
 								isKnown = SVNProviderPlugin.getPlugin().getRepositories().isKnownRepository(location.getLocation());
@@ -271,19 +275,26 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 								String remoteDirectoryName = getRemoteDirectoryName();
 								ISVNRemoteFolder folder = location.getRemoteFolder(remoteDirectoryName);
 								if (folder.exists(new SubProgressMonitor(monitor, 50))) {
-									projectExists[0] = true;
-									final boolean[] sync = new boolean[] {true};
+//									projectExists[0] = true;
+//									final boolean[] sync = new boolean[] {true};
 									if (autoconnectPage == null) {
 										getShell().getDisplay().syncExec(new Runnable() {
 											public void run() {
-											    sync[0] = false;
-											    MessageDialog.openError(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong", getRemoteDirectoryName())); //$NON-NLS-1$ //$NON-NLS-2$
+		//									    sync[0] = false;
+												String[] messageData = { getRemoteDirectoryName(), project.getName() };
+											    if (!MessageDialog.openQuestion(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong", messageData)) ) { //$NON-NLS-1$ //$NON-NLS-2$
+											    	shareCanceled = true;
+											    	return;
+											    }
+//											    MessageDialog.openError(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong", messageData)); //$NON-NLS-1$ //$NON-NLS-2$
 											}
 										});
+										if (shareCanceled) return;
 									}
-									result[0] = sync[0];
-									doSync[0] = sync[0];
-									return;
+//									result[0] = sync[0];
+//									doSync[0] = sync[0];
+//									return;
+									createDirectory = false;
 								}
 							} catch (TeamException e) {
 								SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.PERFORM_SYNC_EXEC);
@@ -299,7 +310,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 							}
 							
 							// Create the remote module for the project
-							SVNWorkspaceRoot.shareProject(location, project, getRemoteDirectoryName(), finishPage.getComment(), new SubProgressMonitor(monitor, 50));
+							SVNWorkspaceRoot.shareProject(location, project, getRemoteDirectoryName(), finishPage.getComment(), createDirectory, new SubProgressMonitor(monitor, 50));
 							
 							try{
 								project.refreshLocal(IProject.DEPTH_INFINITE, new SubProgressMonitor(monitor, 50));
@@ -317,6 +328,8 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 				}
 			});
 
+			if (shareCanceled) return false;
+			
 			if (autoconnectPage == null || (projectStatus == null)) {
 				CommitAction commitAction = new CommitAction(finishPage.getComment());
 				commitAction.setSharing(true);
