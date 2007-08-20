@@ -146,8 +146,8 @@ public class SVNWorkspaceRoot {
      * if remoteDirName is null, the name of the project is used
      * if location is not in repositories, it is added 
 	 */
-	public static void shareProject(ISVNRepositoryLocation location, IProject project, String remoteDirName, String comment, IProgressMonitor monitor) throws TeamException {
-		ShareProjectCommand command = new ShareProjectCommand(location, project, remoteDirName);
+	public static void shareProject(ISVNRepositoryLocation location, IProject project, String remoteDirName, String comment, boolean createDirectory, IProgressMonitor monitor) throws TeamException {
+		ShareProjectCommand command = new ShareProjectCommand(location, project, remoteDirName, createDirectory);
 		command.setComment(comment);
         command.run(monitor);
     }

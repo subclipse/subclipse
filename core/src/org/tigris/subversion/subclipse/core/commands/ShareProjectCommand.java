@@ -46,12 +46,14 @@ public class ShareProjectCommand implements ISVNCommand {
 	protected String remoteDirName;
 	
 	protected String comment;
+	
+	protected boolean createDirectory;
 
     /**
      * if remoteDirName is null, the name of the project is used    
      */
 	public ShareProjectCommand(ISVNRepositoryLocation location,
-			IProject project, String remoteDirName) {
+			IProject project, String remoteDirName, boolean createDirectory) {
 		this.location = location;
 		this.project = project;
 
@@ -60,10 +62,11 @@ public class ShareProjectCommand implements ISVNCommand {
 		} else {
 			this.remoteDirName = remoteDirName;
 		}
+		this.createDirectory = createDirectory;
 	}
 
     public ShareProjectCommand(ISVNRepositoryLocation location, IProject project) {
-    	this(location, project, null);
+    	this(location, project, null, true);
     }
     
 	/*
@@ -91,13 +94,16 @@ public class ShareProjectCommand implements ISVNCommand {
 							try {
 								// create the remote dir
 								SVNUrl url = location.getUrl().appendPath(remoteDirName);
-								svnClient.mkdir(url, true, message);
+								
+								if (createDirectory)
+									svnClient.mkdir(url, true, message);
 
 								try {
 									OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm));
 									// checkout it so that we have .svn
+									// If directory already existed in repository, do recursive checkout.
 									svnClient.checkout(url, project.getLocation()
-											.toFile(), SVNRevision.HEAD, false);
+											.toFile(), SVNRevision.HEAD, !createDirectory);
 								} finally {
 									OperationManager.getInstance().endOperation();
 								}
