@@ -280,13 +280,11 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 									if (autoconnectPage == null) {
 										getShell().getDisplay().syncExec(new Runnable() {
 											public void run() {
-		//									    sync[0] = false;
-												String[] messageData = { getRemoteDirectoryName(), project.getName() };
-											    if (!MessageDialog.openQuestion(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong", messageData)) ) { //$NON-NLS-1$ //$NON-NLS-2$
+//											    sync[0] = false;
+											    if (!MessageDialog.openQuestion(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong"))) { 
 											    	shareCanceled = true;
 											    	return;
 											    }
-//											    MessageDialog.openError(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong", messageData)); //$NON-NLS-1$ //$NON-NLS-2$
 											}
 										});
 										if (shareCanceled) return;

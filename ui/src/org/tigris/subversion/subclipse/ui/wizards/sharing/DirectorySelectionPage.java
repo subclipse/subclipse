@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -123,12 +122,6 @@ public class DirectorySelectionPage extends SVNWizardPage {
 		urlGroup.setLayoutData(data);
 		urlText = createTextField(urlGroup);
 		urlText.setEditable(false);
-		
-		Label warningLabel = new Label(composite, SWT.NONE);
-		warningLabel.setText(Policy.bind("SharingWizard.cannotExist")); //$NON-NLS-1$
-		data = new GridData();
-		data.horizontalSpan = 3;
-		warningLabel.setLayoutData(data);
 		
 		useSpecifiedNameButton.setSelection(false);
 		useProjectNameButton.setSelection(true);
