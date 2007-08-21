@@ -45,7 +45,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
-import org.tigris.subversion.subclipse.ui.actions.CommitAction;
+import org.tigris.subversion.subclipse.ui.actions.SynchronizeAction;
 import org.tigris.subversion.subclipse.ui.wizards.ConfigurationWizardMainPage;
 
 /**
@@ -328,13 +328,24 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 
 			if (shareCanceled) return false;
 			
-			if (autoconnectPage == null || (projectStatus == null)) {
-				CommitAction commitAction = new CommitAction(finishPage.getComment());
-				commitAction.setSharing(true);
-				IResource[] selectedResources = { project };
-				commitAction.setSelectedResources(selectedResources);
-				commitAction.run(null);
+//			if (autoconnectPage == null || (projectStatus == null)) {
+//				CommitAction commitAction = new CommitAction(finishPage.getComment());
+//				commitAction.setSharing(true);
+//				IResource[] selectedResources = { project };
+//				commitAction.setSelectedResources(selectedResources);
+//				commitAction.run(null);
+//			}
+			
+			if (doSync[0]) {
+				SynchronizeAction synchronizeAction = new SynchronizeAction() {
+					protected IResource[] getSelectedResources() {
+						IResource[] selection = { project };
+						return selection;
+					}				
+				};
+				synchronizeAction.run(null);
 			}
+			
 //			if (doSync[0]) {
 //			    IResource[] resources = { project };
 //			    SVNSynchronizeParticipant participant = (SVNSynchronizeParticipant)SubscriberParticipant.getMatchingParticipant(SVNSynchronizeParticipant.ID, resources);
