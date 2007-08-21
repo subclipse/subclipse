@@ -15,6 +15,7 @@ import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.eclipse.core.internal.localstore.FileSystemResourceManager;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -28,14 +29,12 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.subclipse.core.ISVNFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
-import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -88,39 +87,41 @@ public class SVNWorkspaceRoot {
 	 * @param monitor
 	 * @return
 	 */
-	public static IProject getProject(ISVNRemoteFolder folder,IProgressMonitor monitor) {
-		String name = folder.getName();
-						
-		// Check for a better name for the project
+	public static IProject getProject(ISVNRemoteFolder folder,IProgressMonitor monitor) throws Exception {
+		ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
 		try {
-			ISVNResource[] children = folder.members(monitor, ISVNFolder.FILE_MEMBERS);
-			for (int k = 0; k < children.length; k++) {
-				ISVNResource resource = children[k];
-				if(".project".equals(resource.getName())){
-					RemoteFile dotProject = (RemoteFile)folder.getRepository().getRemoteFile(folder.getUrl().appendPath(".project"));
-																
-					InputStream is = dotProject.getStorage(monitor).getContents();
-					DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-					org.w3c.dom.Document doc = db.parse(is);
-					is.close();
-					NodeList nl = doc.getDocumentElement().getChildNodes();
-					for (int j = 0; j < nl.getLength(); ++j) {
-						Node child = nl.item(j);
-						if (child instanceof Element && "name".equals(child.getNodeName())) {
-							Node grandChild = child.getFirstChild();
-							if (grandChild instanceof Text) name = ((Text)grandChild).getData(); 	
-						}
-					}									
+			client.getNotificationHandler().disableLog();
+			String name = folder.getName();
+	
+			RemoteFile dotProject = (RemoteFile)folder.getRepository().getRemoteFile(folder.getUrl().appendPath(".project"));
+														
+			InputStream is = dotProject.getStorage(monitor).getContents();
+			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			org.w3c.dom.Document doc = db.parse(is);
+			is.close();
+			NodeList nl = doc.getDocumentElement().getChildNodes();
+			for (int j = 0; j < nl.getLength(); ++j) {
+				Node child = nl.item(j);
+				if (child instanceof Element && "name".equals(child.getNodeName())) {
+					Node grandChild = child.getFirstChild();
+					if (grandChild instanceof Text) name = ((Text)grandChild).getData(); 	
 				}
-			}
-
-		}	
-		catch (Exception e) {
-		  // no .project exists ... that's ok
-		  // or an error occured while parsing .project (not valid ?)
+			}									
+	
+			return getProject(name);
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			client.getNotificationHandler().enableLog();			
 		}
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
-		return project;		
+	}
+	
+	/**
+	 * @param name
+	 * @return
+	 */
+	public static IProject getProject(String name) {
+		return ResourcesPlugin.getWorkspace().getRoot().getProject(name);
 	}
 
     /**
