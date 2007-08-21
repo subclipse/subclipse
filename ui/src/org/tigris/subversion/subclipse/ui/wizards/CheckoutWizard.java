@@ -40,8 +40,6 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.CheckoutAsProjectAction;
 import org.tigris.subversion.subclipse.ui.actions.CheckoutIntoAction;
 import org.tigris.subversion.subclipse.ui.actions.CheckoutUsingProjectWizardAction;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard {
 	private CheckoutWizardLocationPage locationPage;
@@ -165,14 +163,24 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 							if (hasProjectFile) {
 								if (checkoutAsWithProjectFilePage != null) {
 									checkoutAsWithProjectFilePage.setText(Policy.bind("CheckoutWizardCheckoutAsPage.single", remoteFolders[0].getName())); //$NON-NLS-1$
-									if (project == null)
-										project = SVNWorkspaceRoot.getProject(remoteFolders[0],null);
+									if (project == null) {
+										try {
+											project = SVNWorkspaceRoot.getProject(remoteFolders[0],null);
+										} catch (Exception e) {
+											project = SVNWorkspaceRoot.getProject(remoteFolders[0].getName());
+										}
+									}
 									if (project != null) checkoutAsWithProjectFilePage.setProject(project.getName());
 								}
 							} else {
 								if (checkoutAsWithoutProjectFilePage != null) {
 									checkoutAsWithoutProjectFilePage.setText(Policy.bind("CheckoutWizardCheckoutAsPage.single", remoteFolders[0].getName())); //$NON-NLS-1$
-									IProject project = SVNWorkspaceRoot.getProject(remoteFolders[0],null);
+									IProject project = null;
+									try {
+										project = SVNWorkspaceRoot.getProject(remoteFolders[0],null);
+									} catch (Exception e) {
+										project = SVNWorkspaceRoot.getProject(remoteFolders[0].getName());
+									}
 									checkoutAsWithoutProjectFilePage.setProject(project.getName());
 //									checkoutAsWithoutProjectFilePage.setProject(remoteFolders[0].getName());
 								}
@@ -275,15 +283,16 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 						monitor = Policy.monitorFor(monitor);
 						monitor.beginTask("Getting remote project info", 100);
 						ISVNRemoteFolder folder = remoteFolders[0];
-						String url = folder.getUrl().toString() + "/.project"; //$NON-NLS-1$ 
+	//					String url = folder.getUrl().toString() + "/.project"; //$NON-NLS-1$ 
 						try {
-							ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-							client.getInfo(new SVNUrl(url));
+//							ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+//							client.getInfo(new SVNUrl(url));
 							hasProjectFile = true;
 							monitor.worked(50);
 							project = SVNWorkspaceRoot.getProject(folder,null);
 						} catch (Exception e) {
 							hasProjectFile = false;
+							project = SVNWorkspaceRoot.getProject(folder.getName());
 						}		
 						finally
 						{

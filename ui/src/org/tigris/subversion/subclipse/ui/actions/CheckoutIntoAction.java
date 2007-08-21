@@ -18,7 +18,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -96,10 +95,15 @@ public class CheckoutIntoAction extends CheckoutAsProjectAction {
 					    }
 					    if (proceed) {
 					    	IProject project;
-					    	if (projectName == null)
-					    		project = SVNWorkspaceRoot.getProject(folders[i],monitor);
-					    	else
-					    		project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+					    	if (projectName == null) {
+					    		try {
+					    			project = SVNWorkspaceRoot.getProject(folders[i],monitor);
+					    		} catch (Exception e) {
+					    			project = SVNWorkspaceRoot.getProject(folders[i].getName());
+					    		}	    		
+					    	} else {
+					    		project = SVNWorkspaceRoot.getProject(projectName);
+					    	}
 					    	targetFolders.put(project.getName(), folders[i]);
 							targetProjects.add(project);
 					    } else return;
