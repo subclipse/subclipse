@@ -48,6 +48,7 @@ import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -88,14 +89,12 @@ public class SVNWorkspaceRoot {
 	 * @return
 	 */
 	public static IProject getProject(ISVNRemoteFolder folder,IProgressMonitor monitor) throws Exception {
-		ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+		ISVNClientAdapter client = folder.getRepository().getSVNClient();
 		try {
 			client.getNotificationHandler().disableLog();
 			String name = folder.getName();
-	
-			RemoteFile dotProject = (RemoteFile)folder.getRepository().getRemoteFile(folder.getUrl().appendPath(".project"));
-														
-			InputStream is = dotProject.getStorage(monitor).getContents();
+			
+			InputStream is = client.getContent(folder.getUrl().appendPath(".project"), SVNRevision.HEAD);
 			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			org.w3c.dom.Document doc = db.parse(is);
 			is.close();
