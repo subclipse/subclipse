@@ -16,7 +16,6 @@ import java.util.HashMap;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.clientadapter.Activator;
-import org.tigris.subversion.subclipse.core.client.NotificationListener;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
@@ -90,8 +89,6 @@ public class SVNClientManager {
     	} 
     	if (SVNProviderPlugin.getPlugin().getSvnPromptUserPassword() != null)
     	    svnClient.addPasswordCallback(SVNProviderPlugin.getPlugin().getSvnPromptUserPassword());
-    	// Remove our listener from previous usage
-    	svnClient.removeNotifyListener(NotificationListener.getInstance());
     	return svnClient;
     }
     

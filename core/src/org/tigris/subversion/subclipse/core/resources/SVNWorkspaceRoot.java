@@ -171,10 +171,13 @@ public class SVNWorkspaceRoot {
         String repositoryURL = null;
         ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
         try {
+            SVNProviderPlugin.disableConsoleLogging(); 
 			ISVNInfo info = client.getInfoFromWorkingCopy(project.getLocation().toFile());
 			if (info.getRepository() != null)
 				repositoryURL = info.getRepository().toString();
 		} catch (SVNClientException e) {
+		} finally {
+	        SVNProviderPlugin.enableConsoleLogging(); 
 		}
 		if (repositoryURL == null)
 			repositoryURL = status.getUrlString();

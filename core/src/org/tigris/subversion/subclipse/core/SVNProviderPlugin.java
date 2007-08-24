@@ -99,6 +99,8 @@ public class SVNProviderPlugin extends Plugin {
     
 	private SVNActiveChangeSetCollector changeSetManager;
 	
+	private static boolean consoleLoggingEnabled = true;
+	
 	/**
 	 * This constructor required by the bundle loader (calls newInstance())
 	 *  
@@ -431,7 +433,10 @@ public class SVNProviderPlugin extends Plugin {
 	 * @return the consoleListener, or null
 	 */
 	public IConsoleListener getConsoleListener() {
-		return consoleListener;
+		if (consoleLoggingEnabled)
+			return consoleListener;
+		else
+			return null;
 	}
 
 	/**
@@ -606,5 +611,24 @@ public class SVNProviderPlugin extends Plugin {
             changeSetManager = new SVNActiveChangeSetCollector(SVNWorkspaceSubscriber.getInstance());
         }
         return changeSetManager;
+    }
+    
+    /**
+     * Turn on console logging.  It should always
+     * be on and just turned off temporarily when needed.  Usually
+     * this is when running a command that you expect to fail, such
+     * as checking if something exists, and you do not want to bug
+     * the user with expected errors.
+     */
+    public static void enableConsoleLogging() {
+    	consoleLoggingEnabled = true;
+     }
+    
+    /**
+     * Turn off all console logging
+     * You MUST re-enable logging when you are done
+     */
+    public static void disableConsoleLogging() {
+    	consoleLoggingEnabled = false;
     }
 }

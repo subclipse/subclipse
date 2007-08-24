@@ -264,8 +264,11 @@ public class CheckoutCommand implements ISVNCommand {
 								try {
 									SVNUrl url = new SVNUrl(resource.getUrl().toString() + "/" + children[j].getProjectRelativePath());
 									try {
+								        SVNProviderPlugin.disableConsoleLogging(); 
 										info = clientSilent.getInfo(url);
 									} catch (SVNClientException e2) {
+									} finally {
+								        SVNProviderPlugin.enableConsoleLogging(); 
 									}
 								} catch (MalformedURLException e1) {
 								}

@@ -51,12 +51,15 @@ public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
         ISVNStatus[] statuses = null;
         try {
             ISVNClientAdapter svnClientAdapterStatus = SVNProviderPlugin.getPlugin().createSVNClient();
+            SVNProviderPlugin.disableConsoleLogging(); 
             statuses = svnClientAdapterStatus.getStatus(
                     resourceToUpdate.getLocation().toFile(),
                     false, // do only immediate children. 
                     true); // retrieve all entries
         } catch (SVNClientException e1) {
             throw SVNException.wrapException(e1);
+        } finally {
+            SVNProviderPlugin.enableConsoleLogging(); 
         }
         return statuses;
 	}

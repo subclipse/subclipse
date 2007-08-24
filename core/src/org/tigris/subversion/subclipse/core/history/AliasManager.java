@@ -203,7 +203,9 @@ public class AliasManager {
 		try {
 			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
 			ISVNProperty property = null;
+	        SVNProviderPlugin.disableConsoleLogging(); 
 			property = client.propertyGet(url, "subclipse:tags");
+	        SVNProviderPlugin.enableConsoleLogging(); 
 			if (property != null && property.getValue() != null) {
 				getAliases(aliases, property.getValue(), url.toString());
 			} else {
@@ -212,6 +214,8 @@ public class AliasManager {
 			}
 		} catch (SVNClientException e) {
 		} catch (SVNException e) {
+		} finally {
+	        SVNProviderPlugin.enableConsoleLogging(); 
 		}
 		Alias[] aliasArray = new Alias[aliases.size()];
 		aliases.toArray(aliasArray);

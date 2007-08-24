@@ -196,7 +196,9 @@ public class LogEntry extends PlatformObject implements ILogEntry {
     private SVNUrl updateRootUrl(ISVNResource resource) {
         try {
             ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
+            SVNProviderPlugin.disableConsoleLogging(); 
             ISVNInfo info = client.getInfo(resource.getUrl());
+            SVNProviderPlugin.enableConsoleLogging(); 
             if (info.getRepository() == null)
                 return resource.getUrl();
             else {
@@ -205,6 +207,7 @@ public class LogEntry extends PlatformObject implements ILogEntry {
                 return info.getRepository();
             }
         } catch (Exception e) {
+            SVNProviderPlugin.enableConsoleLogging(); 
             return resource.getUrl();
         }
     }
@@ -214,12 +217,15 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 		ISVNClientAdapter client;
         try {
             client = SVNProviderPlugin.getPlugin().createSVNClient(); // errors will not log to console
+            SVNProviderPlugin.disableConsoleLogging(); 
             tmpMessage = client.getLogMessages(url, getRevision(), getRevision(), true);
+            SVNProviderPlugin.enableConsoleLogging(); 
 	        if (tmpMessage != null && tmpMessage.length > 0)
 			    return tmpMessage[0].getChangedPaths();
 			else
 			    return null;
         } catch (Exception e) {
+            SVNProviderPlugin.enableConsoleLogging(); 
             return null;
         }
     }
