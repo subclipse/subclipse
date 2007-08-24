@@ -71,9 +71,14 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 			public void run() {
 				try {
 					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+			        SVNProviderPlugin.disableConsoleLogging(); 
 				    svnInfo = client.getInfo(remoteResource.getUrl());
 				    properties = client.getProperties(remoteResource.getUrl());
-				} catch (Exception e) { errorMessage = e.getMessage(); }
+			        SVNProviderPlugin.enableConsoleLogging(); 
+				} catch (Exception e) { 
+					errorMessage = e.getMessage();
+			        SVNProviderPlugin.enableConsoleLogging(); 
+				}
 			}			
 		});
 		

@@ -316,8 +316,11 @@ public class CommitOperation extends SVNOperation {
 		}
     	ISVNInfo info;
 		try {
+	        SVNProviderPlugin.disableConsoleLogging(); 
 			info = svnClient.getInfoFromWorkingCopy(file);
+	        SVNProviderPlugin.enableConsoleLogging(); 
 		} catch (SVNClientException e) {
+	        SVNProviderPlugin.enableConsoleLogging(); 
 			return null;
 		}
     	return info;

@@ -374,9 +374,13 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		try {
 			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
 			ISVNProperty property = null;
+	        SVNProviderPlugin.disableConsoleLogging(); 
 			property = client.propertyGet(resource.getUrl(), "subclipse:tags"); //$NON-NLS-1$
+	        SVNProviderPlugin.enableConsoleLogging(); 
 			if (property != null && property.getValue() != null) return true;
-		} catch (Exception e) {}
+		} catch (Exception e) {        
+			SVNProviderPlugin.enableConsoleLogging(); 
+		}
 		return false;
   }
 
