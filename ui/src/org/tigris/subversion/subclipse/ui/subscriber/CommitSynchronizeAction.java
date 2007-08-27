@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.subscriber;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.compare.structuremergeviewer.IDiffContainer;
@@ -36,6 +37,7 @@ import org.tigris.subversion.subclipse.core.util.Util;
  * to filter the selection and delegate its execution to the put operation.
  */
 public class CommitSynchronizeAction extends SynchronizeModelAction {
+	private ArrayList changeSets;
 
 	public CommitSynchronizeAction(String text, ISynchronizePageConfiguration configuration) {
 		super(text, configuration);
@@ -56,6 +58,7 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 	 * @see org.eclipse.team.ui.synchronize.SynchronizeModelAction#getSubscriberOperation(org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration, org.eclipse.compare.structuremergeviewer.IDiffElement[])
 	 */
 	protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
+		changeSets = new ArrayList();
 		String url = null;
 	    IStructuredSelection selection = getStructuredSelection();
 		Iterator iter = selection.iterator();
@@ -83,16 +86,22 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 	
 	private String getProposedComment(String proposedComment, ISynchronizeModelElement synchronizeModelElement) {
 		if (synchronizeModelElement instanceof ChangeSetDiffNode) {
-			if (proposedComment.length() > 0) proposedComment = proposedComment + System.getProperty("line.separator"); //$NON-NLS-1$
-			ChangeSet set = ((ChangeSetDiffNode)synchronizeModelElement).getSet();
-			return proposedComment + set.getComment();
+			ChangeSet set = ((ChangeSetDiffNode)synchronizeModelElement).getSet();			
+			if (!changeSets.contains(set)) {
+				changeSets.add(set);
+				if (proposedComment.length() > 0) proposedComment = proposedComment + System.getProperty("line.separator"); //$NON-NLS-1$
+				return proposedComment + set.getComment();
+			}
 		}
 		IDiffContainer parent = synchronizeModelElement.getParent();
 		while (parent != null) {
 			if (parent instanceof ChangeSetDiffNode) {
-				if (proposedComment.length() > 0) proposedComment = proposedComment + System.getProperty("line.separator"); //$NON-NLS-1$
 				ChangeSet set = ((ChangeSetDiffNode)parent).getSet();
-				return proposedComment + set.getComment();				
+				if (!changeSets.contains(set)) {
+					changeSets.add(set);
+					if (proposedComment.length() > 0) proposedComment = proposedComment + System.getProperty("line.separator"); //$NON-NLS-1$
+					return proposedComment + set.getComment();	
+				} else parent = parent.getParent();
 			} else parent = parent.getParent();
 		}
 		return proposedComment;
