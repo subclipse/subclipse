@@ -112,20 +112,30 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	private static ImageDescriptor added;
 	private static ImageDescriptor checkedIn;
 	private static ImageDescriptor external;
+    private static ImageDescriptor locked;
+    private static ImageDescriptor needsLock;
+    private static ImageDescriptor conflicted;
+    private static ImageDescriptor deleted;
+    private static ImageDescriptor switched;
 
 	private static ThemeListener fThemeListener;
 	
 	static {		
-		final PreviewFile project= new PreviewFile("Project", IResource.PROJECT, false, false, false, false, true, false, null, "v1_0"); //$NON-NLS-1$ //$NON-NLS-2$
+		final PreviewFile project= new PreviewFile("Project", IResource.PROJECT, false, false, false, false, true, false, false, false, false, false, false, null, "v1_0"); //$NON-NLS-1$ //$NON-NLS-2$
 		final ArrayList children= new ArrayList();
-		children.add(new PreviewFile("Folder", IResource.FOLDER, false, false, false, false, true, false, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("External Folder", IResource.FOLDER, false, false, false, false, true, true, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("ignored.txt", IResource.FILE, false, false, false, true, false, false, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("dirty.cpp", IResource.FILE, false, false, true, false, true, false, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("added.java", IResource.FILE, true, false, true, false, false, false, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("todo.txt", IResource.FILE, false, true, false, false, false, false, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("bugs.txt", IResource.FILE, false, false, true, false, true, false, null, null)); //$NON-NLS-1$
-		children.add(new PreviewFile("archive.zip", IResource.FILE, false, false, true, false, true, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("External Folder", IResource.FOLDER, false, false, false, false, true, true, false, false, false, false, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("Folder", IResource.FOLDER, false, false, false, false, true, false, false, false, false, false, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("Scheduled for Delete Folder", IResource.FOLDER, false, false, false, false, true, false, false, false, false, true, false, null, null)); //$NON-NLS-1$	
+		children.add(new PreviewFile("Switched Folder", IResource.FOLDER, false, false, false, false, true, false, false, false, false, false, true, null, null)); //$NON-NLS-1$		
+		children.add(new PreviewFile("added.java", IResource.FILE, true, false, true, false, false, false, false, false, false, false, false, null, null)); //$NON-NLS-1$		
+		children.add(new PreviewFile("conflicted.txt", IResource.FILE, false, false, false, false, true, false, false, false, true, false, false, null, null)); //$NON-NLS-1$				
+		children.add(new PreviewFile("dirty.cpp", IResource.FILE, false, false, true, false, true, false, false, false, false, false, false, null, null)); //$NON-NLS-1$		
+		children.add(new PreviewFile("ignored.txt", IResource.FILE, false, false, false, true, false, false, false, false, false, false, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("locked.txt", IResource.FILE, false, false, false, false, true, false, true, false, false, false, false, null, null)); //$NON-NLS-1$
+		children.add(new PreviewFile("readOnly.txt", IResource.FILE, false, false, false, false, true, false, false, true, false, false, false, null, null)); //$NON-NLS-1$	
+		children.add(new PreviewFile("unchanged.txt", IResource.FILE, false, false, false, false, true, false, false, false, false, false, false, null, null)); //$NON-NLS-1$	
+		children.add(new PreviewFile("unversioned.txt", IResource.FILE, false, true, false, false, false, false, false, false, false, false, false, null, null)); //$NON-NLS-1$
+//		children.add(new PreviewFile("archive.zip", IResource.FILE, false, false, true, false, true, false, false, false, false, false, false, null, null)); //$NON-NLS-1$
 		project.children= children;
 		ROOT= Collections.singleton(project);
 	}
@@ -136,6 +146,11 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		added = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_ADDED));
 		newResource = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_QUESTIONABLE));
 		external = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_EXTERNAL));
+		locked = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_LOCKED));
+		needsLock = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_NEEDSLOCK));	
+		conflicted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_CONFLICTED));	
+		deleted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_DELETED));
+		switched = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_SWITCHED));	
 	}
 
 	private Preview fPreview;
@@ -571,10 +586,10 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
     private static class PreviewFile {
 		public final String name;
 		public final int type;
-		public final boolean added, dirty, hasRemote, ignored, newResource, external;
+		public final boolean added, dirty, hasRemote, ignored, newResource, external, locked, readOnly, conflicted, deleted, switched;
 		public Collection children;
 		
-		public PreviewFile(String name, int type, boolean added, boolean newResource, boolean dirty, boolean ignored, boolean hasRemote, boolean external, String mode, String tag)  {
+		public PreviewFile(String name, int type, boolean added, boolean newResource, boolean dirty, boolean ignored, boolean hasRemote, boolean external, boolean locked, boolean readOnly, boolean conflicted, boolean deleted, boolean switched, String mode, String tag)  {
 			this.name= name;
 			this.type= type;
 			this.added= added;
@@ -583,6 +598,11 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 			this.hasRemote= hasRemote;
 			this.newResource= newResource;
 			this.external = external;
+			this.locked = locked;
+			this.readOnly = readOnly;
+			this.conflicted = conflicted;
+			this.deleted = deleted;
+			this.switched = switched;
 			this.children= Collections.EMPTY_LIST;
 		}
     }
@@ -597,7 +617,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 			fImageCache= new LocalResourceManager(JFaceResources.getResources());
 			fViewer = new TreeViewer(composite);
 			GridData data = SWTUtils.createHVFillGridData();
-			data.heightHint = 150;
+			data.heightHint = 225;
 			fViewer.getControl().setLayoutData(data);
 			fViewer.setContentProvider(this);
 			fViewer.setLabelProvider(this);
@@ -720,6 +740,11 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 			if (imageShowAdded.getSelection() && previewFile.added) return added;
 			if (imageShowDirty.getSelection() && previewFile.dirty) return dirty;
 			if (imageShowExternal.getSelection() && previewFile.external) return external;
+			if (previewFile.locked) return locked;
+			if (previewFile.readOnly) return needsLock;
+			if (previewFile.conflicted) return conflicted;
+			if (previewFile.deleted) return deleted;
+			if (previewFile.switched) return switched;			
 			if (imageShowHasRemote.getSelection() && previewFile.hasRemote) return checkedIn;
 			return null;
 		}
