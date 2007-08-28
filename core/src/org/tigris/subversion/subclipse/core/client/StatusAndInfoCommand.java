@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.ISVNCommand;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -53,7 +54,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
      */
     public void run(IProgressMonitor monitor) throws SVNException {
         try { 
-            ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+            ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().createSVNClient();
             execute(svnClient, monitor);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
