@@ -17,6 +17,8 @@ import java.util.List;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
@@ -25,12 +27,15 @@ import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
+import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	private IResource[] resources;
+	private boolean confirm;
+	private boolean confirmNeeded;
 	
 	public UpdateSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, IResource[] resources) {
 		super(configuration, elements);
@@ -44,7 +49,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 		IResource[] resourceArray = trimResources(extractResources(resources, set));
 		SVNRevision revision = null;
-		SyncInfo[] syncInfos = set.getSyncInfos();
+		final SyncInfo[] syncInfos = set.getSyncInfos();
 		boolean containsDeletes = false;
 		for (int i = 0; i < syncInfos.length; i++) {
 			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
@@ -66,6 +71,16 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 			}
 		}
 		if (revision == null || containsDeletes) revision = SVNRevision.HEAD;
+		
+		if (confirmNeeded) {
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					confirm = MessageDialog.openConfirm(getShell(), Policy.bind("SyncAction.updateAll"), Policy.bind("SyncAction.updateConfirm", Integer.toString(syncInfos.length))); //$NON-NLS-1$ //$NON-NLS-1$				
+				}			
+			});
+			if (!confirm) return;
+		}		
+		
 		new UpdateOperation(getPart(), resourceArray, revision, true).run();
 	}
 	
@@ -102,4 +117,8 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
         if (folders.contains(parent)) return true;
         return parentIncluded(parent, folders);
     }
+
+	public void setConfirmNeeded(boolean confirmNeeded) {
+		this.confirmNeeded = confirmNeeded;
+	}
 }

@@ -33,6 +33,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
  * to filter the selection and delegate its execution to the get operation.
  */
 public class UpdateSynchronizeAction extends SynchronizeModelAction {
+	private boolean confirm;
 
 	public UpdateSynchronizeAction(String text, ISynchronizePageConfiguration configuration) {
 		super(text, configuration);
@@ -54,7 +55,9 @@ public class UpdateSynchronizeAction extends SynchronizeModelAction {
 		}
 		IResource[] resources = new IResource[selectedResources.size()];
 		selectedResources.toArray(resources);
-		return new UpdateSynchronizeOperation(configuration, elements, resources);
+		UpdateSynchronizeOperation operation = new UpdateSynchronizeOperation(configuration, elements, resources);
+		operation.setConfirmNeeded(confirm);
+		return operation;
 	}
 
 	/* (non-Javadoc)
@@ -81,5 +84,9 @@ public class UpdateSynchronizeAction extends SynchronizeModelAction {
                 return true;
 			}
 		};
+	}
+
+	public void setConfirm(boolean confirm) {
+		this.confirm = confirm;
 	}
 }

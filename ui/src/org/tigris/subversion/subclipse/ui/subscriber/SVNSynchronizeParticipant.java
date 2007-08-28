@@ -123,6 +123,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 			};
 			updateToolbar.setToolTipText(Policy.bind("SyncAction.updateAll")); //$NON-NLS-1$
 			updateToolbar.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_UPDATE_ALL));
+			updateToolbar.setConfirm(true);
 			
 			commitToolbar = new CommitSynchronizeAction(null, configuration, getVisibleRootsSelectionProvider()); //$NON-NLS-1$
 			commitToolbar.setToolTipText(Policy.bind("SyncAction.commitAll")); //$NON-NLS-1$
