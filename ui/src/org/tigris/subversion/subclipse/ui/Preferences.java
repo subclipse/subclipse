@@ -78,7 +78,7 @@ private IPreferenceStore store;
 		store.setDefault(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE, true);
         store.setDefault(ISVNUIConstants.PREF_COMMIT_SET_DEFAULT_ENABLEMENT, false);
         
-        store.setDefault(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK, false);
+        store.setDefault(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK, true);
         
         store.setDefault(ISVNUIConstants.PREF_SVNINTERFACE, "javahl"); //$NON-NLS-1$
         store.setDefault(ISVNUIConstants.PREF_SVNCONFIGDIR, ""); //$NON-NLS-1$
