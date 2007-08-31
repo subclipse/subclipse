@@ -39,7 +39,7 @@
       <import plugin="org.eclipse.compare"/>
       <import plugin="org.eclipse.ui.console"/>
       <import plugin="org.eclipse.help"/>
-      <import plugin="org.tigris.subversion.clientadapter" version="1.5.0" match="greaterOrEqual"/>
+      <import plugin="org.tigris.subversion.clientadapter" version="1.3.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
