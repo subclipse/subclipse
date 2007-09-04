@@ -153,17 +153,29 @@ public class CommitOperation extends SVNOperation {
     private void deleteAdminFolders(List pathList, String adminFolderName) {
 		for (Iterator iterator = pathList.iterator(); iterator.hasNext();) {
 			File path = new File((File) iterator.next(), adminFolderName);
-			File entries = new File(path, "entries");
-			File format = new File(path, "format");
-			format.delete();
-			entries.delete();
-			path.delete();
+			deleteFolder(path);
 		}
 	}
-
+    
+    // Deletes all files and subdirectories under dir.
+    // Returns true if all delete was successful.
+    private static boolean deleteFolder(File folder) {
+        if (folder.isDirectory()) {
+            String[] children = folder.list();
+            for (int i=0; i< children.length; i++) {
+                if (!deleteFolder(new File(folder, children[i]))) {
+                    return false;
+                }
+            }
+        }
+    
+        // The folder should be empty so delete it
+        return folder.delete();
+    }
+    
 	/**
 	 * This method generate a Subversion metadata folder with an entries and format
-	 * file.  It is used as a hack to trick commit into committing files from
+	 * file and a tmp folder.  It is used as a hack to trick commit into committing files from
 	 * two disjointed working copies from the same repository.
 	 * 
 	 * If the resource array contains any IProjects then it needs to create a more
@@ -194,6 +206,8 @@ public class CommitOperation extends SVNOperation {
 		}
 		File admin = new File(path, adminFolderName);
 		if (admin.mkdir()) {
+			File tmp = new File(admin, "tmp");
+			tmp.mkdir();
 			File entries = new File(admin, "entries");
 			File format = new File(admin, "format");
 			try {
