@@ -46,6 +46,19 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 		return true;
 	}
 
+	public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+		if (confirmNeeded) {
+			final SyncInfoSet syncSet = getSyncInfoSet();
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					confirm = MessageDialog.openConfirm(getShell(), Policy.bind("SyncAction.updateAll"), Policy.bind("SyncAction.updateConfirm", Integer.toString(syncSet.getSyncInfos().length))); //$NON-NLS-1$ //$NON-NLS-1$				
+				}			
+			});
+			if (!confirm) return;			
+		}
+		super.run(monitor);
+	}
+
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 		IResource[] resourceArray = trimResources(extractResources(resources, set));
 		SVNRevision revision = null;
@@ -71,15 +84,6 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 			}
 		}
 		if (revision == null || containsDeletes) revision = SVNRevision.HEAD;
-		
-		if (confirmNeeded) {
-			Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					confirm = MessageDialog.openConfirm(getShell(), Policy.bind("SyncAction.updateAll"), Policy.bind("SyncAction.updateConfirm", Integer.toString(syncInfos.length))); //$NON-NLS-1$ //$NON-NLS-1$				
-				}			
-			});
-			if (!confirm) return;
-		}		
 		
 		new UpdateOperation(getPart(), resourceArray, revision, true).run();
 	}
