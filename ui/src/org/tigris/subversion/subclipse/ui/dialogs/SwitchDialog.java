@@ -215,6 +215,11 @@ public class SwitchDialog extends TrayDialog {
 				tc.setText(columnHeaders[i]);
 			}			
 			viewer.setInput(this);
+			urlCombo.getCombo().addModifyListener(new ModifyListener() {
+				public void modifyText(ModifyEvent e) {
+					viewer.refresh();
+				}				
+			});
 		}
 
 		// Add F1 help
@@ -358,7 +363,7 @@ public class SwitchDialog extends TrayDialog {
 		
 		public String getText(Object element) {
 			SwitchResource switchResource = (SwitchResource)element;
-			return switchResource.getPartialPath();
+			return switchResource.getPartialPath() + " [" + urlCombo.getText() + "/" + switchResource.getPartialPath() + "]";
 		}
 
 		public Image getColumnImage(Object element, int columnIndex) {
@@ -406,12 +411,6 @@ public class SwitchDialog extends TrayDialog {
 	
 		public String getColumnText(Object element, int columnIndex) {
 			String text = provider.getColumnText(element, columnIndex);
-	        if (decorator != null) {
-	            String decorated = decorator.decorateText(text, element);
-	            if (decorated != null) {
-	                return decorated;
-	            }
-	        }
 	        return text;
 		}
 	}

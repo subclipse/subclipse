@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -72,15 +73,18 @@ public class SwitchAction extends WorkbenchWindowAction {
 	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForMultipleResources()
 	 */
 	protected boolean isEnabledForMultipleResources() {
-		// Must all be from same repository.
-		ISVNRepositoryLocation repository = null;
-		IResource[] selectedResources = getSelectedResources();
-		for (int i = 0; i < selectedResources.length; i++) {
-			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(selectedResources[i]);
-			if (repository != null && !svnResource.getRepository().equals(repository)) return false;
-			repository = svnResource.getRepository();
-		}
-		return true;
+		try {
+			// Must all be from same repository.
+			ISVNRepositoryLocation repository = null;
+			IResource[] selectedResources = getSelectedResources();
+			for (int i = 0; i < selectedResources.length; i++) {
+				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(selectedResources[i]);
+				if (svnResource == null || !svnResource.isManaged()) return false;
+				if (repository != null && !svnResource.getRepository().equals(repository)) return false;
+				repository = svnResource.getRepository();
+			}
+			return true;
+		} catch (Exception e) { return false; }
 	}	   
 
 	protected String getImageId()
