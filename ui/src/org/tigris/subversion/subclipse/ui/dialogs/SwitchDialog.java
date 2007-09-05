@@ -125,6 +125,7 @@ public class SwitchDialog extends TrayDialog {
 		browseButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), resources[0]);
+                dialog.setIncludeBranchesAndTags(resources.length == 1);
                 if ((dialog.open() == ChooseUrlDialog.OK) && (dialog.getUrl() != null)) {
                     urlCombo.setText(dialog.getUrl());
                     setOkButtonStatus();
