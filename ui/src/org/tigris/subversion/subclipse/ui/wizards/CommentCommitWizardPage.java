@@ -12,6 +12,9 @@ package org.tigris.subversion.subclipse.ui.wizards;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -51,7 +54,17 @@ public class CommentCommitWizardPage extends SVNWizardPage {
 		// set F1 help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(top, IHelpContextIds.COMMENT_COMMIT_PAGE_DIALOG);
 		commitCommentArea.createArea(top);
-        
+        IWizard wizard = getWizard();
+        if (wizard instanceof IClosableWizard) {
+    		commitCommentArea.addPropertyChangeListener(new IPropertyChangeListener() {
+    			public void propertyChange(PropertyChangeEvent event) {
+    				if (event.getProperty() == CommitCommentArea.OK_REQUESTED) {
+    					IClosableWizard wizard = (IClosableWizard)getWizard();
+    					wizard.finishAndClose();
+    				}
+    			}
+    		});        	
+        }
 	}
 
 	/**

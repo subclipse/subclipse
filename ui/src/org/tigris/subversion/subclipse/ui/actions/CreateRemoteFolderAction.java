@@ -15,6 +15,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.NewRemoteFolderWizard;
 
 /**
@@ -39,16 +40,13 @@ public class CreateRemoteFolderAction extends SVNAction {
             remoteFolder = ((ISVNRemoteFile)selection.getFirstElement()).getParent();
                 
         NewRemoteFolderWizard wizard = new NewRemoteFolderWizard(remoteFolder);
-                
-        WizardDialog dialog = new WizardDialog(shell, wizard);
+        
+        WizardDialog dialog = new ClosableWizardDialog(shell, wizard);
         wizard.setParentDialog(dialog);
         dialog.open();
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.team.internal.ui.actions.TeamAction#isEnabled()
-	 */
 	protected boolean isEnabled(){
 		return (selection.size() == 1);
 	}

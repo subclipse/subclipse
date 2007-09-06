@@ -14,6 +14,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.MoveRemoteResourceWizard;
 
 /**
@@ -29,7 +30,7 @@ public class MoveRemoteResourceAction extends SVNAction {
  
         MoveRemoteResourceWizard wizard = new MoveRemoteResourceWizard((ISVNRemoteResource)selection.getFirstElement());
                 
-        WizardDialog dialog = new WizardDialog(shell, wizard);
+        WizardDialog dialog = new ClosableWizardDialog(shell, wizard);
         wizard.setParentDialog(dialog);
         dialog.open();
 

@@ -28,7 +28,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 /**
  * Wizard to add a new remote folder
  */
-public class NewRemoteFolderWizard extends Wizard {
+public class NewRemoteFolderWizard extends Wizard implements IClosableWizard {
 	private NewRemoteFolderWizardMainPage mainPage;
     private CommentCommitWizardPage commitCommentPage; 
     private ISVNRemoteFolder selection;
@@ -94,6 +94,12 @@ public class NewRemoteFolderWizard extends Wizard {
      */
     public void setParentDialog(Dialog dialog) {
         this.parentDialog = dialog;
-    }    
+    } 
+    
+    public void finishAndClose() {
+    	if (parentDialog != null && parentDialog instanceof ClosableWizardDialog && canFinish()) {
+    		((ClosableWizardDialog)parentDialog).finishPressed();
+    	}
+    }
     
 }

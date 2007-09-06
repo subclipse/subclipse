@@ -28,7 +28,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 /**
  * Wizard to move a remote resource
  */
-public class MoveRemoteResourceWizard extends Wizard {
+public class MoveRemoteResourceWizard extends Wizard implements IClosableWizard {
 	private MoveRemoteResourceWizardMainPage mainPage;
     private CommentCommitWizardPage commitCommentPage; 
     private ISVNRemoteResource selection;
@@ -95,6 +95,12 @@ public class MoveRemoteResourceWizard extends Wizard {
      */
     public void setParentDialog(Dialog dialog) {
         this.parentDialog = dialog;
+    }
+    
+    public void finishAndClose() {
+    	if (parentDialog != null && parentDialog instanceof ClosableWizardDialog && canFinish()) {
+    		((ClosableWizardDialog)parentDialog).finishPressed();
+    	}
     }    
     
 }
