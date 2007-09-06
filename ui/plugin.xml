@@ -539,6 +539,7 @@
                class="org.tigris.subversion.subclipse.ui.actions.GenerateDiffFileAction"
                tooltip="%generatediff.tooltip"
                menubarPath="team.main/group1"
+               definitionId="org.tigris.subversion.subclipse.ui.GenerateDiff"
                id="org.tigris.subversion.subclipse.ui.GenerateDiff">
          </action>
          <action
