@@ -33,6 +33,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -48,6 +50,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -55,6 +58,7 @@ import org.tigris.subversion.subclipse.core.history.Branches;
 import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.Tags;
+import org.tigris.subversion.subclipse.core.repo.ISVNListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -87,6 +91,35 @@ public class ChooseUrlDialog extends TrayDialog {
     private boolean includeBranchesAndTags = true;
     
     private IDialogSettings settings;
+    
+    private static boolean needsRefresh = true;
+    
+    static {
+    	ISVNListener repositoryListener = new ISVNListener() {
+			public void remoteResourceCopied(ISVNRemoteResource source, ISVNRemoteFolder destination) {
+				needsRefresh = true;
+			}
+			public void remoteResourceCreated(ISVNRemoteFolder parent, String resourceName) {
+				needsRefresh = true;
+			}
+			public void remoteResourceDeleted(ISVNRemoteResource resource) {
+				needsRefresh = true;
+			}
+			public void remoteResourceMoved(ISVNRemoteResource resource, ISVNRemoteFolder destinationFolder, String destinationResourceName) {
+				needsRefresh = true;
+			}
+			public void repositoryAdded(ISVNRepositoryLocation root) {
+				needsRefresh = true;
+			}
+			public void repositoryModified(ISVNRepositoryLocation root) {
+				needsRefresh = true;
+			}
+			public void repositoryRemoved(ISVNRepositoryLocation root) {
+				needsRefresh = true;
+			}  		
+    	};
+    	SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().addRepositoryListener(repositoryListener);
+    }
 
     public ChooseUrlDialog(Shell parentShell, IResource resource) {
         super(parentShell);
@@ -115,6 +148,7 @@ public class ChooseUrlDialog extends TrayDialog {
             }
         };
         settings = SVNUIPlugin.getPlugin().getDialogSettings();
+        if (needsRefresh) refreshRepositoriesFolders();
     }
 
 	protected Control createDialogArea(Composite parent) {
@@ -153,6 +187,15 @@ public class ChooseUrlDialog extends TrayDialog {
 		data.heightHint = LIST_HEIGHT_HINT;
 		data.widthHint = LIST_WIDTH_HINT;
 		treeViewer.getControl().setLayoutData(data);
+		
+        // when F5 is pressed, refresh
+        treeViewer.getControl().addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent event) {
+                if (event.keyCode == SWT.F5) {
+                    refreshAction.run();
+                }
+            }
+        });		
 
         treeViewer.addDoubleClickListener(new IDoubleClickListener() {
             public void doubleClick(DoubleClickEvent e) {
@@ -184,18 +227,23 @@ public class ChooseUrlDialog extends TrayDialog {
     protected void refreshViewer(boolean refreshRepositoriesFolders) {
         if (treeViewer == null) return;
         if (refreshRepositoriesFolders) {
-        	IRunnableWithProgress runnable = new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                	SVNProviderPlugin.getPlugin().getRepositories().refreshRepositoriesFolders(monitor);
-				}
-        	};
-            try {
-				new ProgressMonitorDialog(getShell()).run(true, false, runnable);
-			} catch (Exception e) {
-	            SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
-			}
+        	refreshRepositoriesFolders();
         }
         treeViewer.refresh();
+    }
+    
+    private void refreshRepositoriesFolders() {
+    	IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+            	SVNProviderPlugin.getPlugin().getRepositories().refreshRepositoriesFolders(monitor);
+    			needsRefresh = false;
+			}
+    	};
+        try {
+			new ProgressMonitorDialog(getShell()).run(true, false, runnable);
+		} catch (Exception e) {
+            SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
+		}    	
     }
 
     protected void okPressed() {
@@ -332,4 +380,5 @@ public class ChooseUrlDialog extends TrayDialog {
 	public String[] getUrls() {
 		return urls;
 	}
+
 }
