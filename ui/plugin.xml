@@ -304,6 +304,12 @@
                id="org.tigris.subversion.subclipse.ui.openLogEntry">
          </action>
          <action
+               label="%ShowDifferencesAsUnifiedDiffAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffAction"
+			   enablesFor="2"               
+               id="org.tigris.subversion.subclipse.ui.showDifferencesAsUnifiedDiff">
+         </action>             
+         <action
                label="%CompareRemoteResourcesAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.compare_remote_resources_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.CompareRemoteResourcesAction"

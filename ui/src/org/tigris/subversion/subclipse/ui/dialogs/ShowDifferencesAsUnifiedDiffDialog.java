@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -44,9 +45,11 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
-	private ISVNRemoteResource[] remoteResources;
+//	private ISVNRemoteResource[] remoteResources;
+	private ISVNResource[] remoteResources;
 	private IWorkbenchPart targetPart;
-	private ISVNRemoteResource fromResource;
+//	private ISVNRemoteResource fromResource;
+	private ISVNResource fromResource;
 	private Text fileText;
 	private Text fromUrlText;
 	private Button fromHeadButton;
@@ -60,8 +63,10 @@ public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
 	private Button toLogButton;
 	private Button okButton;
 	private boolean success;
+	private String fromRevision;
+	private String toRevision;
 
-	public ShowDifferencesAsUnifiedDiffDialog(Shell parentShell, ISVNRemoteResource[] remoteResources, IWorkbenchPart targetPart) {
+	public ShowDifferencesAsUnifiedDiffDialog(Shell parentShell, ISVNResource[] remoteResources, IWorkbenchPart targetPart) {
 		super(parentShell);
 		this.remoteResources = remoteResources;
 		this.targetPart = targetPart;
@@ -202,7 +207,22 @@ public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
             public void widgetSelected(SelectionEvent e) {
                 showLog(e.getSource());
             }
-		});			
+		});	
+		
+		if (fromRevision != null) {
+			fromRevisionText.setText(fromRevision);
+			fromRevisionText.setEnabled(true);
+			fromLogButton.setEnabled(true);
+			fromRevisionButton.setSelection(true);
+			fromHeadButton.setSelection(false);
+		}
+		if (toRevision != null) {
+			toRevisionText.setText(toRevision);
+			toRevisionText.setEnabled(true);
+			toLogButton.setEnabled(true);
+			toRevisionButton.setSelection(true);
+			toHeadButton.setSelection(false);
+		}				
 		
 		fileText.setFocus();
 		
@@ -348,21 +368,39 @@ public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
     private void showLog(Object sourceButton) {
     	HistoryDialog dialog = null;
     	if (sourceButton == fromLogButton) {
-	    	if (fromResource == remoteResources[0]) dialog = new HistoryDialog(getShell(), remoteResources[0]);
-	    	else dialog = new HistoryDialog(getShell(), remoteResources[1]);
-	        if (dialog.open() == HistoryDialog.CANCEL) return;
+    		if (fromResource instanceof ISVNRemoteResource) {
+		    	if (fromResource == remoteResources[0]) dialog = new HistoryDialog(getShell(), (ISVNRemoteResource)remoteResources[0]);
+		    	else dialog = new HistoryDialog(getShell(), (ISVNRemoteResource)remoteResources[1]);
+    		} else {
+    	    	if (fromResource == remoteResources[0]) dialog = new HistoryDialog(getShell(), ((ISVNResource)remoteResources[0]).getResource());
+		    	else dialog = new HistoryDialog(getShell(), ((ISVNResource)remoteResources[1]).getResource());    			
+    		}
+	    	if (dialog.open() == HistoryDialog.CANCEL) return;
 	        ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
 	        if (selectedEntries.length == 0) return;
 	        fromRevisionText.setText(Long.toString(selectedEntries[selectedEntries.length - 1].getRevision().getNumber()));
     	} else {
-	    	if (fromResource == remoteResources[0]) dialog = new HistoryDialog(getShell(), remoteResources[1]);
-	    	else dialog = new HistoryDialog(getShell(), remoteResources[0]);
-	        if (dialog.open() == HistoryDialog.CANCEL) return;
+    		if (fromResource instanceof ISVNRemoteResource) {
+		    	if (fromResource == remoteResources[0]) dialog = new HistoryDialog(getShell(), (ISVNRemoteResource)remoteResources[1]);
+		    	else dialog = new HistoryDialog(getShell(), (ISVNRemoteResource)remoteResources[0]);
+    		} else {
+		    	if (fromResource == remoteResources[0]) dialog = new HistoryDialog(getShell(), ((ISVNResource)remoteResources[1]).getResource());
+		    	else dialog = new HistoryDialog(getShell(), ((ISVNRemoteResource)remoteResources[0]).getResource());    			
+    		}
+	    	if (dialog.open() == HistoryDialog.CANCEL) return;
 	        ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
 	        if (selectedEntries.length == 0) return;
 	        toRevisionText.setText(Long.toString(selectedEntries[selectedEntries.length - 1].getRevision().getNumber()));    		
     	}
         setOkButtonStatus();    	
     }
+
+	public void setFromRevision(String fromRevision) {
+		this.fromRevision = fromRevision;
+	}
+
+	public void setToRevision(String toRevision) {
+		this.toRevision = toRevision;
+	}
 
 }

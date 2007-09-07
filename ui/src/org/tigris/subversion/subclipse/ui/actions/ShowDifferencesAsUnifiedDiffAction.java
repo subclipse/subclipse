@@ -14,27 +14,52 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
-import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNResource;
+import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.dialogs.ShowDifferencesAsUnifiedDiffDialog;
 
 public class ShowDifferencesAsUnifiedDiffAction extends SVNAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
-		ISVNRemoteResource[] selectedResources = getSelectedRemoteResources();
+		String fromRevision = null;
+		String toRevision = null;
+		ISVNResource[] selectedResources = getSelectedRemoteResources();
+		if (selectedResources == null || !(selectedResources.length == 2)) {
+			Object[] selectedObjects = selection.toArray();
+			if (selectedObjects[0] instanceof ILogEntry && selectedObjects[1] instanceof ILogEntry) {
+				selectedResources = new ISVNResource[2];
+				selectedResources[0] = ((ILogEntry)selectedObjects[0]).getResource();
+				selectedResources[1] = ((ILogEntry)selectedObjects[1]).getResource();
+				fromRevision = ((ILogEntry)selectedObjects[0]).getRevision().toString();
+				toRevision = ((ILogEntry)selectedObjects[1]).getRevision().toString();
+			}
+		}
 		ShowDifferencesAsUnifiedDiffDialog dialog = new ShowDifferencesAsUnifiedDiffDialog(getShell(), selectedResources, getTargetPart());
+		dialog.setFromRevision(fromRevision);
+		dialog.setToRevision(toRevision);
 		dialog.open();
 	}
 
 	protected boolean isEnabled() throws TeamException {
-		ISVNRemoteResource[] selectedResources = getSelectedRemoteResources();
-		if (selectedResources.length != 2) return false;
-		if (!selectedResources[0].getRepository().getRepositoryRoot().toString().equals(selectedResources[1].getRepository().getRepositoryRoot().toString())) return false;
-		if (selectedResources[0] instanceof ISVNRemoteFolder && selectedResources[1] instanceof ISVNRemoteFolder) return true;
-		if (selectedResources[0] instanceof ISVNRemoteFile && selectedResources[1] instanceof ISVNRemoteFile) return true;
-		return false;
+		Object[] selectedObjects = selection.toArray();
+		if (selectedObjects.length != 2) return false;
+		ISVNResource svnResource1 = null;
+		ISVNResource svnResource2 = null;
+		if (selectedObjects[0] instanceof ISVNResource) svnResource1 = (ISVNResource)selectedObjects[0];
+		else {
+			if (selectedObjects[0] instanceof ILogEntry)
+				svnResource1 = ((ILogEntry)selectedObjects[0]).getResource();
+		}
+		if (selectedObjects[1] instanceof ISVNResource) svnResource2 = (ISVNResource)selectedObjects[1];
+		else {
+			if (selectedObjects[1] instanceof ILogEntry)
+				svnResource2 = ((ILogEntry)selectedObjects[1]).getResource();		
+		}
+		if (svnResource1 == null || svnResource2 == null) return false;
+		
+		if (!svnResource1.getRepository().getRepositoryRoot().toString().equals(svnResource2.getRepository().getRepositoryRoot().toString())) return false;
+		return (svnResource1.isFolder() == svnResource2.isFolder());
 	}
 
 	/*
