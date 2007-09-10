@@ -18,10 +18,12 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.ResourceEditionNode;
 import org.tigris.subversion.subclipse.ui.compare.SVNCompareEditorInput;
+import org.tigris.subversion.subclipse.ui.compare.SVNFolderCompareEditorInput;
 
 /**
  * This action is used for comparing two arbitrary remote resources. This is
@@ -34,7 +36,20 @@ public class CompareRemoteResourcesAction extends SVNAction {
 			public void run(IProgressMonitor monitor) {
 				ISVNRemoteResource[] editions = getSelectedRemoteResources();
 				if (editions == null || editions.length != 2) {
-					MessageDialog.openError(getShell(), Policy.bind("CompareRemoteResourcesAction.unableToCompare"), Policy.bind("CompareRemoteResourcesAction.selectTwoResources")); //$NON-NLS-1$ //$NON-NLS-2$
+					Object[] selectedObjects = selection.toArray();
+					if (selectedObjects.length == 2 && selectedObjects[0] instanceof ILogEntry && selectedObjects[1] instanceof ILogEntry) {
+						ILogEntry logEntry1 = (ILogEntry)selectedObjects[0];
+						ILogEntry logEntry2 = (ILogEntry)selectedObjects[1];
+						try {
+							CompareUI.openCompareEditorOnPage(
+									  new SVNFolderCompareEditorInput(logEntry1, logEntry2),
+									  getTargetPage());							
+						} catch (Exception e) {
+							
+						}
+					} else {
+						MessageDialog.openError(getShell(), Policy.bind("CompareRemoteResourcesAction.unableToCompare"), Policy.bind("CompareRemoteResourcesAction.selectTwoResources")); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 					return;
 				}
 				ResourceEditionNode left = new ResourceEditionNode(editions[0]);
@@ -51,8 +66,17 @@ public class CompareRemoteResourcesAction extends SVNAction {
 	 */
 	protected boolean isEnabled() {
 		ISVNRemoteResource[] resources = getSelectedRemoteResources();
-		if (resources.length != 2) return false;
-		return resources[0].isContainer() == resources[1].isContainer();
+		boolean enabled = (resources.length == 2) && (resources[0].isContainer() == resources[1].isContainer());
+		if (!enabled) {
+			Object[] selectedObjects = selection.toArray();
+			if (selectedObjects.length == 2 && selectedObjects[0] instanceof ILogEntry && selectedObjects[1] instanceof ILogEntry) {
+				ILogEntry logEntry1 = (ILogEntry)selectedObjects[0];
+				ILogEntry logEntry2 = (ILogEntry)selectedObjects[1];
+				if (logEntry1.getResource() != null && logEntry1.getResource().isFolder() && logEntry2.getResource() != null && logEntry2.getResource().isFolder())
+					enabled = true;
+			}
+		}
+		return enabled;
 	}
 
 	/*
