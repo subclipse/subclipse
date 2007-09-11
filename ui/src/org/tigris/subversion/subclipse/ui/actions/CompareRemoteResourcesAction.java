@@ -17,8 +17,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.ResourceEditionNode;
@@ -39,10 +41,12 @@ public class CompareRemoteResourcesAction extends SVNAction {
 					Object[] selectedObjects = selection.toArray();
 					if (selectedObjects.length == 2 && selectedObjects[0] instanceof ILogEntry && selectedObjects[1] instanceof ILogEntry) {
 						ILogEntry logEntry1 = (ILogEntry)selectedObjects[0];
-						ILogEntry logEntry2 = (ILogEntry)selectedObjects[1];
+						ILogEntry logEntry2 = (ILogEntry)selectedObjects[1];			
 						try {
+							ISVNRemoteFolder folder1 = new RemoteFolder(logEntry1.getResource().getRepository(), logEntry1.getResource().getUrl(), logEntry1.getRevision());
+							ISVNRemoteFolder folder2 = new RemoteFolder(logEntry2.getResource().getRepository(), logEntry2.getResource().getUrl(), logEntry2.getRevision());
 							CompareUI.openCompareEditorOnPage(
-									  new SVNFolderCompareEditorInput(logEntry1, logEntry2),
+									  new SVNFolderCompareEditorInput(folder1, folder2),
 									  getTargetPage());							
 						} catch (Exception e) {
 							

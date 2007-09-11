@@ -17,7 +17,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
-import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -30,19 +29,17 @@ import org.tigris.subversion.svnclientadapter.utils.Depth;
 public class SVNFolderCompareEditorInput extends CompareEditorInput {
 	private SummaryEditionNode left;
 	private SummaryEditionNode right;
-	private ILogEntry logEntry1;
-	private ILogEntry logEntry2;
+	private ISVNRemoteFolder folder1;
+	private ISVNRemoteFolder folder2;
 	private ITypedElement ancestor;	
 	private Image leftImage;
 	private Image rightImage;
 	private Image ancestorImage;
 	
-	public SVNFolderCompareEditorInput(ILogEntry logEntry1, ILogEntry logEntry2) {
+	public SVNFolderCompareEditorInput(ISVNRemoteFolder folder1, ISVNRemoteFolder folder2) {
 		super(new CompareConfiguration());
-		this.logEntry1 = logEntry1;
-		this.logEntry2 = logEntry2;
-		ISVNRemoteFolder folder1 = new RemoteFolder(logEntry1.getResource().getRepository(), logEntry1.getResource().getUrl(), logEntry1.getRevision());
-		ISVNRemoteFolder folder2 = new RemoteFolder(logEntry2.getResource().getRepository(), logEntry2.getResource().getUrl(), logEntry2.getRevision());
+		this.folder1 = folder1;
+		this.folder2 = folder2;
 		left = new SummaryEditionNode(folder1);
 		left.setRootFolder((RemoteFolder)folder1);
 		left.setNodeType(SummaryEditionNode.LEFT);
@@ -160,8 +157,8 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 			IProgressMonitor sub = new SubProgressMonitor(monitor, 30);
 			sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); //$NON-NLS-1$
 			try {
-				ISVNClientAdapter svnClient = logEntry1.getResource().getRepository().getSVNClient();
-				SVNDiffSummary[] diffSummary = svnClient.diffSummarize(logEntry1.getResource().getUrl(), logEntry1.getRevision(), logEntry2.getResource().getUrl(), logEntry2.getRevision(), Depth.infinity, false);
+				ISVNClientAdapter svnClient = folder1.getRepository().getSVNClient();
+				SVNDiffSummary[] diffSummary = svnClient.diffSummarize(folder1.getUrl(), folder1.getRevision(), folder2.getUrl(), folder2.getRevision(), Depth.infinity, false);				
 				diffSummary = getDiffSummaryWithSubfolders(diffSummary);
 				left.setDiffSummary(diffSummary);
 				right.setDiffSummary(diffSummary);
