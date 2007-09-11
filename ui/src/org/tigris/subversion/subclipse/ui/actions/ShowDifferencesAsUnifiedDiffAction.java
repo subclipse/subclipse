@@ -14,10 +14,13 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
+import org.tigris.subversion.subclipse.ui.dialogs.DifferencesDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.ShowDifferencesAsUnifiedDiffDialog;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class ShowDifferencesAsUnifiedDiffAction extends SVNAction {
 
@@ -34,10 +37,16 @@ public class ShowDifferencesAsUnifiedDiffAction extends SVNAction {
 				fromRevision = ((ILogEntry)selectedObjects[0]).getRevision().toString();
 				toRevision = ((ILogEntry)selectedObjects[1]).getRevision().toString();
 			}
+		} else {
+			if (selectedResources[0] instanceof ISVNRemoteResource)
+				fromRevision = ((ISVNRemoteResource)selectedResources[0]).getRevision().toString();
+			if (selectedResources[1] instanceof ISVNRemoteResource)
+				toRevision = ((ISVNRemoteResource)selectedResources[1]).getRevision().toString();			
 		}
-		ShowDifferencesAsUnifiedDiffDialog dialog = new ShowDifferencesAsUnifiedDiffDialog(getShell(), selectedResources, getTargetPart());
-		dialog.setFromRevision(fromRevision);
-		dialog.setToRevision(toRevision);
+//		ShowDifferencesAsUnifiedDiffDialog dialog = new ShowDifferencesAsUnifiedDiffDialog(getShell(), selectedResources, getTargetPart());
+		DifferencesDialog dialog = new DifferencesDialog(getShell(), null, selectedResources, getTargetPart());
+		if (!fromRevision.equals("HEAD")) dialog.setFromRevision(fromRevision); //$NON-NLS-1$
+		if (!toRevision.equals("HEAD")) dialog.setToRevision(toRevision); //$NON-NLS-1$  
 		dialog.open();
 	}
 

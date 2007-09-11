@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.history;
 
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -83,7 +82,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.team.core.RepositoryProvider;
@@ -194,7 +192,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction getContentsAction;
   private IAction updateToRevisionAction;
   private IAction openChangedPathAction;
-  private IAction showDifferencesAsUnifiedDiffAction;
+//  private IAction showDifferencesAsUnifiedDiffAction;
   private IAction createTagFromRevisionAction;
   private IAction setCommitPropertiesAction;
   private IAction showRevisionsAction;
@@ -569,7 +567,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             manager.add(getGetContentsAction());
             manager.add(getUpdateToRevisionAction());
           }
-          manager.add(getShowDifferencesAsUnifiedDiffAction());
+//          manager.add(getShowDifferencesAsUnifiedDiffAction());
           // if (resource != null) {
           manager.add(getCreateTagFromRevisionAction());
           // }
@@ -1069,46 +1067,46 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
   // get differences as unified diff action (context menu)
-  private IAction getShowDifferencesAsUnifiedDiffAction() {
-    if(showDifferencesAsUnifiedDiffAction == null) {
-      showDifferencesAsUnifiedDiffAction = new Action(
-          Policy.bind("HistoryView.showDifferences"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_DIFF)) { //$NON-NLS-1$
-        public void run() {
-          ISelection selection = getSelection();
-          if( !(selection instanceof IStructuredSelection))
-            return;
-          ILogEntry currentSelection = getLogEntry((IStructuredSelection) selection);
-          FileDialog dialog = new FileDialog(getSite().getShell(), SWT.SAVE);
-          dialog.setText("Select Unified Diff Output File");
-          dialog.setFileName("revision" + currentSelection.getRevision().getNumber() + ".diff"); //$NON-NLS-1$
-          String outFile = dialog.open();
-          if(outFile != null) {
-            final SVNUrl url = currentSelection.getResource().getUrl();
-            final SVNRevision oldUrlRevision = new SVNRevision.Number(currentSelection.getRevision().getNumber() - 1);
-            final SVNRevision newUrlRevision = currentSelection.getRevision();
-            final File file = new File(outFile);
-            if(file.exists()) {
-              if( !MessageDialog.openQuestion(getSite().getShell(), Policy.bind("HistoryView.showDifferences"), Policy
-                  .bind("HistoryView.overwriteOutfile", file.getName())))
-                return;
-            }
-            BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-              public void run() {
-                try {
-                  ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-                  client.diff(url, oldUrlRevision, newUrlRevision, file, true);
-                } catch(Exception e) {
-                  MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.showDifferences"), e
-                      .getMessage());
-                }
-              }
-            });
-          }
-        }
-      };
-    }
-    return showDifferencesAsUnifiedDiffAction;
-  }
+//  private IAction getShowDifferencesAsUnifiedDiffAction() {
+//    if(showDifferencesAsUnifiedDiffAction == null) {
+//      showDifferencesAsUnifiedDiffAction = new Action(
+//          Policy.bind("HistoryView.showDifferences"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_DIFF)) { //$NON-NLS-1$
+//        public void run() {
+//          ISelection selection = getSelection();
+//          if( !(selection instanceof IStructuredSelection))
+//            return;
+//          ILogEntry currentSelection = getLogEntry((IStructuredSelection) selection);
+//          FileDialog dialog = new FileDialog(getSite().getShell(), SWT.SAVE);
+//          dialog.setText("Select Unified Diff Output File");
+//          dialog.setFileName("revision" + currentSelection.getRevision().getNumber() + ".diff"); //$NON-NLS-1$
+//          String outFile = dialog.open();
+//          if(outFile != null) {
+//            final SVNUrl url = currentSelection.getResource().getUrl();
+//            final SVNRevision oldUrlRevision = new SVNRevision.Number(currentSelection.getRevision().getNumber() - 1);
+//            final SVNRevision newUrlRevision = currentSelection.getRevision();
+//            final File file = new File(outFile);
+//            if(file.exists()) {
+//              if( !MessageDialog.openQuestion(getSite().getShell(), Policy.bind("HistoryView.showDifferences"), Policy
+//                  .bind("HistoryView.overwriteOutfile", file.getName())))
+//                return;
+//            }
+//            BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+//              public void run() {
+//                try {
+//                  ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+//                  client.diff(url, oldUrlRevision, newUrlRevision, file, true);
+//                } catch(Exception e) {
+//                  MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.showDifferences"), e
+//                      .getMessage());
+//                }
+//              }
+//            });
+//          }
+//        }
+//      };
+//    }
+//    return showDifferencesAsUnifiedDiffAction;
+//  }
 
   // update to the selected revision (context menu)
   private IAction getUpdateToRevisionAction() {

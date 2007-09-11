@@ -32,6 +32,7 @@ import org.tigris.subversion.subclipse.ui.compare.SVNFolderCompareEditorInput;
  * enabled in the repository explorer.
  */
 public class CompareRemoteResourcesAction extends SVNAction {
+	private ISVNRemoteResource[] remoteResources;
 
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		run(new IRunnableWithProgress() {
@@ -45,9 +46,7 @@ public class CompareRemoteResourcesAction extends SVNAction {
 						try {
 							ISVNRemoteFolder folder1 = new RemoteFolder(logEntry1.getResource().getRepository(), logEntry1.getResource().getUrl(), logEntry1.getRevision());
 							ISVNRemoteFolder folder2 = new RemoteFolder(logEntry2.getResource().getRepository(), logEntry2.getResource().getUrl(), logEntry2.getRevision());
-							CompareUI.openCompareEditorOnPage(
-									  new SVNFolderCompareEditorInput(folder1, folder2),
-									  getTargetPage());							
+							compareFolders(folder1, folder2);							
 						} catch (Exception e) {
 							
 						}
@@ -56,11 +55,22 @@ public class CompareRemoteResourcesAction extends SVNAction {
 					}
 					return;
 				}
+				if (editions[0] instanceof ISVNRemoteFolder && editions[1] instanceof ISVNRemoteFolder) {
+					compareFolders((ISVNRemoteFolder)editions[0], (ISVNRemoteFolder)editions[1]);
+					return;
+				}				
 				ResourceEditionNode left = new ResourceEditionNode(editions[0]);
 				ResourceEditionNode right = new ResourceEditionNode(editions[1]);
 				CompareUI.openCompareEditorOnPage(
 				  new SVNCompareEditorInput(left, right),
 				  getTargetPage());
+			}
+
+			private void compareFolders(ISVNRemoteFolder folder1,
+					ISVNRemoteFolder folder2) {
+				CompareUI.openCompareEditorOnPage(
+						  new SVNFolderCompareEditorInput(folder1, folder2),
+						  getTargetPage());
 			}
 		}, false /* cancelable */, PROGRESS_BUSYCURSOR);
 	}
@@ -88,6 +98,15 @@ public class CompareRemoteResourcesAction extends SVNAction {
 	 */
 	protected String getImageId() {
 		return ISVNUIConstants.IMG_MENU_COMPARE;
+	}
+
+	public void setRemoteResources(ISVNRemoteResource[] remoteResources) {
+		this.remoteResources = remoteResources;
+	}
+
+	protected ISVNRemoteResource[] getSelectedRemoteResources() {
+		if (remoteResources != null) return remoteResources;
+		return super.getSelectedRemoteResources();
 	}
 
 }

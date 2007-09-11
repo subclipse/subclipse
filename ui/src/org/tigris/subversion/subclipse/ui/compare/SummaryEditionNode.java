@@ -78,7 +78,11 @@ public class SummaryEditionNode
 		for (int i = 0; i < diffSummary.length; i++) {
 			if (include(diffSummary[i])) {
 				if (diffSummary[i].getNodeKind() == SVNNodeKind.DIR.toInt()) {
-					RemoteFolder remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+					RemoteFolder remoteFolder = null;
+					if (resource.getRevision() instanceof SVNRevision.Number)
+						remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+					else
+						remoteFolder = new RemoteFolder(resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision());
 					if (isChild(remoteFolder)) {
 						SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
 						node.setDiffSummary(diffSummary);
@@ -87,7 +91,11 @@ public class SummaryEditionNode
 						childNodes.add(node);
 					}
 				} else {
-					RemoteFile remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+					RemoteFile remoteFile = null;
+					if (resource.getRevision() instanceof SVNRevision.Number)
+						remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+					else 
+						remoteFile = new RemoteFile(resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision());
 					if (isChild(remoteFile)) {
 						SummaryEditionNode node = new SummaryEditionNode(remoteFile);	
 						node.setDiffSummary(diffSummary);
@@ -120,14 +128,22 @@ public class SummaryEditionNode
 				File file = new File(diffSummary[i].getPath());
 				if (file.getParent() == null) {
 					if (diffSummary[i].getNodeKind() == SVNNodeKind.DIR.toInt()) {
-						RemoteFolder remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+						RemoteFolder remoteFolder = null;
+						if (resource.getRevision() instanceof SVNRevision.Number)
+							remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+						else 
+							remoteFolder = new RemoteFolder(resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision());
 						SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder((RemoteFolder)resource);
 						node.setNodeType(nodeType);
 						roots.add(node);
 					} else {
-						RemoteFile remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+						RemoteFile remoteFile = null;
+						if (resource.getRevision() instanceof SVNRevision.Number)
+							remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+						else 
+							remoteFile = new RemoteFile(resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision());
 						SummaryEditionNode node = new SummaryEditionNode(remoteFile);	
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder((RemoteFolder)resource);
@@ -140,7 +156,11 @@ public class SummaryEditionNode
 					}
 					String path = file.getPath();
 					if (!roots.contains(path)) {
-						RemoteFolder remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + path), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+						RemoteFolder remoteFolder = null;
+						if (resource.getRevision() instanceof SVNRevision.Number)
+							remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + path), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+						else 
+							remoteFolder = new RemoteFolder(resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + path), resource.getRevision());
 						SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder((RemoteFolder)resource);
