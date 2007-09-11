@@ -45,8 +45,10 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 		ISVNRemoteFolder folder2 = new RemoteFolder(logEntry2.getResource().getRepository(), logEntry2.getResource().getUrl(), logEntry2.getRevision());
 		left = new SummaryEditionNode(folder1);
 		left.setRootFolder((RemoteFolder)folder1);
+		left.setNodeType(SummaryEditionNode.LEFT);
 		right = new SummaryEditionNode(folder2);
 		right.setRootFolder((RemoteFolder)folder2);
+		right.setNodeType(SummaryEditionNode.RIGHT);
 	}
 
 	private String getLabel(ITypedElement element) {

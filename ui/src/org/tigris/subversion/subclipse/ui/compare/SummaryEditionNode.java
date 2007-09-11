@@ -24,6 +24,7 @@ import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.SVNDiffSummary.SVNDiffKind;
 
 public class SummaryEditionNode
 		implements
@@ -38,6 +39,10 @@ public class SummaryEditionNode
 	private SVNDiffSummary[] diffSummary;
 	private boolean root;
 	private RemoteFolder rootFolder;
+	private int nodeType = LEFT;
+	
+	public final static int LEFT = 0;
+	public final static int RIGHT = 1;
 
 	public SummaryEditionNode(ISVNRemoteResource resourceEdition) {
 		this.resource = resourceEdition;
@@ -71,23 +76,27 @@ public class SummaryEditionNode
 	private SummaryEditionNode[] getChildNodes() throws Exception {
 		ArrayList childNodes = new ArrayList();	
 		for (int i = 0; i < diffSummary.length; i++) {
-			if (diffSummary[i].getNodeKind() == SVNNodeKind.DIR.toInt()) {
-				RemoteFolder remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
-				if (isChild(remoteFolder)) {
-					SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
-					node.setDiffSummary(diffSummary);
-					node.setRootFolder(rootFolder);
-					childNodes.add(node);
-				}
-			} else {
-				RemoteFile remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
-				if (isChild(remoteFile)) {
-					SummaryEditionNode node = new SummaryEditionNode(remoteFile);	
-					node.setDiffSummary(diffSummary);
-					node.setRootFolder(rootFolder);
-					childNodes.add(node);	
-				}
-			}							
+			if (include(diffSummary[i])) {
+				if (diffSummary[i].getNodeKind() == SVNNodeKind.DIR.toInt()) {
+					RemoteFolder remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+					if (isChild(remoteFolder)) {
+						SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
+						node.setDiffSummary(diffSummary);
+						node.setRootFolder(rootFolder);
+						node.setNodeType(nodeType);
+						childNodes.add(node);
+					}
+				} else {
+					RemoteFile remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+					if (isChild(remoteFile)) {
+						SummaryEditionNode node = new SummaryEditionNode(remoteFile);	
+						node.setDiffSummary(diffSummary);
+						node.setRootFolder(rootFolder);
+						node.setNodeType(nodeType);
+						childNodes.add(node);	
+					}
+				}	
+			}
 		}	
 		SummaryEditionNode[] childNodeArray = new SummaryEditionNode[childNodes.size()];
 		childNodes.toArray(childNodeArray);
@@ -107,32 +116,37 @@ public class SummaryEditionNode
 	private SummaryEditionNode[] getRoots() throws Exception {
 		ArrayList roots = new ArrayList();
 		for (int i = 0; i < diffSummary.length; i++) {
-			File file = new File(diffSummary[i].getPath());
-			if (file.getParent() == null) {
-				if (diffSummary[i].getNodeKind() == SVNNodeKind.DIR.toInt()) {
-					RemoteFolder remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
-					SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
-					node.setDiffSummary(diffSummary);
-					node.setRootFolder((RemoteFolder)resource);
-					roots.add(node);
+			if (include(diffSummary[i])) {
+				File file = new File(diffSummary[i].getPath());
+				if (file.getParent() == null) {
+					if (diffSummary[i].getNodeKind() == SVNNodeKind.DIR.toInt()) {
+						RemoteFolder remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+						SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
+						node.setDiffSummary(diffSummary);
+						node.setRootFolder((RemoteFolder)resource);
+						node.setNodeType(nodeType);
+						roots.add(node);
+					} else {
+						RemoteFile remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+						SummaryEditionNode node = new SummaryEditionNode(remoteFile);	
+						node.setDiffSummary(diffSummary);
+						node.setRootFolder((RemoteFolder)resource);
+						node.setNodeType(nodeType);
+						roots.add(node);				
+					}				
 				} else {
-					RemoteFile remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
-					SummaryEditionNode node = new SummaryEditionNode(remoteFile);	
-					node.setDiffSummary(diffSummary);
-					node.setRootFolder((RemoteFolder)resource);
-					roots.add(node);				
-				}				
-			} else {
-				while (file.getParent() != null) {
-					file = file.getParentFile();
-				}
-				String path = file.getPath();
-				if (!roots.contains(path)) {
-					RemoteFolder remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + path), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
-					SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
-					node.setDiffSummary(diffSummary);
-					node.setRootFolder((RemoteFolder)resource);
-					roots.add(node);
+					while (file.getParent() != null) {
+						file = file.getParentFile();
+					}
+					String path = file.getPath();
+					if (!roots.contains(path)) {
+						RemoteFolder remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + path), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
+						SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
+						node.setDiffSummary(diffSummary);
+						node.setRootFolder((RemoteFolder)resource);
+						node.setNodeType(nodeType);
+						roots.add(node);
+					}
 				}
 			}
 		}
@@ -224,6 +238,16 @@ public class SummaryEditionNode
 
 	public void setRootFolder(RemoteFolder rootFolder) {
 		this.rootFolder = rootFolder;
+	}
+
+	public void setNodeType(int nodeType) {
+		this.nodeType = nodeType;
+	}
+	
+	private boolean include(SVNDiffSummary diff) {
+		if (diff.getDiffKind().equals(SVNDiffKind.ADDED) && nodeType == LEFT) return false;
+		if (diff.getDiffKind().equals(SVNDiffKind.DELETED) && nodeType == RIGHT) return false;
+		return true;
 	}
 	
 }
