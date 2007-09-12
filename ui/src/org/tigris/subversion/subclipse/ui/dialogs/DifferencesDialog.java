@@ -68,8 +68,13 @@ public class DifferencesDialog extends TrayDialog {
 		this.title = title;
 		this.remoteResources = remoteResources;
 		this.targetPart = targetPart;
-		fromResource = remoteResources[0];
-		if (remoteResources.length > 1) toResource = remoteResources[1];
+		fromResource = this.remoteResources[0];
+		if (this.remoteResources.length == 1 || this.remoteResources[1] == null) {
+			this.remoteResources = new ISVNResource[2];
+			this.remoteResources[0] = fromResource;
+			this.remoteResources[1] = fromResource;
+		}
+		toResource = this.remoteResources[1];
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -146,7 +151,10 @@ public class DifferencesDialog extends TrayDialog {
 		data = new GridData();
 		data.widthHint = 300;
 		toUrlText.setLayoutData(data);
-		toUrlText.setText(remoteResources[1].getUrl().toString());
+		if (remoteResources.length < 2 || remoteResources[1] == null)
+			toUrlText.setText(remoteResources[0].getUrl().toString());
+		else
+			toUrlText.setText(remoteResources[1].getUrl().toString());
 		
 		Group toRevisionGroup = new Group(toGroup, SWT.NULL);
 		toRevisionGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
@@ -189,6 +197,19 @@ public class DifferencesDialog extends TrayDialog {
 			fromLogButton.setEnabled(true);
 			fromRevisionButton.setSelection(true);
 			fromHeadButton.setSelection(false);
+		}
+		if (toRevision == null) {
+			if (fromRevision == null) {
+				ISVNRemoteResource resource = (ISVNRemoteResource)fromResource;
+				String fromRev = resource.getLastChangedRevision().toString();
+				int from = Integer.parseInt(fromRev);
+				from--;
+				toRevision = Integer.toString(from);
+			} else {
+				int from = Integer.parseInt(fromRevision);
+				from--;
+				toRevision = Integer.toString(from);
+			}
 		}
 		if (toRevision != null) {
 			toRevisionText.setText(toRevision);
