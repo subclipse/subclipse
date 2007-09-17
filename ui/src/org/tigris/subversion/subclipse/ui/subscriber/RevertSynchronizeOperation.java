@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
@@ -30,11 +31,13 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 	private IResource[] resourcesToRevert;
 	private boolean revert;
 	private boolean prompted;
+	private HashMap statusMap;
 
-	public RevertSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, String url, IResource[] resources) {
+	public RevertSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, String url, IResource[] resources, HashMap statusMap) {
 		super(configuration, elements);
 		this.url = url;
 		this.resources = resources;
+		this.statusMap = statusMap;
 	}
 
 	protected boolean promptForConflictHandling(Shell shell, SyncInfoSet syncSet) {
@@ -50,7 +53,7 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 					revert = false;
 					return;
 				}
-				SvnWizardRevertPage revertPage = new SvnWizardRevertPage(resources, url);
+				SvnWizardRevertPage revertPage = new SvnWizardRevertPage(resources, url, statusMap);
 				SvnWizard wizard = new SvnWizard(revertPage);
 				SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 				revert = (dialog.open() == SvnWizardDialog.OK);

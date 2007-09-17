@@ -11,13 +11,18 @@
 package org.tigris.subversion.subclipse.ui.actions;
  
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -27,6 +32,8 @@ import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardRevertPage;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 
 /**
  * Action to restore pristine working copy file 
@@ -35,8 +42,10 @@ public class RevertAction extends WorkbenchWindowAction {
     
     private String url;
 	private IResource[] resourcesToRevert;
+	private HashMap statusMap;
     
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
+		statusMap = new HashMap();
 		final IResource[] resources = getSelectedResources();
         try {
             IResource[] modifiedResources = getModifiedResources(resources, new NullProgressMonitor());
@@ -57,7 +66,28 @@ public class RevertAction extends WorkbenchWindowAction {
 				url = svnResource.getStatus().getUrlString();
 			   if ((url == null) || (resources[0].getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
 		 }
-	    return super.getModifiedResources(resources, iProgressMonitor);
+		    final List modified = new ArrayList();
+		    for (int i = 0; i < resources.length; i++) {
+				 IResource resource = resources[i];
+				 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+				 
+				 // get adds, deletes, updates and property updates.
+				 GetStatusCommand command = new GetStatusCommand(svnResource, true, false);
+				 command.run(iProgressMonitor);
+				 ISVNStatus[] statuses = command.getStatuses();
+				 for (int j = 0; j < statuses.length; j++) {
+				     if (SVNStatusUtils.isReadyForRevert(statuses[j]) ||
+				   		  !SVNStatusUtils.isManaged(statuses[j])) {
+				         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
+				         if (currentResource != null) {
+				             modified.add(currentResource);
+	                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+	                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             
+				         }
+				     }
+				 }
+			}
+		    return (IResource[]) modified.toArray(new IResource[modified.size()]);		 
 	}
 	
 	/**
@@ -65,7 +95,7 @@ public class RevertAction extends WorkbenchWindowAction {
 	 */		
 	protected boolean confirmRevert(IResource[] modifiedResources) {
 	   if (modifiedResources.length == 0) return false;
-	   SvnWizardRevertPage revertPage = new SvnWizardRevertPage(modifiedResources, url);
+	   SvnWizardRevertPage revertPage = new SvnWizardRevertPage(modifiedResources, url, statusMap);
 	   SvnWizard wizard = new SvnWizard(revertPage);
 	   SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 	   boolean revert = (dialog.open() == SvnWizardDialog.OK);

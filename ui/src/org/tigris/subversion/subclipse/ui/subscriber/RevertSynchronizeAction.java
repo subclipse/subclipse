@@ -12,10 +12,12 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -40,6 +42,7 @@ import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 
 public class RevertSynchronizeAction extends SynchronizeModelAction {
 	private String url;
+	private HashMap statusMap;
 
     public RevertSynchronizeAction(String text, ISynchronizePageConfiguration configuration) {
         super(text, configuration);
@@ -78,7 +81,8 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 	}    
 
     protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
-		url = null;
+		statusMap = new HashMap();
+    	url = null;
 	    IStructuredSelection selection = getStructuredSelection();
 	    if (selection.size() == 1) {
 	        ISynchronizeModelElement element = (ISynchronizeModelElement)selection.getFirstElement();
@@ -116,7 +120,7 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 		} catch (SVNException e) {
             
         }
-		return new RevertSynchronizeOperation(configuration, elements, url, modifiedResources);
+		return new RevertSynchronizeOperation(configuration, elements, url, modifiedResources, statusMap);
     }
     
 	private IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
@@ -139,8 +143,11 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 			     if (SVNStatusUtils.isReadyForRevert(statuses[j])  ||
 			   		  !SVNStatusUtils.isManaged(statuses[j])) {
 			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
-			         if (currentResource != null)
-			             modified.add(currentResource);
+			         if (currentResource != null) {
+			        	 modified.add(currentResource);
+                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             			        	 
+			         }		             
 			     }
 			 }
 		}
