@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.subscriber;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,9 +34,11 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.dialogs.CommitDialog;
 import org.tigris.subversion.subclipse.ui.operations.CommitOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardCommitPage;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 
 /**
  * Sync view operation for putting file system resources
@@ -65,18 +65,21 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 	    if (modified.length > 0) {
 	        try {
                 ProjectProperties projectProperties = ProjectProperties.getProjectProperties(modified[0]);
-                IResource[] unaddedResources = getUnaddedResources(set);
-                final CommitDialog dialog = new CommitDialog(getShell(), modified, url, unaddedResources.length > 0, projectProperties);
-                dialog.setComment(proposedComment);
+                
+                SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties);                
+                commitPage.setComment(proposedComment);
+         	    SvnWizard wizard = new SvnWizard(commitPage);
+        	    final SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);	                
+                wizard.setParentDialog(dialog);
         		getShell().getDisplay().syncExec(new Runnable() {
         			public void run() {
-        				commit = (dialog.open() == CommitDialog.OK);
+        				commit = (dialog.open() == SvnWizardDialog.OK);
         			}
         		});
         	    if (commit) {
-        	        resourcesToCommit = dialog.getSelectedResources();
-        	        commitComment = dialog.getComment();
-        	        keepLocks = dialog.isKeepLocks();
+        	        resourcesToCommit = commitPage.getSelectedResources();
+        	        commitComment = commitPage.getComment();
+        	        keepLocks = commitPage.isKeepLocks();        	    	
         	    }
 	        } catch (SVNException e) {
                 e.printStackTrace();
@@ -110,49 +113,49 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 		return dialog.getReturnCode();
 	}
 	
-	private IResource[] getUnaddedResources(SyncInfoSet set) {
-	    IResource[] resources = set.getResources();
-		List result = new ArrayList();
-		for (int i = 0; i < resources.length; i++) {
-			IResource resource = resources[i];
-			if (isAdded(resource)) {
-				result.add(resource);
-			}
-		}
-		return (IResource[]) result.toArray(new IResource[result.size()]);
-	}
+//	private IResource[] getUnaddedResources(SyncInfoSet set) {
+//	    IResource[] resources = set.getResources();
+//		List result = new ArrayList();
+//		for (int i = 0; i < resources.length; i++) {
+//			IResource resource = resources[i];
+//			if (isAdded(resource)) {
+//				result.add(resource);
+//			}
+//		}
+//		return (IResource[]) result.toArray(new IResource[result.size()]);
+//	}
 
-	private boolean isAdded(IResource resource) {
-	    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-		try {
-			if (svnResource.isIgnored())
-				return false;
-			// visit the children of shared resources
-			if (svnResource.isManaged())
-				return false;
-			if ((resource.getType() == IResource.FOLDER) && isSymLink(resource)) // don't traverse into symlink folders
-				return false;
-		} catch (SVNException e) {
-		    e.printStackTrace();
-		    return false;
-		}
-		return true;
-    }
+//	private boolean isAdded(IResource resource) {
+//	    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+//		try {
+//			if (svnResource.isIgnored())
+//				return false;
+//			// visit the children of shared resources
+//			if (svnResource.isManaged())
+//				return false;
+//			if ((resource.getType() == IResource.FOLDER) && isSymLink(resource)) // don't traverse into symlink folders
+//				return false;
+//		} catch (SVNException e) {
+//		    e.printStackTrace();
+//		    return false;
+//		}
+//		return true;
+//    }
 	
-	private boolean isSymLink(IResource resource) {
-		File file = resource.getLocation().toFile();
-	    try {
-	    	if (!file.exists())
-	    		return true;
-	    	else {
-	    		String cnnpath = file.getCanonicalPath();
-	    		String abspath = file.getAbsolutePath();
-	    		return !abspath.equals(cnnpath);
-	    	}
-	    } catch(IOException ex) {
-	      return true;
-	    }	
-	}
+//	private boolean isSymLink(IResource resource) {
+//		File file = resource.getLocation().toFile();
+//	    try {
+//	    	if (!file.exists())
+//	    		return true;
+//	    	else {
+//	    		String cnnpath = file.getCanonicalPath();
+//	    		String abspath = file.getAbsolutePath();
+//	    		return !abspath.equals(cnnpath);
+//	    	}
+//	    } catch(IOException ex) {
+//	      return true;
+//	    }	
+//	}
 	
 	public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 		// First, ask the user if they want to include conflicts

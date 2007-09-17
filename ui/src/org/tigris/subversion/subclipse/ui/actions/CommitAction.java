@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.window.Window;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
 import org.eclipse.team.internal.core.subscribers.ChangeSet;
@@ -38,9 +37,11 @@ import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.dialogs.CommitDialog;
 import org.tigris.subversion.subclipse.ui.operations.CommitOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardCommitPage;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 
@@ -195,18 +196,22 @@ public class CommitAction extends WorkbenchWindowAction {
 	       if (!MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.tag"))) //$NON-NLS-1$ //$NON-NLS-2$
 	           return false;	       
 	   }
-	   CommitDialog dialog = new CommitDialog(getShell(), modifiedResources, url, hasUnaddedResources, projectProperties);
-	   dialog.setSharing(sharing);
+	   SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modifiedResources, url, projectProperties);
+	   commitPage.setSharing(sharing);
+	   
+	   SvnWizard wizard = new SvnWizard(commitPage);
+	   SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);	
 	   if (proposedComment == null || proposedComment.length() == 0) {
-		   dialog.setComment(getProposedComment(modifiedResources));
+		  commitPage.setComment(getProposedComment(modifiedResources));
 	   } else {
-		   dialog.setComment(proposedComment);
-	   }
-	   boolean commitOK = (dialog.open() == Window.OK);
+		   commitPage.setComment(proposedComment);
+	   }	   
+	   wizard.setParentDialog(dialog);
+	   boolean commitOK = (dialog.open() == SvnWizardDialog.OK);
 	   url = null;
-	   commitComment = dialog.getComment();
-	   resourcesToCommit = dialog.getSelectedResources();
-	   keepLocks = dialog.isKeepLocks();
+	   commitComment = commitPage.getComment();
+	   resourcesToCommit = commitPage.getSelectedResources();
+	   keepLocks = commitPage.isKeepLocks();	   
 	   return commitOK;
 	}
 

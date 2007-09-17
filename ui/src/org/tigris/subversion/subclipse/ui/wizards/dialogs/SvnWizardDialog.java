@@ -3,14 +3,14 @@ package org.tigris.subversion.subclipse.ui.wizards.dialogs;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.IWizard;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 
-public class SvnWizardDialog extends WizardDialog {
+public class SvnWizardDialog extends ClosableWizardDialog {
 	
 	public boolean yesNo;
 	private IDialogSettings settings;
