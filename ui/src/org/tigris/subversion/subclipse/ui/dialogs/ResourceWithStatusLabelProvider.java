@@ -21,7 +21,7 @@ public class ResourceWithStatusLabelProvider extends WorkbenchLabelProvider impl
 
 	private final String baseUrl;
 
-	ResourceWithStatusLabelProvider(String baseUrl) {
+	public ResourceWithStatusLabelProvider(String baseUrl) {
 		this.baseUrl = baseUrl;
 	}
 	

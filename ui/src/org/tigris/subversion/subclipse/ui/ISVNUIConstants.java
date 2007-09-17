@@ -211,6 +211,7 @@ public interface ISVNUIConstants {
   public final String SVN_COMMENT_FONT = "svn_comment_font"; //$NON-NLS-1$
 
   // Wizard banners
+  public final String IMG_WIZBAN_SVN = "wizban/svn_wizban.png"; //$NON-NLS-1$
   public final String IMG_WIZBAN_SHARE = "wizban/newconnect_wizban.gif"; //$NON-NLS-1$
   public final String IMG_WIZBAN_DIFF = "wizban/createpatch_wizban.gif"; //$NON-NLS-1$
   public final String IMG_WIZBAN_NEW_LOCATION = "wizban/newlocation_wizban.gif"; //$NON-NLS-1$

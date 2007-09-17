@@ -16,7 +16,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.window.Window;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -24,8 +23,10 @@ import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.dialogs.RevertDialog;
 import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardRevertPage;
 
 /**
  * Action to restore pristine working copy file 
@@ -64,10 +65,12 @@ public class RevertAction extends WorkbenchWindowAction {
 	 */		
 	protected boolean confirmRevert(IResource[] modifiedResources) {
 	   if (modifiedResources.length == 0) return false;
-	   RevertDialog dialog = new RevertDialog(getShell(), modifiedResources, url);
-	   boolean revert = (dialog.open() == Window.OK);
+	   SvnWizardRevertPage revertPage = new SvnWizardRevertPage(modifiedResources, url);
+	   SvnWizard wizard = new SvnWizard(revertPage);
+	   SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+	   boolean revert = (dialog.open() == SvnWizardDialog.OK);
 	   url = null;
-	   resourcesToRevert = dialog.getSelectedResources();
+	   resourcesToRevert = revertPage.getSelectedResources();
 	   return revert;
 	}
 	

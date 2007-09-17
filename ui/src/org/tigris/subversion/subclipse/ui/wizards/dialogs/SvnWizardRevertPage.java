@@ -1,23 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2006 Subclipse project and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     Subclipse project committers - initial API and implementation
- ******************************************************************************/
-package org.tigris.subversion.subclipse.ui.dialogs;
+package org.tigris.subversion.subclipse.ui.wizards.dialogs;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.TrayDialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -32,14 +19,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.PlatformUI;
@@ -48,61 +32,52 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
+import org.tigris.subversion.subclipse.ui.dialogs.AdaptableResourceList;
+import org.tigris.subversion.subclipse.ui.dialogs.CompareDialog;
+import org.tigris.subversion.subclipse.ui.dialogs.ResourceWithStatusLabelProvider;
+import org.tigris.subversion.subclipse.ui.dialogs.ResourceWithStatusSorter;
 import org.tigris.subversion.subclipse.ui.util.TableSetter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
-public class RevertDialog extends TrayDialog {
-    
+public class SvnWizardRevertPage extends SvnWizardDialogPage {
+	
 	private static final int WIDTH_HINT = 500;
-	private final static int SELECTION_HEIGHT_HINT = 250;
-    
+	private final static int SELECTION_HEIGHT_HINT = 250;	
+	
     private IResource[] resourcesToRevert;
     private String url;
     private Object[] selectedResources;
-    private CheckboxTableViewer listViewer;
-    
-    private IDialogSettings settings;
+    private CheckboxTableViewer listViewer;  
     private TableSetter setter;
     private int sorterColumn = 1;
     private boolean sorterReversed = false;
-
-    public RevertDialog(Shell parentShell, IResource[] resourcesToRevert, String url) {
-        super(parentShell);
-		int shellStyle = getShellStyle();
-		setShellStyle(shellStyle | SWT.RESIZE);
+	
+	public SvnWizardRevertPage(IResource[] resourcesToRevert, String url) {
+		super("RevertDialog", Policy.bind("RevertDialog.title")); //$NON-NLS-1$
 		this.resourcesToRevert = resourcesToRevert;
 		this.url = url;
-		settings = SVNUIPlugin.getPlugin().getDialogSettings();
 		setter = new TableSetter();
-    }
-    
-	/*
-	 * @see Dialog#createDialogArea(Composite)
-	 */
-	protected Control createDialogArea(Composite parent) {
-		getShell().setText(Policy.bind("RevertDialog.title")); //$NON-NLS-1$
-		Composite composite = new Composite(parent, SWT.NULL);
-		composite.setLayout(new GridLayout());
-		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+	}
+
+	public void createControls(Composite outerContainer) {
+		Composite composite = new Composite(outerContainer, SWT.NULL);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 1;
+		composite.setLayout(layout);
+		GridData data = new GridData(GridData.FILL_BOTH);
+		composite.setLayoutData(data);
 		
 		Label label = createWrappingLabel(composite);
 		if (url == null) label.setText(Policy.bind("RevertDialog.url") + " " + Policy.bind("RevertDialog.multiple")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		else label.setText(Policy.bind("RevertDialog.url") + " " + url); //$NON-NLS-1$ //$NON-NLS-2$
-
+		
 		addResourcesArea(composite);
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.REVERT_DIALOG);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.REVERT_DIALOG);		
 
-		return composite;
 	}
-	
+
 	private void addResourcesArea(Composite composite) {
-	    
-		// add a description label
-		Label label = createWrappingLabel(composite);
-		label.setText(Policy.bind("RevertDialog.resources")); //$NON-NLS-1$
-		// add the selectable checkbox list
 		Table table = new Table(composite, 
                 SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | 
                 SWT.MULTI | SWT.CHECK | SWT.BORDER);
@@ -161,30 +136,20 @@ public class RevertDialog extends TrayDialog {
 			}
 		});
 		addSelectionButtons(composite);
-		
-    }
+	}
+
+	public boolean performCancel() {
+		return true;
+	}
+
+	public boolean performFinish() {
+		return true;
+	}
+
+	public void setMessage() {
+		setMessage(Policy.bind("RevertDialog.resources")); //$NON-NLS-1$
+	}
 	
-    private void saveLocation() {
-        int x = getShell().getLocation().x;
-        int y = getShell().getLocation().y;
-        settings.put("RevertDialog.location.x", x); //$NON-NLS-1$
-        settings.put("RevertDialog.location.y", y); //$NON-NLS-1$
-        x = getShell().getSize().x;
-        y = getShell().getSize().y;
-        settings.put("RevertDialog.size.x", x); //$NON-NLS-1$
-        settings.put("RevertDialog.size.y", y); //$NON-NLS-1$
-        TableSetter setter = new TableSetter();
-        setter.saveColumnWidths(listViewer.getTable(), "RevertDialog"); //$NON-NLS-1$
-        setter.saveSorterColumn("RevertDialog", sorterColumn); //$NON-NLS-1$  
-        setter.saveSorterReversed("RevertDialog", sorterReversed); //$NON-NLS-1$
-    }
-	
-    /**
-	 * Method createColumns.
-	 * @param table
-	 * @param layout
-	 * @param viewer
-	 */
 	private void createColumns(Table table, TableLayout layout) {
 	    // sortable table
 		SelectionListener headerListener = new SelectionAdapter() {
@@ -232,15 +197,15 @@ public class RevertDialog extends TrayDialog {
 		col.setText(Policy.bind("CommitDialog.property")); //$NON-NLS-1$
 		layout.addColumnData(new ColumnPixelData(widths[3], true));
 		col.addSelectionListener(headerListener);		
-
+	}		
+	
+	private void setChecks() {
+	    listViewer.setAllChecked(true);
+		selectedResources = listViewer.getCheckedElements();
 	}	
 	
-	/**
-	 * Add the selection and deselection buttons to the dialog.
-	 * @param composite org.eclipse.swt.widgets.Composite
-	 */
 	private void addSelectionButtons(Composite composite) {
-	
+		
 		Composite buttonComposite = new Composite(composite, SWT.RIGHT);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
@@ -250,7 +215,8 @@ public class RevertDialog extends TrayDialog {
 		data.grabExcessHorizontalSpace = true;
 		composite.setData(data);
 	
-		Button selectButton = createButton(buttonComposite, IDialogConstants.SELECT_ALL_ID, Policy.bind("ReleaseCommentDialog.selectAll"), false); //$NON-NLS-1$
+		Button selectButton = new Button(buttonComposite, SWT.PUSH);
+		selectButton.setText(Policy.bind("ReleaseCommentDialog.selectAll")); //$NON-NLS-1$
 		SelectionListener listener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				listViewer.setAllChecked(true);
@@ -259,7 +225,8 @@ public class RevertDialog extends TrayDialog {
 		};
 		selectButton.addSelectionListener(listener);
 	
-		Button deselectButton = createButton(buttonComposite, IDialogConstants.DESELECT_ALL_ID, Policy.bind("ReleaseCommentDialog.deselectAll"), false); //$NON-NLS-1$
+		Button deselectButton = new Button(buttonComposite, SWT.PUSH);
+		deselectButton.setText(Policy.bind("ReleaseCommentDialog.deselectAll")); //$NON-NLS-1$
 		listener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				listViewer.setAllChecked(false);
@@ -267,40 +234,18 @@ public class RevertDialog extends TrayDialog {
 			}
 		};
 		deselectButton.addSelectionListener(listener);
+		
+		data = new GridData();
+		data.widthHint = deselectButton.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+		selectButton.setLayoutData(data);
+	}
+
+	public void saveSettings() {
+        setter.saveColumnWidths(listViewer.getTable(), "RevertDialog"); //$NON-NLS-1$
+        setter.saveSorterColumn("RevertDialog", sorterColumn); //$NON-NLS-1$  
+        setter.saveSorterReversed("RevertDialog", sorterReversed); //$NON-NLS-1$
 	}
 	
-    protected void cancelPressed() {
-        saveLocation();
-        super.cancelPressed();
-    }
-
-    protected void okPressed() {
-        saveLocation();
-        super.okPressed();
-    }
-    
-    protected Point getInitialLocation(Point initialSize) {
-	    try {
-	        int x = settings.getInt("RevertDialog.location.x"); //$NON-NLS-1$
-	        int y = settings.getInt("RevertDialog.location.y"); //$NON-NLS-1$
-	        return new Point(x, y);
-	    } catch (NumberFormatException e) {}
-        return super.getInitialLocation(initialSize);
-    }
-    
-    protected Point getInitialSize() {
-	    try {
-	        int x = settings.getInt("RevertDialog.size.x"); //$NON-NLS-1$
-	        int y = settings.getInt("RevertDialog.size.y"); //$NON-NLS-1$
-	        return new Point(x, y);
-	    } catch (NumberFormatException e) {}
-        return super.getInitialSize();
-    }	    
-    
-	/**
-	 * Returns the selected resources.
-	 * @return IResource[]
-	 */
 	public IResource[] getSelectedResources() {
 		if (selectedResources == null) {
 			return resourcesToRevert;
@@ -308,23 +253,6 @@ public class RevertDialog extends TrayDialog {
 			List result = Arrays.asList(selectedResources);
 			return (IResource[]) result.toArray(new IResource[result.size()]);
 		}
-	}
-	
-	protected static final int LABEL_WIDTH_HINT = 400;
-	protected Label createWrappingLabel(Composite parent) {
-		Label label = new Label(parent, SWT.LEFT | SWT.WRAP);
-		GridData data = new GridData();
-		data.horizontalSpan = 1;
-		data.horizontalAlignment = GridData.FILL;
-		data.horizontalIndent = 0;
-		data.grabExcessHorizontalSpace = true;
-		data.widthHint = LABEL_WIDTH_HINT;
-		label.setLayoutData(data);
-		return label;
-	}
-	
-	private void setChecks() {
-	    listViewer.setAllChecked(true);
-		selectedResources = listViewer.getCheckedElements();
-	}
+	}	
+
 }

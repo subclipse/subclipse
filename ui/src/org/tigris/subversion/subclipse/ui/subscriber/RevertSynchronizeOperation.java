@@ -19,8 +19,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
-import org.tigris.subversion.subclipse.ui.dialogs.RevertDialog;
 import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardRevertPage;
 
 public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 	private String url;
@@ -48,9 +50,11 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 					revert = false;
 					return;
 				}
-				RevertDialog dialog = new RevertDialog(getShell(), resources, url);
-				revert = (dialog.open() == RevertDialog.OK);
-				if (revert) resourcesToRevert = dialog.getSelectedResources();
+				SvnWizardRevertPage revertPage = new SvnWizardRevertPage(resources, url);
+				SvnWizard wizard = new SvnWizard(revertPage);
+				SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+				revert = (dialog.open() == SvnWizardDialog.OK);
+				if (revert) resourcesToRevert = revertPage.getSelectedResources();
 			}
 		});
 		if (revert) new RevertOperation(getPart(), resourcesToRevert).run();

@@ -39,7 +39,7 @@ public class CompareDialog extends TrayDialog {
 	private CompareEditorInput compareEditorInput;
     private IDialogSettings settings;
 
-	CompareDialog(Shell shell, CompareEditorInput input) {
+	public CompareDialog(Shell shell, CompareEditorInput input) {
 		super(shell);
 		setShellStyle(getShellStyle() | SWT.RESIZE | SWT.MAX);
 		
