@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -252,8 +253,8 @@ class PatchFileSelectionPage extends WizardPage {
 		});
 		
 //		LabelProvider labelProvider = new SVNLightweightDecorator();
-		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resources, statusMap, null); //$NON-NLS-1$
-		resourceSelectionTree.getTreeViewer().setAllChecked(true);
+		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resources, statusMap, null, true); //$NON-NLS-1$
+		((CheckboxTreeViewer)resourceSelectionTree.getTreeViewer()).setAllChecked(true);
         
 		saveToClipboard.setSelection(true);
 		validatePage();

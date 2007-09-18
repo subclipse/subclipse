@@ -61,8 +61,8 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 	}
 
 	private void addResourcesArea(Composite composite) {
-		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToRevert, statusMap, null); //$NON-NLS-1$
-		resourceSelectionTree.getTreeViewer().setAllChecked(true);	
+		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToRevert, statusMap, null, false); //$NON-NLS-1$
+//		resourceSelectionTree.getTreeViewer().setAllChecked(true);	
 		resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				selectedResources = resourceSelectionTree.getSelectedResources();
