@@ -60,8 +60,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button showTagsInRemoteHistory;
     private Button showOutOfDateFolders;
     private Button useJavaHLCommitHack;
-    private Button showUnadded;
-    private Button selectUnadded;
+//    private Button showUnadded;
+//    private Button selectUnadded;
     private Button removeOnReplace;
     private Text logEntriesToFetchText;
     private Button defaultConfigLocationRadio;
@@ -154,9 +154,9 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
 		showCompareRevisionInDialog = createCheckBox(composite, Policy.bind("SVNPreferencePage.showCompareMergeInSync")); //$NON-NLS-1$
 		
-		showUnadded = createCheckBox(composite, Policy.bind("SVNPreferencePage.showUnadded")); //$NON-NLS-1$
-		
-		selectUnadded = createCheckBox(composite, Policy.bind("SVNPreferencePage.selectUnadded")); //$NON-NLS-1$
+//		showUnadded = createCheckBox(composite, Policy.bind("SVNPreferencePage.showUnadded")); //$NON-NLS-1$
+//		
+//		selectUnadded = createCheckBox(composite, Policy.bind("SVNPreferencePage.selectUnadded")); //$NON-NLS-1$
 		
 		removeOnReplace = createCheckBox(composite, Policy.bind("SVNPreferencePage.removeOnReplace")); //$NON-NLS-1$
 		
@@ -276,17 +276,17 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 
 		useJavaHLCommitHack.setSelection(store.getBoolean(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK));
 
-		showUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT));
-		
-		selectUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT));
-
-		if (!showUnadded.getSelection()) selectUnadded.setVisible(false);
-		
-		showUnadded.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent se) {
-				selectUnadded.setVisible(showUnadded.getSelection());
-			}			
-		});
+//		showUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT));
+//		
+//		selectUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT));
+//
+//		if (!showUnadded.getSelection()) selectUnadded.setVisible(false);
+//		
+//		showUnadded.addSelectionListener(new SelectionAdapter() {
+//			public void widgetSelected(SelectionEvent se) {
+//				selectUnadded.setVisible(showUnadded.getSelection());
+//			}			
+//		});
 		
 		removeOnReplace.setSelection(store.getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE));
 		
@@ -339,12 +339,12 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 			SVNUIPlugin.getPlugin().getShowOutOfDateFoldersAction().setChecked(showOutOfDateFolders.getSelection());
 		}
 		
-		store.setValue(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT, showUnadded.getSelection());
+//		store.setValue(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT, showUnadded.getSelection());
 
 		store.setValue(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK, useJavaHLCommitHack.getSelection());
 		
         // save select unadded resources on commit pref
-		store.setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, selectUnadded.getSelection());
+//		store.setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, selectUnadded.getSelection());
 		
 		 // save remove unadded resources on replace
 		store.setValue(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE, removeOnReplace.getSelection());

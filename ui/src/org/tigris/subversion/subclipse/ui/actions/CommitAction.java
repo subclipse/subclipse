@@ -14,9 +14,11 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
@@ -62,6 +64,8 @@ public class CommitAction extends WorkbenchWindowAction {
     protected IResource[] selectedResources;
     private String proposedComment;
     private boolean sharing;
+    
+    private HashMap statusMap;
 	
     public CommitAction() {
     	
@@ -79,6 +83,7 @@ public class CommitAction extends WorkbenchWindowAction {
 	 * @see SVNAction#execute(IAction)
 	 */
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
+		statusMap = new HashMap();
 		final IResource[] resources = getSelectedResources();
 	    final List resourcesToBeAdded = new ArrayList();
 	    final List resourcesToBeDeleted = new ArrayList();
@@ -166,23 +171,31 @@ public class CommitAction extends WorkbenchWindowAction {
 			                 	if ((currentResource.getType() != IResource.FILE) && !isSymLink(currentResource))
 			                 		unversionedFolders.add(currentResource);
 			                 	else {
-			                 		if (sharing || SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT)) {
-			                 			if (!modified.contains(currentResource)) modified.add(currentResource);
+//			                 		if (sharing || SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT)) {
+			                 			if (!modified.contains(currentResource)) {
+			                 				modified.add(currentResource);
+			   	                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+				                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             
+//			                 			}
 			                 		}
 			                 	}
 			                 } else
-			                	 if (!modified.contains(currentResource)) modified.add(currentResource);
+			                	 if (!modified.contains(currentResource)) {
+			                		 modified.add(currentResource);
+			                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+			                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             
+			                	 }
 			             }
 			         }
 			     }
 			 }
 	    }
 	    // get unadded resources and add them to the list.
-	    if (sharing || SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT)) {
+//	    if (sharing || SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT)) {
 		    IResource[] unaddedResources = getUnaddedResources(unversionedFolders, iProgressMonitor);
 		    for (int i = 0; i < unaddedResources.length; i++)
 		    	if (!modified.contains(unaddedResources[i])) modified.add(unaddedResources[i]);
-	    }
+//	    }
 	    return (IResource[]) modified.toArray(new IResource[modified.size()]);
 	}
 
@@ -196,7 +209,7 @@ public class CommitAction extends WorkbenchWindowAction {
 	       if (!MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.tag"))) //$NON-NLS-1$ //$NON-NLS-2$
 	           return false;	       
 	   }
-	   SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modifiedResources, url, projectProperties);
+	   SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modifiedResources, url, projectProperties, statusMap);
 	   commitPage.setSharing(sharing);
 	   
 	   SvnWizard wizard = new SvnWizard(commitPage);

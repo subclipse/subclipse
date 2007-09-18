@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 	        try {
                 ProjectProperties projectProperties = ProjectProperties.getProjectProperties(modified[0]);
                 
-                SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties);                
+                SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties, new HashMap());                
                 commitPage.setComment(proposedComment);
          	    SvnWizard wizard = new SvnWizard(commitPage);
         	    final SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);	                
