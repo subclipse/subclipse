@@ -314,7 +314,7 @@ public class ResourceSelectionTree extends Composite {
 		Iterator iter = resourceList.iterator();
 		while (iter.hasNext()) {
 			IResource checkResource = (IResource)iter.next();
-			if (checkResource.getFullPath().toString().equals(resource.getFullPath().toString()) || isChild(checkResource, resource))
+			if (checkResource.getFullPath().toString().equals(resource.getFullPath().toString()) || (mode != MODE_FLAT && isChild(checkResource, resource)))
 				removedResources.add(checkResource);
 		}
 		iter = removedResources.iterator();
@@ -540,8 +540,8 @@ public class ResourceSelectionTree extends Composite {
 		};
 		
 		public Image getImage(Object element) {
-			return syncLabelProvider.getImage(element);
-//			return workbenchLabelProvider.getImage(element);
+			if (resourceList.contains(element)) return syncLabelProvider.getImage(element);
+			else return workbenchLabelProvider.getImage(element);
 		}
 
 		public String getText(Object element) {
