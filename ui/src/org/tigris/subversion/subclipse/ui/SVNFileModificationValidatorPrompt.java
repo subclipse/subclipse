@@ -13,7 +13,9 @@ package org.tigris.subversion.subclipse.ui;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.resources.ISVNFileModificationValidatorPrompt;
-import org.tigris.subversion.subclipse.ui.dialogs.LockDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardLockPage;
 
 public class SVNFileModificationValidatorPrompt implements ISVNFileModificationValidatorPrompt {
     private String comment;
@@ -31,11 +33,14 @@ public class SVNFileModificationValidatorPrompt implements ISVNFileModificationV
         success = false;
 		SVNUIPlugin.getStandardDisplay().syncExec(new Runnable() {
 			public void run() {
-			    LockDialog lockDialog = new LockDialog(Display.getCurrent().getActiveShell(), files);
-                if (lockDialog.open() != LockDialog.CANCEL) {
+				SvnWizardLockPage lockPage = new SvnWizardLockPage(files);
+		        SvnWizard wizard = new SvnWizard(lockPage);
+		        SvnWizardDialog dialog = new SvnWizardDialog(Display.getCurrent().getActiveShell(), wizard);
+		        wizard.setParentDialog(dialog);			    
+		        if (dialog.open() == SvnWizardDialog.OK) {
                     success = true;
-                    comment = lockDialog.getComment();
-                    stealLock = lockDialog.isStealLock();
+                    comment = lockPage.getComment();
+                    stealLock = lockPage.isStealLock();
                 }
 			}
 		});        

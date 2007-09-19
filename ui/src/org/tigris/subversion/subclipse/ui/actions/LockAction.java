@@ -19,7 +19,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -28,7 +27,9 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.LockResourcesCommand;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.dialogs.LockDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardLockPage;
 
 public class LockAction extends WorkbenchWindowAction {
 
@@ -39,10 +40,13 @@ public class LockAction extends WorkbenchWindowAction {
         else {
         	if (getSelectedResources() != null && getSelectedResources().length > 0) {
 		        final IResource[] resources = getSelectedResources();
-		        LockDialog dialog = new LockDialog(Display.getCurrent().getActiveShell(), resources);
-		        if (dialog.open() == LockDialog.OK) {
-		            final String comment = dialog.getComment();
-		            final boolean stealLock = dialog.isStealLock();
+		        SvnWizardLockPage lockPage = new SvnWizardLockPage(resources);
+		        SvnWizard wizard = new SvnWizard(lockPage);
+		        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+		        wizard.setParentDialog(dialog);
+		        if (dialog.open() == SvnWizardDialog.OK) {
+		            final String comment = lockPage.getComment();
+		            final boolean stealLock = lockPage.isStealLock();
 		            run(new WorkspaceModifyOperation() {
 		                protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException {
 		                    try {

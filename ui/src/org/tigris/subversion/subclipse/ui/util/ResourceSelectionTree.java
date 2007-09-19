@@ -76,6 +76,7 @@ public class ResourceSelectionTree extends Composite {
 	private IToolbarControlCreator toolbarControlCreator;
 	private IRemoveFromViewValidator removeFromViewValidator;
 	private SyncInfoSet syncInfoSet;
+	private boolean showRemoveFromViewAction = true;
 	
 	public final static String MODE_SETTING = "ResourceSelectionTree.mode"; //$NON-NLS-1$
 	public final static int MODE_COMPRESSED_FOLDERS = 0;
@@ -297,7 +298,7 @@ public class ResourceSelectionTree extends Composite {
 			};
 			menuMgr.add(expandAllAction);
 		}
-		if (!checkbox && !treeViewer.getSelection().isEmpty()) {
+		if (showRemoveFromViewAction && !checkbox && !treeViewer.getSelection().isEmpty()) {
 			Action removeAction = new Action(Policy.bind("ResourceSelectionTree.remove")) { //$NON-NLS-1$
 				public void run() {
 					removeFromView();
@@ -667,6 +668,10 @@ public class ResourceSelectionTree extends Composite {
 	public void setRemoveFromViewValidator(
 			IRemoveFromViewValidator removeFromViewValidator) {
 		this.removeFromViewValidator = removeFromViewValidator;
+	}
+
+	public void setShowRemoveFromViewAction(boolean showRemoveFromViewAction) {
+		this.showRemoveFromViewAction = showRemoveFromViewAction;
 	}
 
 }
