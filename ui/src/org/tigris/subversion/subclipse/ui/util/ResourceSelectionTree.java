@@ -70,19 +70,21 @@ public class ResourceSelectionTree extends Composite {
 	private HashMap statusMap;
 	private ResourceComparator comparator = new ResourceComparator();
 	private boolean checkbox;
+	private IToolbarControlCreator toolbarControlCreator;
 	
 	public final static String MODE_SETTING = "ResourceSelectionTree.mode"; //$NON-NLS-1$
 	public final static int MODE_COMPRESSED_FOLDERS = 0;
 	public final static int MODE_FLAT = 1;
 	public final static int MODE_TREE = 2;
 
-	public ResourceSelectionTree(Composite parent, int style, String label, IResource[] resources, HashMap statusMap, LabelProvider labelProvider, boolean checkbox) {
+	public ResourceSelectionTree(Composite parent, int style, String label, IResource[] resources, HashMap statusMap, LabelProvider labelProvider, boolean checkbox, IToolbarControlCreator toolbarControlCreator) {
 		super(parent, style);
 		this.label = label;
 		this.resources = resources;
 		this.statusMap = statusMap;
 		this.labelProvider = labelProvider;
 		this.checkbox = checkbox;
+		this.toolbarControlCreator = toolbarControlCreator;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
 		Arrays.sort(resources, comparator);
 		resourceList = new ArrayList();
@@ -141,22 +143,25 @@ public class ResourceSelectionTree extends Composite {
 		toolbarLabel.setLayoutData(gridData);
 		if (label != null) toolbarLabel.setText(label);
 		
+		int buttonGroupColumns = 1;
+		if (toolbarControlCreator != null) buttonGroupColumns = buttonGroupColumns + toolbarControlCreator.getControlCount();
 		Composite buttonGroup = new Composite(toolbarGroup, SWT.NONE);
 		GridLayout buttonLayout = new GridLayout();
-		buttonLayout.numColumns = 1;
+		buttonLayout.numColumns = buttonGroupColumns;
 		buttonLayout.marginHeight = 0;
 		buttonLayout.marginWidth = 0;
 		buttonGroup.setLayout(buttonLayout);
 		gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
-		buttonGroup.setLayoutData(gridData);		
+		buttonGroup.setLayoutData(gridData);
+		if (toolbarControlCreator != null) toolbarControlCreator.createToolbarControls(buttonGroup);
 		
 		ToolBar toolbar = new ToolBar(buttonGroup, SWT.FLAT);
 		GridLayout toolbarLayout = new GridLayout();
 		toolbarLayout.numColumns = 3;
 		toolbar.setLayout(toolbarLayout);
 		gridData = new GridData(GridData.FILL_BOTH);
-		toolbar.setLayoutData(gridData);		
-		
+		toolbar.setLayoutData(gridData);
+
 		ToolBarManager toolbarManager = new ToolBarManager(toolbar);
 		
 		flatAction = new Action(Policy.bind("ResourceSelectionTree.flat"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
@@ -621,6 +626,11 @@ public class ResourceSelectionTree extends Composite {
 			IResource resource1 = (IResource)obj1;
 			return resource0.getFullPath().toOSString().compareTo(resource1.getFullPath().toOSString());
 		}			
+	}
+	
+	public static interface IToolbarControlCreator {
+		public void createToolbarControls(Composite composite);
+		public int getControlCount();
 	}
 
 }

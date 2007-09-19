@@ -69,7 +69,6 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
 		if (url == null) setTitle(Policy.bind("CommitDialog.commitTo") + " " + Policy.bind("CommitDialog.multiple")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		else setTitle(Policy.bind("CommitDialog.commitTo") + " " + url);  //$NON-NLS-1$//$NON-NLS-2$		
-		setDescription(Policy.bind("CommitDialog.message")); //$NON-NLS-1$
 		if (resourcesToCommit.length > 0) {
             try {
                 commentProperties = CommentProperties.getCommentProperties(resourcesToCommit[0]);
@@ -134,10 +133,17 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 		setPageComplete(canFinish());
 	}
 	
-    private void addResourcesArea(Composite composite) {   	
-    	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, false); //$NON-NLS-1$    	
-		keepLocksButton = new Button(composite, SWT.CHECK);
-		keepLocksButton.setText(Policy.bind("CommitDialog.keepLocks")); //$NON-NLS-1$ 	
+    private void addResourcesArea(Composite composite) {  
+    	ResourceSelectionTree.IToolbarControlCreator toolbarControlCreator = new ResourceSelectionTree.IToolbarControlCreator() {
+			public void createToolbarControls(Composite parent) {
+				keepLocksButton = new Button(parent, SWT.CHECK);
+				keepLocksButton.setText(Policy.bind("CommitDialog.keepLocks")); //$NON-NLS-1$ 	
+			}
+			public int getControlCount() {
+				return 1;
+			} 		
+    	};
+    	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, false, toolbarControlCreator); //$NON-NLS-1$    	
 		resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				selectedResources = resourceSelectionTree.getSelectedResources();
@@ -251,7 +257,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 //    }    
 
 	public void setMessage() {
-//		setMessage(Policy.bind("CommitDialog.message")); //$NON-NLS-1$
+		setMessage(Policy.bind("CommitDialog.message")); //$NON-NLS-1$
 	}
 
 	private boolean canFinish() {
