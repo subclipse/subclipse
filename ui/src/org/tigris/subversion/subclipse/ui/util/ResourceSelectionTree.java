@@ -560,8 +560,9 @@ public class ResourceSelectionTree extends Composite {
 			else {
 				text = resource.getName();
 			}
-			if (statusKind == null) return text;
-			else return text + " (" + statusKind.toString() + ")";
+//			if (statusKind == null) return text;
+//			else return text + " (" + statusKind.toString() + ")";
+			return text;
 		}
 		
 	}
