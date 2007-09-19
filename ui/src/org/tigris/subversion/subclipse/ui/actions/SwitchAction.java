@@ -14,14 +14,15 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.dialogs.SwitchDialog;
 import org.tigris.subversion.subclipse.ui.operations.SwitchOperation;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardSwitchPage;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -36,11 +37,15 @@ public class SwitchAction extends WorkbenchWindowAction {
         } 
         else {
 	        IResource[] resources = getSelectedResources(); 
-	        SwitchDialog dialog = new SwitchDialog(getShell(), resources);
-	        if (dialog.open() == SwitchDialog.CANCEL) return;
-            SVNUrl[] svnUrls = dialog.getUrls();
-            SVNRevision svnRevision = dialog.getRevision();
-            new SwitchOperation(getTargetPart(), resources, svnUrls, svnRevision).run();	        
+	        SvnWizardSwitchPage switchPage = new SvnWizardSwitchPage(resources);
+	        SvnWizard wizard = new SvnWizard(switchPage);
+	        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+	        wizard.setParentDialog(dialog);
+	        if (dialog.open() == SvnWizardDialog.OK) {
+	            SVNUrl[] svnUrls = switchPage.getUrls();
+	            SVNRevision svnRevision = switchPage.getRevision();
+	            new SwitchOperation(getTargetPart(), resources, svnUrls, svnRevision).run();	        
+	        }
         }
     }
     
