@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -54,6 +55,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private boolean keepLocks;
 	private IDialogSettings settings;
 	private CommentProperties commentProperties;
+	private SyncInfoSet syncInfoSet;
 
 	private boolean sharing;
 	
@@ -143,8 +145,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 				return 1;
 			} 		
     	};
-    	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, false, toolbarControlCreator); //$NON-NLS-1$    	
-		resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {
+    	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, false, toolbarControlCreator, syncInfoSet); //$NON-NLS-1$    	
+    	resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				selectedResources = resourceSelectionTree.getSelectedResources();
 			}
@@ -304,6 +306,10 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	
 	public String getWindowTitle() {
 		return Policy.bind("CommitDialog.title"); //$NON-NLS-1$
+	}
+
+	public void setSyncInfoSet(SyncInfoSet syncInfoSet) {
+		this.syncInfoSet = syncInfoSet;
 	}	
 
 }

@@ -69,6 +69,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
                 
                 SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties, new HashMap());                
                 commitPage.setComment(proposedComment);
+                commitPage.setSyncInfoSet(set);
          	    SvnWizard wizard = new SvnWizard(commitPage);
         	    final SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);	                
                 wizard.setParentDialog(dialog);

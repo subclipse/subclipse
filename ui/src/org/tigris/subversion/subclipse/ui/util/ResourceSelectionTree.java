@@ -41,6 +41,8 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.team.core.diff.IDiff;
 import org.eclipse.team.core.diff.IThreeWayDiff;
 import org.eclipse.team.core.diff.ITwoWayDiff;
+import org.eclipse.team.core.synchronize.SyncInfo;
+import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.AbstractSynchronizeLabelProvider;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
@@ -71,13 +73,14 @@ public class ResourceSelectionTree extends Composite {
 	private ResourceComparator comparator = new ResourceComparator();
 	private boolean checkbox;
 	private IToolbarControlCreator toolbarControlCreator;
+	private SyncInfoSet syncInfoSet;
 	
 	public final static String MODE_SETTING = "ResourceSelectionTree.mode"; //$NON-NLS-1$
 	public final static int MODE_COMPRESSED_FOLDERS = 0;
 	public final static int MODE_FLAT = 1;
 	public final static int MODE_TREE = 2;
 
-	public ResourceSelectionTree(Composite parent, int style, String label, IResource[] resources, HashMap statusMap, LabelProvider labelProvider, boolean checkbox, IToolbarControlCreator toolbarControlCreator) {
+	public ResourceSelectionTree(Composite parent, int style, String label, IResource[] resources, HashMap statusMap, LabelProvider labelProvider, boolean checkbox, IToolbarControlCreator toolbarControlCreator, SyncInfoSet syncInfoSet) {
 		super(parent, style);
 		this.label = label;
 		this.resources = resources;
@@ -85,6 +88,7 @@ public class ResourceSelectionTree extends Composite {
 		this.labelProvider = labelProvider;
 		this.checkbox = checkbox;
 		this.toolbarControlCreator = toolbarControlCreator;
+		this.syncInfoSet = syncInfoSet;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
 		Arrays.sort(resources, comparator);
 		resourceList = new ArrayList();
@@ -600,13 +604,25 @@ public class ResourceSelectionTree extends Composite {
 		}
 
 		public int getKind() {
-			SVNStatusKind statusKind = (SVNStatusKind)statusMap.get(resource);
-			if (statusKind == null) return IDiff.NO_CHANGE;
-			if (statusKind.equals(SVNStatusKind.CONFLICTED)) return IThreeWayDiff.CONFLICTING;
-			else if (statusKind.equals(SVNStatusKind.MODIFIED)) return IDiff.CHANGE;
-			else if (statusKind.equals(SVNStatusKind.ADDED)) return IDiff.ADD;
-			else if (statusKind.equals(SVNStatusKind.DELETED)) return IDiff.REMOVE;
-			return IDiff.NO_CHANGE;
+			int kind = IDiff.NO_CHANGE;
+			if (syncInfoSet != null) {
+				SyncInfo syncInfo = syncInfoSet.getSyncInfo(resource);
+				if (syncInfo != null) {
+					int change = SyncInfo.getChange(syncInfo.getKind());
+					if (change == SyncInfo.CONFLICTING) kind = IThreeWayDiff.CONFLICTING;
+					else if (change == SyncInfo.CHANGE) kind = IDiff.CHANGE;
+					else if (change == SyncInfo.ADDITION) kind = IDiff.ADD;
+					else if (change == SyncInfo.DELETION) kind = IDiff.REMOVE;
+				}
+			} else {
+				SVNStatusKind statusKind = (SVNStatusKind)statusMap.get(resource);
+				if (statusKind == null) kind = IDiff.NO_CHANGE;
+				else if (statusKind.equals(SVNStatusKind.CONFLICTED)) kind = IThreeWayDiff.CONFLICTING;
+				else if (statusKind.equals(SVNStatusKind.MODIFIED)) kind = IDiff.CHANGE;
+				else if (statusKind.equals(SVNStatusKind.ADDED)) kind = IDiff.ADD;
+				else if (statusKind.equals(SVNStatusKind.DELETED)) kind = IDiff.REMOVE;
+			}
+			return kind;
 		}
 
 		public IPath getPath() {
