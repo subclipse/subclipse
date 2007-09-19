@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.eclipse.compare.CompareConfiguration;
+import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -522,8 +524,9 @@ public class ResourceSelectionTree extends Composite {
 	
 	private class ResourceSelectionLabelProvider extends LabelProvider {
 		private WorkbenchLabelProvider workbenchLabelProvider = new WorkbenchLabelProvider();
+		private CompareConfiguration compareConfiguration = new CompareConfiguration();		
 		private AbstractSynchronizeLabelProvider syncLabelProvider = new AbstractSynchronizeLabelProvider() {
-
+			
 			protected ILabelProvider getDelegateLabelProvider() {
 				return workbenchLabelProvider;
 			}
@@ -541,7 +544,10 @@ public class ResourceSelectionTree extends Composite {
 		
 		public Image getImage(Object element) {
 			if (resourceList.contains(element)) return syncLabelProvider.getImage(element);
-			else return workbenchLabelProvider.getImage(element);
+			else {
+				Image image = workbenchLabelProvider.getImage(element);	
+				return compareConfiguration.getImage(image, Differencer.NO_CHANGE);
+			}
 		}
 
 		public String getText(Object element) {
