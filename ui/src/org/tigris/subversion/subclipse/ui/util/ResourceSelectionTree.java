@@ -18,6 +18,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
@@ -73,6 +74,7 @@ public class ResourceSelectionTree extends Composite {
 	private ResourceComparator comparator = new ResourceComparator();
 	private boolean checkbox;
 	private IToolbarControlCreator toolbarControlCreator;
+	private IRemoveFromViewValidator removeFromViewValidator;
 	private SyncInfoSet syncInfoSet;
 	
 	public final static String MODE_SETTING = "ResourceSelectionTree.mode"; //$NON-NLS-1$
@@ -224,8 +226,8 @@ public class ResourceSelectionTree extends Composite {
 			break;
 		}
 
-		if (checkbox) treeViewer = new CheckboxTreeViewer(treeGroup, SWT.BORDER);
-		else treeViewer = new TreeViewer(treeGroup, SWT.BORDER);
+		if (checkbox) treeViewer = new CheckboxTreeViewer(treeGroup, SWT.BORDER | SWT.MULTI);
+		else treeViewer = new TreeViewer(treeGroup, SWT.BORDER | SWT.MULTI);
 		if (labelProvider == null) labelProvider = new ResourceSelectionLabelProvider();
 		treeViewer.setLabelProvider(labelProvider);
 		treeViewer.setContentProvider(new ResourceSelectionContentProvider());
@@ -307,6 +309,14 @@ public class ResourceSelectionTree extends Composite {
 
 	private void removeFromView() {
 		IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
+		if (removeFromViewValidator != null) {
+			if (!removeFromViewValidator.canRemove(resourceList, selection)) {
+				if (removeFromViewValidator.getErrorMessage() != null) {
+					MessageDialog.openError(getShell(), Policy.bind("ResourceSelectionTree.remove"), removeFromViewValidator.getErrorMessage()); //$NON-NLS-1$
+				}
+				return;
+			}
+		}
 		Iterator iter = selection.iterator();
 		while (iter.hasNext()) {
 			IResource resource = (IResource)iter.next();
@@ -647,6 +657,16 @@ public class ResourceSelectionTree extends Composite {
 	public static interface IToolbarControlCreator {
 		public void createToolbarControls(Composite composite);
 		public int getControlCount();
+	}
+	
+	public static interface IRemoveFromViewValidator {
+		public boolean canRemove(ArrayList resourceList, IStructuredSelection selection);
+		public String getErrorMessage();
+	}
+
+	public void setRemoveFromViewValidator(
+			IRemoveFromViewValidator removeFromViewValidator) {
+		this.removeFromViewValidator = removeFromViewValidator;
 	}
 
 }

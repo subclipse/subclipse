@@ -1,9 +1,12 @@
 package org.tigris.subversion.subclipse.ui.wizards.dialogs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -36,6 +39,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.dialogs.CompareDialog;
+import org.tigris.subversion.subclipse.ui.dialogs.ResourceWithStatusUtil;
 import org.tigris.subversion.subclipse.ui.settings.CommentProperties;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.ResourceSelectionTree;
@@ -158,6 +162,14 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 			} 		
     	};
     	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, false, toolbarControlCreator, syncInfoSet); //$NON-NLS-1$    	
+    	resourceSelectionTree.setRemoveFromViewValidator(new ResourceSelectionTree.IRemoveFromViewValidator() {
+			public boolean canRemove(ArrayList resourceList, IStructuredSelection selection) {
+				return removalOk(resourceList, selection);
+			}
+			public String getErrorMessage() {
+				return Policy.bind("CommitDialog.unselectedPropChangeChildren"); //$NON-NLS-1$ 	
+			}
+    	});
     	resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				selectedResources = resourceSelectionTree.getSelectedResources();
@@ -217,9 +229,45 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
             }
         }
         keepLocks = keepLocksButton.getSelection();
-//        if (!checkForUnselectedPropChangeChildren()) return false;
 		return true;
 	}
+	
+    private boolean removalOk(ArrayList resourceList, IStructuredSelection selection) {
+    	ArrayList clonedList = (ArrayList)resourceList.clone();
+    	Iterator iter = selection.iterator();
+    	while (iter.hasNext()) clonedList.remove(iter.next());
+    	ArrayList folderPropertyChanges = new ArrayList();
+    	boolean folderDeletionSelected = false;
+    	iter = clonedList.iterator();
+    	while (iter.hasNext()) {
+    		IResource resource = (IResource)iter.next();
+    		if (resource instanceof IContainer) {
+				if (ResourceWithStatusUtil.getStatus(resource).equals(Policy.bind("CommitDialog.deleted"))) //$NON-NLS-1$
+					folderDeletionSelected = true;
+				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus(resource);
+				if (propertyStatus != null && propertyStatus.length() > 0)
+					folderPropertyChanges.add(resource);
+    		}    		
+    	}
+    	if (!folderDeletionSelected || folderPropertyChanges.size() == 0) return true;
+    	boolean unselectedPropChangeChildren = false;
+    	iter = folderPropertyChanges.iterator();
+        outer:
+    	while (iter.hasNext()) {
+    		IContainer container = (IContainer)iter.next();
+    		Iterator iter2 = resourceList.iterator();
+    		while (iter2.hasNext()) {
+    			IResource resource = (IResource)iter2.next();
+    			if (!clonedList.contains(resource)) {
+    				if (isChild(resource, container)) {
+    					unselectedPropChangeChildren = true;
+    					break outer;
+    				}
+    			}
+    		}
+    	}
+    	return !unselectedPropChangeChildren;
+    }	
 	
 //    private boolean checkForUnselectedPropChangeChildren() {
 //        if (selectedResources == null) return true;
@@ -260,15 +308,15 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 //    	return true;
 //    }
     
-//    private boolean isChild(IResource resource, IContainer folder) {
-//    	IContainer container = resource.getParent();
-//    	while (container != null) {
-//    		if (container.getFullPath().toString().equals(folder.getFullPath().toString()))
-//    			return true;
-//    		container = container.getParent();
-//    	}
-//    	return false;
-//    }    
+    private boolean isChild(IResource resource, IContainer folder) {
+    	IContainer container = resource.getParent();
+    	while (container != null) {
+    		if (container.getFullPath().toString().equals(folder.getFullPath().toString()))
+    			return true;
+    		container = container.getParent();
+    	}
+    	return false;
+    }    
 
 	public void setMessage() {
 		setMessage(Policy.bind("CommitDialog.message")); //$NON-NLS-1$
