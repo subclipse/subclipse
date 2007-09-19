@@ -90,19 +90,31 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 
 	public void createControls(Composite composite) {
 	        sashForm = new SashForm(composite, SWT.VERTICAL);
-	        sashForm.setLayout(new GridLayout());
+	        GridLayout gridLayout = new GridLayout();
+	        gridLayout.marginHeight = 0;
+	        gridLayout.marginWidth = 0;
+	        sashForm.setLayout(gridLayout);
 	        sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
 	                
 	        Composite cTop = new Composite(sashForm, SWT.NULL);
-	        cTop.setLayout(new GridLayout());
+	        GridLayout topLayout = new GridLayout();
+	        topLayout.marginHeight = 0;
+	        topLayout.marginWidth = 0;
+	        cTop.setLayout(topLayout);
 	        cTop.setLayoutData(new GridData(GridData.FILL_BOTH));
 	                
 	        Composite cBottom1 = new Composite(sashForm, SWT.NULL);
-	        cBottom1.setLayout(new GridLayout());
+	        GridLayout bottom1Layout = new GridLayout();
+	        bottom1Layout.marginHeight = 0;
+	        bottom1Layout.marginWidth = 0;
+	        cBottom1.setLayout(bottom1Layout);
 	        cBottom1.setLayoutData(new GridData(GridData.FILL_BOTH));
 	        
 	        Composite cBottom2 = new Composite(cBottom1, SWT.NULL);
-	        cBottom2.setLayout(new GridLayout());
+	        GridLayout bottom2Layout = new GridLayout();
+	        bottom2Layout.marginHeight = 0;
+	        bottom2Layout.marginWidth = 0;	        
+	        cBottom2.setLayout(bottom2Layout);
 	        cBottom2.setLayoutData(new GridData(GridData.FILL_BOTH));
 	        
 			try {

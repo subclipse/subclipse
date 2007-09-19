@@ -24,6 +24,8 @@ public abstract class SvnWizardDialogPage extends WizardPage {
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		GridLayout outerLayout = new GridLayout();
 		outerLayout.numColumns = 1;
+		outerLayout.marginHeight = 0;
+		outerLayout.marginWidth = 0;
 		outerContainer.setLayout(outerLayout);
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));

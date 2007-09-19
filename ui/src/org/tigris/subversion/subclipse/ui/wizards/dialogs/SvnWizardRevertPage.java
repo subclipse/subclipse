@@ -47,6 +47,8 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 		Composite composite = new Composite(outerContainer, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
 		composite.setLayout(layout);
 		GridData data = new GridData(GridData.FILL_BOTH);
 		composite.setLayoutData(data);
