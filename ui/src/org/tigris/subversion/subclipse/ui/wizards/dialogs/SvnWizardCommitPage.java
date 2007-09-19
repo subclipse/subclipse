@@ -67,17 +67,16 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 		this.projectProperties = projectProperties;
 		this.statusMap = statusMap;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
-//		if (url == null) setTitle(Policy.bind("CommitDialog.commitTo") + " " + Policy.bind("CommitDialog.multiple")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-//		else setTitle(Policy.bind("CommitDialog.commitTo") + " " + url);  //$NON-NLS-1$//$NON-NLS-2$		
-		setTitle(Policy.bind("CommitDialog.title")); //$NON-NLS-1$
-		if (url == null) setDescription(Policy.bind("CommitDialog.commitTo") + " " + Policy.bind("CommitDialog.multiple")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		else setDescription(Policy.bind("CommitDialog.commitTo") + " " + url);  //$NON-NLS-1$//$NON-NLS-2$				
+		if (url == null) setTitle(Policy.bind("CommitDialog.commitTo") + " " + Policy.bind("CommitDialog.multiple")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		else setTitle(Policy.bind("CommitDialog.commitTo") + " " + url);  //$NON-NLS-1$//$NON-NLS-2$		
+		setDescription(Policy.bind("CommitDialog.message")); //$NON-NLS-1$
 		if (resourcesToCommit.length > 0) {
             try {
                 commentProperties = CommentProperties.getCommentProperties(resourcesToCommit[0]);
             } catch (SVNException e) {}
 		}		
 		commitCommentArea = new CommitCommentArea(null, null, commentProperties);	
+		commitCommentArea.setShowLabel(false);
 		if ((commentProperties != null) && (commentProperties.getMinimumLogMessageSize() != 0)) {
 		    ModifyListener modifyListener = new ModifyListener() {
                 public void modifyText(ModifyEvent e) {
@@ -295,6 +294,10 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	}	
 	
 	public void saveSettings() {
+	}
+	
+	public String getWindowTitle() {
+		return Policy.bind("CommitDialog.title"); //$NON-NLS-1$
 	}	
 
 }

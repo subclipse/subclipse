@@ -94,6 +94,7 @@ import org.tigris.subversion.subclipse.ui.settings.CommentProperties;
  * This area provides the widgets for providing the SVN commit comment
  */
 public class CommitCommentArea extends DialogArea {
+	private boolean showLabel = true;;
     
     public static final String SPELLING_ERROR = "spelling.error"; //$NON-NLS-1$
     
@@ -527,10 +528,12 @@ public class CommitCommentArea extends DialogArea {
         fComposite = createGrabbingComposite(parent, 1);
         initializeDialogUnits(fComposite);
         
-		Label label = new Label(fComposite, SWT.NULL);
-		label.setLayoutData(new GridData());
-		if (enterCommentMessage == null) label.setText(Policy.bind("ReleaseCommentDialog.enterComment")); //$NON-NLS-1$
-		else label.setText(enterCommentMessage);
+        if (showLabel) {
+			Label label = new Label(fComposite, SWT.NULL);
+			label.setLayoutData(new GridData());
+			if (enterCommentMessage == null) label.setText(Policy.bind("ReleaseCommentDialog.enterComment")); //$NON-NLS-1$
+			else label.setText(enterCommentMessage);
+        }
 		
         fTextBox= new TextBox(fComposite, EMPTY_MESSAGE, getInitialComment());
         
@@ -661,5 +664,9 @@ public class CommitCommentArea extends DialogArea {
     public void setModifyListener(ModifyListener modifyListener) {
         this.modifyListener = modifyListener;
     }
+
+	public void setShowLabel(boolean showLabel) {
+		this.showLabel = showLabel;
+	}
     
 }

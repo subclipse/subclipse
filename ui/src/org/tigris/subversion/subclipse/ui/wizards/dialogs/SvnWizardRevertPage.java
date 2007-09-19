@@ -106,6 +106,10 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 			List result = Arrays.asList(selectedResources);
 			return (IResource[]) result.toArray(new IResource[result.size()]);
 		}
+	}
+
+	public String getWindowTitle() {
+		return Policy.bind("RevertDialog.title"); //$NON-NLS-1$
 	}	
 
 }

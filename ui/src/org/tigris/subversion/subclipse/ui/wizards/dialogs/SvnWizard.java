@@ -16,7 +16,7 @@ public class SvnWizard extends Wizard implements IClosableWizard {
 
 	public void addPages() {
 		super.addPages();
-		setWindowTitle(svnWizardDialogPage.getTitle());
+		setWindowTitle(svnWizardDialogPage.getWindowTitle());
 		addPage(svnWizardDialogPage);
 	}
 

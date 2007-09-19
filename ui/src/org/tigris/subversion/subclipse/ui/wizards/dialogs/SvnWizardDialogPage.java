@@ -37,6 +37,8 @@ public abstract class SvnWizardDialogPage extends WizardPage {
 	
 	public abstract void createControls(Composite outerContainer);
 	
+	public abstract String getWindowTitle();
+	
 	public abstract void setMessage();
 	
 	public abstract boolean performFinish();
