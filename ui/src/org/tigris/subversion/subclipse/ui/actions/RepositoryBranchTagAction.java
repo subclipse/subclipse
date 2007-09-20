@@ -22,7 +22,9 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardBranchTagPage;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -31,12 +33,15 @@ public class RepositoryBranchTagAction extends SVNAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		ISVNRemoteResource[] resources = getSelectedRemoteResources();
-		BranchTagDialog dialog = new BranchTagDialog(getShell(), resources[0]);
-		if (dialog.open() == BranchTagDialog.OK) {
-            final SVNUrl sourceUrl = dialog.getUrl();
-            final SVNUrl destinationUrl = dialog.getToUrl();
-            final String message = dialog.getComment();
-            final SVNRevision revision = dialog.getRevision();
+		SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[0]);
+    	SvnWizard wizard = new SvnWizard(branchTagPage);
+        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+        wizard.setParentDialog(dialog);    	
+		if (dialog.open() == SvnWizardDialog.OK) {
+            final SVNUrl sourceUrl = branchTagPage.getUrl();
+            final SVNUrl destinationUrl = branchTagPage.getToUrl();
+            final String message = branchTagPage.getComment();
+            final SVNRevision revision = branchTagPage.getRevision();
             BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 				public void run() {
 					try {

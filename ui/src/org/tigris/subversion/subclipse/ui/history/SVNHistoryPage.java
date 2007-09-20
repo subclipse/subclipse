@@ -121,7 +121,6 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
-import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.HistorySearchDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.SetCommitPropertiesDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.ShowRevisionsDialog;
@@ -132,6 +131,9 @@ import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.EmptySearchViewerFilter;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardBranchTagPage;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -1155,20 +1157,22 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           ISelection selection = getSelection();
           if( !(selection instanceof IStructuredSelection))
             return;
-          ILogEntry currentSelection = getLogEntry((IStructuredSelection) selection);
-          BranchTagDialog dialog;
-          if(resource == null)
-            dialog = new BranchTagDialog(getSite().getShell(), historyTableProvider.getRemoteResource());
+          ILogEntry currentSelection = getLogEntry((IStructuredSelection) selection);          
+          SvnWizardBranchTagPage branchTagPage;
+          if (resource == null)
+        	  branchTagPage = new SvnWizardBranchTagPage(historyTableProvider.getRemoteResource());
           else
-            dialog = new BranchTagDialog(getSite().getShell(), resource);
-          dialog.setRevisionNumber(currentSelection.getRevision().getNumber());
-          if(dialog.open() == BranchTagDialog.CANCEL)
-            return;
-          final SVNUrl sourceUrl = dialog.getUrl();
-          final SVNUrl destinationUrl = dialog.getToUrl();
-          final String message = dialog.getComment();
-          final SVNRevision revision = dialog.getRevision();
-          boolean createOnServer = dialog.isCreateOnServer();
+        	  branchTagPage = new SvnWizardBranchTagPage(resource);
+          branchTagPage.setRevisionNumber(currentSelection.getRevision().getNumber());
+      	  SvnWizard wizard = new SvnWizard(branchTagPage);
+          SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
+          wizard.setParentDialog(dialog); 
+          if (!(dialog.open() == SvnWizardDialog.OK)) return;
+          final SVNUrl sourceUrl = branchTagPage.getUrl();
+          final SVNUrl destinationUrl = branchTagPage.getToUrl();
+          final String message = branchTagPage.getComment();
+          final SVNRevision revision = branchTagPage.getRevision();
+          boolean createOnServer = branchTagPage.isCreateOnServer();
           IResource[] resources = { resource};
           try {
             if(resource == null) {
@@ -1185,7 +1189,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
               });
             } else {
               new BranchTagOperation(getSite().getPage().getActivePart(), resources, sourceUrl, destinationUrl,
-                  createOnServer, dialog.getRevision(), message).run();
+                  createOnServer, branchTagPage.getRevision(), message).run();
             }
           } catch(Exception e) {
             MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e

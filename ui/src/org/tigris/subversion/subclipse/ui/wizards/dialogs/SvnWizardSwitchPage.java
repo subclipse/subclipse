@@ -276,6 +276,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 	}
 
 	public void setMessage() {
+		setMessage(Policy.bind("SwitchDialog.message")); //$NON-NLS-1$
 	}
 	
 	private boolean canFinish() {

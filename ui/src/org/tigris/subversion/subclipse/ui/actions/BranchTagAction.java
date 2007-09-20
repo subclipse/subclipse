@@ -16,8 +16,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.dialogs.BranchTagDialog;
 import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardBranchTagPage;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class BranchTagAction extends WorkbenchWindowAction {
@@ -29,16 +31,20 @@ public class BranchTagAction extends WorkbenchWindowAction {
         else {
 	        IResource[] resources = getSelectedResources();
 	        for (int i = 0; i < resources.length; i++) {
-	            BranchTagDialog dialog = new BranchTagDialog(getShell(), resources[i]);
-	            if (dialog.open() == BranchTagDialog.CANCEL) break;
-	            SVNUrl sourceUrl = dialog.getUrl();
-	            SVNUrl destinationUrl = dialog.getToUrl();
-	            String message = dialog.getComment();
-	            boolean createOnServer = dialog.isCreateOnServer();
-	            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, dialog.getRevision(), message);
-	            branchTagOperation.setNewAlias(dialog.getNewAlias());
-	            branchTagOperation.switchAfterTagBranchOperation(dialog.switchAfterTagBranch());
-	            branchTagOperation.run();
+	        	SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[i]);
+	        	SvnWizard wizard = new SvnWizard(branchTagPage);
+		        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+		        wizard.setParentDialog(dialog);    
+		        if (dialog.open() == SvnWizardDialog.OK) {
+		            SVNUrl sourceUrl = branchTagPage.getUrl();
+		            SVNUrl destinationUrl = branchTagPage.getToUrl();
+		            String message = branchTagPage.getComment();
+		            boolean createOnServer = branchTagPage.isCreateOnServer();
+		            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, branchTagPage.getRevision(), message);
+		            branchTagOperation.setNewAlias(branchTagPage.getNewAlias());
+		            branchTagOperation.switchAfterTagBranchOperation(branchTagPage.switchAfterTagBranch());
+		            branchTagOperation.run();
+		        }
 	        }
         }
     }
