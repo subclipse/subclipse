@@ -19,7 +19,9 @@ import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.svnproperties.SetSvnPropertyDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardSetPropertyPage;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
 /**
@@ -36,14 +38,17 @@ public class SVNPropertyModifyAction extends SVNPropertyAction {
 				public void run(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 					ISVNProperty svnProperty = getSelectedSvnProperties()[0];
 					ISVNLocalResource svnResource = getSVNLocalResource(svnProperty);
-					SetSvnPropertyDialog dialog = new SetSvnPropertyDialog(getShell(),svnResource,svnProperty);
-					if (dialog.open() != SetSvnPropertyDialog.OK) return;
+					SvnWizardSetPropertyPage setPropertyPage = new SvnWizardSetPropertyPage(svnResource, svnProperty);
+					SvnWizard wizard = new SvnWizard(setPropertyPage);
+				    SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+				    wizard.setParentDialog(dialog); 					
+					if (dialog.open() != SvnWizardDialog.OK) return;
 			
 					try {
-						if (dialog.getPropertyValue() != null) {
-							svnResource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyValue(),dialog.getRecurse());
+						if (setPropertyPage.getPropertyValue() != null) {
+							svnResource.setSvnProperty(setPropertyPage.getPropertyName(), setPropertyPage.getPropertyValue(),setPropertyPage.getRecurse());
 						} else {
-							svnResource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyFile(),dialog.getRecurse());
+							svnResource.setSvnProperty(setPropertyPage.getPropertyName(), setPropertyPage.getPropertyFile(),setPropertyPage.getRecurse());
 						}
 					} catch (SVNException e) {
 						throw new InvocationTargetException(e);

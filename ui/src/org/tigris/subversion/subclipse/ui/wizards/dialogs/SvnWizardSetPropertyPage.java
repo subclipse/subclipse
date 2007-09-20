@@ -1,21 +1,9 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2006 Subclipse project and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     Subclipse project committers - initial API and implementation
- ******************************************************************************/
-package org.tigris.subversion.subclipse.ui.svnproperties;
+package org.tigris.subversion.subclipse.ui.wizards.dialogs;
 
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 
-import org.eclipse.jface.dialogs.TrayDialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -27,13 +15,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -45,10 +31,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
-/**
- * Dialog to set a svn property 
- */
-public class SetSvnPropertyDialog extends TrayDialog {
+public class SvnWizardSetPropertyPage extends SvnWizardDialogPage {
 	private ISVNProperty property;   // null when we set a new property
 	private ISVNLocalResource svnResource;	
 	private Combo propertyNameText;
@@ -68,48 +51,22 @@ public class SetSvnPropertyDialog extends TrayDialog {
 	private ArrayList allPropertyTypes = new ArrayList();
 	private SVNPropertyDefinition[] propertyTypes;
 	private ArrayList propertyNames;
-	private int prop;
-
-	/**
-	 * create a new SetSvnPropertyDialog to set a new property on the given resource
-	 * @param parentShell
-	 * @param svnResource
-	 */
-	public SetSvnPropertyDialog(Shell parentShell, ISVNLocalResource svnResource) {
-		this(parentShell,svnResource,null);
-	}
-
-	/**
-	 * create a new SetSvnPropertyDialog to modify an existing property on the given resource
-	 * @param parentShell
-	 * @param svnResource
-	 * @param property
-	 */
-	public SetSvnPropertyDialog(Shell parentShell, ISVNLocalResource svnResource, ISVNProperty property) {
-		super(parentShell);
-		int shellStyle = getShellStyle();
-		setShellStyle(shellStyle | SWT.RESIZE);
-		this.property = property;
-		this.svnResource = svnResource;
-	}
-
-	private boolean isNewProperty() {
-		return property == null;
-	}
-
-	/* (non-Javadoc)
-	 * Method declared on Dialog.
-	 */
-	protected Control createContents(Composite parent) {
-		Control control = super.createContents(parent);
-		updateEnablements();
-		return control;
+	private int prop;	
+	
+	public SvnWizardSetPropertyPage(ISVNLocalResource svnResource) {
+		this(svnResource, null);
 	}	
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets.Composite)
-	 */
-	protected Control createDialogArea(Composite parent) {
+	public SvnWizardSetPropertyPage(ISVNLocalResource svnResource, ISVNProperty property) {
+		super("SetSvnPropertyDialog", Policy.bind("SetSvnPropertyDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$
+		this.property = property;
+		this.svnResource = svnResource;	
+	}
+
+	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
+	}
+
+	public void createControls(Composite parent) {
 		Label label;
 		GridData gridData;
 
@@ -130,19 +87,18 @@ public class SetSvnPropertyDialog extends TrayDialog {
 //				updateProperties();
 				validate();
 			}
-		};		
+		};	
 		
-		Composite area = (Composite)super.createDialogArea(parent);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		area.setLayout(layout);
-
+		Composite area = new Composite(parent, SWT.NULL);
+		area.setLayout(new GridLayout());
+		area.setLayoutData(new GridData(GridData.FILL_BOTH));		
+		
 		// create the property name label and the corresponding Text		
 		Composite composite = new Composite(area, SWT.NONE);
 		gridData = new GridData(GridData.FILL_HORIZONTAL);
 		gridData.grabExcessHorizontalSpace = true;
 		composite.setLayoutData(gridData);
-		layout = new GridLayout();
+		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		composite.setLayout(layout);
 
@@ -251,12 +207,35 @@ public class SetSvnPropertyDialog extends TrayDialog {
 			getProperty();
 		}
 		propertyValueText.addListener(SWT.Modify,updatePropertiesListener);
+		
+		updateEnablements();
 	
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(area, IHelpContextIds.SET_SVN_PROPERTY_DIALOG);	
-		
-		return area;
 	}
 
+	public String getWindowTitle() {
+		return Policy.bind("SetSvnPropertyDialog.title"); //$NON-NLS-1$
+	}
+
+	public boolean performCancel() {
+		return true;
+	}
+
+	public boolean performFinish() {
+		return true;
+	}
+
+	public void saveSettings() {
+	}
+
+	public void setMessage() {
+		setMessage(Policy.bind("SetSvnPropertyDialog.message")); //$NON-NLS-1$
+	}
+	
+	private boolean isNewProperty() {
+		return property == null;
+	}
+	
     private void getPropertyTypes() {
 	    if (svnResource.isFolder()) {
 	    	SVNPropertyDefinition[] allProperties = SVNPropertyManager.getInstance().getPropertyTypes();
@@ -309,15 +288,7 @@ public class SetSvnPropertyDialog extends TrayDialog {
 	public boolean getRecurse() {
 		return recurse;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets.Shell)
-	 */
-	protected void configureShell(Shell newShell) {
-		super.configureShell(newShell);
-		newShell.setText(Policy.bind("SetSvnPropertyDialog.shellText")); //$NON-NLS-1$
-	}
-
+	
 	private void updateProperties() {
 		propertyName = propertyNameText.getText();
 		if (textRadio.getSelection()) {
@@ -408,13 +379,11 @@ public class SetSvnPropertyDialog extends TrayDialog {
 	private void setError(String text) {
 		if (text == null) {
 			statusMessageLabel.setText(""); //$NON-NLS-1$
-			if (getButton(IDialogConstants.OK_ID) != null)
-			    getButton(IDialogConstants.OK_ID).setEnabled(true);
+			setPageComplete(true);
 		} else {
 			statusMessageLabel.setText(text);
 			statusMessageLabel.setForeground(JFaceColors.getErrorText(getShell().getDisplay()));
-			if (getButton(IDialogConstants.OK_ID) != null)
-			    getButton(IDialogConstants.OK_ID).setEnabled(false);
+			setPageComplete(false);
 		}
 	}
 
@@ -426,7 +395,6 @@ public class SetSvnPropertyDialog extends TrayDialog {
             if (!recurseCheckbox.getEnabled()) recurseCheckbox.setSelection(false);
         } else recurseCheckbox.setEnabled(svnResource.isFolder());
         validate();
-    }
-
+    }	
 
 }

@@ -21,7 +21,9 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.svnproperties.SetSvnPropertyDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardSetPropertyPage;
 
 /**
  * Set a new svn property on a given resource 
@@ -38,14 +40,17 @@ public class SetSvnPropertyAction extends WorkbenchWindowAction {
 					public void execute(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 						IResource resource = getSelectedResources()[0];
 						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-						SetSvnPropertyDialog dialog = new SetSvnPropertyDialog(getShell(),svnResource);
-						if (dialog.open() != SetSvnPropertyDialog.OK) return;
+						SvnWizardSetPropertyPage setPropertyPage = new SvnWizardSetPropertyPage(svnResource);
+						SvnWizard wizard = new SvnWizard(setPropertyPage);
+					    SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+					    wizard.setParentDialog(dialog);  
+						if (dialog.open() != SvnWizardDialog.OK) return;
 					
 						try {
-							if (dialog.getPropertyValue() != null) {
-								svnResource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyValue(),dialog.getRecurse());
+							if (setPropertyPage.getPropertyValue() != null) {
+								svnResource.setSvnProperty(setPropertyPage.getPropertyName(), setPropertyPage.getPropertyValue(),setPropertyPage.getRecurse());
 							} else {
-								svnResource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyFile(),dialog.getRecurse());
+								svnResource.setSvnProperty(setPropertyPage.getPropertyName(), setPropertyPage.getPropertyFile(),setPropertyPage.getRecurse());
 							}
 						
 						} catch (SVNException e) {

@@ -64,6 +64,9 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.SVNPropertyDeleteAction;
 import org.tigris.subversion.subclipse.ui.actions.SVNPropertyModifyAction;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardSetPropertyPage;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
@@ -292,14 +295,17 @@ public class SvnPropertiesView extends ViewPart {
 			SVNUIPlugin plugin = SVNUIPlugin.getPlugin();
 			addPropertyAction = new Action(Policy.bind("SvnPropertiesView.addPropertyLabel"), plugin.getImageDescriptor(ISVNUIConstants.IMG_MENU_PROPSET)) { //$NON-NLS-1$
 				public void run() {
-					SetSvnPropertyDialog dialog = new SetSvnPropertyDialog(getSite().getShell(),resource);
-					if (dialog.open() != SetSvnPropertyDialog.OK) return;
+					SvnWizardSetPropertyPage setPropertyPage = new SvnWizardSetPropertyPage(resource);
+					SvnWizard wizard = new SvnWizard(setPropertyPage);
+				    SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
+				    wizard.setParentDialog(dialog); 	
+					if (dialog.open() != SvnWizardDialog.OK) return;
 			
 					try {
-						if (dialog.getPropertyValue() != null) {
-							resource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyValue(),dialog.getRecurse());
+						if (setPropertyPage.getPropertyValue() != null) {
+							resource.setSvnProperty(setPropertyPage.getPropertyName(), setPropertyPage.getPropertyValue(),setPropertyPage.getRecurse());
 						} else {
-							resource.setSvnProperty(dialog.getPropertyName(), dialog.getPropertyFile(),dialog.getRecurse());
+							resource.setSvnProperty(setPropertyPage.getPropertyName(), setPropertyPage.getPropertyFile(),setPropertyPage.getRecurse());
 						}
 					} catch (SVNException e) {
 						SVNUIPlugin.openError(
