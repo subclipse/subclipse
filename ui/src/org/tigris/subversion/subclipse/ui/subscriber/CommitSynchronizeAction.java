@@ -60,6 +60,7 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 	protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
 		changeSets = new ArrayList();
 		String url = null;
+		ChangeSet changeSet = null;
 	    IStructuredSelection selection = getStructuredSelection();
 		Iterator iter = selection.iterator();
 		String proposedComment = "";
@@ -79,9 +80,16 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 			            }	    
 				    }
 				}
+			} else {
+				if (selection.size() == 1) {
+					ChangeSetDiffNode changeSetDiffNode = (ChangeSetDiffNode)synchronizeModelElement;
+					changeSet = changeSetDiffNode.getSet();
+				}
 			}
 		}
-	    return new CommitSynchronizeOperation(configuration, elements, url, proposedComment);
+		CommitSynchronizeOperation operation = new CommitSynchronizeOperation(configuration, elements, url, proposedComment);
+	    operation.setChangeSet(changeSet);
+		return operation;
 	}	
 	
 	private String getProposedComment(String proposedComment, ISynchronizeModelElement synchronizeModelElement) {

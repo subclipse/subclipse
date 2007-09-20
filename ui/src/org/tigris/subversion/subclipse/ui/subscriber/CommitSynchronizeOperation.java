@@ -26,6 +26,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
+import org.eclipse.team.internal.core.subscribers.ChangeSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -48,6 +49,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
     private String commitComment;
     private IResource[] resourcesToCommit;
     private String url;
+    private ChangeSet changeSet;
     private boolean commit;
     private boolean keepLocks;
     private String proposedComment;
@@ -67,7 +69,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 	        try {
                 ProjectProperties projectProperties = ProjectProperties.getProjectProperties(modified[0]);
                 
-                SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties, new HashMap());                
+                SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties, new HashMap(), changeSet);                
                 commitPage.setComment(proposedComment);
                 commitPage.setSyncInfoSet(set);
          	    SvnWizard wizard = new SvnWizard(commitPage);
@@ -221,6 +223,10 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
                 e.printStackTrace();
             }
 	    }
+	}
+
+	public void setChangeSet(ChangeSet changeSet) {
+		this.changeSet = changeSet;
 	}
 
 }

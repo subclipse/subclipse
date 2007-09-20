@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
+import org.eclipse.team.internal.core.subscribers.ChangeSet;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -51,6 +52,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private CommitCommentArea commitCommentArea;
 	private IResource[] resourcesToCommit;
 	private String url;
+	private ChangeSet changeSet;
 	private ProjectProperties projectProperties;
 	private Object[] selectedResources;
 	private Text issueText;
@@ -66,15 +68,20 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private HashMap statusMap;
 	private ResourceSelectionTree resourceSelectionTree;
 
-	public SvnWizardCommitPage(IResource[] resourcesToCommit, String url, ProjectProperties projectProperties, HashMap statusMap) {
+	public SvnWizardCommitPage(IResource[] resourcesToCommit, String url, ProjectProperties projectProperties, HashMap statusMap, ChangeSet changeSet) {
 		super("CommitDialog", null); //$NON-NLS-1$		
 		this.resourcesToCommit = resourcesToCommit;
 		this.url = url;
 		this.projectProperties = projectProperties;
 		this.statusMap = statusMap;
+		this.changeSet = changeSet;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
-		if (url == null) setTitle(Policy.bind("CommitDialog.commitTo") + " " + Policy.bind("CommitDialog.multiple")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		else setTitle(Policy.bind("CommitDialog.commitTo") + " " + url);  //$NON-NLS-1$//$NON-NLS-2$		
+		if (changeSet == null) {
+			if (url == null) setTitle(Policy.bind("CommitDialog.commitTo") + " " + Policy.bind("CommitDialog.multiple")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			else setTitle(Policy.bind("CommitDialog.commitTo") + " " + url);  //$NON-NLS-1$//$NON-NLS-2$		
+		} else {
+			 setTitle(Policy.bind("CommitDialog.commitToChangeSet") + " " + changeSet.getName());  //$NON-NLS-1$//$NON-NLS-2$		
+		}
 		if (resourcesToCommit.length > 0) {
             try {
                 commentProperties = CommentProperties.getCommentProperties(resourcesToCommit[0]);
@@ -373,6 +380,6 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	}
 
 	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
-	}	
+	}
 
 }
