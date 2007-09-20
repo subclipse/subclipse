@@ -50,6 +50,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.dialogs.ResourceWithStatusUtil;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 public class ResourceSelectionTree extends Composite {
@@ -77,6 +78,7 @@ public class ResourceSelectionTree extends Composite {
 	private IRemoveFromViewValidator removeFromViewValidator;
 	private SyncInfoSet syncInfoSet;
 	private boolean showRemoveFromViewAction = true;
+	private ResourceSelectionTreeDecorator resourceSelectionTreeDecorator = new ResourceSelectionTreeDecorator();
 	
 	public final static String MODE_SETTING = "ResourceSelectionTree.mode"; //$NON-NLS-1$
 	public final static int MODE_COMPRESSED_FOLDERS = 0;
@@ -563,7 +565,16 @@ public class ResourceSelectionTree extends Composite {
 		};
 		
 		public Image getImage(Object element) {
-			if (resourceList.contains(element)) return syncLabelProvider.getImage(element);
+			if (resourceList.contains(element)) {
+				Image image = null;
+				if (element instanceof IContainer)
+					image = workbenchLabelProvider.getImage(element);
+				else
+					image = syncLabelProvider.getImage(element);
+				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus((IResource)element);
+				if (propertyStatus != null && propertyStatus.length() > 0) image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CHANGE);
+				return image;
+			}
 			else {
 				Image image = workbenchLabelProvider.getImage(element);	
 				return compareConfiguration.getImage(image, Differencer.NO_CHANGE);
@@ -572,7 +583,7 @@ public class ResourceSelectionTree extends Composite {
 
 		public String getText(Object element) {
 			if (statusMap == null) return workbenchLabelProvider.getText(element);
-			SVNStatusKind statusKind = (SVNStatusKind)statusMap.get(element);
+//			SVNStatusKind statusKind = (SVNStatusKind)statusMap.get(element);
 			String text = null;
 			IResource resource = (IResource)element;
 			if (mode == MODE_FLAT) text = resource.getName() + " - " + resource.getFullPath().toString(); //$NON-NLS-1$
@@ -586,8 +597,6 @@ public class ResourceSelectionTree extends Composite {
 			else {
 				text = resource.getName();
 			}
-//			if (statusKind == null) return text;
-//			else return text + " (" + statusKind.toString() + ")";
 			return text;
 		}
 		
