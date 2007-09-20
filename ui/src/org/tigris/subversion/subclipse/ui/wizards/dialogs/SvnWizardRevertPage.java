@@ -112,6 +112,9 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 
 	public String getWindowTitle() {
 		return Policy.bind("RevertDialog.title"); //$NON-NLS-1$
+	}
+
+	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
 	}	
 
 }

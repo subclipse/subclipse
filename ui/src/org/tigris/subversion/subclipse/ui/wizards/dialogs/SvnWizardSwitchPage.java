@@ -406,6 +406,9 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 			String text = provider.getColumnText(element, columnIndex);
 	        return text;
 		}
+	}
+
+	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
 	}	
 
 }

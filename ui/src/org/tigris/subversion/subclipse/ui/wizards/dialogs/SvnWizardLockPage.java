@@ -151,6 +151,9 @@ public class SvnWizardLockPage extends SvnWizardDialogPage {
 		else
 			return commitCommentArea.getComment().length() >= commentProperties
 					.getMinimumLogMessageSize();
+	}
+
+	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
 	}    
 
 }

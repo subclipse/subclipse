@@ -370,6 +370,9 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 
 	public void setSyncInfoSet(SyncInfoSet syncInfoSet) {
 		this.syncInfoSet = syncInfoSet;
+	}
+
+	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
 	}	
 
 }

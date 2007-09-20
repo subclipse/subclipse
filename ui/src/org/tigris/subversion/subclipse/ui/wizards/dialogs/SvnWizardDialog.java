@@ -29,6 +29,7 @@ public class SvnWizardDialog extends ClosableWizardDialog {
 	}
 
 	protected void createButtonsForButtonBar(Composite parent) {
+		wizardPage.createButtonsForButtonBar(parent, this);
 		super.createButtonsForButtonBar(parent);
 		if (yesNo) {
 			Button cancelButton = getButton(IDialogConstants.CANCEL_ID);
@@ -36,7 +37,7 @@ public class SvnWizardDialog extends ClosableWizardDialog {
 		}
 	}
 
-	protected Button createButton(Composite parent, int id, String label, boolean defaultButton) {
+	public Button createButton(Composite parent, int id, String label, boolean defaultButton) {
 		String customLabel;
 		if (id == IDialogConstants.FINISH_ID) {
 			if (yesNo) customLabel = "Yes";

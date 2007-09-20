@@ -15,7 +15,9 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
-import org.tigris.subversion.subclipse.ui.dialogs.ConfigureTagsDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardConfigureTagsPage;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 
 public class ConfigureTagsAction extends WorkspaceAction {
 
@@ -25,7 +27,10 @@ public class ConfigureTagsAction extends WorkspaceAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		IResource[] resources = getSelectedResources();
-		ConfigureTagsDialog dialog = new ConfigureTagsDialog(getShell(), resources[0]);
+		SvnWizardConfigureTagsPage configureTagsPage = new SvnWizardConfigureTagsPage(resources[0]);
+		SvnWizard wizard = new SvnWizard(configureTagsPage);
+        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+        wizard.setParentDialog(dialog);  		
 		dialog.open();
 	}
 

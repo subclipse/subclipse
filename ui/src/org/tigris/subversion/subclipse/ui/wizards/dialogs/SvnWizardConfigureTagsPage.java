@@ -1,14 +1,4 @@
-/*******************************************************************************
- * Copyright (c) 2005, 2006 Subclipse project and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     Subclipse project committers - initial API and implementation
- ******************************************************************************/
-package org.tigris.subversion.subclipse.ui.dialogs;
+package org.tigris.subversion.subclipse.ui.wizards.dialogs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,8 +9,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IFontProvider;
@@ -41,17 +29,14 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
@@ -72,12 +57,13 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.dialogs.ChooseUrlDialog;
 import org.tigris.subversion.subclipse.ui.repository.model.SVNModelElement;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class ConfigureTagsDialog extends TrayDialog {
+public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 	private IResource resource;
 	private ISVNLocalResource svnResource;
 	private ISVNClientAdapter svnClient;
@@ -102,27 +88,38 @@ public class ConfigureTagsDialog extends TrayDialog {
 	private boolean tagUpdatePending = false;
 	private Alias previousAlias;
 	
-	 private IDialogSettings settings;
-	
     private static final int LIST_HEIGHT_HINT = 250;
-    private static final int LIST_WIDTH_HINT = 450;
+    private static final int LIST_WIDTH_HINT = 450;	
 
-	public ConfigureTagsDialog(Shell parentShell, IResource resource) {
-		super(parentShell);
-		int shellStyle = getShellStyle();
-		setShellStyle(shellStyle | SWT.RESIZE);
+	public SvnWizardConfigureTagsPage(IResource resource) {
+		super("ConfigureTagsDialog", Policy.bind("ConfigureTagsDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$		
 		this.resource = resource;
 		deleteAction = new DeleteAction();
 		deleteAction.setText(Policy.bind("ConfigureTagsDialog.delete")); //$NON-NLS-1$
 		addBranchAction = new AddBranchAction();
 		addBranchAction.setText(Policy.bind("ConfigureTagsDialog.addBranch")); //$NON-NLS-1$
 		addTagAction = new AddTagAction();
-		addTagAction.setText(Policy.bind("ConfigureTagsDialog.addTag")); //$NON-NLS-1$	
-		settings = SVNUIPlugin.getPlugin().getDialogSettings();	
+		addTagAction.setText(Policy.bind("ConfigureTagsDialog.addTag")); //$NON-NLS-1$		
 	}
-	
-	protected Control createDialogArea(Composite parent) {
-		getShell().setText(Policy.bind("ConfigureTagsDialog.title")); //$NON-NLS-1$
+
+	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
+		applyButton = wizardDialog.createButton(parent, 2, Policy.bind("ConfigureTagsDialog.apply"), false); //$NON-NLS-1$
+		applyButton.setEnabled(false);
+		applyButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				new UpdateAction().run();
+			}
+		});
+		deleteButton = wizardDialog.createButton(parent, 3, Policy.bind("ConfigureTagsDialog.delete"), false); //$NON-NLS-1$
+		deleteButton.setEnabled(false);
+		deleteButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				new DeleteAction().run();
+			}
+		});		
+	}
+
+	public void createControls(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -136,8 +133,6 @@ public class ConfigureTagsDialog extends TrayDialog {
 		Label urlLabel = new Label(urlGroup, SWT.NONE);
 		urlLabel.setText(Policy.bind("ConfigureTagsDialog.url")); //$NON-NLS-1$
 		Text urlText = new Text(urlGroup, SWT.BORDER);
-//		GridData data = new GridData();
-//		data.widthHint = 600;
 		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		urlText.setLayoutData(data);
 		urlText.setEditable(false);
@@ -148,9 +143,6 @@ public class ConfigureTagsDialog extends TrayDialog {
 		} catch (SVNException e) {}
 		
 		getBranchesAndTags();
-		
-		Label textLabel = new Label(composite, SWT.NONE);
-		textLabel.setText(Policy.bind("ConfigureTagsDialog.text")); //$NON-NLS-1$
 
 		treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);		
 		treeViewer.setContentProvider(new TagsContentProvider(resource));
@@ -330,62 +322,40 @@ public class ConfigureTagsDialog extends TrayDialog {
         tree.setMenu(menu);
 
         // set F1 help
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.CONFIGURE_TAGS_DIALOG);	
-
-		return composite;
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.CONFIGURE_TAGS_DIALOG);			
 	}
-	
-	protected void cancelPressed() {
-		saveLocation();
+
+	public String getWindowTitle() {
+		return Policy.bind("ConfigureTagsDialog.title"); //$NON-NLS-1$
+	}
+
+	public boolean performCancel() {
 		if (updates) {
 			if (!MessageDialog.openQuestion(getShell(), Policy.bind("ConfigureTagsDialog.title"), //$NON-NLS-1$
-					Policy.bind("ConfigureTagsDialog.confirmExit"))) return; //$NON-NLS-1$			
-		}
-		super.cancelPressed();
+					Policy.bind("ConfigureTagsDialog.confirmExit"))) return false; //$NON-NLS-1$			
+		}		
+		return true;
 	}
 
-	protected void okPressed() {
-		saveLocation();
+	public boolean performFinish() {
 		if (updates) {
 			try {
 				svnResource.setSvnProperty("subclipse:tags", getPropertyValue(), false); //$NON-NLS-1$
 			} catch (SVNException e) {
 				MessageDialog.openError(getShell(), Policy.bind("ConfigureTagsDialog.title"), e.getMessage()); //$NON-NLS-1$
-				return;
+				return false;
 			}
-		}
-		super.okPressed();
+		}		
+		return true;
+	}
+
+	public void saveSettings() {
+	}
+
+	public void setMessage() {
+		setMessage(Policy.bind("ConfigureTagsDialog.text")); //$NON-NLS-1$
 	}
 	
-    private void saveLocation() {
-        int x = getShell().getLocation().x;
-        int y = getShell().getLocation().y;
-        settings.put("ConfigureTagsDialog.location.x", x); //$NON-NLS-1$
-        settings.put("ConfigureTagsDialog.location.y", y); //$NON-NLS-1$
-        x = getShell().getSize().x;
-        y = getShell().getSize().y;
-        settings.put("ConfigureTagsDialog.size.x", x); //$NON-NLS-1$
-        settings.put("ConfigureTagsDialog.size.y", y); //$NON-NLS-1$   
-    }
-    
-    protected Point getInitialLocation(Point initialSize) {
-	    try {
-	        int x = settings.getInt("ConfigureTagsDialog.location.x"); //$NON-NLS-1$
-	        int y = settings.getInt("ConfigureTagsDialog.location.y"); //$NON-NLS-1$
-	        return new Point(x, y);
-	    } catch (NumberFormatException e) {}
-        return super.getInitialLocation(initialSize);
-    }
-    
-    protected Point getInitialSize() {
-	    try {
-	        int x = settings.getInt("ConfigureTagsDialog.size.x"); //$NON-NLS-1$
-	        int y = settings.getInt("ConfigureTagsDialog.size.y"); //$NON-NLS-1$
-	        return new Point(x, y);
-	    } catch (NumberFormatException e) {}
-        return super.getInitialSize();
-    }	
-
 	private void setTagGroupEnablement(boolean enable) {
 		revisionLabel.setEnabled(enable);
 		revisionText.setEnabled(enable);
@@ -440,24 +410,6 @@ public class ConfigureTagsDialog extends TrayDialog {
 			}
 		}	
 		return propertyValue.toString();
-	}
-	
-	protected void createButtonsForButtonBar(Composite parent) {
-		applyButton = createButton(parent, 2, Policy.bind("ConfigureTagsDialog.apply"), false); //$NON-NLS-1$
-		applyButton.setEnabled(false);
-		applyButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				new UpdateAction().run();
-			}
-		});
-		deleteButton = createButton(parent, 3, Policy.bind("ConfigureTagsDialog.delete"), false); //$NON-NLS-1$
-		deleteButton.setEnabled(false);
-		deleteButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				new DeleteAction().run();
-			}
-		});
-		super.createButtonsForButtonBar(parent);
 	}
 	
 	class TagsContentProvider extends WorkbenchContentProvider {
@@ -696,7 +648,6 @@ public class ConfigureTagsDialog extends TrayDialog {
 			return workbenchLabelProvider.getText(element);
 		}
 		
-	}
-
+	}	
 
 }

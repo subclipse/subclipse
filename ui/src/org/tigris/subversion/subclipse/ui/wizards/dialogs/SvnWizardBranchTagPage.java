@@ -415,6 +415,9 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 
 	public boolean switchAfterTagBranch() {
 		return switchAfterBranchTag;
+	}
+
+	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
 	}    
 
 }
