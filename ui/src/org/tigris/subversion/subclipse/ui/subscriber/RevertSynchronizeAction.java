@@ -144,9 +144,11 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 			   		  !SVNStatusUtils.isManaged(statuses[j])) {
 			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
 			         if (currentResource != null) {
-			        	 modified.add(currentResource);
-                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
-                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             			        	 
+			        	 if (SVNStatusUtils.isManaged(statuses[j]) || !Util.isSpecialEclipseFile(currentResource)) {
+				        	 modified.add(currentResource);
+	                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+	                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());	
+			        	 }
 			         }		             
 			     }
 			 }
