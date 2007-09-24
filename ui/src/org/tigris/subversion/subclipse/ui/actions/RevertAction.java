@@ -13,9 +13,11 @@ package org.tigris.subversion.subclipse.ui.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -24,6 +26,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -66,11 +69,11 @@ public class RevertAction extends WorkbenchWindowAction {
 				url = svnResource.getStatus().getUrlString();
 			   if ((url == null) || (resources[0].getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
 		 }
+		 	ArrayList conflictFiles = new ArrayList();
 		    final List modified = new ArrayList();
 		    for (int i = 0; i < resources.length; i++) {
 				 IResource resource = resources[i];
 				 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-				 
 				 // get adds, deletes, updates and property updates.
 				 GetStatusCommand command = new GetStatusCommand(svnResource, true, false);
 				 command.run(iProgressMonitor);
@@ -83,12 +86,34 @@ public class RevertAction extends WorkbenchWindowAction {
 				        	 if (SVNStatusUtils.isManaged(statuses[j]) || !Util.isSpecialEclipseFile(currentResource)) {
 					             modified.add(currentResource);
 		                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
-		                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             
+		                 		 else {
+		                 			statusMap.put(currentResource, statuses[j].getTextStatus());
+		                 			if (SVNStatusUtils.isTextConflicted(statuses[j])) {
+		                                IFile conflictNewFile = (IFile) File2Resource
+		                                .getResource(statuses[j]
+		                                        .getConflictNew());
+		                                if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
+		                                IFile conflictOldFile = (IFile) File2Resource
+		                                .getResource(statuses[j]
+		                                        .getConflictOld());
+		                                if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
+		                                IFile conflictWorkingFile = (IFile) File2Resource
+		                                .getResource(statuses[j]
+		                                        .getConflictWorking());
+		                                if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                                
+		                 			}
+		                 		 }
 				        	 }
 				         }
 				     }
 				 }
 			}
+		    Iterator iter = conflictFiles.iterator();
+		    while (iter.hasNext()) {
+		    	IFile conflictFile = (IFile)iter.next();
+		    	modified.remove(conflictFile);
+		    	statusMap.remove(conflictFile);
+		    }
 		    return (IResource[]) modified.toArray(new IResource[modified.size()]);		 
 	}
 	
