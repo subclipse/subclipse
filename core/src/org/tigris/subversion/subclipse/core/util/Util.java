@@ -134,4 +134,8 @@ public class Util {
 			((IFile)resource).appendContents(new ByteArrayInputStream(new byte[0]),IResource.KEEP_HISTORY, null);
 		}
 	}
+	
+	public static boolean isSpecialEclipseFile(IResource resource) {
+		return resource.getName().equals(".project") || resource.getName().equals(".classpath");
+	}
 }
