@@ -51,8 +51,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private SashForm sashForm;
 	private CommitCommentArea commitCommentArea;
 	private IResource[] resourcesToCommit;
-	private String url;
-	private ChangeSet changeSet;
+//	private String url;
+//	private ChangeSet changeSet;
 	private ProjectProperties projectProperties;
 	private Object[] selectedResources;
 	private Text issueText;
@@ -63,7 +63,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private CommentProperties commentProperties;
 	private SyncInfoSet syncInfoSet;
 
-	private boolean sharing;
+//	private boolean sharing;
 	
 	private HashMap statusMap;
 	private ResourceSelectionTree resourceSelectionTree;
@@ -71,10 +71,10 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	public SvnWizardCommitPage(IResource[] resourcesToCommit, String url, ProjectProperties projectProperties, HashMap statusMap, ChangeSet changeSet) {
 		super("CommitDialog", null); //$NON-NLS-1$		
 		this.resourcesToCommit = resourcesToCommit;
-		this.url = url;
+//		this.url = url;
 		this.projectProperties = projectProperties;
 		this.statusMap = statusMap;
-		this.changeSet = changeSet;
+//		this.changeSet = changeSet;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
 		if (changeSet == null) {
 			if (url == null) setTitle(Policy.bind("CommitDialog.commitTo") + " " + Policy.bind("CommitDialog.multiple")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -262,11 +262,9 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
         outer:
     	while (iter.hasNext()) {
     		IContainer container = (IContainer)iter.next();
-    		Iterator iter2 = resourceList.iterator();
-    		while (iter2.hasNext()) {
-    			IResource resource = (IResource)iter2.next();
-    			if (!clonedList.contains(resource)) {
-    				if (isChild(resource, container)) {
+    		for (int i = 0; i < resourcesToCommit.length; i++) {
+    			if (!clonedList.contains(resourcesToCommit[i])) {
+    				if (isChild(resourcesToCommit[i], container)) {
     					unselectedPropChangeChildren = true;
     					break outer;
     				}
@@ -364,9 +362,9 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 		commitCommentArea.setProposedComment(proposedComment);
 	}
 
-	public void setSharing(boolean sharing) {
-		this.sharing = sharing;
-	}	
+//	public void setSharing(boolean sharing) {
+//		this.sharing = sharing;
+//	}	
 	
 	public void saveSettings() {
 	}

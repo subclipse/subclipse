@@ -62,7 +62,7 @@ public class CommitAction extends WorkbenchWindowAction {
     protected boolean keepLocks;
     protected IResource[] selectedResources;
     private String proposedComment;
-    private boolean sharing;
+//    private boolean sharing;
     
     private HashMap statusMap;
 	
@@ -209,7 +209,7 @@ public class CommitAction extends WorkbenchWindowAction {
 	           return false;	       
 	   }
 	   SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modifiedResources, url, projectProperties, statusMap, null);
-	   commitPage.setSharing(sharing);
+//	   commitPage.setSharing(sharing);
 	   
 	   SvnWizard wizard = new SvnWizard(commitPage);
 	   SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);	
@@ -377,9 +377,9 @@ public class CommitAction extends WorkbenchWindowAction {
     	return false;
     }
 
-	public void setSharing(boolean sharing) {
-		this.sharing = sharing;
-	}    
+//	public void setSharing(boolean sharing) {
+//		this.sharing = sharing;
+//	}    
 
 	protected String getImageId()
 	{
