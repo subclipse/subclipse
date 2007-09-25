@@ -17,18 +17,23 @@ import java.util.List;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.commands.UpdateResourcesCommand;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
+import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
+import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
@@ -36,6 +41,8 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	private IResource[] resources;
 	private boolean confirm;
 	private boolean confirmNeeded;
+	private int statusCount;
+	private List errors;
 	
 	public UpdateSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, IResource[] resources) {
 		super(configuration, elements);
@@ -56,6 +63,8 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 			});
 			if (!confirm) return;			
 		}
+		errors = new ArrayList();
+		statusCount = 0;
 		super.run(monitor);
 	}
 
@@ -85,7 +94,18 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 		}
 		if (revision == null || containsDeletes) revision = SVNRevision.HEAD;
 		
-		new UpdateOperation(getPart(), resourceArray, revision, true).run();
+//		new UpdateOperation(getPart(), resourceArray, revision, true).run();
+		try {	
+			SVNWorkspaceSubscriber.getInstance().updateRemote(resourceArray);
+	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resourceArray, revision, true);
+	        command.run(Policy.subMonitorFor(monitor,100));		
+		} catch (SVNException e) {
+		    collectStatus(e.getStatus());
+		} catch (TeamException e) {
+		    collectStatus(e.getStatus());
+        } finally {
+            monitor.done();
+		}
 	}
 	
 	/**
@@ -125,4 +145,26 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	public void setConfirmNeeded(boolean confirmNeeded) {
 		this.confirmNeeded = confirmNeeded;
 	}
+	
+	private void collectStatus(IStatus status)  {
+		if (isLastError(status)) return;
+		statusCount++;
+		if (!status.isOK()) addError(status);
+	}
+	
+	private boolean isLastError(IStatus status) {
+		return (errors.size() > 0 && getLastError() == status);
+	}
+	
+	private void addError(IStatus status) {
+		if (status.isOK()) return;
+		if (isLastError(status)) return;
+		errors.add(status);
+	}
+	
+	private IStatus getLastError() {
+		Assert.isTrue(errors.size() > 0);
+		IStatus status = (IStatus)errors.get(errors.size() - 1);
+		return status;
+	}	
 }
