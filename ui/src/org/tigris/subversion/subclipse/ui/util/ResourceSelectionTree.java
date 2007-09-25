@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.structuremergeviewer.Differencer;
@@ -493,16 +494,16 @@ public class ResourceSelectionTree extends Composite {
 	}
 	
 	private IContainer[] getFolders() {
+		List rootList = new ArrayList();
 		if (folders == null) {
 			folderList = new ArrayList();
 			for (int i = 0; i < resources.length; i++) {
 				if (resources[i] instanceof IContainer) folderList.add(resources[i]);
 				IResource parent = resources[i];
 				while (parent != null && !(parent instanceof IWorkspaceRoot)) {
-					if (folderList.contains(parent.getParent())) break;
+					if (!(parent.getParent() instanceof IWorkspaceRoot) && folderList.contains(parent.getParent())) break;
 					if (parent.getParent() == null || parent.getParent() instanceof IWorkspaceRoot) {
-						rootFolders = new IContainer[1];
-						rootFolders[0] = (IContainer)parent;
+						rootList.add(parent);
 					}
 					parent = parent.getParent();
 					folderList.add(parent);
@@ -511,6 +512,9 @@ public class ResourceSelectionTree extends Composite {
 			folders = new IContainer[folderList.size()];
 			folderList.toArray(folders);
 			Arrays.sort(folders, comparator);
+			rootFolders = new IContainer[rootList.size()];
+			rootList.toArray(rootFolders);
+			Arrays.sort(rootFolders, comparator);
 		}
 		return folders;
 	}
