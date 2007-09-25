@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
@@ -35,6 +36,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -137,7 +139,8 @@ public class CommitAction extends WorkbenchWindowAction {
 	 * get the modified and unadded resources in resources parameter
 	 */	
 	protected IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
-	    final List modified = new ArrayList();
+		List conflictFiles = new ArrayList();	    
+		final List modified = new ArrayList();
 	    List unversionedFolders = new ArrayList();
 		hasUnaddedResources = false;
 	    for (int i = 0; i < resources.length; i++) {
@@ -170,31 +173,48 @@ public class CommitAction extends WorkbenchWindowAction {
 			                 	if ((currentResource.getType() != IResource.FILE) && !isSymLink(currentResource))
 			                 		unversionedFolders.add(currentResource);
 			                 	else {
-//			                 		if (sharing || SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT)) {
-			                 			if (!modified.contains(currentResource)) {
-			                 				modified.add(currentResource);
-			   	                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
-				                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             
-//			                 			}
+		                 			if (!modified.contains(currentResource)) {
+		                 				modified.add(currentResource);
+		   	                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+			                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             
 			                 		}
 			                 	}
 			                 } else
 			                	 if (!modified.contains(currentResource)) {
 			                		 modified.add(currentResource);
 			                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
-			                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             
+			                 		 else {
+			                 			statusMap.put(currentResource, statuses[j].getTextStatus());				             
+			                 			if (SVNStatusUtils.isTextConflicted(statuses[j])) {
+			                                IFile conflictNewFile = (IFile) File2Resource
+			                                .getResource(statuses[j]
+			                                        .getConflictNew());
+			                                if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
+			                                IFile conflictOldFile = (IFile) File2Resource
+			                                .getResource(statuses[j]
+			                                        .getConflictOld());
+			                                if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
+			                                IFile conflictWorkingFile = (IFile) File2Resource
+			                                .getResource(statuses[j]
+			                                        .getConflictWorking());
+			                                if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                                
+			                 			}			                 		 
+			                 		 }
 			                	 }
 			             }
 			         }
 			     }
 			 }
 	    }
-	    // get unadded resources and add them to the list.
-//	    if (sharing || SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT)) {
-		    IResource[] unaddedResources = getUnaddedResources(unversionedFolders, iProgressMonitor);
-		    for (int i = 0; i < unaddedResources.length; i++)
-		    	if (!modified.contains(unaddedResources[i])) modified.add(unaddedResources[i]);
-//	    }
+	    IResource[] unaddedResources = getUnaddedResources(unversionedFolders, iProgressMonitor);
+	    for (int i = 0; i < unaddedResources.length; i++)
+	    	if (!modified.contains(unaddedResources[i])) modified.add(unaddedResources[i]);
+	    Iterator iter = conflictFiles.iterator();
+	    while (iter.hasNext()) {
+	    	IFile conflictFile = (IFile)iter.next();
+	    	modified.remove(conflictFile);
+	    	statusMap.remove(conflictFile);
+	    }		    
 	    return (IResource[]) modified.toArray(new IResource[modified.size()]);
 	}
 

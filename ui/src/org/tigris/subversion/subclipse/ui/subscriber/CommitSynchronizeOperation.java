@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,6 +36,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.operations.CommitOperation;
@@ -65,6 +68,40 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 	private boolean confirmCommit(SyncInfoSet set) {
 	    commit = false;
 	    IResource[] modified = set.getResources();
+	    List conflictFiles = new ArrayList();
+	    List filteredModified = new ArrayList();
+	    for (int i = 0; i < modified.length; i++) {
+	        IResource resource = modified[i];
+	        filteredModified.add(resource);
+	        if (!(resource instanceof IContainer)) {
+		        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);	    	
+		        try {
+					if (svnResource.isManaged() && svnResource.getStatus().isTextConflicted()) {
+                        IFile conflictNewFile = (IFile) File2Resource
+                        .getResource(svnResource.getStatus()
+                                .getConflictNew());
+                        if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
+                        IFile conflictOldFile = (IFile) File2Resource
+                        .getResource(svnResource.getStatus()
+                                .getConflictOld());
+                        if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
+                        IFile conflictWorkingFile = (IFile) File2Resource
+                        .getResource(svnResource.getStatus()
+                                .getConflictWorking());
+                        if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                            						
+					}
+				} catch (SVNException e) {}
+		        }
+	    }
+	    if (conflictFiles.size() > 0) {
+		    Iterator iter = conflictFiles.iterator();
+		    while (iter.hasNext()) {
+		    	IFile conflictFile = (IFile)iter.next();
+		    	filteredModified.remove(conflictFile);
+		    }
+		    modified = new IResource[filteredModified.size()];
+		    filteredModified.toArray(modified);
+	    }
 	    if (modified.length > 0) {
 	        try {
                 ProjectProperties projectProperties = ProjectProperties.getProjectProperties(modified[0]);
