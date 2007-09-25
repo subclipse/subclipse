@@ -569,8 +569,17 @@ public class ResourceSelectionTree extends Composite {
 				Image image = null;
 				if (element instanceof IContainer)
 					image = workbenchLabelProvider.getImage(element);
-				else
-					image = syncLabelProvider.getImage(element);
+				else {
+					String textStatus = ResourceWithStatusUtil.getStatus((IResource)element);
+					if (textStatus != null && textStatus.length() > 0) {
+						SVNStatusKind statusKind = SVNStatusKind.fromString(textStatus);
+						if (statusKind.equals(SVNStatusKind.CONFLICTED)) {
+							image = workbenchLabelProvider.getImage(element);
+							image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.TEXT_CONFLICTED);
+						}
+					}
+					if (image == null) image = syncLabelProvider.getImage(element);
+				}
 				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus((IResource)element);
 				if (propertyStatus != null && propertyStatus.length() > 0) image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CHANGE);
 				return image;

@@ -10,30 +10,33 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class ResourceSelectionTreeDecorator {
 	public final static int PROPERTY_CHANGE = 0;
+	public final static int TEXT_CONFLICTED = 1;
 	
-	private static ImageDescriptor[] fgImages = new ImageDescriptor[1];
+	private static ImageDescriptor[] fgImages = new ImageDescriptor[2];
 	private static HashMap fgMap= new HashMap(20);
 	
-	private Image[] fImages= new Image[1];
+	private Image[] fImages= new Image[2];
 	
 	static {
 		fgImages[PROPERTY_CHANGE] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CHANGED);
+		fgImages[TEXT_CONFLICTED] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TEXT_CONFLICTED);
 	}
 	
 	public Image getImage(Image base, int kind) {
 
 		Object key= base;
 
-		kind &= 2;
+		kind &= 3;
 
 		Image[] a= (Image[]) fgMap.get(key);
 		if (a == null) {
-			a= new Image[1];
+			a= new Image[2];
 			fgMap.put(key, a);
 		}
 		Image b= a[kind];
 		if (b == null) {
-			b= new DiffImage(base, fgImages[kind], 22, true).createImage();
+			boolean onLeft = kind == PROPERTY_CHANGE;
+			b= new DiffImage(base, fgImages[kind], 22, onLeft).createImage();
 			CompareUI.disposeOnShutdown(b);
 			a[kind]= b;
 		}
