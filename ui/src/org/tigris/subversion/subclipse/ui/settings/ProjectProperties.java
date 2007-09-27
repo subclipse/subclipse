@@ -27,6 +27,7 @@ public class ProjectProperties {
     protected String url;
     protected boolean warnIfNoIssue = false;
     protected boolean append = true;
+    protected String logRegex;
     
     private static final String URL = "://"; //$NON-NLS-1$
 
@@ -70,6 +71,14 @@ public class ProjectProperties {
     public void setWarnIfNoIssue(boolean warnIfNoIssue) {
         this.warnIfNoIssue = warnIfNoIssue;
     }
+    
+	public String getLogRegex() {
+		return logRegex;
+	}
+
+	public void setLogRegex(String logRegex) {
+		this.logRegex = logRegex;
+	}    
     
     public String getResolvedMessage(String issue) {
         if (message == null) return null;
@@ -205,7 +214,8 @@ public class ProjectProperties {
               "bugtraq:number: " + number + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
               "bugtraq:url: " + url + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
               "bugtraq:warnifnoissue: " + warnIfNoIssue + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
-              "bugtraq:append: " + append; //$NON-NLS-1$
+              "bugtraq:append: " + append + "\n" + //$NON-NLS-1$
+              "bugtraq:logregex: " + logRegex; //$NON-NLS-1$
     }
     
     // Get ProjectProperties for selected resource.  First looks at selected resource,
@@ -214,17 +224,22 @@ public class ProjectProperties {
     public static ProjectProperties getProjectProperties(IResource resource) throws SVNException {
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         ISVNProperty property = null;
+        ISVNProperty logregexProperty = null;
         ISVNProperty labelProperty = null;
         if (svnResource != null && svnResource.isManaged()) {
             try {
 				property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
-	            labelProperty = svnResource.getSvnProperty("bugtraq:label"); //$NON-NLS-1$
+				logregexProperty = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
+				labelProperty = svnResource.getSvnProperty("bugtraq:label"); //$NON-NLS-1$
 			} catch (SVNException e) {
 			}
         }
-        if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
+        if (((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) || ((logregexProperty != null) && (logregexProperty.getValue() != null) && (logregexProperty.getValue().trim().length() > 0))) {
             ProjectProperties projectProperties = new ProjectProperties();
-            projectProperties.setMessage(property.getValue());
+            if (property != null && property.getValue() != null && property.getValue().trim().length() > 0)
+            	projectProperties.setMessage(property.getValue());
+            if (logregexProperty != null && logregexProperty.getValue() != null && logregexProperty.getValue().trim().length() > 0)
+            	projectProperties.setLogRegex(logregexProperty.getValue());            
             if ((labelProperty != null) && (labelProperty.getValue() != null) && (labelProperty.getValue().trim().length() != 0)) projectProperties.setLabel(labelProperty.getValue());
             property = svnResource.getSvnProperty("bugtraq:url"); //$NON-NLS-1$
             if (property != null) projectProperties.setUrl(property.getValue()); 
@@ -242,9 +257,11 @@ public class ProjectProperties {
             if (checkResource.getParent() == null) return null;
             try {
 	            svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
-	            if (svnResource.isManaged())
+	            if (svnResource.isManaged()) {
 	                property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
-	            if (property != null) return getProjectProperties(checkResource);
+	                logregexProperty = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
+	            }
+	            if (property != null || logregexProperty != null) return getProjectProperties(checkResource);
             } catch (SVNException e) {
             }
         }
@@ -254,4 +271,5 @@ public class ProjectProperties {
     public static ProjectProperties getProjectProperties(ISVNRemoteResource remoteResource) {
         return null;
     }
+
 }
