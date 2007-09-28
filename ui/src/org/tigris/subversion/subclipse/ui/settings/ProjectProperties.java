@@ -10,7 +10,14 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.settings;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -90,11 +97,61 @@ public class ProjectProperties {
         return url.replaceAll("%BUGID%", issue); //$NON-NLS-1$
     }
     
+    private String[] getIssues(String commitMessage, String regex) {
+    	List issues = new ArrayList();
+		String regex1 = null;
+		String regex2 = null;
+		StringReader reader = new StringReader(logRegex);
+		BufferedReader bufferedReader = new BufferedReader(reader);
+		try {
+			regex1 = bufferedReader.readLine();
+			regex2 = bufferedReader.readLine();
+			reader.close();
+			bufferedReader.close();
+		} catch (IOException e) {}
+		Pattern p1 = Pattern.compile(regex1);
+		Pattern p2 = null;
+		if (regex2 != null) p2 = Pattern.compile(regex2);
+		Matcher m1 = p1.matcher(commitMessage);
+		while (m1.find()) {
+			String key = m1.group(1);
+			boolean issueExtracted = false;
+// If two expressions are defined, use the 2nd expression to extract
+// the bare issue ID from the string found using the 1st expression.
+			if (p2 != null) {
+				Matcher m2 = p2.matcher(key + " "); //$NON-NLS-1$ 
+				while (m2.find()) {
+					String issue = m2.group(1);
+					issues.add(issue.trim());
+					issueExtracted = true;
+				}
+			}
+			if (!issueExtracted) issues.add(key.trim());
+		}    	
+    	String[] issueArray = new String[issues.size()];
+    	issues.toArray(issueArray);
+    	return issueArray;
+    }
+    
     // Retrieve hyperlink ranges and url's from commit message.
     public LinkList getLinkList(String commitMessage) {
         ArrayList links = new ArrayList();
         ArrayList urls = new ArrayList();
-        String bugID = "%BUGID%"; //$NON-NLS-1$
+        String bugID = "%BUGID%"; //$NON-NLS-1$    	
+    	
+    	if (logRegex != null) {
+    		String[] issues = getIssues(commitMessage, logRegex);
+    		int start = 0;
+    		for (int i = 0; i < issues.length; i++) {
+    			int index = commitMessage.indexOf(issues[i], start);
+    			start = index + 1;
+    			int range[]	 = {index, issues[i].length() };
+    			String url = getResolvedUrl(issues[i]);
+    			links.add(range);
+    			urls.add(url);
+    		}
+    	}
+    	
         if (message != null) {
 	        int index = message.indexOf(bugID);
 	        if (index != -1) {
