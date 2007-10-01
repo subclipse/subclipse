@@ -56,12 +56,19 @@ public class HistoryTableProvider {
 	
 	private boolean includeMergeRevisions = true;
 	private boolean includeTags = true;
+	
+	private int style;
 		
 	/**
 	 * Constructor for HistoryTableProvider.
 	 */
 	public HistoryTableProvider() {
+		this(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
+	}
+	
+	public HistoryTableProvider(int style) {
 		super();
+		this.style = style;
 	}
 
 	//column constants
@@ -263,7 +270,7 @@ public class HistoryTableProvider {
 	 * @return TableViewer
 	 */
 	public TableViewer createTable(Composite parent) {
-		Table table = new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
+		Table table = new Table(parent, style);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 		GridData data = new GridData(GridData.FILL_BOTH);
