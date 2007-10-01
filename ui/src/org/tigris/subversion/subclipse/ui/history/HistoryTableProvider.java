@@ -11,7 +11,9 @@
 package org.tigris.subversion.subclipse.ui.history;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.JFaceResources;
@@ -36,6 +38,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
@@ -381,6 +384,12 @@ public class HistoryTableProvider {
 			 * toggle sorting order (ascending/descending).
 			 */
 			public void widgetSelected(SelectionEvent e) {
+				List checkedItems = new ArrayList();
+				TableItem[] items = tableViewer.getTable().getItems();
+				for (int i = 0; i < items.length; i++) {
+					if (items[i].getChecked()) checkedItems.add(items[i].getData());
+				}
+				
 				// column selected - need to sort
 				int column = tableViewer.getTable().indexOf((TableColumn) e.widget);
 				HistorySorter oldSorter = (HistorySorter)tableViewer.getSorter();
@@ -395,6 +404,12 @@ public class HistoryTableProvider {
 					tableViewer.getTable().setSortDirection(SWT.DOWN);
 				else
 					tableViewer.getTable().setSortDirection(SWT.UP);
+				
+				items = tableViewer.getTable().getItems();
+				for (int i = 0; i < items.length; i++) {
+					if (checkedItems.contains(items[i].getData())) 
+						items[i].setChecked(true);
+				}				
 			}
 		};
 	}
