@@ -10,8 +10,11 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.history;
 
+import java.io.File;
+
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -27,14 +30,19 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
@@ -88,6 +96,18 @@ public class ChangePathsTableProvider extends TableViewer {
         super.inputChanged(input, oldInput);
         this.currentLogEntry = (ILogEntry) input;
     }
+    
+    private boolean isPartOfSelection(String changedPath, String selectionPath) {
+      	if (changedPath.equals(selectionPath)) return true;
+      	File selectionFile = new File(selectionPath);
+      	File changedFile = new File(changedPath);
+      	File parent = changedFile.getParentFile();
+      	while (parent != null) {
+      		if (parent.getPath().equals(selectionFile.getPath())) return true;
+      		parent = parent.getParentFile();
+      	}
+      	return false;
+     }      
     
     /**
      * Creates the columns for the history table.
@@ -165,7 +185,7 @@ public class ChangePathsTableProvider extends TableViewer {
     /**
      * The label provider.
      */
-    class ChangePathLabelProvider extends LabelProvider implements ITableLabelProvider, IFontProvider {
+    class ChangePathLabelProvider extends LabelProvider implements ITableLabelProvider, IFontProvider, IColorProvider {
         public Image getColumnImage(Object element, int columnIndex) {
             return null;
         }
@@ -219,6 +239,33 @@ public class ChangePathsTableProvider extends TableViewer {
             }
             return currentPathFont;
         }
+        
+    	public Color getBackground(Object element) {
+    		return null;
+    	}
+
+    	public Color getForeground(Object element) {
+    		if (currentLogEntry == null) {
+    			return null;
+    		}
+    		ISVNResource resource = currentLogEntry.getResource();
+    		ISVNRemoteFile remoteFile = null;
+    		try {
+    			remoteFile = resource.getRepository().getRemoteFile(resource.getUrl());
+    		} catch (SVNException e) {}
+    		if (remoteFile == null) return null;
+    		boolean isPartOfSelection = false;
+    		if (element instanceof HistoryFolder) {
+    			HistoryFolder historyFolder = (HistoryFolder)element;
+    			isPartOfSelection = isPartOfSelection(historyFolder.getPath(), remoteFile.getRepositoryRelativePath());
+    		}
+    		if (element instanceof LogEntryChangePath) {
+    			LogEntryChangePath logEntryChangePath = (LogEntryChangePath)element;
+    			isPartOfSelection = isPartOfSelection(logEntryChangePath.getPath(), remoteFile.getRepositoryRelativePath());
+    		}
+    		if (!isPartOfSelection) return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
+    		return null;
+    	}            
         
     }
 
@@ -353,5 +400,9 @@ public class ChangePathsTableProvider extends TableViewer {
 			reversed = newReversed;
 		}
 	}
+	
+	public void setCurrentLogEntry(ILogEntry currentLogEntry) {
+		this.currentLogEntry = currentLogEntry;
+	}  	
     
 }

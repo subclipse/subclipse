@@ -906,6 +906,15 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             JFaceColors.getHyperlinkText(Display.getCurrent()), null));
       }
     }
+    if (changePathsViewer instanceof ChangePathsTreeViewer) {
+    	((ChangePathsTreeViewer)changePathsViewer).setCurrentLogEntry(entry);
+    }
+    if (changePathsViewer instanceof ChangePathsFlatViewer) {
+    	((ChangePathsFlatViewer)changePathsViewer).setCurrentLogEntry(entry);
+    }
+    if (changePathsViewer instanceof ChangePathsTableProvider) {
+    	((ChangePathsTableProvider)changePathsViewer).setCurrentLogEntry(entry);
+    }      
     changePathsViewer.setInput(entry);
   }
 
