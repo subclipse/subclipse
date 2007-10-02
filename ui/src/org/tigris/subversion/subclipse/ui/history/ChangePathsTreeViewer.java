@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -45,14 +46,16 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * 
  * @author Eugene Kuleshov
  */
-class ChangePathsTreeViewer extends TreeViewer {
+public class ChangePathsTreeViewer extends TreeViewer {
     ILogEntry currentLogEntry;
     Font currentPathFont;
         
     public ChangePathsTreeViewer(Composite parent, SVNHistoryPage page) {
+        this(parent, new ChangePathsTreeContentProvider(page));
+    }
+    
+    public ChangePathsTreeViewer(Composite parent, IContentProvider contentProvider) {
         super(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI /*| SWT.FULL_SELECTION*/);
-        // tree.setHeaderVisible(true);
-        // tree.setLinesVisible(true);
         GridData data = new GridData(GridData.FILL_BOTH);
         getControl().setLayoutData(data);
         getControl().addDisposeListener(new DisposeListener() {
@@ -64,8 +67,8 @@ class ChangePathsTreeViewer extends TreeViewer {
         });
     
         setLabelProvider(new ChangePathLabelProvider());
-        setContentProvider(new ChangePathsTreeContentProvider(page));
-    }
+        setContentProvider(contentProvider);
+    }    
     
     protected void inputChanged(Object input, Object oldInput) {
         super.inputChanged(input, oldInput);
