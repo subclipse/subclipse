@@ -11,11 +11,14 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextViewer;
@@ -25,6 +28,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -46,15 +50,17 @@ import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
+import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
-import org.tigris.subversion.subclipse.core.history.AliasManager;
+import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.history.ChangePathsTableProvider;
+import org.tigris.subversion.subclipse.ui.history.ChangePathsTreeViewer;
+import org.tigris.subversion.subclipse.ui.history.HistoryFolder;
 import org.tigris.subversion.subclipse.ui.history.HistoryTableProvider;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
@@ -63,7 +69,7 @@ public class HistoryDialog extends TrayDialog {
     private ISVNRemoteResource remoteResource;
     private SashForm sashForm;
 	private HistoryTableProvider historyTableProvider;
-	private ChangePathsTableProvider changePathsTableProvider;
+	private ChangePathsTreeViewer changePathsViewer;
 	private TableViewer tableHistoryViewer;
 	private TextViewer textViewer;
 	private Button stopOnCopyButton;
@@ -106,16 +112,25 @@ public class HistoryDialog extends TrayDialog {
 	    else
 	        getShell().setText(Policy.bind("HistoryDialog.title") + " - " + resource.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		Composite composite = new Composite(parent, SWT.NULL);
-		composite.setLayout(new GridLayout());
+		GridLayout layout = new GridLayout();
+		layout.verticalSpacing = 0;
+		layout.marginHeight = 0;
+		composite.setLayout(layout);
 		GridData data = new GridData(GridData.FILL_BOTH);
 		composite.setLayoutData(data);
 		
         sashForm = new SashForm(composite, SWT.VERTICAL);
-        sashForm.setLayout(new GridLayout());
+		GridLayout sashLayout = new GridLayout();
+		sashLayout.verticalSpacing = 0; 
+		sashLayout.marginHeight = 0;
+        sashForm.setLayout(sashLayout);
         sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
 
         Composite historyGroup = new Composite(sashForm, SWT.NULL);
-        historyGroup.setLayout(new GridLayout());
+        GridLayout historyLayout = new GridLayout();
+        historyLayout.verticalSpacing = 0;
+        historyLayout.marginHeight = 0;
+        historyGroup.setLayout(historyLayout);
         historyGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		historyTableProvider = new HistoryTableProvider();
@@ -139,18 +154,19 @@ public class HistoryDialog extends TrayDialog {
                 ISelection selection = event.getSelection();
 				if (selection == null || !(selection instanceof IStructuredSelection)) {
 					textViewer.setDocument(new Document("")); //$NON-NLS-1$
-                    changePathsTableProvider.setInput(null);
+                    changePathsViewer.setInput(null);
 					return;
 				}
 				IStructuredSelection ss = (IStructuredSelection)selection;
 				if (ss.size() != 1) {
 					textViewer.setDocument(new Document("")); //$NON-NLS-1$
-                    changePathsTableProvider.setInput(null);
+                    changePathsViewer.setInput(null);
 					return;
 				}
 				LogEntry entry = (LogEntry)ss.getFirstElement();
 				textViewer.setDocument(new Document(entry.getComment()));
-                changePathsTableProvider.setInput(entry);                     
+				changePathsViewer.setCurrentLogEntry(entry);
+                changePathsViewer.setInput(entry);                     
             }		    
 		});
 		tableHistoryViewer.addDoubleClickListener(new IDoubleClickListener() {
@@ -163,7 +179,10 @@ public class HistoryDialog extends TrayDialog {
 		tableHistoryViewer.resetFilters();
 		
         Composite commentGroup = new Composite(sashForm, SWT.NULL);
-        commentGroup.setLayout(new GridLayout());
+        GridLayout commentLayout = new GridLayout();
+        commentLayout.verticalSpacing = 0;
+        commentLayout.marginHeight = 0;
+        commentGroup.setLayout(commentLayout);
         commentGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		textViewer = new TextViewer(commentGroup, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER | SWT.READ_ONLY);
@@ -173,27 +192,19 @@ public class HistoryDialog extends TrayDialog {
 		textViewer.getControl().setLayoutData(data);
 		
         Composite pathGroup = new Composite(sashForm, SWT.NULL);
-        pathGroup.setLayout(new GridLayout());
+        GridLayout pathLayout = new GridLayout();
+        pathLayout.verticalSpacing = 0;
+        pathLayout.marginHeight = 0;
+        pathGroup.setLayout(pathLayout);
         pathGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		changePathsTableProvider = new ChangePathsTableProvider(pathGroup, 
-            new IStructuredContentProvider() {
-                public Object[] getElements(Object inputElement) {
-                  if ((inputElement == null) || (!(inputElement instanceof ILogEntry))) {
-                      return null;
-                  }
-                  ILogEntry logEntry = (ILogEntry)inputElement;
-                    return logEntry.getLogEntryChangePaths();
-                }
-    
-                public void dispose() {
-                }
-    
-                public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-                }
-          });
+        ChangePathsTreeContentProvider contentProvider = new ChangePathsTreeContentProvider();
+        changePathsViewer = new ChangePathsTreeViewer(pathGroup, contentProvider);
 		
 		stopOnCopyButton = new Button(composite, SWT.CHECK);
+		data = new GridData();
+		data.verticalIndent = 5;
+		stopOnCopyButton.setLayoutData(data);
 		stopOnCopyButton.setText(Policy.bind("HistoryView.stopOnCopy"));
 		stopOnCopyButton.setSelection(store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY));
 		stopOnCopyButton.addSelectionListener(new SelectionAdapter() {
@@ -417,4 +428,81 @@ public class HistoryDialog extends TrayDialog {
     public ILogEntry[] getSelectedLogEntries() {
         return selectedEntries;
     }
+    
+    static class ChangePathsTreeContentProvider implements ITreeContentProvider {
+
+        ChangePathsTreeContentProvider() {
+        }
+
+        public Object[] getChildren(Object parentElement) {
+          if(parentElement instanceof HistoryFolder) {
+            return ((HistoryFolder) parentElement).getChildren();
+          }
+          return null;
+        }
+
+        public Object getParent(Object element) {
+          return null;
+        }
+
+        public boolean hasChildren(Object element) {
+          if(element instanceof HistoryFolder) {
+            HistoryFolder folder = (HistoryFolder) element;
+            return folder.getChildren().length > 0;
+          }
+          return false;
+        }
+
+        public Object[] getElements(Object inputElement) {
+          ILogEntry logEntry = (ILogEntry) inputElement;
+          return getGroups(logEntry.getLogEntryChangePaths());
+        }
+
+        private Object[] getGroups(LogEntryChangePath[] changePaths) {
+          // 1st pass. Collect folder names
+          Set folderNames = new HashSet();
+          for(int i = 0; i < changePaths.length; i++) {
+            folderNames.add(getFolderName(changePaths[ i]));
+          }
+
+          // 2nd pass. Sorting out explicitly changed folders
+          TreeMap folders = new TreeMap();
+          for(int i = 0; i < changePaths.length; i++) {
+            LogEntryChangePath changePath = changePaths[ i];
+            String path = changePath.getPath();
+            if(folderNames.contains(path)) {
+              // changed folder
+              HistoryFolder folder = (HistoryFolder) folders.get(path);
+              if(folder == null) {
+                folder = new HistoryFolder(changePath);
+                folders.put(path, folder);
+              }
+            } else {
+              // changed resource
+              path = getFolderName(changePath);
+              HistoryFolder folder = (HistoryFolder) folders.get(path);
+              if(folder == null) {
+                folder = new HistoryFolder(path);
+                folders.put(path, folder);
+              }
+              folder.add(changePath);
+            }
+          }
+
+          return folders.values().toArray(new Object[folders.size()]);
+        }
+
+        private String getFolderName(LogEntryChangePath changePath) {
+          String path = changePath.getPath();
+          int n = path.lastIndexOf('/');
+          return n > -1 ? path.substring(0, n) : path;
+        }
+
+        public void dispose() {
+        }
+
+        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        }
+
+      }	    
 }
