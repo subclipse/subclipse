@@ -36,10 +36,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
-import org.tigris.subversion.subclipse.core.ISVNResource;
-import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
@@ -211,20 +208,24 @@ public class ChangePathsTreeViewer extends TreeViewer {
 			if (currentLogEntry == null) {
 				return null;
 			}
-			ISVNResource resource = currentLogEntry.getResource();
-			ISVNRemoteFile remoteFile = null;
-			try {
-				remoteFile = resource.getRepository().getRemoteFile(resource.getUrl());
-			} catch (SVNException e) {}
-			if (remoteFile == null) return null;
+			ISVNRemoteResource remoteResource = currentLogEntry.getRemoteResource();
+			if (remoteResource == null) return null;
+//			ISVNResource resource = currentLogEntry.getResource();
+//			ISVNRemoteFile remoteFile = null;
+//			try {
+//				remoteFile = resource.getRepository().getRemoteFile(resource.getUrl());
+//			} catch (SVNException e) {}
+//			if (remoteFile == null) return null;
 			boolean isPartOfSelection = false;
 			if (element instanceof HistoryFolder) {
 				HistoryFolder historyFolder = (HistoryFolder)element;
-				isPartOfSelection = isPartOfSelection(historyFolder.getPath(), remoteFile.getRepositoryRelativePath());
+//				isPartOfSelection = isPartOfSelection(historyFolder.getPath(), remoteFile.getRepositoryRelativePath());
+				isPartOfSelection = isPartOfSelection(historyFolder.getPath(), remoteResource.getRepositoryRelativePath());
 			}
 			if (element instanceof LogEntryChangePath) {
 				LogEntryChangePath logEntryChangePath = (LogEntryChangePath)element;
-				isPartOfSelection = isPartOfSelection(logEntryChangePath.getPath(), remoteFile.getRepositoryRelativePath());
+//				isPartOfSelection = isPartOfSelection(logEntryChangePath.getPath(), remoteFile.getRepositoryRelativePath());
+				isPartOfSelection = isPartOfSelection(logEntryChangePath.getPath(), remoteResource.getRepositoryRelativePath());
 			}
 			if (!isPartOfSelection) return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
 			return null;
