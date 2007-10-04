@@ -46,6 +46,7 @@ public class RevertAction extends WorkbenchWindowAction {
     private String url;
 	private IResource[] resourcesToRevert;
 	private HashMap statusMap;
+	private SvnWizardRevertPage revertPage;
     
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
 		statusMap = new HashMap();
@@ -53,7 +54,14 @@ public class RevertAction extends WorkbenchWindowAction {
         try {
             IResource[] modifiedResources = getModifiedResources(resources, new NullProgressMonitor());
             if (!confirmRevert(modifiedResources)) return;
-            new RevertOperation(getTargetPart(), resourcesToRevert).run();
+            RevertOperation revertOperation = null;
+            if (revertPage != null && !revertPage.isResourceRemoved()) {
+            	revertOperation = new RevertOperation(getTargetPart(), resources);
+            	revertOperation.setRecurse(true);
+            } else {
+            	revertOperation = new RevertOperation(getTargetPart(), resourcesToRevert);
+            }
+            revertOperation.run();
         } catch (SVNException e) {
             throw new InvocationTargetException(e);
         }
@@ -122,7 +130,7 @@ public class RevertAction extends WorkbenchWindowAction {
 	 */		
 	protected boolean confirmRevert(IResource[] modifiedResources) {
 	   if (modifiedResources.length == 0) return false;
-	   SvnWizardRevertPage revertPage = new SvnWizardRevertPage(modifiedResources, url, statusMap);
+	   revertPage = new SvnWizardRevertPage(modifiedResources, url, statusMap);
 	   SvnWizard wizard = new SvnWizard(revertPage);
 	   SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 	   boolean revert = (dialog.open() == SvnWizardDialog.OK);

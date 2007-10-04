@@ -19,6 +19,7 @@ import org.tigris.subversion.subclipse.core.commands.RevertResourcesCommand;
 import org.tigris.subversion.subclipse.ui.Policy;
 
 public class RevertOperation extends RepositoryProviderOperation {
+	private boolean recurse = false;
 
     public RevertOperation(IWorkbenchPart part, IResource[] resources) {
         super(part, resources);
@@ -46,6 +47,7 @@ public class RevertOperation extends RepositoryProviderOperation {
         monitor.beginTask(null, 100);
         try {           
             RevertResourcesCommand command = new RevertResourcesCommand(provider.getSVNWorkspaceRoot(),resources);
+            command.setRecurse(recurse);
             command.run(Policy.subMonitorFor(monitor,100));
         } catch (SVNException e) {
             collectStatus(e.getStatus());
@@ -53,4 +55,8 @@ public class RevertOperation extends RepositoryProviderOperation {
             monitor.done();
         }
     }
+
+	public void setRecurse(boolean recurse) {
+		this.recurse = recurse;
+	}
 }

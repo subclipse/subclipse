@@ -35,6 +35,7 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
     private HashMap statusMap;
     
     private ResourceSelectionTree resourceSelectionTree;
+    private boolean resourceRemoved;
  
 	public SvnWizardRevertPage(IResource[] resourcesToRevert, String url, HashMap statusMap) {
 		super("RevertDialog", Policy.bind("RevertDialog.title")); //$NON-NLS-1$
@@ -91,6 +92,7 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 	}
 
 	public boolean performFinish() {
+		resourceRemoved = resourceSelectionTree.isResourceRemoved();
 		return true;
 	}
 
@@ -115,6 +117,10 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 	}
 
 	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
+	}
+
+	public boolean isResourceRemoved() {
+		return resourceRemoved;
 	}	
 
 }

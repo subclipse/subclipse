@@ -29,9 +29,11 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 	private String url;
 	private IResource[] resources;
 	private IResource[] resourcesToRevert;
+	private IResource[] selectedResources;
 	private boolean revert;
 	private boolean prompted;
 	private HashMap statusMap;
+	private SvnWizardRevertPage revertPage;
 
 	public RevertSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, String url, IResource[] resources, HashMap statusMap) {
 		super(configuration, elements);
@@ -53,14 +55,27 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 					revert = false;
 					return;
 				}
-				SvnWizardRevertPage revertPage = new SvnWizardRevertPage(resources, url, statusMap);
+				revertPage = new SvnWizardRevertPage(resources, url, statusMap);
 				SvnWizard wizard = new SvnWizard(revertPage);
 				SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 				revert = (dialog.open() == SvnWizardDialog.OK);
 				if (revert) resourcesToRevert = revertPage.getSelectedResources();
 			}
 		});
-		if (revert) new RevertOperation(getPart(), resourcesToRevert).run();
+		if (revert) {
+			RevertOperation revertOperation = null;
+			if (revertPage != null && !revertPage.isResourceRemoved()) {
+				revertOperation = new RevertOperation(getPart(), selectedResources);
+				revertOperation.setRecurse(true);
+			} else {
+				revertOperation = new RevertOperation(getPart(), resourcesToRevert);
+			}
+			revertOperation.run();
+		}
+	}
+
+	public void setSelectedResources(IResource[] selectedResources) {
+		this.selectedResources = selectedResources;
 	}
 
 }

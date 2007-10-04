@@ -80,6 +80,7 @@ public class ResourceSelectionTree extends Composite {
 	private SyncInfoSet syncInfoSet;
 	private boolean showRemoveFromViewAction = true;
 	private ResourceSelectionTreeDecorator resourceSelectionTreeDecorator = new ResourceSelectionTreeDecorator();
+	private boolean resourceRemoved = false;
 	
 	public final static String MODE_SETTING = "ResourceSelectionTree.mode"; //$NON-NLS-1$
 	public final static int MODE_COMPRESSED_FOLDERS = 0;
@@ -325,6 +326,7 @@ public class ResourceSelectionTree extends Composite {
 		while (iter.hasNext()) {
 			IResource resource = (IResource)iter.next();
 			remove(resource);
+			resourceRemoved = true;
 		}
 		resources = new IResource[resourceList.size()];
 		resourceList.toArray(resources);
@@ -694,6 +696,10 @@ public class ResourceSelectionTree extends Composite {
 
 	public void setShowRemoveFromViewAction(boolean showRemoveFromViewAction) {
 		this.showRemoveFromViewAction = showRemoveFromViewAction;
+	}
+
+	public boolean isResourceRemoved() {
+		return resourceRemoved;
 	}
 
 }

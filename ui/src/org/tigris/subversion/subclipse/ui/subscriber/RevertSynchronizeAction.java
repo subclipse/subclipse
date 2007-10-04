@@ -122,7 +122,9 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 		} catch (SVNException e) {
             
         }
-		return new RevertSynchronizeOperation(configuration, elements, url, modifiedResources, statusMap);
+		RevertSynchronizeOperation revertOperation = new RevertSynchronizeOperation(configuration, elements, url, modifiedResources, statusMap);
+		revertOperation.setSelectedResources(resources);
+		return revertOperation;
     }
     
 	private IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
