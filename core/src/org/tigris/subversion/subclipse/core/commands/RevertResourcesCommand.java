@@ -37,6 +37,7 @@ public class RevertResourcesCommand implements ISVNCommand {
 
     private final SVNWorkspaceRoot root;
     private final IResource[] resources;
+    private boolean recurse = false;
 
     public RevertResourcesCommand(SVNWorkspaceRoot root, IResource[] resources) {
         this.root = root;
@@ -120,7 +121,7 @@ public class RevertResourcesCommand implements ISVNCommand {
 							e.printStackTrace();
 						}
                 		File path = resources[i].getLocation().toFile();
-	                    svnClient.revert(path, false);
+	                    svnClient.revert(path, recurse);
 	                    // If only properties were changed, svn 1.4.0 does not 
 	                    // notify the change. As workaround, do it manually.
 	                    if (resources[i].getType() != IResource.FILE)
@@ -137,4 +138,8 @@ public class RevertResourcesCommand implements ISVNCommand {
             monitor.done();
         }
     }
+
+	public void setRecurse(boolean recurse) {
+		this.recurse = recurse;
+	}
 }
