@@ -37,6 +37,7 @@ public class RevertResourcesCommand implements ISVNCommand {
 
     private final SVNWorkspaceRoot root;
     private final IResource[] resources;
+    private IResource[] resourcesToRevert;
     private boolean recurse = false;
 
     public RevertResourcesCommand(SVNWorkspaceRoot root, IResource[] resources) {
@@ -75,6 +76,17 @@ public class RevertResourcesCommand implements ISVNCommand {
         	final OperationManager operationManager = OperationManager.getInstance();
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
             operationManager.beginOperation(svnClient);
+            // If we are doing a recursive revert, take snapshot of resources for
+            // local history first.
+            if (recurse && resourcesToRevert != null) {
+            	for (int i = 0; i < resourcesToRevert.length; i++) {
+            		try {
+						Util.saveLocalHistory(resourcesToRevert[i]);
+					} catch (CoreException e) {
+						e.printStackTrace();
+					}            		
+            	}
+            }
             for (int i = 0; i < resources.length; i++) {
                 LocalResourceStatus status = SVNWorkspaceRoot.getSVNResourceFor( resources[i] ).getStatus();
 				// If a folder add is reverted, all the adds underneath it will be reverted too.
@@ -115,11 +127,13 @@ public class RevertResourcesCommand implements ISVNCommand {
 						}
                 	}
                 	else {
-                		try {
-							Util.saveLocalHistory(resources[i]);
-						} catch (CoreException e) {
-							e.printStackTrace();
-						}
+                		if (!recurse) {
+	                		try {
+								Util.saveLocalHistory(resources[i]);
+							} catch (CoreException e) {
+								e.printStackTrace();
+							}
+                		}
                 		File path = resources[i].getLocation().toFile();
 	                    svnClient.revert(path, recurse);
 	                    // If only properties were changed, svn 1.4.0 does not 
@@ -141,5 +155,9 @@ public class RevertResourcesCommand implements ISVNCommand {
 
 	public void setRecurse(boolean recurse) {
 		this.recurse = recurse;
+	}
+
+	public void setResourcesToRevert(IResource[] resourcesToRevert) {
+		this.resourcesToRevert = resourcesToRevert;
 	}
 }
