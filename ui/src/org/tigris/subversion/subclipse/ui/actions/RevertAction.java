@@ -58,6 +58,7 @@ public class RevertAction extends WorkbenchWindowAction {
             if (revertPage != null && !revertPage.isResourceRemoved()) {
             	revertOperation = new RevertOperation(getTargetPart(), resources);
             	revertOperation.setRecurse(true);
+            	revertOperation.setResourcesToRevert(resourcesToRevert);
             } else {
             	revertOperation = new RevertOperation(getTargetPart(), resourcesToRevert);
             }

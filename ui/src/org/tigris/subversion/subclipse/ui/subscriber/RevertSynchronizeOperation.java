@@ -67,6 +67,7 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 			if (revertPage != null && !revertPage.isResourceRemoved()) {
 				revertOperation = new RevertOperation(getPart(), selectedResources);
 				revertOperation.setRecurse(true);
+				revertOperation.setResourcesToRevert(resourcesToRevert);
 			} else {
 				revertOperation = new RevertOperation(getPart(), resourcesToRevert);
 			}
