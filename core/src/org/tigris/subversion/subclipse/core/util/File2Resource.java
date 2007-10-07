@@ -35,6 +35,7 @@ public class File2Resource {
      * @return
      */
     public static IResource getResource(File file) {
+    	if (file == null) return null;
         return getResource(file, file.isDirectory());
     }
 
@@ -49,6 +50,7 @@ public class File2Resource {
      * @return
      */
     public static IResource getResource(File file, boolean isDirectory) {
+    	if (file == null) return null;
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         IWorkspaceRoot workspaceRoot = workspace.getRoot();
 
