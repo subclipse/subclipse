@@ -77,14 +77,25 @@ public class RevertResourcesCommand implements ISVNCommand {
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
             operationManager.beginOperation(svnClient);
             // If we are doing a recursive revert, take snapshot of resources for
-            // local history first.
+            // local history first.  Also remove unversioned resources.
             if (recurse && resourcesToRevert != null) {
             	for (int i = 0; i < resourcesToRevert.length; i++) {
             		try {
 						Util.saveLocalHistory(resourcesToRevert[i]);
 					} catch (CoreException e) {
 						e.printStackTrace();
-					}            		
+					} 
+					LocalResourceStatus status = SVNWorkspaceRoot.getSVNResourceFor( resourcesToRevert[i] ).getStatus();
+					if (!(resourcesToRevert[i].getType() == IResource.FOLDER) || !status.isAdded()) {
+						if (!status.isManaged()) {
+	                		try {
+								resourcesToRevert[i].delete(true, monitor);
+	                		}
+	                		catch (CoreException ex) {
+	                			throw SVNException.wrapException(ex);
+	                		}							
+						}
+					}
             	}
             }
             for (int i = 0; i < resources.length; i++) {
