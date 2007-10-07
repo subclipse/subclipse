@@ -454,9 +454,11 @@ public class ResourceSelectionTree extends Composite {
 			for (int i = 0; i < resources.length; i++) {
 				if (resources[i] instanceof IContainer && !compressedFolderList.contains(resources[i]))
 					compressedFolderList.add(resources[i]);
-				IContainer parent = resources[i].getParent();
-				if (parent != null && !(parent instanceof IWorkspaceRoot) && !compressedFolderList.contains(parent)) {
-					compressedFolderList.add(parent);
+				if (!(resources[i] instanceof IContainer)) {
+					IContainer parent = resources[i].getParent();
+					if (parent != null && !(parent instanceof IWorkspaceRoot) && !compressedFolderList.contains(parent)) {
+						compressedFolderList.add(parent);
+					}
 				}
 			}
 			compressedFolders = new IContainer[compressedFolderList.size()];
