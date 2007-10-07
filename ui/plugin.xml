@@ -904,6 +904,20 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
             type="String"
             fileOrFolder="folder"
             allowRecurse = "false"
+            name="bugtraq:logregex">
+         <description>
+bugtraq:logregex
+This property contains one or two regular expressions, separated by a newline.
+If only one expression is set, then the bare bug ID's must be matched in the groups of the regex string. Example: [Ii]ssue(?:s)? #?(\d+)
+If two expressions are set, then the first expression is used to find a string which relates to the bug ID but may contain more than just the bug ID (e.g. "Issue #123" or "resolves issue 123"). The second expression is then used to extract the bare bug ID from the string extracted with the first expression. 
+An example:
+If you want to catch every pattern "issue #XXX" and "issue #890, #789" inside a log message you could use the following regex strings: [Ii]ssue #?(\d+)(,? ?#'(\d+))+ and the second expression as (\d+)
+ 		</description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="folder"
+            allowRecurse = "false"
             name="bugtraq:label">
          <description>
 bugtraq:label

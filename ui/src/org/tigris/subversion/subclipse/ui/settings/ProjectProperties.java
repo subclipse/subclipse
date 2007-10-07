@@ -14,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +33,7 @@ public class ProjectProperties {
     protected String url;
     protected boolean warnIfNoIssue = false;
     protected boolean append = true;
-    protected String logRegex;
+    protected String logregex;
     
     private static final String URL = "://"; //$NON-NLS-1$
 
@@ -79,15 +78,15 @@ public class ProjectProperties {
         this.warnIfNoIssue = warnIfNoIssue;
     }
     
-	public String getLogRegex() {
-		return logRegex;
+	public String getLogregex() {
+		return logregex;
 	}
 
-	public void setLogRegex(String logRegex) {
-		this.logRegex = logRegex;
-	}    
-    
-    public String getResolvedMessage(String issue) {
+	public void setLogregex(String logregex) {
+		this.logregex = logregex;
+	}
+
+	public String getResolvedMessage(String issue) {
         if (message == null) return null;
         return message.replaceAll("%BUGID%", issue); //$NON-NLS-1$
     }
@@ -97,62 +96,47 @@ public class ProjectProperties {
         return url.replaceAll("%BUGID%", issue); //$NON-NLS-1$
     }
     
-    private String[] getIssues(String commitMessage, String regex) {
-    	List issues = new ArrayList();
-		String regex1 = null;
-		String regex2 = null;
-		StringReader reader = new StringReader(logRegex);
-		BufferedReader bufferedReader = new BufferedReader(reader);
-		try {
-			regex1 = bufferedReader.readLine();
-			regex2 = bufferedReader.readLine();
-			reader.close();
-			bufferedReader.close();
-		} catch (IOException e) {}
-		Pattern p1 = Pattern.compile(regex1);
-		Pattern p2 = null;
-		if (regex2 != null) p2 = Pattern.compile(regex2);
-		Matcher m1 = p1.matcher(commitMessage);
-		while (m1.find()) {
-			String key = m1.group(1);
-			boolean issueExtracted = false;
-// If two expressions are defined, use the 2nd expression to extract
-// the bare issue ID from the string found using the 1st expression.
-			if (p2 != null) {
-				Matcher m2 = p2.matcher(key + " "); //$NON-NLS-1$ 
-				while (m2.find()) {
-					String issue = m2.group(1);
-					issues.add(issue.trim());
-					issueExtracted = true;
-				}
-			}
-			if (!issueExtracted) issues.add(key.trim());
-		}    	
-    	String[] issueArray = new String[issues.size()];
-    	issues.toArray(issueArray);
-    	return issueArray;
-    }
-    
     // Retrieve hyperlink ranges and url's from commit message.
     public LinkList getLinkList(String commitMessage) {
         ArrayList links = new ArrayList();
         ArrayList urls = new ArrayList();
         String bugID = "%BUGID%"; //$NON-NLS-1$    	
     	
-    	if (logRegex != null) {
-    		String[] issues = getIssues(commitMessage, logRegex);
-    		int start = 0;
-    		for (int i = 0; i < issues.length; i++) {
-    			int index = commitMessage.indexOf(issues[i], start);
-    			start = index + 1;
-    			int range[]	 = {index, issues[i].length() };
-    			String url = getResolvedUrl(issues[i]);
-    			links.add(range);
-    			urls.add(url);
+        if( logregex != null ) {
+    		String[] resplit = logregex.split("\n");
+    		String re1 = resplit[0].trim();
+    		String re2 = resplit.length > 1 ? resplit[1].trim() : null;
+
+    		Pattern pre1 = Pattern.compile(re1);
+    		Matcher matcher1 = pre1.matcher(commitMessage);
+    		if (re2 == null) {
+    			while (matcher1.find()) {
+    				for (int i = 0; i < matcher1.groupCount(); i++) {
+    			        int range[] = {matcher1.start(i+1), matcher1.end(i+1)-matcher1.start(i+1)};
+    			        String url = getResolvedUrl(matcher1.group(i+1));
+    			        if ((url != null) && (url.trim().length() > 0)) { 
+    			            links.add(range);
+    			            urls.add(url);
+    			        }
+    				}
+    			}
+    		} else {
+    			Pattern pre2 = Pattern.compile(re2);
+    			while (matcher1.find()) {
+    				Matcher matcher2 = pre2.matcher(matcher1.group());
+    				while (matcher2.find()) {
+    					for (int i = 0; i < matcher2.groupCount(); i++) {
+        			        int range[] = {matcher2.start(i+1) + matcher1.start(), matcher2.end(i+1)-matcher2.start(i+1)};
+        			        String url = getResolvedUrl(matcher2.group(i+1));
+        			        if ((url != null) && (url.trim().length() > 0)) { 
+        			            links.add(range);
+        			            urls.add(url);
+        			        }
+    					}
+    				}
+    			}
     		}
-    	}
-    	
-        if (message != null) {
+        } else if (message != null) {
 	        int index = message.indexOf(bugID);
 	        if (index != -1) {
 	        	String remainder = null;
@@ -252,7 +236,7 @@ public class ProjectProperties {
     
     // Return error message if there are any problems with the issue that was entered.
     public String validateIssue(String issue) {
-        if (number) {
+        if (number && logregex == null) {
            if (!hasOnlyDigits(issue)) return Policy.bind("CommitDialog.number", label); //$NON-NLS-1$
         }
         return null;
@@ -267,12 +251,12 @@ public class ProjectProperties {
     
     public String toString() {
        return "bugtraq:label: " + label + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
-              "bugtraq:message: " + message + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
+              "bugtraq:logregex: " + logregex + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
+       		  "bugtraq:message: " + message + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
               "bugtraq:number: " + number + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
               "bugtraq:url: " + url + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
               "bugtraq:warnifnoissue: " + warnIfNoIssue + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
-              "bugtraq:append: " + append + "\n" + //$NON-NLS-1$
-              "bugtraq:logregex: " + logRegex; //$NON-NLS-1$
+              "bugtraq:append: " + append; //$NON-NLS-1$
     }
     
     // Get ProjectProperties for selected resource.  First looks at selected resource,
@@ -281,23 +265,26 @@ public class ProjectProperties {
     public static ProjectProperties getProjectProperties(IResource resource) throws SVNException {
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         ISVNProperty property = null;
-        ISVNProperty logregexProperty = null;
-        ISVNProperty labelProperty = null;
+        boolean hasBugtraq = false;
         if (svnResource != null && svnResource.isManaged()) {
             try {
 				property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
-				logregexProperty = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
-				labelProperty = svnResource.getSvnProperty("bugtraq:label"); //$NON-NLS-1$
+	            if( property != null && !"".equals(property.getValue().trim()) ) {
+	            	hasBugtraq = true;
+	            }
+				property = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
+	            if( property != null && !"".equals(property.getValue().trim()) ) {
+	            	hasBugtraq = true;
+	            }
 			} catch (SVNException e) {
 			}
         }
-        if (((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) || ((logregexProperty != null) && (logregexProperty.getValue() != null) && (logregexProperty.getValue().trim().length() > 0))) {
+        if (hasBugtraq) {
             ProjectProperties projectProperties = new ProjectProperties();
-            if (property != null && property.getValue() != null && property.getValue().trim().length() > 0)
-            	projectProperties.setMessage(property.getValue());
-            if (logregexProperty != null && logregexProperty.getValue() != null && logregexProperty.getValue().trim().length() > 0)
-            	projectProperties.setLogRegex(logregexProperty.getValue());            
-            if ((labelProperty != null) && (labelProperty.getValue() != null) && (labelProperty.getValue().trim().length() != 0)) projectProperties.setLabel(labelProperty.getValue());
+            property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
+            if (property != null) projectProperties.setMessage(property.getValue()); 
+            property = svnResource.getSvnProperty("bugtraq:label"); //$NON-NLS-1$
+            if (property != null) projectProperties.setLabel(property.getValue()); 
             property = svnResource.getSvnProperty("bugtraq:url"); //$NON-NLS-1$
             if (property != null) projectProperties.setUrl(property.getValue()); 
             property = svnResource.getSvnProperty("bugtraq:number"); //$NON-NLS-1$
@@ -306,6 +293,8 @@ public class ProjectProperties {
             if ((property != null) && (property.getValue() != null)) projectProperties.setWarnIfNoIssue(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$   
             property = svnResource.getSvnProperty("bugtraq:append"); //$NON-NLS-1$
             if ((property != null) && (property.getValue() != null)) projectProperties.setAppend(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$                                   
+            property = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
+            if ((property != null) && (property.getValue() != null)) projectProperties.setLogregex(property.getValue()); //$NON-NLS-1$                                   
             return projectProperties;           
         }
         IResource checkResource = resource;
@@ -316,9 +305,10 @@ public class ProjectProperties {
 	            svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
 	            if (svnResource.isManaged()) {
 	                property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
-	                logregexProperty = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
+	                if( property == null )
+	                	property = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
 	            }
-	            if (property != null || logregexProperty != null) return getProjectProperties(checkResource);
+	            if (property != null) return getProjectProperties(checkResource);
             } catch (SVNException e) {
             }
         }
@@ -328,5 +318,4 @@ public class ProjectProperties {
     public static ProjectProperties getProjectProperties(ISVNRemoteResource remoteResource) {
         return null;
     }
-
 }
