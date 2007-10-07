@@ -166,5 +166,13 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 		Assert.isTrue(errors.size() > 0);
 		IStatus status = (IStatus)errors.get(errors.size() - 1);
 		return status;
+	}
+	
+	protected boolean canRunAsJob() {
+		return true;
+	}
+	
+	protected String getJobName() {
+		return Policy.bind("UpdateOperation.taskName"); //$NON-NLS-1$;
 	}	
 }
