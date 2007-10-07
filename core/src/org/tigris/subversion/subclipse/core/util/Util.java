@@ -130,7 +130,7 @@ public class Util {
 	 * @throws CoreException
 	 */
 	public static void saveLocalHistory(IResource resource) throws CoreException {
-		if (resource instanceof IFile) {
+		if (resource instanceof IFile && resource.exists()) {
 			((IFile)resource).appendContents(new ByteArrayInputStream(new byte[0]),IResource.KEEP_HISTORY, null);
 		}
 	}
