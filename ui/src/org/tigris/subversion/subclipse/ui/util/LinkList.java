@@ -13,11 +13,17 @@ package org.tigris.subversion.subclipse.ui.util;
 public class LinkList {
     private int[][] linkRanges;
     private String[] urls;
+    private String[] texts;
 
     public LinkList(int[][] linkRanges, String[] urls) {
+		this(linkRanges, urls, null);
+	}
+
+	public LinkList(int[][] linkRanges, String[] urls, String[] texts) {
         super();
         this.linkRanges = linkRanges;
         this.urls = urls;
+        this.texts = texts;
     }
     
     public boolean isLinkAt(int offset) {
@@ -58,5 +64,8 @@ public class LinkList {
     }
     public void setUrls(String[] urls) {
         this.urls = urls;
+    }
+    public String[] getTexts() {
+        return texts;
     }
 }

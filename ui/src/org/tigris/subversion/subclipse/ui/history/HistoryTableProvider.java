@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.history;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -43,6 +44,8 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
+import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -59,6 +62,7 @@ public class HistoryTableProvider {
 	
 	private boolean includeMergeRevisions = true;
 	private boolean includeTags = true;
+	private boolean includeBugs = false;
 	
 	private int style;
 		
@@ -74,6 +78,8 @@ public class HistoryTableProvider {
 		this.style = style;
 	}
 
+	ProjectProperties projectProperties = null;
+
 	//column constants
 	private final static int COL_REVISION = 0;
 	private final static int COL_MERGED_REVISIONS = 1;
@@ -81,6 +87,7 @@ public class HistoryTableProvider {
 	private final static int COL_DATE = 3;
 	private final static int COL_AUTHOR = 4;
 	private final static int COL_COMMENT = 5;
+	private final static int COL_BUGS = 6;
 
 	/**
 	 * The history label provider.
@@ -128,6 +135,8 @@ public class HistoryTableProvider {
 						return Policy.bind("SVNCompareRevisionsInput.truncate", comment.substring(0, rIndex)); //$NON-NLS-1$
 					else
 						return Policy.bind("SVNCompareRevisionsInput.truncate", comment.substring(0, nIndex)); //$NON-NLS-1$
+				case COL_BUGS:
+					return getBugstringFromComment( entry.getComment() );
 			}
 			return ""; //$NON-NLS-1$
 		}
@@ -157,6 +166,19 @@ public class HistoryTableProvider {
 		}
 		
 	}
+	
+	private String getBugstringFromComment( String comment ) {
+		String display = "";
+		if( projectProperties != null ) {
+			LinkList ll =  projectProperties.getLinkList( comment );
+			String[] texts =  ll.getTexts();
+			for( int i = 0; texts != null && texts.length > i ; i++ ) {
+				display += texts[i];
+				display += " ";
+			}
+		}
+		return display;
+	}
 
 	/**
 	 * The history sorter
@@ -167,14 +189,15 @@ public class HistoryTableProvider {
 		
 //		private VersionCollator versionCollator = new VersionCollator();
 		
-		// column headings:	"Revision" "Merged Revisions" "Tags" "Date" "Author" "Comment"
+		// column headings:	"Revision" "Merged Revisions" "Tags" "Date" "Author" "Comment" "Bug-ID"
 		private int[][] SORT_ORDERS_BY_COLUMN = {
 			{COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* revision */
 			{COL_MERGED_REVISIONS, COL_REVISION, COL_TAGS, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* merged revisions */
 			{COL_TAGS, COL_REVISION, COL_MERGED_REVISIONS, COL_DATE, COL_AUTHOR, COL_COMMENT },	/* tags */ 
 			{COL_DATE, COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_AUTHOR, COL_COMMENT},	/* date */
 			{COL_AUTHOR, COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_DATE, COL_COMMENT},	/* author */
-			{COL_COMMENT, COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_DATE, COL_AUTHOR}   /* comment */
+			{COL_COMMENT, COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_DATE, COL_AUTHOR},   /* comment */
+			{COL_BUGS, COL_REVISION, COL_MERGED_REVISIONS, COL_TAGS, COL_DATE, COL_COMMENT}   /* Bug-ID */
 		};
 		
 		/**
@@ -229,6 +252,10 @@ public class HistoryTableProvider {
 					return getCollator().compare(e1.getAuthor(), e2.getAuthor());
 				case COL_COMMENT: /* comment */
 					return getCollator().compare(e1.getComment(), e2.getComment());
+				case COL_BUGS: /* comment */
+					if( projectProperties != null ) {
+						return getBugstringFromComment(e1.getComment()).compareTo(getBugstringFromComment(e2.getComment()));
+					}
 				default:
 					return 0;
 			}
@@ -360,6 +387,17 @@ public class HistoryTableProvider {
 		col.addSelectionListener(headerListener);
 		layout.addColumnData(new ColumnWeightData(50, true));
 		
+		//bugs
+		col = new TableColumn(table, SWT.NONE);
+		col.setResizable(true);
+		col.setText(Policy.bind("HistoryView.bugs")); //$NON-NLS-1$
+		col.addSelectionListener(headerListener);
+		if (includeBugs) {
+			layout.addColumnData(new ColumnWeightData(10, true));
+		} else {
+			col.setWidth(0);
+			layout.addColumnData(new ColumnWeightData(0, false));
+		}
 	}
 	
 	/**
@@ -450,6 +488,18 @@ public class HistoryTableProvider {
 
 	public boolean isIncludeTags() {
 		return includeTags;
+	}
+
+	public void setIncludeBugs(boolean includeBugs) {
+		this.includeBugs = includeBugs;
+	}
+
+	public boolean isIncludeBugs() {
+		return this.projectProperties != null;
+	}
+
+	public void setProjectProperties(ProjectProperties projectProperties) {
+		this.projectProperties = projectProperties;
 	}
 
 }

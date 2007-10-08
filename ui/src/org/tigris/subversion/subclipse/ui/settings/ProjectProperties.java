@@ -100,6 +100,7 @@ public class ProjectProperties {
     public LinkList getLinkList(String commitMessage) {
         ArrayList links = new ArrayList();
         ArrayList urls = new ArrayList();
+        ArrayList texts = new ArrayList();
         String bugID = "%BUGID%"; //$NON-NLS-1$    	
     	
         if( logregex != null ) {
@@ -117,6 +118,7 @@ public class ProjectProperties {
     			        if ((url != null) && (url.trim().length() > 0)) { 
     			            links.add(range);
     			            urls.add(url);
+    			            texts.add(matcher1.group(i+1));
     			        }
     				}
     			}
@@ -131,6 +133,7 @@ public class ProjectProperties {
         			        if ((url != null) && (url.trim().length() > 0)) { 
         			            links.add(range);
         			            urls.add(url);
+        			            texts.add(matcher2.group(i+1));
         			        }
     					}
     				}
@@ -180,6 +183,7 @@ public class ProjectProperties {
 			        if ((url != null) && (url.trim().length() > 0)) { 
 			            links.add(range);
 			            urls.add(url);
+			            texts.add(issue.toString());
 			        }
 		        }
 	        }
@@ -195,7 +199,9 @@ public class ProjectProperties {
         links.toArray(linkRanges);
         String[] urlArray = new String[urls.size()];
         urls.toArray(urlArray);
-        LinkList linkList = new LinkList(linkRanges, urlArray);
+        String[] textArray = new String[texts.size()];
+        texts.toArray(textArray);
+        LinkList linkList = new LinkList(linkRanges, urlArray, textArray);
         return linkList;
     }
     
@@ -231,7 +237,7 @@ public class ProjectProperties {
     	}
     	return new LinkList(
     			(int[][])linkRanges.toArray(new int[linkRanges.size()][2]),
-    			(String[])links.toArray(new String[links.size()]));
+    			(String[])links.toArray(new String[links.size()]), null);
     }
     
     // Return error message if there are any problems with the issue that was entered.

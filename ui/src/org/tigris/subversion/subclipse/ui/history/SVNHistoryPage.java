@@ -214,6 +214,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
   
   private boolean includeTags = true;
+  private boolean includeBugs = false;
   
   public SVNHistoryPage(Object object) {
 	  SVNProviderPlugin.addResourceStateChangeListener(this);
@@ -280,6 +281,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         	  remoteResource = SVNWorkspaceRoot.getBaseResourceFor(resource);
         	  historyTableProvider.setRemoteResource(remoteResource);
               projectProperties = ProjectProperties.getProjectProperties(resource);
+              historyTableProvider.setProjectProperties(projectProperties);
           } catch(SVNException e) {
           }
         }
@@ -302,11 +304,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     if(input instanceof IResource) {
       IResource res = (IResource) input;
       
-      boolean includeTags = tagsPropertySet(res);
-      if (includeTags != this.includeTags) {
-    	  this.includeTags = includeTags;
-    	  refreshTable();
-      }
       
       RepositoryProvider teamProvider = RepositoryProvider.getProvider(res.getProject(), SVNProviderPlugin.getTypeId());
       if(teamProvider != null) {
@@ -318,7 +315,15 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             this.remoteResource = localResource.getBaseResource();
 
             this.projectProperties = ProjectProperties.getProjectProperties(res);
+        	boolean includeBugs = projectProperties != null;
+            boolean includeTags = tagsPropertySet(res);
+            if (includeTags != this.includeTags || this.includeBugs != includeBugs ) {
+            	this.includeTags = includeTags;
+        		this.includeBugs = includeBugs;
+        		refreshTable();
+        	}
             this.historyTableProvider.setRemoteResource(this.remoteResource);
+			this.historyTableProvider.setProjectProperties(this.projectProperties);
             this.tableHistoryViewer.setInput(this.remoteResource);
         	this.tableHistoryViewer.resetFilters();
         	getClearSearchAction().setEnabled(false);
@@ -343,7 +348,14 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       }
       
       this.projectProperties = ProjectProperties.getProjectProperties(this.remoteResource);
+  	  boolean includeBugs = projectProperties != null;
+      if (includeTags != this.includeTags || this.includeBugs != includeBugs ) {
+      	  this.includeTags = includeTags;
+  		  this.includeBugs = includeBugs;
+  		  refreshTable();
+      }
       this.historyTableProvider.setRemoteResource(this.remoteResource);
+   	  this.historyTableProvider.setProjectProperties(this.projectProperties);
       this.tableHistoryViewer.setInput(this.remoteResource);
   	  this.tableHistoryViewer.resetFilters();
   	  getClearSearchAction().setEnabled(false);
@@ -459,8 +471,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		redraw = true;
 	}
     this.historyTableProvider = new HistoryTableProvider();
+    this.historyTableProvider.setProjectProperties( this.projectProperties );
     historyTableProvider.setIncludeMergeRevisions(store.getBoolean(ISVNUIConstants.PREF_INCLUDE_MERGED_REVISIONS));
     historyTableProvider.setIncludeTags(includeTags);
+    historyTableProvider.setIncludeBugs(includeBugs);
     this.tableHistoryViewer = historyTableProvider.createTable(tableParent);
     if (redraw) {
     	tableParent.layout(true);
@@ -1137,6 +1151,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                     new ReplaceOperation(getSite().getPage().getActivePart(), file, remoteFile.getLastChangedRevision())
                         .run(monitor);
                     historyTableProvider.setRemoteResource(remoteFile);
+        			historyTableProvider.setProjectProperties(ProjectProperties.getProjectProperties(resource));
                     Display.getDefault().asyncExec(new Runnable() {
                       public void run() {
                         tableHistoryViewer.refresh();
@@ -2020,6 +2035,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                   if (localResource != null && !localResource.getStatus().isAdded()) {
                   	ISVNRemoteResource baseResource = localResource.getBaseResource();
                   	historyTableProvider.setRemoteResource(baseResource);
+                  	historyTableProvider.setProjectProperties(null);
                   	tableHistoryViewer.refresh();
                   }
               } catch (SVNException e) {
