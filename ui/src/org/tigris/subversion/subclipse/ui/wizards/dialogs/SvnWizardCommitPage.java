@@ -62,6 +62,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private IDialogSettings settings;
 	private CommentProperties commentProperties;
 	private SyncInfoSet syncInfoSet;
+	private String removalError;
 
 //	private boolean sharing;
 	
@@ -174,7 +175,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 				return removalOk(resourceList, selection);
 			}
 			public String getErrorMessage() {
-				return Policy.bind("CommitDialog.unselectedPropChangeChildren"); //$NON-NLS-1$ 	
+				return removalError;
+//				return Policy.bind("CommitDialog.unselectedPropChangeChildren"); //$NON-NLS-1$ 	
 			}
     	});
     	resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {
@@ -241,6 +243,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	
     private boolean removalOk(ArrayList resourceList, IStructuredSelection selection) {
     	ArrayList clonedList = (ArrayList)resourceList.clone();
+    	List deletedFolders = new ArrayList();
     	Iterator iter = selection.iterator();
     	while (iter.hasNext()) clonedList.remove(iter.next());
     	ArrayList folderPropertyChanges = new ArrayList();
@@ -249,12 +252,28 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
     	while (iter.hasNext()) {
     		IResource resource = (IResource)iter.next();
     		if (resource instanceof IContainer) {
-				if (ResourceWithStatusUtil.getStatus(resource).equals(Policy.bind("CommitDialog.deleted"))) //$NON-NLS-1$
+				if (ResourceWithStatusUtil.getStatus(resource).equals(Policy.bind("CommitDialog.deleted"))) { //$NON-NLS-1$
 					folderDeletionSelected = true;
+					deletedFolders.add(resource);
+				}
 				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus(resource);
 				if (propertyStatus != null && propertyStatus.length() > 0)
 					folderPropertyChanges.add(resource);
     		}    		
+    	}
+    	if (folderDeletionSelected) {
+    		iter = selection.iterator();
+    		while (iter.hasNext()) {
+    			IResource resource = (IResource)iter.next();
+    			Iterator iter2 = deletedFolders.iterator();
+    			while (iter2.hasNext()) {
+    				IContainer deletedFolder = (IContainer)iter2.next();
+    				if (isChild(resource, deletedFolder)) {
+    					removalError = Policy.bind("CommitDialog.parentDeleted"); //$NON-NLS-1$ 	
+    					return false;
+    				}
+    			}
+    		}
     	}
     	if (!folderDeletionSelected || folderPropertyChanges.size() == 0) return true;
     	boolean unselectedPropChangeChildren = false;
@@ -266,6 +285,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
     			if (!clonedList.contains(resourcesToCommit[i])) {
     				if (isChild(resourcesToCommit[i], container)) {
     					unselectedPropChangeChildren = true;
+    					removalError = Policy.bind("CommitDialog.unselectedPropChangeChildren"); //$NON-NLS-1$ 	
     					break outer;
     				}
     			}
