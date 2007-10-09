@@ -14,13 +14,13 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.dialogs.DeletePropertyDialog;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
 /**
@@ -33,9 +33,12 @@ public class SVNPropertyDeleteAction extends SVNPropertyAction {
 	 */
 	protected void execute(IAction action)
 		throws InvocationTargetException, InterruptedException {
+		
 			run(new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 					ISVNProperty[] svnProperties = getSelectedSvnProperties();
+					
+					boolean directory = svnProperties[0].getFile().isDirectory();
 
 					String message;
 					if (svnProperties.length == 1) {
@@ -43,16 +46,15 @@ public class SVNPropertyDeleteAction extends SVNPropertyAction {
 					} else {
 						message = Policy.bind("SVNPropertyDeleteAction.confirmMultiple",Integer.toString(svnProperties.length)); //$NON-NLS-1$
 					}
-										
-					if (!MessageDialog.openQuestion(getShell(), Policy.bind("SVNPropertyDeleteAction.title"), message)) { //$NON-NLS-1$
-						return; 
-					}
+
+					DeletePropertyDialog dialog = new DeletePropertyDialog(getShell(), message, directory);
+					if (dialog.open() == DeletePropertyDialog.CANCEL) return;
 					
 					for (int i = 0; i < svnProperties.length;i++) {
 						ISVNProperty svnProperty = svnProperties[i];  
 						ISVNLocalResource svnResource = getSVNLocalResource(svnProperty);
 						try {
-							svnResource.deleteSvnProperty(svnProperty.getName(),false);
+							svnResource.deleteSvnProperty(svnProperty.getName(),dialog.isRecurse());
 						} catch (SVNException e) {
 							throw new InvocationTargetException(e);
 						}
