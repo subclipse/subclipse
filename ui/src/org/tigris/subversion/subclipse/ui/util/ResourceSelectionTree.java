@@ -574,19 +574,21 @@ public class ResourceSelectionTree extends Composite {
 		
 		public Image getImage(Object element) {
 			if (resourceList.contains(element)) {
+				SVNStatusKind statusKind = null;
+				String textStatus = ResourceWithStatusUtil.getStatus((IResource)element);
+				if (textStatus != null && textStatus.length() > 0) 
+					statusKind = SVNStatusKind.fromString(textStatus);
 				Image image = null;
-				if (element instanceof IContainer)
+				if (element instanceof IContainer && (statusKind == null || !statusKind.equals(SVNStatusKind.DELETED))) {
 					image = workbenchLabelProvider.getImage(element);
-				else {
-					String textStatus = ResourceWithStatusUtil.getStatus((IResource)element);
-					if (textStatus != null && textStatus.length() > 0) {
-						SVNStatusKind statusKind = SVNStatusKind.fromString(textStatus);
-						if (statusKind.equals(SVNStatusKind.CONFLICTED)) {
-							image = workbenchLabelProvider.getImage(element);
-							image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.TEXT_CONFLICTED);
-						}
+					image = compareConfiguration.getImage(image, Differencer.NO_CHANGE);
+				} else {
+					if (statusKind != null && statusKind.equals(SVNStatusKind.CONFLICTED)) {
+						image = workbenchLabelProvider.getImage(element);
+						image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.TEXT_CONFLICTED);
 					}
 					if (image == null) image = syncLabelProvider.getImage(element);
+					if (element instanceof IContainer) return image;
 				}
 				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus((IResource)element);
 				if (propertyStatus != null && propertyStatus.length() > 0) image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CHANGE);
@@ -600,7 +602,6 @@ public class ResourceSelectionTree extends Composite {
 
 		public String getText(Object element) {
 			if (statusMap == null) return workbenchLabelProvider.getText(element);
-//			SVNStatusKind statusKind = (SVNStatusKind)statusMap.get(element);
 			String text = null;
 			IResource resource = (IResource)element;
 			if (mode == MODE_FLAT) text = resource.getName() + " - " + resource.getFullPath().toString(); //$NON-NLS-1$
@@ -659,6 +660,7 @@ public class ResourceSelectionTree extends Composite {
 				else if (statusKind.equals(SVNStatusKind.ADDED)) kind = IDiff.ADD;
 				else if (statusKind.equals(SVNStatusKind.DELETED)) kind = IDiff.REMOVE;
 			}
+			if (resource instanceof IContainer) return IDiff.REMOVE;
 			return kind;
 		}
 
