@@ -18,6 +18,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ResolveOperation;
+import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 
 /**
  * Action to mark conflicted file as resolved. 
@@ -25,7 +26,7 @@ import org.tigris.subversion.subclipse.ui.operations.ResolveOperation;
 public class ResolveAction extends WorkspaceAction {
 	
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
-	    new ResolveOperation(getTargetPart(), getSelectedResources()).run();
+	    new ResolveOperation(getTargetPart(), getSelectedResources(), ISVNConflictResolver.Result.choose_merged).run();
 	}
 	/**
 	 * @see org.eclipse.team.internal.ccvs.ui.actions.CVSAction#getErrorTitle()

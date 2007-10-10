@@ -20,7 +20,8 @@ import org.eclipse.ui.IMarkerResolution;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
+import org.tigris.subversion.subclipse.ui.operations.ResolveOperation;
+import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 
 public class AcceptTheirsResolution implements IMarkerResolution {
 
@@ -35,8 +36,8 @@ public class AcceptTheirsResolution implements IMarkerResolution {
      * @see org.eclipse.ui.IMarkerResolution#run(org.eclipse.core.resources.IMarker)
      */
     public void run(IMarker marker) {
-        try {
-            new RevertOperation(null, new IResource[] {marker.getResource()}).run(new NullProgressMonitor());
+		try {
+            new ResolveOperation(null, new IResource[] {marker.getResource()}, ISVNConflictResolver.Result.choose_repos).run(new NullProgressMonitor());
         } catch (InvocationTargetException e) {
 			if (e.getTargetException() instanceof SVNException) {
 				SVNUIPlugin.log((SVNException)e.getTargetException());
@@ -45,7 +46,7 @@ public class AcceptTheirsResolution implements IMarkerResolution {
 			}
         } catch (InterruptedException e) {
 			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-        }
+		}
         
     }
 

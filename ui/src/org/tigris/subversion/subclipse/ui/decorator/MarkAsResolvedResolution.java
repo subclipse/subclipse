@@ -21,6 +21,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.operations.ResolveOperation;
+import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 
 public class MarkAsResolvedResolution implements IMarkerResolution {
 
@@ -36,7 +37,7 @@ public class MarkAsResolvedResolution implements IMarkerResolution {
      */
     public void run(IMarker marker) {
         try {
-			new ResolveOperation(null, new IResource[] {marker.getResource()}).run(new NullProgressMonitor());
+			new ResolveOperation(null, new IResource[] {marker.getResource()}, ISVNConflictResolver.Result.choose_merged).run(new NullProgressMonitor());
         } catch (InvocationTargetException e) {
 			if (e.getTargetException() instanceof SVNException) {
 				SVNUIPlugin.log((SVNException)e.getTargetException());

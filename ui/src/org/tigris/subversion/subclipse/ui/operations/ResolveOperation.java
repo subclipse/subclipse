@@ -19,9 +19,12 @@ import org.tigris.subversion.subclipse.core.commands.ResolveResourcesCommand;
 import org.tigris.subversion.subclipse.ui.Policy;
 
 public class ResolveOperation extends RepositoryProviderOperation {
+	
+	private int resolution; // ISVNConflictResolver.Result
 
-    public ResolveOperation(IWorkbenchPart part, IResource[] resources) {
+    public ResolveOperation(IWorkbenchPart part, IResource[] resources, int resolution) {
         super(part, resources);
+        this.resolution = resolution;
     }
 
     /* (non-Javadoc)
@@ -45,7 +48,7 @@ public class ResolveOperation extends RepositoryProviderOperation {
     protected void execute(SVNTeamProvider provider, IResource[] resources, IProgressMonitor monitor) throws SVNException, InterruptedException {
         monitor.beginTask(null, 100);
         try {           
-            ResolveResourcesCommand command = new ResolveResourcesCommand(provider.getSVNWorkspaceRoot(),resources);
+            ResolveResourcesCommand command = new ResolveResourcesCommand(provider.getSVNWorkspaceRoot(),resources,resolution);
             command.run(Policy.subMonitorFor(monitor,100));
         } catch (SVNException e) {
             collectStatus(e.getStatus());

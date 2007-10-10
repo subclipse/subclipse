@@ -25,10 +25,12 @@ public class ResolveResourcesCommand implements ISVNCommand {
 
     private final SVNWorkspaceRoot root;
     private final IResource[] resources;
+    private final int resolution;
 
-    public ResolveResourcesCommand(SVNWorkspaceRoot root, IResource[] resources) {
+    public ResolveResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int resolution) {
         this.root = root;
         this.resources = resources;
+        this.resolution = resolution;
         
     }
     
@@ -41,7 +43,7 @@ public class ResolveResourcesCommand implements ISVNCommand {
             OperationManager.getInstance().beginOperation(svnClient);
             
             for (int i = 0; i < resources.length; i++) {
-                svnClient.resolved(resources[i].getLocation().toFile());
+                svnClient.resolved(resources[i].getLocation().toFile(), resolution);
                 monitor.worked(100);
             }
         } catch (SVNClientException e) {
