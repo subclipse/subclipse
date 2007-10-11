@@ -24,9 +24,10 @@ import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
  * Action to mark conflicted file as resolved. 
  */
 public class ResolveAction extends WorkspaceAction {
+	private int resolution = ISVNConflictResolver.Result.choose_merged;
 	
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
-	    new ResolveOperation(getTargetPart(), getSelectedResources(), ISVNConflictResolver.Result.choose_merged).run();
+	    new ResolveOperation(getTargetPart(), getSelectedResources(), resolution).run();
 	}
 	/**
 	 * @see org.eclipse.team.internal.ccvs.ui.actions.CVSAction#getErrorTitle()
@@ -49,6 +50,9 @@ public class ResolveAction extends WorkspaceAction {
 	protected String getImageId()
 	{
 		return ISVNUIConstants.IMG_MENU_RESOLVE;
+	}
+	public void setResolution(int resolution) {
+		this.resolution = resolution;
 	}
 	
 }
