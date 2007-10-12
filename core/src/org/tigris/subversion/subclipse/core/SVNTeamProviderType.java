@@ -83,8 +83,10 @@ public class SVNTeamProviderType extends RepositoryProviderType {
         public void share(IProject project) {
             if (!RepositoryProvider.isShared(project)) {
                 synchronized (projectsToShare) {
-                    if (!projectsToShare.contains(project))
+                    if (!projectsToShare.contains(project)) {
+                        SVNWorkspaceRoot.setManagedBySubclipse(project);
                         projectsToShare.add(project);
+                    }
                 }
                 if(getState() == Job.NONE && !isQueueEmpty())
                     schedule();

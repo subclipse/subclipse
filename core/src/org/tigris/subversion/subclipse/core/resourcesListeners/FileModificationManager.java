@@ -29,9 +29,9 @@ import org.eclipse.core.resources.ISavedState;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.team.core.RepositoryProvider;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 
 /**
  * This class performs several functions related to determining the modified
@@ -93,13 +93,19 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 					}				
 					else if (resource.getType()==IResource.PROJECT) {
 						IProject project = (IProject)resource;
+						
+						if ((delta.getKind() & IResourceDelta.REMOVED) != 0) {
+							SVNWorkspaceRoot.unsetManagedBySubclipse(project);
+							return false;
+						}
+
 						if (!project.isAccessible()) {
 							return false;
 						}
 						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
 							return false;
 						} 
-						if (RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId()) == null) {
+						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
 							return false; // not a svn handled project
 						}
 						if (delta.getKind() == IResourceDelta.ADDED) {

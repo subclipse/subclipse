@@ -157,6 +157,8 @@ public class CheckoutCommand implements ISVNCommand {
 				}
 			}
 
+			SVNWorkspaceRoot.setManagedBySubclipse(project);
+
 			checkoutProject(pm, resource, svnClient, destPath);
 
 			// Bring the project into the workspace

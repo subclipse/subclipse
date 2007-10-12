@@ -11,6 +11,8 @@
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -73,13 +75,33 @@ public class SVNWorkspaceRoot {
 	private ISVNLocalFolder localRoot;
     private String url;
     private static boolean nullResourceLogged = false;
+    private static Set sharedProjects = new HashSet();
 	
 	public SVNWorkspaceRoot(IContainer resource){
 		this.localRoot = getSVNFolderFor(resource);
 	}
 
+	public static boolean isManagedBySubclipse(IProject project) {
+		synchronized (sharedProjects) {
+			if (sharedProjects.contains(project))
+				return true;
+		}
 
+		return null != RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());
+	}
 
+	public static void setManagedBySubclipse(IProject project) {
+		synchronized (sharedProjects) {
+			sharedProjects.add(project);
+		}
+	}
+
+	public static void unsetManagedBySubclipse(IProject project) {
+		synchronized (sharedProjects) {
+			sharedProjects.remove(project);
+		}
+	}
+	
 	/**
 	 * get a project for the remote folder. The name is either the name of the 
 	 * remote folder or the name in .project if this file exists.

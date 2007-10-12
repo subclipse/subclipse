@@ -25,10 +25,10 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.team.core.RepositoryProvider;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 /**
@@ -72,7 +72,7 @@ public class TeamPrivateListener implements IResourceChangeListener, ISavePartic
 						if (!project.isAccessible()) {
 							return false;
 						}
-						if (RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId()) == null) {
+						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
 							return false; // not a svn handled project
 						}
 					}

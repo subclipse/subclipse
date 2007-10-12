@@ -32,6 +32,7 @@ import org.tigris.subversion.subclipse.core.ISVNRunnable;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
 import org.tigris.subversion.svnclientadapter.SVNConstants;
 
@@ -84,12 +85,16 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 					if (resource.getType() == IResource.PROJECT) {
 						// If the project is not accessible, don't process it
 						if (!resource.isAccessible()) return false;
+
+						// If the Project is not managed by subclipse, don't process it
+						if (!SVNWorkspaceRoot.isManagedBySubclipse((IProject)resource))
+							return false;
 					}
 															
 					String name = resource.getName();
 					int kind = delta.getKind();
 					
-					//We seem to receive repetitive ADD change events.
+					//FileModificationManager may already have processed the folder.
 					//Since we do not want to refresh the statuses again, we finish the visitor if we already have the statuses
 					try {
 						if ((resource.getType() == IResource.FOLDER) && (kind == IResourceDelta.ADDED) 
