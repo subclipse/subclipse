@@ -15,9 +15,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -37,9 +34,6 @@ abstract public class SVNPropertyAction extends SVNAction {
 	 * @return
 	 */
 	protected ISVNLocalResource getSVNLocalResource(ISVNProperty svnProperty) {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		
 		File file = svnProperty.getFile();
 		if (!file.exists()) {
 			return null;
@@ -49,11 +43,7 @@ abstract public class SVNPropertyAction extends SVNAction {
 		pathEclipse = new Path(file.getAbsolutePath());
 
 		IResource resource;
-		if (file.isDirectory()) {
-			resource = workspaceRoot.getContainerForLocation(pathEclipse);
-		} else {
-			resource =  workspaceRoot.getFileForLocation(pathEclipse);
-		}
+		resource = SVNWorkspaceRoot.getResourceFor(pathEclipse);
 		if (resource == null) {
 			return null;
 		}

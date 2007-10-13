@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -225,7 +226,7 @@ public class SVNWorkspaceRoot {
 			IProject project = projects[i];
 			
 			// Map only to projects, which are managed by subclipse.
-			if (RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId()) == null)
+			if (!isManagedBySubclipse(project))
 				continue;
 
 			IPath projectLocation = project.getLocation();
@@ -476,6 +477,45 @@ public class SVNWorkspaceRoot {
 //        	else
 //        		resource = workspaceRoot.getFileForLocation(pathEclipse);
 //        }
+
+		return root.getFolder(resourcePath);
+    }
+	
+    /**
+     * Gets the resource to which the <code>path</code> is corresponding to.
+     * The resource does not need to exists (yet)
+     * @return IResource
+     */
+    public static IResource getResourceFor(IPath path)
+    {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IPath resourcePath = pathForLocation(path.makeAbsolute());
+
+		if (resourcePath == null) 
+			return null;
+
+		int kind = getResourceType(resourcePath);			
+
+		if (kind == IResource.FILE)
+		{
+			return root.getFile(resourcePath);
+		}
+		else if(kind == IResource.FOLDER)
+		{
+			return root.getFolder(resourcePath);
+		}
+		else if ((kind == IResource.PROJECT) || (resourcePath.segmentCount() == 1))
+		{
+			return root.getProject(resourcePath.segment(0));
+		}
+		else if ((kind == IResource.ROOT) || (resourcePath.isRoot()))
+		{
+			return root;
+		}
+
+		File file = path.toFile();
+		if (file.isFile())
+			return root.getFile(resourcePath);
 
 		return root.getFolder(resourcePath);
     }
