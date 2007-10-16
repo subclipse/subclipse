@@ -61,6 +61,8 @@ public class CheckoutCommand implements ISVNCommand {
 	private IPath projectRoot;
 	
 	private SVNRevision svnRevision = SVNRevision.HEAD;
+	
+	private boolean refreshProjects = true;
 
 	public CheckoutCommand(ISVNRemoteFolder[] resources, IProject[] projects) {
 		this(resources, projects, null);
@@ -162,7 +164,7 @@ public class CheckoutCommand implements ISVNCommand {
 			checkoutProject(pm, resource, svnClient, destPath);
 
 			// Bring the project into the workspace
-			refreshProject(project, (pm != null) ? Policy
+			if (refreshProjects) refreshProject(project, (pm != null) ? Policy
 					.subMonitorFor(pm, 100) : null);
 		} catch (SVNClientException ce) {
 			throw new SVNException("Error Getting Dir list", ce);
@@ -344,6 +346,10 @@ public class CheckoutCommand implements ISVNCommand {
 
 	public void setSvnRevision(SVNRevision svnRevision) {
 		this.svnRevision = svnRevision;
+	}
+
+	public void setRefreshProjects(boolean refreshProjects) {
+		this.refreshProjects = refreshProjects;
 	}
 
 }
