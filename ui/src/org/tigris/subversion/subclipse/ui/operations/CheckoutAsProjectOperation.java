@@ -16,9 +16,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.team.core.RepositoryProvider;
+import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -45,6 +48,8 @@ public class CheckoutAsProjectOperation extends SVNOperation {
     }
 
     public void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
+    	// First checkout all projects, then bring them into workspace.
+    	
         monitor.beginTask(null, remoteFolders.length * 1000);
         for (int i = 0; i < remoteFolders.length; i++) {
             IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
@@ -61,6 +66,17 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 				Job.getJobManager().endRule(rule);
 			}            
         }
+        for (int i = 0; i < remoteFolders.length; i++) {
+        	IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
+        	ISchedulingRule rule = localFolders[i].getWorkspace().getRuleFactory().modifyRule(localFolders[i]);
+			try {
+				Job.getJobManager().beginRule(rule, monitor);
+				monitor.setTaskName(Policy.bind("SVNProvider.Creating_project_1", remoteFolders[i].getName())); //$NON-NLS-1$
+				refreshProject(localFolders[i], subMonitor);
+			} finally {
+				Job.getJobManager().endRule(rule);
+			}                    	
+        }
     }
     
     protected void execute(ISVNRemoteFolder[] remote, IProject[] local, IProgressMonitor monitor) throws SVNException, InterruptedException {
@@ -72,6 +88,7 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 				command = new CheckoutCommand(remote, local, projectRoot);
 			}
 			command.setSvnRevision(svnRevision);
+			command.setRefreshProjects(false);
 	    	command.run(monitor);
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
@@ -81,5 +98,28 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 	public void setSvnRevision(SVNRevision svnRevision) {
 		this.svnRevision = svnRevision;
 	}
+	
+	/*
+	 * Bring the provided projects into the workspace
+	 */
+	private void refreshProject(IProject project, IProgressMonitor monitor)
+			throws SVNException {
+	    if (monitor != null)
+	    {
+	    	monitor.beginTask("", 100); //$NON-NLS-1$
+	    }
+		try {
+			// Register the project with Team
+			RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
+			RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());
+		} catch (TeamException e) {
+			throw new SVNException("Cannot map the project with svn provider",e);
+		} finally {
+			if (monitor != null)
+			{
+				monitor.done();
+			}
+		}
+	}	
     
 }
