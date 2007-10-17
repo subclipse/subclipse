@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.UpdateResourcesCommand;
@@ -26,23 +27,19 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  */
 public class UpdateOperation extends RepositoryProviderOperation {
 	private final SVNRevision revision;
-	private final boolean recursive; 
-
-    /**
-     * @param part
-     * @param resources
-     */
-    public UpdateOperation(IWorkbenchPart part, IResource[] resources, SVNRevision revision, boolean recursive) {
-        super(part, resources);
-        this.revision = revision;
-        this.recursive = recursive;
-    }
+    private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
+    private boolean ignoreExternals = false;
+    private boolean force = true;
 
     public UpdateOperation(IWorkbenchPart part, IResource resource, SVNRevision revision) {
         super(part, new IResource[] {resource});
         this.revision = revision;
-        this.recursive = false;
     }
+    
+    public UpdateOperation(IWorkbenchPart part, IResource[] resources, SVNRevision revision) {
+        super(part, resources);
+        this.revision = revision;
+    }    
 
     /* (non-Javadoc)
 	 * @see org.eclipse.team.internal.ccvs.ui.operations.CVSOperation#getTaskName()
@@ -66,8 +63,11 @@ public class UpdateOperation extends RepositoryProviderOperation {
         monitor.beginTask(null, 100);
 		try {			
 		    SVNWorkspaceSubscriber.getInstance().updateRemote(resources);
-	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resources, revision, recursive);
-	        command.run(Policy.subMonitorFor(monitor,100));
+	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resources, revision);
+	        command.setDepth(depth);
+	        command.setIgnoreExternals(ignoreExternals);
+	        command.setForce(force);
+	    	command.run(Policy.subMonitorFor(monitor,100));
 			//updateWorkspaceSubscriber(provider, resources, Policy.subMonitorFor(monitor, 5));
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
@@ -77,4 +77,16 @@ public class UpdateOperation extends RepositoryProviderOperation {
             monitor.done();
 		}
     }
+    
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public void setIgnoreExternals(boolean ignoreExternals) {
+		this.ignoreExternals = ignoreExternals;
+	}
+
+	public void setForce(boolean force) {
+		this.force = force;
+	}    
 }

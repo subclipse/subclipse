@@ -12,11 +12,14 @@ package org.tigris.subversion.subclipse.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
-import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardUpdatePage;
 
 /**
  * UpdateAction performs a 'svn update' command on the selected resources.
@@ -33,7 +36,18 @@ public class UpdateAction extends WorkbenchWindowAction {
         	action.setEnabled(true);
         } 
         else {
-	    	    new UpdateOperation(getTargetPart(), getSelectedResources(), SVNRevision.HEAD, true).run();
+	        IResource[] resources = getSelectedResources(); 
+	        SvnWizardUpdatePage updatePage = new SvnWizardUpdatePage(resources);
+	        SvnWizard wizard = new SvnWizard(updatePage);
+	        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+	        wizard.setParentDialog(dialog);       
+	        if (dialog.open() == SvnWizardDialog.OK) {
+	        	UpdateOperation updateOperation = new UpdateOperation(getTargetPart(), resources, updatePage.getRevision());
+		    	updateOperation.setDepth(updatePage.getDepth());
+		    	updateOperation.setForce(updatePage.isForce());
+		    	updateOperation.setIgnoreExternals(updatePage.isIgnoreExternals());
+	        	updateOperation.run();
+	        }
         } 		
 	}
 

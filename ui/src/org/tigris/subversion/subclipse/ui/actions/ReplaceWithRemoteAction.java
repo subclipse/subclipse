@@ -43,7 +43,7 @@ public class ReplaceWithRemoteAction extends WorkspaceAction {
 		if (resources == null || resources.length == 0) return;
 		
 		// Peform the replace in the background
-		new ReplaceOperation(getTargetPart(), resources, this.revision, true).run();
+		new ReplaceOperation(getTargetPart(), resources, this.revision).run();
 	}
 	
 	/**

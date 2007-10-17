@@ -97,7 +97,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 //		new UpdateOperation(getPart(), resourceArray, revision, true).run();
 		try {	
 			SVNWorkspaceSubscriber.getInstance().updateRemote(resourceArray);
-	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resourceArray, revision, true);
+	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resourceArray, revision);
 	        command.run(Policy.subMonitorFor(monitor,100));		
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());

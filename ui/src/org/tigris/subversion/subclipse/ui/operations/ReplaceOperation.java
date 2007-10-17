@@ -35,8 +35,8 @@ public class ReplaceOperation extends UpdateOperation {
      * @param part
      * @param resources
      */
-    public ReplaceOperation(IWorkbenchPart part, IResource[] resources, SVNRevision revision, boolean recursive) {
-        super(part, resources, revision, recursive);
+    public ReplaceOperation(IWorkbenchPart part, IResource[] resources, SVNRevision revision) {
+        super(part, resources, revision);
 		this.revision = revision;
     }
 
