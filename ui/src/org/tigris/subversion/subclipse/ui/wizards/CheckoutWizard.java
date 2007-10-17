@@ -373,11 +373,23 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 		CheckoutUsingProjectWizardAction checkoutAction = new CheckoutUsingProjectWizardAction(remoteFolders);
 		try {
 			if (remoteFolders.length == 1) {
-				if (hasProjectFile)
+				if (hasProjectFile) {
 					checkoutAction.setSvnRevision(checkoutAsWithProjectFilePage.getRevision());
-				else
+					checkoutAction.setDepth(checkoutAsWithProjectFilePage.getDepth());
+					checkoutAction.setIgnoreExternals(checkoutAsWithProjectFilePage.isIgnoreExternals());
+					checkoutAction.setForce(checkoutAsWithProjectFilePage.isForce());
+				} else {
 					checkoutAction.setSvnRevision(checkoutAsWithoutProjectFilePage.getRevision());
-			} else checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
+					checkoutAction.setDepth(checkoutAsWithoutProjectFilePage.getDepth());
+					checkoutAction.setIgnoreExternals(checkoutAsWithoutProjectFilePage.isIgnoreExternals());
+					checkoutAction.setForce(checkoutAsWithoutProjectFilePage.isForce());					
+				}
+			} else {
+				checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
+				checkoutAction.setDepth(checkoutAsMultiplePage.getDepth());
+				checkoutAction.setIgnoreExternals(checkoutAsMultiplePage.isIgnoreExternals());
+				checkoutAction.setForce(checkoutAsMultiplePage.isForce());				
+			}
 			checkoutAction.execute(null);
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), Policy
@@ -391,11 +403,23 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 		CheckoutIntoAction checkoutAction = new CheckoutIntoAction(remoteFolders, projectName, projectPage.getCanonicalLocation(), getShell());
 		try {
 			if (remoteFolders.length == 1) {
-				if (hasProjectFile)
+				if (hasProjectFile) {
 					checkoutAction.setSvnRevision(checkoutAsWithProjectFilePage.getRevision());
-				else
+					checkoutAction.setDepth(checkoutAsWithProjectFilePage.getDepth());
+					checkoutAction.setIgnoreExternals(checkoutAsWithProjectFilePage.isIgnoreExternals());
+					checkoutAction.setForce(checkoutAsWithProjectFilePage.isForce());
+				} else {
 					checkoutAction.setSvnRevision(checkoutAsWithoutProjectFilePage.getRevision());
-			} else checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
+					checkoutAction.setDepth(checkoutAsWithoutProjectFilePage.getDepth());
+					checkoutAction.setIgnoreExternals(checkoutAsWithoutProjectFilePage.isIgnoreExternals());
+					checkoutAction.setForce(checkoutAsWithoutProjectFilePage.isForce());					
+				}
+			} else {
+				checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
+				checkoutAction.setDepth(checkoutAsMultiplePage.getDepth());
+				checkoutAction.setIgnoreExternals(checkoutAsMultiplePage.isIgnoreExternals());
+				checkoutAction.setForce(checkoutAsMultiplePage.isForce());				
+			}
 			checkoutAction.execute(null);
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), Policy
@@ -409,11 +433,23 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 		CheckoutAsProjectAction checkoutAction = new CheckoutAsProjectAction(remoteFolders, projectName, getShell());
 		try {
 			if (remoteFolders.length == 1) {
-				if (hasProjectFile)
+				if (hasProjectFile) {
 					checkoutAction.setSvnRevision(checkoutAsWithProjectFilePage.getRevision());
-				else
+					checkoutAction.setDepth(checkoutAsWithProjectFilePage.getDepth());
+					checkoutAction.setIgnoreExternals(checkoutAsWithProjectFilePage.isIgnoreExternals());
+					checkoutAction.setForce(checkoutAsWithProjectFilePage.isForce());
+				} else {
 					checkoutAction.setSvnRevision(checkoutAsWithoutProjectFilePage.getRevision());
-			} else checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
+					checkoutAction.setDepth(checkoutAsWithoutProjectFilePage.getDepth());
+					checkoutAction.setIgnoreExternals(checkoutAsWithoutProjectFilePage.isIgnoreExternals());
+					checkoutAction.setForce(checkoutAsWithoutProjectFilePage.isForce());					
+				}
+			} else {
+				checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
+				checkoutAction.setDepth(checkoutAsMultiplePage.getDepth());
+				checkoutAction.setIgnoreExternals(checkoutAsMultiplePage.isIgnoreExternals());
+				checkoutAction.setForce(checkoutAsMultiplePage.isForce());				
+			}
 			checkoutAction.execute(null);
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), Policy

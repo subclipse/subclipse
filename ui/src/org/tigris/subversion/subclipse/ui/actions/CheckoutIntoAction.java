@@ -26,6 +26,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -43,6 +44,9 @@ public class CheckoutIntoAction extends CheckoutAsProjectAction {
 	private String projectName;
 	private String intoDirectory;
 	private SVNRevision svnRevision = SVNRevision.HEAD;
+    private int depth = ISVNCoreConstants.DEPTH_INFINITY;
+    private boolean ignoreExternals = false;
+    private boolean force = true;	
 	
 	public CheckoutIntoAction(ISVNRemoteFolder[] selectedFolders, String projectName, String intoDirectory, Shell shell) {
 		super();
@@ -136,6 +140,9 @@ public class CheckoutIntoAction extends CheckoutAsProjectAction {
 	    if (proceed) {
 	    	CheckoutAsProjectOperation checkoutAsProjectOperation = new CheckoutAsProjectOperation(getTargetPart(), remoteFolders, localFolders, intoDir);
 	    	checkoutAsProjectOperation.setSvnRevision(svnRevision);
+	    	checkoutAsProjectOperation.setDepth(depth);
+	    	checkoutAsProjectOperation.setIgnoreExternals(ignoreExternals);
+	    	checkoutAsProjectOperation.setForce(force);	    	
 	    	checkoutAsProjectOperation.run();
 	    }
 	}
@@ -148,5 +155,17 @@ public class CheckoutIntoAction extends CheckoutAsProjectAction {
 	public void setSvnRevision(SVNRevision svnRevision) {
 		this.svnRevision = svnRevision;
 	}
+	
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public void setIgnoreExternals(boolean ignoreExternals) {
+		this.ignoreExternals = ignoreExternals;
+	}
+
+	public void setForce(boolean force) {
+		this.force = force;
+	}				
 
 }

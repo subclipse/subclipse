@@ -23,6 +23,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -30,6 +31,7 @@ import org.eclipse.swt.widgets.Text;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.HistoryDialog;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -44,6 +46,9 @@ public class CheckoutWizardCheckoutAsWithProjectFilePage extends WizardPage {
 	private Text revisionText;
     private Button headButton;
     private Button revisionButton;
+	private Combo depthCombo;
+	private Button ignoreExternalsButton;
+	private Button forceButton;    
     
     private static final int REVISION_WIDTH_HINT = 40;
 
@@ -173,6 +178,36 @@ public class CheckoutWizardCheckoutAsWithProjectFilePage extends WizardPage {
 		projectButton.addSelectionListener(selectionListener);
 		existingButton.addSelectionListener(selectionListener);
 		
+		Group parameterGroup = new Group(outerContainer, SWT.NULL);
+		GridLayout parameterLayout = new GridLayout();
+		parameterLayout.numColumns = 2;
+		parameterGroup.setLayout(parameterLayout);
+		data = new GridData(GridData.FILL_BOTH);
+		data.horizontalSpan = 3;
+		parameterGroup.setLayoutData(data);	
+		
+		Label depthLabel = new Label(parameterGroup, SWT.NONE);
+		depthLabel.setText(Policy.bind("SvnDialog.depth")); //$NON-NLS-1$
+		depthCombo = new Combo(parameterGroup, SWT.READ_ONLY);
+		depthCombo.add(ISVNUIConstants.DEPTH_EMPTY);
+		depthCombo.add(ISVNUIConstants.DEPTH_FILES);
+		depthCombo.add(ISVNUIConstants.DEPTH_IMMEDIATES);
+		depthCombo.add(ISVNUIConstants.DEPTH_INFINITY);
+		depthCombo.select(depthCombo.indexOf(ISVNUIConstants.DEPTH_INFINITY));
+		
+		ignoreExternalsButton = new Button(parameterGroup, SWT.CHECK);
+		ignoreExternalsButton.setText(Policy.bind("SvnDialog.ignoreExternals")); //$NON-NLS-1$
+		data = new GridData();
+		data.horizontalSpan = 2;
+		ignoreExternalsButton.setLayoutData(data);
+		
+		forceButton = new Button(parameterGroup, SWT.CHECK);
+		forceButton.setText(Policy.bind("SvnDialog.force")); //$NON-NLS-1$
+		data = new GridData();
+		data.horizontalSpan = 2;
+		forceButton.setLayoutData(data);
+		forceButton.setSelection(true);		
+		
 		setMessage(Policy.bind("CheckoutWizardCheckoutAsPage.text")); //$NON-NLS-1$
 		
 		setControl(outerContainer);	
@@ -231,6 +266,18 @@ public class CheckoutWizardCheckoutAsWithProjectFilePage extends WizardPage {
 		if (svnRevision == null)
 			return SVNRevision.HEAD;
 		return svnRevision;
+	}
+	
+	public int getDepth() {
+		return depthCombo.getSelectionIndex();
+	}
+	
+	public boolean isIgnoreExternals() {
+		return ignoreExternalsButton.getSelection();
+	}
+	
+	public boolean isForce() {
+		return forceButton.getSelection();
 	}
 
 }

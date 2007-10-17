@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -31,6 +32,9 @@ public class CheckoutAsProjectOperation extends SVNOperation {
     private IProject[] localFolders;
     private IPath projectRoot;
     private SVNRevision svnRevision = SVNRevision.HEAD;
+    private int depth = ISVNCoreConstants.DEPTH_INFINITY;
+    private boolean ignoreExternals = false;
+    private boolean force = true;
 
     public CheckoutAsProjectOperation(IWorkbenchPart part, ISVNRemoteFolder[] remoteFolders, IProject[] localFolders) {
     	this(part, remoteFolders, localFolders, null);
@@ -88,6 +92,9 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 				command = new CheckoutCommand(remote, local, projectRoot);
 			}
 			command.setSvnRevision(svnRevision);
+			command.setDepth(depth);
+			command.setIgnoreExternals(ignoreExternals);
+			command.setForce(force);
 			command.setRefreshProjects(false);
 	    	command.run(monitor);
 		} catch (SVNException e) {
@@ -98,6 +105,18 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 	public void setSvnRevision(SVNRevision svnRevision) {
 		this.svnRevision = svnRevision;
 	}
+	
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public void setIgnoreExternals(boolean ignoreExternals) {
+		this.ignoreExternals = ignoreExternals;
+	}
+
+	public void setForce(boolean force) {
+		this.force = force;
+	}		
 	
 	/*
 	 * Bring the provided projects into the workspace
