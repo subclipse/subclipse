@@ -40,7 +40,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
     
     private SVNWorkspaceRoot root;
     
-    private int depth = ISVNCoreConstants.DEPTH_INFINITY;
+    private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
     private boolean ignoreExternals = false;
     private boolean force = true;
 
