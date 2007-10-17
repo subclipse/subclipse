@@ -44,7 +44,11 @@ public class SwitchAction extends WorkbenchWindowAction {
 	        if (dialog.open() == SvnWizardDialog.OK) {
 	            SVNUrl[] svnUrls = switchPage.getUrls();
 	            SVNRevision svnRevision = switchPage.getRevision();
-	            new SwitchOperation(getTargetPart(), resources, svnUrls, svnRevision).run();	        
+	            SwitchOperation switchOperation = new SwitchOperation(getTargetPart(), resources, svnUrls, svnRevision);
+	            switchOperation.setDepth(switchPage.getDepth());
+	            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
+	            switchOperation.setForce(switchPage.isForce());
+	            switchOperation.run();	        
 	        }
         }
     }

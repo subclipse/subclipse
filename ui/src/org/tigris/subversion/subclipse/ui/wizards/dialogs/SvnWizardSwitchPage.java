@@ -28,6 +28,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -42,6 +43,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.ChooseUrlDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.HistoryDialog;
@@ -61,10 +63,17 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
     private Button revisionButton;
     
 	private Table table;
-	private TableViewer viewer;    
+	private TableViewer viewer; 
+	
+	private Combo depthCombo;
+	private Button ignoreExternalsButton;
+	private Button forceButton;
     
     private SVNUrl[] urls;
     private SVNRevision revision;
+    private int depth;
+    private boolean ignoreExternals;
+    private boolean force;
     
     private String[] urlStrings;
     private String commonRoot;
@@ -206,6 +215,36 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 			});
 		}
 		
+		Group parameterGroup = new Group(composite, SWT.NULL);
+		GridLayout parameterLayout = new GridLayout();
+		parameterLayout.numColumns = 2;
+		parameterGroup.setLayout(parameterLayout);
+		data = new GridData(GridData.FILL_BOTH);
+		data.horizontalSpan = 3;
+		parameterGroup.setLayoutData(data);	
+		
+		Label depthLabel = new Label(parameterGroup, SWT.NONE);
+		depthLabel.setText(Policy.bind("SvnDialog.depth")); //$NON-NLS-1$
+		depthCombo = new Combo(parameterGroup, SWT.READ_ONLY);
+		depthCombo.add(ISVNUIConstants.DEPTH_EMPTY);
+		depthCombo.add(ISVNUIConstants.DEPTH_FILES);
+		depthCombo.add(ISVNUIConstants.DEPTH_IMMEDIATES);
+		depthCombo.add(ISVNUIConstants.DEPTH_INFINITY);
+		depthCombo.select(depthCombo.indexOf(ISVNUIConstants.DEPTH_INFINITY));
+		
+		ignoreExternalsButton = new Button(parameterGroup, SWT.CHECK);
+		ignoreExternalsButton.setText(Policy.bind("SvnDialog.ignoreExternals")); //$NON-NLS-1$
+		data = new GridData();
+		data.horizontalSpan = 2;
+		ignoreExternalsButton.setLayoutData(data);
+		
+		forceButton = new Button(parameterGroup, SWT.CHECK);
+		forceButton.setText(Policy.bind("SvnDialog.force")); //$NON-NLS-1$
+		data = new GridData();
+		data.horizontalSpan = 2;
+		forceButton.setLayoutData(data);
+		forceButton.setSelection(true);
+		
 		setPageComplete(canFinish());
 
 		// Add F1 help
@@ -265,6 +304,9 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
                   return false;   
                 }
             }
+            ignoreExternals = ignoreExternalsButton.getSelection();
+            force = forceButton.getSelection();
+            depth = depthCombo.getSelectionIndex();
         } catch (MalformedURLException e) {
             MessageDialog.openError(getShell(), Policy.bind("SwitchDialog.title"), e.getMessage()); //$NON-NLS-1$
             return false;
@@ -409,6 +451,18 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 	}
 
 	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
+	}
+
+	public int getDepth() {
+		return depth;
+	}
+
+	public boolean isIgnoreExternals() {
+		return ignoreExternals;
+	}
+
+	public boolean isForce() {
+		return force;
 	}	
 
 }

@@ -15,6 +15,7 @@ import java.util.HashMap;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IWorkbenchPart;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.SwitchToUrlCommand;
@@ -25,6 +26,10 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 public class SwitchOperation extends RepositoryProviderOperation {
     private SVNRevision svnRevision;
     private HashMap urlMap = new HashMap();
+    
+    private int depth = ISVNCoreConstants.DEPTH_INFINITY;
+    private boolean ignoreExternals = false;
+    private boolean force = true;    
     
     public SwitchOperation(IWorkbenchPart part, IResource[] resources, SVNUrl[] svnUrls, SVNRevision svnRevision) {
         super(part, resources);
@@ -48,7 +53,10 @@ public class SwitchOperation extends RepositoryProviderOperation {
 				monitor.subTask("Switching " + resources[i].getName() + ". . .");
 				SVNUrl svnUrl = (SVNUrl)urlMap.get(resources[i]);
 		    	SwitchToUrlCommand command = new SwitchToUrlCommand(provider.getSVNWorkspaceRoot(),resources[i], svnUrl, svnRevision);
-		        command.run(monitor);
+		        command.setDepth(depth);
+		        command.setIgnoreExternals(ignoreExternals);
+		        command.setForce(force);
+		    	command.run(monitor);
 		        monitor.worked(1);
 			}
 		} catch (SVNException e) {
@@ -57,5 +65,17 @@ public class SwitchOperation extends RepositoryProviderOperation {
 			monitor.done();
 		}  
     }
+    
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public void setIgnoreExternals(boolean ignoreExternals) {
+		this.ignoreExternals = ignoreExternals;
+	}
+
+	public void setForce(boolean force) {
+		this.force = force;
+	}    
 
 }
