@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRunnable;
@@ -61,6 +62,10 @@ public class CheckoutCommand implements ISVNCommand {
 	private IPath projectRoot;
 	
 	private SVNRevision svnRevision = SVNRevision.HEAD;
+	
+    private int depth = ISVNCoreConstants.DEPTH_INFINITY;
+    private boolean ignoreExternals = false;
+    private boolean force = true;
 	
 	private boolean refreshProjects = true;
 
@@ -194,7 +199,7 @@ public class CheckoutCommand implements ISVNCommand {
 			subPm.beginTask("", Policy.INFINITE_PM_GUESS_FOR_CHECKOUT);
 //			subPm.setTaskName("");
 			OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm));
-			svnClient.checkout(resource.getUrl(), destPath, svnRevision, true);
+			svnClient.checkout(resource.getUrl(), destPath, svnRevision, depth, ignoreExternals, force);
 		} catch (SVNClientException e) {
 			throw new SVNException("cannot checkout");
 		} finally {
@@ -351,5 +356,17 @@ public class CheckoutCommand implements ISVNCommand {
 	public void setRefreshProjects(boolean refreshProjects) {
 		this.refreshProjects = refreshProjects;
 	}
+	
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public void setIgnoreExternals(boolean ignoreExternals) {
+		this.ignoreExternals = ignoreExternals;
+	}
+
+	public void setForce(boolean force) {
+		this.force = force;
+	}	
 
 }
