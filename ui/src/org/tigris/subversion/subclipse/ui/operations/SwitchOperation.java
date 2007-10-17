@@ -27,7 +27,7 @@ public class SwitchOperation extends RepositoryProviderOperation {
     private SVNRevision svnRevision;
     private HashMap urlMap = new HashMap();
     
-    private int depth = ISVNCoreConstants.DEPTH_INFINITY;
+    private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
     private boolean ignoreExternals = false;
     private boolean force = true;    
     
