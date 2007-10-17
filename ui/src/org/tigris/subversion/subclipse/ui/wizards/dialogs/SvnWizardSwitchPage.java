@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -230,7 +231,8 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		depthCombo.add(ISVNUIConstants.DEPTH_FILES);
 		depthCombo.add(ISVNUIConstants.DEPTH_IMMEDIATES);
 		depthCombo.add(ISVNUIConstants.DEPTH_INFINITY);
-		depthCombo.select(depthCombo.indexOf(ISVNUIConstants.DEPTH_INFINITY));
+		depthCombo.add(ISVNUIConstants.DEPTH_UNKNOWN);
+		depthCombo.select(depthCombo.indexOf(ISVNUIConstants.DEPTH_UNKNOWN));
 		
 		ignoreExternalsButton = new Button(parameterGroup, SWT.CHECK);
 		ignoreExternalsButton.setText(Policy.bind("SvnDialog.ignoreExternals")); //$NON-NLS-1$
@@ -306,7 +308,8 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
             }
             ignoreExternals = ignoreExternalsButton.getSelection();
             force = forceButton.getSelection();
-            depth = depthCombo.getSelectionIndex();
+            if (depthCombo.getText().equals(ISVNUIConstants.DEPTH_UNKNOWN)) depth = ISVNCoreConstants.DEPTH_UNKNOWN;
+            else depth = depthCombo.getSelectionIndex();
         } catch (MalformedURLException e) {
             MessageDialog.openError(getShell(), Policy.bind("SwitchDialog.title"), e.getMessage()); //$NON-NLS-1$
             return false;

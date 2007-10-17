@@ -257,6 +257,7 @@ public interface ISVNUIConstants {
   public final String DEPTH_FILES = "files"; //$NON-NLS-1$
   public final String DEPTH_IMMEDIATES = "immediates"; //$NON-NLS-1$
   public final String DEPTH_INFINITY = "infinity"; //$NON-NLS-1$
+  public final String DEPTH_UNKNOWN = "unknown"; //$NON-NLS-1$
   
   // This is in Internal class in team.ui, so we are mirroring it
   public final static String HISTORY_VIEW_ID = "org.eclipse.team.ui.GenericHistoryView"; //$NON-NLS-1$
