@@ -14,6 +14,7 @@ import java.io.File;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
@@ -30,8 +31,10 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 public class UpdateResourcesCommand implements ISVNCommand {
     private SVNWorkspaceRoot root;
     private IResource[] resources;
-    private SVNRevision revision;
-    private boolean recursive;    
+    private SVNRevision revision; 
+    private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
+    private boolean ignoreExternals = false;
+    private boolean force = true;
     
     /**
      * Update the given resources.
@@ -42,13 +45,11 @@ public class UpdateResourcesCommand implements ISVNCommand {
      * @param root
      * @param resources
      * @param revision
-     * @param recursive
      */
-    public UpdateResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, SVNRevision revision, boolean recursive) {
+    public UpdateResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, SVNRevision revision) {
         this.root = root;
         this.resources = resources;
         this.revision = revision;
-        this.recursive = recursive;
     }
     
 	/* (non-Javadoc)
@@ -63,7 +64,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     		if (resources.length == 1)
     		{
                 monitor.subTask(resources[0].getName());
-                svnClient.update(resources[0].getLocation().toFile(),revision, recursive);
+                svnClient.update(resources[0].getLocation().toFile(),revision, depth, ignoreExternals, force);
                 monitor.worked(100);    			
     		}
     		else
@@ -72,7 +73,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     			for (int i = 0; i < resources.length; i++) {
 					files[i] = resources[i].getLocation().toFile();
 				}
-   				svnClient.update(files, revision, recursive, false);
+   				svnClient.update(files, revision, depth, ignoreExternals, force);
    				monitor.worked(100);
     		}
         } catch (SVNClientException e) {
@@ -82,6 +83,17 @@ public class UpdateResourcesCommand implements ISVNCommand {
             monitor.done();
         }        
 	}
-    
+
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public void setIgnoreExternals(boolean ignoreExternals) {
+		this.ignoreExternals = ignoreExternals;
+	}
+
+	public void setForce(boolean force) {
+		this.force = force;
+	}    
     
 }
