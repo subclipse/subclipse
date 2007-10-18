@@ -4,13 +4,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
@@ -19,16 +22,29 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.wizards.generatediff.GenerateDiffFileWizard;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 public class GenerateDiffFileSynchronizeOperation extends SVNSynchronizeOperation {
 
 	private ArrayList unaddedList;
+	private IResource[] selectedResources;
 	
 	public GenerateDiffFileSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
 		super(configuration, elements);
 	}
+	
+	public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+		SyncInfoSet syncSet = getSyncInfoSet();
+		final Map projectSyncInfos = getProjectSyncInfoSetMap(syncSet);
+		Iterator iter = projectSyncInfos.keySet().iterator();
+		final IProject project = (IProject) iter.next();
+		SVNTeamProvider provider = (SVNTeamProvider)RepositoryProvider.getProvider(project, SVNUIPlugin.PROVIDER_ID);
+		monitor.beginTask(null, projectSyncInfos.size() * 100);
+		run(provider, syncSet, Policy.subMonitorFor(monitor,100));
+		monitor.done();
+	}	
 
 	protected boolean promptForConflictHandling(Shell shell, SyncInfoSet syncSet) {
 		return true;
@@ -79,6 +95,7 @@ public class GenerateDiffFileSynchronizeOperation extends SVNSynchronizeOperatio
 		dedupedList.toArray(unversionedResources);
 		GenerateDiffFileWizard wizard = new GenerateDiffFileWizard(new StructuredSelection(resources), unversionedResources, statusMap);
 		wizard.setWindowTitle(Policy.bind("GenerateSVNDiff.title")); //$NON-NLS-1$
+		wizard.setSelectedResources(selectedResources);
 		final WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.setMinimumPageSize(350, 250);
 		getShell().getDisplay().syncExec(new Runnable() {
@@ -95,6 +112,10 @@ public class GenerateDiffFileSynchronizeOperation extends SVNSynchronizeOperatio
 			if (unaddedList.contains(parent)) return true;
 		}
 		return false;
+	}
+
+	public void setSelectedResources(IResource[] selectedResources) {
+		this.selectedResources = selectedResources;
 	}	
 
 }
