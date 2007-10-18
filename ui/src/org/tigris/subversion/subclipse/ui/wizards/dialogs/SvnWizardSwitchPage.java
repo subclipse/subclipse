@@ -37,12 +37,12 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.DepthComboHelper;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -227,12 +227,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		Label depthLabel = new Label(parameterGroup, SWT.NONE);
 		depthLabel.setText(Policy.bind("SvnDialog.depth")); //$NON-NLS-1$
 		depthCombo = new Combo(parameterGroup, SWT.READ_ONLY);
-		depthCombo.add(ISVNUIConstants.DEPTH_EMPTY);
-		depthCombo.add(ISVNUIConstants.DEPTH_FILES);
-		depthCombo.add(ISVNUIConstants.DEPTH_IMMEDIATES);
-		depthCombo.add(ISVNUIConstants.DEPTH_INFINITY);
-		depthCombo.add(ISVNUIConstants.DEPTH_UNKNOWN);
-		depthCombo.select(depthCombo.indexOf(ISVNUIConstants.DEPTH_UNKNOWN));
+		DepthComboHelper.addDepths(depthCombo, true, ISVNUIConstants.DEPTH_UNKNOWN);
 		
 		ignoreExternalsButton = new Button(parameterGroup, SWT.CHECK);
 		ignoreExternalsButton.setText(Policy.bind("SvnDialog.ignoreExternals")); //$NON-NLS-1$
@@ -308,8 +303,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
             }
             ignoreExternals = ignoreExternalsButton.getSelection();
             force = forceButton.getSelection();
-            if (depthCombo.getText().equals(ISVNUIConstants.DEPTH_UNKNOWN)) depth = ISVNCoreConstants.DEPTH_UNKNOWN;
-            else depth = depthCombo.getSelectionIndex();
+            depth = DepthComboHelper.getDepth(depthCombo);
         } catch (MalformedURLException e) {
             MessageDialog.openError(getShell(), Policy.bind("SwitchDialog.title"), e.getMessage()); //$NON-NLS-1$
             return false;

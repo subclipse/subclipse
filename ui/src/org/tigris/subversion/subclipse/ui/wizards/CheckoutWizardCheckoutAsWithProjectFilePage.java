@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Text;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.ui.DepthComboHelper;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.HistoryDialog;
@@ -189,11 +190,7 @@ public class CheckoutWizardCheckoutAsWithProjectFilePage extends WizardPage {
 		Label depthLabel = new Label(parameterGroup, SWT.NONE);
 		depthLabel.setText(Policy.bind("SvnDialog.depth")); //$NON-NLS-1$
 		depthCombo = new Combo(parameterGroup, SWT.READ_ONLY);
-		depthCombo.add(ISVNUIConstants.DEPTH_EMPTY);
-		depthCombo.add(ISVNUIConstants.DEPTH_FILES);
-		depthCombo.add(ISVNUIConstants.DEPTH_IMMEDIATES);
-		depthCombo.add(ISVNUIConstants.DEPTH_INFINITY);
-		depthCombo.select(depthCombo.indexOf(ISVNUIConstants.DEPTH_INFINITY));
+		DepthComboHelper.addDepths(depthCombo, false, ISVNUIConstants.DEPTH_INFINITY);
 		
 		ignoreExternalsButton = new Button(parameterGroup, SWT.CHECK);
 		ignoreExternalsButton.setText(Policy.bind("SvnDialog.ignoreExternals")); //$NON-NLS-1$
@@ -269,7 +266,7 @@ public class CheckoutWizardCheckoutAsWithProjectFilePage extends WizardPage {
 	}
 	
 	public int getDepth() {
-		return depthCombo.getSelectionIndex();
+		return DepthComboHelper.getDepth(depthCombo);
 	}
 	
 	public boolean isIgnoreExternals() {
