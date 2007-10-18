@@ -55,6 +55,7 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 	private boolean recursive;
 	private boolean toClipboard;
 	private ArrayList newFiles;
+	private IResource[] selectedResources;
 
 	GenerateDiffFileOperation(IResource[] resources, IResource[] unaddedResources, File file, boolean toClipboard, boolean recursive, Shell shell) {
 		this.resources = resources;
@@ -145,8 +146,12 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 			try {
 					monitor.worked(100);
 				File[] files = getVersionedFiles();
-                svnClient.diff(files,tmpFile,recursive);
- 					monitor.worked(300);                
+				if (selectedResources == null) svnClient.diff(files,tmpFile,recursive);
+				else {
+					File relativeToPath = getRelativeToPath();
+                    svnClient.createPatch(files, relativeToPath, tmpFile, recursive);
+				}
+ 				monitor.worked(300);     
                 InputStream is = new FileInputStream(tmpFile);
                 byte[] buffer = new byte[30000];
                 int length;
@@ -212,6 +217,26 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 		}
 	}
 	
+	private File getRelativeToPath() {
+		if (selectedResources.length == 1) {
+			return new File(selectedResources[0].getLocation().toString());
+		}
+		String commonRoot = null;
+		String path = selectedResources[0].getLocation().toString();
+		tag1:		
+		for (int i = 0; i < path.length(); i++) {
+			String partialPath = path.substring(0, i+1);
+			if (partialPath.endsWith("/") || partialPath.endsWith("\\")) {
+	    		for (int j = 1; j < selectedResources.length; j++) {
+	    			if (!selectedResources[j].getLocation().toString().startsWith(partialPath)) break tag1;
+	    		}
+	    		commonRoot = partialPath.substring(0, i);				
+			}
+		}
+		if (commonRoot != null) return new File(commonRoot);
+		return null;
+	}
+	
 	private File[] getVersionedFiles() {
 		ArrayList versionedFileList = new ArrayList();
 		ArrayList unaddedResourceList = new ArrayList();
@@ -234,5 +259,10 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 			if (list.contains(parent)) return true;
 		}
 		return false;
+	}
+
+
+	public void setSelectedResources(IResource[] selectedResources) {
+		this.selectedResources = selectedResources;
 	}
 }

@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
@@ -79,6 +78,7 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 		unaddedList.toArray(unaddedResources);
 		GenerateDiffFileWizard wizard = new GenerateDiffFileWizard(new StructuredSelection(modifiedResources), unaddedResources, statusMap);
 		wizard.setWindowTitle(title);
+		wizard.setSelectedResources(getSelectedResources());
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.setMinimumPageSize(350, 250);
 		dialog.open();
@@ -86,18 +86,6 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 	
 	protected boolean isEnabled() throws TeamException {
 		boolean isEnabled = super.isEnabled();
-		
-		// Only allow multiple selections from same project.
-		if (isEnabled) {
-			IResource[] resources = getSelectedResources();
-			IProject project = null;
-			for (int i = 0; i < resources.length; i++) {
-				if (project != null && !resources[i].getProject().equals(project))
-					return false;
-				project = resources[i].getProject();
-			}
-		}
-		
 		return isEnabled;
 	}
 

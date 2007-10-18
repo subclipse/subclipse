@@ -41,6 +41,7 @@ public class GenerateDiffFileWizard extends Wizard {
 	private IStructuredSelection selection;
 	private IResource[] unaddedResources;
 	private HashMap statusMap;
+	private IResource[] selectedResources;
 
 	// end of PatchFileCreationOptionsPage
 	
@@ -120,12 +121,16 @@ public class GenerateDiffFileWizard extends Wizard {
 						return false;
 					}
 				}
-				getContainer().run(true, true, new GenerateDiffFileOperation(getResources(), getUnaddedResources(), file, false, false, getShell()));
+				GenerateDiffFileOperation generateDiffFileOperation = new GenerateDiffFileOperation(getResources(), getUnaddedResources(), file, false, false, getShell());
+				generateDiffFileOperation.setSelectedResources(selectedResources);
+				getContainer().run(true, true, generateDiffFileOperation);
 				if(type==mainPage.WORKSPACE) {
 					ws.getParent().refreshLocal(IResource.DEPTH_ONE, null);
 				}
 			} else {
-				getContainer().run(true, true, new GenerateDiffFileOperation(getResources(), getUnaddedResources(), null, true, false, getShell()));
+				GenerateDiffFileOperation generateDiffFileOperation = new GenerateDiffFileOperation(getResources(), getUnaddedResources(), null, true, false, getShell());
+				generateDiffFileOperation.setSelectedResources(selectedResources);
+				getContainer().run(true, true, generateDiffFileOperation);
 			}
 			return true;
 		} catch (InterruptedException e1) {
@@ -171,5 +176,9 @@ public class GenerateDiffFileWizard extends Wizard {
 			if (index != -1) return (IResource)unaddedResourceList.get(index);
 		}
 		return null;
+	}
+
+	public void setSelectedResources(IResource[] selectedResources) {
+		this.selectedResources = selectedResources;
 	}
 }
