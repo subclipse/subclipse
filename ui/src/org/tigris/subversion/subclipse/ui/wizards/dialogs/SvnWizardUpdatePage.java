@@ -86,6 +86,7 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 		
 		revisionButton = new Button(revisionGroup, SWT.RADIO);
 		revisionButton.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
+		if (commonRoot == null) revisionButton.setEnabled(false);
 		
 		headButton.setSelection(true);
 		
