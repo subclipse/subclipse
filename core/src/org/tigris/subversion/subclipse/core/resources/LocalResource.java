@@ -423,11 +423,11 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().createSVNClient();
 	        SVNProviderPlugin.disableConsoleLogging(); 
 			ISVNProperty prop = svnClient.propertyGet(getFile(),name);
-	        SVNProviderPlugin.enableConsoleLogging();
 	        return prop;
 		} catch (SVNClientException e) {
-	        SVNProviderPlugin.enableConsoleLogging(); 
 	        throw SVNException.wrapException(e); 
+		} finally {
+	        SVNProviderPlugin.enableConsoleLogging(); 
 		}
 	}
 
