@@ -15,6 +15,7 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
@@ -39,6 +40,7 @@ public class RevertResourcesCommand implements ISVNCommand {
     private final IResource[] resources;
     private IResource[] resourcesToRevert;
     private boolean recurse = false;
+    private IProject project;
 
     public RevertResourcesCommand(SVNWorkspaceRoot root, IResource[] resources) {
         this.root = root;
@@ -80,22 +82,24 @@ public class RevertResourcesCommand implements ISVNCommand {
             // local history first.  Also remove unversioned resources.
             if (recurse && resourcesToRevert != null) {
             	for (int i = 0; i < resourcesToRevert.length; i++) {
-            		try {
-						Util.saveLocalHistory(resourcesToRevert[i]);
-					} catch (CoreException e) {
-						e.printStackTrace();
-					} 
-					LocalResourceStatus status = SVNWorkspaceRoot.getSVNResourceFor( resourcesToRevert[i] ).getStatus();
-					if (!(resourcesToRevert[i].getType() == IResource.FOLDER) || !status.isAdded()) {
-						if (!status.isManaged()) {
-	                		try {
-								resourcesToRevert[i].delete(true, monitor);
-	                		}
-	                		catch (CoreException ex) {
-	                			throw SVNException.wrapException(ex);
-	                		}							
+            		if (project == null || resourcesToRevert[i].getProject().equals(project)) {
+	            		try {
+							Util.saveLocalHistory(resourcesToRevert[i]);
+						} catch (CoreException e) {
+							e.printStackTrace();
+						} 
+						LocalResourceStatus status = SVNWorkspaceRoot.getSVNResourceFor( resourcesToRevert[i] ).getStatus();
+						if (!(resourcesToRevert[i].getType() == IResource.FOLDER) || !status.isAdded()) {
+							if (!status.isManaged()) {
+		                		try {
+									resourcesToRevert[i].delete(true, monitor);
+		                		}
+		                		catch (CoreException ex) {
+		                			throw SVNException.wrapException(ex);
+		                		}							
+							}
 						}
-					}
+            		}
             	}
             }
             for (int i = 0; i < resources.length; i++) {
@@ -170,5 +174,9 @@ public class RevertResourcesCommand implements ISVNCommand {
 
 	public void setResourcesToRevert(IResource[] resourcesToRevert) {
 		this.resourcesToRevert = resourcesToRevert;
+	}
+
+	public void setProject(IProject project) {
+		this.project = project;
 	}
 }
