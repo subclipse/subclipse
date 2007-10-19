@@ -131,6 +131,8 @@ public class Util {
 	 */
 	public static void saveLocalHistory(IResource resource) throws CoreException {
 		if (resource instanceof IFile && resource.exists()) {
+			if (!resource.isSynchronized(IResource.DEPTH_ZERO))
+				resource.refreshLocal(IResource.DEPTH_ZERO, null);
 			((IFile)resource).appendContents(new ByteArrayInputStream(new byte[0]),IResource.KEEP_HISTORY, null);
 		}
 	}
