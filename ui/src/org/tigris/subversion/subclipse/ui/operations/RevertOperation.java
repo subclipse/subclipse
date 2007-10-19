@@ -50,6 +50,7 @@ public class RevertOperation extends RepositoryProviderOperation {
             RevertResourcesCommand command = new RevertResourcesCommand(provider.getSVNWorkspaceRoot(),resources);
             command.setRecurse(recurse);
             command.setResourcesToRevert(resourcesToRevert);
+            command.setProject(provider.getProject());
             command.run(Policy.subMonitorFor(monitor,100));
         } catch (SVNException e) {
             collectStatus(e.getStatus());
