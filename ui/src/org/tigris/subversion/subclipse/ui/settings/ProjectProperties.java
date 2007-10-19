@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.settings;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -272,7 +269,7 @@ public class ProjectProperties {
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         ISVNProperty property = null;
         boolean hasBugtraq = false;
-        if (svnResource != null && svnResource.isManaged()) {
+        if (svnResource != null) {
             try {
 				property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
 	            if( property != null && !"".equals(property.getValue().trim()) ) {
@@ -309,7 +306,7 @@ public class ProjectProperties {
             if (checkResource.getParent() == null) return null;
             try {
 	            svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
-	            if (svnResource.isManaged()) {
+	            if (svnResource != null) {
 	                property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
 	                if( property == null )
 	                	property = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
