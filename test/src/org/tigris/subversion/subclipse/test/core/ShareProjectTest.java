@@ -60,7 +60,7 @@ public class ShareProjectTest extends SubclipseTest {
 		ISVNRepositoryLocation location = SVNRepositoryLocation.fromString("file:///home/invaliduser/svnrepos");
 		
 		try {
-			SVNWorkspaceRoot.shareProject(location,testProject.getProject(),null,null, new NullProgressMonitor());
+			SVNWorkspaceRoot.shareProject(location,testProject.getProject(),null,null, true, new NullProgressMonitor());
 			fail("project should not have been shared");
 		} catch (TeamException e) {
 		}

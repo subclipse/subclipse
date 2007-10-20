@@ -35,8 +35,6 @@ import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.commandline.CmdLineClientAdapterFactory;
-import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
 
 public abstract class SubclipseTest extends TestCase {
     protected SVNRepositories repositories;
@@ -75,23 +73,10 @@ public abstract class SubclipseTest extends TestCase {
         String mode = System.getProperty("svn.mode");
         SVNProviderPlugin plugin = SVNProviderPlugin.getPlugin();
         SVNClientManager svnClientManager = plugin.getSVNClientManager();
-
+        if (mode == null)
+        	mode = "javahl";
         
-        if (mode == null || mode.equalsIgnoreCase("javahl")) {
-            svnClientManager.setSvnClientInterface(JhlClientAdapterFactory.JAVAHL_CLIENT);
-            if (svnClientManager.getSvnClientInterface().equals(JhlClientAdapterFactory.JAVAHL_CLIENT)) {
-                System.out.println("Warning : Can't use Javahl");
-            }
-        } else if (mode.equalsIgnoreCase("cli")) {
-            svnClientManager
-                    .setSvnClientInterface(CmdLineClientAdapterFactory.COMMANDLINE_CLIENT);
-            if (svnClientManager.getSvnClientInterface().equals(CmdLineClientAdapterFactory.COMMANDLINE_CLIENT)) {
-                System.out
-                        .println("Warning : Can't use command line interface");
-            }
-        } else {
-            throw new RuntimeException("Unknown svn.mode: " + mode);
-        }
+        svnClientManager.setSvnClientInterface(mode.toLowerCase());
 
         // we create the repository
         ISVNClientAdapter svnClient = svnClientManager.createSVNClient();
@@ -217,7 +202,7 @@ public abstract class SubclipseTest extends TestCase {
      * @throws Exception
      */
     protected void shareProject(IProject project) throws TeamException {
-        SVNWorkspaceRoot.shareProject(repositoryLocation, project, null, null, new NullProgressMonitor());
+        SVNWorkspaceRoot.shareProject(repositoryLocation, project, null, null, true, new NullProgressMonitor());
     }
 
     /**
