@@ -90,7 +90,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		if (svnInfo == null) {
 			Text errorText = new Text(composite, SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 			GridData data = new GridData();
-			data.widthHint = 300;
+			data.widthHint = 600;
 			data.heightHint = 100;
 			errorText.setLayoutData(data);
 			errorText.setEditable(false);
@@ -110,7 +110,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		urlLabel.setText(Policy.bind("RemoteResourcePropertiesDialog.url"));
 		Text urlText = new Text(infoGroup, SWT.BORDER);
 		data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 600;
 		urlText.setLayoutData(data);
 		urlText.setEditable(false);
 		urlText.setText(remoteResource.getUrl().toString());
@@ -119,7 +119,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		authorLabel.setText(Policy.bind("RemoteResourcePropertiesDialog.author"));
 		Text authorText = new Text(infoGroup, SWT.BORDER);
 		data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 600;
 		authorText.setLayoutData(data);
 		authorText.setEditable(false);
 		authorText.setText(svnInfo.getLastCommitAuthor());
@@ -128,7 +128,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		revisionLabel.setText(Policy.bind("RemoteResourcePropertiesDialog.revision"));
 		Text revisionText = new Text(infoGroup, SWT.BORDER);
 		data = new GridData();
-		data.widthHint = 75;
+		data.widthHint = 600;
 		revisionText.setLayoutData(data);
 		revisionText.setEditable(false);
 		revisionText.setText(svnInfo.getLastChangedRevision().toString());
@@ -137,7 +137,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		dateLabel.setText(Policy.bind("RemoteResourcePropertiesDialog.date"));
 		Text dateText = new Text(infoGroup, SWT.BORDER);
 		data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 600;
 		dateText.setLayoutData(data);
 		dateText.setEditable(false);
 		dateText.setText(svnInfo.getLastChangedDate().toString());
@@ -152,7 +152,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 				lockOwnerLabel.setText(Policy.bind("RemoteResourcePropertiesDialog.lockOwner"));
 				Text lockOwnerText = new Text(infoGroup, SWT.BORDER);
 				data = new GridData();
-				data.widthHint = 300;
+				data.widthHint = 600;
 				lockOwnerText.setLayoutData(data);
 				lockOwnerText.setEditable(false);
 				lockOwnerText.setText(svnInfo.getLockOwner());				
@@ -166,7 +166,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 				lockCreatedLabel.setText(Policy.bind("RemoteResourcePropertiesDialog.lockCreated"));
 				Text lockCreatedText = new Text(infoGroup, SWT.BORDER);
 				data = new GridData();
-				data.widthHint = 300;
+				data.widthHint = 600;
 				lockCreatedText.setLayoutData(data);
 				lockCreatedText.setEditable(false);
 				lockCreatedText.setText(svnInfo.getLockCreationDate().toString());				
@@ -183,7 +183,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 				lockCommentLabel.setLayoutData(data);
 				Text lockCommentText = new Text(infoGroup, SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 				data = new GridData();
-				data.widthHint = 300;
+				data.widthHint = 600;
 				data.heightHint = 100;
 				data.horizontalSpan = 2;
 				lockCommentText.setLayoutData(data);
@@ -221,9 +221,8 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		// set f1 help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.REMOTE_RESOURCE_PROPERTIES_DIALOG);	
 
-		data = new GridData();
-		data.widthHint = 500;
-		data.heightHint = 100;
+		data = new GridData(GridData.FILL_HORIZONTAL);
+		data.heightHint = 150;
 		table.setLayoutData(data);
 		
 		return composite;

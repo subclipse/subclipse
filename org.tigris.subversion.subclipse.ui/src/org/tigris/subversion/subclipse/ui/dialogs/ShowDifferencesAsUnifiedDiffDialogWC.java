@@ -97,8 +97,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 		Label pathLabel = new Label(fromGroup, SWT.NONE);
 		pathLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.path")); //$NON-NLS-1$
 		Text pathText = new Text(fromGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 450;
+		data = new GridData(GridData.FILL_HORIZONTAL);
 		pathText.setLayoutData(data);
 		pathText.setEditable(false);
 		pathText.setText(resource.getFullPath().toString());
@@ -113,7 +112,9 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 		
 		Label toUrlLabel = new Label(toGroup, SWT.NONE);
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
-		toUrlText = new UrlCombo(toGroup, resource.getProject().getName());
+		data = new GridData();
+		data.widthHint = 500;
+		toUrlText = new UrlCombo(toGroup, resource.getProject().getName(), data);
 		
 		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		toUrlText.setText(localResource.getUrl().toString());

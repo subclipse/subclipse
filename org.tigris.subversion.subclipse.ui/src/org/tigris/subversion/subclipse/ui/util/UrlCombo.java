@@ -25,6 +25,7 @@ public class UrlCombo extends Composite {
     private Combo combo;
     private IDialogSettings settings;
     private String project;
+    private GridData gridData;
     
     private static final int URL_WIDTH_HINT = 450;
 
@@ -33,6 +34,13 @@ public class UrlCombo extends Composite {
         this.project = project;
         createCombo();
     }
+    
+    public UrlCombo(Composite parent, String project, GridData gd) {
+        super(parent, SWT.NONE);
+        this.project = project;
+        this.gridData = gd;
+        createCombo();
+    }    
 
     private void createCombo() {
         GridLayout layout = new GridLayout();
@@ -40,9 +48,11 @@ public class UrlCombo extends Composite {
         layout.marginWidth = 0;
         setLayout(layout);
         combo = new Combo(this, SWT.BORDER);
-        GridData data = new GridData();
-        data.widthHint = URL_WIDTH_HINT;
-        combo.setLayoutData(data);
+        if (gridData == null) {
+	        gridData = new GridData();
+	        gridData.widthHint = URL_WIDTH_HINT;
+        }
+        combo.setLayoutData(gridData);
         settings = SVNUIPlugin.getPlugin().getDialogSettings();
         for (int i = 0; i < 5; i++) {
             String url = settings.get("UrlCombo."  + project  + "." + i); //$NON-NLS-1$ //$NON-NLS-2$

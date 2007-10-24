@@ -96,8 +96,7 @@ public class DifferencesDialog extends TrayDialog {
 		fromUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		fromUrlText = new Text(fromGroup, SWT.BORDER);
 		fromUrlText.setEditable(false);
-		data = new GridData();
-		data.widthHint = 300;
+		data = new GridData(GridData.FILL_HORIZONTAL);
 		fromUrlText.setLayoutData(data);
 		fromUrlText.setText(remoteResources[0].getUrl().toString());
 		
@@ -148,8 +147,7 @@ public class DifferencesDialog extends TrayDialog {
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		toUrlText = new Text(toGroup, SWT.BORDER);
 		toUrlText.setEditable(false);
-		data = new GridData();
-		data.widthHint = 300;
+		data = new GridData(GridData.FILL_HORIZONTAL);
 		toUrlText.setLayoutData(data);
 		if (remoteResources.length < 2 || remoteResources[1] == null)
 			toUrlText.setText(remoteResources[0].getUrl().toString());

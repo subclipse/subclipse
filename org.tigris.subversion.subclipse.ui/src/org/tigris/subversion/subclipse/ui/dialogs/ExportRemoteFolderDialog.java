@@ -80,7 +80,7 @@ public class ExportRemoteFolderDialog extends TrayDialog {
 		
 		Text urlText = new Text(repositoryGroup, SWT.BORDER);
 		data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 600;
 		urlText.setLayoutData(data);
 		urlText.setEditable(false);
 		urlText.setText(remoteResource.getUrl().toString());
@@ -94,7 +94,7 @@ public class ExportRemoteFolderDialog extends TrayDialog {
 		directoryLabel.setLayoutData(data);
 		directoryText = new Text(repositoryGroup, SWT.BORDER);
 		data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 600;
 		directoryText.setLayoutData(data);
 		directoryText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {

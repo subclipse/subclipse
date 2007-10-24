@@ -49,7 +49,7 @@ public class RelocateWizardUrlPage extends WizardPage {
 		Text urlText = new Text(outerContainer, SWT.BORDER);
 		urlText.setEditable(false);
 		GridData data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 600;
 		urlText.setLayoutData(data);
 		urlText.setText(url);
 		
@@ -57,7 +57,7 @@ public class RelocateWizardUrlPage extends WizardPage {
 		newUrlLabel.setText(Policy.bind("RelocateWizard.newUrlLabel")); //$NON-NLS-1$
 		newUrlText = new Text(outerContainer, SWT.BORDER);
 		data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 600;
 		newUrlText.setLayoutData(data);
 		newUrlText.setText(url);
 		

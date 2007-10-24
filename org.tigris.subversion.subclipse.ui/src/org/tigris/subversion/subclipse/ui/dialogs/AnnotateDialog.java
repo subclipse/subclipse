@@ -77,7 +77,7 @@ public class AnnotateDialog extends TrayDialog {
 		Text urlText = new Text(urlGroup, SWT.BORDER);
 		urlText.setEditable(false);
 		data = new GridData();
-		data.widthHint = 300;
+		data.widthHint = 600;
 		urlText.setLayoutData(data);
 		urlText.setText(remoteFile.getUrl().toString());
 		
