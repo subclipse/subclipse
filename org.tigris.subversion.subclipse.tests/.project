@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>test</name>
+	<name>org.tigris.subversion.subclipse.tests</name>
 	<comment></comment>
 	<projects>
 		<project>core</project>
