@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -49,7 +50,8 @@ public class BranchTagCommand implements ISVNCommand {
         try {
             monitor.beginTask(null, 100);
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
-            OperationManager.getInstance().beginOperation(svnClient);
+//            OperationManager.getInstance().beginOperation(svnClient);
+            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
             monitor.subTask(resource.getName());
             if (createOnServer) svnClient.copy(sourceUrl, destinationUrl, message, revision);
             else {
