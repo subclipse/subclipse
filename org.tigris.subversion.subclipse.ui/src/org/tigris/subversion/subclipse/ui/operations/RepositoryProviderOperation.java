@@ -88,7 +88,7 @@ public abstract class RepositoryProviderOperation extends SVNOperation {
 	 * @return
 	 */
 	protected ISchedulingRule getSchedulingRule(SVNTeamProvider provider) {
-		return provider.getProject();
+		return provider.getRuleFactory().modifyRule(provider.getProject());
 	}
 
 	/*
