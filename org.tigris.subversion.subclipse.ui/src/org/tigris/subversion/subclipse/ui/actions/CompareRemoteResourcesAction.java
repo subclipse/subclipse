@@ -19,6 +19,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -33,6 +34,7 @@ import org.tigris.subversion.subclipse.ui.compare.SVNFolderCompareEditorInput;
  */
 public class CompareRemoteResourcesAction extends SVNAction {
 	private ISVNRemoteResource[] remoteResources;
+	private ISVNResource[] localResources;
 
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		run(new IRunnableWithProgress() {
@@ -68,8 +70,12 @@ public class CompareRemoteResourcesAction extends SVNAction {
 
 			private void compareFolders(ISVNRemoteFolder folder1,
 					ISVNRemoteFolder folder2) {
-				CompareUI.openCompareEditorOnPage(
-						  new SVNFolderCompareEditorInput(folder1, folder2),
+				SVNFolderCompareEditorInput compareEditorInput = new SVNFolderCompareEditorInput(folder1, folder2);
+				if (localResources != null && localResources.length > 1) {
+					compareEditorInput.setLocalResource1(localResources[0]);
+					compareEditorInput.setLocalResource2(localResources[1]);
+				}
+				CompareUI.openCompareEditorOnPage(compareEditorInput,
 						  getTargetPage());
 			}
 		}, false /* cancelable */, PROGRESS_BUSYCURSOR);
@@ -107,6 +113,10 @@ public class CompareRemoteResourcesAction extends SVNAction {
 	protected ISVNRemoteResource[] getSelectedRemoteResources() {
 		if (remoteResources != null) return remoteResources;
 		return super.getSelectedRemoteResources();
+	}
+
+	public void setLocalResources(ISVNResource[] localResources) {
+		this.localResources = localResources;
 	}
 
 }

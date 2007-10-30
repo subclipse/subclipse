@@ -447,9 +447,10 @@ public class DifferencesDialog extends TrayDialog {
 			} else {
 				resource2 = (ISVNRemoteResource)toResource;;
 			}
-			ISVNRemoteResource[] remoteResources = { resource1, resource2 };
+			ISVNRemoteResource[] remotes = { resource1, resource2 };
     		CompareRemoteResourcesAction compareAction = new CompareRemoteResourcesAction();
-    		compareAction.setRemoteResources(remoteResources);
+    		compareAction.setRemoteResources(remotes);
+    		compareAction.setLocalResources(remoteResources);
     		try {
 				compareAction.execute(null);
 			} catch (InvocationTargetException e) {

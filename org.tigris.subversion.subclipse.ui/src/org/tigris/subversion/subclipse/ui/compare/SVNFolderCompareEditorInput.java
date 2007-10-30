@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -15,14 +16,18 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary.SVNDiffKind;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
 
@@ -35,6 +40,8 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 	private Image leftImage;
 	private Image rightImage;
 	private Image ancestorImage;
+	private ISVNResource localResource1;
+	private ISVNResource localResource2;
 	
 	public SVNFolderCompareEditorInput(ISVNRemoteFolder folder1, ISVNRemoteFolder folder2) {
 		super(new CompareConfiguration());
@@ -158,7 +165,20 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 			sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); //$NON-NLS-1$
 			try {
 				ISVNClientAdapter svnClient = folder1.getRepository().getSVNClient();
-				SVNDiffSummary[] diffSummary = svnClient.diffSummarize(folder1.getUrl(), folder1.getRevision(), folder2.getUrl(), folder2.getRevision(), Depth.infinity, false);				
+				SVNDiffSummary[] diffSummary = null;
+				if (folder1.getRepositoryRelativePath().equals(folder2.getRepositoryRelativePath()) && localResource1 != null) {
+					IResource resource1 = localResource1.getResource();
+					if (resource1 != null) {
+						ISVNLocalResource svnResource1 = SVNWorkspaceRoot.getSVNResourceFor(resource1);
+						if (svnResource1 != null) {
+							SVNRevision pegRevision = svnResource1.getRevision();
+							if (pegRevision != null) {
+								diffSummary = svnClient.diffSummarize(folder1.getUrl(), pegRevision, folder1.getRevision(), folder2.getRevision(), Depth.infinity, false);
+							}
+						}
+					}					
+				}
+				if (diffSummary == null) diffSummary = svnClient.diffSummarize(folder1.getUrl(), folder1.getRevision(), folder2.getUrl(), folder2.getRevision(), Depth.infinity, false);				
 				diffSummary = getDiffSummaryWithSubfolders(diffSummary);
 				left.setDiffSummary(diffSummary);
 				right.setDiffSummary(diffSummary);
@@ -202,4 +222,13 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 		diffs.toArray(diffSummary);
 		return diffSummary;
 	}
+
+	public void setLocalResource1(ISVNResource localResource1) {
+		this.localResource1 = localResource1;
+	}
+
+	public void setLocalResource2(ISVNResource localResource2) {
+		this.localResource2 = localResource2;
+	}
+
 }
