@@ -12,7 +12,11 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
@@ -27,6 +31,7 @@ import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.UpdateResourcesCommand;
@@ -69,32 +74,22 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	}
 
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-		IResource[] resourceArray = trimResources(extractResources(resources, set));
-		SVNRevision revision = null;
-		final SyncInfo[] syncInfos = set.getSyncInfos();
-		boolean containsDeletes = false;
-		for (int i = 0; i < syncInfos.length; i++) {
-			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
-			IResourceVariant remote = syncInfo.getRemote();
-			if (remote != null && remote instanceof ISVNRemoteResource) {
-				if (syncInfo.getRemoteResourceStatus() != null && syncInfo.getRemoteResourceStatus().getTextStatus() == SVNStatusKind.DELETED) {
-					containsDeletes = true;
-					continue;
-				} 
-				SVNRevision rev = ((ISVNRemoteResource)remote).getLastChangedRevision();
-				if (rev instanceof SVNRevision.Number) {
-					long nbr = ((SVNRevision.Number)rev).getNumber();
-					if (revision == null) revision = rev;
-					else {
-						long revisionNumber = ((SVNRevision.Number)revision).getNumber();
-						if (nbr > revisionNumber) revision = rev;
-					}
-				}
-			}
-		}
-		if (revision == null || containsDeletes) revision = SVNRevision.HEAD;
+		IResource[] resourceArray = extractResources(resources, set);
+		Map items = groupByRepository(resourceArray, set);
+		Set keys = items.keySet();
 		
-//		new UpdateOperation(getPart(), resourceArray, revision, true).run();
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			ISVNRepositoryLocation repos = (ISVNRepositoryLocation) iterator.next();
+			List resourceList = (List) items.get(repos);
+			resourceArray = new IResource[resourceList.size()];
+			resourceList.toArray(resourceArray);
+			SVNRevision revision = getRevisionForUpdate(resourceArray, set);
+			doUpdate(provider, monitor, trimResources(resourceArray), revision);
+		}
+	}
+
+	private void doUpdate(SVNTeamProvider provider, IProgressMonitor monitor,
+			IResource[] resourceArray, SVNRevision revision) {
 		try {	
 			SVNWorkspaceSubscriber.getInstance().updateRemote(resourceArray);
 	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resourceArray, revision);
@@ -106,6 +101,90 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
         } finally {
             monitor.done();
 		}
+	}
+
+	/**
+	 * This takes the items we are going to update and groups them by repository
+	 * We need to do this in case a project uses svn:externals to point to a
+	 * different repository.  If we do not do this, then later when we find the
+	 * highest revision number to update to, we can have a set of resources that
+	 * span multiple repositories (each with their own revision numbers)
+	 * 
+	 * @param resourceArray - Complete list of resources we will update
+	 * @param set - The set of selected items in the synch view
+	 * @return Map - the resources grouped by ISVNRepositoryLocation
+	 */
+	private Map groupByRepository(IResource[] resourceArray,
+			SyncInfoSet set) {
+		Map resourceMap = new HashMap();
+		final SyncInfo[] syncInfos = set.getSyncInfos();
+		for (int i = 0; i < syncInfos.length; i++) {
+			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
+			IResource local = syncInfo.getLocal();
+			resourceLoop:
+			for (int j = 0; j < resourceArray.length; j++) {
+				if (resourceArray[j].equals(local)) {
+					IResourceVariant remote = syncInfo.getRemote();
+					if (remote != null && remote instanceof ISVNRemoteResource) {
+						if (syncInfo.getRemoteResourceStatus() != null) {
+							ISVNRepositoryLocation repos = syncInfo.getRemoteResourceStatus().getRepository();
+							List resList = (List) resourceMap.get(repos);
+							if (resList == null)
+								resList = new ArrayList(resourceArray.length);
+							resList.add(resourceArray[j]);
+							resourceMap.put(repos, resList);
+						}
+					}
+					break resourceLoop;
+				}
+			}
+		}
+		return resourceMap;
+	}
+
+	/**
+	 * This method returns the highest revision number in the set of items
+	 * being updated or SVNRevision.HEAD if there are deleted items
+	 * 
+	 * @param resources - the resources being updated
+	 * @param set - the list of all selected items in synch view
+	 * @return
+	 */
+	private SVNRevision getRevisionForUpdate(IResource[] resources, SyncInfoSet set) {
+		SVNRevision revision = null;
+		final SyncInfo[] syncInfos = set.getSyncInfos();
+		boolean useHEAD = false;
+		syncInfoLoop:
+		for (int i = 0; i < syncInfos.length; i++) {
+			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
+			resourceLoop:
+			for (int j = 0; j < resources.length; j++) {
+				if (resources[j].equals(syncInfo.getLocal())) {
+					IResourceVariant remote = syncInfo.getRemote();
+					if (remote != null && remote instanceof ISVNRemoteResource) {
+						if (syncInfo.getRemoteResourceStatus() != null) {
+							if (syncInfo.getRemoteResourceStatus().getTextStatus() == SVNStatusKind.DELETED) {
+								// update contains deleted items
+								useHEAD = true;
+								break syncInfoLoop;
+							}
+						}
+						SVNRevision rev = ((ISVNRemoteResource)remote).getLastChangedRevision();
+						if (rev instanceof SVNRevision.Number) {
+							long nbr = ((SVNRevision.Number)rev).getNumber();
+							if (revision == null) revision = rev;
+							else {
+								long revisionNumber = ((SVNRevision.Number)revision).getNumber();
+								if (nbr > revisionNumber) revision = rev;
+							}
+						}
+					}
+					break resourceLoop;
+				}
+			}
+		}
+		if (revision == null || useHEAD) revision = SVNRevision.HEAD;
+		return revision;
 	}
 	
 	/**
@@ -174,5 +253,6 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	
 	protected String getJobName() {
 		return Policy.bind("UpdateOperation.taskName"); //$NON-NLS-1$;
-	}	
+	}
+	
 }
