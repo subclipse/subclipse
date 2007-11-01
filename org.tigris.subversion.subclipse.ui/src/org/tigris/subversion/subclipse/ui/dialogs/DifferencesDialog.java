@@ -399,7 +399,9 @@ public class DifferencesDialog extends TrayDialog {
 						fromUrl = remoteResources[1].getUrl();
 						toUrl = remoteResources[0].getUrl();								
 					}
-					new ShowDifferencesAsUnifiedDiffOperation(targetPart, fromUrl, fromRevision, toUrl, toRevision, file).run();
+					ShowDifferencesAsUnifiedDiffOperation operation = new ShowDifferencesAsUnifiedDiffOperation(targetPart, fromUrl, fromRevision, toUrl, toRevision, file);
+					operation.setLocalResource(remoteResources[0]);
+					operation.run();
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage());
 					success = false;

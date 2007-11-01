@@ -12,11 +12,15 @@ package org.tigris.subversion.subclipse.ui.operations;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IWorkbenchPart;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -29,6 +33,7 @@ public class ShowDifferencesAsUnifiedDiffOperation extends SVNOperation {
 	private SVNUrl toUrl;
 	private SVNRevision toRevision;
 	private File file;
+	private ISVNResource localResource;
 
 	public ShowDifferencesAsUnifiedDiffOperation(IWorkbenchPart part, SVNUrl fromUrl, SVNRevision fromRevision, SVNUrl toUrl, SVNRevision toRevision, File file) {
 		super(part);
@@ -47,7 +52,14 @@ public class ShowDifferencesAsUnifiedDiffOperation extends SVNOperation {
 		if (client == null)
 			client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
 		try {
-			client.diff(fromUrl, fromRevision, toUrl, toRevision, file, true);
+			SVNRevision pegRevision = null;
+			if (fromUrl.toString().equals(toUrl.toString()) && localResource != null && localResource.getResource() != null) {
+				IResource resource = localResource.getResource();
+				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+				pegRevision = svnResource.getRevision();
+			}
+			if (pegRevision == null) client.diff(fromUrl, fromRevision, toUrl, toRevision, file, true);
+			else client.diff(fromUrl, pegRevision, fromRevision, toRevision, file, true); 
 		} catch (SVNClientException e) {
 			throw SVNException.wrapException(e);
 		} finally {
@@ -57,6 +69,10 @@ public class ShowDifferencesAsUnifiedDiffOperation extends SVNOperation {
 
 	protected String getTaskName() {
 		return Policy.bind("HistoryView.showDifferences"); //$NON-NLS-1$
+	}
+
+	public void setLocalResource(ISVNResource localResource) {
+		this.localResource = localResource;
 	}
 
 }
