@@ -53,10 +53,13 @@ public class ShowDifferencesAsUnifiedDiffOperation extends SVNOperation {
 			client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
 		try {
 			SVNRevision pegRevision = null;
-			if (fromUrl.toString().equals(toUrl.toString()) && localResource != null && localResource.getResource() != null) {
-				IResource resource = localResource.getResource();
-				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-				pegRevision = svnResource.getRevision();
+			if (fromUrl.toString().equals(toUrl.toString()) && localResource != null) {
+				if (localResource.getResource() == null) pegRevision = SVNRevision.HEAD;
+				else {
+					IResource resource = localResource.getResource();
+					ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+					pegRevision = svnResource.getRevision();
+				}
 			}
 			if (pegRevision == null) client.diff(fromUrl, fromRevision, toUrl, toRevision, file, true);
 			else client.diff(fromUrl, pegRevision, fromRevision, toRevision, file, true); 

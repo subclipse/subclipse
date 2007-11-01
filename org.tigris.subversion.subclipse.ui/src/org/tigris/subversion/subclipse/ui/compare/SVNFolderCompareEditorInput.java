@@ -176,7 +176,9 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 								diffSummary = svnClient.diffSummarize(folder1.getUrl(), pegRevision, folder1.getRevision(), folder2.getRevision(), Depth.infinity, false);
 							}
 						}
-					}					
+					} else {
+						diffSummary = svnClient.diffSummarize(folder1.getUrl(), SVNRevision.HEAD, folder1.getRevision(), folder2.getRevision(), Depth.infinity, false);
+					}
 				}
 				if (diffSummary == null) diffSummary = svnClient.diffSummarize(folder1.getUrl(), folder1.getRevision(), folder2.getUrl(), folder2.getRevision(), Depth.infinity, false);				
 				diffSummary = getDiffSummaryWithSubfolders(diffSummary);
