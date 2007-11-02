@@ -32,7 +32,7 @@
 	<context id="repositories_view_context">
 		<description>This view contains the SVN repository locations known in this workspace. Using the context menu, you can add and remove locations, browse repository contents and check out projects to work with them, as well as viewing resource histories (log), creating new folders, moving and renaming resources.</description>
 		<topic href="/org.tigris.subversion.subclipse.doc/html/gettingstarted/new-location.html" label="Getting Started: Creating a new Repository Location"/>
-		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repositories View"/>
 	</context>
 
 	<context id="compare_revision_view_context">
@@ -78,13 +78,13 @@
 
 	<context id="new_repository_location_action_context">
 		<description>Specify the URL of the new SVN repository location.</description>
-		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repositories View"/>
 		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
 	</context>
 
 	<context id="remove_root_action_context">
 		<description>Confirm delete of SVN repository location.</description>
-		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repositories View"/>
 	</context>
 
 	<!-- Dialogs -->
@@ -276,7 +276,7 @@
 	<context id="sharing_new_repository_page_context">
 		<description>Specify the URL of the repository location.</description>
 		<topic href="/org.tigris.subversion.subclipse.doc/html/gettingstarted/importing.html" label="Getting Started: Import a New Project into a Repository" />
-		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repository View"/>
+		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/svn-repository-view.html" label="Reference: SVN Repositories View"/>
 		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/protocol.html" label="Reference: Supported SVN Protocols"/>
 		<topic href="/org.tigris.subversion.subclipse.doc/html/reference/share.html" label="Reference: Team -> Share" />
 	</context>
