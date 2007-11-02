@@ -215,9 +215,9 @@ public class CommitOperation extends SVNOperation {
 				format.createNewFile();
 				FileWriter ew = new FileWriter(entries);
 				if (url == null)
-					ew.write("8\n");
+					ew.write("9\n");
 				else
-					ew.write("8\n\ndir\n0\n"
+					ew.write("9\n\ndir\n0\n"
 								+ url
 								+ "\n"
 								+ url
@@ -228,7 +228,7 @@ public class CommitOperation extends SVNOperation {
 				ew.flush();
 				ew.close();
 				FileWriter fw = new FileWriter(format);
-				fw.write("8\n");
+				fw.write("9\n");
 				fw.flush();
 				fw.close();
 			} catch (IOException e) {
