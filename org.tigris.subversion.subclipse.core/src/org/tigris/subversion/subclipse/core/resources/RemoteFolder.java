@@ -161,7 +161,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 		try {
             ISVNClientAdapter client = getRepository().getSVNClient();
 				
-			ISVNDirEntry[] list = client.getList(url, getRevision(), false);
+			ISVNDirEntry[] list = client.getList(url, getRevision(), SVNRevision.HEAD, false);
 			List result = new ArrayList(list.length);
 
 			// directories first				
