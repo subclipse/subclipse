@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
@@ -62,7 +63,12 @@ public class SwitchToUrlCommand implements ISVNCommand {
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm));
             File file = resource.getLocation().toFile();
-            svnClient.switchToUrl(file, svnUrl, svnRevision, depth, ignoreExternals, force);
+            SVNRevision pegRevision = null;
+//            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+//            if (svnResource != null && svnResource.getRevision() != null) pegRevision = svnResource.getRevision();
+//            else pegRevision = svnRevision;
+            pegRevision = SVNRevision.HEAD;
+            svnClient.switchToUrl(file, svnUrl, svnRevision, pegRevision, depth, ignoreExternals, force);
             try {
                 // Refresh the resource after merge
                 resource.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
