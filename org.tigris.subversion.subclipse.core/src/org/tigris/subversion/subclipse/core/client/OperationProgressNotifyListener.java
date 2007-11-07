@@ -93,14 +93,14 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter implement
 				unit = " bytes"; //$NON-NLS-1$
 			} else if (grandTotal < 1200000) {
 				t = new Double(grandTotal/1024.0);
-				unit = "KB"; //$NON-NLS-1$
+				unit = " kB"; //$NON-NLS-1$
 			} else {
 				t = new Double(grandTotal/1048576.0);
-				unit = "MB"; //$NON-NLS-1$
+				unit = " MB"; //$NON-NLS-1$
 			}
 			String roundedTotal;
 			if (t instanceof Double) {
-				DecimalFormat df = new DecimalFormat("###.###"); //$NON-NLS-1$
+				DecimalFormat df = new DecimalFormat("###.#"); //$NON-NLS-1$
 				roundedTotal = df.format(((Double)t).doubleValue());
 			} else roundedTotal = t.toString();
 			if (path == null) subTask = roundedTotal + unit;
