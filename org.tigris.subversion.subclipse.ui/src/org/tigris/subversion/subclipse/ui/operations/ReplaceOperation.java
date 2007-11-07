@@ -29,6 +29,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 public class ReplaceOperation extends UpdateOperation {
 	
     private final SVNRevision revision;
+    private IResource[] resourcesToUpdate;
 
 
 	/**
@@ -99,11 +100,16 @@ public class ReplaceOperation extends UpdateOperation {
 		    }
 		    
             // then we update to revision
-		    super.execute(provider, resources, monitor);
+		    if (resourcesToUpdate == null) resourcesToUpdate = resources;
+		    super.execute(provider, resourcesToUpdate, monitor);
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		} finally {
 			monitor.done();
 		}
     }
+
+	public void setResourcesToUpdate(IResource[] resourcesToUpdate) {
+		this.resourcesToUpdate = resourcesToUpdate;
+	}
 }

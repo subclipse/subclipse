@@ -39,11 +39,11 @@ public class ReplaceWithRemoteAction extends WorkspaceAction {
 		} catch (TeamException e) {
 			throw new InvocationTargetException(e);
 		}
-			
-		if (resources == null || resources.length == 0) return;
-		
+
 		// Peform the replace in the background
-		new ReplaceOperation(getTargetPart(), resources, this.revision).run();
+		ReplaceOperation replaceOperation = new ReplaceOperation(getTargetPart(), resources, this.revision);
+		replaceOperation.setResourcesToUpdate(getSelectedResources());
+		replaceOperation.run();
 	}
 	
 	/**
