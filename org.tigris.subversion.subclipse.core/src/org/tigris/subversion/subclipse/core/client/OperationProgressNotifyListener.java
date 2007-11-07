@@ -29,8 +29,11 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter implement
 	private IProgressMonitor monitor = null;
 	private File path;
 	private SVNProgressEvent progressEvent;
-	private long totalBytes;
-	private long subtotalBytes;
+	
+	private long lastProgress;
+	private long lastTotal;
+	private long delta;
+	private long grandTotal;
 	
 	public OperationProgressNotifyListener(final IProgressMonitor monitor)
 	{
@@ -56,8 +59,12 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter implement
 	public void logCompleted(String message) {
 		path = null;
 		progressEvent = null;
-		totalBytes = 0;
-		subtotalBytes = 0;
+		
+		lastProgress = 0;
+		lastTotal = 0;
+		delta = 0;
+		grandTotal = 0;
+		
 		if (monitor != null)
 		{
 		    monitor.subTask(" ");
@@ -70,12 +77,14 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter implement
 
 	public void onProgress(SVNProgressEvent progressEvent) {
 		this.progressEvent = progressEvent;
-		if (progressEvent.getTotal() == SVNProgressEvent.UNKNOWN) {
-			subtotalBytes = subtotalBytes + progressEvent.getProgress();
-		} else {
-			subtotalBytes = 0;
-			totalBytes = totalBytes + progressEvent.getProgress();
-		}
+		
+		delta = progressEvent.getProgress();
+		if (progressEvent.getProgress() >= lastProgress && progressEvent.getTotal() == lastTotal)
+			delta = progressEvent.getProgress() - lastProgress;
+		lastProgress = progressEvent.getProgress();
+		lastTotal = progressEvent.getTotal();
+		grandTotal += delta;
+
 		if (monitor != null) {
 		    subTask();
 		}
@@ -85,17 +94,16 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter implement
 		String subTask = null;
 		if (progressEvent == null) subTask = path.getPath();
 		else {
-			long grandTotal = totalBytes + subtotalBytes;
 			Object t = null;
 			String unit;
-			if (grandTotal < 1024) {
+			if (grandTotal < 1000) {
 				t = new Long(grandTotal);
 				unit = " bytes"; //$NON-NLS-1$
-			} else if (grandTotal < 1200000) {
-				t = new Double(grandTotal/1024.0);
+			} else if (grandTotal < 1000000) {
+				t = new Double(grandTotal/1000.0);
 				unit = " kB"; //$NON-NLS-1$
 			} else {
-				t = new Double(grandTotal/1048576.0);
+				t = new Double(grandTotal/1000000.0);
 				unit = " MB"; //$NON-NLS-1$
 			}
 			String roundedTotal;
