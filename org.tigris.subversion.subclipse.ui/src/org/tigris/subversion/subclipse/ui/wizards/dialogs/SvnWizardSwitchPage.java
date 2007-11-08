@@ -80,6 +80,8 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
     private String commonRoot;
     private SwitchResource[] switchResources;
     
+    private long revisionNumber;
+    
 	private String[] columnHeaders = {"Resource"};
 	private ColumnLayoutData columnLayouts[] = {
 		new ColumnWeightData(100, 100, true)};
@@ -88,6 +90,11 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		super("SwitchDialog", Policy.bind("SwitchDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$
 		this.resources = resources;
 	}
+	
+	public SvnWizardSwitchPage(IResource[] resources, long revisionNumber) {
+		this(resources);
+		this.revisionNumber = revisionNumber;
+	}	
 
 	public void createControls(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NULL);
@@ -144,13 +151,18 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		revisionButton = new Button(revisionGroup, SWT.RADIO);
 		revisionButton.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
 		
-		headButton.setSelection(true);
-		
 		revisionText = new Text(revisionGroup, SWT.BORDER);
 		data = new GridData();
 		data.widthHint = REVISION_WIDTH_HINT;
 		revisionText.setLayoutData(data);
-		revisionText.setEnabled(false);
+		
+		if (revisionNumber == 0) {
+			headButton.setSelection(true);
+			revisionText.setEnabled(false);
+		} else {
+			revisionButton.setSelection(true);
+			revisionText.setText("" + revisionNumber); //$NON-NLS-1$
+		}
 		
 		revisionText.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
@@ -460,6 +472,6 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 
 	public boolean isForce() {
 		return force;
-	}	
+	}
 
 }

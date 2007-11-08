@@ -128,12 +128,14 @@ import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
 import org.tigris.subversion.subclipse.ui.operations.MergeOperation;
 import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
+import org.tigris.subversion.subclipse.ui.operations.SwitchOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.EmptySearchViewerFilter;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardBranchTagPage;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardSwitchPage;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -200,6 +202,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction showRevisionsAction;
   private IAction revertChangesAction;
   private IAction refreshAction;
+  private IAction switchAction;
 
   private ToggleAffectedPathsOptionAction[] toggleAffectedPathsLayoutActions;
   private ToggleAffectedPathsOptionAction[] toggleAffectedPathsModeActions;
@@ -592,8 +595,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           if (logEntry.getNumberOfChildren() > 0)
         	  manager.add(getShowRevisionsAction());
         }
-        if(resource != null)
+        if(resource != null) {
           manager.add(getRevertChangesAction());
+          if(((IStructuredSelection) sel).size() == 1) manager.add(getSwitchAction());
+        }
         
         manager.add(new Separator("exportImportGroup")); //$NON-NLS-1$
       }
@@ -1171,12 +1176,57 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
     return updateToRevisionAction;
   }
+  
+  // get switch action (context menu)
+  private IAction getSwitchAction() {
+	  if (switchAction == null) {
+		  switchAction = new Action() {
+			  public void run() {
+				  if(selection instanceof IStructuredSelection) {
+					  IStructuredSelection ss = (IStructuredSelection) selection;
+					  if(ss.size() == 1) {
+						  ILogEntry currentSelection = getLogEntry(ss);
+						  IResource[] resources = { resource };
+						  SvnWizardSwitchPage switchPage = new SvnWizardSwitchPage(resources, currentSelection.getRevision().getNumber());
+					        SvnWizard wizard = new SvnWizard(switchPage);
+					        SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
+					        wizard.setParentDialog(dialog);
+					        if (dialog.open() == SvnWizardDialog.OK) {
+					            SVNUrl[] svnUrls = switchPage.getUrls();
+					            SVNRevision svnRevision = switchPage.getRevision();
+					            SwitchOperation switchOperation = new SwitchOperation(getSite().getPage().getActivePart(), resources, svnUrls, svnRevision);
+					            switchOperation.setDepth(switchPage.getDepth());
+					            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
+					            switchOperation.setForce(switchPage.isForce());
+					            try {
+									switchOperation.run();
+								} catch (Exception e) {
+						            MessageDialog.openError(getSite().getShell(), switchAction.getText(), e
+						                    .getMessage());
+								}
+					        }					  
+					  }
+				  }
+			  }		  
+		  };
+	  }
+      ISelection selection = getSelection();
+      if(selection instanceof IStructuredSelection) {
+        IStructuredSelection ss = (IStructuredSelection) selection;
+        if(ss.size() == 1) {
+          ILogEntry currentSelection = getLogEntry(ss);
+          switchAction.setText(Policy.bind("HistoryView.switchToRevision", ""
+              + currentSelection.getRevision().getNumber()));
+        }
+      }	
+      switchAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SWITCH));
+	  return switchAction;
+  }
 
   // get create tag from revision action (context menu)
   private IAction getCreateTagFromRevisionAction() {
     if(createTagFromRevisionAction == null) {
-      createTagFromRevisionAction = new Action(
-          Policy.bind("HistoryView.createTagFromRevision"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_BRANCHTAG)) { //$NON-NLS-1$
+      createTagFromRevisionAction = new Action() {
         public void run() {
           ISelection selection = getSelection();
           if( !(selection instanceof IStructuredSelection))
@@ -1222,6 +1272,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };
     }
+    ISelection selection = getSelection();
+    if(selection instanceof IStructuredSelection) {
+      IStructuredSelection ss = (IStructuredSelection) selection;
+      if(ss.size() == 1) {
+        ILogEntry currentSelection = getLogEntry(ss);
+        createTagFromRevisionAction.setText(Policy.bind("HistoryView.createTagFromRevision", ""
+            + currentSelection.getRevision().getNumber()));
+      }
+    }	
+    createTagFromRevisionAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_BRANCHTAG));    
     return createTagFromRevisionAction;
   }
 
