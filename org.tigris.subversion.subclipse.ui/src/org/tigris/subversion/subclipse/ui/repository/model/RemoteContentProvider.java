@@ -23,6 +23,7 @@ import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.Branches;
 import org.tigris.subversion.subclipse.core.history.Tags;
+import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 
 /**
  * Extension to the generic workbench content provider mechanism
@@ -34,6 +35,7 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 	private Branches branches;
 	private Tags tags;
 	private boolean includeBranchesAndTags = true;
+	private RemoteFolder rootFolder;
 
 	private DeferredTreeContentManager manager;
 
@@ -84,8 +86,9 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 		if (manager != null) {
 			Object[] children = manager.getChildren(parentElement);
 			if (children != null) {
-				if (parentElement instanceof ISVNRepositoryLocation && (branches != null || tags != null)) {
+				if (parentElement instanceof ISVNRepositoryLocation && (rootFolder != null || branches != null || tags != null)) {
 					ArrayList childrenArray = new ArrayList();
+					if (rootFolder != null) childrenArray.add(rootFolder);
 					if (branches != null) childrenArray.add(branches);
 					if (tags != null) childrenArray.add(tags);
 					for (int i = 0; i < children.length; i++) childrenArray.add(children[i]);
@@ -132,5 +135,9 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 		if (manager != null) {
 			manager.cancel(location);
 		}
+	}
+
+	public void setRootFolder(RemoteFolder rootFolder) {
+		this.rootFolder = rootFolder;
 	}
 }

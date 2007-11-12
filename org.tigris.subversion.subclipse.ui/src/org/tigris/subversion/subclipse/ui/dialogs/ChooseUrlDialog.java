@@ -54,11 +54,12 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.history.Branches;
 import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
+import org.tigris.subversion.subclipse.core.history.Branches;
 import org.tigris.subversion.subclipse.core.history.Tags;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
+import org.tigris.subversion.subclipse.core.resources.RepositoryRootFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -178,6 +179,12 @@ public class ChooseUrlDialog extends TrayDialog {
 	        else {
 	            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 	            ISVNRepositoryLocation repository = svnResource.getRepository();
+
+	            if (!repository.getUrl().toString().equals(repository.getRepositoryRoot().toString())) {
+	            	RepositoryRootFolder rootFolder = new RepositoryRootFolder(repository, repository.getRepositoryRoot(), repository.getRootFolder().getRevision());
+	            	contentProvider.setRootFolder(rootFolder);
+	            }
+	            
 	            if (repository == null) treeViewer.setInput(new AllRootsElement());
 	            else treeViewer.setInput(svnResource.getRepository());
 	        }
@@ -345,6 +352,7 @@ public class ChooseUrlDialog extends TrayDialog {
 				else
 					return SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROJECT_VERSION).createImage();
 			}
+			if (element instanceof RepositoryRootFolder) return  SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REPOSITORY).createImage();
 			return workbenchLabelProvider.getImage(element);
 		}
 
