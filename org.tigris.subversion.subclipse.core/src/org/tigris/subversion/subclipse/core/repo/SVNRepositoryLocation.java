@@ -525,6 +525,29 @@ public class SVNRepositoryLocation
     	}
     }
 
+    /*
+     * Parse a location string and return a SVNRepositoryLocation.
+     * If useRootUrl is true, use the repository root URL.
+     */    
+    public static SVNRepositoryLocation fromString(
+    		String location,
+    		boolean validateOnly,
+    		boolean useRootUrl) throws SVNException {
+    	if (!useRootUrl) return fromString(location, validateOnly);
+    	ISVNClientAdapter svnClient =
+    		SVNProviderPlugin.getPlugin().createSVNClient();
+    	try {
+	    	SVNUrl url = new SVNUrl(location);
+	    	ISVNInfo info = svnClient.getInfo(url);
+	    	SVNUrl rootUrl = info.getRepository();
+	    	return fromString(rootUrl.toString());
+    	} catch (MalformedURLException e) {
+    		throw SVNException.wrapException(e);
+    	} catch (SVNClientException e) {
+    		throw SVNException.wrapException(e);
+        }        	  	
+    }
+
 //	public static IUserAuthenticator getAuthenticator() {
 //		if (authenticator == null) {
 //			authenticator = getPluggedInAuthenticator();
