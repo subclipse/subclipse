@@ -186,7 +186,7 @@ public class SVNRepositories
 			}
         	
 		}//else we couldn't find it, fall through to adding new repo.
-		ISVNRepositoryLocation repository = SVNRepositoryLocation.fromString(location);
+		ISVNRepositoryLocation repository = SVNRepositoryLocation.fromString(location, false, true);
 		addToRepositoriesCache(repository);
         
 		return repository;

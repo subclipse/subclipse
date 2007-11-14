@@ -35,7 +35,6 @@ import org.eclipse.team.core.ProjectSetSerializationContext;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
-import org.tigris.subversion.subclipse.core.repo.SVNRepositories;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -112,9 +111,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
         try {
 			return checkout(projects, infoMap, monitor);
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
+			throw SVNException.wrapException(e);
 		}
     }
 
@@ -213,17 +210,10 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
             project = ResourcesPlugin.getWorkspace().getRoot().getProject(
                     projectName);
             if (repo.indexOf("://") != -1) { //$NON-NLS-1$
-                //A normal URL
-//                repositoryLocation = SVNRepositoryLocation.fromString(repo);
                 // Create connection to repository root.
             	repositoryLocation = SVNRepositoryLocation.fromString(repo, false, true);
                 fromFileSystem = false;
                 directory = null;
-        		SVNProviderPlugin provider = SVNProviderPlugin.getPlugin();
-        		SVNRepositories repositories = provider.getRepositories();
-        		if (!repositories.exactMatchExists(repositoryLocation.getUrl().toString())) {
-        			repositories.addOrUpdateRepository(repositoryLocation);
-        		}
             } else {
                 // Assume this is an already checked
                 // out project, from the filesystem
