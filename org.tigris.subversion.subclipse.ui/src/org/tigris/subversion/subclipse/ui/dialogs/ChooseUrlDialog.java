@@ -92,6 +92,7 @@ public class ChooseUrlDialog extends TrayDialog {
     private boolean includeBranchesAndTags = true;
     
     private IDialogSettings settings;
+    private RemoteContentProvider contentProvider;
     
     private static boolean needsRefresh = true;
     
@@ -165,7 +166,7 @@ public class ChooseUrlDialog extends TrayDialog {
 
 		if (multipleSelect) treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
 		else treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-        RemoteContentProvider contentProvider = new RemoteContentProvider();
+        contentProvider = new RemoteContentProvider();
         contentProvider.setIncludeBranchesAndTags(includeBranchesAndTags);
         contentProvider.setResource(resource);
         treeViewer.setContentProvider(contentProvider);
@@ -233,10 +234,14 @@ public class ChooseUrlDialog extends TrayDialog {
 
     protected void refreshViewer(boolean refreshRepositoriesFolders) {
         if (treeViewer == null) return;
+        contentProvider.setUseDeferredContentManager(false);
+        Object[] expandedObjects = treeViewer.getExpandedElements();
         if (refreshRepositoriesFolders) {
         	refreshRepositoriesFolders();
         }
         treeViewer.refresh();
+        treeViewer.setExpandedElements(expandedObjects);
+        contentProvider.setUseDeferredContentManager(true);
     }
     
     private void refreshRepositoriesFolders() {
