@@ -12,6 +12,8 @@ package org.tigris.subversion.subclipse.ui.wizards;
 
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -126,7 +128,9 @@ public class NewRemoteFolderWizardMainPage extends SVNWizardPage {
         viewer = new TreeViewer(drillDown, SWT.H_SCROLL | SWT.V_SCROLL);
         drillDown.setChildTree(viewer);
         viewer.setLabelProvider(new WorkbenchLabelProvider());
-        viewer.setContentProvider(new RemoteContentProvider());
+        RemoteContentProvider remoteContentProvider = new RemoteContentProvider();
+        remoteContentProvider.setUseDeferredContentManager(false);
+        viewer.setContentProvider(remoteContentProvider);
         viewer.setInput(new AllRootsElement());
         viewer.addFilter(RepositoryFilters.FOLDERS_ONLY);
         viewer.addSelectionChangedListener(treeSelectionChangedListener);
@@ -144,16 +148,18 @@ public class NewRemoteFolderWizardMainPage extends SVNWizardPage {
 		setControl(composite);
 
         // set the initial selection in the tree
-        if (parentFolder != null) {
-            Object toSelect = null;
-            if (parentFolder.getParent() == null) {
-                // the root folder : select the repository
-                toSelect = parentFolder.getRepository();
-            }
-            else
-                toSelect = parentFolder;
-            viewer.expandToLevel(toSelect,0);
-            viewer.setSelection(new StructuredSelection(toSelect),true);
+        if (parentFolder != null) {      	
+        	List itemsToExpand = new ArrayList();
+        	ISVNRemoteFolder remoteParent = parentFolder.getParent();
+        	while (remoteParent != null) {
+    			if (remoteParent.getParent() == null) itemsToExpand.add(0, remoteParent.getRepository());
+    			else itemsToExpand.add(0, remoteParent);
+    			remoteParent = remoteParent.getParent();        		
+        	}
+
+        	viewer.setExpandedElements(itemsToExpand.toArray());
+        	if (parentFolder.getParent() == null) viewer.setSelection(new StructuredSelection(parentFolder.getRepository()), true);
+        	else viewer.setSelection(new StructuredSelection(parentFolder), true);
         }
 
 	}

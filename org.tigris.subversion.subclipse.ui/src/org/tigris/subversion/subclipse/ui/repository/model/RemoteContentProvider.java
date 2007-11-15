@@ -36,6 +36,7 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 	private Tags tags;
 	private boolean includeBranchesAndTags = true;
 	private RemoteFolder rootFolder;
+	private boolean useDeferredContentManager = true;
 
 	private DeferredTreeContentManager manager;
 
@@ -83,7 +84,7 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof Branches) return ((Branches)parentElement).getBranches();
 		if (parentElement instanceof Tags) return ((Tags)parentElement).getTags();
-		if (manager != null) {
+		if (useDeferredContentManager && manager != null) {
 			Object[] children = manager.getChildren(parentElement);
 			if (children != null) {
 				if (parentElement instanceof ISVNRepositoryLocation && (rootFolder != null || branches != null || tags != null)) {
@@ -139,5 +140,9 @@ public class RemoteContentProvider extends WorkbenchContentProvider {
 
 	public void setRootFolder(RemoteFolder rootFolder) {
 		this.rootFolder = rootFolder;
+	}
+
+	public void setUseDeferredContentManager(boolean useDeferredContentManager) {
+		this.useDeferredContentManager = useDeferredContentManager;
 	}
 }
