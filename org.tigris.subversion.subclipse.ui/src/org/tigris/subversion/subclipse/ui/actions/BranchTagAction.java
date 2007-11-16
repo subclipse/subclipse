@@ -41,6 +41,7 @@ public class BranchTagAction extends WorkbenchWindowAction {
 		            String message = branchTagPage.getComment();
 		            boolean createOnServer = branchTagPage.isCreateOnServer();
 		            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, branchTagPage.getRevision(), message);
+		            branchTagOperation.setMakeParents(branchTagPage.isMakeParents());
 		            branchTagOperation.setNewAlias(branchTagPage.getNewAlias());
 		            branchTagOperation.switchAfterTagBranchOperation(branchTagPage.switchAfterTagBranch());
 		            branchTagOperation.run();

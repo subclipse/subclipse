@@ -1,6 +1,7 @@
 package org.tigris.subversion.subclipse.ui.wizards.dialogs;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -26,6 +27,7 @@ import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagPropertyUpdateDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.ChooseUrlDialog;
@@ -50,6 +52,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
     private ISVNLocalResource svnResource;
     
     private UrlCombo toUrlCombo;
+    private Button makeParentsButton;
     private Button serverButton;
     private Button revisionButton;
     private Text revisionText;
@@ -62,6 +65,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
     private SVNUrl toUrl;
     private boolean createOnServer;
     private boolean specificRevision;
+    private boolean makeParents;
     private String comment;
     private Text issueText;
     private String issue;
@@ -74,6 +78,8 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 
     private Button switchAfterBranchTagCheckBox;
     private boolean switchAfterBranchTag;
+    
+    private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
 
 	public SvnWizardBranchTagPage(IResource resource) {
 		super("BranchTagDialog", Policy.bind("BranchTagDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$		
@@ -162,6 +168,18 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
                 }
             }
 		});	
+		
+		makeParentsButton = new Button(urlComposite, SWT.CHECK);
+		makeParentsButton.setText(Policy.bind("BranchTagDialog.makeParents")); //$NON-NLS-1$  
+		data = new GridData();
+		data.horizontalSpan = 2;
+		makeParentsButton.setLayoutData(data);
+		makeParentsButton.setSelection(settings.getBoolean("BranchTagDialog.makeParents")); //$NON-NLS-1$  
+		makeParentsButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				settings.put("BranchTagDialog.makeParents", makeParentsButton.getSelection()); //$NON-NLS-1$ 
+			}		
+		});
 		
 		Group serverComposite = new Group(repositoryGroup, SWT.NULL);
 		serverComposite.setText(Policy.bind("BranchTagDialog.createCopy")); //$NON-NLS-1$
@@ -319,6 +337,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
         toUrlCombo.saveUrl();
         createOnServer = !workingCopyButton.getSelection();
         specificRevision = revisionButton.getSelection();
+        makeParents = makeParentsButton.getSelection();
         if(switchAfterBranchTagCheckBox != null) {
         	switchAfterBranchTag = switchAfterBranchTagCheckBox.getSelection();
         }
@@ -398,6 +417,9 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
     public boolean isSpecificRevision() {
         return specificRevision;
     }   
+    public boolean isMakeParents() {
+    	return makeParents;
+    }
     public SVNUrl getToUrl() {
         return toUrl;
     }

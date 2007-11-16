@@ -32,6 +32,7 @@ public class BranchTagCommand implements ISVNCommand {
     private boolean createOnServer;
     private String message;
     private SVNRevision revision;
+    private boolean makeParents;
     
     private SVNWorkspaceRoot root;
 
@@ -53,7 +54,7 @@ public class BranchTagCommand implements ISVNCommand {
 //            OperationManager.getInstance().beginOperation(svnClient);
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
             monitor.subTask(resource.getName());
-            if (createOnServer) svnClient.copy(sourceUrl, destinationUrl, message, revision);
+            if (createOnServer) svnClient.copy(sourceUrl, destinationUrl, message, revision, makeParents);
             else {
                 File file = resource.getLocation().toFile();
                 svnClient.copy(file, destinationUrl, message);
@@ -66,5 +67,9 @@ public class BranchTagCommand implements ISVNCommand {
             monitor.done();
         }                
     }
+
+	public void setMakeParents(boolean makeParents) {
+		this.makeParents = makeParents;
+	}
 
 }

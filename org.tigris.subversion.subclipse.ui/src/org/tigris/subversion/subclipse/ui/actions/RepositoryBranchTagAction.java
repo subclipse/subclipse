@@ -42,6 +42,7 @@ public class RepositoryBranchTagAction extends SVNAction {
             final SVNUrl destinationUrl = branchTagPage.getToUrl();
             final String message = branchTagPage.getComment();
             final SVNRevision revision = branchTagPage.getRevision();
+            final boolean makeParents = branchTagPage.isMakeParents();
             BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 				public void run() {
 					try {
@@ -51,7 +52,7 @@ public class RepositoryBranchTagAction extends SVNAction {
 							client = repository.getSVNClient();
 						if (client == null)
 							client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-						client.copy(sourceUrl, destinationUrl, message, revision);
+						client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
 					} catch (Exception e) {
 						MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
 					}

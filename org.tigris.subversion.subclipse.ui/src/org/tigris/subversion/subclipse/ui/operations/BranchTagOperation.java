@@ -32,6 +32,7 @@ public class BranchTagOperation extends RepositoryProviderOperation {
     private SVNUrl destinationUrl;
     private SVNRevision revision;
     private boolean createOnServer;
+    private boolean makeParents;
     private String message;
     private Alias newAlias;
 	private boolean switchAfterTagBranch;
@@ -57,7 +58,8 @@ public class BranchTagOperation extends RepositoryProviderOperation {
         monitor.beginTask(null, 100);
 		try {			
 	    	BranchTagCommand command = new BranchTagCommand(provider.getSVNWorkspaceRoot(),resources[0], sourceUrl, destinationUrl, message, createOnServer, revision);
-	        command.run(Policy.subMonitorFor(monitor,1000));
+	        command.setMakeParents(makeParents);
+	    	command.run(Policy.subMonitorFor(monitor,1000));
 	        if (newAlias != null) updateBranchTagProperty(resources[0]);
 	        if(switchAfterTagBranch) {
 	        	String lastPathSegment = sourceUrl.getLastPathSegment();
@@ -127,6 +129,10 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 	
 	public void switchAfterTagBranchOperation(boolean switchAfterTagBranchOperation) {
 		this.switchAfterTagBranch = switchAfterTagBranchOperation;
+	}
+
+	public void setMakeParents(boolean makeParents) {
+		this.makeParents = makeParents;
 	}
 
 }

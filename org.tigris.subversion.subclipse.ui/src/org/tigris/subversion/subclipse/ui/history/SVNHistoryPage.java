@@ -1246,6 +1246,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           final SVNUrl destinationUrl = branchTagPage.getToUrl();
           final String message = branchTagPage.getComment();
           final SVNRevision revision = branchTagPage.getRevision();
+          final boolean makeParents = branchTagPage.isMakeParents();
           boolean createOnServer = branchTagPage.isCreateOnServer();
           IResource[] resources = { resource};
           try {
@@ -1254,7 +1255,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                 public void run() {
                   try {
                     ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-                    client.copy(sourceUrl, destinationUrl, message, revision);
+                    client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
                   } catch(Exception e) {
                     MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
                         .getMessage());
@@ -1262,8 +1263,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                 }
               });
             } else {
-              new BranchTagOperation(getSite().getPage().getActivePart(), resources, sourceUrl, destinationUrl,
-                  createOnServer, branchTagPage.getRevision(), message).run();
+            	BranchTagOperation branchTagOperation = new BranchTagOperation(getSite().getPage().getActivePart(), resources, sourceUrl, destinationUrl,
+                        createOnServer, branchTagPage.getRevision(), message);
+            	branchTagOperation.setMakeParents(makeParents);
+            	branchTagOperation.run();
             }
           } catch(Exception e) {
             MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
