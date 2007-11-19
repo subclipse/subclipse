@@ -250,6 +250,7 @@ public class CommitCommentArea extends DialogArea {
         public void update(Observable o, Object arg) {
             if (arg instanceof String) {
                 setText((String)arg); // triggers a modify event
+                if (modifyListener != null) modifyListener.modifyText(null);
             }
         }
         
@@ -575,10 +576,13 @@ public class CommitCommentArea extends DialogArea {
         final String comment= fTextBox.getText();
         if (comment == null)
             return ""; //$NON-NLS-1$
-        if (comment.trim().length() > 0)
-        	SVNUIPlugin.getPlugin().getRepositoryManager().getCommentsManager().addComment(comment.trim());
+        if (save) addComment(comment);
         return comment;
     }
+	
+	public void addComment(String comment) {
+		if (comment != null && comment.trim().length() > 0) SVNUIPlugin.getPlugin().getRepositoryManager().getCommentsManager().addComment(comment.trim());
+	}
     
     public String getCommentWithPrompt(Shell shell) {
         final String comment= getComment(false);

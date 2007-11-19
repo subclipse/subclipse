@@ -356,13 +356,16 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	}
 	
 	public String getComment() {
+		String comment = null;
 	    if ((projectProperties != null) && (issue != null) && (issue.length() > 0)) {
 	        if (projectProperties.isAppend()) 
-	            return commitCommentArea.getComment() + "\n" + projectProperties.getResolvedMessage(issue) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+	            comment = commitCommentArea.getComment() + "\n" + projectProperties.getResolvedMessage(issue) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 	        else
-	            return projectProperties.getResolvedMessage(issue) + "\n" + commitCommentArea.getComment(); //$NON-NLS-1$
+	            comment = projectProperties.getResolvedMessage(issue) + "\n" + commitCommentArea.getComment(); //$NON-NLS-1$
 	    }
-		return commitCommentArea.getComment();
+		comment = commitCommentArea.getComment();
+		commitCommentArea.addComment(comment);
+		return comment;
 	}
 	
 	public IResource[] getSelectedResources() {
