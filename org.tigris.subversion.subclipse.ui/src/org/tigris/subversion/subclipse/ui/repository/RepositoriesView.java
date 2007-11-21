@@ -74,6 +74,9 @@ import org.tigris.subversion.subclipse.ui.actions.SVNAction;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
 import org.tigris.subversion.subclipse.ui.wizards.NewLocationWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardNewRepositoryPage;
 
 /**
  * RepositoriesView is a view on a set of known SVN repositories
@@ -306,6 +309,18 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         // Create the open action for double clicks
         openAction = new OpenRemoteFileAction();
         bars.updateActionBars();
+        
+		IActionBars actionBars = getViewSite().getActionBars();
+		IMenuManager actionBarsMenu = actionBars.getMenuManager();
+		Action newRepositoryAction = new Action(Policy.bind("RepositoriesView.newRepository")) { //$NON-NLS-1$
+			public void run() {
+				SvnWizardNewRepositoryPage newRepositoryPage = new SvnWizardNewRepositoryPage();
+				SvnWizard wizard = new SvnWizard(newRepositoryPage);
+				SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+				if (dialog.open() == SvnWizardDialog.OK) refreshViewer(null, false);
+			}			
+		};
+		actionBarsMenu.add(newRepositoryAction);
 	} // contributeActions
 	
 	/**
