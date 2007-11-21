@@ -335,13 +335,13 @@ public class SVNRepositories
 	 * Answer whether the provided repository location is known by the provider or not.
 	 * The location string corresponds to the Strin returned by ISVNRepositoryLocation#getLocation()
 	 */
-	public boolean isKnownRepository(String location) {
+	public boolean isKnownRepository(String location, boolean requireExactMatch) {
 		Set keys = repositories.keySet();
 		for(Iterator iter = keys.iterator();iter.hasNext();){
-			if(location.indexOf((String)iter.next())!=-1){
+			if(!requireExactMatch && location.indexOf((String)iter.next())!=-1){
 				return true;
 			}
-    		
+    		if (location.equals(iter.next())) return true;
 		}
 		return false;
 	}

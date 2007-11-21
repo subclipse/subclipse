@@ -106,7 +106,7 @@ public class SvnWizardNewRepositoryPage extends SvnWizardDialogPage {
 				try {
 					SVNProviderPlugin provider = SVNProviderPlugin.getPlugin();
 					String url = getUrl();
-					if (provider.getRepositories().isKnownRepository(url)) {
+					if (provider.getRepositories().isKnownRepository(url, true)) {
 						MessageDialog.openError(getShell(), Policy.bind("NewRepositoryDialog.title"), Policy.bind("NewRepositoryDialog.alreadyExists")); //$NON-NLS-1$						
 						success = false;
 						return;

@@ -77,7 +77,7 @@ public class ShareProjectCommand implements ISVNCommand {
 	public void run(IProgressMonitor monitor) throws SVNException {
 		// Determine if the repository is known
 		boolean alreadyExists = SVNProviderPlugin.getPlugin().getRepositories()
-				.isKnownRepository(location.getLocation());
+				.isKnownRepository(location.getLocation(), false);
 
 		try {
 			final ISVNClientAdapter svnClient = location.getSVNClient();

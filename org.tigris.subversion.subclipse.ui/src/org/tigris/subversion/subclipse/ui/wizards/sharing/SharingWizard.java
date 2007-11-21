@@ -218,7 +218,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 							// Autoconnect to the repository using svn/ directories
 							
 							// Get the repository location (the get will add the locatin to the provider)
-							boolean isPreviouslyKnown = SVNProviderPlugin.getPlugin().getRepositories().isKnownRepository(projectStatus.getUrlString());
+							boolean isPreviouslyKnown = SVNProviderPlugin.getPlugin().getRepositories().isKnownRepository(projectStatus.getUrlString(), false);
 	
 							// Validate the connection if the user wants to
 							boolean validate = autoconnectPage.getValidate();					
@@ -266,7 +266,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 							boolean createDirectory = true;
 							try {
 								location = getLocation();
-								isKnown = SVNProviderPlugin.getPlugin().getRepositories().isKnownRepository(location.getLocation());
+								isKnown = SVNProviderPlugin.getPlugin().getRepositories().isKnownRepository(location.getLocation(), false);
 								
                                 // Purge any svn folders that may exists in subfolders
                                 SVNWorkspaceRoot.getSVNFolderFor(project).unmanage(null);
