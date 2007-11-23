@@ -2,6 +2,17 @@
 <?eclipse version="3.0"?>
 <plugin>
 
+   <extension-point id="mergeProviders" name="Merge Providers" schema="schema/mergeProviders.exsd"/>
+
+   <extension
+         point="org.tigris.subversion.subclipse.ui.mergeProviders">
+      <mergeInput
+            name="Default (Subclipse)"
+            class="org.tigris.subversion.subclipse.ui.actions.MergeAction"
+            id="org.tigris.subversion.subclipse.ui.actions.MergeAction">
+      </mergeInput>  
+   </extension>
+
    <extension
          point="org.eclipse.ui.views">
       <category
@@ -513,7 +524,7 @@
          <action
                label="%MergeAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.team_merge_action_context"
-               class="org.tigris.subversion.subclipse.ui.actions.MergeAction"
+               class="org.tigris.subversion.subclipse.ui.actions.ConfigurableMergeAction"
                tooltip="%MergeAction.tooltip"
                menubarPath="team.main/group2"
 			   definitionId="org.tigris.subversion.subclipse.ui.merge"
@@ -1144,7 +1155,7 @@ For example:
 				label="%MergeAction.label"
 				icon="icons/full/empty/empty.gif"
 				helpContextId="org.tigris.subversion.subclipse.ui.team_merge_action_context"
-				class="org.tigris.subversion.subclipse.ui.actions.MergeAction"
+				class="org.tigris.subversion.subclipse.ui.actions.ConfigurableMergeAction"
 				tooltip="%MergeAction.tooltip"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu2"
 				id="org.tigris.subversion.subclipse.ui.merge">

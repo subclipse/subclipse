@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.actions;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import java.util.List;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -38,7 +40,7 @@ import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
  * This class represents an action performed on a local SVN workspace
  */
 public abstract class WorkspaceAction extends SVNAction {
-
+	private String name;
 
 	/**
 	 * Most SVN workspace actions modify the workspace and thus should
@@ -310,4 +312,19 @@ public abstract class WorkspaceAction extends SVNAction {
 	protected IPromptCondition getPromptCondition(IResource[] resources) {
 		return getOverwriteLocalChangesPrompt(resources);
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	protected void execute(IAction action) throws InvocationTargetException,
+			InterruptedException {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

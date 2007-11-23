@@ -19,6 +19,8 @@ import java.util.Arrays;
 
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -50,6 +52,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.resources.BaseResourceStorageFactory;
 import org.tigris.subversion.subclipse.ui.actions.ShowOutOfDateFoldersAction;
+import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.authentication.SVNPromptUserPassword;
 import org.tigris.subversion.subclipse.ui.compare.UIBaseResourceStorageFactory;
 import org.tigris.subversion.subclipse.ui.conflicts.MergeFileAssociation;
@@ -67,6 +70,10 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	public static final String ID = "org.tigris.subversion.subclipse.ui"; //$NON-NLS-1$
 	public static final String DECORATOR_ID = "org.tigris.subversion.subclipse.ui.decorator"; //$NON-NLS-1$
 	public static final String PROVIDER_ID="org.tigris.subversion.subclipse.core.svnnature"; //$NON-NLS-1$
+	
+	// Merge provider extension point ID
+	public static final String MERGE_PROVIDERS = "org.tigris.subversion.subclipse.ui.mergeProviders"; //$NON-NLS-1$	
+	
 	/**
 	 * Property constant indicating the decorator configuration has changed. 
 	 */
@@ -84,6 +91,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
     private ImageDescriptors imageDescriptors;
     
     private Preferences preferences;
+    
+    private static WorkspaceAction[] mergeProviders;
 	
 //	// Property change listener
 //	IPropertyChangeListener teamUIListener = new IPropertyChangeListener() {
@@ -397,6 +406,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	public void start(BundleContext ctxt)throws Exception{
 		super.start(ctxt);
 		
+		mergeProviders = getMergeProviders();
+
 		BaseResourceStorageFactory.setCurrent(new UIBaseResourceStorageFactory());
 
 		SVNAdapterFactory factory = new SVNAdapterFactory();
@@ -443,6 +454,37 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		}
 
         console.shutdown();
+	}
+	
+	// Initialize the merge providers by searching the registry for users of the
+	// mergeProviders extension point.
+	public static WorkspaceAction[] getMergeProviders() throws Exception {
+		if (mergeProviders == null) {
+			ArrayList mergeProviderList = new ArrayList();
+			IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+			IConfigurationElement[] configurationElements = extensionRegistry.getConfigurationElementsFor(MERGE_PROVIDERS);
+			for (int i = 0; i < configurationElements.length; i++) {
+				IConfigurationElement configurationElement = configurationElements[i];
+				WorkspaceAction mergeProvider = (WorkspaceAction)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
+				mergeProvider.setName(configurationElement.getAttribute("name")); //$NON-NLS-1$
+				mergeProviderList.add(mergeProvider);
+			}
+			mergeProviders = new WorkspaceAction[mergeProviderList.size()];
+			mergeProviderList.toArray(mergeProviders);
+		}
+		return mergeProviders;
+	}
+	
+	public static WorkspaceAction getDefaultMergeProvider() {
+		String mergeProvider = plugin.getPreferenceStore().getString(ISVNUIConstants.PREF_MERGE_PROVIDER);
+		if (mergeProvider != null) {
+			for (int i = 0; i < mergeProviders.length; i++) {
+				if (mergeProviders[i].getName().equals(mergeProvider)) {
+					return mergeProviders[i];
+				}
+			}
+		}
+		return mergeProviders[0];
 	}
 	
     /**

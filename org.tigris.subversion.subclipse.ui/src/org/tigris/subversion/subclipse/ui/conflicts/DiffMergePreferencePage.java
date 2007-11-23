@@ -28,6 +28,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -44,6 +45,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 
 /**
  * Preference page to set the program for merge
@@ -64,6 +66,9 @@ public class DiffMergePreferencePage extends PreferencePage implements
     private Button externalMergeRadioButton;
 
     private Button browseMergeProgramButton;
+    
+    private Combo mergeImplementationCombo;
+    private WorkspaceAction[] mergeProviders;
 
     class StringPair {
         String s1;
@@ -141,6 +146,21 @@ public class DiffMergePreferencePage extends PreferencePage implements
         GridData gridData = new GridData();
         gridData.horizontalAlignment = GridData.FILL;
         composite.setLayoutData(gridData);
+        
+        Label mergeImplementationLabel = new Label(composite, SWT.NONE);
+        mergeImplementationLabel.setText(Policy.bind("DiffMergePreferencePage.mergeImplementation")); //$NON-NLS-1$
+        
+        mergeImplementationCombo = new Combo(composite, SWT.READ_ONLY);
+        gridData = new GridData();
+        gridData.horizontalAlignment = GridData.FILL;
+        gridData.grabExcessHorizontalSpace = true;
+        mergeImplementationCombo.setLayoutData(gridData);
+        
+        try {
+			mergeProviders = SVNUIPlugin.getMergeProviders();
+			for (int i = 0; i < mergeProviders.length; i++) 
+				mergeImplementationCombo.add(mergeProviders[i].getName());
+		} catch (Exception e) {}
 
         // Group "Merge program"
         Group group = new Group(composite, SWT.NULL);
@@ -315,6 +335,17 @@ public class DiffMergePreferencePage extends PreferencePage implements
      */
     private void initializeValues() {
         IPreferenceStore store = getPreferenceStore();
+
+        String mergeProviderPreference = store.getString(ISVNUIConstants.PREF_MERGE_PROVIDER);
+        if (mergeProviderPreference == null) mergeProviders[0].getName();
+        for (int i = 0; i < mergeProviders.length; i++) {
+        	if (mergeProviders[i].getName().equals(mergeProviderPreference)) {
+        		mergeImplementationCombo.setText(mergeProviders[i].getName());
+        		break;
+        	}
+        }
+        if (mergeImplementationCombo.getText().length() == 0) mergeImplementationCombo.setText(mergeProviders[0].getName());
+        
         mergeProgramLocationText.setText(store
                 .getString(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION));
         mergeProgramParametersText.setText(store
@@ -359,6 +390,10 @@ public class DiffMergePreferencePage extends PreferencePage implements
      */
     public boolean performOk() {
         IPreferenceStore store = getPreferenceStore();
+        
+        store.setValue(ISVNUIConstants.PREF_MERGE_PROVIDER, 
+        		mergeImplementationCombo.getText());
+        
 
         store.setValue(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION,
                 mergeProgramLocationText.getText());
