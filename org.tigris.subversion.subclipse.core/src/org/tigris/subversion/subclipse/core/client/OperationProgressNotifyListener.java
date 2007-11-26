@@ -57,6 +57,15 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter implement
 	 * The operation was completed, clear the progress' subTask.
 	 */
 	public void logCompleted(String message) {
+		this.clear();
+		
+		if (monitor != null)
+		{
+		    monitor.subTask(" ");
+		}		
+	}
+	
+	public void clear() {
 		path = null;
 		progressEvent = null;
 		
@@ -64,11 +73,6 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter implement
 		lastTotal = 0;
 		delta = 0;
 		grandTotal = 0;
-		
-		if (monitor != null)
-		{
-		    monitor.subTask(" ");
-		}		
 	}
 
 	public IProgressMonitor getMonitor() {

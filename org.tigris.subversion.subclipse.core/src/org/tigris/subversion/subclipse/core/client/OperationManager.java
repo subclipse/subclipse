@@ -101,7 +101,8 @@ public class OperationManager implements ISVNNotifyListener {
 		try {
 			if (lock.getNestingCount() == 1) {
 				svnClient.removeNotifyListener(this);
-				svnClient.setProgressListener(null);
+				operationNotifyListener.clear(); //Clear progress information
+//				svnClient.setProgressListener(null);
 				for (Iterator it = changedResources.iterator(); it.hasNext();) {
 					IResource resource = (IResource) it.next();
 					//Ensure the .svn has the team private flag set before refresh. 
