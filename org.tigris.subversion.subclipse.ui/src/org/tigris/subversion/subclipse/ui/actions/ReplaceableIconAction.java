@@ -59,7 +59,7 @@ public abstract class ReplaceableIconAction extends TeamAction {
 	protected void setIcon() {
 		String iconName = getImageId();
 		
-		if (iconName != null) {
+		if (iconName != null && action != null) {
 			ImageDescriptor descriptor = SVNUIPlugin.getPlugin().getImageDescriptor(iconName); 
 			action.setImageDescriptor(descriptor);
 		}
