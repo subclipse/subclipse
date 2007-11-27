@@ -1047,6 +1047,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       openChangedPathAction = new Action() {
         public void run() {
           OpenRemoteFileAction delegate = new OpenRemoteFileAction();
+          delegate.setUsePegRevision(true);
           delegate.init(this);
           delegate.selectionChanged(this, changePathsViewer.getSelection());
           if(isEnabled()) {

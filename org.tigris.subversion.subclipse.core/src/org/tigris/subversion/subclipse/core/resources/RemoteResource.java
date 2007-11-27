@@ -45,6 +45,7 @@ public abstract class RemoteResource
     protected SVNRevision.Number lastChangedRevision;
     protected Date date;
     protected String author;
+    protected SVNRevision pegRevision;
 
     /**
      * Constructor
@@ -200,6 +201,14 @@ public abstract class RemoteResource
 	public String getAuthor() {
 		return author;
 	}
+	
+	public SVNRevision getPegRevision() {
+		return pegRevision;
+	}
+
+	public void setPegRevision(SVNRevision pegRevision) {
+		this.pegRevision = pegRevision;
+	}	
     
     /*
      * (non-Javadoc)
@@ -262,4 +271,5 @@ public abstract class RemoteResource
 	public String toString() {
 		return getCachePath();
 	}
+
 }

@@ -21,6 +21,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
 
@@ -28,6 +29,7 @@ import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
  * This action is used on ISVNRemoteFile or ILogEntry
  */
 public class OpenRemoteFileAction extends SVNAction {
+	private boolean usePegRevision;
 
 	/*
 	 * @see SVNAction#execute(IAction)
@@ -56,6 +58,8 @@ public class OpenRemoteFileAction extends SVNAction {
 					}
 					try {
 						try {
+							if (usePegRevision && files[i] instanceof RemoteResource) 
+								((RemoteResource)files[i]).setPegRevision(files[i].getRevision());
 							page.openEditor(new RemoteFileEditorInput(files[i],monitor), id);
 						} catch (PartInitException e) {
 							if (id.equals("org.eclipse.ui.DefaultTextEditor")) { //$NON-NLS-1$
@@ -78,5 +82,8 @@ public class OpenRemoteFileAction extends SVNAction {
 		ISVNRemoteFile[] resources = getSelectedRemoteFiles();
 		if (resources.length == 0) return false;
 		return true;
+	}
+	public void setUsePegRevision(boolean usePegRevision) {
+		this.usePegRevision = usePegRevision;
 	}
 }
