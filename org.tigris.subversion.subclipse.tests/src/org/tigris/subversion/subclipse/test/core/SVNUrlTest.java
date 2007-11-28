@@ -35,7 +35,7 @@ public class SVNUrlTest extends TestCase {
 		SVNUrl urlAppended = new SVNUrl("http://blah.com/svn/blah/ouch");
 		assertEquals(urlAppended.toString(), Util.appendPath(urlParent.toString(), "blah/ouch"));
 		assertEquals(urlAppended.toString(), Util.appendPath(urlParent.toString(), "/blah/ouch"));
-		assertEquals(urlAppended.toString(), urlParent.appendPath("blah/ouch"));
-		assertEquals(urlAppended.toString(), urlParent.appendPath("/blah/ouch"));
+		assertEquals(urlAppended.toString(), urlParent.appendPath("blah/ouch").toString());
+		assertEquals(urlAppended.toString(), urlParent.appendPath("/blah/ouch").toString());
 	}
 }
