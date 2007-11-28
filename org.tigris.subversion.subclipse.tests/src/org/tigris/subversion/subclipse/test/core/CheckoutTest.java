@@ -22,6 +22,7 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.test.SubclipseTest;
 import org.tigris.subversion.subclipse.test.TestProject;
+import org.tigris.subversion.subclipse.ui.operations.CheckoutAsProjectOperation;
 
 public class CheckoutTest extends SubclipseTest {
 
@@ -46,17 +47,20 @@ public class CheckoutTest extends SubclipseTest {
 		// and checkout it
 		ISVNRemoteFolder remoteFolder = repositoryLocation.getRemoteFolder("project1");
 		IProject project = SVNWorkspaceRoot.getProject(remoteFolder,null);
-		SVNWorkspaceRoot.checkout(
-			new ISVNRemoteFolder[] {remoteFolder},
-			new IProject[] {project},new NullProgressMonitor());
-			
+//		SVNWorkspaceRoot.checkout(
+//			new ISVNRemoteFolder[] {remoteFolder},
+//			new IProject[] {project},new NullProgressMonitor());
+		ISVNRemoteFolder[] remoteFolders = { remoteFolder };
+		IProject[] localFolders = { project };
+		CheckoutAsProjectOperation checkoutOperation = new CheckoutAsProjectOperation(null, remoteFolders, localFolders);
+		checkoutOperation.run(new NullProgressMonitor());	
 		// make sure the project is shared
 		assertEquals(
 			SVNProviderPlugin.getTypeId(), 
 			project1.getProject().getPersistentProperty(new QualifiedName("org.eclipse.team.core", "repository")));
 		
 		// make sure project has java nature (.project was committed, so nature should not be lost)
-		project1.getProject().hasNature(JavaCore.NATURE_ID);		
+		assertTrue(project1.getProject().hasNature(JavaCore.NATURE_ID));		
 	}
 
 }
