@@ -49,10 +49,10 @@ public class RefactorTest extends SubclipseTest {
 		
 		// make sure the initial resource is not there anymore
 		assertFalse(resource.exists());
-		
-		// the initial resource should have "DELETED" status
+
+		// the initial resource should have "NONE" status
 		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-		assertEquals(svnResource.getStatus().getTextStatus(), SVNStatusKind.UNVERSIONED);
+		assertEquals(svnResource.getStatus().getTextStatus(), SVNStatusKind.NONE);
 		
 		// the renamed resource should exist now
 		resource = testProject.getProject().getFile(new Path("src/pack1/AClassRenamed.java"));
@@ -148,6 +148,7 @@ public class RefactorTest extends SubclipseTest {
 		addAndCommit(testProject.getProject(),resource,"committed");
 		
 		// let's rename the package
+		sleep();
 		IFolder folder =  testProject.getProject().getFolder(new Path("src/pack1"));
 		folder.move(new Path("pack2"),true, null);
 		

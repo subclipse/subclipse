@@ -241,6 +241,7 @@ public abstract class SubclipseTest extends TestCase {
         provider.add(new IResource[] { resource }, IResource.DEPTH_ZERO, null);
         try {
             resource.refreshLocal(IResource.DEPTH_INFINITE, null);
+            sleep();
             assertTrue(SVNWorkspaceRoot.getSVNResourceFor(resource).getStatus()
                     .isAdded());
         } catch (CoreException e) {
@@ -259,5 +260,11 @@ public abstract class SubclipseTest extends TestCase {
     public SVNTeamProvider getProvider(IProject project) {
         return (SVNTeamProvider) RepositoryProvider.getProvider(project,
                 SVNProviderPlugin.getTypeId());
+    }
+    
+    protected void sleep() {
+        try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {}
     }
 }
