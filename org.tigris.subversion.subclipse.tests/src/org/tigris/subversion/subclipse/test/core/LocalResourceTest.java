@@ -74,6 +74,10 @@ public class LocalResourceTest extends SubclipseTest {
 		ISVNLocalResource svnResource = SVNWorkspaceRoot
 				.getSVNResourceFor(resource);
 		InputStream isLocal = resource.getContents();
+		byte[] local = new byte[1000];
+		isLocal.read(local);
+		isLocal.close();
+
 		SVNTeamProvider provider = getProvider(testProject.getProject());
 		// add it to repository
 		provider.add(new IResource[] { resource }, IResource.DEPTH_ZERO, null);
@@ -87,15 +91,12 @@ public class LocalResourceTest extends SubclipseTest {
 				.isContainer()));
 		// compare the contents
 		InputStream isRemote = svnRemoteResource.getStorage(null).getContents();
-		byte[] local = new byte[1000];
 		byte[] remote = new byte[1000];
-		isLocal.read(local);
 		isRemote.read(remote);
+		isRemote.close();
 
 		assertEquals(new String(local), new String(remote));
 
-		isLocal.close();
-		isRemote.close();
 	}
 	
 	public void testGetBytesFromBytes() throws Exception
@@ -114,6 +115,8 @@ public class LocalResourceTest extends SubclipseTest {
 		ISVNLocalResource svnResource = SVNWorkspaceRoot
 				.getSVNResourceFor(resource);
 		InputStream isLocal = resource.getContents();
+		isLocal.close();
+
 		SVNTeamProvider provider = getProvider(testProject.getProject());
 		// add it to repository
 		provider.add(new IResource[] { resource }, IResource.DEPTH_ZERO, null);
