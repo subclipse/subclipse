@@ -219,9 +219,8 @@ public abstract class SubclipseTest extends TestCase {
      */
     protected void addAndCommit(IProject project, IResource resource,
             String comment) throws SVNException, TeamException {
+    	addNoCommit(project, resource);
         SVNTeamProvider provider = getProvider(project);
-        // add it to repository
-        provider.add(new IResource[] { resource }, IResource.DEPTH_ZERO, null);
         // commit it
         provider.checkin(new IResource[] { resource }, comment, false,
                 IResource.DEPTH_ZERO, null);
