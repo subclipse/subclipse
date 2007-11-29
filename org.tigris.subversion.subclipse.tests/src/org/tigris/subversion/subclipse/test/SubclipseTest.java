@@ -77,6 +77,9 @@ public abstract class SubclipseTest extends TestCase {
         	mode = "javahl";
         
         svnClientManager.setSvnClientInterface(mode.toLowerCase());
+        File configDir = new File(System.getProperty("java.io.tmpdir")
+                + "/subclipse-tests").getAbsoluteFile();
+        svnClientManager.setConfigDir(configDir);
 
         // we create the repository
         ISVNClientAdapter svnClient = svnClientManager.createSVNClient();
