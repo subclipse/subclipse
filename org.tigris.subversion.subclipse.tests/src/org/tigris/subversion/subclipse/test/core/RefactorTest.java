@@ -98,37 +98,6 @@ public class RefactorTest extends SubclipseTest {
 		assertEquals(svnResource.getStatus().getTextStatus(), SVNStatusKind.ADDED);
 	}
 	
-	public void testPackageRenameFailsWithForceFalse() throws Exception {
-		TestProject testProject = new TestProject("testProject");
-		shareProject(testProject.getProject());
-		
-		// create a file
-		IPackageFragment package1 = testProject.createPackage("pack1");
-		IType type = testProject.createJavaType(package1,"AClass.java",
-			"public class AClass { \n" +
-			"  public void m() {}\n" +
-			"}");
-
-		SVNTeamProvider provider = getProvider(testProject.getProject());
-		
-		IFile resource = testProject.getProject().getFile(new Path("src/pack1/AClass.java"));
-		
-		// add and commit it
-		addAndCommit(testProject.getProject(),resource,"committed");
-		
-		// let's rename the package
-		IFolder folder =  testProject.getProject().getFolder(new Path("src/pack1"));
-		try{
-			folder.move(new Path("pack2"),false, null);
-			fail("Should fail, setting force to false will force an exception when tree is out of sync in SVNMoveDeleteHook");
-		}catch(ResourceException e){
-			
-		}
-
-		
-		
-	}
-	
 	public void testPackageRenameWithForce() throws Exception {
 		TestProject testProject = new TestProject("testProject");
 		shareProject(testProject.getProject());
