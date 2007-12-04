@@ -14,11 +14,13 @@ import java.util.HashMap;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.SwitchToUrlCommand;
+import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -52,6 +54,7 @@ public class SwitchOperation extends RepositoryProviderOperation {
 			for (int i = 0; i < resources.length; i++) {
 				monitor.subTask("Switching " + resources[i].getName() + ". . .");
 				SVNUrl svnUrl = (SVNUrl)urlMap.get(resources[i]);
+				SVNWorkspaceSubscriber.getInstance().updateRemote(resources);
 		    	SwitchToUrlCommand command = new SwitchToUrlCommand(provider.getSVNWorkspaceRoot(),resources[i], svnUrl, svnRevision);
 		        command.setDepth(depth);
 		        command.setIgnoreExternals(ignoreExternals);
@@ -61,9 +64,11 @@ public class SwitchOperation extends RepositoryProviderOperation {
 			}
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
-		} finally {
-			monitor.done();
-		}  
+		} catch (TeamException e) {
+		    collectStatus(e.getStatus());
+        } finally {
+            monitor.done();
+		}
     }
     
 	public void setDepth(int depth) {
