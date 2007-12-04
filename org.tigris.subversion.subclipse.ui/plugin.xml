@@ -123,10 +123,15 @@
 	
 	<extension
 	      point = "org.eclipse.ui.importWizards">
+		<category
+		   id = "org.tigris.subversion.subclipse.ui.svn"
+		   name="%SVN">
+		</category>
 	 	<wizard
-		   id = "org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard"
+		   id = "org.tigris.subversion.subclipse.ui.wizards.import.CheckoutWizard"
 	      	   name = "%CheckoutWizard.name"
 		   class="org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard"
+		   category="org.tigris.subversion.subclipse.ui.svn"
 		   icon="icons/full/wizards/newconnect_wiz.gif">
 	    	   <description>%CheckoutWizard.desc</description>
 		</wizard>
