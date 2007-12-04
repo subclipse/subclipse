@@ -86,6 +86,7 @@ public class HistorySearchViewerFilter extends ViewerFilter {
 	 * 		   <code>false</code> otherwise
 	 */
 	private boolean filterUser(ILogEntry logEntry, String user) {
+		if (user == null) return true;
 		if (regExp) {
 			return matchesExpression(logEntry.getAuthor(), user + CHAR_MATCH_MANY);
 		}
@@ -102,6 +103,7 @@ public class HistorySearchViewerFilter extends ViewerFilter {
 	 * 		   <code>false</code> otherwise
 	 */
 	private boolean filterComment(ILogEntry logEntry, String comment) {
+		if (comment == null) return true;
 		if (regExp) {
 			return matchesExpression(logEntry.getComment(), comment + CHAR_MATCH_MANY);
 		}
@@ -206,7 +208,7 @@ public class HistorySearchViewerFilter extends ViewerFilter {
 		if (toSearch == null) {
 			return false;
 		}
-		return toSearch.indexOf(expression) > 0;
+		return toSearch.equals(expression) || toSearch.indexOf(expression) >= 0;
 	}
 	
 }

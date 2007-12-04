@@ -313,12 +313,14 @@ public class HistorySearchDialog extends TrayDialog {
 			endDate = tempEndDate;
 			startDate = tempStartDate;
 		}
-		user = userText.getText();
-		comment = commentCombo.getText();
+		if (userText.getText().trim().length() > 0) user = userText.getText();
+		else user = null;
+		if (commentCombo.getText().trim().length() > 0) comment = commentCombo.getText();
+		else comment = null;
 		autoFetchLogs = fetchButton.getSelection();
 		searchAll = searchAllButton.getSelection();
 		regExp = regExpButton.getSelection();
-		if (comment.trim().length() > 0) {
+		if (comment != null && comment.trim().length() > 0) {
 			previousComments.add(comment);
 		}
 		super.okPressed();
