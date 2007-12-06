@@ -1411,5 +1411,9 @@ For example:
 		    </description>
 	   </transfer>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="org.tigris.subversion.subclipse.ui.SVNUIPreferenceInitializer"/>
+   </extension>
 
 </plugin>

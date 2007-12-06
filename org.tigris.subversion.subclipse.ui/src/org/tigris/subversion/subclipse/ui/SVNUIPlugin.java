@@ -420,7 +420,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		baseURL = ctxt.getBundle().getEntry("/"); //$NON-NLS-1$
 		
         preferences = new Preferences(getPreferenceStore());
-		preferences.initializePreferences();
+		preferences.initializeFromSettings();
 		
 		markerListener = new SVNMarkerListener();
         SVNProviderPlugin.addResourceStateChangeListener(markerListener);
