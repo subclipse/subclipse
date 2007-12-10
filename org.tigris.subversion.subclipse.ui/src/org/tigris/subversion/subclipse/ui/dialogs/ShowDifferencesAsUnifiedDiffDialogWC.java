@@ -275,7 +275,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 					File path = new File(resource.getLocation().toString());
 					ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 					ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
-					ISVNInfo svnInfo = svnClient.getInfo(toUrl);
+					ISVNInfo svnInfo = svnClient.getInfo(toUrl, toRevision, toRevision);
 					SVNNodeKind nodeKind = svnInfo.getNodeKind();
 					if (resource instanceof IContainer) {
 						if (nodeKind.toInt() == SVNNodeKind.FILE.toInt()) {
@@ -305,6 +305,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 										getTargetPage());								
 							} else {
 								ISVNRemoteFile remoteFile = new RemoteFile(svnResource.getRepository(), toUrl, toRevision);
+								((RemoteFile)remoteFile).setPegRevision(toRevision);
 								CompareUI.openCompareEditorOnPage(
 										new SVNLocalCompareInput(svnResource, remoteFile),
 										getTargetPage());
