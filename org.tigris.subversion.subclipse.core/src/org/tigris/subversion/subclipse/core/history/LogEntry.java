@@ -324,9 +324,10 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 		String hour = "0" + cal.get(Calendar.HOUR_OF_DAY);
 		String min = "0" + cal.get(Calendar.MINUTE);
 		String sec = "0" + cal.get(Calendar.SECOND);
+		String month = "0" + (cal.get(Calendar.MONTH) + 1);
 		String year = "000" + cal.get(Calendar.YEAR);
 		return year.substring(year.length() - 4) + "-" +
-		(cal.get(Calendar.MONTH) + 1) + "-" +
+		month.substring(month.length() - 2) + "-" +
 		day.substring(day.length() - 2) + " " +
 		hour.substring(hour.length() - 2) + ":" +
 		min.substring(min.length() - 2) + ":" +
