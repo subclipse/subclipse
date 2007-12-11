@@ -289,6 +289,31 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 		}
 		return mergedRevisions.toString();
 	}
+	
+	public String getChangeLog(boolean includeAffectedPaths) {
+		StringBuffer log = new StringBuffer("r" + getRevision() + " | " + getAuthor() + " | " + getDate());
+		if (includeAffectedPaths) {
+			log.append("\nChanged paths:");
+			LogEntryChangePath[] changePaths = getLogEntryChangePaths();
+			for (int i = 0; i < changePaths.length; i++) {
+				log.append("\n\t" + changePaths[i].getAction() + " " + changePaths[i].getPath());
+			}
+		}
+		if (getComment() != null && getComment().trim().length() > 0)
+			log.append("\n\n" + getComment());
+		log.append("\n----------------------------------------------------------------------------\n");
+		return log.toString();
+	}
+	
+	public String getGnuLog() {
+		StringBuffer log = new StringBuffer(getDate() + "  " + getAuthor());
+		if (getComment() != null && getComment().trim().length() > 0) {
+			String tabbedComment = "\t(r" + getRevision() + ") " + getComment().replaceAll("\n", "\n\t");
+			log.append("\n\n" + tabbedComment);
+		}
+		log.append("\n\n");
+		return log.toString();
+	}
 
 }
 

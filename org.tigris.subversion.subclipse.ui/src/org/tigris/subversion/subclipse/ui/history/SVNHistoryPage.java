@@ -57,6 +57,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -118,6 +119,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.actions.GenerateChangeLogAction;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
@@ -203,6 +205,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction revertChangesAction;
   private IAction refreshAction;
   private IAction switchAction;
+  private GenerateChangeLogAction generateChangeLogAction;
 
   private ToggleAffectedPathsOptionAction[] toggleAffectedPathsLayoutActions;
   private ToggleAffectedPathsOptionAction[] toggleAffectedPathsModeActions;
@@ -601,6 +604,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
         
         manager.add(new Separator("exportImportGroup")); //$NON-NLS-1$
+        getGenerateChangeLogAction().setEnabled(!store.getBoolean(ISVNUIConstants.PREF_FETCH_CHANGE_PATH_ON_DEMAND));
+        manager.add(getGenerateChangeLogAction());
       }
     }
     manager.add(new Separator("additions")); //$NON-NLS-1$
@@ -1457,6 +1462,21 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
     revertChangesAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_MARKMERGED));
     return revertChangesAction;
+  }
+  
+  private GenerateChangeLogAction getGenerateChangeLogAction() {
+	  if (generateChangeLogAction == null) generateChangeLogAction = new GenerateChangeLogAction(new ISelectionProvider() {
+		public void addSelectionChangedListener(ISelectionChangedListener listener) {
+		}
+		public ISelection getSelection() {
+			return SVNHistoryPage.this.getSelection();
+		}
+		public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+		}
+		public void setSelection(ISelection selection) {
+		}
+	  });
+	  return generateChangeLogAction;
   }
 
   // Refresh action (toolbar)
