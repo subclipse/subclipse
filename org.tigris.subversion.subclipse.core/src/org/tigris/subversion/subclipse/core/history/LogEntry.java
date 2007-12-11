@@ -308,7 +308,7 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	public String getGnuLog() {
 		StringBuffer log = new StringBuffer(getDate() + "  " + getAuthor());
 		if (getComment() != null && getComment().trim().length() > 0) {
-			String tabbedComment = "\t(r" + getRevision() + ") " + getComment().replaceAll("\n", "\n\t");
+			String tabbedComment = "\t" + getComment().replaceAll("\n", "\n\t");
 			log.append("\n\n" + tabbedComment);
 		}
 		log.append("\n\n");
