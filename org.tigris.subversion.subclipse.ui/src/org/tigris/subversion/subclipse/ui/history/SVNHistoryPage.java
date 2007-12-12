@@ -114,6 +114,7 @@ import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -121,6 +122,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.GenerateChangeLogAction;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
+import org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffAction;
 import org.tigris.subversion.subclipse.ui.actions.ShowHistoryAction;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
@@ -200,6 +202,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction updateToRevisionAction;
   private IAction openChangedPathAction;
   private IAction showHistoryAction;
+  private IAction compareAction;
 //  private IAction showDifferencesAsUnifiedDiffAction;
   private IAction createTagFromRevisionAction;
   private IAction setCommitPropertiesAction;
@@ -585,7 +588,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		  manager.add(getOpenChangedPathAction());
 	  }
 	  if (sel.size() == 1) {
-		  manager.add(getShowHistoryAction());		  
+		  manager.add(getShowHistoryAction());	
+		  manager.add(getCompareAction());
 	  }
   }
   
@@ -1094,29 +1098,32 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
   
   private IAction getShowHistoryAction() {
-	    if(showHistoryAction == null) {
-	      showHistoryAction = new Action("Show History", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY)) {
-	        public void run() {
-//	          ShowHistoryAction delegate = new ShowHistoryAction();
-//	          delegate.init(this);
-//	          delegate.selectionChanged(this, changePathsViewer.getSelection());
-//	          if(isEnabled()) {
-//	            try {
-//	              // disableEditorActivation = true;
-//	              delegate.run(this);
-//	            } finally {
-//	              // disableEditorActivation = false;
-//	            }
-//	          }
-	          HistoryAction delegate = new HistoryAction();
-	          delegate.selectionChanged(this, changePathsViewer.getSelection());
-	          delegate.run(this);
-	        }
-	      };	    	
-	    }
-	  
-	    return showHistoryAction;
-	  }  
+    if(showHistoryAction == null) {
+      showHistoryAction = new Action("Show History", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY)) {
+        public void run() {
+          HistoryAction delegate = new HistoryAction();
+          delegate.selectionChanged(this, changePathsViewer.getSelection());
+          delegate.run(this);
+        }
+      };	    	
+    }
+  
+    return showHistoryAction;
+  }
+  
+  private IAction getCompareAction() {
+    if(compareAction == null) {
+      compareAction = new Action("Compare...") {
+        public void run() {
+          CompareAction delegate = new CompareAction();
+          delegate.selectionChanged(this, changePathsViewer.getSelection());
+          delegate.run(this);
+        }
+      };	    	
+    }
+	    
+	return compareAction;
+  }    
   
   class HistoryAction extends ShowHistoryAction {
 	  public IStructuredSelection fSelection;
@@ -1159,6 +1166,50 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		}
 	  }			  
   }
+  
+  class CompareAction extends ShowDifferencesAsUnifiedDiffAction {
+	  public IStructuredSelection fSelection;
+	  
+	  public CompareAction() {
+		 super();
+	  }
+	  
+	  protected ISVNRemoteResource[] getSelectedRemoteResources() {
+		  ISVNRemoteResource remoteResource = null;
+		  if (fSelection.getFirstElement() instanceof LogEntryChangePath) {
+			  try {
+				remoteResource = ((LogEntryChangePath)fSelection.getFirstElement()).getRemoteResource();
+			} catch (SVNException e) {}
+		  }
+		  else if (fSelection.getFirstElement() instanceof HistoryFolder) {
+			  HistoryFolder historyFolder = (HistoryFolder)fSelection.getFirstElement();
+			  Object[] children = historyFolder.getChildren();
+			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
+				  LogEntryChangePath changePath = (LogEntryChangePath)children[0];
+				  try {
+					  ISVNRemoteResource changePathResource = changePath.getRemoteResource();
+					  ISVNRemoteResource remoteFolder = changePathResource.getRepository().getRemoteFolder(historyFolder.getPath());					  
+					  remoteResource = new RemoteFolder(null, changePathResource.getRepository(), remoteFolder.getUrl(), changePathResource.getRevision(), (SVNRevision.Number)changePathResource.getRevision(), null, null); 
+				} catch (SVNException e) {}
+			  }
+		  }
+		  if (remoteResource != null) {
+			   ISVNRemoteResource[] selectedResource = { remoteResource };
+			  return selectedResource;
+		  }		  
+		  return new ISVNRemoteResource[0];
+	  }
+	  
+	  protected boolean isEnabled() {
+		  return true;
+	  }
+	  
+	  public void selectionChanged(IAction action, ISelection sel) {
+		if (sel instanceof IStructuredSelection) {
+			fSelection= (IStructuredSelection) sel;
+		}
+	  }			  
+  }  
 
   // get contents Action (context menu)
   private IAction getGetContentsAction() {
