@@ -41,6 +41,8 @@ public class LogEntry extends PlatformObject implements ILogEntry {
     
     private String messageOverride = null; // Log comment may be overridden  
     private String authorOverride = null; // Author names may be overridden  
+    
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
 
     /**
      * creates a LogEntry
@@ -321,7 +323,7 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	}
 	
 	private String formatDate() {
-		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(getDate());
+		return format.format(getDate());
 	}
 
 }
