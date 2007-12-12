@@ -121,6 +121,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.GenerateChangeLogAction;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
+import org.tigris.subversion.subclipse.ui.actions.ShowHistoryAction;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.console.TextViewerAction;
 import org.tigris.subversion.subclipse.ui.dialogs.HistorySearchDialog;
@@ -198,6 +199,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction getContentsAction;
   private IAction updateToRevisionAction;
   private IAction openChangedPathAction;
+  private IAction showHistoryAction;
 //  private IAction showDifferencesAsUnifiedDiffAction;
   private IAction createTagFromRevisionAction;
   private IAction setCommitPropertiesAction;
@@ -577,6 +579,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	  createTableHistory(svnHistoryPageControl);
   }
   
+  private void fillChangePathsMenu(IMenuManager manager) {
+	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+	  if (sel.getFirstElement() instanceof LogEntryChangePath) {
+		  manager.add(getOpenChangedPathAction());
+	  }
+	  if (sel.size() == 1) {
+		  manager.add(getShowHistoryAction());		  
+	  }
+  }
+  
   private void fillTableMenu(IMenuManager manager) {
     // file actions go first (view file)
     manager.add(new Separator(IWorkbenchActionConstants.GROUP_FILE));
@@ -656,6 +668,17 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         getOpenChangedPathAction().run();
       }
     });
+    
+    // Contribute actions to changed paths pane
+	MenuManager menuMgr = new MenuManager();
+	Menu menu = menuMgr.createContextMenu(changePathsViewer.getControl());
+	menuMgr.addMenuListener(new IMenuListener() {
+	  public void menuAboutToShow(IMenuManager menuMgr) {
+	    fillChangePathsMenu(menuMgr);
+	  }
+	});
+	menuMgr.setRemoveAllWhenShown(true);
+	changePathsViewer.getControl().setMenu(menu);    
 
     if(layout==ISVNUIConstants.LAYOUT_HORIZONTAL) {
       createText(innerSashForm);
@@ -1049,7 +1072,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   // open changed Path (double-click)
   private IAction getOpenChangedPathAction() {
     if(openChangedPathAction == null) {
-      openChangedPathAction = new Action() {
+      openChangedPathAction = new Action("Open") {
         public void run() {
           OpenRemoteFileAction delegate = new OpenRemoteFileAction();
           delegate.setUsePegRevision(true);
@@ -1068,6 +1091,73 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
     return openChangedPathAction;
 
+  }
+  
+  private IAction getShowHistoryAction() {
+	    if(showHistoryAction == null) {
+	      showHistoryAction = new Action("Show History", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY)) {
+	        public void run() {
+//	          ShowHistoryAction delegate = new ShowHistoryAction();
+//	          delegate.init(this);
+//	          delegate.selectionChanged(this, changePathsViewer.getSelection());
+//	          if(isEnabled()) {
+//	            try {
+//	              // disableEditorActivation = true;
+//	              delegate.run(this);
+//	            } finally {
+//	              // disableEditorActivation = false;
+//	            }
+//	          }
+	          HistoryAction delegate = new HistoryAction();
+	          delegate.selectionChanged(this, changePathsViewer.getSelection());
+	          delegate.run(this);
+	        }
+	      };	    	
+	    }
+	  
+	    return showHistoryAction;
+	  }  
+  
+  class HistoryAction extends ShowHistoryAction {
+	  public IStructuredSelection fSelection;
+	  
+	  public HistoryAction() {
+		 super();
+	  }
+	  
+	  protected ISVNRemoteResource[] getSelectedRemoteResources() {
+		  ISVNRemoteResource remoteResource = null;
+		  if (fSelection.getFirstElement() instanceof LogEntryChangePath) {
+			  try {
+				remoteResource = ((LogEntryChangePath)fSelection.getFirstElement()).getRemoteResource();
+			} catch (SVNException e) {}
+		  }
+		  else if (fSelection.getFirstElement() instanceof HistoryFolder) {
+			  HistoryFolder historyFolder = (HistoryFolder)fSelection.getFirstElement();
+			  Object[] children = historyFolder.getChildren();
+			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
+				  LogEntryChangePath changePath = (LogEntryChangePath)children[0];
+				  try {
+					remoteResource = changePath.getRemoteResource().getRepository().getRemoteFolder(historyFolder.getPath());
+				} catch (SVNException e) {}
+			  }
+		  }
+		  if (remoteResource != null) {
+			   ISVNRemoteResource[] selectedResource = { remoteResource };
+			  return selectedResource;
+		  }		  
+		  return new ISVNRemoteResource[0];
+	  }
+	  
+	  protected boolean isEnabled() {
+		  return true;
+	  }
+	  
+	  public void selectionChanged(IAction action, ISelection sel) {
+		if (sel instanceof IStructuredSelection) {
+			fSelection= (IStructuredSelection) sel;
+		}
+	  }			  
   }
 
   // get contents Action (context menu)
