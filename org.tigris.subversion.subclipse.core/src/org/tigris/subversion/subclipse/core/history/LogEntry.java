@@ -11,9 +11,8 @@
 package org.tigris.subversion.subclipse.core.history;
 
  
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.eclipse.core.runtime.PlatformObject;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
@@ -293,7 +292,9 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	}
 	
 	public String getChangeLog(boolean includeAffectedPaths) {
-		StringBuffer log = new StringBuffer("r" + getRevision() + " | " + getAuthor() + " | " + formatDate());
+		StringBuffer log = new StringBuffer("r" + getRevision());
+		if (getAuthor() != null) log.append(" | " + getAuthor());
+		if (getDate() != null) log.append(" | " + formatDate());
 		if (includeAffectedPaths) {
 			log.append("\nChanged paths:");
 			LogEntryChangePath[] changePaths = getLogEntryChangePaths();
@@ -308,7 +309,9 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	}
 	
 	public String getGnuLog() {
-		StringBuffer log = new StringBuffer(formatDate() + "  " + getAuthor());
+		StringBuffer log = new StringBuffer();
+		if (getDate() != null) log.append(formatDate());
+		if (getAuthor() != null) log.append("  " + getAuthor());
 		if (getComment() != null && getComment().trim().length() > 0) {
 			String tabbedComment = "\t" + getComment().replaceAll("\n", "\n\t");
 			log.append("\n\n" + tabbedComment);
@@ -318,21 +321,7 @@ public class LogEntry extends PlatformObject implements ILogEntry {
 	}
 	
 	private String formatDate() {
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(getDate().getTime());
-		String day = "0" + cal.get(Calendar.DATE);
-		String hour = "0" + cal.get(Calendar.HOUR_OF_DAY);
-		String min = "0" + cal.get(Calendar.MINUTE);
-		String sec = "0" + cal.get(Calendar.SECOND);
-		String month = "0" + (cal.get(Calendar.MONTH) + 1);
-		String year = "000" + cal.get(Calendar.YEAR);
-		return year.substring(year.length() - 4) + "-" +
-		month.substring(month.length() - 2) + "-" +
-		day.substring(day.length() - 2) + " " +
-		hour.substring(hour.length() - 2) + ":" +
-		min.substring(min.length() - 2) + ":" +
-		sec.substring(sec.length() - 2) + " " +
-		cal.getTimeZone().getDisplayName(cal.getTimeZone().inDaylightTime(getDate()), TimeZone.SHORT);
+		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(getDate());
 	}
 
 }
