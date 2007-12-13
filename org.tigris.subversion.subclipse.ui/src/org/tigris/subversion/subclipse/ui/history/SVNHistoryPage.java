@@ -122,6 +122,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.GenerateChangeLogAction;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
+import org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction;
 import org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffAction;
 import org.tigris.subversion.subclipse.ui.actions.ShowHistoryAction;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
@@ -203,7 +204,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction openChangedPathAction;
   private IAction showHistoryAction;
   private IAction compareAction;
-//  private IAction showDifferencesAsUnifiedDiffAction;
+  private IAction showAnnotationAction;
+
   private IAction createTagFromRevisionAction;
   private IAction setCommitPropertiesAction;
   private IAction showRevisionsAction;
@@ -259,7 +261,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
   public String getName() {
-    return remoteResource == null ? null : remoteResource.getRepositoryRelativePath() + " in "
+    return remoteResource == null ? null : remoteResource.getRepositoryRelativePath() + " in " 
         + remoteResource.getRepository();
   }
 
@@ -584,13 +586,18 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   
   private void fillChangePathsMenu(IMenuManager manager) {
 	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+	  manager.add(new Separator("exportImportGroup")); //$NON-NLS-1$
+	  manager.add(new Separator("openGroup")); //$NON-NLS-1$
+	  if (sel.size() == 1) {
+		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
+			  manager.add(getShowAnnotationAction());
+		  }
+		  manager.add(getCompareAction());
+	  }
 	  if (sel.getFirstElement() instanceof LogEntryChangePath) {
 		  manager.add(getOpenChangedPathAction());
 	  }
-	  if (sel.size() == 1) {
-		  manager.add(getShowHistoryAction());	
-		  manager.add(getCompareAction());
-	  }
+	  if (sel.size() == 1) manager.add(getShowHistoryAction());	
   }
   
   private void fillTableMenu(IMenuManager manager) {
@@ -1076,7 +1083,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   // open changed Path (double-click)
   private IAction getOpenChangedPathAction() {
     if(openChangedPathAction == null) {
-      openChangedPathAction = new Action("Open") {
+      openChangedPathAction = new Action("Open") { //$NON-NLS-1$
         public void run() {
           OpenRemoteFileAction delegate = new OpenRemoteFileAction();
           delegate.setUsePegRevision(true);
@@ -1099,7 +1106,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   
   private IAction getShowHistoryAction() {
     if(showHistoryAction == null) {
-      showHistoryAction = new Action("Show History", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY)) {
+      showHistoryAction = new Action("Show History", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY)) { //$NON-NLS-1$
         public void run() {
           HistoryAction delegate = new HistoryAction();
           delegate.selectionChanged(this, changePathsViewer.getSelection());
@@ -1111,9 +1118,23 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     return showHistoryAction;
   }
   
+  private IAction getShowAnnotationAction() {
+    if(showAnnotationAction == null) {
+      showAnnotationAction = new Action("Show Annotation", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_ANNOTATE)) { //$NON-NLS-1$
+        public void run() {
+          AnnotationAction delegate = new AnnotationAction();
+          delegate.selectionChanged(this, changePathsViewer.getSelection());
+          delegate.run(this);
+        }
+      };	    	
+    }
+	    
+	return showAnnotationAction;
+  }  
+  
   private IAction getCompareAction() {
     if(compareAction == null) {
-      compareAction = new Action("Compare...") {
+      compareAction = new Action("Compare...") { //$NON-NLS-1$
         public void run() {
           CompareAction delegate = new CompareAction();
           delegate.selectionChanged(this, changePathsViewer.getSelection());
@@ -1123,7 +1144,35 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
 	    
 	return compareAction;
-  }    
+  }
+  
+  class AnnotationAction extends ShowAnnotationAction {
+	  public IStructuredSelection fSelection;
+	  
+	  public AnnotationAction() {
+		 super();
+	  }
+	  
+	  protected ISVNRemoteFile getSingleSelectedSVNRemoteFile() {
+		  ISVNRemoteResource remoteResource = null;
+		  if (fSelection.getFirstElement() instanceof LogEntryChangePath) {
+			  try {
+				remoteResource = ((LogEntryChangePath)fSelection.getFirstElement()).getRemoteResource();
+			} catch (SVNException e) {}
+		  }
+		  return (ISVNRemoteFile)remoteResource; 
+	  }
+	  
+	  protected boolean isEnabled() {
+		  return true;
+	  }
+	  
+	  public void selectionChanged(IAction action, ISelection sel) {
+		if (sel instanceof IStructuredSelection) {
+			fSelection= (IStructuredSelection) sel;
+		}
+	  }			  
+  }  
   
   class HistoryAction extends ShowHistoryAction {
 	  public IStructuredSelection fSelection;
