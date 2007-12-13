@@ -120,6 +120,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.actions.ExportRemoteFolderAction;
 import org.tigris.subversion.subclipse.ui.actions.GenerateChangeLogAction;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction;
@@ -205,6 +206,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction showHistoryAction;
   private IAction compareAction;
   private IAction showAnnotationAction;
+  private IAction exportAction;
 
   private IAction createTagFromRevisionAction;
   private IAction setCommitPropertiesAction;
@@ -587,6 +589,11 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private void fillChangePathsMenu(IMenuManager manager) {
 	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
 	  manager.add(new Separator("exportImportGroup")); //$NON-NLS-1$
+	  if (sel.size() == 1) {
+		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
+			  manager.add(getExportAction());
+		  }		  
+	  }
 	  manager.add(new Separator("openGroup")); //$NON-NLS-1$
 	  if (sel.size() == 1) {
 		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
@@ -1118,6 +1125,20 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     return showHistoryAction;
   }
   
+  private IAction getExportAction() {
+    if(exportAction == null) {
+      exportAction = new Action("Export...", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_EXPORT)) { //$NON-NLS-1$
+        public void run() {
+          ExportAction delegate = new ExportAction();
+          delegate.selectionChanged(this, changePathsViewer.getSelection());
+          delegate.run(this);
+        }
+      };	    	
+    }
+  
+    return exportAction;
+  }  
+  
   private IAction getShowAnnotationAction() {
     if(showAnnotationAction == null) {
       showAnnotationAction = new Action("Show Annotation", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_ANNOTATE)) { //$NON-NLS-1$
@@ -1215,6 +1236,38 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		}
 	  }			  
   }
+  
+  class ExportAction extends ExportRemoteFolderAction {
+	  public IStructuredSelection fSelection;
+	  
+	  public ExportAction() {
+		 super();
+	  }
+	  
+	  protected ISVNRemoteResource[] getSelectedRemoteResources() {
+		  ISVNRemoteResource remoteResource = null;
+		  if (fSelection.getFirstElement() instanceof LogEntryChangePath) {
+			  try {
+				remoteResource = ((LogEntryChangePath)fSelection.getFirstElement()).getRemoteResource();
+			} catch (SVNException e) {}
+		  }
+		  if (remoteResource != null) {
+			   ISVNRemoteResource[] selectedResource = { remoteResource };
+			  return selectedResource;
+		  }		  
+		  return new ISVNRemoteResource[0];
+	  }
+	  
+	  protected boolean isEnabled() {
+		  return true;
+	  }
+	  
+	  public void selectionChanged(IAction action, ISelection sel) {
+		if (sel instanceof IStructuredSelection) {
+			fSelection= (IStructuredSelection) sel;
+		}
+	  }			  
+  }  
   
   class CompareAction extends ShowDifferencesAsUnifiedDiffAction {
 	  public IStructuredSelection fSelection;
