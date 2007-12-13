@@ -207,6 +207,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction compareAction;
   private IAction showAnnotationAction;
   private IAction exportAction;
+  private IAction createTagFromRevisionChangedPathAction;
 
   private IAction createTagFromRevisionAction;
   private IAction setCommitPropertiesAction;
@@ -588,6 +589,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   
   private void fillChangePathsMenu(IMenuManager manager) {
 	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+	  if (sel.size() == 1) {
+		  manager.add(getCreateTagFromRevisionChangedPathAction());
+	  }
 	  manager.add(new Separator("exportImportGroup")); //$NON-NLS-1$
 	  if (sel.size() == 1) {
 		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
@@ -1065,6 +1069,14 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   public boolean isShowChangePaths() {
 	  return showAffectedPaths;
   }
+  
+  private SVNRevision getSelectedRevision() {
+	  IStructuredSelection sel = (IStructuredSelection)tableHistoryViewer.getSelection();
+	  if (sel.getFirstElement() instanceof ILogEntry) {
+		  return ((ILogEntry)sel.getFirstElement()).getRevision();
+	  }
+	  return null;
+  }
 
   private IAction getOpenRemoteFileAction() {
     if(openAction == null) {
@@ -1166,6 +1178,97 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	    
 	return compareAction;
   }
+  
+  private IAction getCreateTagFromRevisionChangedPathAction() {
+    if(createTagFromRevisionChangedPathAction == null) {
+    	createTagFromRevisionChangedPathAction = new Action() { //$NON-NLS-1$
+        public void run() {
+        	SVNRevision selectedRevision = null;
+            ISelection selection = getSelection();
+            if( !(selection instanceof IStructuredSelection))
+              return;         
+            IStructuredSelection sel = (IStructuredSelection)selection;
+            ISVNRemoteResource remoteResource = null;
+	  		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
+				  try {
+					remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
+					selectedRevision = remoteResource.getRevision();
+				} catch (SVNException e) {}
+			  }
+			  else if (sel.getFirstElement() instanceof HistoryFolder) {
+				  HistoryFolder historyFolder = (HistoryFolder)sel.getFirstElement();
+				  Object[] children = historyFolder.getChildren();
+				  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
+					  LogEntryChangePath changePath = (LogEntryChangePath)children[0];
+					  try {
+						remoteResource = changePath.getRemoteResource().getRepository().getRemoteFolder(historyFolder.getPath());
+						selectedRevision = getSelectedRevision();
+					} catch (SVNException e) {}
+				  }
+			  }  
+	  		  if (remoteResource == null) return;
+	  		 SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(remoteResource);
+            branchTagPage.setRevisionNumber(Long.parseLong(selectedRevision.toString()));
+        	SvnWizard wizard = new SvnWizard(branchTagPage);
+            SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
+            wizard.setParentDialog(dialog); 
+            if (!(dialog.open() == SvnWizardDialog.OK)) return;
+            final SVNUrl sourceUrl = branchTagPage.getUrl();
+            final SVNUrl destinationUrl = branchTagPage.getToUrl();
+            final String message = branchTagPage.getComment();
+            final SVNRevision revision = branchTagPage.getRevision();
+            final boolean makeParents = branchTagPage.isMakeParents();
+            try {
+                BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+                    public void run() {
+                      try {
+                        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+                        client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+                      } catch(Exception e) {
+                        MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                            .getMessage());
+                      }
+                    }
+                  });
+            } catch(Exception e) {
+              MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                  .getMessage());
+            }
+        }
+      };	    	
+    }
+    
+    ISelection selection = getSelection();
+    if(selection instanceof IStructuredSelection) {
+      IStructuredSelection sel = (IStructuredSelection) selection;
+      SVNRevision selectedRevision = null;
+      if(sel.size() == 1) {
+          ISVNRemoteResource remoteResource = null;
+  		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
+			  try {
+				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
+				selectedRevision = remoteResource.getRevision();
+			} catch (SVNException e) {}
+		  }
+		  else if (sel.getFirstElement() instanceof HistoryFolder) {
+			  HistoryFolder historyFolder = (HistoryFolder)sel.getFirstElement();
+			  Object[] children = historyFolder.getChildren();
+			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
+				  LogEntryChangePath changePath = (LogEntryChangePath)children[0];
+				  try {
+					remoteResource = changePath.getRemoteResource().getRepository().getRemoteFolder(historyFolder.getPath());
+					selectedRevision = getSelectedRevision();
+				} catch (SVNException e) {}
+			  }
+		  }  
+        createTagFromRevisionChangedPathAction.setText(Policy.bind("HistoryView.createTagFromRevision", ""
+            + selectedRevision));
+      }
+    }	
+    createTagFromRevisionChangedPathAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_BRANCHTAG));        
+	    
+	return createTagFromRevisionChangedPathAction;
+  }  
   
   class AnnotationAction extends ShowAnnotationAction {
 	  public IStructuredSelection fSelection;
@@ -1344,48 +1447,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
     return getContentsAction;
   }
-
-  // get differences as unified diff action (context menu)
-//  private IAction getShowDifferencesAsUnifiedDiffAction() {
-//    if(showDifferencesAsUnifiedDiffAction == null) {
-//      showDifferencesAsUnifiedDiffAction = new Action(
-//          Policy.bind("HistoryView.showDifferences"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_DIFF)) { //$NON-NLS-1$
-//        public void run() {
-//          ISelection selection = getSelection();
-//          if( !(selection instanceof IStructuredSelection))
-//            return;
-//          ILogEntry currentSelection = getLogEntry((IStructuredSelection) selection);
-//          FileDialog dialog = new FileDialog(getSite().getShell(), SWT.SAVE);
-//          dialog.setText("Select Unified Diff Output File");
-//          dialog.setFileName("revision" + currentSelection.getRevision().getNumber() + ".diff"); //$NON-NLS-1$
-//          String outFile = dialog.open();
-//          if(outFile != null) {
-//            final SVNUrl url = currentSelection.getResource().getUrl();
-//            final SVNRevision oldUrlRevision = new SVNRevision.Number(currentSelection.getRevision().getNumber() - 1);
-//            final SVNRevision newUrlRevision = currentSelection.getRevision();
-//            final File file = new File(outFile);
-//            if(file.exists()) {
-//              if( !MessageDialog.openQuestion(getSite().getShell(), Policy.bind("HistoryView.showDifferences"), Policy
-//                  .bind("HistoryView.overwriteOutfile", file.getName())))
-//                return;
-//            }
-//            BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-//              public void run() {
-//                try {
-//                  ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-//                  client.diff(url, oldUrlRevision, newUrlRevision, file, true);
-//                } catch(Exception e) {
-//                  MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.showDifferences"), e
-//                      .getMessage());
-//                }
-//              }
-//            });
-//          }
-//        }
-//      };
-//    }
-//    return showDifferencesAsUnifiedDiffAction;
-//  }
 
   // update to the selected revision (context menu)
   private IAction getUpdateToRevisionAction() {
