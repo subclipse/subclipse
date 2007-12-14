@@ -547,12 +547,14 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     // updates the comments and affected paths when selection changes
     this.tableHistoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
       private ILogEntry currentLogEntry;
+      private int currentSelectionSize = -1;
 
       public void selectionChanged(SelectionChangedEvent event) {
         ISelection selection = event.getSelection();
         ILogEntry logEntry = getLogEntry((IStructuredSelection) selection);
-        if(logEntry != currentLogEntry) {
+        if(logEntry != currentLogEntry || ((IStructuredSelection) selection).size() != currentSelectionSize) {
           this.currentLogEntry = logEntry;
+          this.currentSelectionSize = ((IStructuredSelection) selection).size();
           updatePanels(selection);
         }
 
