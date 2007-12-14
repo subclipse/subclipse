@@ -31,7 +31,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -594,6 +593,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private void fillChangePathsMenu(IMenuManager manager) {
 	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
 	  if (sel.size() == 1) {
+		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
+			  manager.add(getGetContentsAction());
+		  }
 		  manager.add(getCreateTagFromRevisionChangedPathAction());
 	  }
 	  manager.add(getRevertChangesChangedPathAction());
@@ -626,7 +628,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       if(sel instanceof IStructuredSelection) {
         if(((IStructuredSelection) sel).size() == 1) {
           if(resource != null && resource instanceof IFile) {
-            manager.add(getGetContentsAction());
+//            manager.add(getGetContentsAction());
             manager.add(getUpdateToRevisionAction());
           }
 //          manager.add(getShowDifferencesAsUnifiedDiffAction());
@@ -1421,30 +1423,35 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   // get contents Action (context menu)
   private IAction getGetContentsAction() {
     if(getContentsAction == null) {
-      getContentsAction = getContextMenuAction(Policy.bind("HistoryView.getContentsAction"), new IWorkspaceRunnable() { //$NON-NLS-1$
-            public void run(IProgressMonitor monitor) throws CoreException {
-              ISelection selection = getSelection();
-              if( !(selection instanceof IStructuredSelection))
-                return;
-              IStructuredSelection ss = (IStructuredSelection) selection;
-              ISVNRemoteFile remoteFile = (ISVNRemoteFile) getLogEntry(ss).getRemoteResource();
-              monitor.beginTask(null, 100);
-              try {
-                if(remoteFile != null) {
-                  if(confirmOverwrite()) {
-                    InputStream in = ((IResourceVariant) remoteFile).getStorage(new SubProgressMonitor(monitor, 50))
-                        .getContents();
-                    IFile file = (IFile) resource;
-                    file.setContents(in, false, true, new SubProgressMonitor(monitor, 50));
-                  }
-                }
-              } catch(TeamException e) {
-                throw new CoreException(e.getStatus());
-              } finally {
-                monitor.done();
-              }
-            }
-          });
+    	getContentsAction = new Action(Policy.bind("HistoryView.getContentsAction")) {
+    		public void run() {
+    			BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+					public void run() {
+					  try {
+			            IStructuredSelection ss = (IStructuredSelection) changePathsViewer.getSelection();
+			            if (!(ss.getFirstElement() instanceof LogEntryChangePath)) return;
+			            LogEntryChangePath changePath = (LogEntryChangePath)ss.getFirstElement();		            
+			            ISVNRemoteResource remoteResource = changePath.getRemoteResource();
+			            if (!(remoteResource instanceof ISVNRemoteFile)) return;
+			            ISVNRemoteFile remoteFile = (ISVNRemoteFile) remoteResource;
+		                if(remoteFile != null) {
+		                	IResource selectedResource = null;
+							if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(changePath.getPath()));
+							else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(changePath.getPath()));												            		                	
+		                  if(confirmOverwrite(selectedResource)) {
+		                    InputStream in = ((IResourceVariant) remoteFile).getStorage(null)
+		                        .getContents();
+		                    IFile file = (IFile) selectedResource;
+		                    file.setContents(in, false, true, null);
+		                  }
+		                }
+					  } catch (Exception e) {
+						  MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("HistoryView.getContentsAction"), e.getMessage());
+					  }
+					}				
+    			});
+    		}  		
+    	};
       PlatformUI.getWorkbench().getHelpSystem().setHelp(getContentsAction, IHelpContextIds.GET_FILE_CONTENTS_ACTION);
     }
     return getContentsAction;
@@ -2116,7 +2123,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
    * Ask the user to confirm the overwrite of the file if the file has been
    * modified since last commit
    */
-  private boolean confirmOverwrite() {
+  private boolean confirmOverwrite(IResource resource) {
     IFile file = (IFile) resource;
     if(file != null && file.exists()) {
       ISVNLocalFile svnFile = SVNWorkspaceRoot.getSVNFileFor(file);
@@ -2142,6 +2149,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       }
     }
     return true;
+  }
+  
+  private boolean confirmOverwrite() {
+	  return confirmOverwrite(resource);
   }
 
   private ISelection getSelection() {
