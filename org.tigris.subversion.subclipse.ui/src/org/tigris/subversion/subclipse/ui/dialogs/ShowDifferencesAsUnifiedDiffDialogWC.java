@@ -15,7 +15,6 @@ import java.io.File;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -58,7 +57,7 @@ import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
+public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 	private IResource resource;
 	private IWorkbenchPart targetPart;
 	private Button compareButton;
@@ -67,7 +66,6 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 	private Button browseButton;
 	private UrlCombo toUrlText;
 	private Button toHeadButton;
-	private  Button toRevisionButton;
 	private Text toRevisionText;
 	private Button toLogButton;
 	private Button okButton;
@@ -75,7 +73,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 	private File file;
 
 	public ShowDifferencesAsUnifiedDiffDialogWC(Shell parentShell, IResource resource, IWorkbenchPart targetPart) {
-		super(parentShell);
+		super(parentShell, "ShowDifferencesAsUnifiedDiffDialogWC"); //$NON-NLS-1$
 		this.resource = resource;
 		this.targetPart = targetPart;
 	}
@@ -112,9 +110,10 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 		
 		Label toUrlLabel = new Label(toGroup, SWT.NONE);
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
-		data = new GridData();
-		data.widthHint = 500;
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		toUrlText = new UrlCombo(toGroup, resource.getProject().getName(), data);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		toUrlText.setLayoutData(data);
 		
 		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		toUrlText.setText(localResource.getUrl().toString());
@@ -132,25 +131,26 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 			}
 		});
 		
-		Group toRevisionGroup = new Group(toGroup, SWT.NULL);
-		toRevisionGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
+		Composite toRevisionGroup = new Composite(toGroup, SWT.NULL);
 		GridLayout toRevisionLayout = new GridLayout();
 		toRevisionLayout.numColumns = 3;
+		toRevisionLayout.marginWidth = 0;
+		toRevisionLayout.marginHeight = 0;
 		toRevisionGroup.setLayout(toRevisionLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 3;
 		toRevisionGroup.setLayoutData(data);
 		
-		toHeadButton = new Button(toRevisionGroup, SWT.RADIO);
+		toHeadButton = new Button(toRevisionGroup, SWT.CHECK);
 		toHeadButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.head")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		toHeadButton.setLayoutData(data);
-		
-		toRevisionButton = new Button(toRevisionGroup, SWT.RADIO);
-		toRevisionButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
-		
+
 		toHeadButton.setSelection(true);
+		
+		Label revisionLabel = new Label(toRevisionGroup, SWT.NONE);
+		revisionLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
 		
 		toRevisionText = new Text(toRevisionGroup, SWT.BORDER);
 		data = new GridData();
@@ -187,8 +187,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 		compareButton.setSelection(true);
 		
 		fileText = new Text(fileGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 450;
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		fileText.setLayoutData(data);
 		fileText.setEnabled(false);
 		
@@ -214,10 +213,10 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 		
 		SelectionListener selectionListener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-                toRevisionText.setEnabled(toRevisionButton.getSelection());
-                toLogButton.setEnabled(toRevisionButton.getSelection() && toUrlText.getText().trim().length() > 0);
+				toRevisionText.setEnabled(!toHeadButton.getSelection());
+				toLogButton.setEnabled(!toHeadButton.getSelection() && toUrlText.getText().trim().length() > 0);
 				setOkButtonStatus();
-				if (e.getSource() == toRevisionButton && toRevisionButton.getSelection()) {
+				if (e.getSource() == toHeadButton && !toHeadButton.getSelection()) {
                     toRevisionText.selectAll();
                     toRevisionText.setFocus();					
 				}				
@@ -243,7 +242,6 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
 		toUrlText.getCombo().addModifyListener(modifyListener);
 		toRevisionText.addModifyListener(modifyListener);
 		toHeadButton.addSelectionListener(selectionListener);
-		toRevisionButton.addSelectionListener(selectionListener);
 		compareButton.addSelectionListener(compareTypeListener);
 		diffButton.addSelectionListener(compareTypeListener);
 		
@@ -330,7 +328,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends TrayDialog {
     	boolean canFinish = true;
     	if (diffButton.getSelection() && fileText.getText().trim().length() == 0) canFinish = false;
     	if (toUrlText.getText().trim().length() == 0) canFinish = false;
-    	if (toRevisionButton.getSelection() && toRevisionText.getText().trim().length() == 0) canFinish = false;
+    	if (!toHeadButton.getSelection() && toRevisionText.getText().trim().length() == 0) canFinish = false;
     	okButton.setEnabled(canFinish);   	
     }
 	
