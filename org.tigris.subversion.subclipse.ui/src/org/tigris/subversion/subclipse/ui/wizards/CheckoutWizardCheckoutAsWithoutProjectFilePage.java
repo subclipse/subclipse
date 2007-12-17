@@ -45,7 +45,6 @@ public class CheckoutWizardCheckoutAsWithoutProjectFilePage extends WizardPage {
 	private Button existingButton;
 	private Text revisionText;
     private Button headButton;
-    private Button revisionButton;
 	private Combo depthCombo;
 	private Button ignoreExternalsButton;
 	private Button forceButton;        
@@ -69,8 +68,7 @@ public class CheckoutWizardCheckoutAsWithoutProjectFilePage extends WizardPage {
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
 		textLabel = new Label(outerContainer, SWT.NONE);
-		GridData data = new GridData();
-		data.widthHint = 300;
+		GridData data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		textLabel.setLayoutData(data);
 		
 		if (remoteFolders != null) {
@@ -93,8 +91,7 @@ public class CheckoutWizardCheckoutAsWithoutProjectFilePage extends WizardPage {
 		Label projectLabel = new Label(projectGroup, SWT.NONE);
 		projectLabel.setText(Policy.bind("CheckoutWizardCheckoutAsPage.projectName")); //$NON-NLS-1$
 		projectText = new Text(projectGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 300;
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		projectText.setLayoutData(data);
 		if (remoteFolders != null) projectText.setText(remoteFolders[0].getName());
 		projectText.setEnabled(false);
@@ -113,24 +110,25 @@ public class CheckoutWizardCheckoutAsWithoutProjectFilePage extends WizardPage {
 		
 		wizardButton.setSelection(true);
 		
-		Group revisionGroup = new Group(outerContainer, SWT.NULL);
-		revisionGroup.setText(Policy.bind("CheckoutWizardProjectPage.revision")); //$NON-NLS-1$
+		Composite revisionGroup = new Composite(outerContainer, SWT.NULL);
 		GridLayout revisionLayout = new GridLayout();
 		revisionLayout.numColumns = 3;
+		revisionLayout.marginWidth = 0;
+		revisionLayout.marginHeight = 0;
 		revisionGroup.setLayout(revisionLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		revisionGroup.setLayoutData(data);
 		
-		headButton = new Button(revisionGroup, SWT.RADIO);
-		headButton.setText(Policy.bind("SwitchDialog.head")); //$NON-NLS-1$
+		headButton = new Button(revisionGroup, SWT.CHECK);
+		headButton.setText(Policy.bind("CheckoutWizard.head")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		headButton.setLayoutData(data);
 		
-		revisionButton = new Button(revisionGroup, SWT.RADIO);
-		revisionButton.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
-		
 		headButton.setSelection(true);
+		
+		Label revisionLabel = new Label(revisionGroup, SWT.NONE);
+		revisionLabel.setText(Policy.bind("CheckoutWizard.revision")); //$NON-NLS-1$
 		
 		revisionText = new Text(revisionGroup, SWT.BORDER);
 		data = new GridData();
@@ -148,16 +146,15 @@ public class CheckoutWizardCheckoutAsWithoutProjectFilePage extends WizardPage {
 		
 		SelectionListener revisionListener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                revisionText.setEnabled(revisionButton.getSelection());
-                if (revisionButton.getSelection()) {
+                revisionText.setEnabled(!headButton.getSelection());
+                if (!headButton.getSelection()) {
                     revisionText.selectAll();
                     revisionText.setFocus();
                 }               
             }
 		};
 		
-		headButton.addSelectionListener(revisionListener);
-		revisionButton.addSelectionListener(revisionListener);	
+		headButton.addSelectionListener(revisionListener);	
 		
 		SelectionListener selectionListener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -227,7 +224,6 @@ public class CheckoutWizardCheckoutAsWithoutProjectFilePage extends WizardPage {
         ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
         if (selectedEntries.length == 0) return;
         revisionText.setText(Long.toString(selectedEntries[0].getRevision().getNumber()));
-        revisionButton.setSelection(true);
         revisionText.setEnabled(true);
         headButton.setSelection(false);           	
 	}

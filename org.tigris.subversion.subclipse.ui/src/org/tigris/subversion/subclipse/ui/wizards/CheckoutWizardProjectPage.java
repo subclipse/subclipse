@@ -69,8 +69,7 @@ public class CheckoutWizardProjectPage extends WizardPage {
 		locationLabel = new Label(outerContainer, SWT.NONE);
 		locationLabel.setText(Policy.bind("CheckoutWizardProjectPage.location")); //$NON-NLS-1$
 		locationText = new Text(outerContainer, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 300;
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		locationText.setLayoutData(data);
 		setLocation();
 		locationText.addModifyListener(new ModifyListener() {

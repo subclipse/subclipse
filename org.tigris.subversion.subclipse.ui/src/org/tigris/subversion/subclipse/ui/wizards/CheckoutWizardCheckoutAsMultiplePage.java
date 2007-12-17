@@ -41,7 +41,6 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
 	private Button existingButton;
 	private Text revisionText;
     private Button headButton;
-    private Button revisionButton;
 	private Combo depthCombo;
 	private Button ignoreExternalsButton;
 	private Button forceButton;    
@@ -63,8 +62,7 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
 		textLabel = new Label(outerContainer, SWT.NONE);
-		GridData data = new GridData();
-		data.widthHint = 300;
+		GridData data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		textLabel.setLayoutData(data);
 		
 		if (wizard.getRemoteFolders() != null) {
@@ -81,24 +79,23 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
 		
 		projectsButton.setSelection(true);
 		
-		Group revisionGroup = new Group(outerContainer, SWT.NULL);
-		revisionGroup.setText(Policy.bind("CheckoutWizardProjectPage.revision")); //$NON-NLS-1$
+		Composite revisionGroup = new Composite(outerContainer, SWT.NULL);
 		GridLayout revisionLayout = new GridLayout();
 		revisionLayout.numColumns = 3;
 		revisionGroup.setLayout(revisionLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		revisionGroup.setLayoutData(data);
 		
-		headButton = new Button(revisionGroup, SWT.RADIO);
-		headButton.setText(Policy.bind("SwitchDialog.head")); //$NON-NLS-1$
+		headButton = new Button(revisionGroup, SWT.CHECK);
+		headButton.setText(Policy.bind("CheckoutWizard.head")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		headButton.setLayoutData(data);
 		
-		revisionButton = new Button(revisionGroup, SWT.RADIO);
-		revisionButton.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
-		
 		headButton.setSelection(true);
+		
+		Label revisionLabel = new Label(revisionGroup, SWT.NONE);
+		revisionLabel.setText(Policy.bind("CheckoutWizard.revision")); //$NON-NLS-1$
 		
 		revisionText = new Text(revisionGroup, SWT.BORDER);
 		data = new GridData();
@@ -116,8 +113,8 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
 		
 		SelectionListener revisionListener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                revisionText.setEnabled(revisionButton.getSelection());
-                if (revisionButton.getSelection()) {
+                revisionText.setEnabled(!headButton.getSelection());
+                if (!headButton.getSelection()) {
                     revisionText.selectAll();
                     revisionText.setFocus();
                 }               
@@ -125,7 +122,6 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
 		};
 		
 		headButton.addSelectionListener(revisionListener);
-		revisionButton.addSelectionListener(revisionListener);
 		
 		Group parameterGroup = new Group(outerContainer, SWT.NULL);
 		GridLayout parameterLayout = new GridLayout();
@@ -168,7 +164,6 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
         ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
         if (selectedEntries.length == 0) return;
         revisionText.setText(Long.toString(selectedEntries[0].getRevision().getNumber()));
-        revisionButton.setSelection(true);
         revisionText.setEnabled(true);
         headButton.setSelection(false);           	
 	}
