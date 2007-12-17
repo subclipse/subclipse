@@ -15,7 +15,6 @@ import java.net.MalformedURLException;
 import java.text.ParseException;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -50,23 +49,20 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class MergeDialog extends TrayDialog {
+public class MergeDialog extends SvnDialog {
     
-    private static final int URL_WIDTH_HINT = 450;
     private static final int REVISION_WIDTH_HINT = 40;
     
     private UrlCombo fromUrlCombo;
     private Button fromBrowseButton;
     private Text fromRevisionText;
     private Button fromHeadButton;
-    private Button fromRevisionButton;
 
     private Button useFromUrlButton;
     private UrlCombo toUrlCombo;
     private Button toBrowseButton;
     private Text toRevisionText;
     private Button toHeadButton;
-    private Button toRevisionButton;
     
     private Button ignoreAncestryButton;
     private Button forceButton;
@@ -89,7 +85,7 @@ public class MergeDialog extends TrayDialog {
     private ISVNClientAdapter svnClient;
 
     public MergeDialog(Shell parentShell, IResource resource) {
-        super(parentShell);
+        super(parentShell, "MergeDialog");
         this.resource = resource;
     }
     
@@ -117,8 +113,13 @@ public class MergeDialog extends TrayDialog {
 		GridLayout fromLayout = new GridLayout();
 		fromLayout.numColumns = 2;
 		fromGroup.setLayout(fromLayout);
+		data = new GridData(GridData.FILL_BOTH);
+		fromGroup.setLayoutData(data);
 		
-		fromUrlCombo = new UrlCombo(fromGroup, resource.getProject().getName());
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		fromUrlCombo = new UrlCombo(fromGroup, resource.getProject().getName(), data);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		fromUrlCombo.setLayoutData(data);
 		if (urlString != null) fromUrlCombo.setText(urlString);
 		
 		fromBrowseButton = new Button(fromGroup, SWT.PUSH);
@@ -131,16 +132,14 @@ public class MergeDialog extends TrayDialog {
 		data = new GridData(GridData.FILL_BOTH);
 		fromRevisionComposite.setLayoutData(data);
 		
-		fromHeadButton = new Button(fromRevisionComposite, SWT.RADIO);
-		fromHeadButton.setText(Policy.bind("SwitchDialog.head")); //$NON-NLS-1$
+		fromHeadButton = new Button(fromRevisionComposite, SWT.CHECK);
+		fromHeadButton.setText(Policy.bind("MergeDialog.fromHead")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		fromHeadButton.setLayoutData(data);
 		
-		fromRevisionButton = new Button(fromRevisionComposite, SWT.RADIO);
-		fromRevisionButton.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
-		
-		fromRevisionButton.setSelection(true);
+		Label fromRevisionLabel = new Label(fromRevisionComposite, SWT.NONE);
+		fromRevisionLabel.setText(Policy.bind("MergeDialog.revision")); //$NON-NLS-1$
 		
 		fromRevisionText = new Text(fromRevisionComposite, SWT.BORDER);
 		data = new GridData();
@@ -157,23 +156,24 @@ public class MergeDialog extends TrayDialog {
 		
 		SelectionListener fromListener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                fromRevisionText.setEnabled(fromRevisionButton.getSelection());
+                fromRevisionText.setEnabled(!fromHeadButton.getSelection());
                 setOkButtonStatus();
-                if (fromRevisionButton.getSelection()) {
+                if (!fromHeadButton.getSelection()) {
                     fromRevisionText.selectAll();
                     fromRevisionText.setFocus();
                 }               
             }
 		};
 		
-		fromHeadButton.addSelectionListener(fromListener);
-		fromRevisionButton.addSelectionListener(fromListener);		
+		fromHeadButton.addSelectionListener(fromListener);	
 		
 		Group toGroup = new Group(composite, SWT.NULL);
 		toGroup.setText(Policy.bind("MergeDialog.to")); //$NON-NLS-1$
 		GridLayout toLayout = new GridLayout();
 		toLayout.numColumns = 2;
 		toGroup.setLayout(toLayout);
+		data = new GridData(GridData.FILL_BOTH);
+		toGroup.setLayoutData(data);
 		
 		Composite useFromComposite = new Composite(toGroup, SWT.NULL);
 		GridLayout useFromLayout = new GridLayout();
@@ -187,7 +187,10 @@ public class MergeDialog extends TrayDialog {
 		
 		useFromUrlButton.setText(Policy.bind("MergeDialog.useFrom")); //$NON-NLS-1$
 		
-		toUrlCombo = new UrlCombo(toGroup, resource.getProject().getName());
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		toUrlCombo = new UrlCombo(toGroup, resource.getProject().getName(), data);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		toUrlCombo.setLayoutData(data);
 		toUrlCombo.setText(fromUrlCombo.getText());
 		toUrlCombo.getCombo().setVisible(false);
 		
@@ -202,16 +205,14 @@ public class MergeDialog extends TrayDialog {
 		data = new GridData(GridData.FILL_BOTH);
 		toRevisionComposite.setLayoutData(data);
 		
-		toHeadButton = new Button(toRevisionComposite, SWT.RADIO);
-		toHeadButton.setText(Policy.bind("SwitchDialog.head")); //$NON-NLS-1$
+		toHeadButton = new Button(toRevisionComposite, SWT.CHECK);
+		toHeadButton.setText(Policy.bind("MergeDialog.toHead")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		toHeadButton.setLayoutData(data);
 		
-		toRevisionButton = new Button(toRevisionComposite, SWT.RADIO);
-		toRevisionButton.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
-		
-		toRevisionButton.setSelection(true);
+		Label toRevisionLabel = new Label(toRevisionComposite, SWT.NONE);
+		toRevisionLabel.setText(Policy.bind("MergeDialog.revision")); //$NON-NLS-1$
 		
 		toRevisionText = new Text(toRevisionComposite, SWT.BORDER);
 		data = new GridData();
@@ -228,9 +229,9 @@ public class MergeDialog extends TrayDialog {
 		
 		SelectionListener toListener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                toRevisionText.setEnabled(toRevisionButton.getSelection());
+                toRevisionText.setEnabled(!toHeadButton.getSelection());
                 setOkButtonStatus();
-                if (toRevisionButton.getSelection()) {
+                if (!toHeadButton.getSelection()) {
                     toRevisionText.selectAll();
                     toRevisionText.setFocus();
                 }                             
@@ -238,7 +239,6 @@ public class MergeDialog extends TrayDialog {
 		};
 		
 		toHeadButton.addSelectionListener(toListener);
-		toRevisionButton.addSelectionListener(toListener);
 		
 		SelectionListener browseListener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -317,8 +317,7 @@ public class MergeDialog extends TrayDialog {
 		
 		Text workingText = new Text(workingComposite, SWT.BORDER);
 		workingText.setEnabled(false);
-		data = new GridData();
-		data.widthHint = URL_WIDTH_HINT;
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		workingText.setLayoutData(data);
 		workingText.setText(resource.getWorkspace().getRoot().getLocation().toString());
 		
@@ -327,8 +326,7 @@ public class MergeDialog extends TrayDialog {
 		
 		Text repositoryText = new Text(workingComposite, SWT.BORDER);
 		repositoryText.setEnabled(false);
-		data = new GridData();
-		data.widthHint = URL_WIDTH_HINT;
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		repositoryText.setLayoutData(data);	
 		if (urlString != null)repositoryText.setText(urlString);
 		
@@ -454,10 +452,8 @@ public class MergeDialog extends TrayDialog {
         if (selectedEntries.length == 0) return;
         if ((text != null) && useFromUrlButton.getSelection()) {
             fromRevisionText.setText(Long.toString(selectedEntries[selectedEntries.length - 1].getRevision().getNumber() - 1));
-            fromRevisionButton.setSelection(true);
             fromHeadButton.setSelection(false);
             toRevisionText.setText(Long.toString(selectedEntries[0].getRevision().getNumber()));
-            toRevisionButton.setSelection(true);
             toHeadButton.setSelection(false);                  
             fromRevisionText.setEnabled(true);
             toRevisionText.setEnabled(true);
@@ -465,13 +461,11 @@ public class MergeDialog extends TrayDialog {
         }
         if ((text == fromRevisionText) || ((text == null) && (fromRevisionText.getText().trim().length() == 0))) {
             fromRevisionText.setText(Long.toString(selectedEntries[0].getRevision().getNumber()));
-            fromRevisionButton.setSelection(true);
             fromHeadButton.setSelection(false); 
             fromRevisionText.setEnabled(true);
         }
         if (text == toRevisionText) {
             toRevisionText.setText(Long.toString(selectedEntries[0].getRevision().getNumber()));
-            toRevisionButton.setSelection(true);
             toHeadButton.setSelection(false);
             toRevisionText.setEnabled(true);
         } 
