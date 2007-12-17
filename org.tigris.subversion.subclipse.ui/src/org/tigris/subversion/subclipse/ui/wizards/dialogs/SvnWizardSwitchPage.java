@@ -61,7 +61,6 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
     private Text revisionText;
     private Button logButton;
     private Button headButton;
-    private Button revisionButton;
     
 	private Table table;
 	private TableViewer viewer; 
@@ -109,7 +108,10 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		Label urlLabel = new Label(composite, SWT.NONE);
 		urlLabel.setText(Policy.bind("SwitchDialog.url")); //$NON-NLS-1$
 		
-		urlCombo = new UrlCombo(composite, resources[0].getProject().getName());
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		urlCombo = new UrlCombo(composite, resources[0].getProject().getName(), data);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		urlCombo.setLayoutData(data);
 
 		commonRoot = getCommonRoot();
 		if (commonRoot != null) urlCombo.setText(commonRoot);
@@ -133,23 +135,24 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
             }
 		});
 
-		Group revisionGroup = new Group(composite, SWT.NULL);
-		revisionGroup.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
+		Composite revisionGroup = new Composite(composite, SWT.NULL);
 		GridLayout revisionLayout = new GridLayout();
 		revisionLayout.numColumns = 3;
+		revisionLayout.marginWidth = 0;
+		revisionLayout.marginHeight = 0;
 		revisionGroup.setLayout(revisionLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 3;
 		revisionGroup.setLayoutData(data);
 		
-		headButton = new Button(revisionGroup, SWT.RADIO);
-		headButton.setText(Policy.bind("SwitchDialog.head")); //$NON-NLS-1$
+		headButton = new Button(revisionGroup, SWT.CHECK);
+		headButton.setText(Policy.bind("SvnWizardSwitchPage.head")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		headButton.setLayoutData(data);
 		
-		revisionButton = new Button(revisionGroup, SWT.RADIO);
-		revisionButton.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
+		Label revisionLabel = new Label(revisionGroup, SWT.NONE);
+		revisionLabel.setText(Policy.bind("SvnWizardSwitchPage.revision")); //$NON-NLS-1$
 		
 		revisionText = new Text(revisionGroup, SWT.BORDER);
 		data = new GridData();
@@ -160,7 +163,6 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 			headButton.setSelection(true);
 			revisionText.setEnabled(false);
 		} else {
-			revisionButton.setSelection(true);
 			revisionText.setText("" + revisionNumber); //$NON-NLS-1$
 		}
 		
@@ -181,10 +183,10 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		
 		SelectionListener listener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                revisionText.setEnabled(revisionButton.getSelection());
-                logButton.setEnabled(revisionButton.getSelection());
+                revisionText.setEnabled(!headButton.getSelection());
+                logButton.setEnabled(!headButton.getSelection());
                 setPageComplete(canFinish());
-                if (revisionButton.getSelection()) {
+                if (!headButton.getSelection()) {
                     revisionText.selectAll();
                     revisionText.setFocus();
                 }
@@ -192,7 +194,6 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		};
 		
 		headButton.addSelectionListener(listener);
-		revisionButton.addSelectionListener(listener);
 		
 		if (resources.length > 1) {
 			Label label = new Label(composite, SWT.NONE);
