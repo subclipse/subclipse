@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
@@ -38,7 +37,7 @@ import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDif
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class DifferencesDialog extends TrayDialog {
+public class DifferencesDialog extends SvnDialog {
 	private ISVNResource[] remoteResources;
 	private String title;
 	private IWorkbenchPart targetPart;
@@ -50,12 +49,10 @@ public class DifferencesDialog extends TrayDialog {
 	private Button browseButton;
 	private Text fromUrlText;
 	private Button fromHeadButton;
-	private  Button fromRevisionButton;
 	private Text fromRevisionText;
 	private Button fromLogButton;
 	private Text toUrlText;
 	private Button toHeadButton;
-	private  Button toRevisionButton;
 	private Text toRevisionText;
 	private Button toLogButton;
 	private Button okButton;
@@ -64,7 +61,7 @@ public class DifferencesDialog extends TrayDialog {
 	private String toRevision;
 
 	public DifferencesDialog(Shell parentShell, String title, ISVNResource[] remoteResources, IWorkbenchPart targetPart) {
-		super(parentShell);
+		super(parentShell, "DifferencesDialog"); //$NON-NLS-1$
 		this.title = title;
 		this.remoteResources = remoteResources;
 		this.targetPart = targetPart;
@@ -99,24 +96,25 @@ public class DifferencesDialog extends TrayDialog {
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		fromUrlText.setLayoutData(data);
 		fromUrlText.setText(remoteResources[0].getUrl().toString());
-		
-		Group fromRevisionGroup = new Group(fromGroup, SWT.NULL);
-		fromRevisionGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
+
+		Composite fromRevisionGroup = new Composite(fromGroup, SWT.NULL);
 		GridLayout fromRevisionLayout = new GridLayout();
 		fromRevisionLayout.numColumns = 3;
+		fromRevisionLayout.marginWidth = 0;
+		fromRevisionLayout.marginHeight = 0;
 		fromRevisionGroup.setLayout(fromRevisionLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 3;
 		fromRevisionGroup.setLayoutData(data);
-		
-		fromHeadButton = new Button(fromRevisionGroup, SWT.RADIO);
+
+		fromHeadButton = new Button(fromRevisionGroup, SWT.CHECK);
 		fromHeadButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.head")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		fromHeadButton.setLayoutData(data);
-		
-		fromRevisionButton = new Button(fromRevisionGroup, SWT.RADIO);
-		fromRevisionButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
+
+		Label fromRevisionLabel = new Label(fromRevisionGroup, SWT.NONE);
+		fromRevisionLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$		
 		
 		fromHeadButton.setSelection(true);
 		
@@ -153,24 +151,25 @@ public class DifferencesDialog extends TrayDialog {
 			toUrlText.setText(remoteResources[0].getUrl().toString());
 		else
 			toUrlText.setText(remoteResources[1].getUrl().toString());
-		
-		Group toRevisionGroup = new Group(toGroup, SWT.NULL);
-		toRevisionGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
+
+		Composite toRevisionGroup = new Composite(toGroup, SWT.NULL);
 		GridLayout toRevisionLayout = new GridLayout();
 		toRevisionLayout.numColumns = 3;
+		toRevisionLayout.marginWidth = 0;
+		toRevisionLayout.marginHeight = 0;
 		toRevisionGroup.setLayout(toRevisionLayout);
 		data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 3;
 		toRevisionGroup.setLayoutData(data);
-		
-		toHeadButton = new Button(toRevisionGroup, SWT.RADIO);
+
+		toHeadButton = new Button(toRevisionGroup, SWT.CHECK);
 		toHeadButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.head")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		toHeadButton.setLayoutData(data);
-		
-		toRevisionButton = new Button(toRevisionGroup, SWT.RADIO);
-		toRevisionButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
+
+		Label toRevisionLabel = new Label(toRevisionGroup, SWT.NONE);
+		toRevisionLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$		
 		
 		toHeadButton.setSelection(true);
 		
@@ -193,7 +192,6 @@ public class DifferencesDialog extends TrayDialog {
 			fromRevisionText.setText(fromRevision);
 			fromRevisionText.setEnabled(true);
 			fromLogButton.setEnabled(true);
-			fromRevisionButton.setSelection(true);
 			fromHeadButton.setSelection(false);
 		}
 		if (toRevision == null) {
@@ -213,7 +211,6 @@ public class DifferencesDialog extends TrayDialog {
 			toRevisionText.setText(toRevision);
 			toRevisionText.setEnabled(true);
 			toLogButton.setEnabled(true);
-			toRevisionButton.setSelection(true);
 			toHeadButton.setSelection(false);
 		}
 		
@@ -262,16 +259,16 @@ public class DifferencesDialog extends TrayDialog {
 		
 		SelectionListener selectionListener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-                fromRevisionText.setEnabled(fromRevisionButton.getSelection());
-                fromLogButton.setEnabled(fromRevisionButton.getSelection());
-                toRevisionText.setEnabled(toRevisionButton.getSelection());
-                toLogButton.setEnabled(toRevisionButton.getSelection());
+                fromRevisionText.setEnabled(!fromHeadButton.getSelection());
+                fromLogButton.setEnabled(!fromHeadButton.getSelection());
+                toRevisionText.setEnabled(!toHeadButton.getSelection());
+                toLogButton.setEnabled(!toHeadButton.getSelection());               
 				setOkButtonStatus();
-				if (e.getSource() == fromRevisionButton && fromRevisionButton.getSelection()) {
+				if (e.getSource() == fromHeadButton && !fromHeadButton.getSelection()) {
                     fromRevisionText.selectAll();
                     fromRevisionText.setFocus();					
 				}
-				if (e.getSource() == toRevisionButton && toRevisionButton.getSelection()) {
+				if (e.getSource() == toHeadButton && !toHeadButton.getSelection()) {
                     toRevisionText.selectAll();
                     toRevisionText.setFocus();					
 				}				
@@ -297,9 +294,7 @@ public class DifferencesDialog extends TrayDialog {
 		fromRevisionText.addModifyListener(modifyListener);
 		toRevisionText.addModifyListener(modifyListener);
 		fromHeadButton.addSelectionListener(selectionListener);
-		fromRevisionButton.addSelectionListener(selectionListener);
 		toHeadButton.addSelectionListener(selectionListener);
-		toRevisionButton.addSelectionListener(selectionListener);
 		
 		compareButton.addSelectionListener(compareTypeListener);
 		diffButton.addSelectionListener(compareTypeListener);
@@ -324,26 +319,22 @@ public class DifferencesDialog extends TrayDialog {
 				toUrlText.setText(fromUrl);
 				if (toHeadRevision) {
 					fromHeadButton.setSelection(true);
-					fromRevisionButton.setSelection(false);
 				}
 				else {
 					fromHeadButton.setSelection(false);
-					fromRevisionButton.setSelection(true);
 				}
 				if (fromHeadRevision) {
 					toHeadButton.setSelection(true);
-					toRevisionButton.setSelection(false);
 				}
 				else {
 					toHeadButton.setSelection(false);
-					toRevisionButton.setSelection(true);
 				}
 				fromRevisionText.setText(toRevision);
 				toRevisionText.setText(fromRevision);
 				if (fromResource == remoteResources[0]) fromResource = remoteResources[1];
 				else fromResource = remoteResources[0];
-				fromRevisionText.setEnabled(fromRevisionButton.getSelection());
-				toRevisionText.setEnabled(toRevisionButton.getSelection());
+				fromRevisionText.setEnabled(!fromHeadButton.getSelection());
+				toRevisionText.setEnabled(!toHeadButton.getSelection());
 				setOkButtonStatus();
 			}			
 		});
@@ -354,8 +345,6 @@ public class DifferencesDialog extends TrayDialog {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {
 			okButton = button; 
-//			if (fromRevision == null || toRevision == null)
-//				okButton.setEnabled(false);
 		}
         return button;
     }	
@@ -468,8 +457,8 @@ public class DifferencesDialog extends TrayDialog {
 	private void setOkButtonStatus() {
     	boolean canFinish = true;
     	if (diffButton.getSelection() && fileText.getText().trim().length() == 0) canFinish = false;
-    	if (fromRevisionButton.getSelection() && fromRevisionText.getText().trim().length() == 0) canFinish = false;
-    	if (toRevisionButton.getSelection() && toRevisionText.getText().trim().length() == 0) canFinish = false;
+    	if (!fromHeadButton.getSelection() && fromRevisionText.getText().trim().length() == 0) canFinish = false;
+    	if (!toHeadButton.getSelection() && toRevisionText.getText().trim().length() == 0) canFinish = false;
     	okButton.setEnabled(canFinish);
     	
     }
