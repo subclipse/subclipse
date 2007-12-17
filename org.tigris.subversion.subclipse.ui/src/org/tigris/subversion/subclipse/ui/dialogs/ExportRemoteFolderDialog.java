@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 
 import java.io.File;
 
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -27,7 +26,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -40,17 +38,16 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ExportRemoteFolderOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
-public class ExportRemoteFolderDialog extends TrayDialog {
+public class ExportRemoteFolderDialog extends SvnDialog {
 	private ISVNRemoteResource remoteResource;
 	private IWorkbenchPart targetPart;
 	private Text directoryText;
 	private Text revisionText;
     private Button logButton;
     private Button headButton;
-    private Button revisionButton;
 
 	public ExportRemoteFolderDialog(Shell parentShell, ISVNRemoteResource remoteResource, IWorkbenchPart targetPart) {
-		super(parentShell);
+		super(parentShell, "ExportRemoteFolderDialog"); //$NON-NLS-1$
 		this.remoteResource = remoteResource;
 		this.targetPart = targetPart;
 	}
@@ -63,9 +60,8 @@ public class ExportRemoteFolderDialog extends TrayDialog {
 		composite.setLayout(layout);
 		GridData data = new GridData(GridData.FILL_BOTH);
 		composite.setLayoutData(data);
-		
-		Group repositoryGroup = new Group(composite, SWT.NULL);
-		repositoryGroup.setText(Policy.bind("ExportRemoteFolderDialog.repository")); //$NON-NLS-1$
+
+		Composite repositoryGroup = new Composite(composite, SWT.NULL);		
 		GridLayout repositoryLayout = new GridLayout();
 		repositoryLayout.numColumns = 2;
 		repositoryGroup.setLayout(repositoryLayout);
@@ -79,8 +75,7 @@ public class ExportRemoteFolderDialog extends TrayDialog {
 		urlLabel.setLayoutData(data);
 		
 		Text urlText = new Text(repositoryGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 600;
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		urlText.setLayoutData(data);
 		urlText.setEditable(false);
 		urlText.setText(remoteResource.getUrl().toString());
@@ -93,8 +88,7 @@ public class ExportRemoteFolderDialog extends TrayDialog {
 		data.horizontalSpan = 2;
 		directoryLabel.setLayoutData(data);
 		directoryText = new Text(repositoryGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 600;
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		directoryText.setLayoutData(data);
 		directoryText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -116,23 +110,24 @@ public class ExportRemoteFolderDialog extends TrayDialog {
 			}
 		});
 		
-		Group revisionGroup = new Group(composite, SWT.NULL);
-		revisionGroup.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
+		Composite revisionGroup = new Composite(repositoryGroup, SWT.NULL);
 		GridLayout revisionLayout = new GridLayout();
 		revisionLayout.numColumns = 3;
+		revisionLayout.marginWidth = 0;
+		revisionLayout.marginHeight = 0;
 		revisionGroup.setLayout(revisionLayout);
 		data = new GridData(GridData.FILL_BOTH);
-		data.horizontalSpan = 3;
+		data.horizontalSpan = 2;
 		revisionGroup.setLayoutData(data);
 		
-		headButton = new Button(revisionGroup, SWT.RADIO);
-		headButton.setText(Policy.bind("SwitchDialog.head")); //$NON-NLS-1$
+		headButton = new Button(revisionGroup, SWT.CHECK);
+		headButton.setText(Policy.bind("ExportRemoteFolderDialog.head")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		headButton.setLayoutData(data);
 		
-		revisionButton = new Button(revisionGroup, SWT.RADIO);
-		revisionButton.setText(Policy.bind("SwitchDialog.revision")); //$NON-NLS-1$
+		Label revisionLabel = new Label(revisionGroup, SWT.NONE);
+		revisionLabel.setText(Policy.bind("ExportRemoteFolderDialog.revision")); //$NON-NLS-1$
 		
 		revisionText = new Text(revisionGroup, SWT.BORDER);
 		data = new GridData();
@@ -152,7 +147,6 @@ public class ExportRemoteFolderDialog extends TrayDialog {
         if(SVNRevision.HEAD.equals(remoteResource.getRevision())) {
           headButton.setSelection(true);
         } else {
-          revisionButton.setSelection(true);
           revisionText.setText(remoteResource.getRevision().toString());
           revisionText.setEnabled(true);
           logButton.setEnabled(true);
@@ -166,10 +160,10 @@ public class ExportRemoteFolderDialog extends TrayDialog {
         
 		SelectionListener listener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                revisionText.setEnabled(revisionButton.getSelection());
-                logButton.setEnabled(revisionButton.getSelection());
+            	revisionText.setEnabled(!headButton.getSelection());
+            	logButton.setEnabled(!headButton.getSelection());
                 setOkButtonStatus();
-                if (revisionButton.getSelection()) {
+                if (!headButton.getSelection()) {
                     revisionText.selectAll();
                     revisionText.setFocus();
                 }
@@ -177,7 +171,6 @@ public class ExportRemoteFolderDialog extends TrayDialog {
 		};
         
 		headButton.addSelectionListener(listener);
-		revisionButton.addSelectionListener(listener);
 		
 		// set F1 help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.EXPORT_REMOTE_FOLDER_DIALOG);	
