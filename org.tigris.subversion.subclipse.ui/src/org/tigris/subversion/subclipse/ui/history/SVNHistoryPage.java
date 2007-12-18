@@ -23,14 +23,13 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -209,8 +208,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction showAnnotationAction;
   private IAction exportAction;
   private IAction createTagFromRevisionChangedPathAction;
-  private IAction switchChangedPathAction;
-  private IAction revertChangesChangedPathAction;
+//  private IAction switchChangedPathAction;
+//  private IAction revertChangesChangedPathAction;
 
   private IAction createTagFromRevisionAction;
   private IAction setCommitPropertiesAction;
@@ -593,15 +592,20 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
   
   private void fillChangePathsMenu(IMenuManager manager) {
+//
+// Commented out Get Contents, Revert and Switch options until when/if
+// they can be fixed.  Problem is that we need a way to get the local
+// resource from the LogEntryChangePath.
+//
 	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
 	  if (sel.size() == 1) {
 		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
-			  manager.add(getGetContentsAction());
+//			  manager.add(getGetContentsAction());
 		  }
 		  manager.add(getCreateTagFromRevisionChangedPathAction());
 	  }
-	  manager.add(getRevertChangesChangedPathAction());
-	  manager.add(getSwitchChangedPathAction());
+//	  manager.add(getRevertChangesChangedPathAction());
+//	  manager.add(getSwitchChangedPathAction());
 	  manager.add(new Separator("exportImportGroup")); //$NON-NLS-1$
 	  if (sel.size() == 1) {
 		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
@@ -630,7 +634,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       if(sel instanceof IStructuredSelection) {
         if(((IStructuredSelection) sel).size() == 1) {
           if(resource != null && resource instanceof IFile) {
-//            manager.add(getGetContentsAction());
+            manager.add(getGetContentsAction());
             manager.add(getUpdateToRevisionAction());
           }
 //          manager.add(getShowDifferencesAsUnifiedDiffAction());
@@ -1425,35 +1429,30 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   // get contents Action (context menu)
   private IAction getGetContentsAction() {
     if(getContentsAction == null) {
-    	getContentsAction = new Action(Policy.bind("HistoryView.getContentsAction")) {
-    		public void run() {
-    			BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-					public void run() {
-					  try {
-			            IStructuredSelection ss = (IStructuredSelection) changePathsViewer.getSelection();
-			            if (!(ss.getFirstElement() instanceof LogEntryChangePath)) return;
-			            LogEntryChangePath changePath = (LogEntryChangePath)ss.getFirstElement();		            
-			            ISVNRemoteResource remoteResource = changePath.getRemoteResource();
-			            if (!(remoteResource instanceof ISVNRemoteFile)) return;
-			            ISVNRemoteFile remoteFile = (ISVNRemoteFile) remoteResource;
-		                if(remoteFile != null) {
-		                	IResource selectedResource = null;
-							if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(changePath.getPath()));
-							else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(changePath.getPath()));												            		                	
-		                  if(confirmOverwrite(selectedResource)) {
-		                    InputStream in = ((IResourceVariant) remoteFile).getStorage(null)
-		                        .getContents();
-		                    IFile file = (IFile) selectedResource;
-		                    file.setContents(in, false, true, null);
-		                  }
-		                }
-					  } catch (Exception e) {
-						  MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("HistoryView.getContentsAction"), e.getMessage());
-					  }
-					}				
-    			});
-    		}  		
-    	};
+      getContentsAction = getContextMenuAction(Policy.bind("HistoryView.getContentsAction"), new IWorkspaceRunnable() { //$NON-NLS-1$
+            public void run(IProgressMonitor monitor) throws CoreException {
+              ISelection selection = getSelection();
+              if( !(selection instanceof IStructuredSelection))
+                return;
+              IStructuredSelection ss = (IStructuredSelection) selection;
+              ISVNRemoteFile remoteFile = (ISVNRemoteFile) getLogEntry(ss).getRemoteResource();
+              monitor.beginTask(null, 100);
+              try {
+                if(remoteFile != null) {
+                  if(confirmOverwrite()) {
+                    InputStream in = ((IResourceVariant) remoteFile).getStorage(new SubProgressMonitor(monitor, 50))
+                        .getContents();
+                    IFile file = (IFile) resource;
+                    file.setContents(in, false, true, new SubProgressMonitor(monitor, 50));
+                  }
+                }
+              } catch(TeamException e) {
+                throw new CoreException(e.getStatus());
+              } finally {
+                monitor.done();
+              }
+            }
+          });
       PlatformUI.getWorkbench().getHelpSystem().setHelp(getContentsAction, IHelpContextIds.GET_FILE_CONTENTS_ACTION);
     }
     return getContentsAction;
@@ -1498,192 +1497,192 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     return updateToRevisionAction;
   }
   
-  private IAction getRevertChangesChangedPathAction() {
-	    if(revertChangesChangedPathAction == null) {
-	        revertChangesChangedPathAction = new Action() {
-	          public void run() {
-	        	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
-	        	  if (sel.size() == 1) {
-	        		  String resourcePath = null;
-	        		  if (sel.getFirstElement() instanceof LogEntryChangePath)
-	        			  resourcePath = ((LogEntryChangePath)sel.getFirstElement()).getPath();
-	        		  else if (sel.getFirstElement() instanceof HistoryFolder)
-	        			  resourcePath = ((HistoryFolder)sel.getFirstElement()).getPath();
-	                  if( !MessageDialog.openConfirm(getSite().getShell(), getText(), Policy.bind(
-                      "HistoryView.confirmRevertChangedPathRevision", resourcePath))) return;	  	        		  
-	        	  } else {
-	                  if( !MessageDialog.openConfirm(getSite().getShell(), getText(), Policy.bind(
-	                  "HistoryView.confirmRevertChangedPathsRevision"))) return;	        		  
-	        	  }
-	        	     BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-        	            public void run() {
-        	    	    	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
-        	    	          SVNRevision selectedRevision = null;
-        	    	          ISVNRemoteResource remoteResource = null;
-        	    	          if (sel.getFirstElement() instanceof LogEntryChangePath) {
-        	    	  			  try {
-        	    	  				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
-        	    	  				selectedRevision = remoteResource.getRevision();
-        	    	  			} catch (SVNException e) {}
-        	    	  		  }
-        	    	  		  else if (sel.getFirstElement() instanceof HistoryFolder) {
-        	    	  			  HistoryFolder historyFolder = (HistoryFolder)sel.getFirstElement();
-        	    	  			  Object[] children = historyFolder.getChildren();
-        	    	  			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
-        	    	  				selectedRevision = getSelectedRevision();
-        	    	  			  }
-        	    	  		  } 
-        	    	          final SVNRevision revision1 = selectedRevision;
-        	    	          final SVNRevision revision2 = new SVNRevision.Number(((SVNRevision.Number)selectedRevision).getNumber() - 1);
-        	    	          Iterator iter = sel.iterator();
-        	    	          while (iter.hasNext()) {
-        						  remoteResource = null;
-        						  IResource selectedResource = null;
-        						  Object selectedItem = iter.next();
-        				  		  if (selectedItem instanceof LogEntryChangePath) {
-        							  try {
-        								LogEntryChangePath changePath = (LogEntryChangePath)selectedItem;
-        								remoteResource = changePath.getRemoteResource();
-        								if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(changePath.getPath()));
-        								else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(changePath.getPath()));									
-        							} catch (SVNException e) {}
-        						  }
-        						  else if (selectedItem instanceof HistoryFolder) {
-        							  HistoryFolder historyFolder = (HistoryFolder)selectedItem;
-        							  Object[] children = historyFolder.getChildren();
-        							  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
-        								  LogEntryChangePath changePath = (LogEntryChangePath)children[0];
-        								  try {
-        									remoteResource = changePath.getRemoteResource().getRepository().getRemoteFolder(historyFolder.getPath());
-        									if (selectedRevision == null) selectedRevision = getSelectedRevision();
-        									if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(historyFolder.getPath()));
-        									else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(historyFolder.getPath()));
-        								} catch (SVNException e) {}
-        							  }
-        						  }  
-        				  		  final SVNUrl path1 = remoteResource.getUrl();
-        				  		  final SVNUrl path2 = path1;
-        				  		  final IResource[] resources = { selectedResource };
-                	              try {
-                  	                WorkspaceAction mergeAction = new WorkspaceAction() {
-                  	                  protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
-                  	                    new MergeOperation(getSite().getPage().getActivePart(), resources, path1, revision1, path2,
-                  	                        revision2).run();
-                  	                  }
-                  	                };
-                  	                mergeAction.run(null);
-                  	              } catch(Exception e) {
-                  	                MessageDialog.openError(getSite().getShell(), revertChangesAction.getText(), e.getMessage());
-                  	              }        				  		  
-        	    	          }
-        	            }
-	        	     });       	  
-	          }
-	        };
-	      }
-	    	IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
-	        SVNRevision selectedRevision = null;
-	          ISVNRemoteResource remoteResource = null;
-	          if (sel.getFirstElement() instanceof LogEntryChangePath) {
-	  			  try {
-	  				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
-	  				selectedRevision = remoteResource.getRevision();
-	  			} catch (SVNException e) {}
-	  		  }
-	  		  else if (sel.getFirstElement() instanceof HistoryFolder) {
-	  			  HistoryFolder historyFolder = (HistoryFolder)sel.getFirstElement();
-	  			  Object[] children = historyFolder.getChildren();
-	  			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
-	  				selectedRevision = getSelectedRevision();
-	  			  }
-	  		  }
-	          revertChangesChangedPathAction.setText(Policy.bind("HistoryView.revertChangesFromRevision", ""
-		              + selectedRevision));	      
-	      revertChangesChangedPathAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_MARKMERGED));
-	      return revertChangesChangedPathAction;
-  }
+//  private IAction getRevertChangesChangedPathAction() {
+//	    if(revertChangesChangedPathAction == null) {
+//	        revertChangesChangedPathAction = new Action() {
+//	          public void run() {
+//	        	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+//	        	  if (sel.size() == 1) {
+//	        		  String resourcePath = null;
+//	        		  if (sel.getFirstElement() instanceof LogEntryChangePath)
+//	        			  resourcePath = ((LogEntryChangePath)sel.getFirstElement()).getPath();
+//	        		  else if (sel.getFirstElement() instanceof HistoryFolder)
+//	        			  resourcePath = ((HistoryFolder)sel.getFirstElement()).getPath();
+//	                  if( !MessageDialog.openConfirm(getSite().getShell(), getText(), Policy.bind(
+//                      "HistoryView.confirmRevertChangedPathRevision", resourcePath))) return;	  	        		  
+//	        	  } else {
+//	                  if( !MessageDialog.openConfirm(getSite().getShell(), getText(), Policy.bind(
+//	                  "HistoryView.confirmRevertChangedPathsRevision"))) return;	        		  
+//	        	  }
+//	        	     BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+//        	            public void run() {
+//        	    	    	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+//        	    	          SVNRevision selectedRevision = null;
+//        	    	          ISVNRemoteResource remoteResource = null;
+//        	    	          if (sel.getFirstElement() instanceof LogEntryChangePath) {
+//        	    	  			  try {
+//        	    	  				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
+//        	    	  				selectedRevision = remoteResource.getRevision();
+//        	    	  			} catch (SVNException e) {}
+//        	    	  		  }
+//        	    	  		  else if (sel.getFirstElement() instanceof HistoryFolder) {
+//        	    	  			  HistoryFolder historyFolder = (HistoryFolder)sel.getFirstElement();
+//        	    	  			  Object[] children = historyFolder.getChildren();
+//        	    	  			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
+//        	    	  				selectedRevision = getSelectedRevision();
+//        	    	  			  }
+//        	    	  		  } 
+//        	    	          final SVNRevision revision1 = selectedRevision;
+//        	    	          final SVNRevision revision2 = new SVNRevision.Number(((SVNRevision.Number)selectedRevision).getNumber() - 1);
+//        	    	          Iterator iter = sel.iterator();
+//        	    	          while (iter.hasNext()) {
+//        						  remoteResource = null;
+//        						  IResource selectedResource = null;
+//        						  Object selectedItem = iter.next();
+//        				  		  if (selectedItem instanceof LogEntryChangePath) {
+//        							  try {
+//        								LogEntryChangePath changePath = (LogEntryChangePath)selectedItem;
+//        								remoteResource = changePath.getRemoteResource();
+//        								if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(changePath.getPath()));
+//        								else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(changePath.getPath()));									
+//        							} catch (SVNException e) {}
+//        						  }
+//        						  else if (selectedItem instanceof HistoryFolder) {
+//        							  HistoryFolder historyFolder = (HistoryFolder)selectedItem;
+//        							  Object[] children = historyFolder.getChildren();
+//        							  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
+//        								  LogEntryChangePath changePath = (LogEntryChangePath)children[0];
+//        								  try {
+//        									remoteResource = changePath.getRemoteResource().getRepository().getRemoteFolder(historyFolder.getPath());
+//        									if (selectedRevision == null) selectedRevision = getSelectedRevision();
+//        									if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(historyFolder.getPath()));
+//        									else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(historyFolder.getPath()));
+//        								} catch (SVNException e) {}
+//        							  }
+//        						  }  
+//        				  		  final SVNUrl path1 = remoteResource.getUrl();
+//        				  		  final SVNUrl path2 = path1;
+//        				  		  final IResource[] resources = { selectedResource };
+//                	              try {
+//                  	                WorkspaceAction mergeAction = new WorkspaceAction() {
+//                  	                  protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
+//                  	                    new MergeOperation(getSite().getPage().getActivePart(), resources, path1, revision1, path2,
+//                  	                        revision2).run();
+//                  	                  }
+//                  	                };
+//                  	                mergeAction.run(null);
+//                  	              } catch(Exception e) {
+//                  	                MessageDialog.openError(getSite().getShell(), revertChangesAction.getText(), e.getMessage());
+//                  	              }        				  		  
+//        	    	          }
+//        	            }
+//	        	     });       	  
+//	          }
+//	        };
+//	      }
+//	    	IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+//	        SVNRevision selectedRevision = null;
+//	          ISVNRemoteResource remoteResource = null;
+//	          if (sel.getFirstElement() instanceof LogEntryChangePath) {
+//	  			  try {
+//	  				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
+//	  				selectedRevision = remoteResource.getRevision();
+//	  			} catch (SVNException e) {}
+//	  		  }
+//	  		  else if (sel.getFirstElement() instanceof HistoryFolder) {
+//	  			  HistoryFolder historyFolder = (HistoryFolder)sel.getFirstElement();
+//	  			  Object[] children = historyFolder.getChildren();
+//	  			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
+//	  				selectedRevision = getSelectedRevision();
+//	  			  }
+//	  		  }
+//	          revertChangesChangedPathAction.setText(Policy.bind("HistoryView.revertChangesFromRevision", ""
+//		              + selectedRevision));	      
+//	      revertChangesChangedPathAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_MARKMERGED));
+//	      return revertChangesChangedPathAction;
+//  }
   
-  private IAction getSwitchChangedPathAction() {
-	  if (switchChangedPathAction == null) {
-		  switchChangedPathAction = new Action() {
-			  public void run() {
-				  SVNRevision selectedRevision = null;
-					  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
-					  ArrayList selectedResources = new ArrayList();
-					  Iterator iter = sel.iterator();
-					  while (iter.hasNext()) {
-						  ISVNRemoteResource remoteResource = null;
-						  IResource selectedResource = null;
-						  Object selectedItem = iter.next();
-				  		  if (selectedItem instanceof LogEntryChangePath) {
-							  try {
-								LogEntryChangePath changePath = (LogEntryChangePath)selectedItem;
-								remoteResource = changePath.getRemoteResource();
-								if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(changePath.getPath()));
-								else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(changePath.getPath()));									
-								selectedResources.add(selectedResource);
-								if (selectedRevision == null) selectedRevision = remoteResource.getRevision();
-							} catch (SVNException e) {}
-						  }
-						  else if (selectedItem instanceof HistoryFolder) {
-							  HistoryFolder historyFolder = (HistoryFolder)selectedItem;
-							  Object[] children = historyFolder.getChildren();
-							  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
-								  LogEntryChangePath changePath = (LogEntryChangePath)children[0];
-								  try {
-									remoteResource = changePath.getRemoteResource().getRepository().getRemoteFolder(historyFolder.getPath());
-									if (selectedRevision == null) selectedRevision = getSelectedRevision();
-									if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(historyFolder.getPath()));
-									else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(historyFolder.getPath()));
-									selectedResources.add(selectedResource);
-								} catch (SVNException e) {}
-							  }
-						  }  						  
-					  }
-					    IResource[] resources = new IResource[selectedResources.size()];
-					    selectedResources.toArray(resources);
-				        SvnWizardSwitchPage switchPage = new SvnWizardSwitchPage(resources, Long.parseLong(selectedRevision.toString()));
-				        SvnWizard wizard = new SvnWizard(switchPage);
-				        SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
-				        wizard.setParentDialog(dialog);
-				        if (dialog.open() == SvnWizardDialog.OK) {
-				            SVNUrl[] svnUrls = switchPage.getUrls();
-				            SVNRevision svnRevision = switchPage.getRevision();
-				            SwitchOperation switchOperation = new SwitchOperation(getSite().getPage().getActivePart(), resources, svnUrls, svnRevision);
-				            switchOperation.setDepth(switchPage.getDepth());
-				            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
-				            switchOperation.setForce(switchPage.isForce());
-				            try {
-								switchOperation.run();
-							} catch (Exception e) {
-					            MessageDialog.openError(getSite().getShell(), switchAction.getText(), e
-					                    .getMessage());
-							}
-				        }					  
-			  }	  
-		  };
-	  }
-    	IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
-        SVNRevision selectedRevision = null;
-          ISVNRemoteResource remoteResource = null;
-          if (sel.getFirstElement() instanceof LogEntryChangePath) {
-  			  try {
-  				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
-  				selectedRevision = remoteResource.getRevision();
-  			} catch (SVNException e) {}
-  		  }
-  		  else if (sel.getFirstElement() instanceof HistoryFolder) {
-  			  HistoryFolder historyFolder = (HistoryFolder)sel.getFirstElement();
-  			  Object[] children = historyFolder.getChildren();
-  			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
-  				selectedRevision = getSelectedRevision();
-  			  }
-  		  }
-          switchChangedPathAction.setText(Policy.bind("HistoryView.switchToRevision", ""
-              + selectedRevision));	
-      switchChangedPathAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SWITCH));	  
-	  return switchChangedPathAction;
-  }
+//  private IAction getSwitchChangedPathAction() {
+//	  if (switchChangedPathAction == null) {
+//		  switchChangedPathAction = new Action() {
+//			  public void run() {
+//				  SVNRevision selectedRevision = null;
+//					  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+//					  ArrayList selectedResources = new ArrayList();
+//					  Iterator iter = sel.iterator();
+//					  while (iter.hasNext()) {
+//						  ISVNRemoteResource remoteResource = null;
+//						  IResource selectedResource = null;
+//						  Object selectedItem = iter.next();
+//				  		  if (selectedItem instanceof LogEntryChangePath) {
+//							  try {
+//								LogEntryChangePath changePath = (LogEntryChangePath)selectedItem;
+//								remoteResource = changePath.getRemoteResource();
+//								if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(changePath.getPath()));
+//								else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(changePath.getPath()));									
+//								selectedResources.add(selectedResource);
+//								if (selectedRevision == null) selectedRevision = remoteResource.getRevision();
+//							} catch (SVNException e) {}
+//						  }
+//						  else if (selectedItem instanceof HistoryFolder) {
+//							  HistoryFolder historyFolder = (HistoryFolder)selectedItem;
+//							  Object[] children = historyFolder.getChildren();
+//							  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
+//								  LogEntryChangePath changePath = (LogEntryChangePath)children[0];
+//								  try {
+//									remoteResource = changePath.getRemoteResource().getRepository().getRemoteFolder(historyFolder.getPath());
+//									if (selectedRevision == null) selectedRevision = getSelectedRevision();
+//									if (remoteResource.isFolder()) selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(historyFolder.getPath()));
+//									else selectedResource = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(historyFolder.getPath()));
+//									selectedResources.add(selectedResource);
+//								} catch (SVNException e) {}
+//							  }
+//						  }  						  
+//					  }
+//					    IResource[] resources = new IResource[selectedResources.size()];
+//					    selectedResources.toArray(resources);
+//				        SvnWizardSwitchPage switchPage = new SvnWizardSwitchPage(resources, Long.parseLong(selectedRevision.toString()));
+//				        SvnWizard wizard = new SvnWizard(switchPage);
+//				        SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
+//				        wizard.setParentDialog(dialog);
+//				        if (dialog.open() == SvnWizardDialog.OK) {
+//				            SVNUrl[] svnUrls = switchPage.getUrls();
+//				            SVNRevision svnRevision = switchPage.getRevision();
+//				            SwitchOperation switchOperation = new SwitchOperation(getSite().getPage().getActivePart(), resources, svnUrls, svnRevision);
+//				            switchOperation.setDepth(switchPage.getDepth());
+//				            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
+//				            switchOperation.setForce(switchPage.isForce());
+//				            try {
+//								switchOperation.run();
+//							} catch (Exception e) {
+//					            MessageDialog.openError(getSite().getShell(), switchAction.getText(), e
+//					                    .getMessage());
+//							}
+//				        }					  
+//			  }	  
+//		  };
+//	  }
+//    	IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+//        SVNRevision selectedRevision = null;
+//          ISVNRemoteResource remoteResource = null;
+//          if (sel.getFirstElement() instanceof LogEntryChangePath) {
+//  			  try {
+//  				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
+//  				selectedRevision = remoteResource.getRevision();
+//  			} catch (SVNException e) {}
+//  		  }
+//  		  else if (sel.getFirstElement() instanceof HistoryFolder) {
+//  			  HistoryFolder historyFolder = (HistoryFolder)sel.getFirstElement();
+//  			  Object[] children = historyFolder.getChildren();
+//  			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
+//  				selectedRevision = getSelectedRevision();
+//  			  }
+//  		  }
+//          switchChangedPathAction.setText(Policy.bind("HistoryView.switchToRevision", ""
+//              + selectedRevision));	
+//      switchChangedPathAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_SWITCH));	  
+//	  return switchChangedPathAction;
+//  }
   
   // get switch action (context menu)
   private IAction getSwitchAction() {
@@ -2125,37 +2124,33 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
    * Ask the user to confirm the overwrite of the file if the file has been
    * modified since last commit
    */
-  private boolean confirmOverwrite(IResource resource) {
-    IFile file = (IFile) resource;
-    if(file != null && file.exists()) {
-      ISVNLocalFile svnFile = SVNWorkspaceRoot.getSVNFileFor(file);
-      try {
-        if(svnFile.isDirty()) {
-          String title = Policy.bind("HistoryView.overwriteTitle"); //$NON-NLS-1$
-          String msg = Policy.bind("HistoryView.overwriteMsg"); //$NON-NLS-1$
-          final MessageDialog dialog = new MessageDialog(getSite().getShell(), title, null, msg,
-              MessageDialog.QUESTION, new String[] { IDialogConstants.YES_LABEL, IDialogConstants.CANCEL_LABEL}, 0);
-          final int[] result = new int[ 1];
-          getSite().getShell().getDisplay().syncExec(new Runnable() {
-            public void run() {
-              result[ 0] = dialog.open();
-            }
-          });
-          if(result[ 0] != 0) {
-            // cancel
-            return false;
-          }
-        }
-      } catch(SVNException e) {
-        SVNUIPlugin.log(e.getStatus());
-      }
-    }
-    return true;
-  }
-  
   private boolean confirmOverwrite() {
-	  return confirmOverwrite(resource);
-  }
+	    IFile file = (IFile) resource;
+	    if(file != null && file.exists()) {
+	      ISVNLocalFile svnFile = SVNWorkspaceRoot.getSVNFileFor(file);
+	      try {
+	        if(svnFile.isDirty()) {
+	          String title = Policy.bind("HistoryView.overwriteTitle"); //$NON-NLS-1$
+	          String msg = Policy.bind("HistoryView.overwriteMsg"); //$NON-NLS-1$
+	          final MessageDialog dialog = new MessageDialog(getSite().getShell(), title, null, msg,
+	              MessageDialog.QUESTION, new String[] { IDialogConstants.YES_LABEL, IDialogConstants.CANCEL_LABEL}, 0);
+	          final int[] result = new int[ 1];
+	          getSite().getShell().getDisplay().syncExec(new Runnable() {
+	            public void run() {
+	              result[ 0] = dialog.open();
+	            }
+	          });
+	          if(result[ 0] != 0) {
+	            // cancel
+	            return false;
+	          }
+	        }
+	      } catch(SVNException e) {
+	        SVNUIPlugin.log(e.getStatus());
+	      }
+	    }
+	    return true;
+	  }
 
   private ISelection getSelection() {
     return selection;
