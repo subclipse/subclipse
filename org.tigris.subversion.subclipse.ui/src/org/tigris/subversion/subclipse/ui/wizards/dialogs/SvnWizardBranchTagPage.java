@@ -43,8 +43,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
-	
-    private static final int URL_WIDTH_HINT = 450;
+
     private static final int REVISION_WIDTH_HINT = 40;	
 	
     private IResource resource;
@@ -125,8 +124,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 		else fromUrlLabel.setText(Policy.bind("BranchTagDialog.url")); //$NON-NLS-1$
 		
 		Text urlText = new Text(repositoryGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = URL_WIDTH_HINT;
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		urlText.setLayoutData(data);
 		
 		if (resource == null) {
@@ -154,8 +152,11 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 		data = new GridData(GridData.FILL_BOTH);
 		urlComposite.setLayoutData(data);
 		
-		if (resource == null) toUrlCombo = new UrlCombo(urlComposite, "repositoryBrowser"); //$NON-NLS-1$
-		else toUrlCombo = new UrlCombo(urlComposite, resource.getProject().getName());
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		if (resource == null) toUrlCombo = new UrlCombo(urlComposite, "repositoryBrowser", data); //$NON-NLS-1$
+		else toUrlCombo = new UrlCombo(urlComposite, resource.getProject().getName(), data);
+		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		toUrlCombo.setLayoutData(data);
 		toUrlCombo.setText(urlText.getText());
 		
 		Button browseButton = new Button(urlComposite, SWT.PUSH);
@@ -181,7 +182,8 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 			}		
 		});
 		
-		Group serverComposite = new Group(repositoryGroup, SWT.NULL);
+//		Group serverComposite = new Group(repositoryGroup, SWT.NULL);
+		Group serverComposite = new Group(top, SWT.NULL);
 		serverComposite.setText(Policy.bind("BranchTagDialog.createCopy")); //$NON-NLS-1$
 		GridLayout serverLayout = new GridLayout();
 		serverLayout.numColumns = 3;
