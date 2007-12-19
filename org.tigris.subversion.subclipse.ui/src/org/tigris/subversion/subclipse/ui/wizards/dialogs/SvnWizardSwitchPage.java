@@ -86,7 +86,11 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		new ColumnWeightData(100, 100, true)};
 
 	public SvnWizardSwitchPage(IResource[] resources) {
-		super("SwitchDialog", Policy.bind("SwitchDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$
+		this("SwitchDialog", resources); //$NON-NLS-1$
+	}
+	
+	public SvnWizardSwitchPage(String name, IResource[] resources) {
+		super(name, Policy.bind("SwitchDialog.title")); //$NON-NLS-1$
 		this.resources = resources;
 	}
 	
@@ -141,7 +145,8 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		revisionLayout.marginWidth = 0;
 		revisionLayout.marginHeight = 0;
 		revisionGroup.setLayout(revisionLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		if (resources.length > 1) data = new GridData(GridData.FILL_HORIZONTAL);
+		else data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 3;
 		revisionGroup.setLayoutData(data);
 		
@@ -205,8 +210,9 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 			table = new Table(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 			table.setLinesVisible(false);
 			table.setHeaderVisible(false);
-			data = new GridData(GridData.FILL_HORIZONTAL);
-			data.heightHint = 200;
+//			data = new GridData(GridData.FILL_HORIZONTAL);
+//			data.heightHint = 200;
+			data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL);
 			data.horizontalSpan = 3;
 			table.setLayoutData(data);
 			TableLayout tableLayout = new TableLayout();
@@ -233,7 +239,8 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		GridLayout parameterLayout = new GridLayout();
 		parameterLayout.numColumns = 2;
 		parameterGroup.setLayout(parameterLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		if (resources.length > 1) data = new GridData(GridData.FILL_HORIZONTAL);
+		else data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 3;
 		parameterGroup.setLayoutData(data);	
 		

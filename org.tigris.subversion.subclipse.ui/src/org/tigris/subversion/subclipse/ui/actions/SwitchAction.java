@@ -36,8 +36,16 @@ public class SwitchAction extends WorkbenchWindowAction {
         	action.setEnabled(true);
         } 
         else {
-	        IResource[] resources = getSelectedResources(); 
-	        SvnWizardSwitchPage switchPage = new SvnWizardSwitchPage(resources);
+	        IResource[] resources = getSelectedResources();
+	        
+	        // Use different wizard page name if multiple resources selected so that
+	        // page size and location will be saved and restored separately for
+	        // single selection switch and multiple selection switch.
+	        String pageName;
+	        if (resources.length > 1) pageName = "SwitchDialog.multiple";
+	        else pageName = "SwitchDialog"; //$NON-NLS-1$
+	        
+	        SvnWizardSwitchPage switchPage = new SvnWizardSwitchPage(pageName, resources);
 	        SvnWizard wizard = new SvnWizard(switchPage);
 	        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 	        wizard.setParentDialog(dialog);
