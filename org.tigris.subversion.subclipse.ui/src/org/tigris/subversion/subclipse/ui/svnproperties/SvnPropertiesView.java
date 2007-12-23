@@ -188,7 +188,7 @@ public class SvnPropertiesView extends ViewPart {
 
 
 	private TableViewer createTable(Composite parent) {
-		Table table =	new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER);
+		Table table =	new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
@@ -209,8 +209,7 @@ public class SvnPropertiesView extends ViewPart {
 	 * Create the TextViewer 
 	 */
 	protected TextViewer createText(Composite parent) {
-		TextViewer result = new TextViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER | SWT.READ_ONLY);
-		return result;
+		return new TextViewer(parent, SWT.V_SCROLL | SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 	}
 
 	/**
@@ -218,6 +217,8 @@ public class SvnPropertiesView extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
 		layout.numColumns = 1;
 		parent.setLayout(layout);		
 		statusLabel = new Label(parent,SWT.LEFT);
