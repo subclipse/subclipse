@@ -67,8 +67,6 @@ public class SvnWizardSetPropertyPage extends SvnWizardDialogPage {
 	}
 
 	public void createControls(Composite parent) {
-		Label label;
-		GridData gridData;
 
 		Listener updateEnablementsListener = new Listener() {
 			public void handleEvent(Event event) {
@@ -90,31 +88,22 @@ public class SvnWizardSetPropertyPage extends SvnWizardDialogPage {
 		};	
 		
 		Composite area = new Composite(parent, SWT.NULL);
-		area.setLayout(new GridLayout());
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.numColumns = 2;
+		area.setLayout(gridLayout);
 		area.setLayoutData(new GridData(GridData.FILL_BOTH));		
-		
-		// create the property name label and the corresponding Text		
-		Composite composite = new Composite(area, SWT.NONE);
-		gridData = new GridData(GridData.FILL_HORIZONTAL);
-		gridData.grabExcessHorizontalSpace = true;
-		composite.setLayoutData(gridData);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		composite.setLayout(layout);
 
-		label = new Label(composite,SWT.LEFT);
+		// create the property name label and the corresponding Text		
+		Label label = new Label(area,SWT.LEFT);
+		label.setLayoutData(new GridData());
 		label.setText(Policy.bind("SetSvnPropertyDialog.propertyName")); //$NON-NLS-1$
 
-		propertyNameText = new Combo(composite, SWT.BORDER);
-
-		gridData = new GridData(GridData.FILL_HORIZONTAL);
-		gridData.widthHint = 400;
-		gridData.grabExcessHorizontalSpace = true;
-		propertyNameText.setLayoutData(gridData);
+		propertyNameText = new Combo(area, SWT.BORDER);
+		propertyNameText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		if (property != null) {
-			propertyNameText.setText(property.getName());		
-			propertyNameText.setEnabled(false);
-		}
+      propertyNameText.setText(property.getName());
+      propertyNameText.setEnabled(false);
+    }
 		getPropertyTypes();
 		propertyNameText.addListener(SWT.Modify,validateListener);
 		propertyNameText.addSelectionListener(new SelectionAdapter() {
@@ -131,47 +120,36 @@ public class SvnWizardSetPropertyPage extends SvnWizardDialogPage {
 		// create the group
 		Group group = new Group(area,SWT.NULL);
 		group.setText(Policy.bind("SetSvnPropertyDialog.propertyContent")); //$NON-NLS-1$
-		gridData = new GridData(GridData.FILL_BOTH);
-		gridData.grabExcessHorizontalSpace = true;
-		group.setLayoutData(gridData);
-		layout = new GridLayout();
-		group.setLayout(layout); 		
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 2, 1));
+		group.setLayout(new GridLayout(2, false)); 		
 
 		// create "Enter a text property" radio button
 		textRadio = new Button(group, SWT.RADIO);
+		textRadio.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		textRadio.setText(Policy.bind("SetSvnPropertyDialog.enterTextProperty")); //$NON-NLS-1$
 		textRadio.addListener(SWT.Selection,updateEnablementsListener);
 		textRadio.setSelection(true);	
 		
 		// create the Text for the content
 		propertyValueText = new Text(group,SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		gridData = new GridData(GridData.FILL_BOTH);
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 		gridData.heightHint = 100;
 		gridData.widthHint = 400;
-		gridData.horizontalIndent = 30;
-		gridData.grabExcessHorizontalSpace = true;
+		gridData.horizontalIndent = 15;
 		propertyValueText.setLayoutData(gridData);
 
 		// create "Use a file" radio button
 		fileRadio = new Button(group, SWT.RADIO);
+		fileRadio.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		fileRadio.setText(Policy.bind("SetSvnPropertyDialog.useFile")); //$NON-NLS-1$
 		fileRadio.addListener(SWT.Selection,updateEnablementsListener);
-		
-		// file input and button
-		composite = new Composite(group, SWT.NONE);
-		gridData = new GridData(GridData.FILL_HORIZONTAL);
-		gridData.grabExcessHorizontalSpace = true;
-		composite.setLayoutData(gridData);
-		layout = new GridLayout();
-		layout.numColumns = 2;
-		composite.setLayout(layout);
-		fileText = new Text(composite, SWT.SINGLE|SWT.BORDER);
-		gridData = new GridData(GridData.FILL_HORIZONTAL);
-		gridData.grabExcessHorizontalSpace = true;
-		gridData.horizontalIndent = 30;
-		fileText.setLayoutData(gridData);
+		fileText = new Text(group, SWT.SINGLE|SWT.BORDER);
+		GridData fileTextData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		fileTextData.horizontalIndent = 15;
+		fileText.setLayoutData(fileTextData);
 		fileText.setEditable(false);
-		browseButton = new Button(composite,SWT.PUSH);
+		browseButton = new Button(group,SWT.PUSH);
+		browseButton.setLayoutData(new GridData());
 		browseButton.setText(Policy.bind("SetSvnPropertyDialog.browse")); //$NON-NLS-1$
 		browseButton.addSelectionListener(new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent event) {
@@ -183,11 +161,12 @@ public class SvnWizardSetPropertyPage extends SvnWizardDialogPage {
 				}
 			}
 		});
+		
+		// file input and button
 
 		// checkbox 
 		recurseCheckbox = new Button(area,SWT.CHECK);
-		gridData = new GridData(GridData.FILL_HORIZONTAL);
-		recurseCheckbox.setLayoutData(gridData);
+		recurseCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		recurseCheckbox.setText(Policy.bind("SetSvnPropertyDialog.setPropertyRecursively")); //$NON-NLS-1$
 		recurseCheckbox.setSelection(false);
 		if (!svnResource.isFolder()) {
@@ -198,7 +177,7 @@ public class SvnWizardSetPropertyPage extends SvnWizardDialogPage {
 		// status message
 		statusMessageLabel = new Label(area, SWT.LEFT);
 		statusMessageLabel.setText(""); //$NON-NLS-1$
-		GridData data = new GridData(GridData.VERTICAL_ALIGN_FILL | GridData.FILL_HORIZONTAL);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1);
 		statusMessageLabel.setLayoutData(data);
 		statusMessageLabel.setFont(parent.getFont());
 		
