@@ -62,7 +62,7 @@ public class CheckoutWizardSelectionPage extends WizardPage {
 		outerContainer.setLayoutData(
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 
-		treeViewer = new TreeViewer(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		treeViewer = new TreeViewer(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER);
 		RepositoryContentProvider contentProvider = new RepositoryContentProvider();
         treeViewer.setContentProvider(contentProvider);
         treeViewer.addFilter(RepositoryFilters.FOLDERS_ONLY);
