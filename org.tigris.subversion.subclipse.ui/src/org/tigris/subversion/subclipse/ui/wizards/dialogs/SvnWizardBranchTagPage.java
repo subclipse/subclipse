@@ -110,13 +110,16 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
         Composite top = new Composite(composite, SWT.NULL);
-        top.setLayout(new GridLayout());
-        top.setLayoutData(new GridData(GridData.FILL_BOTH));
+        GridLayout gridLayout = new GridLayout();
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        top.setLayout(gridLayout);
+        top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		Group repositoryGroup = new Group(top, SWT.NULL);
 		repositoryGroup.setText(Policy.bind("BranchTagDialog.repository")); //$NON-NLS-1$
 		repositoryGroup.setLayout(new GridLayout());
-		GridData data = new GridData(GridData.FILL_BOTH);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		repositoryGroup.setLayoutData(data);
 		
 		Label fromUrlLabel = new Label(repositoryGroup, SWT.NONE);
@@ -188,7 +191,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 		GridLayout serverLayout = new GridLayout();
 		serverLayout.numColumns = 3;
 		serverComposite.setLayout(serverLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		serverComposite.setLayoutData(data);	
 		
 		serverButton = new Button(serverComposite, SWT.RADIO);
