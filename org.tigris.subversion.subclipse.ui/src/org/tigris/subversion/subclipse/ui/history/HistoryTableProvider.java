@@ -70,7 +70,7 @@ public class HistoryTableProvider {
 	 * Constructor for HistoryTableProvider.
 	 */
 	public HistoryTableProvider() {
-		this(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER);
+		this(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
 	}
 	
 	public HistoryTableProvider(int style) {

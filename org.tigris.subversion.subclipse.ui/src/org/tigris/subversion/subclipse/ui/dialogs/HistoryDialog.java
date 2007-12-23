@@ -134,7 +134,7 @@ public class HistoryDialog extends TrayDialog {
         historyGroup.setLayout(historyLayout);
         historyGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		historyTableProvider = new HistoryTableProvider();
+		historyTableProvider = new HistoryTableProvider(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER);
 		historyTableProvider.setRemoteResource(remoteResource);
 		tableHistoryViewer = historyTableProvider.createTable(historyGroup);
 		data = new GridData(GridData.FILL_BOTH);
