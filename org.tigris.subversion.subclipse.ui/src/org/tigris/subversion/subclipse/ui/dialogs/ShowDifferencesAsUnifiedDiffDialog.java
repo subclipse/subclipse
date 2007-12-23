@@ -83,13 +83,13 @@ public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
 		GridLayout fileLayout = new GridLayout();
 		fileLayout.numColumns = 3;
 		fileGroup.setLayout(fileLayout);
-		GridData data = new GridData(GridData.FILL_BOTH);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fileGroup.setLayoutData(data);
 		
 		Label fileLabel = new Label(fileGroup, SWT.NONE);
 		fileLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.file")); //$NON-NLS-1$
 		fileText = new Text(fileGroup, SWT.BORDER);
-		data = new GridData();
+		data = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 		data.widthHint = 300;
 		fileText.setLayoutData(data);
 		
@@ -110,14 +110,14 @@ public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
 		GridLayout fromLayout = new GridLayout();
 		fromLayout.numColumns = 2;
 		fromGroup.setLayout(fromLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fromGroup.setLayoutData(data);
 		
 		Label fromUrlLabel = new Label(fromGroup, SWT.NONE);
 		fromUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		fromUrlText = new Text(fromGroup, SWT.BORDER);
 		fromUrlText.setEditable(false);
-		data = new GridData();
+		data = new GridData(SWT.FILL, SWT.CENTER, false, false);
 		data.widthHint = 300;
 		fromUrlText.setLayoutData(data);
 		fromUrlText.setText(remoteResources[0].getUrl().toString());
@@ -127,8 +127,7 @@ public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
 		GridLayout fromRevisionLayout = new GridLayout();
 		fromRevisionLayout.numColumns = 3;
 		fromRevisionGroup.setLayout(fromRevisionLayout);
-		data = new GridData(GridData.FILL_BOTH);
-		data.horizontalSpan = 3;
+		data = new GridData(SWT.FILL, SWT.TOP, true, false, 3, 1);
 		fromRevisionGroup.setLayoutData(data);
 		
 		fromHeadButton = new Button(fromRevisionGroup, SWT.RADIO);
@@ -162,14 +161,14 @@ public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
 		GridLayout toLayout = new GridLayout();
 		toLayout.numColumns = 2;
 		toGroup.setLayout(toLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		toGroup.setLayoutData(data);
 		
 		Label toUrlLabel = new Label(toGroup, SWT.NONE);
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		toUrlText = new Text(toGroup, SWT.BORDER);
 		toUrlText.setEditable(false);
-		data = new GridData();
+		data = new GridData(SWT.FILL, SWT.CENTER, false, false);
 		data.widthHint = 300;
 		toUrlText.setLayoutData(data);
 		toUrlText.setText(remoteResources[1].getUrl().toString());
@@ -179,8 +178,7 @@ public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
 		GridLayout toRevisionLayout = new GridLayout();
 		toRevisionLayout.numColumns = 3;
 		toRevisionGroup.setLayout(toRevisionLayout);
-		data = new GridData(GridData.FILL_BOTH);
-		data.horizontalSpan = 3;
+		data = new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1);
 		toRevisionGroup.setLayoutData(data);
 		
 		toHeadButton = new Button(toRevisionGroup, SWT.RADIO);
