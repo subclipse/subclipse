@@ -25,7 +25,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -64,15 +63,15 @@ public class RelocateWizardWarningPage extends WizardPage {
 		GridLayout outerLayout = new GridLayout();
 		outerLayout.numColumns = 2;
 		outerContainer.setLayout(outerLayout);
-		outerContainer.setLayoutData(
-		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		outerContainer.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
 		Label attentionImageLabel = new Label(outerContainer, SWT.NONE);
 		attentionImageLabel.setImage(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WARNING).createImage());
+		attentionImageLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 		
 		Text warningText = new Text(outerContainer, SWT.WRAP);
 		warningText.setEditable(false);
-		GridData data = new GridData();
+		GridData data = new GridData(SWT.FILL, SWT.TOP, true, false);
 		data.widthHint = 400;
 		data.heightHint = 40;
 		warningText.setLayoutData(data);
@@ -80,23 +79,22 @@ public class RelocateWizardWarningPage extends WizardPage {
 		
 		Text warningText2 = new Text(outerContainer, SWT.WRAP);
 		warningText2.setEditable(false);
-		data = new GridData();
+		data = new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1);
 		data.widthHint = 400;
 		data.heightHint = 100;
-		data.horizontalSpan = 2;
 		warningText2.setLayoutData(data);
 		warningText2.setText(Policy.bind("RelocateWizard.warningMessage2")); //$NON-NLS-1$
 		
-		Group projectsGroup = new Group(outerContainer, SWT.NONE);
-		projectsGroup.setText(Policy.bind("RelocateWizard.projects")); //$NON-NLS-1$
-		projectsGroup.setLayout(new GridLayout());
-		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		data.horizontalSpan = 2;
-		projectsGroup.setLayoutData(data);
+//		Group projectsGroup = new Group(outerContainer, SWT.NONE);
+//		projectsGroup.setText(Policy.bind("RelocateWizard.projects")); //$NON-NLS-1$
+//		projectsGroup.setLayout(new GridLayout());
+//		projectsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		
-		table = new Table(projectsGroup, SWT.H_SCROLL | SWT.V_SCROLL);
-		data = new GridData(GridData.FILL_BOTH | GridData.GRAB_VERTICAL | GridData.GRAB_HORIZONTAL | GridData.VERTICAL_ALIGN_BEGINNING);
-		table.setLayoutData(data);
+    Label projectsLabel = new Label(outerContainer, SWT.NONE);
+    projectsLabel.setText(Policy.bind("RelocateWizard.projects")); //$NON-NLS-1$
+    projectsLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 2, 1));
+    
+		table = new Table(outerContainer, SWT.BORDER);
 		table.setLinesVisible(false);
 		table.setHeaderVisible(false);
 		viewer = new TableViewer(table);
@@ -114,7 +112,7 @@ public class RelocateWizardWarningPage extends WizardPage {
 		viewer.setLabelProvider(new ProjectLabelProvider());
 		viewer.setContentProvider(new ProjectContentProvider());
 		viewer.setInput(this);
-		GridData gd = new GridData();
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 		gd.widthHint = 400;
 		gd.heightHint = 150;
 		table.setLayoutData(gd);		
