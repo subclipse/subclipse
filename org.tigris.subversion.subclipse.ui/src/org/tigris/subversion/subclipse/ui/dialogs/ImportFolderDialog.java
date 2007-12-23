@@ -48,6 +48,7 @@ public class ImportFolderDialog extends TrayDialog {
 
 	public ImportFolderDialog(Shell parentShell, ISVNRemoteFolder remoteFolder, IWorkbenchPart targetPart) {
 		super(parentShell);
+		setShellStyle(SWT.SHELL_TRIM);
 		this.remoteFolder = remoteFolder;
 		this.targetPart = targetPart;
 		commitCommentArea = new CommitCommentArea(this, null, Policy.bind("ImportFolderDialog.comment")); //$NON-NLS-1$
@@ -56,42 +57,38 @@ public class ImportFolderDialog extends TrayDialog {
 	protected Control createDialogArea(Composite parent) {
 		getShell().setText(Policy.bind("ImportFolderDialog.title")); //$NON-NLS-1$
 		Composite composite = new Composite(parent, SWT.NULL);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		composite.setLayout(layout);
-		GridData data = new GridData(GridData.FILL_BOTH);
-		composite.setLayoutData(data);
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.marginHeight = 0;
+		composite.setLayout(gridLayout);
+		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		Group repositoryGroup = new Group(composite, SWT.NULL);
+		Composite repositoryComposite = new Composite(composite, SWT.NONE);
+		repositoryComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		repositoryComposite.setLayout(new GridLayout());
+		
+		Group repositoryGroup = new Group(repositoryComposite, SWT.NULL);
+		repositoryGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		repositoryGroup.setText(Policy.bind("ExportRemoteFolderDialog.repository")); //$NON-NLS-1$
-		GridLayout repositoryLayout = new GridLayout();
-		repositoryLayout.numColumns = 2;
-		repositoryGroup.setLayout(repositoryLayout);
-		data = new GridData(GridData.FILL_BOTH);
-		repositoryGroup.setLayoutData(data);
+		repositoryGroup.setLayout(new GridLayout(2, false));
 		
 		Label urlLabel = new Label(repositoryGroup, SWT.NONE);
 		urlLabel.setText(Policy.bind("ExportRemoteFolderDialog.url"));
-		data = new GridData();
-		data.horizontalSpan = 2;
+		GridData data = new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1);
 		urlLabel.setLayoutData(data);
 		
 		Text urlText = new Text(repositoryGroup, SWT.BORDER);
-		data = new GridData();
+		data = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
 		data.widthHint = 600;
 		urlText.setLayoutData(data);
 		urlText.setEditable(false);
 		urlText.setText(remoteFolder.getUrl().toString());
 		
-		new Label(repositoryGroup, SWT.NONE);
-		
 		Label directoryLabel = new Label(repositoryGroup, SWT.NONE);
 		directoryLabel.setText(Policy.bind("ImportFolderDialog.directory"));
-		data = new GridData();
-		data.horizontalSpan = 2;
+		data = new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1);
 		directoryLabel.setLayoutData(data);
 		directoryText = new Text(repositoryGroup, SWT.BORDER);
-		data = new GridData();
+		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		data.widthHint = 600;
 		directoryText.setLayoutData(data);
 		directoryText.addModifyListener(new ModifyListener() {
@@ -115,14 +112,15 @@ public class ImportFolderDialog extends TrayDialog {
 		});
 		
 		recurseButton = new Button(repositoryGroup, SWT.CHECK);
+		recurseButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		recurseButton.setText(Policy.bind("ImportFolderDialog.recurse"));
 		recurseButton.setSelection(true);
 		
-		// set F1 help
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.IMPORT_FOLDER_DIALOG);	
+    // set F1 help
+    PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.IMPORT_FOLDER_DIALOG); 
 
-		commitCommentArea.createArea(composite);
-		
+    commitCommentArea.createArea(composite);
+
 		directoryText.setFocus();
 		
 		return composite;
