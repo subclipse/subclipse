@@ -83,18 +83,14 @@ public class DifferencesDialog extends SvnDialog {
 		
 		Group fromGroup = new Group(composite, SWT.NULL);
 		fromGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.compareFrom")); //$NON-NLS-1$
-		GridLayout fromLayout = new GridLayout();
-		fromLayout.numColumns = 2;
-		fromGroup.setLayout(fromLayout);
-		GridData data = new GridData(GridData.FILL_BOTH);
-		fromGroup.setLayoutData(data);
+		fromGroup.setLayout(new GridLayout(2, false));
+		fromGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		Label fromUrlLabel = new Label(fromGroup, SWT.NONE);
 		fromUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		fromUrlText = new Text(fromGroup, SWT.BORDER);
 		fromUrlText.setEditable(false);
-		data = new GridData(GridData.FILL_HORIZONTAL);
-		fromUrlText.setLayoutData(data);
+		fromUrlText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		fromUrlText.setText(remoteResources[0].getUrl().toString());
 
 		Composite fromRevisionGroup = new Composite(fromGroup, SWT.NULL);
@@ -103,13 +99,11 @@ public class DifferencesDialog extends SvnDialog {
 		fromRevisionLayout.marginWidth = 0;
 		fromRevisionLayout.marginHeight = 0;
 		fromRevisionGroup.setLayout(fromRevisionLayout);
-		data = new GridData(GridData.FILL_BOTH);
-		data.horizontalSpan = 3;
-		fromRevisionGroup.setLayoutData(data);
+		fromRevisionGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 3, 1));
 
 		fromHeadButton = new Button(fromRevisionGroup, SWT.CHECK);
 		fromHeadButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.head")); //$NON-NLS-1$
-		data = new GridData();
+		GridData data = new GridData();
 		data.horizontalSpan = 3;
 		fromHeadButton.setLayoutData(data);
 
@@ -119,9 +113,7 @@ public class DifferencesDialog extends SvnDialog {
 		fromHeadButton.setSelection(true);
 		
 		fromRevisionText = new Text(fromRevisionGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 40;
-		fromRevisionText.setLayoutData(data);
+		fromRevisionText.setLayoutData(new GridData(40, SWT.DEFAULT));
 		fromRevisionText.setEnabled(false);
 		
 		fromLogButton = new Button(fromRevisionGroup, SWT.PUSH);
@@ -135,18 +127,14 @@ public class DifferencesDialog extends SvnDialog {
 		
 		Group toGroup = new Group(composite, SWT.NULL);
 		toGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.compareTo")); //$NON-NLS-1$
-		GridLayout toLayout = new GridLayout();
-		toLayout.numColumns = 2;
-		toGroup.setLayout(toLayout);
-		data = new GridData(GridData.FILL_BOTH);
-		toGroup.setLayoutData(data);
+		toGroup.setLayout(new GridLayout(2, false));
+		toGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		Label toUrlLabel = new Label(toGroup, SWT.NONE);
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		toUrlText = new Text(toGroup, SWT.BORDER);
 		toUrlText.setEditable(false);
-		data = new GridData(GridData.FILL_HORIZONTAL);
-		toUrlText.setLayoutData(data);
+		toUrlText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		if (remoteResources.length < 2 || remoteResources[1] == null)
 			toUrlText.setText(remoteResources[0].getUrl().toString());
 		else
@@ -158,9 +146,7 @@ public class DifferencesDialog extends SvnDialog {
 		toRevisionLayout.marginWidth = 0;
 		toRevisionLayout.marginHeight = 0;
 		toRevisionGroup.setLayout(toRevisionLayout);
-		data = new GridData(GridData.FILL_BOTH);
-		data.horizontalSpan = 3;
-		toRevisionGroup.setLayoutData(data);
+		toRevisionGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 3, 1));
 
 		toHeadButton = new Button(toRevisionGroup, SWT.CHECK);
 		toHeadButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.head")); //$NON-NLS-1$
@@ -174,9 +160,7 @@ public class DifferencesDialog extends SvnDialog {
 		toHeadButton.setSelection(true);
 		
 		toRevisionText = new Text(toRevisionGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = 40;
-		toRevisionText.setLayoutData(data);
+		toRevisionText.setLayoutData(new GridData(40, SWT.DEFAULT));
 		toRevisionText.setEnabled(false);
 		
 		toLogButton = new Button(toRevisionGroup, SWT.PUSH);
@@ -216,11 +200,8 @@ public class DifferencesDialog extends SvnDialog {
 		
 		Group fileGroup = new Group(composite, SWT.NULL);
 		fileGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.compareType")); //$NON-NLS-1$
-		GridLayout fileLayout = new GridLayout();
-		fileLayout.numColumns = 3;
-		fileGroup.setLayout(fileLayout);
-		data = new GridData(GridData.FILL_BOTH);
-		fileGroup.setLayoutData(data);
+		fileGroup.setLayout(new GridLayout(3, false));
+		fileGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		compareButton = new Button(fileGroup, SWT.RADIO);
 		compareButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.graphical")); //$NON-NLS-1$
@@ -234,7 +215,7 @@ public class DifferencesDialog extends SvnDialog {
 		compareButton.setSelection(true);
 		
 		fileText = new Text(fileGroup, SWT.BORDER);
-		data = new GridData();
+		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		data.widthHint = 450;
 		fileText.setLayoutData(data);
 		fileText.setEnabled(false);
