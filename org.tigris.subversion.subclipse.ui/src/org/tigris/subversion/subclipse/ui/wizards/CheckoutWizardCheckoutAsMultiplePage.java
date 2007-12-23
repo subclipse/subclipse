@@ -83,7 +83,7 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
 		GridLayout revisionLayout = new GridLayout();
 		revisionLayout.numColumns = 3;
 		revisionGroup.setLayout(revisionLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		revisionGroup.setLayoutData(data);
 		
 		headButton = new Button(revisionGroup, SWT.CHECK);
@@ -127,8 +127,7 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
 		GridLayout parameterLayout = new GridLayout();
 		parameterLayout.numColumns = 2;
 		parameterGroup.setLayout(parameterLayout);
-		data = new GridData(GridData.FILL_BOTH);
-		data.horizontalSpan = 3;
+		data = new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1);
 		parameterGroup.setLayoutData(data);	
 		
 		Label depthLabel = new Label(parameterGroup, SWT.NONE);
