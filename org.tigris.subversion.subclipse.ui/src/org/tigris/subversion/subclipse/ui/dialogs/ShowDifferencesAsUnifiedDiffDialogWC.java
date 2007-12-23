@@ -89,7 +89,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		GridLayout fromLayout = new GridLayout();
 		fromLayout.numColumns = 2;
 		fromGroup.setLayout(fromLayout);
-		GridData data = new GridData(GridData.FILL_BOTH);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fromGroup.setLayoutData(data);
 		
 		Label pathLabel = new Label(fromGroup, SWT.NONE);
@@ -105,7 +105,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		GridLayout toLayout = new GridLayout();
 		toLayout.numColumns = 3;
 		toGroup.setLayout(toLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		toGroup.setLayoutData(data);
 		
 		Label toUrlLabel = new Label(toGroup, SWT.NONE);
@@ -172,7 +172,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		GridLayout fileLayout = new GridLayout();
 		fileLayout.numColumns = 3;
 		fileGroup.setLayout(fileLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fileGroup.setLayoutData(data);
 		
 		compareButton = new Button(fileGroup, SWT.RADIO);
