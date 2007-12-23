@@ -101,62 +101,77 @@ public class SVNPropertyPage extends PropertyPage {
         Label label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.ignored")); //$NON-NLS-1$
         ignoredValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        ignoredValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.managed")); //$NON-NLS-1$
         managedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        managedValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.switched")); //$NON-NLS-1$
         switchedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        switchedValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.changedRevision")); //$NON-NLS-1$
         lastChangedRevisionValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        lastChangedRevisionValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.changedDate")); //$NON-NLS-1$
         lastChangedDateValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        lastChangedDateValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.changedAuthor")); //$NON-NLS-1$
         lastCommitAuthorValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        lastCommitAuthorValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.status")); //$NON-NLS-1$
         textStatusValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        textStatusValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.merged")); //$NON-NLS-1$
         mergedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        mergedValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.deleted")); //$NON-NLS-1$
         deletedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        deletedValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.modified")); //$NON-NLS-1$
         modifiedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        modifiedValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.added")); //$NON-NLS-1$
         addedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        addedValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.copied")); //$NON-NLS-1$
         copiedValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        copiedValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.lockOwner"));  //$NON-NLS-1$
         lockOwner = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        lockOwner.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.lockCreationDate"));  //$NON-NLS-1$
         lockCreationDate = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+        lockCreationDate.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.lockComment"));  //$NON-NLS-1$
         lockComment = new Text(composite, SWT.MULTI | SWT.READ_ONLY);
+        lockComment.setBackground(composite.getBackground());
 
         // Populate owner text field
         try {
@@ -172,12 +187,14 @@ public class SVNPropertyPage extends PropertyPage {
             SVNRevision revision = svnResource.getRevision();
 
             if (status.getUrlCopiedFrom() != null) {
-
                 label = new Label(composite, SWT.NONE);
+                label.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
                 label.setText(Policy.bind("SVNPropertyPage.copiedFrom")); //$NON-NLS-1$
                 urlCopiedFromValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+                urlCopiedFromValue.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
                 urlCopiedFromValue.setText(status.getUrlCopiedFrom() != null ? status
                         .getUrlCopiedFrom().toString() : ""); //$NON-NLS-1$
+                urlCopiedFromValue.setBackground(composite.getBackground());
             }
 
             ignoredValue.setText(new Boolean(status.isIgnored()).toString());
