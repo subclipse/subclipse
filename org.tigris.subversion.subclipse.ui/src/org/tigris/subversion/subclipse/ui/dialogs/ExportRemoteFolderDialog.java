@@ -75,12 +75,10 @@ public class ExportRemoteFolderDialog extends SvnDialog {
 		urlLabel.setLayoutData(data);
 		
 		Text urlText = new Text(repositoryGroup, SWT.BORDER);
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+		data = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
 		urlText.setLayoutData(data);
 		urlText.setEditable(false);
 		urlText.setText(remoteResource.getUrl().toString());
-		
-		new Label(repositoryGroup, SWT.NONE);
 		
 		Label directoryLabel = new Label(repositoryGroup, SWT.NONE);
 		directoryLabel.setText(Policy.bind("ExportRemoteFolderDialog.directory"));
