@@ -130,6 +130,7 @@ public class HistoryDialog extends TrayDialog {
         GridLayout historyLayout = new GridLayout();
         historyLayout.verticalSpacing = 0;
         historyLayout.marginHeight = 0;
+        historyLayout.marginTop = 5;
         historyGroup.setLayout(historyLayout);
         historyGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
@@ -185,7 +186,7 @@ public class HistoryDialog extends TrayDialog {
         commentGroup.setLayout(commentLayout);
         commentGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		textViewer = new TextViewer(commentGroup, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER | SWT.READ_ONLY);
+		textViewer = new TextViewer(commentGroup, SWT.WRAP | SWT.V_SCROLL | SWT.MULTI | SWT.BORDER | SWT.READ_ONLY);
 		data = new GridData(GridData.FILL_BOTH);
 		data.heightHint = COMMENT_HEIGHT_HINT;
 		data.widthHint = WIDTH_HINT;
@@ -204,6 +205,7 @@ public class HistoryDialog extends TrayDialog {
 		stopOnCopyButton = new Button(composite, SWT.CHECK);
 		data = new GridData();
 		data.verticalIndent = 5;
+		data.horizontalIndent = 5;
 		stopOnCopyButton.setLayoutData(data);
 		stopOnCopyButton.setText(Policy.bind("HistoryView.stopOnCopy"));
 		stopOnCopyButton.setSelection(store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY));
