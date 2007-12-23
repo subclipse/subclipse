@@ -76,6 +76,7 @@ public class RelocateWizardWarningPage extends WizardPage {
 		data.heightHint = 40;
 		warningText.setLayoutData(data);
 		warningText.setText(Policy.bind("RelocateWizard.warningMessage1")); //$NON-NLS-1$
+		warningText.setBackground(outerContainer.getBackground());
 		
 		Text warningText2 = new Text(outerContainer, SWT.WRAP);
 		warningText2.setEditable(false);
@@ -84,6 +85,7 @@ public class RelocateWizardWarningPage extends WizardPage {
 		data.heightHint = 100;
 		warningText2.setLayoutData(data);
 		warningText2.setText(Policy.bind("RelocateWizard.warningMessage2")); //$NON-NLS-1$
+    warningText2.setBackground(outerContainer.getBackground());
 		
 //		Group projectsGroup = new Group(outerContainer, SWT.NONE);
 //		projectsGroup.setText(Policy.bind("RelocateWizard.projects")); //$NON-NLS-1$
