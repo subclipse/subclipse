@@ -177,6 +177,7 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
 
         // warning for repository root
         Composite warningComposite = new Composite(composite, SWT.NONE);
+        warningComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
         layout = new GridLayout();
         layout.numColumns = 2;
         layout.marginHeight = 0;
@@ -184,8 +185,10 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
         warningComposite.setLayout(layout);
         
         Label warningLabel = new Label(warningComposite, SWT.NONE);
+        warningLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
         warningLabel.setImage(Dialog.getImage(Dialog.DLG_IMG_MESSAGE_WARNING));
         Label warningText = new Label(warningComposite, SWT.WRAP);
+        warningText.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
         warningText.setText(Policy.bind("SVNRepositoryPropertiesPage.rootUrlWarning")); //$NON-NLS-1$
         
         initializeValues();
