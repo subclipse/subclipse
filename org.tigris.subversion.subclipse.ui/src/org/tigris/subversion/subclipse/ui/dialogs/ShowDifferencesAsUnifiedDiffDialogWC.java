@@ -110,10 +110,9 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		
 		Label toUrlLabel = new Label(toGroup, SWT.NONE);
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		toUrlText = new UrlCombo(toGroup, resource.getProject().getName(), data);
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		toUrlText.setLayoutData(data);
+		toUrlText = new UrlCombo(toGroup, SWT.NONE);
+		toUrlText.init(resource.getProject().getName());
+		toUrlText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		
 		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		toUrlText.setText(localResource.getUrl().toString());

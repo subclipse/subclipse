@@ -112,10 +112,9 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		Label urlLabel = new Label(composite, SWT.NONE);
 		urlLabel.setText(Policy.bind("SwitchDialog.url")); //$NON-NLS-1$
 		
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		urlCombo = new UrlCombo(composite, resources[0].getProject().getName(), data);
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		urlCombo.setLayoutData(data);
+		urlCombo = new UrlCombo(composite, SWT.NONE);
+		urlCombo.init(resources[0].getProject().getName());
+		urlCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 
 		commonRoot = getCommonRoot();
 		if (commonRoot != null) urlCombo.setText(commonRoot);
@@ -145,8 +144,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		revisionLayout.marginWidth = 0;
 		revisionLayout.marginHeight = 0;
 		revisionGroup.setLayout(revisionLayout);
-		if (resources.length > 1) data = new GridData(GridData.FILL_HORIZONTAL);
-		else data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 3;
 		revisionGroup.setLayoutData(data);
 		
@@ -239,8 +237,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		GridLayout parameterLayout = new GridLayout();
 		parameterLayout.numColumns = 2;
 		parameterGroup.setLayout(parameterLayout);
-		if (resources.length > 1) data = new GridData(GridData.FILL_HORIZONTAL);
-		else data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 3;
 		parameterGroup.setLayoutData(data);	
 		

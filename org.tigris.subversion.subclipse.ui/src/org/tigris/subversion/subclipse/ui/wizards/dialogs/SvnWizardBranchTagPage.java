@@ -152,14 +152,12 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 		urlLayout.marginWidth = 0;
 		urlLayout.marginHeight = 0;
 		urlComposite.setLayout(urlLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		urlComposite.setLayoutData(data);
 		
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		if (resource == null) toUrlCombo = new UrlCombo(urlComposite, "repositoryBrowser", data); //$NON-NLS-1$
-		else toUrlCombo = new UrlCombo(urlComposite, resource.getProject().getName(), data);
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		toUrlCombo.setLayoutData(data);
+		toUrlCombo = new UrlCombo(urlComposite, SWT.NONE);
+		toUrlCombo.init( resource == null ? "repositoryBrowser" : resource.getProject().getName()); //$NON-NLS-1$
+		toUrlCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		toUrlCombo.setText(urlText.getText());
 		
 		Button browseButton = new Button(urlComposite, SWT.PUSH);

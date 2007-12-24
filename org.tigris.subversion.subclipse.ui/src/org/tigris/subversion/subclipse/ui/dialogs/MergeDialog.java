@@ -116,11 +116,12 @@ public class MergeDialog extends SvnDialog {
 		data = new GridData(GridData.FILL_BOTH);
 		fromGroup.setLayoutData(data);
 		
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		fromUrlCombo = new UrlCombo(fromGroup, resource.getProject().getName(), data);
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		fromUrlCombo.setLayoutData(data);
-		if (urlString != null) fromUrlCombo.setText(urlString);
+		fromUrlCombo = new UrlCombo(fromGroup, SWT.NONE);
+		fromUrlCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
+		fromUrlCombo.init(resource.getProject().getName());
+		if (urlString != null) {
+		  fromUrlCombo.setText(urlString);
+		}
 		
 		fromBrowseButton = new Button(fromGroup, SWT.PUSH);
 		fromBrowseButton.setText(Policy.bind("SwitchDialog.browse")); //$NON-NLS-1$
@@ -187,11 +188,10 @@ public class MergeDialog extends SvnDialog {
 		
 		useFromUrlButton.setText(Policy.bind("MergeDialog.useFrom")); //$NON-NLS-1$
 		
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		toUrlCombo = new UrlCombo(toGroup, resource.getProject().getName(), data);
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		toUrlCombo.setLayoutData(data);
+		toUrlCombo = new UrlCombo(toGroup, SWT.NONE);
+		toUrlCombo.init(resource.getProject().getName());
 		toUrlCombo.setText(fromUrlCombo.getText());
+		toUrlCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		toUrlCombo.getCombo().setVisible(false);
 		
 		toBrowseButton = new Button(toGroup, SWT.PUSH);

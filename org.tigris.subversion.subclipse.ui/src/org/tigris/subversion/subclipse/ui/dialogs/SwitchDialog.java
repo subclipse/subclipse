@@ -109,7 +109,8 @@ public class SwitchDialog extends TrayDialog {
 		Label urlLabel = new Label(composite, SWT.NONE);
 		urlLabel.setText(Policy.bind("SwitchDialog.url")); //$NON-NLS-1$
 		
-		urlCombo = new UrlCombo(composite, resources[0].getProject().getName());
+		urlCombo = new UrlCombo(composite, SWT.NONE);
+		urlCombo.init(resources[0].getProject().getName());
 
 		commonRoot = getCommonRoot();
 		if (commonRoot != null) urlCombo.setText(commonRoot);
