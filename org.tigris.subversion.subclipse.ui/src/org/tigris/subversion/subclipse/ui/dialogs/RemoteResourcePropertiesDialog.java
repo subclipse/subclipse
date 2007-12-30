@@ -16,6 +16,7 @@ import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableLayout;
@@ -23,6 +24,9 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -191,34 +195,46 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
         lockCommentText.setBackground(composite.getBackground());
       }
     }
-		
-//		Group propertyGroup = new Group(composite, SWT.NULL);
-//		propertyGroup.setText(Policy.bind("RemoteResourcePropertiesDialog.properties")); //$NON-NLS-1$
-//		propertyGroup.setLayout(new GridLayout());
-//		propertyGroup.setLayoutData(new GridData(GridData.FILL_BOTH));	
-		
-		Table table = new Table(composite, SWT.BORDER);
-		table.setLinesVisible(true);
-		TableViewer viewer = new TableViewer(table);
-  	viewer.setUseHashlookup(true);
-  	TableLayout tableLayout = new TableLayout();
-		table.setLayout(tableLayout);
-		table.setHeaderVisible(true);
+
+		SashForm sashForm = new SashForm(composite, SWT.VERTICAL);
+		GridData gd_sashForm = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_sashForm.heightHint = 244;
+		sashForm.setLayoutData(gd_sashForm);
+
+	  final Table table = new Table(sashForm, SWT.FULL_SELECTION | SWT.BORDER);
+	  
+	  final Text text = new Text(sashForm, SWT.V_SCROLL | SWT.MULTI | SWT.READ_ONLY | SWT.BORDER | SWT.WRAP);
+
+		final TableViewer viewer = new TableViewer(table);
+		viewer.setUseHashlookup(true);
+
+		TableLayout tableLayout = new TableLayout();
 		for (int i = 0; i < columnHeaders.length; i++) {
-			tableLayout.addColumnData(columnLayouts[i]);
-			TableColumn tc = new TableColumn(table, SWT.NONE,i);
-			tc.setResizable(columnLayouts[i].resizable);
-			tc.setText(columnHeaders[i]);
+		  tableLayout.addColumnData(columnLayouts[i]);
+		  TableColumn tc = new TableColumn(table, SWT.NONE,i);
+		  tc.setResizable(columnLayouts[i].resizable);
+		  tc.setText(columnHeaders[i]);
 		}
+		table.setLayout(tableLayout);
+		table.setLinesVisible(true);
+		table.setHeaderVisible(true);
+		table.addSelectionListener(new SelectionAdapter() {
+		  public void widgetSelected(SelectionEvent e) {
+		    IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		    ISVNProperty property = (ISVNProperty) selection.getFirstElement();
+        text.setText(property.getValue());
+		  }
+		});
 		
-		data = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
-		data.verticalIndent = 5;
-		data.heightHint = 150;
-		table.setLayoutData(data);
+		GridData gd_table = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_table.verticalIndent = 5;
+		gd_table.heightHint = 150;
+		table.setLayoutData(gd_table);
 		
 		viewer.setContentProvider(new RemoteResourceContentProvider());
 		viewer.setLabelProvider(new RemoteResourceLabelProvider());
 		viewer.setInput(remoteResource);
+		sashForm.setWeights(new int[] {128, 113 });
 
 		// set f1 help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.REMOTE_RESOURCE_PROPERTIES_DIALOG);	
