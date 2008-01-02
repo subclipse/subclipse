@@ -204,16 +204,6 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	 * @return the plugin instance
 	 */
 	public static SVNUIPlugin getPlugin() {
-		// If the instance has not been initialized, we will wait.
-		// This can occur if multiple threads try to load the plugin at the same
-		// time (see bug 33825: http://bugs.eclipse.org/bugs/show_bug.cgi?id=33825)
-		while (plugin == null) {
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				// ignore and keep trying
-			}
-		}
 		return plugin;
 	}
 
