@@ -20,20 +20,12 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
-import org.eclipse.ui.part.IPageBookViewPage;
-import org.eclipse.ui.part.IPageSite;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.IConsoleListener;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -171,52 +163,6 @@ public class SVNOutputConsole extends IOConsole implements IConsoleListener, IPr
 	 */
 	public String getHelpContextId() {
 		return IHelpContextIds.CONSOLE_VIEW;
-	}
-    /* (non-Javadoc)
-     * TODO remove this method when Eclipse 3.2 is required
-     * @see org.eclipse.ui.console.IConsole#createPage(org.eclipse.ui.console.IConsoleView)
-     */
-    public IPageBookViewPage createPage(IConsoleView view) {
-        
-        // We don't have a more elegant way of overriding this, unfortunately...
-        final IPageBookViewPage delegate = super.createPage(view);
-        return new IPageBookViewPage() {
-            /* (non-Javadoc)
-             * @see org.eclipse.ui.console.IPageBookViewPage#createControl(org.eclipse.swt.widgets.Composite)
-             */
-            public void createControl(Composite parent) {
-                delegate.createControl(parent);
-                PlatformUI.getWorkbench().getHelpSystem().setHelp(delegate.getControl(), IHelpContextIds.CONSOLE_VIEW);
-            }
-            
-            public void dispose() {
-                delegate.dispose();
-            }
-            public boolean equals(Object obj) {
-                return delegate.equals(obj);
-            }
-            public Control getControl() {
-                return delegate.getControl();
-            }
-            public IPageSite getSite() {
-                return delegate.getSite();
-            }
-            public int hashCode() {
-                return delegate.hashCode();
-            }
-            public void init(IPageSite site) throws PartInitException {
-                delegate.init(site);
-            }
-            public void setActionBars(IActionBars actionBars) {
-                delegate.setActionBars(actionBars);
-            }
-            public void setFocus() {
-                delegate.setFocus();
-            }
-            public String toString() {
-                return delegate.toString();
-            }
-        };
 	}
     
 	private void dump() {
