@@ -280,6 +280,9 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 			public void focusGained(FocusEvent e) {
 				((Text)e.getSource()).selectAll();
 			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
 		};
 		
 		revisionText.addFocusListener(focusListener);
