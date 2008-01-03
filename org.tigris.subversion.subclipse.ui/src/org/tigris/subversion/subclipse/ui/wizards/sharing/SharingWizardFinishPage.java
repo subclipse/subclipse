@@ -61,7 +61,7 @@ public class SharingWizardFinishPage extends SVNWizardPage {
 		if ((commentProperties != null) && (commentProperties.getMinimumLogMessageSize() != 0)) {
 		    ModifyListener modifyListener = new ModifyListener() {
                 public void modifyText(ModifyEvent e) {
-                    setPageComplete(commitCommentArea.getComment().trim().length() >= commentProperties.getMinimumLogMessageSize());
+                    setPageComplete(commitCommentArea.getCommentLength() >= commentProperties.getMinimumLogMessageSize());
                 }		        
 		    };
 		    commitCommentArea.setModifyListener(modifyListener);

@@ -258,6 +258,12 @@ public class CommitCommentArea extends DialogArea {
             return fText;
         }
         
+        public int getCommentLength() {
+        	if (fTextField == null) return 0;
+        	if (fTextField.getText().equals(Policy.bind("CommitCommentArea_0"))) return 0; //$NON-NLS-1$
+        	return fTextField.getText().trim().length();
+        }
+        
         private void setText(String text) {
             if (text.length() == 0) {
                 fTextField.setText(fMessage);
@@ -640,6 +646,11 @@ public class CommitCommentArea extends DialogArea {
     
     public Composite getComposite() {
         return fComposite;
+    }
+    
+    public int getCommentLength() {
+    	if (fTextBox == null) return 0;
+    	return fTextBox.getCommentLength();
     }
     
     protected void firePropertyChangeChange(String property, Object oldValue, Object newValue) {

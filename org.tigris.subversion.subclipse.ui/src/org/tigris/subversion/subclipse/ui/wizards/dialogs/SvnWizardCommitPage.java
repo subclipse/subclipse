@@ -351,7 +351,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 		if (commentProperties == null)
 			return true;
 		else
-			return commitCommentArea.getComment().length() >= commentProperties
+			return commitCommentArea.getCommentLength() >= commentProperties
 					.getMinimumLogMessageSize();
 	}
 	

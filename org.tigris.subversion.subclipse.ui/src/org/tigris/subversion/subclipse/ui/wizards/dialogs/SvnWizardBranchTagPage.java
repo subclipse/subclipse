@@ -371,7 +371,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
     
     private boolean canFinish() {
         if ((commentProperties != null) && (commentProperties.getMinimumLogMessageSize() != 0)) {
-            if (commitCommentArea.getComment().trim().length() < commentProperties.getMinimumLogMessageSize())
+            if (commitCommentArea.getCommentLength() < commentProperties.getMinimumLogMessageSize())
             	return false;
         }
         if (revisionButton.getSelection() && (revisionText.getText().trim().length() == 0)) 
