@@ -16,8 +16,6 @@ import java.util.List;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
@@ -27,12 +25,9 @@ import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
 import org.eclipse.team.ui.synchronize.SynchronizeModelOperation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.svnclientadapter.ISVNStatus;
-import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 
 public class OverrideAndUpdateSynchronizeAction extends SynchronizeModelAction {
 
@@ -66,45 +61,15 @@ public class OverrideAndUpdateSynchronizeAction extends SynchronizeModelAction {
 	}
 
 	protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
-		IStructuredSelection selection = getStructuredSelection();
-	    ArrayList selectedElements = new ArrayList();
-	    Iterator iter = selection.iterator();
-		while (iter.hasNext()) {
-			ISynchronizeModelElement synchronizeModelElement = (ISynchronizeModelElement)iter.next();
-			IResource resource = synchronizeModelElement.getResource();
-			selectedElements.add(resource);
+		List selectedResources = new ArrayList(elements.length);
+		for (int i=0; i<elements.length; i++) {
+			if (elements[i] instanceof ISynchronizeModelElement) {
+				selectedResources.add(((ISynchronizeModelElement)elements[i]).getResource());
+			}
 		}
-		IResource[] resources = new IResource[selectedElements.size()];
-		selectedElements.toArray(resources); 
-		IResource[] modifiedResources = null;
-		try {
-			modifiedResources = getModifiedResources(resources, new NullProgressMonitor());					
-		} catch (SVNException e) {
-            
-        }
-		return new OverrideAndUpdateSynchronizeOperation(configuration, elements, modifiedResources, resources);
-	}
-	
-	private IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
-	    final List modified = new ArrayList();
-	    for (int i = 0; i < resources.length; i++) {
-			 IResource resource = resources[i];
-			 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-			 
-			 // get adds, deletes, updates and property updates.
-			 GetStatusCommand command = new GetStatusCommand(svnResource, true, false);
-			 command.run(iProgressMonitor);
-			 ISVNStatus[] statuses = command.getStatuses();
-			 for (int j = 0; j < statuses.length; j++) {
-			     if (SVNStatusUtils.isReadyForRevert(statuses[j])  ||
-			   		  !SVNStatusUtils.isManaged(statuses[j])) {
-			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
-			         if (currentResource != null)
-			             modified.add(currentResource);
-			     }
-			 }
-		}
-	    return (IResource[]) modified.toArray(new IResource[modified.size()]);
+		IResource[] resources = new IResource[selectedResources.size()];
+		selectedResources.toArray(resources);
+		return new OverrideAndUpdateSynchronizeOperation(configuration, elements, resources, resources);
 	}
 
 }

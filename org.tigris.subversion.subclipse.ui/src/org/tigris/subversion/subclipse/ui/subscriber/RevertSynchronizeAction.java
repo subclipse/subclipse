@@ -11,36 +11,25 @@
 package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
-import org.eclipse.team.internal.core.subscribers.ChangeSet;
-import org.eclipse.team.internal.ui.synchronize.ChangeSetDiffNode;
 import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
 import org.eclipse.team.ui.synchronize.SynchronizeModelOperation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.svnclientadapter.ISVNStatus;
-import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 
 public class RevertSynchronizeAction extends SynchronizeModelAction {
 	private String url;
@@ -99,88 +88,17 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 	            }
 		    }
 	    }
-	    List selectedElements = new ArrayList();
-	    Iterator iter = selection.iterator();
-		while (iter.hasNext()) {
-			ISynchronizeModelElement synchronizeModelElement = (ISynchronizeModelElement)iter.next();
-			if (synchronizeModelElement instanceof ChangeSetDiffNode) {
-				// If we find a ChangeSet we ignore the rest, even following Change Sets.
-				selectedElements.clear();
-				ChangeSet set = ((ChangeSetDiffNode)synchronizeModelElement).getSet();
-				selectedElements = Arrays.asList(set.getResources());
-				break;
-			} else {
-				IResource resource = synchronizeModelElement.getResource();
-				selectedElements.add(resource);
+		List selectedResources = new ArrayList(elements.length);
+		for (int i=0; i<elements.length; i++) {
+			if (elements[i] instanceof ISynchronizeModelElement) {
+				selectedResources.add(((ISynchronizeModelElement)elements[i]).getResource());
 			}
 		}
-		IResource[] resources = new IResource[selectedElements.size()];
-		selectedElements.toArray(resources); 
-		IResource[] modifiedResources = null;
-		try {
-			modifiedResources = getModifiedResources(resources, new NullProgressMonitor());					
-		} catch (SVNException e) {
-            
-        }
-		RevertSynchronizeOperation revertOperation = new RevertSynchronizeOperation(configuration, elements, url, modifiedResources, statusMap);
+		IResource[] resources = new IResource[selectedResources.size()];
+		selectedResources.toArray(resources);
+		RevertSynchronizeOperation revertOperation = new RevertSynchronizeOperation(configuration, elements, url, resources, statusMap);
 		revertOperation.setSelectedResources(resources);
 		return revertOperation;
     }
-    
-	private IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
-		ArrayList conflictFiles = new ArrayList();	    
-		final List modified = new ArrayList();
-	    for (int i = 0; i < resources.length; i++) {
-			 IResource resource = resources[i];
-			 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-			 
-			 // if only one resource selected, get url.  Revert dialog displays this.
-			 if (resources.length == 1) {
-				   url = svnResource.getStatus().getUrlString();
-				   if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
-			 }
-			 
-			 // get adds, deletes, updates and property updates.
-			 GetStatusCommand command = new GetStatusCommand(svnResource, true, false);
-			 command.run(iProgressMonitor);
-			 ISVNStatus[] statuses = command.getStatuses();
-			 for (int j = 0; j < statuses.length; j++) {
-			     if (SVNStatusUtils.isReadyForRevert(statuses[j])  ||
-			   		  !SVNStatusUtils.isManaged(statuses[j])) {
-			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
-			         if (currentResource != null) {
-			        	 if (SVNStatusUtils.isManaged(statuses[j]) || !Util.isSpecialEclipseFile(currentResource)) {
-				        	 modified.add(currentResource);
-	                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
-	                 		 else {
-                 			 	statusMap.put(currentResource, statuses[j].getTextStatus());	
-	                 			if (SVNStatusUtils.isTextConflicted(statuses[j])) {
-	                                IFile conflictNewFile = (IFile) File2Resource
-	                                .getResource(statuses[j]
-	                                        .getConflictNew());
-	                                if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
-	                                IFile conflictOldFile = (IFile) File2Resource
-	                                .getResource(statuses[j]
-	                                        .getConflictOld());
-	                                if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
-	                                IFile conflictWorkingFile = (IFile) File2Resource
-	                                .getResource(statuses[j]
-	                                        .getConflictWorking());
-	                                if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                                
-	                 			}	                 		 
-	                 		 }
-			        	 }
-			         }		             
-			     }
-			 }
-		}
-	    Iterator iter = conflictFiles.iterator();
-	    while (iter.hasNext()) {
-	    	IFile conflictFile = (IFile)iter.next();
-	    	modified.remove(conflictFile);
-	    	statusMap.remove(conflictFile);
-	    }	    
-	    return (IResource[]) modified.toArray(new IResource[modified.size()]);
-	}
 	
 }
