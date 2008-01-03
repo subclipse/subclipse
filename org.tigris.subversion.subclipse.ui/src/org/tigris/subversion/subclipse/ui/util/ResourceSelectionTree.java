@@ -252,14 +252,8 @@ public class ResourceSelectionTree extends Composite {
 	
 			selectAllButton = new Button(selectGroup, SWT.PUSH);
 			selectAllButton.setText(Policy.bind("ResourceSelectionTree.SelectAll")); //$NON-NLS-1$
-			gridData = new GridData();
-			gridData.widthHint = 75;
-			selectAllButton.setLayoutData(gridData);
 			deselectAllButton = new Button(selectGroup, SWT.PUSH);
 			deselectAllButton.setText(Policy.bind("ResourceSelectionTree.DeselectAll")); //$NON-NLS-1$
-			gridData = new GridData();
-			gridData.widthHint = 75;
-			deselectAllButton.setLayoutData(gridData);	
 			
 			SelectionListener selectionListener = new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
