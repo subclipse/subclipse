@@ -43,6 +43,8 @@ public class GenerateDiffFileWizard extends Wizard {
 	private HashMap statusMap;
 	private IResource[] selectedResources;
 
+	private OptionsPage optionsPage;
+
 	// end of PatchFileCreationOptionsPage
 	
 	public GenerateDiffFileWizard(IStructuredSelection selection, IResource[] unaddedResources, HashMap statusMap) {
@@ -59,10 +61,14 @@ public class GenerateDiffFileWizard extends Wizard {
 		String pageDescription = Policy.bind("GenerateSVNDiff.pageDescription"); //$NON-NLS-1$
 		mainPage = new PatchFileSelectionPage(pageTitle, pageTitle, SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_DIFF), selection, statusMap);
 		mainPage.setDescription(pageDescription);
-		addPage(mainPage);
 		
 		pageTitle = Policy.bind("GenerateSVNDiff.AdvancedOptions"); //$NON-NLS-1$
 		pageDescription = Policy.bind("GenerateSVNDiff.ConfigureOptions"); //$NON-NLS-1$
+		optionsPage = new OptionsPage(pageTitle, pageTitle, SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_DIFF));
+		optionsPage.setDescription(pageDescription);
+		addPage(mainPage);
+		addPage(optionsPage);
+		
 	}
 		
 	/**
@@ -104,7 +110,9 @@ public class GenerateDiffFileWizard extends Wizard {
 		String fs = mainPage.getFilesystemFile();
 		IFile ws = mainPage.getWorkspaceFile();
 		int type = mainPage.getSaveType();
-
+		boolean eclipseFormat = optionsPage.isMultiPatch();
+		boolean projectRelative = optionsPage.isProjectRelative();
+		
 		try {
 			if(type != mainPage.CLIPBOARD) {
 				File file = new File(fs!=null ? fs : ws.getLocation().toOSString());
@@ -121,14 +129,14 @@ public class GenerateDiffFileWizard extends Wizard {
 						return false;
 					}
 				}
-				GenerateDiffFileOperation generateDiffFileOperation = new GenerateDiffFileOperation(getResources(), getUnaddedResources(), file, false, false, getShell());
+				GenerateDiffFileOperation generateDiffFileOperation = new GenerateDiffFileOperation(getResources(), getUnaddedResources(), file, false, false, eclipseFormat, projectRelative, getShell());
 				generateDiffFileOperation.setSelectedResources(selectedResources);
 				getContainer().run(true, true, generateDiffFileOperation);
 				if(type==mainPage.WORKSPACE) {
 					ws.getParent().refreshLocal(IResource.DEPTH_ONE, null);
 				}
 			} else {
-				GenerateDiffFileOperation generateDiffFileOperation = new GenerateDiffFileOperation(getResources(), getUnaddedResources(), null, true, false, getShell());
+				GenerateDiffFileOperation generateDiffFileOperation = new GenerateDiffFileOperation(getResources(), getUnaddedResources(), null, true, false, eclipseFormat, projectRelative, getShell());
 				generateDiffFileOperation.setSelectedResources(selectedResources);
 				getContainer().run(true, true, generateDiffFileOperation);
 			}
@@ -144,7 +152,7 @@ public class GenerateDiffFileWizard extends Wizard {
 		}
 	}
 	
-	private IResource[] getResources() {
+	protected IResource[] getResources() {
 		return mainPage.getSelectedResources();
 	}
 	

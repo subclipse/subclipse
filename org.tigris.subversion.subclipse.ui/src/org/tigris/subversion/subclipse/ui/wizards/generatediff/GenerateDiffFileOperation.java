@@ -15,15 +15,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -40,6 +46,7 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 /**
  * An operation to run the SVN diff operation on a set of resources. The result
@@ -47,7 +54,10 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
  * is notified and the output file is not created.
  */
 public class GenerateDiffFileOperation implements IRunnableWithProgress {
-
+	private static String ECLIPSE_PATCH_HEADER = "### Eclipse Workspace Patch 1.0"; //$NON-NLS-1$
+	private static String ECLIPSE_PROJECT_MARKER = "#P "; //$NON-NLS-1$
+	private static String EOL = System.getProperty("line.separator");
+	
 	private File outputFile;
 	private IResource[] resources;
 	private IResource[] unaddedResources;
@@ -56,11 +66,15 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 	private boolean toClipboard;
 	private ArrayList newFiles;
 	private IResource[] selectedResources;
+	private final boolean eclipseFormat;
+	private final boolean projectRelative;
 
-	GenerateDiffFileOperation(IResource[] resources, IResource[] unaddedResources, File file, boolean toClipboard, boolean recursive, Shell shell) {
+	GenerateDiffFileOperation(IResource[] resources, IResource[] unaddedResources, File file, boolean toClipboard, boolean recursive, boolean eclipseFormat, boolean projectRelative, Shell shell) {
 		this.resources = resources;
 		this.unaddedResources = unaddedResources;
 		this.outputFile = file;
+		this.eclipseFormat = eclipseFormat;
+		this.projectRelative = projectRelative;
 		this.shell = shell;
         this.recursive = recursive;
 		this.toClipboard = toClipboard;
@@ -148,8 +162,23 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 				File[] files = getVersionedFiles();
 				if (selectedResources == null) svnClient.diff(files,tmpFile,recursive);
 				else {
-					File relativeToPath = getRelativeToPath();
-                    svnClient.createPatch(files, relativeToPath, tmpFile, recursive);
+					if (eclipseFormat) {
+						List includedResources = new ArrayList();
+						includedResources.addAll(Arrays.asList(unaddedResources));
+						includedResources.addAll(Arrays.asList(resources));
+						createEclipsePatch((IResource[]) includedResources.toArray(new IResource[0]), tmpFile, recursive);
+					} else {
+						File relativeToPath = null;
+						if (projectRelative) {
+							relativeToPath = selectedResources[0].getProject().getLocation().toFile();
+						} else {
+							relativeToPath = getRelativeToPath();
+							if (relativeToPath.isFile()) {
+								relativeToPath = relativeToPath.getParentFile();
+							}
+						}
+		                svnClient.createPatch(files, relativeToPath, tmpFile, recursive);
+					}
 				}
  				monitor.worked(300);     
                 InputStream is = new FileInputStream(tmpFile);
@@ -264,5 +293,63 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 
 	public void setSelectedResources(IResource[] selectedResources) {
 		this.selectedResources = selectedResources;
+	}
+	
+	private void createEclipsePatch(IResource[] paths, File outputFile, boolean recurse) throws SVNClientException {
+		FileOutputStream os = null;
+		InputStream is = null;
+		try {
+			byte[] buffer = new byte[4096];
+			
+			os = new FileOutputStream(outputFile);
+			if (paths.length > 0) {
+				os.write(ECLIPSE_PATCH_HEADER.getBytes());
+				os.write(EOL.getBytes());
+			}
+			
+			Map projectToResources = new HashMap();
+			
+			for (int i = 0; i < paths.length; i++) {
+				IResource resource = paths[i];
+				IProject project = resource.getProject();
+				List files = (List) projectToResources.get(project);
+				if (files == null) {
+					files = new ArrayList();
+					projectToResources.put(project, files);
+				}
+				files.add(resource.getLocation().toFile());
+			}
+			
+			for (Iterator iEntry = projectToResources.entrySet().iterator(); iEntry.hasNext();) {
+				Entry entry = (Entry) iEntry.next();
+				
+				IResource project = (IResource) entry.getKey();
+				List files = (List) entry.getValue();
+				
+				ISVNClientAdapter client = SVNWorkspaceRoot.getSVNResourceFor(project).getRepository().getSVNClient();
+
+				os.write(ECLIPSE_PROJECT_MARKER.getBytes());
+				os.write(project.getName().getBytes());
+				os.write(EOL.getBytes());
+				
+				File tempFile = File.createTempFile("tempDiff", ".txt");
+				tempFile.deleteOnExit();
+				client.createPatch((File[]) files.toArray(new File[files.size()]), project.getLocation().toFile(), tempFile, recurse);
+				
+				try {
+					is = new FileInputStream(tempFile);
+					
+					int bytes_read;
+					while ((bytes_read = is.read(buffer)) != -1)
+						os.write(buffer, 0, bytes_read);				
+				} finally {
+					if (is != null) try {is.close();} catch (IOException e) {}
+				}
+			}
+		} catch (Exception e) {
+			throw new SVNClientException(e);
+		} finally {
+			if (os != null) try {os.close();} catch (IOException e) {}
+		}
 	}
 }
