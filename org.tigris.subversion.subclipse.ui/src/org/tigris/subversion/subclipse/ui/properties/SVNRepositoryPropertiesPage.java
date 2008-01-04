@@ -16,6 +16,9 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -107,6 +110,16 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
         // empty label to separate
         label = new Label(composite, SWT.NONE);
         
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		customLabelText.addFocusListener(focusListener);
+        
         if (showCredentials) {
 	        // group for login and password
 	        Composite userPasswordGroup = new Composite(composite, SWT.NONE);
@@ -122,6 +135,7 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
 	        data = new GridData(GridData.FILL_HORIZONTAL);
 	        data.grabExcessHorizontalSpace = true;
 	        loginText.setLayoutData(data);
+	        loginText.addFocusListener(focusListener);
 	
 	        // password
 	        label = new Label(userPasswordGroup, SWT.NONE);
@@ -135,6 +149,7 @@ public class SVNRepositoryPropertiesPage extends PropertyPage {
 	                passwordChanged = !passwordText.getText().equals(FAKE_PASSWORD);
 	            }
 	        });
+	        passwordText.addFocusListener(focusListener);
         }
         
         // empty label to separate
