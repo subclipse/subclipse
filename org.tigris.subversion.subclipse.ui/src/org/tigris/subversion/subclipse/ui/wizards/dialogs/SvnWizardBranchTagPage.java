@@ -410,7 +410,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 			}
 			newAlias.setRevision(Integer.parseInt(revision.toString()));
 			newAlias.setName(toUrl.getLastPathSegment());
-			BranchTagPropertyUpdateDialog dialog = new BranchTagPropertyUpdateDialog(getShell(), resource, newAlias);
+			BranchTagPropertyUpdateDialog dialog = new BranchTagPropertyUpdateDialog(getShell(), resource, newAlias, "BranchTagPropertyUpdateDialog"); //$NON-NLS-1$
 			if (dialog.open() == BranchTagPropertyUpdateDialog.OK) 
 				newAlias = dialog.getNewAlias();
 			else
