@@ -7,6 +7,9 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -149,13 +152,13 @@ public class DifferencesDialog extends SvnDialog {
 		toRevisionGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 3, 1));
 
 		toHeadButton = new Button(toRevisionGroup, SWT.CHECK);
-		toHeadButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.head")); //$NON-NLS-1$
+		toHeadButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.toHead")); //$NON-NLS-1$
 		data = new GridData();
 		data.horizontalSpan = 3;
 		toHeadButton.setLayoutData(data);
 
 		Label toRevisionLabel = new Label(toRevisionGroup, SWT.NONE);
-		toRevisionLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$		
+		toRevisionLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.toRevision")); //$NON-NLS-1$		
 		
 		toHeadButton.setSelection(true);
 		
@@ -164,7 +167,7 @@ public class DifferencesDialog extends SvnDialog {
 		toRevisionText.setEnabled(false);
 		
 		toLogButton = new Button(toRevisionGroup, SWT.PUSH);
-		toLogButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.showLog")); //$NON-NLS-1$
+		toLogButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.showToLog")); //$NON-NLS-1$
 		toLogButton.setEnabled(false);
 		toLogButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -279,6 +282,18 @@ public class DifferencesDialog extends SvnDialog {
 		
 		compareButton.addSelectionListener(compareTypeListener);
 		diffButton.addSelectionListener(compareTypeListener);
+		
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		fromRevisionText.addFocusListener(focusListener);
+		toRevisionText.addFocusListener(focusListener);
+		fileText.addFocusListener(focusListener);
 		
 		// Set F1 Help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.SHOW_UNIFIED_DIFF_DIALOG);	
