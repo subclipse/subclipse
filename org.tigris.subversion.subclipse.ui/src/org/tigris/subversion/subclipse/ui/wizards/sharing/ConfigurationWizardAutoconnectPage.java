@@ -56,11 +56,7 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 		// set F1 help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.SHARING_AUTOCONNECT_PAGE);
 		
-		Label description = new Label(composite, SWT.WRAP);
-		GridData data = new GridData();
-		data.horizontalSpan = 2;
-		data.widthHint = 350;
-		description.setLayoutData(data);
+		Label description = createWrappingLabel(composite, Policy.bind("RepositorySelectionPage.description"), 0 /* indent */, 2 /* columns */); //$NON-NLS-1$
 		description.setText(Policy.bind("ConfigurationWizardAutoconnectPage.description")); //$NON-NLS-1$
 		
 		if (location == null) return;
@@ -79,8 +75,9 @@ public class ConfigurationWizardAutoconnectPage extends SVNWizardPage {
 		createLabel(composite, ""); //$NON-NLS-1$
 		
 		final Button check = new Button(composite, SWT.CHECK);
-		data = new GridData();
+		GridData data = new GridData();
 		data.horizontalSpan = 2;
+		check.setLayoutData(data);
 		check.setText(Policy.bind("ConfigurationWizardAutoconnectPage.validate")); //$NON-NLS-1$
 		check.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {

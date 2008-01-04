@@ -13,6 +13,9 @@ package org.tigris.subversion.subclipse.ui.wizards.sharing;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -67,6 +70,8 @@ public class DirectorySelectionPage extends SVNWizardPage {
 					setPageComplete(true);
 				} else {
 					text.setEnabled(true);
+					text.setFocus();
+					text.selectAll();
 					browseButton.setEnabled(true);
 					result = text.getText();
 					if (result.length() == 0) {
@@ -93,6 +98,17 @@ public class DirectorySelectionPage extends SVNWizardPage {
 				}
 			}
 		});
+		
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		text.addFocusListener(focusListener);		
+		
 		browseButton = new Button(composite, SWT.PUSH);
 		browseButton.setText(Policy.bind("SharingWizard.browse")); //$NON-NLS-1$
 		browseButton.setEnabled(false);
