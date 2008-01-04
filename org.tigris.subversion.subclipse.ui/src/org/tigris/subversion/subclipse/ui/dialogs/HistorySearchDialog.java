@@ -18,9 +18,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -45,10 +47,9 @@ import org.tigris.subversion.subclipse.ui.Policy;
  * history view. Only history entries matching the dialog's fields 
  * will be displayed in the history view.
  */
-public class HistorySearchDialog extends TrayDialog {
+public class HistorySearchDialog extends SvnDialog {
 
 	private ISVNRemoteResource remoteResource;
-	private final int SELECTED_RESOURCE_WIDTH_HINT = 300;
 	
 	private Text selectedResourceText;
 	private Text userText;
@@ -75,7 +76,7 @@ public class HistorySearchDialog extends TrayDialog {
 	 * @param remoteResource resource for which the search is selected
 	 */
 	public HistorySearchDialog(Shell shell, ISVNRemoteResource remoteResource) {
-		super(shell);
+		super(shell, "HistorySearchDialog"); //$NON-NLS-1$
 		this.remoteResource = remoteResource;
 	}
 	
@@ -87,6 +88,7 @@ public class HistorySearchDialog extends TrayDialog {
 		getShell().setText(Policy.bind("HistorySearchDialog.title")); //$NON-NLS-1$
 		Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
+		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.SEARCH_HISTORY_DIALOG);
 		
@@ -94,14 +96,13 @@ public class HistorySearchDialog extends TrayDialog {
 		GridLayout topLayout = new GridLayout();
 		topLayout.numColumns = 2;
 		top.setLayout(topLayout);
-		top.setLayoutData(new GridData(GridData.FILL_BOTH));
+		top.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		Label resourceLabel = new Label(top, SWT.NONE);
 		resourceLabel.setText(Policy.bind("HistorySearchDialog.resource")); //$NON-NLS-1$
 		selectedResourceText = new Text(top, SWT.BORDER);
 		selectedResourceText.setText(remoteResource.getUrl().toString());
 		selectedResourceText.setEditable(false);
-		GridData gdSelectedResourceText = new GridData(GridData.FILL_HORIZONTAL);
-		gdSelectedResourceText.widthHint = SELECTED_RESOURCE_WIDTH_HINT;
+		GridData gdSelectedResourceText = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		selectedResourceText.setLayoutData(gdSelectedResourceText);
 		
 		regExpButton = new Button(top, SWT.CHECK);
@@ -116,12 +117,12 @@ public class HistorySearchDialog extends TrayDialog {
 		GridLayout searchLayout = new GridLayout();
 		searchLayout.numColumns = 2;
 		search.setLayout(searchLayout);
-		search.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		search.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL));
 		
 		Label userLabel = new Label(search, SWT.NONE);
 		userLabel.setText(Policy.bind("HistorySearchDialog.user")); //$NON-NLS-1$
 		userText = new Text(search, SWT.BORDER);
-		userText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		userText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		if (user != null) {
 			userText.setText(user);
 		}
@@ -129,7 +130,7 @@ public class HistorySearchDialog extends TrayDialog {
 		Label commentLabel = new Label(search, SWT.NONE);
 		commentLabel.setText(Policy.bind("HistorySearchDialog.comment")); //$NON-NLS-1$
 		commentCombo = new Combo(search, SWT.DROP_DOWN);
-		commentCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		commentCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		fillCommentCombo(commentCombo);
 		
 		fetchButton = new Button(search, SWT.CHECK);
@@ -248,6 +249,18 @@ public class HistorySearchDialog extends TrayDialog {
 		// Set focus to the user search field
 		userText.setFocus();
 		userText.setSelection(0, userText.getText().length());
+		
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		userText.addFocusListener(focusListener);
+		startDateText.addFocusListener(focusListener);
+		endDateText.addFocusListener(focusListener);
 		
 		return composite;
 	}
