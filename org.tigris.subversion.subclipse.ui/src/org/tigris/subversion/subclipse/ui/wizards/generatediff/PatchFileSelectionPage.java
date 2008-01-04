@@ -24,6 +24,9 @@ import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -191,6 +194,16 @@ class PatchFileSelectionPage extends WizardPage {
 				validatePage();
 			}
 		});
+		
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		filenameCombo.addFocusListener(focusListener);
 
 		browseButton = new Button(nameGroup, SWT.NULL);
 		browseButton.setText(Policy.bind("GenerateSVNDiff.Browse")); //$NON-NLS-1$
