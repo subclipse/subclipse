@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -102,6 +105,16 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
                 setPageComplete(canFinish());
             }		    
 		});
+		
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		revisionText.addFocusListener(focusListener);
 		
 		logButton = new Button(revisionGroup, SWT.PUSH);
 		logButton.setText(Policy.bind("MergeDialog.showLog")); //$NON-NLS-1$
