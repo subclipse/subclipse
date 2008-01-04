@@ -15,6 +15,9 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -98,7 +101,7 @@ public class AnnotateDialog extends TrayDialog {
 		fromRevisionText.setText("1"); //$NON-NLS-1$
 		
 		fromLogButton = new Button(fromGroup, SWT.PUSH);
-		fromLogButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.showLog")); //$NON-NLS-1$
+		fromLogButton.setText(Policy.bind("AnnotateDialog.showLog")); //$NON-NLS-1$
 		fromLogButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 showLog(e.getSource());
@@ -120,7 +123,7 @@ public class AnnotateDialog extends TrayDialog {
 		headButton.setLayoutData(data);
 		
 		revisionButton = new Button(toGroup, SWT.RADIO);
-		revisionButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.revision")); //$NON-NLS-1$
+		revisionButton.setText(Policy.bind("AnnotateDialog.toRevision")); //$NON-NLS-1$
 		
 		headButton.setSelection(true);
 		
@@ -131,7 +134,7 @@ public class AnnotateDialog extends TrayDialog {
 		toRevisionText.setEnabled(false);
 		
 		toLogButton = new Button(toGroup, SWT.PUSH);
-		toLogButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.showLog")); //$NON-NLS-1$
+		toLogButton.setText(Policy.bind("AnnotateDialog.showToLog")); //$NON-NLS-1$
 		toLogButton.setEnabled(false);
 		toLogButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -168,6 +171,17 @@ public class AnnotateDialog extends TrayDialog {
 
 		fromRevisionText.selectAll();
 		fromRevisionText.setFocus();
+		
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		fromRevisionText.addFocusListener(focusListener);
+		toRevisionText.addFocusListener(focusListener);	
 		
 		return composite;
 	}
