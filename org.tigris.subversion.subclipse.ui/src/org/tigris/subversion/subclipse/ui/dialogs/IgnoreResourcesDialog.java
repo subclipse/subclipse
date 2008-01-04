@@ -16,6 +16,9 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -170,6 +173,16 @@ public class IgnoreResourcesDialog extends TrayDialog {
 		
 		customEntryText = createIndentedText(top, resources[0].getName(), LABEL_INDENT_WIDTH);
 		customEntryText.addListener(SWT.Modify, modifyListener);
+		
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		customEntryText.addFocusListener(focusListener);
 
 		statusMessageLabel = createIndentedLabel(top, "", 0); //$NON-NLS-1$
 		statusMessageLabel.setFont(parent.getFont());
@@ -216,6 +229,7 @@ public class IgnoreResourcesDialog extends TrayDialog {
 			selectedAction = ADD_EXTENSION_ENTRY;
 		} else if (addCustomEntryButton.getSelection()) {
 			selectedAction = ADD_CUSTOM_ENTRY;
+			customEntryText.setFocus();
 		}
 		customEntryText.setEnabled(selectedAction == ADD_CUSTOM_ENTRY);
 		validate();
