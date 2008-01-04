@@ -23,6 +23,9 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -156,7 +159,7 @@ public class MergeFileAssociationPreferencePage extends PreferencePage implement
         });
         
         mergeProgramGroup = new Group(composite, SWT.NULL);
-        mergeProgramGroup.setText(Policy.bind("DiffMergePreferencePage.mergeProgramGroup")); //$NON-NLS-1$
+        mergeProgramGroup.setText(Policy.bind("MergeFileAssociationPreferencePage.mergeProgramGroup")); //$NON-NLS-1$
         gridData = new GridData(GridData.FILL_HORIZONTAL);
         gridData.horizontalSpan = 2;
         mergeProgramGroup.setLayoutData(gridData); 
@@ -354,6 +357,16 @@ public class MergeFileAssociationPreferencePage extends PreferencePage implement
         
         customProgramLocationCombo.addModifyListener(modifyListener);
         customProgramParametersText.addModifyListener(modifyListener);
+   
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		customProgramParametersText.addFocusListener(focusListener);
         
 		return composite;
 	}

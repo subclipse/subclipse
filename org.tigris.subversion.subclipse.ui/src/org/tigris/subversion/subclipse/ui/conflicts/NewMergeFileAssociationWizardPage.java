@@ -14,6 +14,9 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -79,7 +82,7 @@ public class NewMergeFileAssociationWizardPage extends WizardPage {
         fileTypeText.setLayoutData(gridData);
         
         Group mergeProgramGroup = new Group(composite, SWT.NULL);
-        mergeProgramGroup.setText(Policy.bind("DiffMergePreferencePage.mergeProgramGroup")); //$NON-NLS-1$
+        mergeProgramGroup.setText(Policy.bind("MergeFileAssociationPreferencePage.mergeProgramGroup")); //$NON-NLS-1$
         gridData = new GridData(GridData.FILL_HORIZONTAL);
         gridData.horizontalSpan = 2;
         mergeProgramGroup.setLayoutData(gridData); 
@@ -154,7 +157,7 @@ public class NewMergeFileAssociationWizardPage extends WizardPage {
         });
 
         Label customParametersLabel = new Label(mergeProgramGroup, SWT.NONE);
-        customParametersLabel.setText(Policy.bind("DiffMergePreferencePage.mergeProgramParameters")); //$NON-NLS-1$
+        customParametersLabel.setText(Policy.bind("NewMergeFileAssociationWizardPage.customParameters")); //$NON-NLS-1$
         gridData = new GridData();
         gridData.horizontalAlignment = SWT.RIGHT;
         customParametersLabel.setLayoutData(gridData);        
@@ -163,6 +166,17 @@ public class NewMergeFileAssociationWizardPage extends WizardPage {
         gridData = new GridData();
         gridData.widthHint = 400;
         customProgramParametersText.setLayoutData(gridData);
+        
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		fileTypeText.addFocusListener(focusListener);
+		customProgramParametersText.addFocusListener(focusListener);
         
         variablesButton = new Button(mergeProgramGroup, SWT.PUSH);
         variablesButton.setText(Policy.bind("DiffMergePreferencePage.mergeProgramVariables")); //$NON-NLS-1$

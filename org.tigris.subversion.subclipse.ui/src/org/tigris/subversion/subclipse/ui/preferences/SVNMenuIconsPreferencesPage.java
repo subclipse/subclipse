@@ -88,8 +88,8 @@ public class SVNMenuIconsPreferencesPage extends PreferencePage implements IWork
 
 		
 		useDefault = createRadio(group, Policy.bind("MenuIconsPreferencePage.default"), 1); //$NON-NLS-1$
-		useTortoiseSVN = createRadio(group, "TortoiseSVN", 1); //$NON-NLS-1$
-		useSubversive  = createRadio(group, "Subversive", 1); //$NON-NLS-1$
+		useTortoiseSVN = createRadio(group, "&TortoiseSVN", 1); //$NON-NLS-1$
+		useSubversive  = createRadio(group, "&Subversive", 1); //$NON-NLS-1$
 		
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		createLabel(composite, Policy.bind("MenuIconsPreferencePage.restart"), 2); //$NON-NLS-1$

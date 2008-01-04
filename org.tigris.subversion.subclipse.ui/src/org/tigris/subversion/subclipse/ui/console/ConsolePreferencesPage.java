@@ -17,9 +17,13 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
@@ -53,6 +57,15 @@ public class ConsolePreferencesPage extends FieldEditorPreferencePage implements
 		highWaterMark.setValidRange(1000, Integer.MAX_VALUE - 1);
 		addField(highWaterMark);
 		highWaterMark.setEnabled(store.getBoolean(ISVNUIConstants.PREF_CONSOLE_LIMIT_OUTPUT), composite);
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		highWaterMark.getTextControl(composite).addFocusListener(focusListener);
 		
 		showOnMessage = new BooleanFieldEditor(ISVNUIConstants.PREF_CONSOLE_SHOW_ON_MESSAGE,
 	            Policy.bind("ConsolePreferencePage.showOnMessage"), composite); //$NON-NLS-1$
