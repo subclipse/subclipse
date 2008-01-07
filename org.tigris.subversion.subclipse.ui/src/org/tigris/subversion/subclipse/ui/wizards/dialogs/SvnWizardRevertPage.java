@@ -16,6 +16,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -46,45 +47,63 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 
 	public void createControls(Composite outerContainer) {
 		Composite composite = new Composite(outerContainer, SWT.NULL);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
+		GridLayout layout = new GridLayout(1, false);
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		composite.setLayout(layout);
-		GridData data = new GridData(GridData.FILL_BOTH);
-		composite.setLayoutData(data);
+		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		Label label = createWrappingLabel(composite);
-		if (url == null) label.setText(Policy.bind("RevertDialog.url") + " " + Policy.bind("RevertDialog.multiple")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		else label.setText(Policy.bind("RevertDialog.url") + " " + url); //$NON-NLS-1$ //$NON-NLS-2$
+		Composite labelComposite = new Composite(composite, SWT.NONE);
+		labelComposite.setLayout(new GridLayout(2, false));
+		labelComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
-		addResourcesArea(composite);
+		Label label = new Label(labelComposite, SWT.NONE);
+		label.setText(Policy.bind("RevertDialog.url")); //$NON-NLS-1$
+		
+		Text text = new Text(labelComposite, SWT.READ_ONLY);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
+		if (url == null) {
+		  text.setText(Policy.bind("RevertDialog.multiple")); //$NON-NLS-1$
+		} else {
+      text.setText(url);
+    }
+		
+		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE,
+        Policy.bind("GenerateSVNDiff.Changes"), resourcesToRevert, statusMap, null, false, null, null); //$NON-NLS-1$
+    // resourceSelectionTree.getTreeViewer().setAllChecked(true);
+    resourceSelectionTree.getTreeViewer().addSelectionChangedListener(
+        new ISelectionChangedListener() {
+          public void selectionChanged(SelectionChangedEvent event) {
+            selectedResources = resourceSelectionTree.getSelectedResources();
+          }
+        });
+    resourceSelectionTree.getTreeViewer().addDoubleClickListener(
+        new IDoubleClickListener() {
+          public void doubleClick(DoubleClickEvent event) {
+            IStructuredSelection sel = (IStructuredSelection) event
+                .getSelection();
+            Object sel0 = sel.getFirstElement();
+            if (sel0 instanceof IFile) {
+              final ISVNLocalResource localResource = SVNWorkspaceRoot
+                  .getSVNResourceFor((IFile) sel0);
+              try {
+                new CompareDialog(getShell(), new SVNLocalCompareInput(
+                    localResource, SVNRevision.BASE, true)).open();
+              } catch (SVNException e1) {
+              }
+            }
+          }
+        });
+
+    resourceSelectionTree.getTreeViewer().getTree().setLayoutData(
+        new GridData(SWT.FILL, SWT.FILL, true, true));		
+		
+//		Composite composite_1 = new Composite(composite, SWT.NONE);
+//		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+//		composite_1.setLayout(new GridLayout());
+
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.REVERT_DIALOG);		
-
-	}
-
-	private void addResourcesArea(Composite composite) {
-		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToRevert, statusMap, null, false, null, null); //$NON-NLS-1$
-//		resourceSelectionTree.getTreeViewer().setAllChecked(true);	
-		resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				selectedResources = resourceSelectionTree.getSelectedResources();
-			}
-		});
-		resourceSelectionTree.getTreeViewer().addDoubleClickListener(new IDoubleClickListener(){
-			public void doubleClick(DoubleClickEvent event) {
-				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
-				Object sel0 = sel.getFirstElement();
-				if (sel0 instanceof IFile) {
-					final ISVNLocalResource localResource= SVNWorkspaceRoot.getSVNResourceFor((IFile)sel0);
-					try {
-						new CompareDialog(getShell(),
-							new SVNLocalCompareInput(localResource, SVNRevision.BASE, true)).open();
-					} catch (SVNException e1) {
-					}
-				}
-			}
-		});		
 	}
 
 	public boolean performCancel() {

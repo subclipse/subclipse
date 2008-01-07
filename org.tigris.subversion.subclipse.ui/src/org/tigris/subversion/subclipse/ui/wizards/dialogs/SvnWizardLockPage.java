@@ -3,6 +3,8 @@ package org.tigris.subversion.subclipse.ui.wizards.dialogs;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.action.ControlContribution;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -13,6 +15,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -104,14 +107,19 @@ public class SvnWizardLockPage extends SvnWizardDialogPage {
 	
     private void addResourcesArea(Composite composite) {  
     	ResourceSelectionTree.IToolbarControlCreator toolbarControlCreator = new ResourceSelectionTree.IToolbarControlCreator() {
-			public void createToolbarControls(Composite parent) {
-				stealButton = new Button(parent, SWT.CHECK);
-				stealButton.setText(Policy.bind("LockDialog.stealLock")); //$NON-NLS-1$		
-			}
-			public int getControlCount() {
-				return 1;
-			} 		
-    	};
+      public void createToolbarControls(ToolBarManager toolbarManager) {
+        toolbarManager.add(new ControlContribution("stealLock") {
+          protected Control createControl(Composite parent) {
+            stealButton = new Button(parent, SWT.CHECK);
+            stealButton.setText(Policy.bind("LockDialog.stealLock")); //$NON-NLS-1$		
+            return stealButton;
+          }
+        });
+      }
+      public int getControlCount() {
+        return 1;
+      }
+    };
     	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, "These files will be locked:", files, new HashMap(), null, false, toolbarControlCreator, null); //$NON-NLS-1$    	
     	resourceSelectionTree.setShowRemoveFromViewAction(false);
     }	

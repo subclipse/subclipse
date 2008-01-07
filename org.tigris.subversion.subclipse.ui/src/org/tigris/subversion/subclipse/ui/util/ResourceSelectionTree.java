@@ -17,6 +17,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -28,18 +29,20 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.custom.ViewForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.team.core.diff.IDiff;
 import org.eclipse.team.core.diff.IThreeWayDiff;
 import org.eclipse.team.core.diff.ITwoWayDiff;
@@ -55,6 +58,7 @@ import org.tigris.subversion.subclipse.ui.dialogs.ResourceWithStatusUtil;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 public class ResourceSelectionTree extends Composite {
+	private Tree tree;
 	private int mode;
 	private IResource[] resources;
 	private ArrayList resourceList;
@@ -96,11 +100,14 @@ public class ResourceSelectionTree extends Composite {
 		this.checkbox = checkbox;
 		this.toolbarControlCreator = toolbarControlCreator;
 		this.syncInfoSet = syncInfoSet;
-		settings = SVNUIPlugin.getPlugin().getDialogSettings();
-		Arrays.sort(resources, comparator);
-		resourceList = new ArrayList();
-		for (int i = 0; i < resources.length; i++)
-			resourceList.add(resources[i]);
+		this.settings = SVNUIPlugin.getPlugin().getDialogSettings();
+		if(resources!=null) {
+  		Arrays.sort(resources, comparator);
+  		resourceList = new ArrayList();
+  		for (int i = 0; i < resources.length; i++) {
+        resourceList.add(resources[i]);
+      }
+		}
 		createControls();
 	}
 	
@@ -122,59 +129,79 @@ public class ResourceSelectionTree extends Composite {
 	}
 
 	private void createControls() {
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 1;
-		gridLayout.marginWidth = 0;
-		gridLayout.marginHeight = 0;
-		setLayout(gridLayout);
-		GridData gridData = new GridData(GridData.FILL_BOTH);
-		setLayoutData(gridData);
+		setLayout(new GridLayout(2, false));
+		setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		Group treeGroup = new Group(this, SWT.NONE);
-		GridLayout treeLayout = new GridLayout();
-		treeLayout.numColumns = 1;
-		treeLayout.marginWidth = 0;
-		treeLayout.marginHeight = 0;
-		treeGroup.setLayout(treeLayout);
-		gridData = new GridData(GridData.FILL_BOTH);
-		treeGroup.setLayoutData(gridData);	
-
-		Composite toolbarGroup = new Composite(treeGroup, SWT.NONE);
-		GridLayout toolbarGroupLayout = new GridLayout();
-		toolbarGroupLayout.numColumns = 2;
-		toolbarGroupLayout.marginWidth = 0;
-		toolbarGroupLayout.marginHeight = 0;
-		toolbarGroup.setLayout(toolbarGroupLayout);
-		gridData = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		toolbarGroup.setLayoutData(gridData);	
+		ViewForm viewerPane = new ViewForm(this, SWT.BORDER | SWT.FLAT);
+		viewerPane.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		
-		Label toolbarLabel = new Label(toolbarGroup, SWT.NONE);
-		gridData = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-		gridData.horizontalAlignment = SWT.BEGINNING;
-		toolbarLabel.setLayoutData(gridData);
-		if (label != null) toolbarLabel.setText(label);
+//		Composite treeGroup = new Composite(viewerPane, SWT.NONE);
+//		
+//		GridLayout treeLayout = new GridLayout();
+//		treeLayout.marginWidth = 0;
+//		treeLayout.verticalSpacing = 1;
+//		treeLayout.horizontalSpacing = 0;
+//		treeLayout.numColumns = 1;
+//		treeLayout.marginHeight = 0;
+//		treeGroup.setLayout(treeLayout);
+//		gridData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+//		treeGroup.setLayoutData(gridData);	
+		
+//		Composite toolbarGroup = new Composite(treeGroup, SWT.NONE);
+//		GridLayout toolbarGroupLayout = new GridLayout();
+//		toolbarGroupLayout.numColumns = 2;
+//		toolbarGroupLayout.marginWidth = 0;
+//		toolbarGroupLayout.marginHeight = 0;
+//		toolbarGroup.setLayout(toolbarGroupLayout);
+//		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+//		toolbarGroup.setLayoutData(gridData);	
+
+    CLabel toolbarLabel = new CLabel(viewerPane, SWT.NONE) {
+      public Point computeSize(int wHint, int hHint, boolean changed) {
+        return super.computeSize(wHint, Math.max(24, hHint), changed);
+      }
+    };
+		
+//		Label toolbarLabel = new Label(viewerPane, SWT.NONE);
+//		gridData = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+//		gridData.horizontalIndent = 3;
+//		gridData.horizontalAlignment = SWT.BEGINNING;
+//		gridData.verticalAlignment = SWT.CENTER;
+//		toolbarLabel.setLayoutData(gridData);
+		if (label != null) {
+		  toolbarLabel.setText(label);
+		}
+    viewerPane.setTopLeft(toolbarLabel);
 		
 		int buttonGroupColumns = 1;
-		if (toolbarControlCreator != null) buttonGroupColumns = buttonGroupColumns + toolbarControlCreator.getControlCount();
-		Composite buttonGroup = new Composite(toolbarGroup, SWT.NONE);
-		GridLayout buttonLayout = new GridLayout();
-		buttonLayout.numColumns = buttonGroupColumns;
-		buttonLayout.marginHeight = 0;
-		buttonLayout.marginWidth = 0;
-		buttonGroup.setLayout(buttonLayout);
-		gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
-		buttonGroup.setLayoutData(gridData);
-		if (toolbarControlCreator != null) toolbarControlCreator.createToolbarControls(buttonGroup);
+		if (toolbarControlCreator != null) {
+		  buttonGroupColumns = buttonGroupColumns + toolbarControlCreator.getControlCount();
+		}
+
+//		Composite buttonGroup = new Composite(toolbarGroup, SWT.NONE);
+//		GridLayout buttonLayout = new GridLayout();
+//		buttonLayout.numColumns = buttonGroupColumns;
+//		buttonLayout.marginHeight = 0;
+//		buttonLayout.marginWidth = 0;
+//		buttonGroup.setLayout(buttonLayout);
+//		gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
+//		buttonGroup.setLayoutData(gridData);
 		
-		ToolBar toolbar = new ToolBar(buttonGroup, SWT.FLAT);
-		GridLayout toolbarLayout = new GridLayout();
-		toolbarLayout.numColumns = 3;
-		toolbar.setLayout(toolbarLayout);
-		gridData = new GridData(GridData.FILL_BOTH);
-		toolbar.setLayoutData(gridData);
+		ToolBar toolbar = new ToolBar(viewerPane, SWT.FLAT);
+//		GridLayout toolbarLayout = new GridLayout();
+//		toolbarLayout.numColumns = 3;
+//		toolbar.setLayout(toolbarLayout);
+//		toolbar.setLayoutData(new GridData(GridData.FILL_BOTH));
+		
+		viewerPane.setTopCenter(toolbar);
 
 		ToolBarManager toolbarManager = new ToolBarManager(toolbar);
 		
+		if (toolbarControlCreator != null) {
+		  toolbarControlCreator.createToolbarControls(toolbarManager);
+		  toolbarManager.add(new Separator());
+		}
+
 		flatAction = new Action(Policy.bind("ResourceSelectionTree.flat"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
 			public void run() {
 				mode = MODE_FLAT;
@@ -184,7 +211,7 @@ public class ResourceSelectionTree extends Composite {
 				refresh();
 			}			
 		};
-		flatAction .setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE));
+		flatAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE));
 		toolbarManager.add(flatAction);
 		
 		treeAction = new Action(Policy.bind("ResourceSelectionTree.tree"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
@@ -196,7 +223,7 @@ public class ResourceSelectionTree extends Composite {
 				refresh();
 			}					
 		};
-		treeAction .setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_TREE_MODE));
+		treeAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_TREE_MODE));
 		toolbarManager.add(treeAction);
 		
 		compressedAction = new Action(Policy.bind("ResourceSelectionTree.compressedFolders"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
@@ -208,7 +235,7 @@ public class ResourceSelectionTree extends Composite {
 				refresh();
 			}					
 		};
-		compressedAction .setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_MODE));
+		compressedAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_MODE));
 		toolbarManager.add(compressedAction);
 		
 		toolbarManager.update(true);
@@ -231,61 +258,76 @@ public class ResourceSelectionTree extends Composite {
 			break;
 		}
 
-		if (checkbox) treeViewer = new CheckboxTreeViewer(treeGroup, SWT.BORDER | SWT.MULTI);
-		else treeViewer = new TreeViewer(treeGroup, SWT.BORDER | SWT.MULTI);
-		if (labelProvider == null) labelProvider = new ResourceSelectionLabelProvider();
+		if (checkbox) {
+      treeViewer = new CheckboxTreeViewer(viewerPane, SWT.MULTI);
+    } else {
+      treeViewer = new TreeViewer(viewerPane, SWT.MULTI);
+    }
+		tree = treeViewer.getTree();
+		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+    viewerPane.setContent(tree);
+		
+		if (labelProvider == null) {
+		  labelProvider = new ResourceSelectionLabelProvider();
+		}
+		
 		treeViewer.setLabelProvider(labelProvider);
 		treeViewer.setContentProvider(new ResourceSelectionContentProvider());
 		treeViewer.setUseHashlookup(true);
-		GridData gd = new GridData(GridData.FILL_BOTH);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.heightHint = 125;
 		treeViewer.getControl().setLayoutData(gd);
 		treeViewer.setInput(this);
 
 		if (checkbox) {
-			Composite selectGroup = new Composite(this, SWT.NONE);
-			GridLayout selectLayout = new GridLayout();
-			selectLayout.numColumns = 2;
-			selectGroup.setLayout(selectLayout);
-			gridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
-			selectGroup.setLayoutData(gridData);	
-	
-			selectAllButton = new Button(selectGroup, SWT.PUSH);
-			selectAllButton.setText(Policy.bind("ResourceSelectionTree.SelectAll")); //$NON-NLS-1$
-			deselectAllButton = new Button(selectGroup, SWT.PUSH);
-			deselectAllButton.setText(Policy.bind("ResourceSelectionTree.DeselectAll")); //$NON-NLS-1$
-			
-			SelectionListener selectionListener = new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent e) {
-					if (e.getSource() == selectAllButton) ((CheckboxTreeViewer)treeViewer).setAllChecked(true);
-					else ((CheckboxTreeViewer)treeViewer).setAllChecked(false);
-				}			
-			};
-			selectAllButton.addSelectionListener(selectionListener);
-			deselectAllButton.addSelectionListener(selectionListener);
+		  SelectionListener selectionListener = new SelectionAdapter() {
+		    public void widgetSelected(SelectionEvent e) {
+		      setAllChecked(e.getSource() == selectAllButton);
+		    }			
+		  };
+
+		  deselectAllButton = new Button(this, SWT.PUSH);
+  	  deselectAllButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+  	  deselectAllButton.setText(Policy.bind("ResourceSelectionTree.DeselectAll")); //$NON-NLS-1$
+  	  deselectAllButton.addSelectionListener(selectionListener);
+  	
+  	  selectAllButton = new Button(this, SWT.PUSH);
+  	  selectAllButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+  	  selectAllButton.setText(Policy.bind("ResourceSelectionTree.SelectAll")); //$NON-NLS-1$
+  	  selectAllButton.addSelectionListener(selectionListener);
 		}
 		
 		treeViewer.expandAll();
-		if (checkbox) ((CheckboxTreeViewer)treeViewer).setAllChecked(true);
-		if (checkbox && mode == MODE_TREE) treeViewer.collapseAll();
 		
 		if (checkbox) {
-			((CheckboxTreeViewer)treeViewer).addCheckStateListener(new ICheckStateListener() {
-	            public void checkStateChanged(CheckStateChangedEvent event) {
-	                handleCheckStateChange(event);
-	            }
-	        });
-		}
-	    MenuManager menuMgr = new MenuManager();
-	    Menu menu = menuMgr.createContextMenu(treeViewer.getTree());
-	    menuMgr.addMenuListener(new IMenuListener() {
-	      public void menuAboutToShow(IMenuManager menuMgr) {
-	        fillTreeMenu(menuMgr);
-	      }
-	    });
-	    menuMgr.setRemoveAllWhenShown(true);
-	    treeViewer.getTree().setMenu(menu);			
+      setAllChecked(true);
+      if (mode == MODE_TREE) {
+        treeViewer.collapseAll();
+      }
+      ((CheckboxTreeViewer) treeViewer)
+          .addCheckStateListener(new ICheckStateListener() {
+            public void checkStateChanged(CheckStateChangedEvent event) {
+              handleCheckStateChange(event);
+            }
+          });
+    }
+
+		MenuManager menuMgr = new MenuManager();
+    Menu menu = menuMgr.createContextMenu(treeViewer.getTree());
+    menuMgr.addMenuListener(new IMenuListener() {
+      public void menuAboutToShow(IMenuManager menuMgr) {
+        fillTreeMenu(menuMgr);
+      }
+    });
+    menuMgr.setRemoveAllWhenShown(true);
+    treeViewer.getTree().setMenu(menu);			
 	}
+	
+  void setAllChecked(boolean state) {
+    for(Iterator it = ((List) treeViewer.getInput()).iterator(); it.hasNext(); ) {
+      ((CheckboxTreeViewer) treeViewer).setSubtreeChecked(it.next(), state);
+    }
+  }
 	
 	protected void fillTreeMenu(IMenuManager menuMgr) {
 		if (mode != MODE_FLAT) {
@@ -585,7 +627,9 @@ public class ResourceSelectionTree extends Composite {
 					if (element instanceof IContainer) return image;
 				}
 				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus((IResource)element);
-				if (propertyStatus != null && propertyStatus.length() > 0) image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CHANGE);
+				if (propertyStatus != null && propertyStatus.length() > 0) {
+				  image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CHANGE);
+				}
 				return image;
 			}
 			else {
@@ -678,7 +722,7 @@ public class ResourceSelectionTree extends Composite {
 	}
 	
 	public static interface IToolbarControlCreator {
-		public void createToolbarControls(Composite composite);
+		public void createToolbarControls(ToolBarManager toolbarManager);
 		public int getControlCount();
 	}
 	

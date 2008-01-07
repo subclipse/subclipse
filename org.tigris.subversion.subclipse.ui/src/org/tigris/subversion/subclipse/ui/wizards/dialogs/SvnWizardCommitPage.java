@@ -9,6 +9,8 @@ import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.action.ControlContribution;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -26,6 +28,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
@@ -161,14 +164,19 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	
     private void addResourcesArea(Composite composite) {  
     	ResourceSelectionTree.IToolbarControlCreator toolbarControlCreator = new ResourceSelectionTree.IToolbarControlCreator() {
-			public void createToolbarControls(Composite parent) {
-				keepLocksButton = new Button(parent, SWT.CHECK);
-				keepLocksButton.setText(Policy.bind("CommitDialog.keepLocks")); //$NON-NLS-1$ 	
-			}
-			public int getControlCount() {
-				return 1;
-			} 		
-    	};
+      public void createToolbarControls(ToolBarManager toolbarManager) {
+        toolbarManager.add(new ControlContribution("keepLocks") {
+          protected Control createControl(Composite parent) {
+            keepLocksButton = new Button(parent, SWT.CHECK);
+            keepLocksButton.setText(Policy.bind("CommitDialog.keepLocks")); //$NON-NLS-1$
+            return keepLocksButton;
+          }
+        });
+      }
+      public int getControlCount() {
+        return 1;
+      }
+    };
     	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, false, toolbarControlCreator, syncInfoSet); //$NON-NLS-1$    	
     	resourceSelectionTree.setRemoveFromViewValidator(new ResourceSelectionTree.IRemoveFromViewValidator() {
 			public boolean canRemove(ArrayList resourceList, IStructuredSelection selection) {
