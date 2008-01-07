@@ -19,6 +19,9 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -191,7 +194,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		fileText.setEnabled(false);
 		
 		browseButton = new Button(fileGroup, SWT.PUSH);
-		browseButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.browse")); //$NON-NLS-1$
+		browseButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.fileBrowse")); //$NON-NLS-1$
 		browseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
@@ -243,6 +246,17 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		toHeadButton.addSelectionListener(selectionListener);
 		compareButton.addSelectionListener(compareTypeListener);
 		diffButton.addSelectionListener(compareTypeListener);
+		
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		toRevisionText.addFocusListener(focusListener);
+		fileText.addFocusListener(focusListener);
 		
 		return composite;
 	}

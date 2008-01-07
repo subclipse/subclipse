@@ -213,7 +213,7 @@ public class DifferencesDialog extends SvnDialog {
 		compareButton.setLayoutData(data);
 		
 		diffButton = new Button(fileGroup, SWT.RADIO);
-		diffButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.diff")); //$NON-NLS-1$
+		diffButton.setText(Policy.bind("DifferencesDialog.diff")); //$NON-NLS-1$
 		
 		compareButton.setSelection(true);
 		
