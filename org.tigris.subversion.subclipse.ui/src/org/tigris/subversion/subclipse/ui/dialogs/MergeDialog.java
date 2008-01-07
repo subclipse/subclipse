@@ -19,6 +19,9 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -195,7 +198,7 @@ public class MergeDialog extends SvnDialog {
 		toUrlCombo.getCombo().setVisible(false);
 		
 		toBrowseButton = new Button(toGroup, SWT.PUSH);
-		toBrowseButton.setText(Policy.bind("SwitchDialog.browse")); //$NON-NLS-1$
+		toBrowseButton.setText(Policy.bind("MergeDialogDialog.browseTo")); //$NON-NLS-1$
 		toBrowseButton.setVisible(false);
 		
 		Composite toRevisionComposite = new Composite(toGroup, SWT.NULL);
@@ -212,7 +215,7 @@ public class MergeDialog extends SvnDialog {
 		toHeadButton.setLayoutData(data);
 		
 		Label toRevisionLabel = new Label(toRevisionComposite, SWT.NONE);
-		toRevisionLabel.setText(Policy.bind("MergeDialog.revision")); //$NON-NLS-1$
+		toRevisionLabel.setText(Policy.bind("MergeDialog.toRevision")); //$NON-NLS-1$
 		
 		toRevisionText = new Text(toRevisionComposite, SWT.BORDER);
 		data = new GridData();
@@ -220,7 +223,7 @@ public class MergeDialog extends SvnDialog {
 		toRevisionText.setLayoutData(data);
 		
 		Button toLogButton = new Button(toRevisionComposite, SWT.PUSH);
-		toLogButton.setText(Policy.bind("MergeDialog.showLog")); //$NON-NLS-1$
+		toLogButton.setText(Policy.bind("MergeDialog.showToLog")); //$NON-NLS-1$
 		toLogButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 showLog(toRevisionText);
@@ -331,12 +334,23 @@ public class MergeDialog extends SvnDialog {
 		if (urlString != null)repositoryText.setText(urlString);
 		
 		Button workingLogButton = new Button(workingGroup, SWT.PUSH);
-		workingLogButton.setText(Policy.bind("MergeDialog.showLog")); //$NON-NLS-1$
+		workingLogButton.setText(Policy.bind("MergeDialog.showWorkingLog")); //$NON-NLS-1$
 		workingLogButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 showLog(null);
             }
 		});		
+		
+		FocusListener focusListener = new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				((Text)e.getSource()).selectAll();
+			}
+			public void focusLost(FocusEvent e) {
+				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+			}					
+		};
+		fromRevisionText.addFocusListener(focusListener);
+		toRevisionText.addFocusListener(focusListener);
 		
 		fromUrlCombo.getCombo().setFocus();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.MERGE_DIALOG);
@@ -509,7 +523,7 @@ public class MergeDialog extends SvnDialog {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {
 		    okButton = button;
-		    okButton.setText(Policy.bind("MergeDialog.title")); //$NON-NLS-1$
+		    okButton.setText(Policy.bind("MergeDialog.mergeButton")); //$NON-NLS-1$
 		    okButton.setEnabled(false);
 		}
         return button;
