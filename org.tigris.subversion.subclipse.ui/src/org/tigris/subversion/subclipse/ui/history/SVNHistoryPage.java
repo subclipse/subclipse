@@ -67,6 +67,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.window.Window;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.SashForm;
@@ -139,8 +140,9 @@ import org.tigris.subversion.subclipse.ui.operations.SwitchOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.EmptySearchViewerFilter;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
+import org.tigris.subversion.subclipse.ui.wizards.BranchTagWizard;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
-import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardBranchTagPage;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardSwitchPage;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -1221,33 +1223,60 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 				  }
 			  }  
 	  		  if (remoteResource == null) return;
-	  		 SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(remoteResource);
-            branchTagPage.setRevisionNumber(Long.parseLong(selectedRevision.toString()));
-        	SvnWizard wizard = new SvnWizard(branchTagPage);
-            SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
-            wizard.setParentDialog(dialog); 
-            if (!(dialog.open() == SvnWizardDialog.OK)) return;
-            final SVNUrl sourceUrl = branchTagPage.getUrl();
-            final SVNUrl destinationUrl = branchTagPage.getToUrl();
-            final String message = branchTagPage.getComment();
-            final SVNRevision revision = branchTagPage.getRevision();
-            final boolean makeParents = branchTagPage.isMakeParents();
-            try {
-                BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-                    public void run() {
-                      try {
-                        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-                        client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
-                      } catch(Exception e) {
-                        MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
-                            .getMessage());
-                      }
-                    }
-                  });
-            } catch(Exception e) {
-              MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
-                  .getMessage());
-            }
+	  		ISVNRemoteResource[] remoteResources = { remoteResource };
+	  		BranchTagWizard wizard = new BranchTagWizard(remoteResources);
+	  		wizard.setRevisionNumber(Long.parseLong(selectedRevision.toString()));
+        	WizardDialog dialog = new ClosableWizardDialog(getSite().getShell(), wizard);
+        	if (dialog.open() == WizardDialog.OK) {	
+                final SVNUrl sourceUrl = wizard.getUrl();
+                final SVNUrl destinationUrl = wizard.getToUrl();
+                final String message = wizard.getComment();
+                final SVNRevision revision = wizard.getRevision();
+                final boolean makeParents = wizard.isMakeParents();
+                try {
+                    BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+                        public void run() {
+                          try {
+                            ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+                            client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+                          } catch(Exception e) {
+                            MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                                .getMessage());
+                          }
+                        }
+                      });
+                } catch(Exception e) {
+                  MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                      .getMessage());
+                }        		
+        	}
+//	  		SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(remoteResource);
+//            branchTagPage.setRevisionNumber(Long.parseLong(selectedRevision.toString()));
+//        	SvnWizard wizard = new SvnWizard(branchTagPage);
+//            SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
+//            wizard.setParentDialog(dialog); 
+//            if (!(dialog.open() == SvnWizardDialog.OK)) return;
+//            final SVNUrl sourceUrl = branchTagPage.getUrl();
+//            final SVNUrl destinationUrl = branchTagPage.getToUrl();
+//            final String message = branchTagPage.getComment();
+//            final SVNRevision revision = branchTagPage.getRevision();
+//            final boolean makeParents = branchTagPage.isMakeParents();
+//            try {
+//                BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+//                    public void run() {
+//                      try {
+//                        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+//                        client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+//                      } catch(Exception e) {
+//                        MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+//                            .getMessage());
+//                      }
+//                    }
+//                  });
+//            } catch(Exception e) {
+//              MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+//                  .getMessage());
+//            }
         }
       };	    	
     }
@@ -1738,47 +1767,90 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           ISelection selection = getSelection();
           if( !(selection instanceof IStructuredSelection))
             return;
-          ILogEntry currentSelection = getLogEntry((IStructuredSelection) selection);          
-          SvnWizardBranchTagPage branchTagPage;
-          if (resource == null)
-        	  branchTagPage = new SvnWizardBranchTagPage(historyTableProvider.getRemoteResource());
-          else
-        	  branchTagPage = new SvnWizardBranchTagPage(resource);
-          branchTagPage.setRevisionNumber(currentSelection.getRevision().getNumber());
-      	  SvnWizard wizard = new SvnWizard(branchTagPage);
-          SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
-          wizard.setParentDialog(dialog); 
-          if (!(dialog.open() == SvnWizardDialog.OK)) return;
-          final SVNUrl sourceUrl = branchTagPage.getUrl();
-          final SVNUrl destinationUrl = branchTagPage.getToUrl();
-          final String message = branchTagPage.getComment();
-          final SVNRevision revision = branchTagPage.getRevision();
-          final boolean makeParents = branchTagPage.isMakeParents();
-          boolean createOnServer = branchTagPage.isCreateOnServer();
-          IResource[] resources = { resource};
-          try {
-            if(resource == null) {
-              BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-                public void run() {
-                  try {
-                    ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-                    client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
-                  } catch(Exception e) {
-                    MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
-                        .getMessage());
-                  }
-                }
-              });
-            } else {
-            	BranchTagOperation branchTagOperation = new BranchTagOperation(getSite().getPage().getActivePart(), resources, sourceUrl, destinationUrl,
-                        createOnServer, branchTagPage.getRevision(), message);
-            	branchTagOperation.setMakeParents(makeParents);
-            	branchTagOperation.run();
-            }
-          } catch(Exception e) {
-            MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
-                .getMessage());
+          ILogEntry currentSelection = getLogEntry((IStructuredSelection) selection); 
+          BranchTagWizard wizard;
+          if (resource == null) {
+        	  ISVNRemoteResource[] remoteResources = { historyTableProvider.getRemoteResource() };
+        	  wizard = new BranchTagWizard(remoteResources);
+          } else {
+        	  IResource[] resources = { resource };
+        	  wizard = new BranchTagWizard(resources);
           }
+          wizard.setRevisionNumber(currentSelection.getRevision().getNumber());
+      	  WizardDialog dialog = new ClosableWizardDialog(getSite().getShell(), wizard);
+    	  if (dialog.open() == WizardDialog.OK) {	
+              final SVNUrl sourceUrl =wizard.getUrl();
+              final SVNUrl destinationUrl = wizard.getToUrl();
+              final String message = wizard.getComment();
+              final SVNRevision revision = wizard.getRevision();
+              final boolean makeParents = wizard.isMakeParents();
+              boolean createOnServer = wizard.isCreateOnServer();
+              IResource[] resources = { resource };
+              try {
+                if(resource == null) {
+                  BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+                    public void run() {
+                      try {
+                        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+                        client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+                      } catch(Exception e) {
+                        MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                            .getMessage());
+                      }
+                    }
+                  });
+                } else {
+                	BranchTagOperation branchTagOperation = new BranchTagOperation(getSite().getPage().getActivePart(), resources, sourceUrl, destinationUrl,
+                            createOnServer, wizard.getRevision(), message);
+                	branchTagOperation.setMakeParents(makeParents);
+                	branchTagOperation.setNewAlias(wizard.getNewAlias());
+                	branchTagOperation.run();
+                }
+              } catch(Exception e) {
+                MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                    .getMessage());
+              }    		
+    	  }
+//          SvnWizardBranchTagPage branchTagPage;
+//          if (resource == null)
+//        	  branchTagPage = new SvnWizardBranchTagPage(historyTableProvider.getRemoteResource());
+//          else
+//        	  branchTagPage = new SvnWizardBranchTagPage(resource);
+//          branchTagPage.setRevisionNumber(currentSelection.getRevision().getNumber());
+//      	  SvnWizard wizard = new SvnWizard(branchTagPage);
+//          SvnWizardDialog dialog = new SvnWizardDialog(getSite().getShell(), wizard);
+//          wizard.setParentDialog(dialog); 
+//          if (!(dialog.open() == SvnWizardDialog.OK)) return;
+//          final SVNUrl sourceUrl = branchTagPage.getUrl();
+//          final SVNUrl destinationUrl = branchTagPage.getToUrl();
+//          final String message = branchTagPage.getComment();
+//          final SVNRevision revision = branchTagPage.getRevision();
+//          final boolean makeParents = branchTagPage.isMakeParents();
+//          boolean createOnServer = branchTagPage.isCreateOnServer();
+//          IResource[] resources = { resource};
+//          try {
+//            if(resource == null) {
+//              BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+//                public void run() {
+//                  try {
+//                    ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+//                    client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+//                  } catch(Exception e) {
+//                    MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+//                        .getMessage());
+//                  }
+//                }
+//              });
+//            } else {
+//            	BranchTagOperation branchTagOperation = new BranchTagOperation(getSite().getPage().getActivePart(), resources, sourceUrl, destinationUrl,
+//                        createOnServer, branchTagPage.getRevision(), message);
+//            	branchTagOperation.setMakeParents(makeParents);
+//            	branchTagOperation.run();
+//            }
+//          } catch(Exception e) {
+//            MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+//                .getMessage());
+//          }
         }
       };
     }

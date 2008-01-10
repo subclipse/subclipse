@@ -14,12 +14,12 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
-import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
-import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardBranchTagPage;
-import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.BranchTagWizard;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class BranchTagAction extends WorkbenchWindowAction {
@@ -30,23 +30,36 @@ public class BranchTagAction extends WorkbenchWindowAction {
         } 
         else {
 	        IResource[] resources = getSelectedResources();
-	        for (int i = 0; i < resources.length; i++) {
-	        	SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[i]);
-	        	SvnWizard wizard = new SvnWizard(branchTagPage);
-		        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
-		        wizard.setParentDialog(dialog);    
-		        if (dialog.open() == SvnWizardDialog.OK) {
-		            SVNUrl sourceUrl = branchTagPage.getUrl();
-		            SVNUrl destinationUrl = branchTagPage.getToUrl();
-		            String message = branchTagPage.getComment();
-		            boolean createOnServer = branchTagPage.isCreateOnServer();
-		            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, branchTagPage.getRevision(), message);
-		            branchTagOperation.setMakeParents(branchTagPage.isMakeParents());
-		            branchTagOperation.setNewAlias(branchTagPage.getNewAlias());
-		            branchTagOperation.switchAfterTagBranchOperation(branchTagPage.switchAfterTagBranch());
-		            branchTagOperation.run();
-		        }
-	        }
+        	BranchTagWizard wizard = new BranchTagWizard(resources);
+        	WizardDialog dialog = new ClosableWizardDialog(getShell(), wizard);
+        	if (dialog.open() == WizardDialog.OK) {	
+        		SVNUrl sourceUrl = wizard.getUrl();
+        		SVNUrl destinationUrl = wizard.getToUrl();
+        		String message = wizard.getComment();
+        		boolean createOnServer = wizard.isCreateOnServer();
+	            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, wizard.getRevision(), message);
+	            branchTagOperation.setMakeParents(wizard.isMakeParents());
+	            branchTagOperation.setNewAlias(wizard.getNewAlias());
+	            branchTagOperation.switchAfterTagBranchOperation(wizard.isSwitchAfterBranchTag());
+	            branchTagOperation.run();        		
+        	}
+//	        for (int i = 0; i < resources.length; i++) {
+//	        	SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[i]);
+//	        	SvnWizard wizard = new SvnWizard(branchTagPage);
+//		        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+//		        wizard.setParentDialog(dialog);    
+//		        if (dialog.open() == SvnWizardDialog.OK) {
+//		            SVNUrl sourceUrl = branchTagPage.getUrl();
+//		            SVNUrl destinationUrl = branchTagPage.getToUrl();
+//		            String message = branchTagPage.getComment();
+//		            boolean createOnServer = branchTagPage.isCreateOnServer();
+//		            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, branchTagPage.getRevision(), message);
+//		            branchTagOperation.setMakeParents(branchTagPage.isMakeParents());
+//		            branchTagOperation.setNewAlias(branchTagPage.getNewAlias());
+//		            branchTagOperation.switchAfterTagBranchOperation(branchTagPage.switchAfterTagBranch());
+//		            branchTagOperation.run();
+//		        }
+//	        }
         }
     }
     

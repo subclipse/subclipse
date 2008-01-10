@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
@@ -22,9 +23,8 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
-import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardBranchTagPage;
-import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.BranchTagWizard;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -33,17 +33,15 @@ public class RepositoryBranchTagAction extends SVNAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		ISVNRemoteResource[] resources = getSelectedRemoteResources();
-		SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[0]);
-    	SvnWizard wizard = new SvnWizard(branchTagPage);
-        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
-        wizard.setParentDialog(dialog);    	
-		if (dialog.open() == SvnWizardDialog.OK) {
-            final SVNUrl sourceUrl = branchTagPage.getUrl();
-            final SVNUrl destinationUrl = branchTagPage.getToUrl();
-            final String message = branchTagPage.getComment();
-            final SVNRevision revision = branchTagPage.getRevision();
-            final boolean makeParents = branchTagPage.isMakeParents();
-            BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+    	BranchTagWizard wizard = new BranchTagWizard(resources);
+    	WizardDialog dialog = new ClosableWizardDialog(getShell(), wizard);
+    	if (dialog.open() == WizardDialog.OK) {	
+          final SVNUrl sourceUrl = wizard.getUrl();
+          final SVNUrl destinationUrl = wizard.getToUrl();
+          final String message = wizard.getComment();
+          final SVNRevision revision = wizard.getRevision();
+          final boolean makeParents = wizard.isMakeParents();
+          BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 				public void run() {
 					try {
 						ISVNClientAdapter client = null;
@@ -57,8 +55,34 @@ public class RepositoryBranchTagAction extends SVNAction {
 						MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
 					}
 				}           	
-            });
-		}
+          });    		
+    	}
+//		SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[0]);
+//    	SvnWizard wizard = new SvnWizard(branchTagPage);
+//        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+//        wizard.setParentDialog(dialog);    	
+//		if (dialog.open() == SvnWizardDialog.OK) {
+//            final SVNUrl sourceUrl = branchTagPage.getUrl();
+//            final SVNUrl destinationUrl = branchTagPage.getToUrl();
+//            final String message = branchTagPage.getComment();
+//            final SVNRevision revision = branchTagPage.getRevision();
+//            final boolean makeParents = branchTagPage.isMakeParents();
+//            BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+//				public void run() {
+//					try {
+//						ISVNClientAdapter client = null;
+//						ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrl.toString());
+//						if (repository != null)
+//							client = repository.getSVNClient();
+//						if (client == null)
+//							client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+//						client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+//					} catch (Exception e) {
+//						MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
+//					}
+//				}           	
+//            });
+//		}
 	}
 
 	protected boolean isEnabled() throws TeamException {
