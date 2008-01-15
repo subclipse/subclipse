@@ -29,6 +29,7 @@ public class BranchTagWizardCommentPage extends SVNWizardPage {
     private ProjectProperties projectProperties;
     protected Button switchAfterBranchTagCheckBox;
     private IResource resource;
+    private boolean visited = false;
 
 	public BranchTagWizardCommentPage() {
 		super("commentPage", //$NON-NLS-1$
@@ -102,7 +103,13 @@ public class BranchTagWizardCommentPage extends SVNWizardPage {
 		setControl(outerContainer);
 	}
 	
-    private void addBugtrackingArea(Composite composite) {
+    public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible) visited = true;
+		setPageComplete(canFinish());
+	}
+
+	private void addBugtrackingArea(Composite composite) {
 		Composite bugtrackingComposite = new Composite(composite, SWT.NULL);
 		GridLayout bugtrackingLayout = new GridLayout();
 		bugtrackingLayout.numColumns = 2;
@@ -117,6 +124,7 @@ public class BranchTagWizardCommentPage extends SVNWizardPage {
     }			
 	
 	private boolean canFinish() {
+		if (!visited) return false;
         if ((commentProperties != null) && (commentProperties.getMinimumLogMessageSize() != 0)) {
             if (commitCommentArea.getCommentLength() < commentProperties.getMinimumLogMessageSize())
             	return false;

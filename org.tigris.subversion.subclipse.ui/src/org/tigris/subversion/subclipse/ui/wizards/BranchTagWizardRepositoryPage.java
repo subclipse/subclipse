@@ -28,10 +28,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -46,7 +44,6 @@ import org.tigris.subversion.subclipse.ui.util.UrlCombo;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class BranchTagWizardRepositoryPage extends SVNWizardPage {
-	private Text urlText;
     private UrlCombo toUrlCombo;
     protected Button makeParentsButton;
 	private Table table;
@@ -85,22 +82,13 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 		Group repositoryGroup = new Group(outerContainer, SWT.NULL);
 		repositoryGroup.setText(Policy.bind("BranchTagDialog.repository")); //$NON-NLS-1$
 		repositoryGroup.setLayout(new GridLayout());
-		GridData data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
+		GridData data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		repositoryGroup.setLayoutData(data);
-		
-		Label fromUrlLabel = new Label(repositoryGroup, SWT.NONE);
-		if (resources == null) fromUrlLabel.setText(Policy.bind("BranchTagDialog.fromUrl")); //$NON-NLS-1$
-		else fromUrlLabel.setText(Policy.bind("BranchTagDialog.url")); //$NON-NLS-1$
 
 		if (multipleSelections()) {
 			ArrayList urlArray = new ArrayList();
-			List urlList = new List(repositoryGroup, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-			data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
-			data.heightHint = 75;
-			urlList.setLayoutData(data);
 			if (resources == null) {
 				for (int i = 0; i < remoteResources.length; i++) {
-					urlList.add(remoteResources[i].getUrl().toString());
 					urlArray.add(remoteResources[i].getUrl());
 				}
 			} else {
@@ -109,7 +97,6 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 					try {
 			            SVNUrl url = svnResource.getStatus().getUrl();
 			            if (url != null) {
-			            	urlList.add(svnResource.getStatus().getUrlString());
 			            	urlArray.add(url);
 			            }
 			        } catch (SVNException e1) {}					
@@ -118,25 +105,17 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 			urls = new SVNUrl[urlArray.size()];
 			urlArray.toArray(urls);
 		} else {
-			urlText = new Text(repositoryGroup, SWT.BORDER);
-			data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-			urlText.setLayoutData(data);
-			
 			if (resources == null) {
 				urls = new SVNUrl[1];
 				urls[0] = remoteResources[0].getUrl();
-				urlText.setText(urls[0].toString());
 			} else {
 				svnResources = new ISVNLocalResource[1];
 				svnResources[0] = SVNWorkspaceRoot.getSVNResourceFor(resources[0]);
 				try {
 					urls = new SVNUrl[1];
 		            urls[0] = svnResources[0].getStatus().getUrl();
-		            if (urls[0] != null) urlText.setText(svnResources[0].getStatus().getUrlString());
 		        } catch (SVNException e1) {}
 			}
-			
-	        urlText.setEditable(false);
 		}
         
 		Label toUrlLabel = new Label(repositoryGroup, SWT.NONE);
@@ -155,7 +134,7 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 		toUrlCombo.init( resources == null ? "repositoryBrowser" : resources[0].getProject().getName()); //$NON-NLS-1$
 		toUrlCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		if (multipleSelections()) toUrlCombo.setText(getCommonRoot());
-		else toUrlCombo.setText(urlText.getText());
+		else toUrlCombo.setText(urls[0].toString());
 		toUrlCombo.getCombo().addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				setPageComplete(canFinish());
@@ -194,7 +173,6 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 			table = new Table(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 			table.setLinesVisible(false);
 			table.setHeaderVisible(false);
-//			data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL);
 			data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
 			data.heightHint = 75;
 			table.setLayoutData(data);
