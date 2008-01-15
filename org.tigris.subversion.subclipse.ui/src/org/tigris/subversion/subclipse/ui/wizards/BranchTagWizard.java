@@ -27,6 +27,7 @@ public class BranchTagWizard extends Wizard {
     private SVNRevision revision;
     private Alias newAlias;
     private long revisionNumber = 0;
+    private String comment;
 
 	public BranchTagWizard(IResource[] resources) {
 		super();
@@ -65,7 +66,8 @@ public class BranchTagWizard extends Wizard {
                     return false;
                 }
             }
-        }        
+        }     
+        comment = commentPage.getComment();
         repositoryPage.saveUrl();
         createOnServer = !copyPage.workingCopyButton.getSelection();
         makeParents = repositoryPage.makeParentsButton.getSelection();
@@ -151,7 +153,7 @@ public class BranchTagWizard extends Wizard {
 	}
 	
 	public String getComment() {
-		return commentPage.getComment();
+		return comment;
 	}
 
 	public boolean isCreateOnServer() {
