@@ -15,6 +15,9 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
@@ -33,11 +36,11 @@ public class BranchTagAction extends WorkbenchWindowAction {
         	BranchTagWizard wizard = new BranchTagWizard(resources);
         	WizardDialog dialog = new ClosableWizardDialog(getShell(), wizard);
         	if (dialog.open() == WizardDialog.OK) {	
-        		SVNUrl sourceUrl = wizard.getUrl();
+        		SVNUrl[] sourceUrls = wizard.getUrls();
         		SVNUrl destinationUrl = wizard.getToUrl();
         		String message = wizard.getComment();
         		boolean createOnServer = wizard.isCreateOnServer();
-	            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, wizard.getRevision(), message);
+	            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrls, destinationUrl, createOnServer, wizard.getRevision(), message);
 	            branchTagOperation.setMakeParents(wizard.isMakeParents());
 	            branchTagOperation.setNewAlias(wizard.getNewAlias());
 	            branchTagOperation.switchAfterTagBranchOperation(wizard.isSwitchAfterBranchTag());
@@ -92,9 +95,19 @@ public class BranchTagAction extends WorkbenchWindowAction {
 	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForMultipleResources()
 	 */
 	protected boolean isEnabledForMultipleResources() {
-		return false;
-	}	       
-    
+		try {
+			// Must all be from same repository.
+			ISVNRepositoryLocation repository = null;
+			IResource[] selectedResources = getSelectedResources();
+			for (int i = 0; i < selectedResources.length; i++) {
+				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(selectedResources[i]);
+				if (svnResource == null || !svnResource.isManaged()) return false;
+				if (repository != null && !svnResource.getRepository().equals(repository)) return false;
+				repository = svnResource.getRepository();
+			}
+			return true;
+		} catch (Exception e) { return false; }
+	}	   	        
 
 	/*
 	 * (non-Javadoc)

@@ -1800,7 +1800,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                     }
                   });
                 } else {
-                	BranchTagOperation branchTagOperation = new BranchTagOperation(getSite().getPage().getActivePart(), resources, sourceUrl, destinationUrl,
+                	BranchTagOperation branchTagOperation = new BranchTagOperation(getSite().getPage().getActivePart(), resources, new SVNUrl[] { sourceUrl }, destinationUrl,
                             createOnServer, wizard.getRevision(), message);
                 	branchTagOperation.setMakeParents(makeParents);
                 	branchTagOperation.setNewAlias(wizard.getNewAlias());

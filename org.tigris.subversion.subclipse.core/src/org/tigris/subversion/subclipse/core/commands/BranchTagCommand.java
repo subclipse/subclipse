@@ -24,10 +24,10 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class BranchTagCommand implements ISVNCommand {
-	// selected resource
-    private IResource resource; 
+	// selected resources
+    private IResource[] resources; 
     
-    private SVNUrl sourceUrl;
+    private SVNUrl[] sourceUrls;
     private SVNUrl destinationUrl;
     private boolean createOnServer;
     private String message;
@@ -36,11 +36,11 @@ public class BranchTagCommand implements ISVNCommand {
     
     private SVNWorkspaceRoot root;
 
-    public BranchTagCommand(SVNWorkspaceRoot root, IResource resource, SVNUrl sourceUrl, SVNUrl destinationUrl, String message, boolean createOnServer, SVNRevision revision) {
+    public BranchTagCommand(SVNWorkspaceRoot root, IResource[] resources, SVNUrl[] sourceUrls, SVNUrl destinationUrl, String message, boolean createOnServer, SVNRevision revision) {
         super();
         this.root = root;
-        this.resource = resource;
-        this.sourceUrl = sourceUrl;
+        this.resources = resources;
+        this.sourceUrls = sourceUrls;
         this.destinationUrl = destinationUrl;
         this.createOnServer = createOnServer;
         this.message = message;
@@ -51,13 +51,16 @@ public class BranchTagCommand implements ISVNCommand {
         try {
             monitor.beginTask(null, 100);
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
-//            OperationManager.getInstance().beginOperation(svnClient);
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
-            monitor.subTask(resource.getName());
-            if (createOnServer) svnClient.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+//            monitor.subTask("Branch Tag");
+            if (createOnServer) svnClient.copy(sourceUrls, destinationUrl, message, revision, makeParents);
             else {
-                File file = resource.getLocation().toFile();
-                svnClient.copy(file, destinationUrl, message);
+            	File[] files = new File[resources.length];
+            	for (int i = 0; i < resources.length; i++)
+            		files[i] = resources[i].getLocation().toFile();
+//                File file = resource.getLocation().toFile();
+//                svnClient.copy(file, destinationUrl, message);
+            	svnClient.copy(files, destinationUrl, message, makeParents);
             }
             monitor.worked(100);
         } catch (SVNClientException e) {

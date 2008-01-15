@@ -36,7 +36,7 @@ public class RepositoryBranchTagAction extends SVNAction {
     	BranchTagWizard wizard = new BranchTagWizard(resources);
     	WizardDialog dialog = new ClosableWizardDialog(getShell(), wizard);
     	if (dialog.open() == WizardDialog.OK) {	
-          final SVNUrl sourceUrl = wizard.getUrl();
+    	  final SVNUrl[] sourceUrls = wizard.getUrls();
           final SVNUrl destinationUrl = wizard.getToUrl();
           final String message = wizard.getComment();
           final SVNRevision revision = wizard.getRevision();
@@ -45,12 +45,12 @@ public class RepositoryBranchTagAction extends SVNAction {
 				public void run() {
 					try {
 						ISVNClientAdapter client = null;
-						ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrl.toString());
+						ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrls[0].toString());
 						if (repository != null)
 							client = repository.getSVNClient();
 						if (client == null)
 							client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-						client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+						client.copy(sourceUrls, destinationUrl, message, revision, makeParents);
 					} catch (Exception e) {
 						MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
 					}
@@ -86,7 +86,13 @@ public class RepositoryBranchTagAction extends SVNAction {
 	}
 
 	protected boolean isEnabled() throws TeamException {
-		return getSelectedRemoteResources().length == 1;
+		ISVNRepositoryLocation repository = null;
+		ISVNRemoteResource[] resources = getSelectedRemoteResources();
+		for (int i = 0; i < resources.length; i++) {
+			if (repository != null && !(resources[i].getRepository().equals(repository))) return false;
+			repository = resources[i].getRepository();
+		}
+		return true;
 	}
 
 	/*

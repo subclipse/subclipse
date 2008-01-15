@@ -87,6 +87,7 @@ public class BranchTagWizard extends Wizard {
 	
     private void updateTagsProperty(SVNUrl toUrl) {
     	try {
+    		if (resources.length > 1) return;
 			ISVNProperty property = null;
 			property = repositoryPage.getSvnResource().getSvnProperty("subclipse:tags"); //$NON-NLS-1$
 			if (property == null) return;
@@ -109,11 +110,23 @@ public class BranchTagWizard extends Wizard {
 			else
 				newAlias = null;
     	} catch (Exception e) {}
-    }	
+    }
+    
+    public boolean multipleSelections() {
+    	return (resources != null && resources.length > 1) || (remoteResources != null && remoteResources.length > 1);
+    }
+    
+    public IResource[] getResources() {
+    	return resources;
+    }
 	
 	public IResource getResource() {
 		if (resources == null || resources.length < 1) return null;
 		return resources[0];
+	}
+	
+	public ISVNRemoteResource[] getRemoteResources() {
+		return remoteResources;
 	}
 	
 	public ISVNRemoteResource getRemoteResource() {
@@ -123,6 +136,10 @@ public class BranchTagWizard extends Wizard {
 	
 	public SVNUrl getUrl() {
 		return repositoryPage.getUrl();
+	}
+	
+	public SVNUrl[] getUrls() {
+		return repositoryPage.getUrls();
 	}
 	
 	public SVNUrl getToUrl() {
@@ -151,6 +168,10 @@ public class BranchTagWizard extends Wizard {
 
 	public Alias getNewAlias() {
 		return newAlias;
+	}
+	
+	public String getCommonRoot() {
+		return repositoryPage.getCommonRoot();
 	}
 
 	public boolean isSwitchAfterBranchTag() {

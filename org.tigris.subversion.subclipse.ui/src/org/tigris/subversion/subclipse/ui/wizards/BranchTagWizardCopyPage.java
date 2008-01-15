@@ -17,12 +17,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.HistoryDialog;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class BranchTagWizardCopyPage extends SVNWizardPage {
 	
@@ -134,19 +136,31 @@ public class BranchTagWizardCopyPage extends SVNWizardPage {
 	
 	private void showLog() {
 	    ISVNRemoteResource remoteResource = null;
-	    if (resource == null) remoteResource = this.remoteResource;
-	    else {
+		if (((BranchTagWizard)getWizard()).multipleSelections()) {
+			ISVNRepositoryLocation repository = null;
+			if (resource == null) repository = this.remoteResource.getRepository();
+			else repository = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository();
 	        try {
-	            remoteResource = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getRemoteFile(((BranchTagWizard)getWizard()).getUrl());
+	            remoteResource = repository.getRemoteFile(new SVNUrl(((BranchTagWizard)getWizard()).getCommonRoot()));
 	        } catch (Exception e) {
 	            MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), e.toString()); //$NON-NLS-1$
 	            return;
-	        }
-	    }
-        if (remoteResource == null) {
-            MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), Policy.bind("MergeDialog.urlError") + " " + ((BranchTagWizard)getWizard()).getUrlText()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            return;	            
-        }	
+	        }			
+		} else {	    
+		    if (resource == null) remoteResource = this.remoteResource;
+		    else {
+		        try {
+		            remoteResource = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getRemoteFile(((BranchTagWizard)getWizard()).getUrl());
+		        } catch (Exception e) {
+		            MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), e.toString()); //$NON-NLS-1$
+		            return;
+		        }
+		    }
+	        if (remoteResource == null) {
+	            MessageDialog.openError(getShell(), Policy.bind("MergeDialog.showLog"), Policy.bind("MergeDialog.urlError") + " " + ((BranchTagWizard)getWizard()).getUrlText()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	            return;	            
+	        }	
+		}
         HistoryDialog dialog = new HistoryDialog(getShell(), remoteResource);
         if (dialog.open() == HistoryDialog.CANCEL) return;
         ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
