@@ -43,11 +43,13 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
     private Button logButton;
     private Button headButton;
 	private Combo depthCombo;
+	private Button setDepthButton;	
 	private Button ignoreExternalsButton;
 	private Button forceButton;
 	
     private SVNRevision revision;
     private int depth;
+    private boolean setDepth;
     private boolean ignoreExternals;
     private boolean force;
     
@@ -151,6 +153,12 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 		depthCombo = new Combo(parameterGroup, SWT.READ_ONLY);
 		DepthComboHelper.addDepths(depthCombo, true, ISVNUIConstants.DEPTH_UNKNOWN);
 		
+		setDepthButton = new Button(parameterGroup, SWT.CHECK);
+		setDepthButton.setText(Policy.bind("SvnDialog.setDepth")); //$NON-NLS-1$
+		data = new GridData();
+		data.horizontalSpan = 2;
+		setDepthButton.setLayoutData(data);
+		
 		ignoreExternalsButton = new Button(parameterGroup, SWT.CHECK);
 		ignoreExternalsButton.setText(Policy.bind("SvnDialog.ignoreExternals")); //$NON-NLS-1$
 		data = new GridData();
@@ -185,6 +193,7 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
               return false;   
             }
         }		
+        setDepth = setDepthButton.getSelection();
         ignoreExternals = ignoreExternalsButton.getSelection();
         force = forceButton.getSelection();
         depth = DepthComboHelper.getDepth(depthCombo);
@@ -255,6 +264,10 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 	
 	public int getDepth() {
 		return depth;
+	}
+	
+	public boolean isSetDepth() {
+		return setDepth;
 	}
 
 	public boolean isIgnoreExternals() {

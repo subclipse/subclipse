@@ -33,6 +33,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     private IResource[] resources;
     private SVNRevision revision; 
     private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
+    private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true;
     
@@ -64,7 +65,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     		if (resources.length == 1)
     		{
                 monitor.subTask(resources[0].getName());
-                svnClient.update(resources[0].getLocation().toFile(),revision, depth, ignoreExternals, force);
+                svnClient.update(resources[0].getLocation().toFile(),revision, depth, setDepth, ignoreExternals, force);
                 monitor.worked(100);    			
     		}
     		else
@@ -73,7 +74,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     			for (int i = 0; i < resources.length; i++) {
 					files[i] = resources[i].getLocation().toFile();
 				}
-   				svnClient.update(files, revision, depth, ignoreExternals, force);
+   				svnClient.update(files, revision, depth, setDepth, ignoreExternals, force);
    				monitor.worked(100);
     		}
         } catch (SVNClientException e) {
@@ -87,6 +88,10 @@ public class UpdateResourcesCommand implements ISVNCommand {
 	public void setDepth(int depth) {
 		this.depth = depth;
 	}
+	
+	public void setSetDepth(boolean setDepth) {
+		this.setDepth = setDepth;
+	}   
 
 	public void setIgnoreExternals(boolean ignoreExternals) {
 		this.ignoreExternals = ignoreExternals;

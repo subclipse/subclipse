@@ -54,6 +54,7 @@ public class SwitchAction extends WorkbenchWindowAction {
 	            SVNRevision svnRevision = switchPage.getRevision();
 	            SwitchOperation switchOperation = new SwitchOperation(getTargetPart(), resources, svnUrls, svnRevision);
 	            switchOperation.setDepth(switchPage.getDepth());
+	            switchOperation.setSetDepth(switchPage.isSetDepth());
 	            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
 	            switchOperation.setForce(switchPage.isForce());
 	            switchOperation.run();	        

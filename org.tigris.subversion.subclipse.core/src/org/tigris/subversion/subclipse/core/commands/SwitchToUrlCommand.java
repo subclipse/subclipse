@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
-import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
@@ -42,6 +41,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
     private SVNWorkspaceRoot root;
     
     private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
+    private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true;
 
@@ -68,7 +68,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
 //            if (svnResource != null && svnResource.getRevision() != null) pegRevision = svnResource.getRevision();
 //            else pegRevision = svnRevision;
             pegRevision = SVNRevision.HEAD;
-            svnClient.switchToUrl(file, svnUrl, svnRevision, pegRevision, depth, ignoreExternals, force);
+            svnClient.switchToUrl(file, svnUrl, svnRevision, pegRevision, depth, setDepth, ignoreExternals, force);
             try {
                 // Refresh the resource after merge
                 resource.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
@@ -84,6 +84,10 @@ public class SwitchToUrlCommand implements ISVNCommand {
 
 	public void setDepth(int depth) {
 		this.depth = depth;
+	}
+	
+	public void setSetDepth(boolean setDepth) {
+		this.setDepth = setDepth;
 	}
 
 	public void setIgnoreExternals(boolean ignoreExternals) {

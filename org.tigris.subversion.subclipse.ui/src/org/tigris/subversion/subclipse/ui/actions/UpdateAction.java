@@ -44,6 +44,7 @@ public class UpdateAction extends WorkbenchWindowAction {
 	        if (dialog.open() == SvnWizardDialog.OK) {
 	        	UpdateOperation updateOperation = new UpdateOperation(getTargetPart(), resources, updatePage.getRevision());
 		    	updateOperation.setDepth(updatePage.getDepth());
+		    	updateOperation.setSetDepth(updatePage.isSetDepth());
 		    	updateOperation.setForce(updatePage.isForce());
 		    	updateOperation.setIgnoreExternals(updatePage.isIgnoreExternals());
 	        	updateOperation.run();

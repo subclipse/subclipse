@@ -28,6 +28,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 public class UpdateOperation extends RepositoryProviderOperation {
 	private final SVNRevision revision;
     private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
+    private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true;
 
@@ -65,6 +66,7 @@ public class UpdateOperation extends RepositoryProviderOperation {
 		    SVNWorkspaceSubscriber.getInstance().updateRemote(resources);
 	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resources, revision);
 	        command.setDepth(depth);
+	        command.setSetDepth(setDepth);
 	        command.setIgnoreExternals(ignoreExternals);
 	        command.setForce(force);
 	    	command.run(Policy.subMonitorFor(monitor,100));
@@ -81,6 +83,10 @@ public class UpdateOperation extends RepositoryProviderOperation {
 	public void setDepth(int depth) {
 		this.depth = depth;
 	}
+	
+	public void setSetDepth(boolean setDepth) {
+		this.setDepth = setDepth;
+	}    
 
 	public void setIgnoreExternals(boolean ignoreExternals) {
 		this.ignoreExternals = ignoreExternals;
@@ -88,5 +94,6 @@ public class UpdateOperation extends RepositoryProviderOperation {
 
 	public void setForce(boolean force) {
 		this.force = force;
-	}    
+	}
+
 }

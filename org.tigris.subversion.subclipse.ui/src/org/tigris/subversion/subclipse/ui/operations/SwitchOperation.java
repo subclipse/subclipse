@@ -30,6 +30,7 @@ public class SwitchOperation extends RepositoryProviderOperation {
     private HashMap urlMap = new HashMap();
     
     private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
+    private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true;    
     
@@ -57,6 +58,7 @@ public class SwitchOperation extends RepositoryProviderOperation {
 				SVNWorkspaceSubscriber.getInstance().updateRemote(resources);
 		    	SwitchToUrlCommand command = new SwitchToUrlCommand(provider.getSVNWorkspaceRoot(),resources[i], svnUrl, svnRevision);
 		        command.setDepth(depth);
+		        command.setSetDepth(setDepth);
 		        command.setIgnoreExternals(ignoreExternals);
 		        command.setForce(force);
 		    	command.run(monitor);
@@ -74,6 +76,10 @@ public class SwitchOperation extends RepositoryProviderOperation {
 	public void setDepth(int depth) {
 		this.depth = depth;
 	}
+	
+	public void setSetDepth(boolean setDepth) {
+		this.setDepth = setDepth;
+	}   
 
 	public void setIgnoreExternals(boolean ignoreExternals) {
 		this.ignoreExternals = ignoreExternals;
@@ -81,6 +87,6 @@ public class SwitchOperation extends RepositoryProviderOperation {
 
 	public void setForce(boolean force) {
 		this.force = force;
-	}    
+	} 
 
 }

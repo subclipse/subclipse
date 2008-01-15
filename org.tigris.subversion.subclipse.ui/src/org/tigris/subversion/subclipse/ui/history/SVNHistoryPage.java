@@ -1732,6 +1732,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 					            SVNRevision svnRevision = switchPage.getRevision();
 					            SwitchOperation switchOperation = new SwitchOperation(getSite().getPage().getActivePart(), resources, svnUrls, svnRevision);
 					            switchOperation.setDepth(switchPage.getDepth());
+					            switchOperation.setSetDepth(switchPage.isSetDepth());
 					            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
 					            switchOperation.setForce(switchPage.isForce());
 					            try {
