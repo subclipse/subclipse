@@ -338,10 +338,11 @@ public class SVNRepositories
 	public boolean isKnownRepository(String location, boolean requireExactMatch) {
 		Set keys = repositories.keySet();
 		for(Iterator iter = keys.iterator();iter.hasNext();){
-			if(!requireExactMatch && location.indexOf((String)iter.next())!=-1){
+			String checkLocation = (String)iter.next();
+			if(!requireExactMatch && location.indexOf(checkLocation)!=-1){
 				return true;
 			}
-    		if (location.equals(iter.next())) return true;
+    		if (location.equals(checkLocation)) return true;
 		}
 		return false;
 	}
