@@ -133,8 +133,9 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 		toUrlCombo = new UrlCombo(urlComposite, SWT.NONE);
 		toUrlCombo.init( resources == null ? "repositoryBrowser" : resources[0].getProject().getName()); //$NON-NLS-1$
 		toUrlCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-		if (multipleSelections()) toUrlCombo.setText(getCommonRoot());
-		else toUrlCombo.setText(urls[0].toString());
+//		if (multipleSelections()) toUrlCombo.setText(getCommonRoot());
+//		else toUrlCombo.setText(urls[0].toString());
+		toUrlCombo.setText(getCommonRoot());
 		toUrlCombo.getCombo().addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				setPageComplete(canFinish());
@@ -166,35 +167,33 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 			}		
 		});	
 		
-		if (multipleSelections()) {
-			Label label = new Label(outerContainer, SWT.NONE);
-			label.setText(Policy.bind("BranchTagDialog.resources"));
-			
-			table = new Table(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-			table.setLinesVisible(false);
-			table.setHeaderVisible(false);
-			data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
-			data.heightHint = 75;
-			table.setLayoutData(data);
-			TableLayout tableLayout = new TableLayout();
-			table.setLayout(tableLayout);
-			viewer = new TableViewer(table);
-			viewer.setContentProvider(new BranchContentProvider());
-			ILabelDecorator decorator = PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator();
-			viewer.setLabelProvider(new TableDecoratingLabelProvider(new BranchLabelProvider(), decorator));
-			for (int i = 0; i < columnHeaders.length; i++) {
-				tableLayout.addColumnData(columnLayouts[i]);
-				TableColumn tc = new TableColumn(table, SWT.NONE,i);
-				tc.setResizable(columnLayouts[i].resizable);
-				tc.setText(columnHeaders[i]);
-			}			
-			viewer.setInput(this);
-			toUrlCombo.getCombo().addModifyListener(new ModifyListener() {
-				public void modifyText(ModifyEvent e) {
-					viewer.refresh();
-				}				
-			});
-		}		
+		Label label = new Label(outerContainer, SWT.NONE);
+		label.setText(Policy.bind("BranchTagDialog.resources"));
+		
+		table = new Table(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		table.setLinesVisible(false);
+		table.setHeaderVisible(false);
+		data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
+		data.heightHint = 75;
+		table.setLayoutData(data);
+		TableLayout tableLayout = new TableLayout();
+		table.setLayout(tableLayout);
+		viewer = new TableViewer(table);
+		viewer.setContentProvider(new BranchContentProvider());
+		ILabelDecorator decorator = PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator();
+		viewer.setLabelProvider(new TableDecoratingLabelProvider(new BranchLabelProvider(), decorator));
+		for (int i = 0; i < columnHeaders.length; i++) {
+			tableLayout.addColumnData(columnLayouts[i]);
+			TableColumn tc = new TableColumn(table, SWT.NONE,i);
+			tc.setResizable(columnLayouts[i].resizable);
+			tc.setText(columnHeaders[i]);
+		}			
+		viewer.setInput(this);
+		toUrlCombo.getCombo().addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				viewer.refresh();
+			}				
+		});
 		
 		toUrlCombo.getCombo().setFocus();
 		
@@ -227,7 +226,6 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
     	urlList.toArray(urlStrings);
     	if (urlStrings.length == 0) return null;
     	String urlString = urlStrings[0];
-    	if (urlStrings.length == 1) return urlString;
     	tag1:
     	for (int i = 0; i < urlString.length(); i++) {
     		String partialPath = urlString.substring(0, i+1);
