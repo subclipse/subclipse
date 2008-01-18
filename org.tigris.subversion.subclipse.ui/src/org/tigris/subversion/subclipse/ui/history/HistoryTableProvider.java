@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.history;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -123,18 +122,19 @@ public class HistoryTableProvider {
 				case COL_COMMENT:
 					String comment = entry.getComment();
 					if (comment == null) return "";   //$NON-NLS-1$
-					int rIndex = comment.indexOf("\r");  //$NON-NLS-1$
-					int nIndex = comment.indexOf("\n");	 //$NON-NLS-1$
-					if( (rIndex == -1) && (nIndex == -1) )
-						return comment;
-						
-					if( (rIndex == 0) || (nIndex == 0) )
-						return Policy.bind("HistoryView.[...]_4"); //$NON-NLS-1$
-						
-					if(rIndex != -1)
-						return Policy.bind("SVNCompareRevisionsInput.truncate", comment.substring(0, rIndex)); //$NON-NLS-1$
-					else
-						return Policy.bind("SVNCompareRevisionsInput.truncate", comment.substring(0, nIndex)); //$NON-NLS-1$
+					else return comment.replaceAll("\r", " ").replaceAll("\n", " "); //$NON-NLS-1$ //$NON-NLS-2$
+//					int rIndex = comment.indexOf("\r");  //$NON-NLS-1$
+//					int nIndex = comment.indexOf("\n");	 //$NON-NLS-1$
+//					if( (rIndex == -1) && (nIndex == -1) )
+//						return comment;
+//						
+//					if( (rIndex == 0) || (nIndex == 0) )
+//						return Policy.bind("HistoryView.[...]_4"); //$NON-NLS-1$
+//						
+//					if(rIndex != -1)
+//						return Policy.bind("SVNCompareRevisionsInput.truncate", comment.substring(0, rIndex)); //$NON-NLS-1$
+//					else
+//						return Policy.bind("SVNCompareRevisionsInput.truncate", comment.substring(0, nIndex)); //$NON-NLS-1$
 				case COL_BUGS:
 					return getBugstringFromComment( entry.getComment() );
 			}
