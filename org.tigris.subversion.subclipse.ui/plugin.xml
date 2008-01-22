@@ -410,27 +410,39 @@
                id="org.tigris.subversion.subclipse.ui.replaceWithBase">
          </action>
          <action
+               label="%CompareWithBaseAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.compare_with_base_action_context"
+               tooltip="%CompareWithBaseAction.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.CompareWithBaseRevisionAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+			   			 definitionId="org.tigris.subversion.subclipse.ui.compareWithBase"
+               id="org.tigris.subversion.subclipse.ui.compareWithBase">
+         </action>
+         <action
                label="%CompareWithBranchTagAction.label"
                class="org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffActionWC"
                enablesFor="1"
                menubarPath="compareWithMenu/compareWithGroup"
+			   			 definitionId="org.tigris.subversion.subclipse.ui.compareWithBranchTag"
                id="org.tigris.subversion.subclipse.ui.compareWithBranchTag">
          </action>         
+         <action
+               label="%CompareWithRevisionAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.compare_with_revision_action_context"
+               tooltip="%CompareWithRevisionAction.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.CompareWithRevisionAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+			   			 definitionId="org.tigris.subversion.subclipse.ui.compareWithRevision"
+               id="org.tigris.subversion.subclipse.ui.compareWithRevision">
+         </action>
          <action
                label="%CompareWithHeadAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.compare_with_latest_action_context"
                tooltip="%CompareWithHeadAction.tooltip"
                class="org.tigris.subversion.subclipse.ui.actions.CompareWithHeadRevisionAction"
                menubarPath="compareWithMenu/compareWithGroup"
+			   			 definitionId="org.tigris.subversion.subclipse.ui.compareWithHead"
                id="org.tigris.subversion.subclipse.ui.compareWithHead">
-         </action>
-         <action
-               label="%CompareWithBaseAction.label"
-               helpContextId="org.tigris.subversion.subclipse.ui.compare_with_base_action_context"
-               tooltip="%CompareWithBaseAction.tooltip"
-               class="org.tigris.subversion.subclipse.ui.actions.CompareWithBaseRevisionAction"
-               menubarPath="compareWithMenu/compareWithGroup"
-               id="org.tigris.subversion.subclipse.ui.compareWithBase">
          </action>
          <action
                label="%ExportAction.label"
@@ -543,7 +555,7 @@
                tooltip="%BranchTagAction.tooltip"
                menubarPath="team.main/group2"
                enablesFor="1"
-			   definitionId="org.tigris.subversion.subclipse.ui.branchtag"
+			   			 definitionId="org.tigris.subversion.subclipse.ui.branchtag"
                id="org.tigris.subversion.subclipse.ui.branchtag">
          </action>
          <action
@@ -561,7 +573,7 @@
                class="org.tigris.subversion.subclipse.ui.actions.UpdateAction"
                tooltip="%UpdateAction.tooltip"
                menubarPath="team.main/group1"
-			   definitionId="org.tigris.subversion.subclipse.ui.update"
+               definitionId="org.tigris.subversion.subclipse.ui.update"
                id="org.tigris.subversion.subclipse.ui.update">
          </action>
          <action
@@ -570,7 +582,7 @@
                class="org.tigris.subversion.subclipse.ui.actions.CommitAction"
                tooltip="%CommitAction.tooltip"
                menubarPath="team.main/group1"
-			   definitionId="org.tigris.subversion.subclipse.ui.commit"
+			   			 definitionId="org.tigris.subversion.subclipse.ui.commit"
                id="org.tigris.subversion.subclipse.ui.commit">
          </action>
          <action
@@ -579,7 +591,7 @@
                class="org.tigris.subversion.subclipse.ui.actions.SynchronizeAction"
                tooltip="%SynchronizeAction.tooltip"
                menubarPath="team.main/group1"
-definitionId="org.tigris.subversion.subclipse.ui.synchronize"
+               definitionId="org.tigris.subversion.subclipse.ui.synchronize"
                id="org.tigris.subversion.subclipse.synchronize">
          </action>
       </objectContribution>
@@ -603,6 +615,7 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
                helpContextId="org.tigris.subversion.subclipse.ui.team_cleanup_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.CleanupAction"
                tooltip="%CleanupAction.tooltip"
+               definitionId="org.tigris.subversion.subclipse.ui.cleanup"
                menubarPath="team.main/projectGroup"
                id="org.tigris.subversion.subclipse.ui.cleanup">
          </action>
@@ -640,7 +653,7 @@ definitionId="org.tigris.subversion.subclipse.ui.synchronize"
                class="org.tigris.subversion.subclipse.ui.actions.CompareWithRevisionAction"
                menubarPath="compareWithMenu/compareWithGroup"
                id="org.tigris.subversion.subclipse.ui.compareWithRevision">
-         </action>
+         </action>         
          <action
                label="%ReplaceWithRevisionAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.replace_with_revision_action_context"
@@ -1083,6 +1096,8 @@ For example:
 				<separator name="SVNGroupMenu3"></separator>
 				<separator name="SVNGroupMenu4"></separator>
 				<separator name="SVNGroupMenu5"></separator>
+				<separator name="SVNGroupMenu6"></separator>
+				<separator name="SVNGroupMenu7"></separator>
 			</menu>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.update"
@@ -1266,6 +1281,52 @@ For example:
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu5"
 				id="org.tigris.subversion.subclipse.ui.copy">
 			</action>
+	    <action
+	      label="%CleanupAction.label"
+	      helpContextId="org.tigris.subversion.subclipse.ui.team_cleanup_action_context"
+	      class="org.tigris.subversion.subclipse.ui.actions.CleanupAction"
+	      tooltip="%CleanupAction.tooltip"
+			  definitionId="org.tigris.subversion.subclipse.ui.cleanup"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu7"
+	      id="org.tigris.subversion.subclipse.ui.cleanup">
+	    </action>
+
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.compareWithBranchTag"
+				label="%CompareWithBranchTagCommand.label"
+				icon="icons/full/empty/empty.gif"
+        class="org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffActionWC"
+				tooltip="%CompareWithBranchTagCommand.label"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
+				id="org.tigris.subversion.subclipse.ui.compareWithBranchTag">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.compareWithRevision"
+				label="%CompareWithRevisionAction.tooltip"
+				icon="icons/full/empty/empty.gif"
+        class="org.tigris.subversion.subclipse.ui.actions.CompareWithRevisionAction"
+				tooltip="%CompareWithRevisionAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
+				id="org.tigris.subversion.subclipse.ui.compareWithRevision">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.compareWithHead"
+				label="%CompareWithHeadAction.tooltip"
+				icon="icons/full/empty/empty.gif"
+        class="org.tigris.subversion.subclipse.ui.actions.CompareWithHeadRevisionAction"
+				tooltip="%CompareWithHeadAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
+				id="org.tigris.subversion.subclipse.ui.compareWithHead">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.compareWithBase"
+				label="%CompareWithBaseAction.tooltip"
+				icon="icons/full/empty/empty.gif"
+        class="org.tigris.subversion.subclipse.ui.actions.CompareWithBaseRevisionAction"
+				tooltip="%CompareWithBaseAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
+				id="org.tigris.subversion.subclipse.ui.compareWithBase">
+			</action>
 
 		</actionSet>
 	</extension>
@@ -1395,6 +1456,28 @@ For example:
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
 			name="%ExportAction.label"
 			id="org.tigris.subversion.subclipse.ui.export" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%CleanupAction.label"
+			id="org.tigris.subversion.subclipse.ui.cleanup" />
+
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%CompareWithBranchTagCommand.label"
+			id="org.tigris.subversion.subclipse.ui.compareWithBranchTag" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%CompareWithRevisionCommand.label"
+			id="org.tigris.subversion.subclipse.ui.compareWithRevision" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%CompareWithHeadCommand.label"
+			id="org.tigris.subversion.subclipse.ui.compareWithHead" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%CompareWithBaseCommand.label"
+			id="org.tigris.subversion.subclipse.ui.compareWithBase" />
+
 	</extension>
 
    <extension

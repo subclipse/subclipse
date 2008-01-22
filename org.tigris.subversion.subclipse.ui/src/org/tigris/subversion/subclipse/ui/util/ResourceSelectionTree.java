@@ -323,11 +323,9 @@ public class ResourceSelectionTree extends Composite {
     treeViewer.getTree().setMenu(menu);			
 	}
 	
-  void setAllChecked(boolean state) {
-    for(Iterator it = ((List) treeViewer.getInput()).iterator(); it.hasNext(); ) {
-      ((CheckboxTreeViewer) treeViewer).setSubtreeChecked(it.next(), state);
-    }
-  }
+    void setAllChecked(boolean state) {
+		((CheckboxTreeViewer)treeViewer).setAllChecked(state);  
+	}
 	
 	protected void fillTreeMenu(IMenuManager menuMgr) {
 		if (mode != MODE_FLAT) {

@@ -21,7 +21,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
-public abstract class CompareWithRemoteAction extends WorkspaceAction {
+public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 
 	private final SVNRevision revision;
 

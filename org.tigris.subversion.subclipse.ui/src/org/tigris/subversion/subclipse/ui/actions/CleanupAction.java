@@ -22,7 +22,7 @@ import org.tigris.subversion.subclipse.ui.operations.CleanupOperation;
 /**
  * Action to recursively cleanup any locks in teh working copy
  */
-public class CleanupAction extends WorkspaceAction {
+public class CleanupAction extends WorkbenchWindowAction {
 
     protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
         new CleanupOperation(getTargetPart(), getSelectedResources()).run();

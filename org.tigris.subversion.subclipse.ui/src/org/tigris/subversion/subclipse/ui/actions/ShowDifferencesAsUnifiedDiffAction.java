@@ -20,7 +20,7 @@ import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.dialogs.DifferencesDialog;
 
-public class ShowDifferencesAsUnifiedDiffAction extends SVNAction {
+public class ShowDifferencesAsUnifiedDiffAction extends WorkbenchWindowAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		String fromRevision = null;

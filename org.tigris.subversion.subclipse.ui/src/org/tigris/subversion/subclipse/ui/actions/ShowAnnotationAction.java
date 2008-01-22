@@ -75,7 +75,7 @@ public class ShowAnnotationAction extends WorkbenchWindowAction {
 
 		// Selected from a Resource Navigator
 		IResource[] resources = getSelectedResources();
-		if (resources.length == 1) {
+		if (resources.length == 1 && resources[0].getType() == IResource.FILE ) {
 			try {
 				return (ISVNRemoteFile)SVNWorkspaceRoot.getBaseResourceFor(resources[0]);
 			} catch (SVNException e) {

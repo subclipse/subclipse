@@ -17,7 +17,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.ui.dialogs.ShowDifferencesAsUnifiedDiffDialogWC;
 
-public class ShowDifferencesAsUnifiedDiffActionWC extends WorkspaceAction {
+public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction {
 
 	public ShowDifferencesAsUnifiedDiffActionWC() {
 		super();
@@ -25,8 +25,10 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkspaceAction {
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		IResource[] resources = getSelectedResources();
-		ShowDifferencesAsUnifiedDiffDialogWC dialog = new ShowDifferencesAsUnifiedDiffDialogWC(getShell(), resources[0], getTargetPart());
-		dialog.open();
+//		if(resources.length != 0) {
+			ShowDifferencesAsUnifiedDiffDialogWC dialog = new ShowDifferencesAsUnifiedDiffDialogWC(getShell(), resources[0], getTargetPart());
+			dialog.open();
+//		}
 	}
 
 	protected boolean isEnabled() throws TeamException {

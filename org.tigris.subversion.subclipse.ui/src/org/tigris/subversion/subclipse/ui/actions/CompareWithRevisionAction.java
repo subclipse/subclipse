@@ -39,7 +39,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 /**
  * Used when you want to compare local resource with remote ones 
  */
-public class CompareWithRevisionAction extends WorkspaceAction {
+public class CompareWithRevisionAction extends WorkbenchWindowAction {
 	
 	/**
 	 * Returns the selected remote file
