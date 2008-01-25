@@ -21,6 +21,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 public class RevertOperation extends RepositoryProviderOperation {
 	private boolean recurse = false;
 	private IResource[] resourcesToRevert;
+	private boolean canRunAsJob = true;
 
     public RevertOperation(IWorkbenchPart part, IResource[] resources) {
         super(part, resources);
@@ -66,4 +67,13 @@ public class RevertOperation extends RepositoryProviderOperation {
 	public void setResourcesToRevert(IResource[] resourcesToRevert) {
 		this.resourcesToRevert = resourcesToRevert;
 	}
+
+	protected boolean canRunAsJob() {
+		return canRunAsJob;
+	}
+
+	public void setCanRunAsJob(boolean canRunAsJob) {
+		this.canRunAsJob = canRunAsJob;
+	}
+	
 }

@@ -48,6 +48,7 @@ public class RevertAction extends WorkbenchWindowAction {
 	private HashMap statusMap;
 	private SvnWizardRevertPage revertPage;
 	private IResource[] selectedResources;
+	private boolean canRunAsJob = true;
     
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
 		statusMap = new HashMap();
@@ -63,6 +64,7 @@ public class RevertAction extends WorkbenchWindowAction {
             } else {
             	revertOperation = new RevertOperation(getTargetPart(), resourcesToRevert);
             }
+            revertOperation.setCanRunAsJob(canRunAsJob);
             revertOperation.run();
         } catch (SVNException e) {
             throw new InvocationTargetException(e);
@@ -182,6 +184,10 @@ public class RevertAction extends WorkbenchWindowAction {
 
 	public void setSelectedResources(IResource[] selectedResources) {
 		this.selectedResources = selectedResources;
+	}
+
+	public void setCanRunAsJob(boolean canRunAsJob) {
+		this.canRunAsJob = canRunAsJob;
 	}
 	
 }
