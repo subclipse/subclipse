@@ -64,6 +64,7 @@ public class CommitAction extends WorkbenchWindowAction {
     protected boolean keepLocks;
     protected IResource[] selectedResources;
     private String proposedComment;
+    private boolean canRunAsJob = true;
 //    private boolean sharing;
     
     private HashMap statusMap;
@@ -128,10 +129,12 @@ public class CommitAction extends WorkbenchWindowAction {
         			return; // user canceled
         		}
         		
-        		new CommitOperation(getTargetPart(), resources, 
+        		CommitOperation commitOperation = new CommitOperation(getTargetPart(), resources, 
         				(IResource[]) resourcesToBeAdded.toArray(new IResource[resourcesToBeAdded.size()]),
         				(IResource[]) resourcesToBeDeleted.toArray(new IResource[resourcesToBeDeleted.size()]),
-        				resourcesToCommit, commitComment, keepLocks).run();
+        				resourcesToCommit, commitComment, keepLocks);
+        		commitOperation.setCanRunAsJob(canRunAsJob);       		
+        		commitOperation.run();
             }
 	}
 	
@@ -404,6 +407,10 @@ public class CommitAction extends WorkbenchWindowAction {
 	protected String getImageId()
 	{
 		return ISVNUIConstants.IMG_MENU_COMMIT;
+	}
+
+	public void setCanRunAsJob(boolean canRunAsJob) {
+		this.canRunAsJob = canRunAsJob;
 	}
     
 }

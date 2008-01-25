@@ -28,6 +28,9 @@ import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardUpdatePage;
  * resolve the conflicts. 
  */
 public class UpdateAction extends WorkbenchWindowAction {
+	private IResource[] selectedResources;
+	private boolean canRunAsJob = true;
+	
 	/*
 	 * @see IActionDelegate#run(IAction)
 	 */
@@ -47,9 +50,15 @@ public class UpdateAction extends WorkbenchWindowAction {
 		    	updateOperation.setSetDepth(updatePage.isSetDepth());
 		    	updateOperation.setForce(updatePage.isForce());
 		    	updateOperation.setIgnoreExternals(updatePage.isIgnoreExternals());
+		    	updateOperation.setCanRunAsJob(canRunAsJob);
 	        	updateOperation.run();
 	        }
         } 		
+	}
+
+	protected IResource[] getSelectedResources() {
+		if (selectedResources == null) return super.getSelectedResources();
+		else return selectedResources;
 	}
 
 	/**
@@ -69,6 +78,14 @@ public class UpdateAction extends WorkbenchWindowAction {
 	protected String getImageId()
 	{
 		return ISVNUIConstants.IMG_MENU_UPDATE;
+	}
+
+	public void setCanRunAsJob(boolean canRunAsJob) {
+		this.canRunAsJob = canRunAsJob;
+	}
+
+	public void setSelectedResources(IResource[] selectedResources) {
+		this.selectedResources = selectedResources;
 	}
 	
 }

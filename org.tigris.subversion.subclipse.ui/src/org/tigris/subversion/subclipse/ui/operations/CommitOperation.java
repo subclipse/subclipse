@@ -50,6 +50,7 @@ public class CommitOperation extends SVNOperation {
     private ISVNClientAdapter svnClient;
     private ISynchronizePageConfiguration configuration;
     private boolean useJavaHLHack = true;
+    private boolean canRunAsJob = true;
 
     public CommitOperation(IWorkbenchPart part, IResource[] selectedResources, IResource[] resourcesToAdd, IResource[] resourcesToDelete, IResource[] resourcesToCommit, String commitComment, boolean keepLocks) {
         super(part);
@@ -344,6 +345,10 @@ public class CommitOperation extends SVNOperation {
 		this.configuration = configuration;
 	}
 
+	protected boolean canRunAsJob() {
+		return canRunAsJob;
+	}
+
 	private IResource[] reduceRoots(IResource[] roots) {
 		List rootArray = new ArrayList();
 		for (int i = 0; i < roots.length; i++) {
@@ -455,6 +460,10 @@ public class CommitOperation extends SVNOperation {
 			return this.getKey().equals(other.getKey());
 		}
 		
+	}
+
+	public void setCanRunAsJob(boolean canRunAsJob) {
+		this.canRunAsJob = canRunAsJob;
 	}
 	
 }

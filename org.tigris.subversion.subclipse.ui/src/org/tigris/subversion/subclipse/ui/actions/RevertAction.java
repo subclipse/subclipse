@@ -47,6 +47,7 @@ public class RevertAction extends WorkbenchWindowAction {
 	private IResource[] resourcesToRevert;
 	private HashMap statusMap;
 	private SvnWizardRevertPage revertPage;
+	private IResource[] selectedResources;
     
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
 		statusMap = new HashMap();
@@ -172,6 +173,15 @@ public class RevertAction extends WorkbenchWindowAction {
 	protected String getImageId()
 	{
 		return ISVNUIConstants.IMG_MENU_REVERT;
+	}
+
+	protected IResource[] getSelectedResources() {
+		if (selectedResources == null) return super.getSelectedResources();
+		else return selectedResources;
+	}
+
+	public void setSelectedResources(IResource[] selectedResources) {
+		this.selectedResources = selectedResources;
 	}
 	
 }

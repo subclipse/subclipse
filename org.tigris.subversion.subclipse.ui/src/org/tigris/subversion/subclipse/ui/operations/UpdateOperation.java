@@ -31,6 +31,7 @@ public class UpdateOperation extends RepositoryProviderOperation {
     private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true;
+    private boolean canRunAsJob = true;
 
     public UpdateOperation(IWorkbenchPart part, IResource resource, SVNRevision revision) {
         super(part, new IResource[] {resource});
@@ -94,6 +95,14 @@ public class UpdateOperation extends RepositoryProviderOperation {
 
 	public void setForce(boolean force) {
 		this.force = force;
+	}
+
+	public void setCanRunAsJob(boolean canRunAsJob) {
+		this.canRunAsJob = canRunAsJob;
+	}
+
+	protected boolean canRunAsJob() {
+		return canRunAsJob;
 	}
 
 }
