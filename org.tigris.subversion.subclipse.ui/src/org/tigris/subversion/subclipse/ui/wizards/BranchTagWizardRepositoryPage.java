@@ -318,7 +318,8 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 		
 		public String getText(Object element) {
 			BranchResource branchResource = (BranchResource)element;
-			return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + branchResource.getPartialPath() + "]";
+			if (multipleSelections()) return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + branchResource.getPartialPath() + "]";
+			else return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
 		}
 
 		public Image getColumnImage(Object element, int columnIndex) {
