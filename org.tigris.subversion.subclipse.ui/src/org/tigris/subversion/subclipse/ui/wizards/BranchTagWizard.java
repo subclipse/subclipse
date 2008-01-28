@@ -3,7 +3,11 @@ package org.tigris.subversion.subclipse.ui.wizards;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagPropertyUpdateDialog;
@@ -28,6 +32,7 @@ public class BranchTagWizard extends Wizard {
     private Alias newAlias;
     private long revisionNumber = 0;
     private String comment;
+    private boolean alreadyExists;
 
 	public BranchTagWizard(IResource[] resources) {
 		super();
@@ -82,6 +87,26 @@ public class BranchTagWizard extends Wizard {
         } catch (Exception e) {
             MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage()); //$NON-NLS-1$
             return false;
+        }
+        if (!multipleSelections()) {
+        	BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+				public void run() {
+					ISVNInfo svnInfo = null;
+					SVNUrl[] sourceUrls = getUrls();
+					try {
+						SVNProviderPlugin.disableConsoleLogging();
+						ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrls[0].toString());
+						ISVNClientAdapter svnClient = repository.getSVNClient();
+						svnInfo = svnClient.getInfo(toUrl);
+					} catch (Exception e) {}
+					finally { SVNProviderPlugin.enableConsoleLogging(); }
+					alreadyExists = svnInfo != null;
+				}     		
+        	});
+        	if (alreadyExists) {
+                MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), Policy.bind("BranchTagDialog.alreadyExists", toUrl.toString())); //$NON-NLS-1$ //$NON-NLS-2$
+                return false;        		
+        	}
         }
         if (resources != null) updateTagsProperty(toUrl);		
 		return true;

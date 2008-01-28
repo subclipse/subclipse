@@ -60,7 +60,8 @@ public class BranchTagCommand implements ISVNCommand {
             		files[i] = resources[i].getLocation().toFile();
 //                File file = resource.getLocation().toFile();
 //                svnClient.copy(file, destinationUrl, message);
-            	svnClient.copy(files, destinationUrl, message, makeParents);
+            	boolean copyAsChild = files.length > 1;
+            	svnClient.copy(files, destinationUrl, message, copyAsChild, makeParents);
             }
             monitor.worked(100);
         } catch (SVNClientException e) {
