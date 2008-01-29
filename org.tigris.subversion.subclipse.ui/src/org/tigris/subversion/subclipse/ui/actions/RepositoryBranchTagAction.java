@@ -50,7 +50,8 @@ public class RepositoryBranchTagAction extends SVNAction {
 							client = repository.getSVNClient();
 						if (client == null)
 							client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-						client.copy(sourceUrls, destinationUrl, message, revision, makeParents);
+						boolean copyAsChild = sourceUrls.length > 1;
+						client.copy(sourceUrls, destinationUrl, message, revision, copyAsChild, makeParents);
 					} catch (Exception e) {
 						MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
 					}
