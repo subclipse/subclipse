@@ -32,7 +32,8 @@ public class SwitchOperation extends RepositoryProviderOperation {
     private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
     private boolean setDepth = false;
     private boolean ignoreExternals = false;
-    private boolean force = true;    
+    private boolean force = true; 
+    private boolean canRunAsJob = true;
     
     public SwitchOperation(IWorkbenchPart part, IResource[] resources, SVNUrl[] svnUrls, SVNRevision svnRevision) {
         super(part, resources);
@@ -73,6 +74,10 @@ public class SwitchOperation extends RepositoryProviderOperation {
 		}
     }
     
+	protected boolean canRunAsJob() {
+		return canRunAsJob;
+	}
+
 	public void setDepth(int depth) {
 		this.depth = depth;
 	}
@@ -87,6 +92,10 @@ public class SwitchOperation extends RepositoryProviderOperation {
 
 	public void setForce(boolean force) {
 		this.force = force;
+	}
+
+	public void setCanRunAsJob(boolean canRunAsJob) {
+		this.canRunAsJob = canRunAsJob;
 	} 
 
 }

@@ -30,6 +30,8 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * Action to switch to branch/tag 
  */
 public class SwitchAction extends WorkbenchWindowAction {
+	private IResource[] selectedResources;
+	private boolean canRunAsJob = true;
 
     protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
         if (action != null && !action.isEnabled()) { 
@@ -57,6 +59,7 @@ public class SwitchAction extends WorkbenchWindowAction {
 	            switchOperation.setSetDepth(switchPage.isSetDepth());
 	            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
 	            switchOperation.setForce(switchPage.isForce());
+	            switchOperation.setCanRunAsJob(canRunAsJob);
 	            switchOperation.run();	        
 	        }
         }
@@ -68,6 +71,11 @@ public class SwitchAction extends WorkbenchWindowAction {
 	 */
 	protected String getErrorTitle() {
 		return Policy.bind("SwitchAction.switch"); //$NON-NLS-1$
+	}
+
+	protected IResource[] getSelectedResources() {
+		if (selectedResources != null) return selectedResources;
+		else return super.getSelectedResources();
 	}
 
 	/*
@@ -108,6 +116,14 @@ public class SwitchAction extends WorkbenchWindowAction {
 	protected String getImageId()
 	{
 		return ISVNUIConstants.IMG_MENU_SWITCH;
+	}
+
+	public void setSelectedResources(IResource[] selectedResources) {
+		this.selectedResources = selectedResources;
+	}
+
+	public void setCanRunAsJob(boolean canRunAsJob) {
+		this.canRunAsJob = canRunAsJob;
 	}
 
 }
