@@ -198,7 +198,7 @@ public class MergeDialog extends SvnDialog {
 		toUrlCombo.getCombo().setVisible(false);
 		
 		toBrowseButton = new Button(toGroup, SWT.PUSH);
-		toBrowseButton.setText(Policy.bind("MergeDialogDialog.browseTo")); //$NON-NLS-1$
+		toBrowseButton.setText(Policy.bind("MergeDialog.browseTo")); //$NON-NLS-1$
 		toBrowseButton.setVisible(false);
 		
 		Composite toRevisionComposite = new Composite(toGroup, SWT.NULL);

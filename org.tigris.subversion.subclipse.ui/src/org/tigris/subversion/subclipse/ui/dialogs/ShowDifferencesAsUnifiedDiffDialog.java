@@ -94,7 +94,7 @@ public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
 		fileText.setLayoutData(data);
 		
 		Button browseButton = new Button(fileGroup, SWT.PUSH);
-		browseButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.browse")); //$NON-NLS-1$
+		browseButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.fileBrowse")); //$NON-NLS-1$
 		browseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
