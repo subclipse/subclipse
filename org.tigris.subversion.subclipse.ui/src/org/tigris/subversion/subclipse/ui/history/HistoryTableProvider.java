@@ -239,19 +239,23 @@ public class HistoryTableProvider {
 				case COL_REVISION: /* revision */
                     return (e1.getRevision().getNumber()<e2.getRevision().getNumber() ? -1 : (e1.getRevision()==e2.getRevision() ? 0 : 1));
 				case COL_MERGED_REVISIONS: /* merged revisions */
-					return getCollator().compare(e1.getMergedRevisionsAsString(), e2.getMergedRevisionsAsString());
+					return e1.getMergedRevisionsAsString().compareTo(e2.getMergedRevisionsAsString());
+//					return getCollator().compare(e1.getMergedRevisionsAsString(), e2.getMergedRevisionsAsString());
 				case COL_TAGS: /* tags */
 					String tags1 = AliasManager.getAliasesAsString(e1.getTags());
 					String tags2 = AliasManager.getAliasesAsString(e2.getTags());
-					return getCollator().compare(tags1, tags2);
+					return tags1.compareTo(tags2);
+//					return getCollator().compare(tags1, tags2);
 				case COL_DATE: /* date */
 					Date date1 = e1.getDate();
 					Date date2 = e2.getDate();
 					return date1.compareTo(date2);
 				case COL_AUTHOR: /* author */
-					return getCollator().compare(e1.getAuthor(), e2.getAuthor());
+					return e1.getAuthor().compareTo(e2.getAuthor());
+//					return getCollator().compare(e1.getAuthor(), e2.getAuthor());
 				case COL_COMMENT: /* comment */
-					return getCollator().compare(e1.getComment(), e2.getComment());
+					return e1.getComment().compareTo(e2.getComment());
+//					return getCollator().compare(e1.getComment(), e2.getComment());
 				case COL_BUGS: /* comment */
 					if( projectProperties != null ) {
 						return getBugstringFromComment(e1.getComment()).compareTo(getBugstringFromComment(e2.getComment()));
