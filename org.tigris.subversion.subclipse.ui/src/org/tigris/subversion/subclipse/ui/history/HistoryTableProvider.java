@@ -333,6 +333,7 @@ public class HistoryTableProvider {
 		sorter.setReversed(true);
 		viewer.setSorter(sorter);
 		table.setSortDirection(SWT.DOWN);
+		table.setSortColumn(table.getColumn(0));
 
         table.addDisposeListener(new DisposeListener() {
             public void widgetDisposed(DisposeEvent e) {
@@ -426,7 +427,7 @@ public class HistoryTableProvider {
 		else layout.addColumnData(new ColumnPixelData(Integer.parseInt(columnWidth), true));
 		if (id != null) col.addDisposeListener(disposeListener);
 	}
-	
+
 	/**
 	 * Adds the listener that sets the sorter.
 	 */
@@ -460,15 +461,17 @@ public class HistoryTableProvider {
 				HistorySorter oldSorter = (HistorySorter)tableViewer.getSorter();
 				if (oldSorter != null && column == oldSorter.getColumnNumber()) {
 					oldSorter.setReversed(!oldSorter.isReversed());
+					if (oldSorter.isReversed()) tableViewer.getTable().setSortDirection(SWT.DOWN);
+					else tableViewer.getTable().setSortDirection(SWT.UP);	
 					tableViewer.refresh();
 				} else {
-					tableViewer.setSorter(new HistorySorter(column));
+					HistorySorter newSorter = new HistorySorter(column);
+					if (column == 0) newSorter.setReversed(true);
+					tableViewer.setSorter(newSorter);
+					if (column == 0)tableViewer.getTable().setSortDirection(SWT.DOWN);
+					else tableViewer.getTable().setSortDirection(SWT.UP);
 				}
 				tableViewer.getTable().setSortColumn((TableColumn)e.widget);
-				if (tableViewer.getTable().getSortDirection() == SWT.UP)
-					tableViewer.getTable().setSortDirection(SWT.DOWN);
-				else
-					tableViewer.getTable().setSortDirection(SWT.UP);
 				
 				items = tableViewer.getTable().getItems();
 				for (int i = 0; i < items.length; i++) {
