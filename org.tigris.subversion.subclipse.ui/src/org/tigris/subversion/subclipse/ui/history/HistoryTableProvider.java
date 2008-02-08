@@ -16,7 +16,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -43,6 +45,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -64,17 +67,21 @@ public class HistoryTableProvider {
 	private boolean includeBugs = false;
 	
 	private int style;
+	
+	private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
+	private String id;
 		
 	/**
 	 * Constructor for HistoryTableProvider.
 	 */
 	public HistoryTableProvider() {
-		this(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
+		this(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION, null);
 	}
 	
-	public HistoryTableProvider(int style) {
+	public HistoryTableProvider(int style, String id) {
 		super();
 		this.style = style;
+		this.id = id;
 	}
 
 	ProjectProperties projectProperties = null;
@@ -343,13 +350,20 @@ public class HistoryTableProvider {
 	 * Creates the columns for the history table.
 	 */
 	private void createColumns(Table table, TableLayout layout, TableViewer viewer) {
+		DisposeListener disposeListener = new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				TableColumn col = (TableColumn)e.getSource();
+				if (col.getWidth() > 0) settings.put("HistoryTableProvider." + id + "." + col.getText(), col.getWidth()); //$NON-NLS-1$ //$NON-NLS-1$
+			}			
+		};
+		
 		SelectionListener headerListener = getColumnListener(viewer);
 		// revision
 		TableColumn col = new TableColumn(table, SWT.NONE);
 		col.setResizable(true);
 		col.setText(Policy.bind("HistoryView.revision")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
-		layout.addColumnData(new ColumnWeightData(10, true));
+		setColumnWidth(layout, disposeListener, col, 10);
 		table.setSortColumn(col);
 
 		// merged revisions
@@ -358,7 +372,7 @@ public class HistoryTableProvider {
 			col.setResizable(true);
 			col.setText(Policy.bind("HistoryView.mergedRevisions")); //$NON-NLS-1$
 			col.addSelectionListener(headerListener);
-			layout.addColumnData(new ColumnWeightData(30, true));
+			setColumnWidth(layout, disposeListener, col, 30);
 		}
 		
 		// tags
@@ -367,7 +381,7 @@ public class HistoryTableProvider {
 			col.setResizable(true);
 			col.setText(Policy.bind("HistoryView.tags")); //$NON-NLS-1$
 			col.addSelectionListener(headerListener);
-			layout.addColumnData(new ColumnWeightData(30, true));
+			setColumnWidth(layout, disposeListener, col, 30);
 		}
 	
 		// creation date
@@ -375,21 +389,21 @@ public class HistoryTableProvider {
 		col.setResizable(true);
 		col.setText(Policy.bind("HistoryView.date")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
-		layout.addColumnData(new ColumnWeightData(25, true));
+		setColumnWidth(layout, disposeListener, col, 25);
 	
 		// author
 		col = new TableColumn(table, SWT.NONE);
 		col.setResizable(true);
 		col.setText(Policy.bind("HistoryView.author")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
-		layout.addColumnData(new ColumnWeightData(20, true));
+		setColumnWidth(layout, disposeListener, col, 20);
 	
 		//comment
 		col = new TableColumn(table, SWT.NONE);
 		col.setResizable(true);
 		col.setText(Policy.bind("HistoryView.comment")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
-		layout.addColumnData(new ColumnWeightData(50, true));
+		setColumnWidth(layout, disposeListener, col, 50);
 		
 		//bugs
 		col = new TableColumn(table, SWT.NONE);
@@ -397,11 +411,20 @@ public class HistoryTableProvider {
 		col.setText(Policy.bind("HistoryView.bugs")); //$NON-NLS-1$
 		col.addSelectionListener(headerListener);
 		if (includeBugs) {
-			layout.addColumnData(new ColumnWeightData(10, true));
+			setColumnWidth(layout, disposeListener, col, 10);
 		} else {
 			col.setWidth(0);
 			layout.addColumnData(new ColumnWeightData(0, false));
 		}
+	}
+
+	private void setColumnWidth(TableLayout layout,
+			DisposeListener disposeListener, TableColumn col, int defaultWidth) {
+		String columnWidth = null;
+		if (id != null) columnWidth = settings.get("HistoryTableProvider." + id + "." + col.getText()); //$NON-NLS-1$ //$NON-NLS-1$
+		if (columnWidth == null || columnWidth.equals("0")) layout.addColumnData(new ColumnWeightData(defaultWidth, true)); //$NON-NLS-1$
+		else layout.addColumnData(new ColumnPixelData(Integer.parseInt(columnWidth), true));
+		if (id != null) col.addDisposeListener(disposeListener);
 	}
 	
 	/**

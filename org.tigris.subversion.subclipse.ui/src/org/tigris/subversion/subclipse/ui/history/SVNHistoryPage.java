@@ -490,7 +490,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		}
 		redraw = true;
 	}
-    this.historyTableProvider = new HistoryTableProvider();
+    this.historyTableProvider = new HistoryTableProvider(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION, "SVNHistoryPage"); //$NON-NLS-1$
     this.historyTableProvider.setProjectProperties( this.projectProperties );
     historyTableProvider.setIncludeMergeRevisions(store.getBoolean(ISVNUIConstants.PREF_INCLUDE_MERGED_REVISIONS));
     historyTableProvider.setIncludeTags(includeTags);
