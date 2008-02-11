@@ -458,20 +458,7 @@ public class HistoryTableProvider {
 				
 				// column selected - need to sort
 				int column = tableViewer.getTable().indexOf((TableColumn) e.widget);
-				HistorySorter oldSorter = (HistorySorter)tableViewer.getSorter();
-				if (oldSorter != null && column == oldSorter.getColumnNumber()) {
-					oldSorter.setReversed(!oldSorter.isReversed());
-					if (oldSorter.isReversed()) tableViewer.getTable().setSortDirection(SWT.DOWN);
-					else tableViewer.getTable().setSortDirection(SWT.UP);	
-					tableViewer.refresh();
-				} else {
-					HistorySorter newSorter = new HistorySorter(column);
-					if (column == 0) newSorter.setReversed(true);
-					tableViewer.setSorter(newSorter);
-					if (column == 0)tableViewer.getTable().setSortDirection(SWT.DOWN);
-					else tableViewer.getTable().setSortDirection(SWT.UP);
-				}
-				tableViewer.getTable().setSortColumn((TableColumn)e.widget);
+				setSortColumn(tableViewer, column);
 				
 				items = tableViewer.getTable().getItems();
 				for (int i = 0; i < items.length; i++) {
@@ -530,6 +517,24 @@ public class HistoryTableProvider {
 
 	public void setProjectProperties(ProjectProperties projectProperties) {
 		this.projectProperties = projectProperties;
+	}
+
+	public void setSortColumn(final TableViewer tableViewer, int column) {
+		HistorySorter oldSorter = (HistorySorter)tableViewer.getSorter();
+		if (oldSorter != null && column == oldSorter.getColumnNumber()) {
+			oldSorter.setReversed(!oldSorter.isReversed());
+			if (oldSorter.isReversed()) tableViewer.getTable().setSortDirection(SWT.DOWN);
+			else tableViewer.getTable().setSortDirection(SWT.UP);	
+			tableViewer.refresh();
+		} else {
+			HistorySorter newSorter = new HistorySorter(column);
+			if (column == 0) newSorter.setReversed(true);
+			tableViewer.setSorter(newSorter);
+			if (column == 0)tableViewer.getTable().setSortDirection(SWT.DOWN);
+			else tableViewer.getTable().setSortDirection(SWT.UP);
+		}
+//				tableViewer.getTable().setSortColumn((TableColumn)e.widget);
+		tableViewer.getTable().setSortColumn(tableViewer.getTable().getColumn(column));
 	}
 
 }

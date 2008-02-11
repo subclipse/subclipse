@@ -206,6 +206,11 @@ public class SVNCompareRevisionsInput extends CompareEditorInput implements ISav
 	public Control createContents(Composite parent) {
 		Control c = super.createContents(parent);
 		c.setLayoutData(new GridData(GridData.FILL_BOTH));
+		
+		// This is a hack to get around a problem with initial sorting in OSx.
+		historyTableProvider.setSortColumn(viewer, 0);
+		historyTableProvider.setSortColumn(viewer, 0);
+		
 		return c;
 	}
 

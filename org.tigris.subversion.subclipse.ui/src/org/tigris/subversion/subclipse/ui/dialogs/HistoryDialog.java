@@ -226,6 +226,10 @@ public class HistoryDialog extends TrayDialog {
 			sashForm.setWeights(weights);
 		} catch (Exception e) {}
 		
+		// This is a hack to get around a problem with the initial sorting on OSx
+		historyTableProvider.setSortColumn(tableHistoryViewer, 0);
+		historyTableProvider.setSortColumn(tableHistoryViewer, 0);
+		
 		// set F1 help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.HISTORY_DIALOG);	
 
