@@ -2418,14 +2418,14 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                 ISelection selection = tableHistoryViewer.getSelection();
                 tableHistoryViewer.refresh();
                 tableHistoryViewer.setSelection(selection);
-                if(entries.length > 0) {
-                  lastEntry = entries[ entries.length - 1];
-                  long lastEntryNumber = lastEntry.getRevision().getNumber();
-                  revisionStart = new SVNRevision.Number(lastEntryNumber - 1);
-                }
               }
             }
           });
+          if(entries.length > 0) {
+              lastEntry = entries[ entries.length - 1];
+              long lastEntryNumber = lastEntry.getRevision().getNumber();
+              revisionStart = new SVNRevision.Number(lastEntryNumber - 1);
+          }
         }
         return Status.OK_STATUS;
       } catch(TeamException e) {
