@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.core.sync;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +53,7 @@ import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener {
 
 	private static SVNWorkspaceSubscriber instance; 
+	private HashMap changesMap = new HashMap();
 	
 	/** We need to store unchanged parents in remoteSyncStateStore.
 	 * To distinguish them from real changed resources we store this dummy data instead for them */
@@ -226,9 +228,11 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 //			monitor.worked(300);
 
 			monitor.setTaskName(Policy.bind("SVNWorkspaceSubscriber.retrievingSynchronizationData"));
+			IResource[] lastChangedResources = (IResource[])changesMap.get(resource);
 			IResource[] changedResources = findChanges(resource, depth, Policy.infiniteSubMonitorFor(monitor, 400));
-
+			changesMap.put(resource, changedResources);
 			fireTeamResourceChange(SubscriberChangeEvent.asSyncChangedDeltas(this, changedResources));
+			if (lastChangedResources != null && lastChangedResources.length > 0) fireTeamResourceChange(SubscriberChangeEvent.asSyncChangedDeltas(this, lastChangedResources));
 			monitor.worked(400);
 			return Status.OK_STATUS;
 		} catch (TeamException e) {
