@@ -9,10 +9,10 @@
    <feature url="features/org.tigris.subversion.clientadapter.feature_1.3.4.jar" id="org.tigris.subversion.clientadapter.feature" version="1.3.4">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.3.6.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.3.6">
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.3.7.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.3.7">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse_1.3.9.jar" id="org.tigris.subversion.subclipse" version="1.3.9">
+   <feature url="features/org.tigris.subversion.subclipse_1.3.10.jar" id="org.tigris.subversion.subclipse" version="1.3.10">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse Plugin">
