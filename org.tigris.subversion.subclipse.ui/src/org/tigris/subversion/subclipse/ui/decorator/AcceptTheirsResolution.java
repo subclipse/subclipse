@@ -37,7 +37,7 @@ public class AcceptTheirsResolution implements IMarkerResolution {
      */
     public void run(IMarker marker) {
 		try {
-            new ResolveOperation(null, new IResource[] {marker.getResource()}, ISVNConflictResolver.Choice.chooseTheirs).run(new NullProgressMonitor());
+            new ResolveOperation(null, new IResource[] {marker.getResource()}, ISVNConflictResolver.Choice.chooseTheirsFull).run(new NullProgressMonitor());
         } catch (InvocationTargetException e) {
 			if (e.getTargetException() instanceof SVNException) {
 				SVNUIPlugin.log((SVNException)e.getTargetException());
