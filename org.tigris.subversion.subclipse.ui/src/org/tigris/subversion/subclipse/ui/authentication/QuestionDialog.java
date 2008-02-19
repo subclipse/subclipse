@@ -27,7 +27,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 public class QuestionDialog extends TrayDialog {
     private String realm;
     private String question;
-//  private boolean showAnswer;
+    private boolean showAnswer;
     private boolean maySave;
     private Text answerText;
     private String answer;
@@ -41,7 +41,7 @@ public class QuestionDialog extends TrayDialog {
         super(parentShell);
         this.realm = realm;
         this.question = question;
-//      this.showAnswer = showAnswer;
+        this.showAnswer = showAnswer;
         this.maySave = maySave;
     }
     
@@ -71,10 +71,7 @@ public class QuestionDialog extends TrayDialog {
 		gd.widthHint = WIDTH;
 		answerText.setLayoutData(gd);
 
-//		if (!showAnswer) answerText.setEchoChar('*'); //$NON-NLS-1$
-		
-		// We know we don't want to show the pass phrase.
-		answerText.setEchoChar('*'); //$NON-NLS-1$
+		if (!showAnswer) answerText.setEchoChar('*'); //$NON-NLS-1$
 		
 		if (maySave) {
 		    saveButton = new Button(rtnGroup, SWT.CHECK);
