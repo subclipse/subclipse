@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.tigris.subversion.subclipse.test
-Bundle-SymbolicName: org.tigris.subversion.subclipse.test
+Bundle-SymbolicName: org.tigris.subversion.subclipse.test;singleton:=true
 Bundle-Version: 0.9.5
 Bundle-ClassPath: test.jar
 Bundle-Localization: plugin
