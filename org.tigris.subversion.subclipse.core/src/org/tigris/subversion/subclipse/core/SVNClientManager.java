@@ -12,6 +12,8 @@ package org.tigris.subversion.subclipse.core;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,7 +27,8 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  * @author Cedric Chabanois (cchab at tigris.org) 
  */
 public class SVNClientManager {
-    private String svnClientInterface;  
+    private String svnClientInterface;
+    private String svnAdminDir = ".svn";
     private File configDir = null;
     private boolean fetchChangePathOnDemand = true;
     private HashMap clients = new HashMap();
@@ -43,15 +46,7 @@ public class SVNClientManager {
      * @param svnClientInterface
      */
     public void setSvnClientInterface(String svnClientInterface) {
-
     	this.svnClientInterface = svnClientInterface;
-    	
-        // Initialize the admin directory name -- fixes a crash scenario with JavaHL
-        // Since the method being called internally caches the result it
-        // avoids a race condition later on, when someone runs an action like
-        // checkout that forces us to call this method for the first time
-        // in the middle of another action.  That is the theory anyway.
-        SVNProviderPlugin.getPlugin().getAdminDirectoryName();
     }
 
     /**
@@ -62,11 +57,29 @@ public class SVNClientManager {
         return svnClientInterface;
     }    
     
+    public String getSvnAdminDirectory() {
+    	return svnAdminDir;
+    }
+    
 	/**
 	 * @param configDir The configDir to set.
 	 */
 	public void setConfigDir(File configDir) {
 		this.configDir = configDir;
+//		if (configDir == null) return;
+		// Update configDir in stored clients
+		Set keys = clients.keySet();
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+	    	ISVNClientAdapter svnClient = (ISVNClientAdapter) clients.get(key);
+	    	if (svnClient != null) {
+	    		try {
+					svnClient.setConfigDirectory(configDir);
+				} catch (SVNClientException e) {
+					break;
+				}
+	    	}
+		}
 	}
     
     /**
@@ -80,7 +93,13 @@ public class SVNClientManager {
     	}
     	if (svnClient == null)
     		throw new SVNException("No client adapters available.");
-    	if (configDir != null) {
+    	return svnClient;
+    }
+
+
+	private void setupClientAdapter(ISVNClientAdapter svnClient)
+			throws SVNException {
+		if (configDir != null) {
     		try {
 				svnClient.setConfigDirectory(configDir);
 			} catch (SVNClientException e) {
@@ -89,10 +108,10 @@ public class SVNClientManager {
     	} 
     	if (SVNProviderPlugin.getPlugin().getSvnPromptUserPassword() != null)
     	    svnClient.addPasswordCallback(SVNProviderPlugin.getPlugin().getSvnPromptUserPassword());
-    	return svnClient;
-    }
+    	svnAdminDir = svnClient.getAdminDirectoryName();
+	}
     
-    private ISVNClientAdapter getAdapter(String key) {
+    private ISVNClientAdapter getAdapter(String key) throws SVNException {
     	ISVNClientAdapter client = null;
     	if (key == null) {
     		key = "default";
@@ -103,6 +122,7 @@ public class SVNClientManager {
     	   		client = Activator.getDefault().getAnyClientAdapter();
     		else
     			client = Activator.getDefault().getClientAdapter(svnClientInterface);
+    		setupClientAdapter(client);
     		clients.put(key, client);
     	}
     	return client;

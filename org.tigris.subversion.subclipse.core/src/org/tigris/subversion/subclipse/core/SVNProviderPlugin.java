@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.core;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
@@ -96,8 +95,6 @@ public class SVNProviderPlugin extends Plugin {
 	
 	private ISVNFileModificationValidatorPrompt svnFileModificationValidatorPrompt;
 	
-	private String dirname;
-    
 	private SVNActiveChangeSetCollector changeSetManager;
 	
 	private static boolean consoleLoggingEnabled = true;
@@ -178,45 +175,7 @@ public class SVNProviderPlugin extends Plugin {
 		// Must load the change set manager on startup since it listens to deltas
 		getChangeSetManager();
 		
-		cleanProjects();
 	}
-
-	private void cleanProjects() {
-		String adminFolderName = SVNProviderPlugin.getPlugin().getAdminDirectoryName();
-		List locations = new ArrayList();
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i = 0; i < projects.length; i++) {
-			if(SVNWorkspaceRoot.isManagedBySubclipse(projects[i])) {
-				IContainer parent = projects[i].getParent();
-				if (!locations.contains(parent)) locations.add(parent);
-			}
-		}
-		Iterator iter = locations.iterator();
-		while(iter.hasNext()) {
-			IContainer location = (IContainer)iter.next();
-			File adminFolder = new File(location.getLocation().toString() + System.getProperty("file.separator") + adminFolderName); //$NON-NLS-1$
-			if (adminFolder.exists() && adminFolder.isDirectory()) {
-				File textBase = new File(adminFolder, "text-base"); //$NON-NLS-1$
-				if (!textBase.exists() || !textBase.isDirectory()) deleteFolder(adminFolder);
-			}
-		}
-	}
-	
-    // Deletes all files and subdirectories under dir.
-    // Returns true if all delete was successful.
-    private boolean deleteFolder(File folder) {
-        if (folder.isDirectory()) {
-            String[] children = folder.list();
-            for (int i=0; i< children.length; i++) {
-                if (!deleteFolder(new File(folder, children[i]))) {
-                    return false;
-                }
-            }
-        }
-    
-        // The folder should be empty so delete it
-        return folder.delete();
-    }	
 
 
 	/**
@@ -577,17 +536,7 @@ public class SVNProviderPlugin extends Plugin {
     }
     
     public String getAdminDirectoryName() {
-    	if (dirname == null) {
-    		try {
-    			ISVNClientAdapter client = createSVNClient();
-    			if (client == null)
-    				return ".svn";
-				dirname = client.getAdminDirectoryName();
-			} catch (SVNException e) {
-				dirname = ".svn";
-			}
-    	}
-    	return dirname;
+    	return this.getSVNClientManager().getSvnAdminDirectory();
     }
 
     /**

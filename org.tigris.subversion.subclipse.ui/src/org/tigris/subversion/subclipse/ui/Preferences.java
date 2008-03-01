@@ -34,8 +34,8 @@ private IPreferenceStore store;
      * be called during plugin initialization.
      */
     public void initializeFromSettings() {
-        setSvnClientInterface(store.getString(ISVNUIConstants.PREF_SVNINTERFACE));
         setSvnClientConfigDir(store.getString(ISVNUIConstants.PREF_SVNCONFIGDIR));
+        setSvnClientInterface(store.getString(ISVNUIConstants.PREF_SVNINTERFACE));
         setSvnChangePathOnDemand(store.getBoolean(ISVNUIConstants.PREF_FETCH_CHANGE_PATH_ON_DEMAND));
     }
 
