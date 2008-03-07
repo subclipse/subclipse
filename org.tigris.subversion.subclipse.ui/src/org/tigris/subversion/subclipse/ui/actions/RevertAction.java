@@ -95,26 +95,29 @@ public class RevertAction extends WorkbenchWindowAction {
 				   		  !SVNStatusUtils.isManaged(statuses[j])) {
 				         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
 				         if (currentResource != null) {
-				        	 if (SVNStatusUtils.isManaged(statuses[j]) || !Util.isSpecialEclipseFile(currentResource)) {
-					             modified.add(currentResource);
-		                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
-		                 		 else {
-		                 			statusMap.put(currentResource, statuses[j].getTextStatus());
-		                 			if (SVNStatusUtils.isTextConflicted(statuses[j])) {
-		                                IFile conflictNewFile = (IFile) File2Resource
-		                                .getResource(statuses[j]
-		                                        .getConflictNew());
-		                                if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
-		                                IFile conflictOldFile = (IFile) File2Resource
-		                                .getResource(statuses[j]
-		                                        .getConflictOld());
-		                                if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
-		                                IFile conflictWorkingFile = (IFile) File2Resource
-		                                .getResource(statuses[j]
-		                                        .getConflictWorking());
-		                                if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                                
-		                 			}
-		                 		 }
+				        	 ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
+				        	 if (!localResource.isIgnored()) {
+					        	 if (SVNStatusUtils.isManaged(statuses[j]) || !Util.isSpecialEclipseFile(currentResource)) {
+						             modified.add(currentResource);
+			                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+			                 		 else {
+			                 			statusMap.put(currentResource, statuses[j].getTextStatus());
+			                 			if (SVNStatusUtils.isTextConflicted(statuses[j])) {
+			                                IFile conflictNewFile = (IFile) File2Resource
+			                                .getResource(statuses[j]
+			                                        .getConflictNew());
+			                                if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
+			                                IFile conflictOldFile = (IFile) File2Resource
+			                                .getResource(statuses[j]
+			                                        .getConflictOld());
+			                                if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
+			                                IFile conflictWorkingFile = (IFile) File2Resource
+			                                .getResource(statuses[j]
+			                                        .getConflictWorking());
+			                                if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                                
+			                 			}
+			                 		 }
+					        	 }
 				        	 }
 				         }
 				     }
