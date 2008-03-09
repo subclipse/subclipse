@@ -118,10 +118,15 @@ public class SVNClientManager {
      	}
     	client = (ISVNClientAdapter) clients.get(key);
     	if (client == null) {
-    		if (key.equals("default"))
-    	   		client = Activator.getDefault().getAnyClientAdapter();
-    		else
+    		if (!key.equals("default"))
     			client = Activator.getDefault().getClientAdapter(svnClientInterface);
+    		
+    		if (client == null)
+    			client = Activator.getDefault().getAnyClientAdapter();
+    		
+    		if (client == null)
+    			throw new SVNException("Unable to load default SVN Client");
+    		
     		setupClientAdapter(client);
     		clients.put(key, client);
     	}
