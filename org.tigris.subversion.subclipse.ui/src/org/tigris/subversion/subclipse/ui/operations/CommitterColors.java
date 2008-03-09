@@ -16,17 +16,26 @@ import java.util.Map;
 import org.eclipse.swt.graphics.RGB;
 
 /**
- * XXX This was copied from internal CVS UI code
- * 
+ * TODO copied from CVS implementation, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=192779
  * Default implementation, assigns random colors to revisions based on committer id.
- * <p>
- * XXX This API is provisional and may change any time during the development of eclipse 3.2.
- * </p>
  * 
  * @since 3.2
  */
 final class CommitterColors {
+	
 	private static CommitterColors fInstance;
+	
+	// Fixed committer color RGBs provided by the UI Designer
+	private static final RGB[] COMMITTER_RGBs= new RGB[] {
+		new RGB(131, 150, 98), new RGB(132, 164, 118), new RGB(221, 205, 93), new RGB(199, 134, 57), new RGB(197, 123, 127),
+		new RGB(133, 166, 214), new RGB(143, 163, 54),  new RGB(180, 148, 74), new RGB(139, 136, 140), new RGB(48, 135, 144),
+		new RGB(190, 93, 66), new RGB(101, 101, 217),  new RGB(23, 101, 160), new RGB(72, 153, 119),
+		
+		new RGB(136, 176, 70), new RGB(123, 187, 95), new RGB(255, 230, 59), new RGB(255, 138, 1), new RGB(233, 88, 98),
+		new RGB(93, 158, 254), new RGB(175, 215, 0),  new RGB(232, 168, 21), new RGB(140, 134, 142), new RGB(0, 172, 191),
+		new RGB(251, 58, 4), new RGB(63, 64, 255),  new RGB(0, 104, 183), new RGB(27, 194, 130)
+	};  
+	
 
 	/**
 	 * Returns the committer color singleton.
@@ -58,26 +67,10 @@ final class CommitterColors {
 	public RGB getCommitterRGB(String committer) {
 		RGB rgb= (RGB) fColors.get(committer);
 		if (rgb == null) {
-			rgb= computeRGB(fCount++);
+			rgb= COMMITTER_RGBs[fCount++ % COMMITTER_RGBs.length];
 			fColors.put(committer, rgb);
 		}
 		return rgb;
 	}
 
-	private RGB computeRGB(int ordinal) {
-		float hue= computeHue(ordinal);
-		RGB rgb= new RGB(hue, 1.0f, 1.0f);
-		return rgb;
-	}
-
-	private float computeHue(int ordinal) {
-		int base= 3;
-		int l= ordinal < base ? 0 : (int) Math.floor(Math.log(ordinal / base) / Math.log(2));
-		int m= ((int) Math.pow(2, l)) * base;
-		int j= ordinal < base ? ordinal : ordinal - m;
-		float offset= ordinal < base ? 0.0f : (float) (180.0f / base / Math.pow(2, l));
-		float delta= ordinal < base ? 120.0f : 2 * offset;
-		float hue= (offset + j * delta) % 360;
-		return hue;
-	}
 }
