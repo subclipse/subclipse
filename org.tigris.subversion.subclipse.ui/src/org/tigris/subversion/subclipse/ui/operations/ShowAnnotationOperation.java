@@ -45,6 +45,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.part.FileEditorInput;
@@ -243,11 +244,19 @@ public class ShowAnnotationOperation extends SVNOperation {
 		  // Have to use reflection for compatibility with Eclipse 3.2 API		
 		  // info.setHoverControlCreator(new AnnotationControlCreator("Press F2 for focus."));
 		  // info.setInformationPresenterControlCreator(new AnnotationControlCreator(null));
+			
+			String tooltipAffordance = "Press F2 for focus.";
+			try {
+				// Will either set an affordance, or null if the tooltip affordance turned is off
+				tooltipAffordance = (String) EditorsUI.class.getMethod("getTooltipAffordanceString", null).invoke(null, null);
+			} catch (Exception e) {
+				//ignore
+			}
 
 		  Class infoClass = info.getClass();
 		  Class[] paramTypes = {IInformationControlCreator.class};
-      Method method1 = infoClass.getMethod("setHoverControlCreator", paramTypes);
-      Method method2 = infoClass.getMethod("setInformationPresenterControlCreator", paramTypes);
+      Method setHoverControlCreator = infoClass.getMethod("setHoverControlCreator", paramTypes);
+      Method setInformationPresenterControlCreator = infoClass.getMethod("setInformationPresenterControlCreator", paramTypes);
   
   		final class AnnotationControlCreator implements IInformationControlCreator {
   		  private final String statusFieldText;
@@ -262,8 +271,8 @@ public class ShowAnnotationOperation extends SVNOperation {
   		  }
   		}
 
-  		method1.invoke(info, new Object[] {new AnnotationControlCreator("Press F2 for focus.")});
-  		method2.invoke(info, new Object[] {new AnnotationControlCreator(null)});
+  		setHoverControlCreator.invoke(info, new Object[] {new AnnotationControlCreator(tooltipAffordance)});
+  		setInformationPresenterControlCreator.invoke(info, new Object[] {new AnnotationControlCreator(null)});
   		
 		} catch (Exception e) {
       // ignore
