@@ -15,14 +15,13 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.operations.RepositoryBranchTagOperation;
 import org.tigris.subversion.subclipse.ui.wizards.BranchTagWizard;
 import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -36,27 +35,23 @@ public class RepositoryBranchTagAction extends SVNAction {
     	BranchTagWizard wizard = new BranchTagWizard(resources);
     	WizardDialog dialog = new ClosableWizardDialog(getShell(), wizard);
     	if (dialog.open() == WizardDialog.OK) {	
-    	  final SVNUrl[] sourceUrls = wizard.getUrls();
-          final SVNUrl destinationUrl = wizard.getToUrl();
-          final String message = wizard.getComment();
-          final SVNRevision revision = wizard.getRevision();
-          final boolean makeParents = wizard.isMakeParents();
-          BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-				public void run() {
-					try {
-						ISVNClientAdapter client = null;
-						ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrls[0].toString());
-						if (repository != null)
-							client = repository.getSVNClient();
-						if (client == null)
-							client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-						boolean copyAsChild = sourceUrls.length > 1;
-						client.copy(sourceUrls, destinationUrl, message, revision, copyAsChild, makeParents);
-					} catch (Exception e) {
-						MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
-					}
-				}           	
-          });    		
+    	  SVNUrl[] sourceUrls = wizard.getUrls();
+          SVNUrl destinationUrl = wizard.getToUrl();
+          String message = wizard.getComment();
+          SVNRevision revision = wizard.getRevision();
+          boolean makeParents = wizard.isMakeParents();
+		  try {
+			  ISVNClientAdapter client = null;
+			  ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrls[0].toString());
+			  if (repository != null)
+			  	client = repository.getSVNClient();
+			  if (client == null)
+				client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+			  RepositoryBranchTagOperation branchTagOperation = new RepositoryBranchTagOperation(getTargetPart(), client, sourceUrls, destinationUrl, revision, message, makeParents);
+			  branchTagOperation.run();
+		  } catch (Exception e) {
+			  MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
+		  }  		
     	}
 //		SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[0]);
 //    	SvnWizard wizard = new SvnWizard(branchTagPage);
