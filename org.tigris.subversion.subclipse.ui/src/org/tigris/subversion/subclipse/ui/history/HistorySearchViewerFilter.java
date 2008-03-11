@@ -226,5 +226,13 @@ public class HistorySearchViewerFilter extends ViewerFilter {
 		}
 		return toSearch.equals(expression) || toSearch.indexOf(expression) >= 0;
 	}
+
+	public SVNRevision.Number getStartRevision() {
+		return startRevision;
+	}
+
+	public SVNRevision.Number getEndRevision() {
+		return endRevision;
+	}
 	
 }

@@ -174,6 +174,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private ProjectProperties projectProperties;
 
   private Composite tableParent;
+  
+  private static HistorySearchViewerFilter historySearchViewerFilter;
 
   // cached for efficiency
   ILogEntry[] entries;
@@ -345,7 +347,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             this.historyTableProvider.setRemoteResource(this.remoteResource);
 			this.historyTableProvider.setProjectProperties(this.projectProperties);
             this.tableHistoryViewer.setInput(this.remoteResource);
-        	this.tableHistoryViewer.resetFilters();
+            if (historySearchViewerFilter != null) {
+            	HistorySearchViewerFilter[] filters = { historySearchViewerFilter };
+            	this.tableHistoryViewer.setFilters(filters);
+              	historySearchDialog = new HistorySearchDialog(getSite().getShell(), remoteResource);
+              	historySearchDialog.setSearchAll(false);
+              	historySearchDialog.setStartRevision(historySearchViewerFilter.getStartRevision());
+              	historySearchDialog.setEndRevision(historySearchViewerFilter.getEndRevision());           	
+            	historySearchViewerFilter = null;
+            }
+            else this.tableHistoryViewer.resetFilters();
         	getClearSearchAction().setEnabled(false);
             // setContentDescription(Policy.bind("HistoryView.titleWithArgument",
             // baseResource.getName())); //$NON-NLS-1$
@@ -377,8 +388,19 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       this.historyTableProvider.setRemoteResource(this.remoteResource);
    	  this.historyTableProvider.setProjectProperties(this.projectProperties);
       this.tableHistoryViewer.setInput(this.remoteResource);
-  	  this.tableHistoryViewer.resetFilters();
-  	  getClearSearchAction().setEnabled(false);
+      if (historySearchViewerFilter != null) {
+      	HistorySearchViewerFilter[] filters = { historySearchViewerFilter };
+      	this.tableHistoryViewer.setFilters(filters);
+      	historySearchDialog = new HistorySearchDialog(getSite().getShell(), remoteResource);
+      	historySearchDialog.setSearchAll(false);
+      	historySearchDialog.setStartRevision(historySearchViewerFilter.getStartRevision());
+      	historySearchDialog.setEndRevision(historySearchViewerFilter.getEndRevision());
+      	historySearchViewerFilter = null;
+      }
+      else {
+    	  this.tableHistoryViewer.resetFilters();
+    	  getClearSearchAction().setEnabled(false);
+      }
       // setContentDescription(Policy.bind("HistoryView.titleWithArgument",
       // remoteResource.getName())); //$NON-NLS-1$
       // setTitleToolTip(remoteResource.getRepositoryRelativePath());
@@ -2739,5 +2761,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
    */
   public void projectDeconfigured(IProject project) {
   }
+
+public static void setHistorySearchViewerFilter(
+		HistorySearchViewerFilter historySearchViewerFilter) {
+	SVNHistoryPage.historySearchViewerFilter = historySearchViewerFilter;
+}
 
 }

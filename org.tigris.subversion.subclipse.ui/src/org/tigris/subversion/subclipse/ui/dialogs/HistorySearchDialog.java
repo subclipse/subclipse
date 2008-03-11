@@ -472,5 +472,17 @@ public class HistorySearchDialog extends SvnDialog {
 		}
 		combo.select(0);
 	}
+
+	public void setStartRevision(SVNRevision.Number startRevision) {
+		this.startRevision = startRevision;
+	}
+
+	public void setEndRevision(SVNRevision.Number endRevision) {
+		this.endRevision = endRevision;
+	}
+
+	public void setSearchAll(boolean searchAll) {
+		this.searchAll = searchAll;
+	}
 	
 }
