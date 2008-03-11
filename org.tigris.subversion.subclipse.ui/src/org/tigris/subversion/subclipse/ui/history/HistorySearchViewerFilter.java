@@ -15,6 +15,7 @@ import java.util.Date;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * The HistorySearchViewerFilter is a ViewerFilter that can be applied
@@ -37,6 +38,8 @@ public class HistorySearchViewerFilter extends ViewerFilter {
 	private final Date startDate;
 	private final Date endDate;
 	private final boolean regExp;
+	private final SVNRevision.Number startRevision;
+	private final SVNRevision.Number endRevision;
 
 	private final char CHAR_MATCH_MANY = '*';
 	private final char CHAR_MATCH_ONE = '?';
@@ -49,14 +52,18 @@ public class HistorySearchViewerFilter extends ViewerFilter {
 	 * @param startDate filtered entries must be dated after this date
 	 * @param endDate filtered entries must be dated before this date
 	 * @param regExp whether or not pattern matching should be used
+	 * @param startRevision
+	 * @param endRevision
 	 */
 	public HistorySearchViewerFilter(String user, String comment,
-			Date startDate, Date endDate, boolean regExp) {
+			Date startDate, Date endDate, boolean regExp, SVNRevision.Number startRevision, SVNRevision.Number endRevision) {
 		this.user = user;
 		this.comment = comment;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.regExp = regExp;
+		this.startRevision = startRevision;
+		this.endRevision = endRevision;
 	}
 
 	/**
@@ -72,6 +79,7 @@ public class HistorySearchViewerFilter extends ViewerFilter {
 		if (element instanceof ILogEntry) {
 			ILogEntry logEntry = (ILogEntry)element;
 			return (filterDate(logEntry, startDate, endDate)
+					&& filterRevision(logEntry, startRevision, endRevision)
 					&& filterUser(logEntry, user) 
 					&& filterComment(logEntry, comment));
 		}
@@ -131,6 +139,14 @@ public class HistorySearchViewerFilter extends ViewerFilter {
 		if ((endDate != null) && date.after(endDate)) {
 			return false;
 		}
+		return true;
+	}
+	
+	private boolean filterRevision(ILogEntry logEntry, SVNRevision.Number startRevision, SVNRevision.Number endRevision) {
+		SVNRevision.Number revision = logEntry.getRevision();
+		if (revision == null) return true;
+		if (startRevision != null && revision.getNumber() < startRevision.getNumber()) return false;
+		if (endRevision != null && revision.getNumber() > endRevision.getNumber()) return false;
 		return true;
 	}
 

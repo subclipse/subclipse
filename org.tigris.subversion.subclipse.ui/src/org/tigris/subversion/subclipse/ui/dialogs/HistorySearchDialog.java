@@ -25,6 +25,7 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -37,8 +38,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * Dialog for searching the history of a resource in the repository.
@@ -59,11 +62,17 @@ public class HistorySearchDialog extends SvnDialog {
 	private Button regExpButton;
 	private Button searchAllButton;
 	private Button fetchButton;
+	private Text startRevisionText;
+	private Button startLogButton;
+	private Text endRevisionText;
+	private Button endLogButton;
 	
 	private String user;
 	private String comment;
 	private Date startDate;
 	private Date endDate;
+	private SVNRevision.Number startRevision;
+	private SVNRevision.Number endRevision;
 	private boolean searchAll = true;
 	private boolean regExp;
 	private boolean autoFetchLogs;
@@ -185,6 +194,34 @@ public class HistorySearchDialog extends SvnDialog {
 		selectEndDateButton.setText(Policy.bind("HistorySearchDialog.endDateButton")); //$NON-NLS-1$
 		selectEndDateButton.setEnabled(!searchAll);
 		
+		final Label revisionLabel = new Label(search, SWT.NONE);
+		revisionLabel.setText(Policy.bind("HistorySearchDialog.revision")); //$NON-NLS-1$
+		revisionLabel.setEnabled(!searchAll);	
+		Composite revisionComp = new Composite(search, SWT.NONE);
+		GridLayout revisionCompLayout = new GridLayout();
+		revisionCompLayout.numColumns = 5;
+		revisionCompLayout.marginHeight = 0;
+		revisionCompLayout.marginWidth = 0;
+		revisionComp.setLayout(revisionCompLayout);
+		revisionComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		startRevisionText = new Text(revisionComp, SWT.BORDER);
+		startRevisionText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));	
+		if (startRevision != null) startRevisionText.setText(startRevision.toString());
+		startRevisionText.setEnabled(!searchAll);
+		startLogButton = new Button(revisionComp, SWT.PUSH);
+		startLogButton.setText(Policy.bind("HistorySearchDialog.startRevisionButton")); //$NON-NLS-1$
+		startLogButton.setEnabled(!searchAll);
+		final Label endRevisionLabel = new Label(revisionComp, SWT.NONE);
+		endRevisionLabel.setText(Policy.bind("HistorySearchDialog.endRevision")); //$NON-NLS-1$
+		endRevisionLabel.setEnabled(!searchAll);	
+		endRevisionText = new Text(revisionComp, SWT.BORDER);
+		endRevisionText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));	
+		if (endRevision != null) endRevisionText.setText(endRevision.toString());
+		endRevisionText.setEnabled(!searchAll);
+		endLogButton = new Button(revisionComp, SWT.PUSH);
+		endLogButton.setText(Policy.bind("HistorySearchDialog.endRevisionButton")); //$NON-NLS-1$
+		endLogButton.setEnabled(!searchAll);		
+		
 		// Enabling and disabling the widgets when the search all button
 		//  is checked or unchecked
 		searchAllButton.addSelectionListener(new SelectionAdapter() {
@@ -196,6 +233,12 @@ public class HistorySearchDialog extends SvnDialog {
 					selectEndDateButton.setEnabled(false);
 					startDateText.setEnabled(false);
 					endDateText.setEnabled(false);
+					revisionLabel.setEnabled(false);
+					startRevisionText.setEnabled(false);
+					startLogButton.setEnabled(false);
+					endRevisionLabel.setEnabled(false);
+					endRevisionText.setEnabled(false);
+					endLogButton.setEnabled(false);					
 				}
 				else {
 					dateLabel.setEnabled(true);
@@ -204,6 +247,12 @@ public class HistorySearchDialog extends SvnDialog {
 					selectEndDateButton.setEnabled(true);
 					startDateText.setEnabled(true);
 					endDateText.setEnabled(true);
+					revisionLabel.setEnabled(true);
+					startRevisionText.setEnabled(true);
+					startLogButton.setEnabled(true);
+					endRevisionLabel.setEnabled(true);
+					endRevisionText.setEnabled(true);
+					endLogButton.setEnabled(true);										
 				}
 			}
 		});
@@ -246,6 +295,15 @@ public class HistorySearchDialog extends SvnDialog {
 			}
 		});
 		
+		SelectionListener selectionListener = new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (e.getSource() == startLogButton) showLog(startRevisionText);
+				else showLog(endRevisionText);
+			}
+		};
+		startLogButton.addSelectionListener(selectionListener);
+		endLogButton.addSelectionListener(selectionListener);
+		
 		// Set focus to the user search field
 		userText.setFocus();
 		userText.setSelection(0, userText.getText().length());
@@ -263,6 +321,14 @@ public class HistorySearchDialog extends SvnDialog {
 		endDateText.addFocusListener(focusListener);
 		
 		return composite;
+	}
+	
+	private void showLog(Text revisionText) {
+		HistoryDialog dialog = new HistoryDialog(getShell(), remoteResource);
+        if (dialog.open() == HistoryDialog.CANCEL) return;
+        ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
+        if (selectedEntries.length == 0) return;
+        revisionText.setText(Long.toString(selectedEntries[selectedEntries.length - 1].getRevision().getNumber()));		
 	}
 	
 	public void setRemoteResource(ISVNRemoteResource remoteResource) {
@@ -283,6 +349,14 @@ public class HistorySearchDialog extends SvnDialog {
 	
 	public Date getEndDate() {
 		return endDate;
+	}
+	
+	public SVNRevision.Number getStartRevision() {
+		return startRevision;
+	}
+	
+	public SVNRevision.Number getEndRevision() {
+		return endRevision;
 	}
 	
 	public boolean getRegExp() {
@@ -306,6 +380,8 @@ public class HistorySearchDialog extends SvnDialog {
 		if (searchAllButton.getSelection()) {
 			startDate = null;
 			endDate = null;
+			startRevision = null;
+			endRevision = null;
 		}
 		else {
 			Date tempStartDate = parseDate(startDateText.getText());
@@ -325,6 +401,26 @@ public class HistorySearchDialog extends SvnDialog {
 			}
 			endDate = tempEndDate;
 			startDate = tempStartDate;
+			if (startRevisionText.getText().trim().length() > 0) {
+				try {
+					startRevision = (SVNRevision.Number)SVNRevision.getRevision(startRevisionText.getText().trim());
+				} catch (ParseException e) {
+					MessageDialog.openError(getShell(), Policy.bind("HistorySearchDialog.revisionParseErrorTitle"), Policy.bind("HistorySearchDialog.revisionParseErrorMessage")); //$NON-NLS-1$ //$NON-NLS-2$
+					return;
+				}
+			}
+			if (endRevisionText.getText().trim().length() > 0) {
+				try {
+					endRevision = (SVNRevision.Number)SVNRevision.getRevision(endRevisionText.getText().trim());
+				} catch (ParseException e) {
+					MessageDialog.openError(getShell(), Policy.bind("HistorySearchDialog.revisionParseErrorTitle"), Policy.bind("HistorySearchDialog.revisionParseErrorMessage")); //$NON-NLS-1$ //$NON-NLS-2$
+					return;
+				}
+			}
+			if (startRevision != null && endRevision != null && startRevision.getNumber() > endRevision.getNumber()) {
+				MessageDialog.openError(getShell(), Policy.bind("HistorySearchDialog.revisionSequenceErrorTitle"), Policy.bind("HistorySearchDialog.revisionSequenceErrorMessage")); //$NON-NLS-1$ //$NON-NLS-2$				
+				return;
+			}
 		}
 		if (userText.getText().trim().length() > 0) user = userText.getText();
 		else user = null;

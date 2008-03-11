@@ -2575,7 +2575,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 				  historySearchDialog.getComment(), 
 				  historySearchDialog.getStartDate(), 
 				  historySearchDialog.getEndDate(), 
-				  historySearchDialog.getRegExp());
+				  historySearchDialog.getRegExp(),
+				  historySearchDialog.getStartRevision(),
+				  historySearchDialog.getEndRevision());
 		  
 		  getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				public void run() {
