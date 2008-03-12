@@ -48,6 +48,7 @@ public class DateSelectionDialog extends Dialog {
 	private DaySelectionCanvas daysComp;
 	private Spinner yearSpinner;
 	private Combo monthCombo;
+	private boolean refreshing;
 	
 	/**
 	 * Constructs a new dialog for selecting a date
@@ -121,7 +122,7 @@ public class DateSelectionDialog extends Dialog {
 			 * @see org.eclipse.swt.events.ModifyListener#modifyText(org.eclipse.swt.events.ModifyEvent)
 			 */
 			public void modifyText(ModifyEvent e) {
-				refreshDays(monthCombo.getSelectionIndex(), yearSpinner.getSelection());
+				if (!refreshing) refreshDays(monthCombo.getSelectionIndex(), yearSpinner.getSelection());
 			}
 		});
 		yearSpinner.addSelectionListener(new SelectionAdapter() {
@@ -130,7 +131,7 @@ public class DateSelectionDialog extends Dialog {
 			 * @see org.eclipse.swt.events.SelectionAdapter#widgetDefaultSelected(org.eclipse.swt.events.SelectionEvent)
 			 */
 			public void widgetDefaultSelected(SelectionEvent e) {
-				refreshDays(monthCombo.getSelectionIndex(), yearSpinner.getSelection());
+				if (!refreshing) refreshDays(monthCombo.getSelectionIndex(), yearSpinner.getSelection());
 			}
 		});
 		yearSpinner.addFocusListener(new FocusAdapter() {
@@ -225,6 +226,7 @@ public class DateSelectionDialog extends Dialog {
 	 * The size of a DaySelectionCanvas is assumed to be 6 x 7 (rows x columns).
 	 */
 	private void refreshDate() {
+		refreshing = true;
 		Calendar calendar = DateFormat.getDateTimeInstance().getCalendar();
 		calendar.setTime(date);
 		int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -263,6 +265,7 @@ public class DateSelectionDialog extends Dialog {
 		
 		daysComp.setDays(days);
 		daysComp.setSelectedDay(day);
+		refreshing = false;
 	}
 	
 }

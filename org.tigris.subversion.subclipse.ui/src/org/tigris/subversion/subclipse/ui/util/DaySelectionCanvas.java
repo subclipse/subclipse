@@ -72,7 +72,8 @@ public class DaySelectionCanvas extends Canvas {
 			 * @see org.eclipse.swt.events.FocusListener#focusGained(org.eclipse.swt.events.FocusEvent)
 			 */
 			public void focusGained(FocusEvent e) {
-				selectionBackgroundColor.dispose();
+// We do not need to (or want to!) dispose system colors that we did not create.
+//				selectionBackgroundColor.dispose();
 				selectionBackgroundColor = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
 				redraw();
 			}
@@ -82,7 +83,8 @@ public class DaySelectionCanvas extends Canvas {
 			 * @see org.eclipse.swt.events.FocusListener#focusLost(org.eclipse.swt.events.FocusEvent)
 			 */
 			public void focusLost(FocusEvent e) {
-				selectionBackgroundColor.dispose();
+// We do not need to (or want to!) dispose system colors that we did not create.				
+//				selectionBackgroundColor.dispose();
 				selectionBackgroundColor = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
 				redraw();
 			}
@@ -160,19 +162,20 @@ public class DaySelectionCanvas extends Canvas {
 		int borderWidth = getBorderWidth();
 		return new Point(WIDTH + 2*borderWidth, HEIGHT + 2*borderWidth);
 	}
-	
+
+// We do not need to (or want to!) dispose system colors that we did not create.	
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.swt.widgets.Widget#dispose()
 	 */
-	public void dispose() {
-		BLACK.dispose();
-		GRAY.dispose();
-		selectionBackgroundColor.dispose();
-		SELECTION_FOREGROUND.dispose();
-		WHITE.dispose();
-		super.dispose();
-	}
+//	public void dispose() {
+//		BLACK.dispose();
+//		GRAY.dispose();
+//		selectionBackgroundColor.dispose();
+//		SELECTION_FOREGROUND.dispose();
+//		WHITE.dispose();
+//		super.dispose();
+//	}
 	
 	/**
 	 * Set the selection that results from the user clicking a day.

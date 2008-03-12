@@ -280,10 +280,12 @@ public class HistorySearchDialog extends SvnDialog {
 					Date startDate = dsd.getDate();
 					startDateText.setText(formatDate(startDate));
 					startDateText.setData(startDate);
-					Date endDate = (Date)endDateText.getData();
-					if (!startDate.before(endDate)) {
-						endDateText.setText(formatDate(startDate));
-						endDateText.setData(startDate);
+					if (endDateText.getText().trim().length() > 0) {
+						Date endDate = (Date)endDateText.getData();
+						if (!startDate.before(endDate)) {
+							endDateText.setText(formatDate(startDate));
+							endDateText.setData(startDate);
+						}
 					}
 				}
 			}
@@ -306,10 +308,12 @@ public class HistorySearchDialog extends SvnDialog {
 					Date endDate = dsd.getDate();
 					endDateText.setText(formatDate(endDate));
 					endDateText.setData(endDate);
-					Date startDate = (Date)startDateText.getData();
-					if (!endDate.after(startDate)) {
-						startDateText.setText(formatDate(endDate));
-						startDateText.setData(endDate);
+					if (startDateText.getText().trim().length() > 0) {
+						Date startDate = (Date)startDateText.getData();
+						if (!endDate.after(startDate)) {
+							startDateText.setText(formatDate(endDate));
+							startDateText.setData(endDate);
+						}
 					}
 				}
 			}
