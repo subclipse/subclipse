@@ -168,13 +168,15 @@ public class HistorySearchDialog extends SvnDialog {
 		dateComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		startDateText = new Text(dateComp, SWT.BORDER);
 		startDateText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		if (startDate == null) {
+		if (startDate == null && startRevision == null && endRevision == null) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.add(Calendar.MONTH, -1);
 			startDate = calendar.getTime();
 		}
-		startDateText.setText(formatDate(startDate));
-		startDateText.setData(startDate);
+		if (startDate != null) {
+			startDateText.setText(formatDate(startDate));
+			startDateText.setData(startDate);
+		}
 		startDateText.setEnabled(!searchAll);
 		final Button selectStartDateButton = new Button(dateComp, SWT.NONE);
 		selectStartDateButton.setText(Policy.bind("HistorySearchDialog.startDateButton")); //$NON-NLS-1$
@@ -184,11 +186,13 @@ public class HistorySearchDialog extends SvnDialog {
 		midDataLabel.setEnabled(!searchAll);
 		endDateText = new Text(dateComp, SWT.BORDER);
 		endDateText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		if (endDate == null) {
+		if (endDate == null && startRevision == null && endRevision == null) {
 			endDate = Calendar.getInstance().getTime();
 		}
-		endDateText.setText(formatDate(endDate));
-		endDateText.setData(endDate);
+		if (endDate != null) {
+			endDateText.setText(formatDate(endDate));
+			endDateText.setData(endDate);
+		}
 		endDateText.setEnabled(!searchAll);
 		final Button selectEndDateButton = new Button(dateComp, SWT.NONE);
 		selectEndDateButton.setText(Policy.bind("HistorySearchDialog.endDateButton")); //$NON-NLS-1$
@@ -259,10 +263,19 @@ public class HistorySearchDialog extends SvnDialog {
 		// Open the date selection dialog to select a start date
 		selectStartDateButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (parseDate(startDateText.getText()) == null) {
-					return;
+				String start = null;
+				if (startDateText.getText().trim().length() == 0) {
+					Calendar calendar = Calendar.getInstance();
+					calendar.add(Calendar.MONTH, -1);
+					Date date = calendar.getTime();
+					start = formatDate(date);
+				} else {
+					start = startDateText.getText();
+					if (parseDate(start) == null) {
+						return;
+					}
 				}
-				DateSelectionDialog dsd = new DateSelectionDialog(getShell(), startDateText.getText()); //$NON-NLS-1$
+				DateSelectionDialog dsd = new DateSelectionDialog(getShell(), start); //$NON-NLS-1$
 				if (dsd.open() == Window.OK) {
 					Date startDate = dsd.getDate();
 					startDateText.setText(formatDate(startDate));
@@ -278,10 +291,17 @@ public class HistorySearchDialog extends SvnDialog {
 		// Open the date selection dialog to select an end date
 		selectEndDateButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (parseDate(endDateText.getText()) == null) {
-					return;
+				String end = null;
+				if (endDateText.getText().trim().length() == 0) {
+					Date date = Calendar.getInstance().getTime();
+					end = formatDate(date);
+				} else {
+					end = endDateText.getText();
+					if (parseDate(end) == null) {
+						return;
+					}
 				}
-				DateSelectionDialog dsd = new DateSelectionDialog(getShell(), endDateText.getText()); //$NON-NLS-1$
+				DateSelectionDialog dsd = new DateSelectionDialog(getShell(), end); //$NON-NLS-1$
 				if (dsd.open() == Window.OK) {
 					Date endDate = dsd.getDate();
 					endDateText.setText(formatDate(endDate));
@@ -384,20 +404,29 @@ public class HistorySearchDialog extends SvnDialog {
 			endRevision = null;
 		}
 		else {
-			Date tempStartDate = parseDate(startDateText.getText());
-			Date tempEndDate = parseDate(endDateText.getText());
-			if ((tempStartDate == null) || (tempEndDate == null)) {
-				return;
+			Date tempStartDate = null;
+			Date tempEndDate = null;
+			if (startDateText.getText().trim().length() == 0) startDate = null;
+			else {
+				tempStartDate = parseDate(startDateText.getText());
+				if (tempStartDate == null) return;
 			}
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(tempEndDate);
-			calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMaximum(Calendar.HOUR_OF_DAY));
-			calendar.set(Calendar.MINUTE, calendar.getActualMaximum(Calendar.MINUTE));
-			calendar.set(Calendar.SECOND, calendar.getActualMaximum(Calendar.SECOND));
-			tempEndDate = calendar.getTime();
-			if (!tempEndDate.after(tempStartDate)) {
-				MessageDialog.openError(getShell(), Policy.bind("HistorySearchDialog.dateSequenceErrorTitle"), Policy.bind("HistorySearchDialog.dateSequenceErrorMessage")); //$NON-NLS-1$ //$NON-NLS-2$
-				return;
+			if (endDateText.getText().trim().length() == 0) endDate = null;
+			else {
+				tempEndDate = parseDate(endDateText.getText());
+				if (tempEndDate == null) return;
+			}
+			if (tempStartDate != null && tempEndDate != null) {
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(tempEndDate);
+				calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMaximum(Calendar.HOUR_OF_DAY));
+				calendar.set(Calendar.MINUTE, calendar.getActualMaximum(Calendar.MINUTE));
+				calendar.set(Calendar.SECOND, calendar.getActualMaximum(Calendar.SECOND));
+				tempEndDate = calendar.getTime();
+				if (!tempEndDate.after(tempStartDate)) {
+					MessageDialog.openError(getShell(), Policy.bind("HistorySearchDialog.dateSequenceErrorTitle"), Policy.bind("HistorySearchDialog.dateSequenceErrorMessage")); //$NON-NLS-1$ //$NON-NLS-2$
+					return;
+				}
 			}
 			endDate = tempEndDate;
 			startDate = tempStartDate;
@@ -408,7 +437,7 @@ public class HistorySearchDialog extends SvnDialog {
 					MessageDialog.openError(getShell(), Policy.bind("HistorySearchDialog.revisionParseErrorTitle"), Policy.bind("HistorySearchDialog.revisionParseErrorMessage")); //$NON-NLS-1$ //$NON-NLS-2$
 					return;
 				}
-			}
+			} else startRevision = null;
 			if (endRevisionText.getText().trim().length() > 0) {
 				try {
 					endRevision = (SVNRevision.Number)SVNRevision.getRevision(endRevisionText.getText().trim());
@@ -416,7 +445,7 @@ public class HistorySearchDialog extends SvnDialog {
 					MessageDialog.openError(getShell(), Policy.bind("HistorySearchDialog.revisionParseErrorTitle"), Policy.bind("HistorySearchDialog.revisionParseErrorMessage")); //$NON-NLS-1$ //$NON-NLS-2$
 					return;
 				}
-			}
+			} else endRevision = null;
 			if (startRevision != null && endRevision != null && startRevision.getNumber() > endRevision.getNumber()) {
 				MessageDialog.openError(getShell(), Policy.bind("HistorySearchDialog.revisionSequenceErrorTitle"), Policy.bind("HistorySearchDialog.revisionSequenceErrorMessage")); //$NON-NLS-1$ //$NON-NLS-2$				
 				return;
