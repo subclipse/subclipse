@@ -407,15 +407,12 @@ public class HistoryTableProvider {
 		setColumnWidth(layout, disposeListener, col, 50);
 		
 		//bugs
-		col = new TableColumn(table, SWT.NONE);
-		col.setResizable(true);
-		col.setText(Policy.bind("HistoryView.bugs")); //$NON-NLS-1$
-		col.addSelectionListener(headerListener);
 		if (includeBugs) {
+			col = new TableColumn(table, SWT.NONE);
+			col.setResizable(true);
+			col.setText(Policy.bind("HistoryView.bugs")); //$NON-NLS-1$
+			col.addSelectionListener(headerListener);
 			setColumnWidth(layout, disposeListener, col, 10);
-		} else {
-			col.setWidth(0);
-			layout.addColumnData(new ColumnWeightData(0, false));
 		}
 	}
 
