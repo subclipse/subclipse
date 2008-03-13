@@ -76,6 +76,9 @@ public class HistorySearchDialog extends SvnDialog {
 	private boolean searchAll = true;
 	private boolean regExp;
 	private boolean autoFetchLogs;
+	private String oldStartRevision;
+	private String oldEndRevision;
+	private boolean revisionsChanged;
 	
 	private List previousComments;
 
@@ -344,6 +347,9 @@ public class HistorySearchDialog extends SvnDialog {
 		startDateText.addFocusListener(focusListener);
 		endDateText.addFocusListener(focusListener);
 		
+		oldStartRevision = startRevisionText.getText();
+		oldEndRevision = endRevisionText.getText();
+		
 		return composite;
 	}
 	
@@ -465,6 +471,7 @@ public class HistorySearchDialog extends SvnDialog {
 		if (comment != null && comment.trim().length() > 0) {
 			previousComments.add(comment);
 		}
+		revisionsChanged = !startRevisionText.getText().trim().equals(oldStartRevision) || !endRevisionText.getText().trim().equals(oldEndRevision);
 		super.okPressed();
 	}
 	
@@ -516,6 +523,10 @@ public class HistorySearchDialog extends SvnDialog {
 
 	public void setSearchAll(boolean searchAll) {
 		this.searchAll = searchAll;
+	}
+
+	public boolean isRevisionsChanged() {
+		return revisionsChanged;
 	}
 	
 }

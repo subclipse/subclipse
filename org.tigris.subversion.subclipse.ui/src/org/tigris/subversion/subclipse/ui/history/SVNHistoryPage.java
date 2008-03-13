@@ -346,7 +346,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         	}
             this.historyTableProvider.setRemoteResource(this.remoteResource);
 			this.historyTableProvider.setProjectProperties(this.projectProperties);
-            this.tableHistoryViewer.setInput(this.remoteResource);
             if (historySearchViewerFilter != null) {
             	HistorySearchViewerFilter[] filters = { historySearchViewerFilter };
             	this.tableHistoryViewer.setFilters(filters);
@@ -355,9 +354,14 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
               	historySearchDialog.setStartRevision(historySearchViewerFilter.getStartRevision());
               	historySearchDialog.setEndRevision(historySearchViewerFilter.getEndRevision());           	
             	historySearchViewerFilter = null;
+            	getClearSearchAction().setEnabled(true);
             }
-            else this.tableHistoryViewer.resetFilters();
-        	getClearSearchAction().setEnabled(false);
+            else {
+            	this.tableHistoryViewer.resetFilters();
+            	getClearSearchAction().setEnabled(false);
+            }
+            this.tableHistoryViewer.setInput(this.remoteResource);
+        	
             // setContentDescription(Policy.bind("HistoryView.titleWithArgument",
             // baseResource.getName())); //$NON-NLS-1$
             // setTitleToolTip(baseResource.getRepositoryRelativePath());
@@ -387,7 +391,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       }
       this.historyTableProvider.setRemoteResource(this.remoteResource);
    	  this.historyTableProvider.setProjectProperties(this.projectProperties);
-      this.tableHistoryViewer.setInput(this.remoteResource);
       if (historySearchViewerFilter != null) {
       	HistorySearchViewerFilter[] filters = { historySearchViewerFilter };
       	this.tableHistoryViewer.setFilters(filters);
@@ -396,11 +399,13 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       	historySearchDialog.setStartRevision(historySearchViewerFilter.getStartRevision());
       	historySearchDialog.setEndRevision(historySearchViewerFilter.getEndRevision());
       	historySearchViewerFilter = null;
+      	getClearSearchAction().setEnabled(true);
       }
       else {
     	  this.tableHistoryViewer.resetFilters();
     	  getClearSearchAction().setEnabled(false);
       }
+      this.tableHistoryViewer.setInput(this.remoteResource);
       // setContentDescription(Policy.bind("HistoryView.titleWithArgument",
       // remoteResource.getName())); //$NON-NLS-1$
       // setTitleToolTip(remoteResource.getRepositoryRelativePath());
