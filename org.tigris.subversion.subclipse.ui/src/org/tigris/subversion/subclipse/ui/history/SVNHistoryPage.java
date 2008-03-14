@@ -541,6 +541,14 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         final ISVNRemoteResource remoteResource = (ISVNRemoteResource) inputElement;
 
         int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
+        
+        // If we are filtering by revision range, override entries to fetch.
+        if (historySearchDialog != null && !historySearchDialog.getSearchAllLogs()) {
+        	if (historySearchDialog.getStartRevision() != null || historySearchDialog.getEndRevision() != null) {
+        		if (getClearSearchAction().isEnabled()) entriesToFetch = 0;
+        	}
+        }
+        
         if (entriesToFetch > 0)
         	fetchLogEntriesJob = new FetchLogEntriesJob();
         else
@@ -2140,6 +2148,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 							  }
 				  		  }
 						  setEnabled(false);
+						  if (!historySearchDialog.getSearchAllLogs() && (historySearchDialog.getStartRevision() != null || historySearchDialog.getEndRevision() != null)) {
+							  getRefreshAction().run();
+						  }
 					  }
 				  });
 			  }
@@ -2470,7 +2481,21 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 
 		protected ILogEntry[] getLogEntries(IProgressMonitor monitor, ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager, boolean includeMergedRevisions) throws TeamException
 		{
-			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager, includeMergedRevisions);
+			// If filtering by revision range, pass upper/lower revisions to API and override limit.
+			SVNRevision start = revisionStart;
+			SVNRevision end = revisionEnd;
+			long fetchLimit = limit;
+	        if (historySearchDialog != null && !historySearchDialog.getSearchAllLogs()) {
+	        	if (historySearchDialog.getStartRevision() != null || historySearchDialog.getEndRevision() != null) {
+	        		if (getClearSearchAction().isEnabled()) {
+	        			if (historySearchDialog.getStartRevision() != null) end = historySearchDialog.getStartRevision();
+	        			if (historySearchDialog.getEndRevision() != null) start = historySearchDialog.getEndRevision();
+	        			fetchLimit = 0;
+	        			getGetNextAction().setEnabled(false);
+	        		}
+	        	}
+	        }			
+			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, start, end, stopOnCopy, fetchLimit, tagManager, includeMergedRevisions);
 			logCmd.run(monitor);
 			return logCmd.getLogEntries(); 					
 		}
@@ -2536,64 +2561,75 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	  }
 	  
 	  public IStatus run(IProgressMonitor monitor) {
-		  
-		  Date startDate = historySearchDialog.getStartDate();
-		  setEmptyViewerFilter();
-		  
-		  // Fetch log entries until start date
-		  if (historySearchDialog.getAutoFetchLogs()) {
-			  if (!historySearchDialog.getSearchAllLogs()) {
-				  Date lastDate = null;
-				  if (lastEntry != null) {
-					  lastDate = lastEntry.getDate();
+		  if (!historySearchDialog.getSearchAllLogs() && (historySearchDialog.getStartRevision() != null || historySearchDialog.getEndRevision() != null)) {
+	          final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
+	          if(fetchAllLogEntriesJob == null) {
+	        	  fetchAllLogEntriesJob = new FetchAllLogEntriesJob();
+	          }
+	          if(fetchAllLogEntriesJob.getState() != Job.NONE) {
+	        	  fetchAllLogEntriesJob.cancel();
+	          }
+	          fetchAllLogEntriesJob.setRemoteFile(remoteResource);
+	          Utils.schedule(fetchAllLogEntriesJob, getSite());			 
+		  } else {
+			  Date startDate = historySearchDialog.getStartDate();
+			  setEmptyViewerFilter();
+			  
+			  // Fetch log entries until start date
+			  if (historySearchDialog.getAutoFetchLogs()) {
+				  if (!historySearchDialog.getSearchAllLogs()) {
+					  Date lastDate = null;
+					  if (lastEntry != null) {
+						  lastDate = lastEntry.getDate();
+					  }
+					  int numEntries = entries.length;
+					  int prevNumEntries = -1;
+					  while ((numEntries != prevNumEntries) && 
+							  ((lastDate == null) ||
+									  (startDate == null) ||
+									  (startDate.compareTo(lastDate) <= 0))) {
+					  
+						  if (monitor.isCanceled()) {
+							  getSearchAction().setEnabled(true);
+							  removeEmptyViewerFilter();
+							  return Status.CANCEL_STATUS;
+						  }
+					  
+						  final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
+						  if(fetchNextLogEntriesJob == null) {
+							  fetchNextLogEntriesJob = new FetchNextLogEntriesJob();
+						  }
+						  if(fetchNextLogEntriesJob.getState() != Job.NONE) {
+							  fetchNextLogEntriesJob.cancel();
+						  }
+						  fetchNextLogEntriesJob.setRemoteFile(remoteResource);
+						  Utils.schedule(fetchNextLogEntriesJob, getSite());
+						  try {
+							  fetchNextLogEntriesJob.join();
+						  } catch(InterruptedException e) {
+							  SVNUIPlugin.log(new SVNException(
+									 Policy.bind("HistoryView.errorFetchingEntries", remoteResource.getName()), e)); //$NON-NLS-1$
+						  }
+				      
+						  if (entries.length == 0) {
+							  break;
+						  }
+						  lastDate = lastEntry.getDate();
+						  prevNumEntries = numEntries;
+						  numEntries = entries.length;
+					  }
 				  }
-				  int numEntries = entries.length;
-				  int prevNumEntries = -1;
-				  while ((numEntries != prevNumEntries) && 
-						  ((lastDate == null) ||
-								  (startDate == null) ||
-								  (startDate.compareTo(lastDate) <= 0))) {
-				  
-					  if (monitor.isCanceled()) {
-						  getSearchAction().setEnabled(true);
-						  removeEmptyViewerFilter();
-						  return Status.CANCEL_STATUS;
-					  }
-				  
-					  final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
-					  if(fetchNextLogEntriesJob == null) {
-						  fetchNextLogEntriesJob = new FetchNextLogEntriesJob();
-					  }
-					  if(fetchNextLogEntriesJob.getState() != Job.NONE) {
-						  fetchNextLogEntriesJob.cancel();
-					  }
-					  fetchNextLogEntriesJob.setRemoteFile(remoteResource);
-					  Utils.schedule(fetchNextLogEntriesJob, getSite());
-					  try {
-						  fetchNextLogEntriesJob.join();
-					  } catch(InterruptedException e) {
-						  SVNUIPlugin.log(new SVNException(
-								 Policy.bind("HistoryView.errorFetchingEntries", remoteResource.getName()), e)); //$NON-NLS-1$
-					  }
-			      
-					  if (entries.length == 0) {
-						  break;
-					  }
-					  lastDate = lastEntry.getDate();
-					  prevNumEntries = numEntries;
-					  numEntries = entries.length;
+				  else {
+			          final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
+			          if(fetchAllLogEntriesJob == null) {
+			        	  fetchAllLogEntriesJob = new FetchAllLogEntriesJob();
+			          }
+			          if(fetchAllLogEntriesJob.getState() != Job.NONE) {
+			        	  fetchAllLogEntriesJob.cancel();
+			          }
+			          fetchAllLogEntriesJob.setRemoteFile(remoteResource);
+			          Utils.schedule(fetchAllLogEntriesJob, getSite());
 				  }
-			  }
-			  else {
-		          final ISVNRemoteResource remoteResource = historyTableProvider.getRemoteResource();
-		          if(fetchAllLogEntriesJob == null) {
-		        	  fetchAllLogEntriesJob = new FetchAllLogEntriesJob();
-		          }
-		          if(fetchAllLogEntriesJob.getState() != Job.NONE) {
-		        	  fetchAllLogEntriesJob.cancel();
-		          }
-		          fetchAllLogEntriesJob.setRemoteFile(remoteResource);
-		          Utils.schedule(fetchAllLogEntriesJob, getSite());
 			  }
 		  }
 		  
