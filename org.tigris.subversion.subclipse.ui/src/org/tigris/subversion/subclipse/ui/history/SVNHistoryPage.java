@@ -347,8 +347,12 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             this.historyTableProvider.setRemoteResource(this.remoteResource);
 			this.historyTableProvider.setProjectProperties(this.projectProperties);
             if (historySearchViewerFilter != null) {
-            	HistorySearchViewerFilter[] filters = { historySearchViewerFilter };
-            	this.tableHistoryViewer.setFilters(filters);
+            	
+//            	HistorySearchViewerFilter[] filters = { historySearchViewerFilter };         	
+//            	this.tableHistoryViewer.setFilters(filters);
+            	this.tableHistoryViewer.resetFilters();
+            	this.tableHistoryViewer.addFilter(historySearchViewerFilter);
+            	
               	historySearchDialog = new HistorySearchDialog(getSite().getShell(), remoteResource);
               	historySearchDialog.setSearchAll(false);
               	historySearchDialog.setStartRevision(historySearchViewerFilter.getStartRevision());
@@ -392,8 +396,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       this.historyTableProvider.setRemoteResource(this.remoteResource);
    	  this.historyTableProvider.setProjectProperties(this.projectProperties);
       if (historySearchViewerFilter != null) {
-      	HistorySearchViewerFilter[] filters = { historySearchViewerFilter };
-      	this.tableHistoryViewer.setFilters(filters);
+//      HistorySearchViewerFilter[] filters = { historySearchViewerFilter };         	
+//      this.tableHistoryViewer.setFilters(filters);
+      	this.tableHistoryViewer.resetFilters();
+      	this.tableHistoryViewer.addFilter(historySearchViewerFilter);
       	historySearchDialog = new HistorySearchDialog(getSite().getShell(), remoteResource);
       	historySearchDialog.setSearchAll(false);
       	historySearchDialog.setStartRevision(historySearchViewerFilter.getStartRevision());
