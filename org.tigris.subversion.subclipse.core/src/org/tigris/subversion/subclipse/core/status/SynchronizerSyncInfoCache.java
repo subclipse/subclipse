@@ -63,9 +63,8 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.subclipse.core.status.IStatusCache#addStatus(org.tigris.subversion.subclipse.core.resources.LocalResourceStatus)
 	 */
-	public IResource addStatus(LocalResourceStatus status) {
+	public IResource addStatus(IResource resource, LocalResourceStatus status) {
 		try {
-			IResource resource = status.getResource();
 			if (resource == null) return null;
 			if (status.isUnversioned() && !(resource.exists() || resource.isPhantom()))
 			{

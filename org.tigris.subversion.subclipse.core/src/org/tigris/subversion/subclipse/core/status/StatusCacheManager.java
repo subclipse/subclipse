@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -85,13 +84,14 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @param statuses
  	 * @param rule the scheduling rule to use when running this operation
      */
-    protected List updateCache(final ISVNStatus[] statuses, ISchedulingRule rule) throws CoreException {
+    protected List updateCache(IContainer parent, final ISVNStatus[] statuses) throws CoreException {
     	final List result = new ArrayList(statuses.length);
 //    	if (ResourcesPlugin.getWorkspace().isTreeLocked())
 //    	{
-            for (int i = 0; i < statuses.length;i++) {        	
-            	result.add(updateCache(statuses[i]));
-            }    		
+            for (int i = 0; i < statuses.length;i++) {
+            	IResource resource = SVNWorkspaceRoot.getResourceFor(parent, statuses[i]);
+            	result.add(updateCache(resource, statuses[i]));
+            }
 //    	}
 //    	else
 //    	{
@@ -110,17 +110,17 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @param status
      * @param workspaceRoot
      */
-    protected IResource updateCache(LocalResourceStatus status) {
-   		return statusCache.addStatus(status);
-    }
+//    protected IResource updateCache(LocalResourceStatus status) {
+//   		return statusCache.addStatus(status);
+//    }
 
     /**
      * update the cache using the given statuses
      * @param status
      * @param workspaceRoot
      */
-    protected IResource updateCache(ISVNStatus status) {
-   		return statusCache.addStatus(new LocalResourceStatus(status, getURL(status)));
+    protected IResource updateCache(IResource resource, ISVNStatus status) {
+   		return statusCache.addStatus(resource, new LocalResourceStatus(status, getURL(status)));
     }
 
     /**
@@ -214,7 +214,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 //        } else {
             // we don't know if resource is managed or not, we must update its status
         	strategy.setStatusCache(statusCache);
-        	setStatuses(strategy.statusesToUpdate(resource), resource);
+        	setStatuses(resource.getProject(), strategy.statusesToUpdate(resource));
         	status = statusCache.getStatus(resource);
 //        }
         
@@ -232,9 +232,9 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @param statuses
  	 * @param rule the scheduling rule to use when running this operation
      */
-    public void setStatuses(ISVNStatus[] statuses, ISchedulingRule rule) throws SVNException {
+    public void setStatuses(IContainer parent, ISVNStatus[] statuses) throws SVNException {
     	try {
-			updateCache(statuses, rule);
+			updateCache(parent, statuses);
 		} catch (CoreException e) {
 			throw SVNException.wrapException(e);
 		}   		
@@ -261,7 +261,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 							? (StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(statusCache)
 							: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(statusCache);
 		try {
-			List refreshedResources = updateCache(strategy.statusesToUpdate(resource), resource);
+			List refreshedResources = updateCache(resource, strategy.statusesToUpdate(resource));
 			Set resourcesToRefresh = resourcesToRefresh(resource, depth, IContainer.INCLUDE_PHANTOMS, refreshedResources.size());
 			for (Iterator iter = refreshedResources.iterator(); iter.hasNext();) {
 				resourcesToRefresh.remove(iter.next());

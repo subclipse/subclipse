@@ -277,8 +277,11 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 
 		// Examine whether this project is a nested project. If yes, we don't
 		// share it automatically.
-		if (isNestedProject(project))
+		if (!SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHARE_NESTED_PROJECTS)
+				&& isNestedProject(project))
+		{
 			return;
+		}
 		
 		if (isSvnProject) {
 			// It's a project and has toplevel .svn directory, lets share it!

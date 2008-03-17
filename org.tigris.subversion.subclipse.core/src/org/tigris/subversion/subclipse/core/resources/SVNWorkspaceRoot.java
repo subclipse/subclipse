@@ -480,7 +480,45 @@ public class SVNWorkspaceRoot {
 
 		return root.getFolder(resourcePath);
     }
-	
+
+    public static IResource getResourceFor(IContainer parent, ISVNStatus status) throws SVNException {
+    	if (parent == null || status == null || status.getFile() == null) {
+    		return null;
+    	}
+
+    	if (!isManagedBySubclipse(parent.getProject())) {
+    		return null;
+    	}
+
+    	IPath location = new Path(status.getFile().getAbsolutePath());
+    	if (!parent.getLocation().isPrefixOf(location)) {
+    		return null;
+    	}
+
+		int segmentsToRemove = parent.getLocation().segmentCount();
+    	IPath fullPath = parent.getFullPath().append(location.removeFirstSegments(segmentsToRemove));
+    	
+    	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+
+    	IResource resource = root.findMember(fullPath);
+
+    	if (resource != null) {
+    		return resource;
+    	}
+
+		if (fullPath.isRoot()) {
+			return root;
+		} else if (fullPath.segmentCount() == 1) {
+			return root.getProject(fullPath.segment(0));
+		}
+
+		if (status.getFile().isDirectory()) {
+			return root.getFolder(fullPath);
+		} 
+
+		return root.getFile(fullPath);
+    }
+
     /**
      * Gets the resource to which the <code>path</code> is corresponding to.
      * The resource does not need to exists (yet)

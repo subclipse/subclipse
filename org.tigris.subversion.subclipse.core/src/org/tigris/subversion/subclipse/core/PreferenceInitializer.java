@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core;
 
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 
 
@@ -26,8 +27,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     }
 
     public void initializeDefaultPreferences() {
-        SVNProviderPlugin.getPlugin().getPluginPreferences().setDefault(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE, true);
-        SVNProviderPlugin.getPlugin().getPluginPreferences().setDefault(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS, false);
+        Preferences preferences = SVNProviderPlugin.getPlugin().getPluginPreferences();
+		preferences.setDefault(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE, true);
+        preferences.setDefault(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS, false);
+        preferences.setDefault(ISVNCoreConstants.PREF_SHARE_NESTED_PROJECTS, false);
     }
 
 }

@@ -17,6 +17,7 @@ public interface ISVNCoreConstants {
 
     String PREF_RECURSIVE_STATUS_UPDATE = "resursive_status_update";
     String PREF_SHOW_OUT_OF_DATE_FOLDERS = "show_out_of_date_folders";
+    String PREF_SHARE_NESTED_PROJECTS = "share_nested_projects";
     
     public final int DEPTH_EMPTY = 0;
     public final int DEPTH_FILES = 1;

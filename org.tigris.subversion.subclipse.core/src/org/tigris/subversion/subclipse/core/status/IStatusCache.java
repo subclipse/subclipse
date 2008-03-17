@@ -39,7 +39,7 @@ public interface IStatusCache {
      * @param status - can be null
      * @return resource for which the status was cached
      */
-    IResource addStatus(LocalResourceStatus status);
+    IResource addStatus(IResource resource, LocalResourceStatus status);
 
     /**
      * Remove status of the given resource from the cache
