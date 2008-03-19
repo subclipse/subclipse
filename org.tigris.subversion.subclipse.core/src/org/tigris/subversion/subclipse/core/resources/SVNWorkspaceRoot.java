@@ -10,15 +10,14 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.eclipse.core.internal.localstore.FileSystemResourceManager;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -29,7 +28,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
@@ -42,7 +40,7 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
-import org.tigris.subversion.subclipse.core.client.IConsoleListener;
+import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.core.commands.ShareProjectCommand;
@@ -50,7 +48,6 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -83,6 +80,9 @@ public class SVNWorkspaceRoot {
 	}
 
 	public static boolean isManagedBySubclipse(IProject project) {
+		if (project == null)
+			return false;
+
 		synchronized (sharedProjects) {
 			if (sharedProjects.contains(project))
 				return true;
@@ -137,7 +137,7 @@ public class SVNWorkspaceRoot {
 			client.getNotificationHandler().enableLog();			
 		}
 	}
-	
+
 	/**
 	 * @param name
 	 * @return
@@ -212,32 +212,6 @@ public class SVNWorkspaceRoot {
 		RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
 	}
 		
-	
-	/**
-	 * Returns a resource path to the given local location. Returns null if
-	 * it is not under a project's location.
-	 * @see FileSystemResourceManager#pathForLocation(org.eclipse.core.runtime.IPath)
-	 */
-	public static IPath pathForLocation(IPath location) {
-		if (Platform.getLocation().equals(location))
-			return Path.ROOT;
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i = 0; i < projects.length; i++) {
-			IProject project = projects[i];
-			
-			// Map only to projects, which are managed by subclipse.
-			if (!isManagedBySubclipse(project))
-				continue;
-
-			IPath projectLocation = project.getLocation();
-			if (projectLocation != null && projectLocation.isPrefixOf(location)) {
-				int segmentsToRemove = projectLocation.segmentCount();
-				return project.getFullPath().append(location.removeFirstSegments(segmentsToRemove));
-			}
-		}
-		return null;
-	}
-
     /**
      * get the SVNLocalFolder for the given resource 
      */           	
@@ -382,16 +356,6 @@ public class SVNWorkspaceRoot {
         	return isSvnMetaResource(parent);
         }
 	}
-	
-	/**
-	 * Return the resource type (FILE, FOLDER, PROJECT) of the resource specified by an absolute filesystem path
-	 * @param absolutePath a filesystem absolute path 
-	 * @return IResource.FILE, IResource.FOLDER, IResource.PROJECT or IResource.ROOT or 0 if it could not be determined
-	 */
-	public static int getResourceType(String absolutePath)
-	{
-		return getResourceType(pathForLocation(new Path(absolutePath)));
-	}
 
 	/**
 	 * Return the resource type (FILE, FOLDER, PROJECT) of the resource specified by an absolute filesystem path
@@ -405,84 +369,22 @@ public class SVNWorkspaceRoot {
 		return r == null ? 0 : r.getType();	
 	}
 	
-    /**
-     * Gets the resource to which the <code>status</code> is corresponding to.
-     * Use either ResourceInfo.getType() or getNodeKind() to determine the proper kind of resource.
-     * The resource does not need to exists (yet)
-     * @return IResource
-     */
-    public static IResource getResourceFor(ResourceStatus status) throws SVNException
-    {
-    	if (status.getFile() == null) return null;
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IPath resourcePath = pathForLocation(status.getIPath());
-		if (resourcePath == null) 
-		{
-			return null;
-//			if(status.getFile() != null && status.getFile().getName().equals(".metadata"))  //$NON-NLS-1$
-//				return null;
-//		    if (!nullResourceLogged) {
-//		        String errorMsg = Policy.bind("SVNWorkspaceRoot.nullResource", status.getPathString());
-//			    IConsoleListener console = SVNProviderPlugin.getPlugin().getConsoleListener();
-//			    if (console != null) {
-//			        console.logError(errorMsg);
-//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.2"));
-//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.3"));
-//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.4"));
-//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.5"));
-//			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.6"));
-//			    }
-//			    nullResourceLogged = true;
-//			    throw new SVNException(errorMsg);
-//		    }
-//		    throw new SVNException("");
-		}
-		int kind = getResourceType(resourcePath);			
+	/**
+	 * Returns workspace resource for the given local file system <code>location</code>
+	 * and which is a child of the given <code>parent</code> resource. Returns
+	 * <code>parent</code> if parent's file system location equals to the given
+	 * <code>location</code>. Returns <code>null</code> if <code>parent</code> is the 
+	 * workspace root.
+	 * 
+	 * Resource does not have to exist in the workspace in which case resource
+	 * type will be determined by the type of the local filesystem object. 
+	 */
+    public static IResource getResourceFor(IResource parent, IPath location) {
+    	if (parent == null || location == null) {
+    		return null;
+    	}
 
-		if (kind == IResource.FILE)
-		{
-			return root.getFile(resourcePath);
-		}
-		else if(kind == IResource.FOLDER)
-		{
-			return root.getFolder(resourcePath);
-		}
-		else if (kind == IResource.PROJECT)
-		{
-			return root.getProject(resourcePath.segment(0));
-		}
-		else if (kind == IResource.ROOT)
-		{
-			return root;
-		}
-		else if (status.getNodeKind() == SVNNodeKind.FILE)
-		{
-			return root.getFile(resourcePath);
-		}
-		else
-		{
-			if (resourcePath.isRoot())
-			{
-				return root;
-			}
-			else if (resourcePath.segmentCount() == 1)
-			{
-				return root.getProject(resourcePath.segment(0));
-			}
-		}
-//        if (this.getNodeKind() == SVNNodeKind.UNKNOWN) {
-//        	File file = this.getPath().toFile();
-//        	if (file.isDirectory())
-//        		resource = workspaceRoot.getContainerForLocation(pathEclipse);
-//        	else
-//        		resource = workspaceRoot.getFileForLocation(pathEclipse);
-//        }
-
-		return root.getFolder(resourcePath);
-    }
-
-    public static IResource getResourceFor(IContainer parent, ISVNStatus status) throws SVNException {
-    	if (parent == null || status == null || status.getFile() == null) {
+    	if (parent instanceof IWorkspaceRoot) {
     		return null;
     	}
 
@@ -490,14 +392,13 @@ public class SVNWorkspaceRoot {
     		return null;
     	}
 
-    	IPath location = new Path(status.getFile().getAbsolutePath());
     	if (!parent.getLocation().isPrefixOf(location)) {
     		return null;
     	}
 
 		int segmentsToRemove = parent.getLocation().segmentCount();
     	IPath fullPath = parent.getFullPath().append(location.removeFirstSegments(segmentsToRemove));
-    	
+
     	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
     	IResource resource = root.findMember(fullPath);
@@ -506,132 +407,69 @@ public class SVNWorkspaceRoot {
     		return resource;
     	}
 
+    	if (parent instanceof IFile) {
+    		return null;
+    	}
+
 		if (fullPath.isRoot()) {
 			return root;
 		} else if (fullPath.segmentCount() == 1) {
 			return root.getProject(fullPath.segment(0));
 		}
 
-		if (status.getFile().isDirectory()) {
+		if (location.toFile().isDirectory()) {
 			return root.getFolder(fullPath);
 		} 
 
 		return root.getFile(fullPath);
     }
 
-    /**
-     * Gets the resource to which the <code>path</code> is corresponding to.
-     * The resource does not need to exists (yet)
-     * @return IResource
-     */
-    public static IResource getResourceFor(IPath path)
-    {
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IPath resourcePath = pathForLocation(path.makeAbsolute());
-
-		if (resourcePath == null) 
-			return null;
-
-		int kind = getResourceType(resourcePath);			
-
-		if (kind == IResource.FILE)
-		{
-			return root.getFile(resourcePath);
-		}
-		else if(kind == IResource.FOLDER)
-		{
-			return root.getFolder(resourcePath);
-		}
-		else if ((kind == IResource.PROJECT) || (resourcePath.segmentCount() == 1))
-		{
-			return root.getProject(resourcePath.segment(0));
-		}
-		else if ((kind == IResource.ROOT) || (resourcePath.isRoot()))
-		{
-			return root;
-		}
-
-		File file = path.toFile();
-		if (file.isFile())
-			return root.getFile(resourcePath);
-
-		return root.getFolder(resourcePath);
+    public static IResource getResourceFor(IResource parent, ISVNStatus status) {
+    	if (status == null || status.getFile() == null) {
+    		return null;
+    	}
+    	return getResourceFor(parent, new Path(status.getFile().getAbsolutePath()));
     }
 
     /**
-     * Gets the resource to which the <code>status</code> is corresponding to.
-     * Use either ResourceInfo.getType() or getNodeKind() to determine the proper kind of resource.
-     * The resource does not need to exists (yet)
-     * @return IResource
+     * Gets the resources to which the local filesystem <code>location</code> is corresponding to.
+     * The resources do not need to exists (yet)
+     * @return IResource[]
+     * @throws SVNException 
      */
-    public static IResource getResourceFor(ISVNStatus status) throws SVNException
-    {
-    	if (status.getPath() == null) return null;
+    public static IResource[] getResourcesFor(IPath location) {
+		ArrayList resources = new ArrayList();
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IPath resourcePath = pathForLocation(new Path(status.getPath()));
-		if (resourcePath == null) 
-		{
-			if(status.getFile() != null && status.getFile().getName().equals(".metadata"))  //$NON-NLS-1$
-				return null;
-		    if (!nullResourceLogged) {
-		        String errorMsg = Policy.bind("SVNWorkspaceRoot.nullResource", status.getPath());
-		        IConsoleListener console = SVNProviderPlugin.getPlugin().getConsoleListener();
-			    if (console != null) {
-			        console.logError(Policy.bind(errorMsg));
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.2"));
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.3"));
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.4"));
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.5"));
-			        console.logError(Policy.bind("SVNWorkspaceRoot.nullResource.6"));
-			    }
-			    nullResourceLogged = true;
-			    throw new SVNException(errorMsg);
-		    }
-		    throw new SVNException("");
-		}
-		int kind = getResourceType(resourcePath);			
-
-		if (kind == IResource.FILE)
-		{
-			return root.getFile(resourcePath);
-		}
-		else if(kind == IResource.FOLDER)
-		{
-			return root.getFolder(resourcePath);
-		}
-		else if (kind == IResource.PROJECT)
-		{
-			return root.getProject(resourcePath.segment(0));
-		}
-		else if (kind == IResource.ROOT)
-		{
-			return root;
-		}
-		else if (status.getNodeKind() == SVNNodeKind.FILE)
-		{
-			return root.getFile(resourcePath);
-		}
-		else
-		{
-			if (resourcePath.isRoot())
-			{
-				return root;
-			}
-			else if (resourcePath.segmentCount() == 1)
-			{
-				return root.getProject(resourcePath.segment(0));
+		IProject[] projects = root.getProjects();
+		for (int i = 0; i < projects.length; i++) {
+			IResource resource = getResourceFor(projects[i], location);
+			if (resource != null) {
+				resources.add(resource);
 			}
 		}
-//        if (this.getNodeKind() == SVNNodeKind.UNKNOWN) {
-//        	File file = this.getPath().toFile();
-//        	if (file.isDirectory())
-//        		resource = workspaceRoot.getContainerForLocation(pathEclipse);
-//        	else
-//        		resource = workspaceRoot.getFileForLocation(pathEclipse);
-//        }
-
-		return root.getFolder(resourcePath);
+		return (IResource[]) resources.toArray(new IResource[resources.size()]);
     }
-    
+
+    /**
+     * Gets the repository which the local filesystem <code>location</code> belongs to.
+     */
+    public static ISVNRepositoryLocation getRepositoryFor(IPath location) {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IProject[] projects = root.getProjects();
+		for (int i = 0; i < projects.length; i++) {
+			IProject project = projects[i];
+			if (project.getLocation().isPrefixOf(location) && SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+				try {
+					SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());
+					return teamProvider.getSVNWorkspaceRoot().getRepository();
+				} catch (SVNException e) {
+					// an exception is thrown when resource	is not managed
+					SVNProviderPlugin.log(e);
+					return null;
+				}
+			}
+		}
+		return null;
+    }
 }
 

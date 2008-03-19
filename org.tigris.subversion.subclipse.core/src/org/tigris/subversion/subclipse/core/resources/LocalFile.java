@@ -40,7 +40,7 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
 		if (!hasRemote()) {// no base if no remote
 			return null;
 		}
-		return new BaseFile(getStatus());
+		return new BaseFile(resource, getStatus());
     }	
 	
     /* (non-Javadoc)

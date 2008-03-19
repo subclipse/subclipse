@@ -167,7 +167,7 @@ public class CommitAction extends WorkbenchWindowAction {
 			 ISVNStatus[] statuses = command.getStatuses();
 			 for (int j = 0; j < statuses.length; j++) {
 			     if (SVNStatusUtils.isReadyForCommit(statuses[j]) || SVNStatusUtils.isMissing(statuses[j])) {
-			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
+			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(resource, statuses[j]);
 			         if (currentResource != null) {
 			             ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
 			             if (!localResource.isIgnored()) {

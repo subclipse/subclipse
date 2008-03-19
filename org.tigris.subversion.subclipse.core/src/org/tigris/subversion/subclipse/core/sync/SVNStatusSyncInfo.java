@@ -248,10 +248,10 @@ public class SVNStatusSyncInfo extends SyncInfo {
         	} catch (CoreException e) {
         		e.printStackTrace();
         	}
-        	return new BaseFile(baseStatusInfo, charset);
+        	return new BaseFile(local, baseStatusInfo, charset);
         }
         else {
-            return new BaseFolder(baseStatusInfo);
+            return new BaseFolder(local, baseStatusInfo);
         }
     }
     

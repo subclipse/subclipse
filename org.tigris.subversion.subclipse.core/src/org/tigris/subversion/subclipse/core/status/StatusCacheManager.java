@@ -84,7 +84,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @param statuses
  	 * @param rule the scheduling rule to use when running this operation
      */
-    protected List updateCache(IContainer parent, final ISVNStatus[] statuses) throws CoreException {
+    protected List updateCache(IResource parent, final ISVNStatus[] statuses) throws CoreException {
     	final List result = new ArrayList(statuses.length);
 //    	if (ResourcesPlugin.getWorkspace().isTreeLocked())
 //    	{
@@ -214,7 +214,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 //        } else {
             // we don't know if resource is managed or not, we must update its status
         	strategy.setStatusCache(statusCache);
-        	setStatuses(resource.getProject(), strategy.statusesToUpdate(resource));
+        	setStatuses(resource, strategy.statusesToUpdate(resource));
         	status = statusCache.getStatus(resource);
 //        }
         
@@ -232,7 +232,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @param statuses
  	 * @param rule the scheduling rule to use when running this operation
      */
-    public void setStatuses(IContainer parent, ISVNStatus[] statuses) throws SVNException {
+    public void setStatuses(IResource parent, ISVNStatus[] statuses) throws SVNException {
     	try {
 			updateCache(parent, statuses);
 		} catch (CoreException e) {

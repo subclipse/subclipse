@@ -38,16 +38,16 @@ abstract public class SVNPropertyAction extends SVNAction {
 		if (!file.exists()) {
 			return null;
 		}
-		
+
 		IPath pathEclipse; 
 		pathEclipse = new Path(file.getAbsolutePath());
 
-		IResource resource;
-		resource = SVNWorkspaceRoot.getResourceFor(pathEclipse);
-		if (resource == null) {
+		// XXX IGORF ideally IResource should come from ISelection
+		IResource[] resource = SVNWorkspaceRoot.getResourcesFor(pathEclipse);;
+		if (resource.length == 0) {
 			return null;
 		}
-		return SVNWorkspaceRoot.getSVNResourceFor(resource);
+		return SVNWorkspaceRoot.getSVNResourceFor(resource[0]);
 	}
 
 	/**

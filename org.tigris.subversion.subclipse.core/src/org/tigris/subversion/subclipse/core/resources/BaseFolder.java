@@ -13,6 +13,8 @@ package org.tigris.subversion.subclipse.core.resources;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,9 +38,9 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
 	 * Constructor
 	 * @param localResourceStatus
 	 */
-	public BaseFolder(LocalResourceStatus localResourceStatus)
+	public BaseFolder(IResource resource, LocalResourceStatus localResourceStatus)
 	{
-		super(localResourceStatus);		
+		super(resource, localResourceStatus);		
 	}
 	
 	/* (non-Javadoc)
@@ -108,7 +110,7 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
 		progress.beginTask(Policy.bind("RemoteFolder.getMembers"), 100); //$NON-NLS-1$
         
 		try {
-            GetStatusCommand c = new GetStatusCommand(localResourceStatus.getRepository(), localResourceStatus.getResource(), false, true);
+            GetStatusCommand c = new GetStatusCommand(localResourceStatus.getRepository(), resource, false, true);
             c.run(monitor);
             LocalResourceStatus[] statuses = c.getLocalResourceStatuses();
             List baseChildren = new ArrayList(statuses.length);
@@ -131,7 +133,7 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
                 // The folders itself is not its own child, all direct children are
                 if (statuses[i].getUrlString() != null && !statuses[i].getUrlString().equals(localResourceStatus.getUrlString()))
                 {
-                	baseChildren.add(BaseResource.from(statuses[i]));
+                	baseChildren.add(BaseResource.from(SVNWorkspaceRoot.getResourceFor(resource, statuses[i]), statuses[i]));
                 }
             }
             return (ISVNRemoteResource[]) baseChildren.toArray(new ISVNRemoteResource[baseChildren.size()]);

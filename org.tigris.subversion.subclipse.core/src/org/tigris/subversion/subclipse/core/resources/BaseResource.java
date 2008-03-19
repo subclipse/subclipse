@@ -21,7 +21,6 @@ import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
-import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -41,15 +40,18 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 
 	private String charset = null;
 	protected LocalResourceStatus localResourceStatus;
+	protected IResource resource;
 
 	/**
 	 * Constructor for BaseResource.
 	 * @param localResourceStatus
 	 */
-	public BaseResource(LocalResourceStatus localResourceStatus)
+	public BaseResource(IResource resource, LocalResourceStatus localResourceStatus)
 	{
+		Assert.isNotNull(resource);
 		Assert.isNotNull(localResourceStatus);
-		this.localResourceStatus = localResourceStatus;		
+		this.localResourceStatus = localResourceStatus;
+		this.resource = resource;
 	}
 
 	/**
@@ -57,11 +59,13 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	 * @param localResourceStatus
 	 * @param charset
 	 */
-	public BaseResource(LocalResourceStatus localResourceStatus, String charset)
+	public BaseResource(IResource resource, LocalResourceStatus localResourceStatus, String charset)
 	{
+		Assert.isNotNull(resource);
 		Assert.isNotNull(localResourceStatus);
 		this.localResourceStatus = localResourceStatus;
 		this.charset = charset;
+		this.resource = resource;
 	}
 
 	/**
@@ -69,15 +73,15 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	 * @param localResourceStatus
 	 * @return newly constructed BaseFile or BaseFolder instance
 	 */
-	public static BaseResource from(LocalResourceStatus localResourceStatus)
+	public static BaseResource from(IResource resource, LocalResourceStatus localResourceStatus)
 	{
 		if (SVNNodeKind.FILE.equals(localResourceStatus.getNodeKind()))
 		{
-			return new BaseFile(localResourceStatus);
+			return new BaseFile(resource, localResourceStatus);
 		}
 		else
 		{
-			return new BaseFolder(localResourceStatus);
+			return new BaseFolder(resource, localResourceStatus);
 		}
 	}
 	
@@ -240,10 +244,6 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	 * @see org.tigris.subversion.subclipse.core.ISVNResource#getResource()
 	 */
 	public IResource getResource() {
-		try {
-			return localResourceStatus.getResource();
-		} catch (SVNException e) {
-			return null;
-		}
+		return resource;
 	}
 }

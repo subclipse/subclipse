@@ -259,7 +259,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
             List result = new ArrayList(statuses.length);
             for (int i = 0; i < statuses.length; i++) {
             	RemoteResourceStatus status = statuses[i];
-            	IResource changedResource = status.getResource();
+            	IResource changedResource = SVNWorkspaceRoot.getResourceFor(resource, status);
 
                 if (changedResource == null)
                 	continue;

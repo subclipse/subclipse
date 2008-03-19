@@ -281,7 +281,7 @@ public abstract class WorkspaceAction extends SVNAction {
 			 for (int j = 0; j < statuses.length; j++) {
 			     if (SVNStatusUtils.isReadyForRevert(statuses[j]) ||
 			   		  !SVNStatusUtils.isManaged(statuses[j])) {
-			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(statuses[j]);
+			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(resource, statuses[j]);
 			         if (currentResource != null)
 			             modified.add(currentResource);
 			     }

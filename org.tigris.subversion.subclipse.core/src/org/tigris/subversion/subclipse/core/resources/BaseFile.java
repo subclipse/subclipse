@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
@@ -29,9 +30,9 @@ public class BaseFile extends BaseResource implements ISVNRemoteFile {
 	 * Constructor
 	 * @param localResourceStatus
 	 */
-	public BaseFile(LocalResourceStatus localResourceStatus)
+	public BaseFile(IResource resource, LocalResourceStatus localResourceStatus)
 	{
-		super(localResourceStatus);
+		super(resource, localResourceStatus);
 	}	
 
 	/**
@@ -39,8 +40,8 @@ public class BaseFile extends BaseResource implements ISVNRemoteFile {
 	 * @param localResourceStatus
 	 * @param charset
 	 */
-	public BaseFile(LocalResourceStatus localResourceStatus, String charset) {
-		super(localResourceStatus, charset);
+	public BaseFile(IResource resource, LocalResourceStatus localResourceStatus, String charset) {
+		super(resource, localResourceStatus, charset);
 	}
 
 	/* (non-Javadoc)

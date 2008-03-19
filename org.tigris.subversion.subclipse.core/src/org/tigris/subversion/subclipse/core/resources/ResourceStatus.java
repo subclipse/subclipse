@@ -19,14 +19,11 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.Date;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.team.core.RepositoryProvider;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -55,8 +52,6 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     protected static final int FORMAT_VERSION_2 = 2;
     protected static final int FORMAT_VERSION_3 = 3;
 
-    protected transient IResource resource;
-    
     protected String url;
     protected File file; // file (absolute path) -- not stored in bytes in this class. Subclasses may store it ...
     protected long lastChangedRevision;
@@ -189,17 +184,11 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
 				return null;
 			}
 		}
-		else
+		else if (file != null)
 		{
-			try {
-				SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(getResource().getProject(), SVNProviderPlugin.getTypeId());
-				return teamProvider.getSVNWorkspaceRoot().getRepository();
-			} catch (SVNException e) {
-				// an exception is thrown when resource	is not managed
-				SVNProviderPlugin.log(e);
-				return null;
-			}
+			return SVNWorkspaceRoot.getRepositoryFor(new Path(file.getAbsolutePath()));
 		}
+		return null;
 	}
 
 	/* (non-Javadoc)
@@ -411,21 +400,6 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     	//However subclass may added it
     }
     
-    /**
-     * Gets the resource this status is corresponding to.
-     * Use either ResourceInfo.getType() or getNodeKind() to determine the proper kind of resource.
-     * The resource does not need to exists (yet)
-     * @return IResource
-     * @throws SVNException
-     */
-    public synchronized IResource getResource() throws SVNException
-    {
-    	if (resource == null) {
-    		return SVNWorkspaceRoot.getResourceFor(this);
-    	}
-    	return resource;
-    }
-
     /**
      * Performance optimized ByteArrayOutputStream for storing status data.
    	 * This is one-purpose specialized stream without need for synchronization

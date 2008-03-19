@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.core.client;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -141,46 +142,47 @@ public class OperationManager implements ISVNNotifyListener {
         if (kind == SVNNodeKind.UNKNOWN)  { // delete, revert 
             IPath pathEntries = pathEclipse.removeLastSegments(1).append(
             		SVNProviderPlugin.getPlugin().getAdminDirectoryName());
-            IResource entries = SVNWorkspaceRoot.getResourceFor(pathEntries);
-            if (entries != null) //probably the pathEclipse was project itself
-            {
-                changedResources.add(entries);
-            }
+            changedResources.addAll(Arrays.asList(SVNWorkspaceRoot.getResourcesFor(pathEntries)));
             
             if (path.isDirectory()) {
-            	IResource resource = SVNWorkspaceRoot.getResourceFor(pathEclipse);
-				if (resource != null && resource.getType() != IResource.ROOT) {
-					IResource svnDir = ((IContainer) resource).getFolder(new Path(
-                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
-                    changedResources.add(svnDir);
-				}
+            	IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse);
+            	for (int i = 0; i < resources.length; i++) {
+            		IResource resource = resources[i];
+					if (resource.getType() != IResource.ROOT) {
+						IResource svnDir = ((IContainer) resource).getFolder(new Path(
+	                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
+	                    changedResources.add(svnDir);
+					}
+            	}
             }
         }
         else
         {
-            IResource resource = null;
 			IResource svnDir = null;
 			if (kind == SVNNodeKind.DIR) {
 				// when the resource is a directory, two .svn directories can
 				// potentially
 				// be modified
-				resource = SVNWorkspaceRoot.getResourceFor(pathEclipse);
-				if (resource != null && resource.getType() != IResource.ROOT) {
-					if (resource.getProject() != resource) {
-						// if resource is a project. We can't refresh ../.svn
-						svnDir = resource.getParent().getFolder(
-								new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
-						changedResources.add(svnDir);
+				IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse);
+				for (int i = 0; i < resources.length; i++) {
+					IResource resource = resources[i];
+					if (resource.getType() != IResource.ROOT) {
+						if (resource.getProject() != resource) {
+							// if resource is a project. We can't refresh ../.svn
+							svnDir = resource.getParent().getFolder(
+									new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
+							changedResources.add(svnDir);
+						}
+	                    svnDir = ((IContainer) resource).getFolder(new Path(
+	                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
+	                    changedResources.add(svnDir);
 					}
-                    svnDir = ((IContainer) resource).getFolder(new Path(
-                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
-                    changedResources.add(svnDir);
 				}
 			} else if (kind == SVNNodeKind.FILE) {
-				resource = SVNWorkspaceRoot.getResourceFor(pathEclipse);
+				IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse);
 
-				if (resource != null) {
-					svnDir = resource.getParent().getFolder(
+				for (int i = 0; i < resources.length; i++) {
+					svnDir = resources[i].getParent().getFolder(
 							new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
 					changedResources.add(svnDir);
 				}

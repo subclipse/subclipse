@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -56,7 +57,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         if (!isManaged()) {// no base if no remote
             return null;
         }
-        return new BaseFolder(getStatus());
+        return new BaseFolder(resource, getStatus());
     }
 
     /* (non-Javadoc)
@@ -277,6 +278,10 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
      */
     public LocalResourceStatus getStatus() throws SVNException {
     	if (getIResource().isTeamPrivateMember() && (SVNProviderPlugin.getPlugin().isAdminDirectory(getIResource().getName())))
+    	{
+    		return LocalResourceStatus.NONE;
+    	}
+    	if (getIResource() instanceof IWorkspaceRoot)
     	{
     		return LocalResourceStatus.NONE;
     	}

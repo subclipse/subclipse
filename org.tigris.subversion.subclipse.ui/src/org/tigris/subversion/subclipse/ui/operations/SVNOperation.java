@@ -293,4 +293,9 @@ public abstract class SVNOperation extends TeamOperation {
 		// Put SVN jobs in the background by default.
 		return true;
 	}
+	
+//	protected ISchedulingRule getSchedulingRule() {
+//		// XXX IGORF consider locking affected projects only  
+//		return ResourcesPlugin.getWorkspace().getRoot();
+//	}
 }
