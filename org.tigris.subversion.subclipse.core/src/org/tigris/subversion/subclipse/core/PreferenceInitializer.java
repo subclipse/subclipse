@@ -30,7 +30,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         Preferences preferences = SVNProviderPlugin.getPlugin().getPluginPreferences();
 		preferences.setDefault(ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE, true);
         preferences.setDefault(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS, false);
-        preferences.setDefault(ISVNCoreConstants.PREF_SHARE_NESTED_PROJECTS, false);
+        preferences.setDefault(ISVNCoreConstants.PREF_SHARE_NESTED_PROJECTS, true);
     }
 
 }
