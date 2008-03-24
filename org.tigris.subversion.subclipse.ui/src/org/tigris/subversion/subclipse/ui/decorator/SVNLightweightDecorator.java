@@ -227,7 +227,7 @@ public class SVNLightweightDecorator
             if (svnResource.getIResource().getType() == IResource.FILE) {
                 // for files, we want that only modified files to be considered as dirty
             	LocalResourceStatus status = svnResource.getStatus();
-                return ((status.isTextModified() || status.isPropModified() || status.isReplaced())
+                return ((status.isTextModified() || status.isPropModified() || status.isReplaced() || status.isAdded())
 							&& !status.isIgnored() && !svnResource.isIgnored());
             } else {
                 // a container with an added file, deleted file, conflicted file ... is considered as dirty
@@ -304,7 +304,7 @@ public class SVNLightweightDecorator
 			}
 			decorateTextLabel(svnResource, status, decoration, isDirty);
 		}
-		if (!isUnversioned) computeColorsAndFonts(isIgnored, isDirty, decoration);
+		computeColorsAndFonts(isIgnored, isDirty || isUnversioned, decoration);
 		if (!isIgnored) {
 			ImageDescriptor overlay = getOverlay(svnResource, status, isDirty, svnProvider);
 			if(overlay != null) { //actually sending null arg would work but this makes logic clearer
