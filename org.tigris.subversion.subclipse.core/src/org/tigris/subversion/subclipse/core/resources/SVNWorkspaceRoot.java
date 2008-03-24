@@ -11,8 +11,8 @@
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -438,13 +438,16 @@ public class SVNWorkspaceRoot {
      * @throws SVNException 
      */
     public static IResource[] getResourcesFor(IPath location) {
-		ArrayList resources = new ArrayList();
+		Set resources = new LinkedHashSet();
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject[] projects = root.getProjects();
 		for (int i = 0; i < projects.length; i++) {
 			IResource resource = getResourceFor(projects[i], location);
 			if (resource != null) {
 				resources.add(resource);
+			}
+			if (isManagedBySubclipse(projects[i]) && location.isPrefixOf(projects[i].getLocation())) {
+				resources.add(projects[i]);
 			}
 		}
 		return (IResource[]) resources.toArray(new IResource[resources.size()]);

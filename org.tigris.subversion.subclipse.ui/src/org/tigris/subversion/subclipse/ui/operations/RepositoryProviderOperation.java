@@ -12,17 +12,20 @@ package org.tigris.subversion.subclipse.ui.operations;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
@@ -88,7 +91,13 @@ public abstract class RepositoryProviderOperation extends SVNOperation {
 	 * @return
 	 */
 	protected ISchedulingRule getSchedulingRule(SVNTeamProvider provider) {
-		return provider.getRuleFactory().modifyRule(provider.getProject());
+		IResourceRuleFactory ruleFactory = provider.getRuleFactory();
+		IResource[] resources = SVNWorkspaceRoot.getResourcesFor(provider.getProject().getLocation());
+		HashSet rules = new HashSet();
+		for (int i = 0; i < resources.length; i++) {
+			rules.add(ruleFactory.modifyRule(resources[i].getProject()));
+		}
+		return MultiRule.combine((ISchedulingRule[]) rules.toArray(new ISchedulingRule[rules.size()]));
 	}
 
 	/*
