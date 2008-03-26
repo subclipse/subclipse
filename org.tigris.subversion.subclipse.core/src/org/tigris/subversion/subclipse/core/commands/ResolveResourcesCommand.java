@@ -43,7 +43,7 @@ public class ResolveResourcesCommand implements ISVNCommand {
             OperationManager.getInstance().beginOperation(svnClient);
             
             for (int i = 0; i < resources.length; i++) {
-                svnClient.resolved(resources[i].getLocation().toFile(), resolution);
+                svnClient.resolve(resources[i].getLocation().toFile(), resolution);
                 monitor.worked(100);
             }
         } catch (SVNClientException e) {
