@@ -59,7 +59,7 @@ public class ChangePathsTreeViewer extends TreeViewer {
     }
     
     public ChangePathsTreeViewer(Composite parent, IContentProvider contentProvider) {
-        super(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI /*| SWT.FULL_SELECTION*/);
+        super(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI /*| SWT.FULL_SELECTION*/);
         GridData data = new GridData(GridData.FILL_BOTH);
         getControl().setLayoutData(data);
         getControl().addDisposeListener(new DisposeListener() {
