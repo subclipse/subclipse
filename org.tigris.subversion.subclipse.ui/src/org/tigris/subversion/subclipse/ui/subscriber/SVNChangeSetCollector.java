@@ -19,7 +19,10 @@ import java.util.Map;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoTree;
 import org.eclipse.team.core.variants.IResourceVariant;
@@ -208,34 +211,50 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 	 * (non-Javadoc)
 	 * @see org.eclipse.team.internal.ui.synchronize.SyncInfoSetChangeSetCollector#add(org.eclipse.team.core.synchronize.SyncInfo[])
 	 */
-	protected void add(SyncInfo[] infos) {
+	protected void add(final SyncInfo[] infos) {
 		final Map sets = new HashMap();
-		
-		for (int i=0; i<infos.length; i++) {
-			SyncInfo syncInfo = infos[i];
-			if (syncInfo instanceof SVNStatusSyncInfo) {
-				SVNStatusSyncInfo svnSyncInfo = (SVNStatusSyncInfo)syncInfo;
-				if (SyncInfo.getDirection(svnSyncInfo.getKind()) == SyncInfo.INCOMING) {
-					SVNCheckedInChangeSet changeSet = (SVNCheckedInChangeSet) sets.get(svnSyncInfo.getRemote().getContentIdentifier());
-					if (changeSet == null) {
-						changeSet = new SVNCheckedInChangeSet(svnSyncInfo);
-						sets.put(svnSyncInfo.getRemote().getContentIdentifier(), changeSet);
-					} else {
-						changeSet.add(svnSyncInfo);
-					}
-				}
-			}
-		}
-		
-		this.performUpdate(new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				for (Iterator it = sets.values().iterator(); it.hasNext();) {
-					SVNCheckedInChangeSet set = (SVNCheckedInChangeSet) it.next();
 
-					SVNChangeSetCollector.this.add(set);
-				}
-			}
-		}, true, new NullProgressMonitor());
+		Job job = new Job(Policy.bind("SynchronizeView.collectingChangeSets")) {
+      protected IStatus run(IProgressMonitor monitor) {
+        monitor.beginTask(null, infos.length);
+        for (int i=0; i<infos.length; i++) {
+          SyncInfo syncInfo = infos[i];
+          
+          if (syncInfo instanceof SVNStatusSyncInfo) {
+            SVNStatusSyncInfo svnSyncInfo = (SVNStatusSyncInfo)syncInfo;
+            if (SyncInfo.getDirection(svnSyncInfo.getKind()) == SyncInfo.INCOMING) {
+              SVNCheckedInChangeSet changeSet = (SVNCheckedInChangeSet) sets.get(svnSyncInfo.getRemote().getContentIdentifier());
+              if (changeSet == null) {
+                changeSet = new SVNCheckedInChangeSet(svnSyncInfo);
+                sets.put(svnSyncInfo.getRemote().getContentIdentifier(), changeSet);
+              } else {
+                changeSet.add(svnSyncInfo);
+              }
+            }
+          }
+          monitor.worked(1);
+        }
+        monitor.done();
+
+        performUpdate(new IWorkspaceRunnable() {
+          public void run(IProgressMonitor monitor) throws CoreException {
+            for (Iterator it = sets.values().iterator(); it.hasNext();) {
+              SVNCheckedInChangeSet set = (SVNCheckedInChangeSet) it.next();
+              SVNChangeSetCollector.this.add(set);
+            }
+          }
+        }, true, new NullProgressMonitor());
+        
+        return Status.OK_STATUS;
+      }
+		};
+		
+		job.schedule();
+		try {
+      job.join();
+    } catch (InterruptedException ex) {
+      //
+    }
 	}
 	
 	/**
