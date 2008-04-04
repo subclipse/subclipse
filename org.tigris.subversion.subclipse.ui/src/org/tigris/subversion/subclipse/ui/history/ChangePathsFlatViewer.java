@@ -45,7 +45,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * 
  * @author Eugene Kuleshov
  */
-class ChangePathsFlatViewer extends TableViewer {
+public class ChangePathsFlatViewer extends TableViewer {
   ILogEntry currentLogEntry;
   Font currentPathFont;
 

@@ -2008,8 +2008,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		          IStructuredSelection ss = (IStructuredSelection) selection;
 		          ILogEntry logEntry = (ILogEntry)ss.getFirstElement();
 		          ShowRevisionsDialog dialog = null;
-		          if (resource != null) dialog = new ShowRevisionsDialog(getSite().getShell(), logEntry, resource, includeTags);
-		          else if (remoteResource != null) dialog = new ShowRevisionsDialog(getSite().getShell(), logEntry, remoteResource, includeTags);
+		          if (resource != null) dialog = new ShowRevisionsDialog(getSite().getShell(), logEntry, resource, includeTags, SVNHistoryPage.this);
+		          else if (remoteResource != null) dialog = new ShowRevisionsDialog(getSite().getShell(), logEntry, remoteResource, includeTags, SVNHistoryPage.this);
 		          if (dialog != null) dialog.open();
 			  }
 		  };

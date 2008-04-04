@@ -13,6 +13,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -22,6 +23,7 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -48,7 +50,10 @@ import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.history.ChangePathsFlatViewer;
 import org.tigris.subversion.subclipse.ui.history.ChangePathsTableProvider;
+import org.tigris.subversion.subclipse.ui.history.ChangePathsTreeViewer;
+import org.tigris.subversion.subclipse.ui.history.SVNHistoryPage;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -59,7 +64,7 @@ public class ShowRevisionsDialog extends TrayDialog {
     private ISVNRemoteResource remoteResource;
     private boolean includeTags;
     private SashForm sashForm;
-    private ChangePathsTableProvider changePathsTableProvider;
+    private StructuredViewer changePathsViewer;
     private TreeViewer treeHistoryViewer;
     private TextViewer textViewer;
     private IAction showDifferencesAsUnifiedDiffAction;
@@ -69,6 +74,7 @@ public class ShowRevisionsDialog extends TrayDialog {
     private TreeColumn dateColumn;
     private TreeColumn authorColumn;
     private TreeColumn commentColumn;
+    private SVNHistoryPage historyPage;
     
 	private static final int WIDTH_HINT = 500;
 	private final static int LOG_HEIGHT_HINT = 200;
@@ -81,23 +87,25 @@ public class ShowRevisionsDialog extends TrayDialog {
 	private final static int COL_AUTHOR = 3;
 	private final static int COL_COMMENT = 4;
 
-    public ShowRevisionsDialog(Shell parentShell, ILogEntry logEntry, IResource resource, boolean includeTags) {
+    public ShowRevisionsDialog(Shell parentShell, ILogEntry logEntry, IResource resource, boolean includeTags, SVNHistoryPage historyPage) {
         super(parentShell);
 		int shellStyle = getShellStyle();
 		setShellStyle(shellStyle | SWT.RESIZE);
         this.logEntry = logEntry;
         this.resource = resource;
         this.includeTags = includeTags;
+        this.historyPage = historyPage;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
     }
     
-    public ShowRevisionsDialog(Shell parentShell, ILogEntry logEntry, ISVNRemoteResource remoteResource, boolean includeTags) {
+    public ShowRevisionsDialog(Shell parentShell, ILogEntry logEntry, ISVNRemoteResource remoteResource, boolean includeTags, SVNHistoryPage historyPage) {
         super(parentShell);
 		int shellStyle = getShellStyle();
 		setShellStyle(shellStyle | SWT.RESIZE);
         this.logEntry = logEntry;
         this.remoteResource = remoteResource;
         this.includeTags = includeTags;
+        this.historyPage = historyPage;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
     }
     
@@ -250,18 +258,18 @@ public class ShowRevisionsDialog extends TrayDialog {
                 ISelection selection = event.getSelection();
 				if (selection == null || !(selection instanceof IStructuredSelection)) {
 					textViewer.setDocument(new Document("")); //$NON-NLS-1$
-                    changePathsTableProvider.setInput(null);
+                    changePathsViewer.setInput(null);
 					return;
 				}
 				IStructuredSelection ss = (IStructuredSelection)selection;
 				if (ss.size() != 1) {
 					textViewer.setDocument(new Document("")); //$NON-NLS-1$
-                    changePathsTableProvider.setInput(null);
+                    changePathsViewer.setInput(null);
 					return;
 				}
 				LogEntry entry = (LogEntry)ss.getFirstElement();
 				textViewer.setDocument(new Document(entry.getComment()));
-                changePathsTableProvider.setInput(entry);                     
+                changePathsViewer.setInput(entry);                     
             }		    
 		});
 		
@@ -295,23 +303,37 @@ public class ShowRevisionsDialog extends TrayDialog {
         Composite pathGroup = new Composite(sashForm, SWT.NULL);
         pathGroup.setLayout(new GridLayout());
         pathGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
+        int mode = store.getInt(ISVNUIConstants.PREF_AFFECTED_PATHS_MODE);
+        IStructuredContentProvider contentProvider = new IStructuredContentProvider() {
+            public Object[] getElements(Object inputElement) {
+                if ((inputElement == null) || (!(inputElement instanceof ILogEntry))) {
+                    return null;
+                }
+                ILogEntry logEntry = (ILogEntry)inputElement;
+                  return logEntry.getLogEntryChangePaths();
+              }
+  
+              public void dispose() {
+              }
+  
+              public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+              }        	
+        };
+        
+        switch(mode) {
+	        case ISVNUIConstants.MODE_COMPRESSED:
+	          changePathsViewer = new ChangePathsTreeViewer(pathGroup, historyPage);
+	          break;
+	        case ISVNUIConstants.MODE_FLAT2:  
+	          changePathsViewer = new ChangePathsFlatViewer(pathGroup, historyPage);
+	          break;
+	        default:
+	          changePathsViewer = new ChangePathsTableProvider(pathGroup, contentProvider);
+	          break;
+        }
 		
-		changePathsTableProvider = new ChangePathsTableProvider(pathGroup, 
-            new IStructuredContentProvider() {
-                public Object[] getElements(Object inputElement) {
-                  if ((inputElement == null) || (!(inputElement instanceof ILogEntry))) {
-                      return null;
-                  }
-                  ILogEntry logEntry = (ILogEntry)inputElement;
-                    return logEntry.getLogEntryChangePaths();
-                }
-    
-                public void dispose() {
-                }
-    
-                public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-                }
-          });
 		
 		try {
 			int[] weights = new int[3];
