@@ -49,6 +49,8 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
@@ -62,6 +64,9 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.history.ChangePathsTreeViewer;
 import org.tigris.subversion.subclipse.ui.history.HistoryFolder;
 import org.tigris.subversion.subclipse.ui.history.HistoryTableProvider;
+import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class HistoryDialog extends TrayDialog {
@@ -82,6 +87,8 @@ public class HistoryDialog extends TrayDialog {
 	private IPreferenceStore store;
 	private SVNRevision revisionStart = SVNRevision.HEAD;
 	private boolean getNextEnabled = true;
+	private boolean includeTags = true;
+	private boolean includeBugs = false;
 	
 	private static final int WIDTH_HINT = 500;
 	private final static int LOG_HEIGHT_HINT = 200;
@@ -107,11 +114,14 @@ public class HistoryDialog extends TrayDialog {
     
 	protected Control createDialogArea(Composite parent) {
 		getLogEntries();
-	    if (resource == null)
+	    if (resource == null) {
 	        getShell().setText(Policy.bind("HistoryDialog.title") + " - " + remoteResource.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-	    else
+	        setIncludeBugsAndTags(remoteResource);
+	    } else {
 	        getShell().setText(Policy.bind("HistoryDialog.title") + " - " + resource.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		Composite composite = new Composite(parent, SWT.NULL);
+	        setIncludeBugsAndTags(resource);
+	    }
+	    Composite composite = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		layout.verticalSpacing = 0;
 		layout.marginHeight = 0;
@@ -135,9 +145,9 @@ public class HistoryDialog extends TrayDialog {
         historyGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		historyTableProvider = new HistoryTableProvider(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER, "HistoryDialog"); //$NON-NLS-1$
-		historyTableProvider.setIncludeBugs(false);
+		historyTableProvider.setIncludeBugs(includeBugs);
 		historyTableProvider.setIncludeMergeRevisions(false);
-		historyTableProvider.setIncludeTags(false);
+		historyTableProvider.setIncludeTags(includeTags);
 		historyTableProvider.setRemoteResource(remoteResource);
 		tableHistoryViewer = historyTableProvider.createTable(historyGroup);
 		data = new GridData(GridData.FILL_BOTH);
@@ -239,6 +249,49 @@ public class HistoryDialog extends TrayDialog {
 		return composite;
 	}
 	
+	private void setIncludeBugsAndTags(IResource res) {
+		try {
+			ProjectProperties projectProperties = ProjectProperties.getProjectProperties(resource);
+			includeBugs = projectProperties != null;
+			includeTags = tagsPropertySet(res);
+		} catch (SVNException e) {
+			SVNUIPlugin.openError(getShell(), null, null, e);
+		}
+	}
+	
+    private boolean tagsPropertySet(IResource res) {
+	    if (res == null) return false;
+	    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(res);
+	    try {
+		    if (svnResource.isManaged()) {
+		      ISVNProperty property = null;
+			  property = svnResource.getSvnProperty("subclipse:tags"); //$NON-NLS-1$
+			  if (property != null && property.getValue() != null) return true;
+		    }
+	    } catch (SVNException e) {}
+	    return false;
+    }
+    
+    private boolean tagsPropertySet(ISVNRemoteResource res) {
+		try {
+			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
+			ISVNProperty property = null;
+	        SVNProviderPlugin.disableConsoleLogging(); 
+			property = client.propertyGet(res.getUrl(), "subclipse:tags"); //$NON-NLS-1$
+	        SVNProviderPlugin.enableConsoleLogging(); 
+			if (property != null && property.getValue() != null) return true;
+		} catch (Exception e) {        
+			SVNProviderPlugin.enableConsoleLogging(); 
+		}
+		return false;
+  }   
+
+	private void setIncludeBugsAndTags(ISVNRemoteResource res) {
+	    ProjectProperties projectProperties = ProjectProperties.getProjectProperties(res);
+	  	includeBugs = projectProperties != null;
+	  	includeTags = tagsPropertySet(res);
+	}
+
 	private void getLogEntries() {
 	   BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 	        public void run() {
