@@ -35,6 +35,7 @@ import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.wizards.WizardDialogWithPersistedLocation;
 import org.tigris.subversion.subclipse.ui.wizards.generatediff.GenerateDiffFileWizard;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
@@ -79,7 +80,7 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 		GenerateDiffFileWizard wizard = new GenerateDiffFileWizard(new StructuredSelection(modifiedResources), unaddedResources, statusMap);
 		wizard.setWindowTitle(title);
 		wizard.setSelectedResources(getSelectedResources());
-		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		WizardDialog dialog = new WizardDialogWithPersistedLocation(getShell(), wizard, "GenerateDiffFileWizard"); //$NON-NLS-1$
 		dialog.setMinimumPageSize(350, 250);
 		dialog.open();
 	}

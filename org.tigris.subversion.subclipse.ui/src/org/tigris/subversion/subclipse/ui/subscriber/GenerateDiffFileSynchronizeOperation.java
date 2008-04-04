@@ -23,6 +23,7 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.wizards.WizardDialogWithPersistedLocation;
 import org.tigris.subversion.subclipse.ui.wizards.generatediff.GenerateDiffFileWizard;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
@@ -96,7 +97,9 @@ public class GenerateDiffFileSynchronizeOperation extends SVNSynchronizeOperatio
 		GenerateDiffFileWizard wizard = new GenerateDiffFileWizard(new StructuredSelection(resources), unversionedResources, statusMap);
 		wizard.setWindowTitle(Policy.bind("GenerateSVNDiff.title")); //$NON-NLS-1$
 		wizard.setSelectedResources(selectedResources);
-		final WizardDialog dialog = new WizardDialog(getShell(), wizard);
+//		final WizardDialog dialog = new WizardDialog(getShell(), wizard);
+//		dialog.setMinimumPageSize(350, 250);
+		final WizardDialog dialog = new WizardDialogWithPersistedLocation(getShell(), wizard, "GenerateDiffFileWizard"); //$NON-NLS-1$
 		dialog.setMinimumPageSize(350, 250);
 		getShell().getDisplay().syncExec(new Runnable() {
 			public void run() {
