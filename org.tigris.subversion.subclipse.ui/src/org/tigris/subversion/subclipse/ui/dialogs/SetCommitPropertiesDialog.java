@@ -190,18 +190,18 @@ public class SetCommitPropertiesDialog extends TrayDialog {
     private void saveLocation() {
         int x = getShell().getLocation().x;
         int y = getShell().getLocation().y;
-        settings.put("CommitDialog.location.x", x); //$NON-NLS-1$
-        settings.put("CommitDialog.location.y", y); //$NON-NLS-1$
+        settings.put("SetCommitPropertiesDialog.location.x", x); //$NON-NLS-1$
+        settings.put("SetCommitPropertiesDialog.location.y", y); //$NON-NLS-1$
         x = getShell().getSize().x;
         y = getShell().getSize().y;
-        settings.put("CommitDialog.size.x", x); //$NON-NLS-1$
-        settings.put("CommitDialog.size.y", y); //$NON-NLS-1$   
+        settings.put("SetCommitPropertiesDialog.size.x", x); //$NON-NLS-1$
+        settings.put("SetCommitPropertiesDialog.size.y", y); //$NON-NLS-1$   
     }
 
     protected Point getInitialLocation(Point initialSize) {
 	    try {
-	        int x = settings.getInt("CommitDialog.location.x"); //$NON-NLS-1$
-	        int y = settings.getInt("CommitDialog.location.y"); //$NON-NLS-1$
+	        int x = settings.getInt("SetCommitPropertiesDialog.location.x"); //$NON-NLS-1$
+	        int y = settings.getInt("SetCommitPropertiesDialog.location.y"); //$NON-NLS-1$
 	        return new Point(x, y);
 	    } catch (NumberFormatException e) {}
         return super.getInitialLocation(initialSize);
@@ -209,8 +209,8 @@ public class SetCommitPropertiesDialog extends TrayDialog {
     
     protected Point getInitialSize() {
 	    try {
-	        int x = settings.getInt("CommitDialog.size.x"); //$NON-NLS-1$
-	        int y = settings.getInt("CommitDialog.size.y"); //$NON-NLS-1$
+	        int x = settings.getInt("SetCommitPropertiesDialog.size.x"); //$NON-NLS-1$
+	        int y = settings.getInt("SetCommitPropertiesDialog.size.y"); //$NON-NLS-1$
 	        return new Point(x, y);
 	    } catch (NumberFormatException e) {}
         return super.getInitialSize();
