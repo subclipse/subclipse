@@ -51,6 +51,11 @@ public class SvnWizardDialog extends ClosableWizardDialog {
         super.cancelPressed();
     }
 
+    public void finishPressed() {
+        saveLocation();
+        super.finishPressed();
+    }
+
     protected void okPressed() {
         saveLocation();
         super.okPressed();
