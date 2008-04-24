@@ -21,22 +21,22 @@
    <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.3.11.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.3.11">
       <category name="JavaHL Adapter (recommended)"/>
    </feature>
-   <category-def name="Subclipse (required)" label="Subclipse Plugin">
+   <category-def name="Subclipse (required)" label="Subclipse (required)">
       <description>
          The subclipse Subversion plugin
       </description>
    </category-def>
-   <category-def name="JavaHL Adapter (recommended)" label="JavaHL">
+   <category-def name="JavaHL Adapter (recommended)" label="JavaHL Adapter (recommended)">
       <description>
          The native adapter.  Uses JNI to work directly with native Subversion libraries.
       </description>
    </category-def>
-   <category-def name="SVNKit Adapter BETA (optional)" label="SVNKit">
+   <category-def name="SVNKit Adapter BETA (optional)" label="SVNKit Adapter BETA (optional)">
       <description>
          The pure Java adapter.  Use SVNKit, a pure Java  implementation of Subversion client and protocols.
       </description>
    </category-def>
-   <category-def name="Integrations (optional)" label="Integrations">
+   <category-def name="Integrations (optional)" label="Integrations (optional)">
       <description>
          Integrations between Subclipse and other tools.  Install these ONLY if you already use these tools
       </description>
