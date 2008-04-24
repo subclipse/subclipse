@@ -14,9 +14,11 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -2503,7 +2505,49 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	        }			
 			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, start, end, stopOnCopy, fetchLimit, tagManager, includeMergedRevisions);
 			logCmd.run(monitor);
-			return logCmd.getLogEntries(); 					
+			ILogEntry[] logEntries = logCmd.getLogEntries();
+			if (logEntries.length == 0 || fetchLimit == 0 || !includeMergedRevisions || logEntries.length >= fetchLimit) {
+				return logEntries;
+			} else {
+				boolean nestedRevisionsIncluded = false;
+				List entries = new ArrayList();
+				for (int i = 0; i < logEntries.length; i++) {
+					if (logEntries[i].getNumberOfChildren() > 0) nestedRevisionsIncluded = true;
+					entries.add(logEntries[i]);
+				}
+				if (!nestedRevisionsIncluded) {
+					return logEntries;
+				}
+				boolean limitReached = false;
+				ILogEntry lastEntry = logEntries[logEntries.length - 1];
+				while (!limitReached) {
+	              long lastEntryNumber = lastEntry.getRevision().getNumber();
+	              start = new SVNRevision.Number(lastEntryNumber - 1);
+	              logCmd = new GetLogsCommand(remoteResource, pegRevision, start, end, stopOnCopy, fetchLimit, tagManager, includeMergedRevisions);
+	              try {
+	            	  logCmd.run(monitor);
+	              } catch (Exception e) { 
+	            	  break; 
+	              }
+	              logEntries = logCmd.getLogEntries();
+	              if (logEntries.length == 0) limitReached = true;
+	              else {
+	            	  for (int i = 0; i < logEntries.length; i++) {
+	            		  entries.add(logEntries[i]);
+	            		  lastEntry = logEntries[i];
+//	            		  if (entries.size() >= fetchLimit) {
+//	            			  limitReached = true;
+//	            			  break;
+//	            		  }
+	            	  }
+	            	  if (entries.size() >= fetchLimit) limitReached = true;
+	              }
+				}
+				ILogEntry[] entryArray = new ILogEntry[entries.size()];
+				entries.toArray(entryArray);
+				return entryArray;
+			}
+//			return logCmd.getLogEntries(); 					
 		}
   }
 
