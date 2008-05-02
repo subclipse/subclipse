@@ -22,6 +22,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class ProjectProperties {
     protected String label = "Issue Number:"; //$NON-NLS-1$
@@ -289,7 +290,8 @@ public class ProjectProperties {
             property = svnResource.getSvnProperty("bugtraq:label"); //$NON-NLS-1$
             if (property != null) projectProperties.setLabel(property.getValue()); 
             property = svnResource.getSvnProperty("bugtraq:url"); //$NON-NLS-1$
-            if (property != null) projectProperties.setUrl(property.getValue()); 
+//          if (property != null) projectProperties.setUrl(property.getValue()); 
+            if (property != null) projectProperties.setUrl(resolveUrl(property.getValue(), svnResource));
             property = svnResource.getSvnProperty("bugtraq:number"); //$NON-NLS-1$
             if ((property != null) && (property.getValue() != null)) projectProperties.setNumber(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$  
             property = svnResource.getSvnProperty("bugtraq:warnifnoissue"); //$NON-NLS-1$
@@ -316,6 +318,39 @@ public class ProjectProperties {
             }
         }
         return null;
+    }
+    
+    private static String resolveUrl(String url, ISVNLocalResource svnResource) {
+    	String resolvedUrl = null;
+    	
+    	// Relative to repository root, with navigators.
+    	if (url.startsWith("^/")) {
+    		SVNUrl repositoryUrl = svnResource.getRepository().getUrl();
+    		String path = url.substring(1);
+    		while (path.startsWith("/..")) {
+    			if (repositoryUrl.getParent() == null) break;
+    			repositoryUrl = repositoryUrl.getParent();
+    			path = path.substring(3);
+    		}
+    		resolvedUrl = repositoryUrl + path;
+    	}
+    	
+    	// Relative to host.
+    	else if (url.startsWith("/")) {
+    		String resourceUrl = svnResource.getUrl().toString();
+    		String protocol = svnResource.getUrl().getProtocol();
+    		int start = protocol.length();
+    		while (resourceUrl.substring(start, start + 1).equals(":") || resourceUrl.substring(start, start + 1).equals("/"))
+    			start++;
+    		int end = resourceUrl.indexOf("/", start);
+    		if (end == -1) resolvedUrl = resourceUrl + url;
+    		else resolvedUrl = resourceUrl.substring(0, end) + url;
+    	}
+    	
+    	//  Non-relative
+    	else resolvedUrl = url;
+    	
+    	return resolvedUrl;
     }
     
     public static ProjectProperties getProjectProperties(ISVNRemoteResource remoteResource) {

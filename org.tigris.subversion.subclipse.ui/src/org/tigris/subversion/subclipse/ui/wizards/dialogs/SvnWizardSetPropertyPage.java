@@ -321,13 +321,15 @@ public class SvnWizardSetPropertyPage extends SvnWizardDialogPage {
 			            return;
 		            }
 		        }
-		        if (propertyTypes[prop].isUrl()) {		            
-		            try {
-		                new URL(propertyValue);
-		            } catch (Exception e) {
-			            setError(Policy.bind("SetSvnPropertyDialog.url")); //$NON-NLS-1$
-		                return;
-		            }
+		        if (propertyTypes[prop].isUrl()) {	
+		        	if (!propertyName.equals("bugtraq:url") || (!propertyValue.startsWith("^/") && !propertyValue.startsWith("/"))) {
+			            try {
+			                new URL(propertyValue);
+			            } catch (Exception e) {
+				            setError(Policy.bind("SetSvnPropertyDialog.url")); //$NON-NLS-1$
+			                return;
+			            }
+		        	}
 		        } 		   		        
 		    }
 		    // if non-folder property specified for folder, recurse must be selected.
