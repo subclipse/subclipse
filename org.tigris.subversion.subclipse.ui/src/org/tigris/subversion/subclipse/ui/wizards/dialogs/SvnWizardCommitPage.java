@@ -371,8 +371,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	        else
 	            comment = projectProperties.getResolvedMessage(issue) + "\n" + commitCommentArea.getComment(); //$NON-NLS-1$
 	    }
-		comment = commitCommentArea.getComment();
-		commitCommentArea.addComment(comment);
+	    else comment = commitCommentArea.getComment();
+		commitCommentArea.addComment(commitCommentArea.getComment());
 		return comment;
 	}
 	
