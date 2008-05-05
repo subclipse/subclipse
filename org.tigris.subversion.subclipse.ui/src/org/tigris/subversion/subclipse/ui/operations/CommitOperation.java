@@ -64,7 +64,7 @@ public class CommitOperation extends SVNOperation {
 
     protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
 		String adminFolderName = SVNProviderPlugin.getPlugin().getAdminDirectoryName();
-		List cleanUpPathList = new ArrayList();
+		File cleanUpPathList = null;
         try {
         	svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
         	if (resourcesToAdd.length > 0) {
@@ -118,8 +118,9 @@ public class CommitOperation extends SVNOperation {
 				List list = (List)table.get(mapKey);
 				IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
 				if(createAdminFolder(mapKey.getParent(), adminFolderName, providerResources))
-					cleanUpPathList.add(mapKey.getParent());
+					cleanUpPathList = mapKey.getParent();
 				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, 100));
+				deleteAdminFolders(cleanUpPathList, adminFolderName);
 			}			
 //			for (int i = 0; i < selectedResources.length; i++) {
 //				IResource projectHandle = selectedResources[i].getProject();
@@ -146,16 +147,15 @@ public class CommitOperation extends SVNOperation {
     }
 
     /**
-     * This method deletes any metadata folders that were produced during the commit
+     * This method deletes any metadata folder that was produced during the commit
      * process.  They were tracked in a List that is passed in to the method
      * @param pathList
      * @param adminFolderName
      */
-    private void deleteAdminFolders(List pathList, String adminFolderName) {
-		for (Iterator iterator = pathList.iterator(); iterator.hasNext();) {
-			File path = new File((File) iterator.next(), adminFolderName);
-			deleteFolder(path);
-		}
+    private void deleteAdminFolders(File pathList, String adminFolderName) {
+    	if (pathList == null) return;
+		File path = new File(pathList, adminFolderName);
+		deleteFolder(path);
 	}
     
     // Deletes all files and subdirectories under dir.
@@ -196,8 +196,12 @@ public class CommitOperation extends SVNOperation {
 		String url = null;
 		String uuid = null;
 		String time = null;
+		ISVNInfo info = null;
 		if (resources.length > 0) {
-			ISVNInfo info = getSVNInfo(SVNWorkspaceRoot.getSVNResourceFor(resources[0]));
+			if (resources[0].getType() == IResource.PROJECT)
+				info = getSVNInfo(SVNWorkspaceRoot.getSVNResourceFor(resources[0]));
+			else
+				info = getSVNInfo(SVNWorkspaceRoot.getSVNResourceFor(resources[0].getProject()));
 			if (info != null) {
 				url = info.getRepository().toString();
 				uuid = info.getUuid();
