@@ -182,6 +182,8 @@ public class CommitOperation extends SVNOperation {
 	 * If the resource array contains any IProjects then it needs to create a more
 	 * detailed entries file because apparently Subversion will look more closely
 	 * at its contents in that scenario
+	 * UPDATE: prior to SVN 1.5 GA the above changed so that it appears we now always
+	 *         need to create the slightly more detailed entries file.
 	 * 
 	 * @param path             Folder to create admin folder beneath
 	 * @param adminFolderName  .svn or _svn
@@ -194,15 +196,12 @@ public class CommitOperation extends SVNOperation {
 		String url = null;
 		String uuid = null;
 		String time = null;
-		for (int i = 0; i < resources.length; i++) {
-			if (resources[i].getType() == IResource.PROJECT) {
-				ISVNInfo info = getSVNInfo(SVNWorkspaceRoot.getSVNResourceFor(resources[i]));
-				if (info != null) {
-					url = info.getRepository().toString();
-					uuid = info.getUuid();
-					time = "2005-01-01T21:03:13.980237Z"; // made up value
-				}
-				break;
+		if (resources.length > 0) {
+			ISVNInfo info = getSVNInfo(SVNWorkspaceRoot.getSVNResourceFor(resources[0]));
+			if (info != null) {
+				url = info.getRepository().toString();
+				uuid = info.getUuid();
+				time = "2008-01-01T21:03:13.980237Z"; // made up value
 			}
 		}
 		File admin = new File(path, adminFolderName);
