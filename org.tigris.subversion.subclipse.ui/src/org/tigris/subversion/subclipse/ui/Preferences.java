@@ -54,7 +54,7 @@ private IPreferenceStore store;
     private void setSvnClientConfigDir(String configDir) {
         SVNProviderPlugin plugin = SVNProviderPlugin.getPlugin();
         SVNClientManager svnClientManager = plugin.getSVNClientManager();
-        if ("".equals(configDir)) { //$NON-NLS-1$
+        if (configDir == null || "".equals(configDir)) { //$NON-NLS-1$
         	svnClientManager.setConfigDir(null);
         } else {
         	File configDirFile = new File(configDir);
