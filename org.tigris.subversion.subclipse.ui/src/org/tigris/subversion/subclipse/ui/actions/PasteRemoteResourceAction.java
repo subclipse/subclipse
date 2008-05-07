@@ -34,15 +34,15 @@ public class PasteRemoteResourceAction extends SVNAction {
 	 */
 	protected void execute(IAction action)
 		throws InvocationTargetException, InterruptedException {
+	        Clipboard clipboard = new Clipboard(getShell().getDisplay());
+	        final ISVNRemoteResource resource = (ISVNRemoteResource)clipboard.getContents(RemoteResourceTransfer.getInstance());
+	        clipboard.dispose();
+		
             RepositoryManager manager = SVNUIPlugin.getPlugin().getRepositoryManager();
             final String message = manager.promptForComment(getShell(), new IResource[]{});
 
             if (message == null)
                 return; // canceled
-
-            Clipboard clipboard = new Clipboard(getShell().getDisplay());
-            final ISVNRemoteResource resource = (ISVNRemoteResource)clipboard.getContents(RemoteResourceTransfer.getInstance());
-            clipboard.dispose();
             
             ISVNRemoteResource selectedResource = getSelectedRemoteResources()[0];
             final ISVNRemoteFolder destination = 
