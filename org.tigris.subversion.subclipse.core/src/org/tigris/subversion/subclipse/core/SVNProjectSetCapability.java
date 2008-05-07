@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.team.core.ProjectSetCapability;
 import org.eclipse.team.core.ProjectSetSerializationContext;
 import org.eclipse.team.core.RepositoryProvider;
@@ -161,7 +162,11 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
         if(projects==null || projects.length==0) {
           return new IProject[0];
         }
-        ISchedulingRule rule = projects[0].getWorkspace().getRuleFactory().modifyRule(projects[0]);
+        ISchedulingRule[] ruleArray = new ISchedulingRule[projects.length];
+        for (int i = 0; i < projects.length; i++) {
+            ruleArray[i] = projects[i].getWorkspace().getRuleFactory().modifyRule(projects[i]);
+		}
+        ISchedulingRule rule= MultiRule.combine(ruleArray);
 		Job.getJobManager().beginRule(rule, monitor);
         monitor.beginTask("", 1000 * projects.length); //$NON-NLS-1$
         List result = new ArrayList();
