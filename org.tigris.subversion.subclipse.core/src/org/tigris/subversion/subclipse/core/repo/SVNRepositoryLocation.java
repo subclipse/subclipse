@@ -271,7 +271,7 @@ public class SVNRepositoryLocation
      */
     public ISVNClientAdapter getSVNClient() throws SVNException {
     	ISVNClientAdapter svnClient =
-    		SVNProviderPlugin.getPlugin().createSVNClient();
+    		SVNProviderPlugin.getPlugin().getSVNClient();
     
     	svnClient.addNotifyListener(NotificationListener.getInstance());
     
@@ -535,7 +535,7 @@ public class SVNRepositoryLocation
     		boolean useRootUrl) throws SVNException {
     	if (!useRootUrl) return fromString(location, validateOnly);
     	ISVNClientAdapter svnClient =
-    		SVNProviderPlugin.getPlugin().createSVNClient();
+    		SVNProviderPlugin.getPlugin().getSVNClient();
     	try {
 	    	SVNUrl url = new SVNUrl(location);
 	    	ISVNInfo info = svnClient.getInfo(url);

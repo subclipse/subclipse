@@ -192,7 +192,7 @@ public class SVNWorkspaceRoot {
             throw new SVNException(new SVNStatus(IStatus.ERROR, Policy.bind("SVNProvider.infoMismatch", project.getName())));//$NON-NLS-1$
         
         String repositoryURL = null;
-        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
+        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
         try {
             SVNProviderPlugin.disableConsoleLogging(); 
 			ISVNInfo info = client.getInfoFromWorkingCopy(project.getLocation().toFile());
@@ -280,14 +280,14 @@ public class SVNWorkspaceRoot {
     public static LocalResourceStatus peekResourceStatusFor(IResource resource) throws SVNException
     {
 		PeekStatusCommand command = new PeekStatusCommand(resource);
-		command.execute(SVNProviderPlugin.getPlugin().createSVNClient());
+		command.execute(SVNProviderPlugin.getPlugin().getSVNClient());
 		return command.getLocalResourceStatus();	
     }
 
     public static LocalResourceStatus peekResourceStatusFor(IPath path) throws SVNException
     {
 		PeekStatusCommand command = new PeekStatusCommand(path);
-		command.execute(SVNProviderPlugin.getPlugin().createSVNClient());
+		command.execute(SVNProviderPlugin.getPlugin().getSVNClient());
 		return command.getLocalResourceStatus();	
     }
     

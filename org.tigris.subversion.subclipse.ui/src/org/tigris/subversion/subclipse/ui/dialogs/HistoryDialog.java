@@ -274,7 +274,7 @@ public class HistoryDialog extends TrayDialog {
     
     private boolean tagsPropertySet(ISVNRemoteResource res) {
 		try {
-			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
+			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
 			ISVNProperty property = null;
 	        SVNProviderPlugin.disableConsoleLogging(); 
 			property = client.propertyGet(res.getUrl(), "subclipse:tags"); //$NON-NLS-1$

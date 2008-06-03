@@ -58,7 +58,7 @@ public class RecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
         ISVNStatus[] statuses = null;
         try {
             SVNProviderPlugin.disableConsoleLogging(); 
-            ISVNClientAdapter svnClientAdapterStatus = SVNProviderPlugin.getPlugin().createSVNClient();
+            ISVNClientAdapter svnClientAdapterStatus = SVNProviderPlugin.getPlugin().getSVNClient();
             statuses = svnClientAdapterStatus.getStatus(resource.getLocation().toFile(),true, true);
         } catch (SVNClientException e1) {
             throw SVNException.wrapException(e1);

@@ -111,7 +111,7 @@ public class SvnWizardNewRepositoryPage extends SvnWizardDialogPage {
 						success = false;
 						return;
 					}
-					ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().createSVNClient();
+					ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
 					File path = new File(folderText.getText().trim());
 					if (!path.exists()) path.mkdirs();
 					svnClient.createRepository(path, ISVNClientAdapter.REPOSITORY_FSTYPE_FSFS);

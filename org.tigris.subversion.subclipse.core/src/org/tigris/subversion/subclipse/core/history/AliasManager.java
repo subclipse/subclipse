@@ -201,7 +201,7 @@ public class AliasManager {
 	private Alias[] getAliases(SVNUrl url, boolean checkParents)  {
 		ArrayList aliases = new ArrayList();
 		try {
-			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
+			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
 			ISVNProperty property = null;
 	        SVNProviderPlugin.disableConsoleLogging(); 
 			property = client.propertyGet(url, "subclipse:tags");

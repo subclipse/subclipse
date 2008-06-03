@@ -54,7 +54,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
      */
     public void run(IProgressMonitor monitor) throws SVNException {
         try { 
-            ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().createSVNClient();
+            ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
             execute(svnClient, monitor);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);

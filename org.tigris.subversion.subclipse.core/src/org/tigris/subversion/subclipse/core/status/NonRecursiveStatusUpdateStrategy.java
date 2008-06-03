@@ -50,7 +50,7 @@ public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
         // we don't need login & password so this is not a problem
         ISVNStatus[] statuses = null;
         try {
-            ISVNClientAdapter svnClientAdapterStatus = SVNProviderPlugin.getPlugin().createSVNClient();
+            ISVNClientAdapter svnClientAdapterStatus = SVNProviderPlugin.getPlugin().getSVNClient();
             SVNProviderPlugin.disableConsoleLogging(); 
             statuses = svnClientAdapterStatus.getStatus(
                     resourceToUpdate.getLocation().toFile(),

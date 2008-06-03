@@ -268,7 +268,7 @@ public class CheckoutCommand implements ISVNCommand {
 						for (int j = 0; j < children.length; j++) {
 							if (!children[j].getName().equals(".project")) {//$NON-NLS-1$
 								if (clientSilent == null)
-									clientSilent = SVNProviderPlugin.getPlugin().createSVNClient();
+									clientSilent = SVNProviderPlugin.getPlugin().getSVNClient();
 								ISVNInfo info = null;
 								try {
 									SVNUrl url = new SVNUrl(resource.getUrl().toString() + "/" + children[j].getProjectRelativePath());

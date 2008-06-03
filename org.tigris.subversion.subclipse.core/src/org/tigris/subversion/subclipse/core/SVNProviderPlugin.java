@@ -413,7 +413,7 @@ public class SVNProviderPlugin extends Plugin {
     	return svnClientManager;
     }
     
-    public ISVNClientAdapter createSVNClient() throws SVNException {
+    public ISVNClientAdapter getSVNClient() throws SVNException {
     	return getSVNClientManager().getSVNClient();
     }
 
