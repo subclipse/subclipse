@@ -78,8 +78,19 @@ public interface ISVNRepositoryLocation  extends IAdaptable {
 	 */
 	public String getUsername();
 	
+    /**
+     * Exists for pre-1.0 compatibility.  It is not expected
+     * that users of this class will use this method
+     * @deprecated
+     */
     public void setUsername(String username);
     
+	
+    /**
+     * Exists for pre-1.0 compatibility.  It is not expected
+     * that users of this class will use this method
+     * @deprecated
+     */
     public void setPassword(String password);
     
     /**
