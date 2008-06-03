@@ -203,7 +203,7 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 				}
 						
 				SVNClientManager svnClientManager = plugin.getSVNClientManager();
-				ISVNClientAdapter client = svnClientManager.createSVNClient();
+				ISVNClientAdapter client = svnClientManager.getSVNClient();
 
 				File file = project.getLocation().toFile();
 				client.addDirectory(file, false);

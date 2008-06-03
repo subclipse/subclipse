@@ -46,7 +46,7 @@ public class RepositoryBranchTagAction extends SVNAction {
 			  if (repository != null)
 			  	client = repository.getSVNClient();
 			  if (client == null)
-				client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+				client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 			  RepositoryBranchTagOperation branchTagOperation = new RepositoryBranchTagOperation(getTargetPart(), client, sourceUrls, destinationUrl, revision, message, makeParents);
 			  branchTagOperation.run();
 		  } catch (Exception e) {

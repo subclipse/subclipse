@@ -50,7 +50,7 @@ public class ShowDifferencesAsUnifiedDiffOperation extends SVNOperation {
 		if (repository != null)
 			client = repository.getSVNClient();
 		if (client == null)
-			client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+			client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 		try {
 			SVNRevision pegRevision = null;
 			if (fromUrl.toString().equals(toUrl.toString()) && localResource != null) {

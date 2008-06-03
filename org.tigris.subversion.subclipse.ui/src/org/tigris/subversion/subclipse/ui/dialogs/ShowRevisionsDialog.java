@@ -385,7 +385,7 @@ public class ShowRevisionsDialog extends TrayDialog {
 	              BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 	                public void run() {
 	                  try {
-	                    ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+	                    ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 	                    client.diff(url, oldUrlRevision, newUrlRevision, file, true);
 	                  } catch(Exception e) {
 	                    MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e

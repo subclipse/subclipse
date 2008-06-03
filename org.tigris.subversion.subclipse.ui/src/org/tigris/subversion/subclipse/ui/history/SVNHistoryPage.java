@@ -1278,7 +1278,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                     BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
                         public void run() {
                           try {
-                            ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+                            ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
                             client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
                           } catch(Exception e) {
                             MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
@@ -1833,7 +1833,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                   BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
                     public void run() {
                       try {
-                        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+                        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
                         client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
                       } catch(Exception e) {
                         MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e

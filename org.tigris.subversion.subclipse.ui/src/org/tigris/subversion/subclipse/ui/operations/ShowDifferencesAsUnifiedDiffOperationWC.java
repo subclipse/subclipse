@@ -43,7 +43,7 @@ public class ShowDifferencesAsUnifiedDiffOperationWC extends SVNOperation {
 		if (repository != null)
 			client = repository.getSVNClient();
 		if (client == null)
-			client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+			client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 		try {
 			client.diff(path, toUrl, toRevision, file, true);
 		} catch (SVNClientException e) {

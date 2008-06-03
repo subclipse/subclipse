@@ -74,7 +74,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
 				try {
-					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 			        SVNProviderPlugin.disableConsoleLogging(); 
 				    svnInfo = client.getInfo(remoteResource.getUrl());
 				    properties = client.getProperties(remoteResource.getUrl());

@@ -82,7 +82,7 @@ public abstract class SubclipseTest extends TestCase {
         svnClientManager.setConfigDir(configDir);
 
         // we create the repository
-        ISVNClientAdapter svnClient = svnClientManager.createSVNClient();
+        ISVNClientAdapter svnClient = svnClientManager.getSVNClient();
         reposPath = new File(System.getProperty("java.io.tmpdir")
                 + "/test_repos").getAbsoluteFile();
         removeDir(reposPath);

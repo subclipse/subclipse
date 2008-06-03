@@ -66,7 +66,7 @@ public class CommitOperation extends SVNOperation {
 		String adminFolderName = SVNProviderPlugin.getPlugin().getAdminDirectoryName();
 		File cleanUpPathList = null;
         try {
-        	svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+        	svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
         	if (resourcesToAdd.length > 0) {
 			    Map table = getProviderMapping(resourcesToAdd);
 				if (table.get(null) != null) {
@@ -328,7 +328,7 @@ public class CommitOperation extends SVNOperation {
 		if (file == null)
 			return null;
     	try {
-			svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
+			svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 		} catch (SVNException e) {
 			return null;
 		}
