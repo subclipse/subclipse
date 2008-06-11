@@ -27,6 +27,7 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -57,6 +58,7 @@ public class CopyAction extends WorkbenchWindowAction {
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
 				try {
+					ISVNLocalResource svnTargetResource = SVNWorkspaceRoot.getSVNResourceFor(targetProject);
 					ISVNClientAdapter client = null;
 					for (int i = 0; i < resources.length; i++) {
 						final IResource resource = resources[i];
@@ -79,7 +81,9 @@ public class CopyAction extends WorkbenchWindowAction {
 							if (newName == null  || newName.trim().length() == 0) return;
 							newDestPath = new File(destPath.getPath() + File.separator + newName);
 						}
-						if (project.getFullPath().isPrefixOf(path))
+						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+						boolean sameRepository = svnTargetResource != null && svnTargetResource.getRepository() != null && svnTargetResource.getRepository().getLocation().equals(svnResource.getRepository().getLocation());
+						if (sameRepository)
 							client.copy(srcPath, newDestPath);
 						else
 							client.doExport(srcPath, newDestPath, true);
