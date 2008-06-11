@@ -146,7 +146,8 @@ public class SVNClientManager {
     			throw new SVNException("Unable to load default SVN Client");
     		
     		setupClientAdapter(client);
-    		clients.put(key, client);
+    		if (client.isThreadsafe())
+    			clients.put(key, client);
     	}
     	return client;
     }

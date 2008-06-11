@@ -19,6 +19,9 @@ public class Activator extends Plugin {
 	private static Activator plugin;
 	
 	private AdapterManager adapterManager;
+
+	// cache of available wrappers
+	private Map wrappers;
 	
 	/**
 	 * The constructor
@@ -49,7 +52,8 @@ public class Activator extends Plugin {
 	public ISVNClientAdapter getClientAdapter(String id) {
 		if (id == null)
 			return this.getAnyClientAdapter();
-		Map wrappers = adapterManager.getClientWrappers();
+		if (wrappers == null)
+			wrappers = adapterManager.getClientWrappers();
 		ISVNClientWrapper wrapper = (ISVNClientWrapper) wrappers.get(id);
 		if (wrapper == null || !wrapper.isAvailable()) {
 			return null;
@@ -58,7 +62,8 @@ public class Activator extends Plugin {
 	}
 	
 	public ISVNClientAdapter getAnyClientAdapter() {
-		Map wrappers = adapterManager.getClientWrappers();
+		if (wrappers == null)
+			wrappers = adapterManager.getClientWrappers();
 		if (wrappers.isEmpty())
 			return null;
 		ISVNClientWrapper wrapper = null;
@@ -72,8 +77,15 @@ public class Activator extends Plugin {
 		return wrapper.getAdapter();
 	}
 	
+	/**
+	 * Get all available client wrappers.  This method
+	 * also always refreshes the internal cache.  In theory perhaps
+	 * a new wrapper could be installed after plugin is started
+	 * 
+	 * @return
+	 */
 	public ISVNClientWrapper[] getAllClientWrappers() {
-		Map wrappers = adapterManager.getClientWrappers();
+		wrappers = adapterManager.getClientWrappers();
 		return (ISVNClientWrapper[])wrappers.values().toArray(new ISVNClientWrapper[wrappers.size()]);
 	}
 
