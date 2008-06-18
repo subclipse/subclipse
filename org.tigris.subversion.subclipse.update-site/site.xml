@@ -3,9 +3,6 @@
    <description url="http://subclipse.tigris.org/update_1.4.x">
       Eclipse Install/Update site for Subclipse
    </description>
-   <feature url="features/org.tigris.subversion.subclipse.mylyn_2.0.2.jar" id="org.tigris.subversion.subclipse.mylyn" version="2.0.2">
-      <category name="Integrations (optional)"/>
-   </feature>
    <feature url="features/org.tmatesoft.svnkit_1.2.0.4265.jar" id="org.tmatesoft.svnkit" version="1.2.0.4265">
       <category name="SVNKit Adapter BETA (optional)"/>
    </feature>
@@ -20,6 +17,9 @@
    </feature>
    <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.5.0.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.5.0">
       <category name="SVNKit Adapter BETA (optional)"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.subclipse.mylyn_2.0.3.jar" id="org.tigris.subversion.subclipse.mylyn" version="2.0.3">
+      <category name="Integrations (optional)"/>
    </feature>
    <category-def name="Subclipse (required)" label="Subclipse (required)">
       <description>
