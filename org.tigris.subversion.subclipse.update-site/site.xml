@@ -18,7 +18,7 @@
    <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.5.0.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.5.0">
       <category name="SVNKit Adapter BETA (optional)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse.mylyn_2.0.3.jar" id="org.tigris.subversion.subclipse.mylyn" version="2.0.3">
+   <feature url="features/org.tigris.subversion.subclipse.mylyn_2.0.4.jar" id="org.tigris.subversion.subclipse.mylyn" version="2.0.4">
       <category name="Integrations (optional)"/>
    </feature>
    <category-def name="Subclipse (required)" label="Subclipse (required)">
