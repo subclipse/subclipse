@@ -24,6 +24,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -38,6 +40,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
@@ -61,7 +64,9 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private Text issueText;
 	private String issue;
 	private Button keepLocksButton;
+	private Button includeUnversionedButton;
 	private boolean keepLocks;
+	private boolean includeUnversioned;
 	private IDialogSettings settings;
 	private CommentProperties commentProperties;
 	private SyncInfoSet syncInfoSet;
@@ -74,6 +79,9 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 
 	public SvnWizardCommitPage(IResource[] resourcesToCommit, String url, ProjectProperties projectProperties, HashMap statusMap, ChangeSet changeSet) {
 		super("CommitDialog", null); //$NON-NLS-1$		
+		includeUnversioned = 
+			SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT);    
+		
 		this.resourcesToCommit = resourcesToCommit;
 //		this.url = url;
 		this.projectProperties = projectProperties;
@@ -161,11 +169,45 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.COMMIT_DIALOG);	
 		setPageComplete(canFinish());
 	}
+
+	public void updatePreference( boolean includeUnversioned )
+	{
+		SVNUIPlugin.getPlugin().getPreferenceStore().setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, includeUnversioned);    
+	}
 	
     private void addResourcesArea(Composite composite) {  
     	ResourceSelectionTree.IToolbarControlCreator toolbarControlCreator = new ResourceSelectionTree.IToolbarControlCreator() {
       public void createToolbarControls(ToolBarManager toolbarManager) {
-        toolbarManager.add(new ControlContribution("keepLocks") {
+
+      toolbarManager.add(new ControlContribution("ignoreUnversioned") { //$NON-NLS-1$
+        protected Control createControl(Composite parent) {
+            includeUnversionedButton = new Button(parent, SWT.CHECK);
+            includeUnversionedButton.setText(Policy.bind("CommitDialog.includeUnversioned")); //$NON-NLS-1$
+            includeUnversionedButton.setSelection(includeUnversioned);
+            includeUnversionedButton.addSelectionListener(
+            		new SelectionListener(){
+            			public void widgetSelected(SelectionEvent e) {
+            				includeUnversioned = includeUnversionedButton.getSelection();
+            				if( !includeUnversioned )
+            				{
+            					resourceSelectionTree.removeUnversioned();
+            				}
+            				else
+            				{
+            					resourceSelectionTree.addUnversioned();
+            				}
+            				selectedResources = resourceSelectionTree.getSelectedResources();
+            				setPageComplete(canFinish());
+            				updatePreference(includeUnversioned);
+            			}
+            			public void widgetDefaultSelected(SelectionEvent e) {
+            			}
+            		}
+            		);
+            return includeUnversionedButton;
+          }
+        });
+          toolbarManager.add(new ControlContribution("keepLocks") {
           protected Control createControl(Composite parent) {
             keepLocksButton = new Button(parent, SWT.CHECK);
             keepLocksButton.setText(Policy.bind("CommitDialog.keepLocks")); //$NON-NLS-1$
@@ -178,6 +220,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
       }
     };
     	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, false, toolbarControlCreator, syncInfoSet); //$NON-NLS-1$    	
+    	if (!resourceSelectionTree.showIncludeUnversionedButton()) includeUnversionedButton.setVisible(false);
+    	
     	resourceSelectionTree.setRemoveFromViewValidator(new ResourceSelectionTree.IRemoveFromViewValidator() {
 			public boolean canRemove(ArrayList resourceList, IStructuredSelection selection) {
 				return removalOk(resourceList, selection);
@@ -205,7 +249,13 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 					}
 				}
 			}
-		});		    	
+		});	
+		if( !includeUnversioned )
+		{
+			resourceSelectionTree.removeUnversioned();
+		}
+		selectedResources = resourceSelectionTree.getSelectedResources();
+		setPageComplete(canFinish());
     }
  
 	private void addBugtrackingArea(Composite composite) {
@@ -356,6 +406,10 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	}
 
 	private boolean canFinish() {
+		if( selectedResources.length == 0 )
+		{
+			return false;
+		}
 		if (commentProperties == null)
 			return true;
 		else

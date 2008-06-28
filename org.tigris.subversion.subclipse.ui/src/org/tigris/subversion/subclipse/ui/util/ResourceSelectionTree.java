@@ -51,6 +51,8 @@ import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.AbstractSynchronizeLabelProvider;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -62,6 +64,7 @@ public class ResourceSelectionTree extends Composite {
 	private int mode;
 	private IResource[] resources;
 	private ArrayList resourceList;
+	private ArrayList unversionedResourceList;
 	private IContainer[] compressedFolders;
 	private IContainer[] folders;
 	private ArrayList folderList;
@@ -101,13 +104,33 @@ public class ResourceSelectionTree extends Composite {
 		this.toolbarControlCreator = toolbarControlCreator;
 		this.syncInfoSet = syncInfoSet;
 		this.settings = SVNUIPlugin.getPlugin().getDialogSettings();
-		if(resources!=null) {
-  		Arrays.sort(resources, comparator);
-  		resourceList = new ArrayList();
-  		for (int i = 0; i < resources.length; i++) {
-        resourceList.add(resources[i]);
-      }
-		}
+		if(resources!=null) 
+		{
+	  		Arrays.sort(resources, comparator);
+	  		resourceList = new ArrayList();
+	  		for (int i = 0; i < resources.length; i++) 
+	  		{
+		        IResource resource = resources[i];
+				resourceList.add(resource);
+	  		}
+	  		unversionedResourceList = new ArrayList();
+	  		try
+	  		{
+		  		for (int i = 0; i < resources.length; i++) 
+		  		{
+		  	        IResource resource = resources[i];
+			        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+			        if( !svnResource.getStatus().isManaged() )
+			        {
+			        	unversionedResourceList.add(resource);
+			        }
+				}
+	  		}
+	  		catch(Exception e)
+	  		{
+	  			SVNUIPlugin.openError(getShell(), null, null, e);
+	  		}
+  		}
 		createControls();
 	}
 	
@@ -380,6 +403,47 @@ public class ResourceSelectionTree extends Composite {
 		}
 		iter = removedResources.iterator();
 		while(iter.hasNext()) resourceList.remove(iter.next());
+	}
+	
+	public boolean showIncludeUnversionedButton() {
+		return unversionedResourceList != null && unversionedResourceList.size() > 0;
+	}
+
+	public void removeUnversioned() {
+		try 
+		{
+			Iterator iter = unversionedResourceList.iterator();
+			while(iter.hasNext()) resourceList.remove(iter.next());
+			
+			resources = new IResource[resourceList.size()];
+			resourceList.toArray(resources);
+			compressedFolders = null;
+			rootFolders = null;
+			folders = null;
+			refresh();
+		}
+		catch (Exception e) {
+			SVNUIPlugin.openError(getShell(), null, null, e);
+		}
+	}
+	
+	public void addUnversioned() {
+		try 
+		{
+			Iterator iter = unversionedResourceList.iterator();
+			while(iter.hasNext()) resourceList.add(iter.next());
+			
+			resources = new IResource[resourceList.size()];
+			resourceList.toArray(resources);
+			Arrays.sort(resources, comparator);
+			compressedFolders = null;
+			rootFolders = null;
+			folders = null;
+			refresh();
+		}
+		catch (Exception e) {
+			SVNUIPlugin.openError(getShell(), null, null, e);
+		}
 	}
 	
 	private boolean isChild(IResource resource, IResource parent) {
