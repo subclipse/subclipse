@@ -122,7 +122,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		Text authorText = new Text(composite, SWT.READ_ONLY);
 		authorText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		authorText.setEditable(false);
-		authorText.setText(svnInfo.getLastCommitAuthor());
+		if (svnInfo.getLastCommitAuthor() != null) authorText.setText(svnInfo.getLastCommitAuthor());
     authorText.setBackground(composite.getBackground());
 		
 		Label revisionLabel = new Label(composite, SWT.NONE);
@@ -130,7 +130,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		Text revisionText = new Text(composite, SWT.READ_ONLY);
 		revisionText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		revisionText.setEditable(false);
-		revisionText.setText(svnInfo.getLastChangedRevision().toString());
+		if (svnInfo.getLastChangedRevision() != null) revisionText.setText(svnInfo.getLastChangedRevision().toString());
     revisionText.setBackground(composite.getBackground());
 		
 		Label dateLabel = new Label(composite, SWT.NONE);
@@ -138,7 +138,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 		Text dateText = new Text(composite, SWT.READ_ONLY);
 		dateText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		dateText.setEditable(false);
-		dateText.setText(svnInfo.getLastChangedDate().toString());
+		if (svnInfo.getLastChangedDate() != null) dateText.setText(svnInfo.getLastChangedDate().toString());
     dateText.setBackground(composite.getBackground());
 
 		if (remoteResource instanceof ISVNRemoteFile) {
