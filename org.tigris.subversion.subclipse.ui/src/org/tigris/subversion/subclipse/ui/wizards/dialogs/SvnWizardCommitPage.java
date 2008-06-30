@@ -22,6 +22,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -149,6 +151,14 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 				sashForm.setWeights(new int[] {5, 4});			
 			}
 			
+			sashForm.addDisposeListener(new DisposeListener() {
+				public void widgetDisposed(DisposeEvent e) {
+					int[] weights = sashForm.getWeights();
+			        for (int i = 0; i < weights.length; i++) 
+			        	settings.put("CommitDialog.weights." + i, weights[i]); //$NON-NLS-1$ 
+				}				
+			});
+
 			if (projectProperties != null) {
 			    addBugtrackingArea(cTop);
 			}
