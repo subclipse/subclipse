@@ -672,10 +672,7 @@ public class ResourceSelectionTree extends Composite {
 		
 		public Image getImage(Object element) {
 			if (resourceList.contains(element)) {
-				SVNStatusKind statusKind = null;
-				String textStatus = ResourceWithStatusUtil.getStatus((IResource)element);
-				if (textStatus != null && textStatus.length() > 0) 
-					statusKind = SVNStatusKind.fromString(textStatus);
+				SVNStatusKind statusKind = ResourceWithStatusUtil.getStatusKind((IResource)element);
 				Image image = null;
 				if (element instanceof IContainer && (statusKind == null || !statusKind.equals(SVNStatusKind.DELETED))) {
 					image = workbenchLabelProvider.getImage(element);

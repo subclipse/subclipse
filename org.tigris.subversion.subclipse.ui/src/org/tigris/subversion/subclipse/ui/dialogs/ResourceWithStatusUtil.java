@@ -22,6 +22,35 @@ public final class ResourceWithStatusUtil {
 	private ResourceWithStatusUtil() {
 	}
 	
+	public static SVNStatusKind getStatusKind(IResource resource) {
+		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+		SVNStatusKind statusKind = null;
+	       try {
+	           LocalResourceStatus status = svnResource.getStatus();
+		       if (status.isTextConflicted())
+		    	   statusKind = SVNStatusKind.CONFLICTED;
+		       else	            
+	            if (status.isAdded())
+	               statusKind = SVNStatusKind.ADDED;
+               else
+               if (status.isDeleted())
+            	   statusKind = SVNStatusKind.DELETED;
+               else
+        	   if (status.isMissing())
+        		   statusKind = SVNStatusKind.MISSING;
+        	   else
+        	   if (status.isReplaced())
+        		   statusKind = SVNStatusKind.REPLACED;
+        	   else
+               if (status.isTextModified())
+            	   statusKind = SVNStatusKind.MODIFIED;			           
+               else
+               if (!status.isManaged())
+            	   statusKind = SVNStatusKind.UNVERSIONED;
+	       } catch (TeamException e) {}
+		return statusKind;
+	}
+	
 	public static String getStatus(IResource resource) {
 	    ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         String result = null;
