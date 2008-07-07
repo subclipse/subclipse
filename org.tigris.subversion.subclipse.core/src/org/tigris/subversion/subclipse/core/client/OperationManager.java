@@ -110,7 +110,8 @@ public class OperationManager implements ISVNNotifyListener {
 				for (Iterator it = changedResources.iterator(); it.hasNext();) {
 					IResource resource = (IResource) it.next();
 					//Ensure the .svn has the team private flag set before refresh. 
-					handleSVNDir((IContainer) resource);
+					if (resource instanceof IContainer)
+						handleSVNDir((IContainer) resource);
                     try {
                         // .svn directory will be refreshed so all files in the
                         // directory including resource will
@@ -173,9 +174,11 @@ public class OperationManager implements ISVNNotifyListener {
 									new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
 							changedResources.add(svnDir);
 						}
-	                    svnDir = ((IContainer) resource).getFolder(new Path(
-	                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
-	                    changedResources.add(svnDir);
+						if (resource instanceof IContainer) {
+		                    svnDir = ((IContainer) resource).getFolder(new Path(
+		                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
+		                    changedResources.add(svnDir);
+						}
 					}
 				}
 			} else if (kind == SVNNodeKind.FILE) {
