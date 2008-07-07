@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.clientadapter.svnkit.feature"
       label="SVNKit Client Adapter"
-      version="1.5.0"
+      version="1.5.0.1"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.clientadapter.svnkit"
       colocation-affinity="org.tigris.subversion.subclipse">
