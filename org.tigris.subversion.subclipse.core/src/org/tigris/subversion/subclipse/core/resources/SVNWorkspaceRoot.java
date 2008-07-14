@@ -430,6 +430,10 @@ public class SVNWorkspaceRoot {
     	}
     	return getResourceFor(parent, new Path(status.getFile().getAbsolutePath()));
     }
+    
+    public static IResource[] getResourcesFor(IPath location) {
+    	return getResourcesFor(location, true);
+    }
 
     /**
      * Gets the resources to which the local filesystem <code>location</code> is corresponding to.
@@ -437,7 +441,7 @@ public class SVNWorkspaceRoot {
      * @return IResource[]
      * @throws SVNException 
      */
-    public static IResource[] getResourcesFor(IPath location) {
+    public static IResource[] getResourcesFor(IPath location, boolean includeProjects) {
 		Set resources = new LinkedHashSet();
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject[] projects = root.getProjects();
@@ -446,7 +450,7 @@ public class SVNWorkspaceRoot {
 			if (resource != null) {
 				resources.add(resource);
 			}
-			if (isManagedBySubclipse(projects[i]) && location.isPrefixOf(projects[i].getLocation())) {
+			if (includeProjects && isManagedBySubclipse(projects[i]) && location.isPrefixOf(projects[i].getLocation())) {
 				resources.add(projects[i]);
 			}
 		}

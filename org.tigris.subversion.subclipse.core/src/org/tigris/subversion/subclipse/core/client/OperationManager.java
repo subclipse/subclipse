@@ -143,10 +143,10 @@ public class OperationManager implements ISVNNotifyListener {
         if (kind == SVNNodeKind.UNKNOWN)  { // delete, revert 
             IPath pathEntries = pathEclipse.removeLastSegments(1).append(
             		SVNProviderPlugin.getPlugin().getAdminDirectoryName());
-            changedResources.addAll(Arrays.asList(SVNWorkspaceRoot.getResourcesFor(pathEntries)));
+            changedResources.addAll(Arrays.asList(SVNWorkspaceRoot.getResourcesFor(pathEntries, false)));
             
             if (path.isDirectory()) {
-            	IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse);
+            	IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse, false);
             	for (int i = 0; i < resources.length; i++) {
             		IResource resource = resources[i];
 					if (resource.getType() != IResource.ROOT) {
@@ -164,7 +164,7 @@ public class OperationManager implements ISVNNotifyListener {
 				// when the resource is a directory, two .svn directories can
 				// potentially
 				// be modified
-				IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse);
+				IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse, false);
 				for (int i = 0; i < resources.length; i++) {
 					IResource resource = resources[i];
 					if (resource.getType() != IResource.ROOT) {
@@ -182,7 +182,7 @@ public class OperationManager implements ISVNNotifyListener {
 					}
 				}
 			} else if (kind == SVNNodeKind.FILE) {
-				IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse);
+				IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse, false);
 
 				for (int i = 0; i < resources.length; i++) {
 					svnDir = resources[i].getParent().getFolder(
