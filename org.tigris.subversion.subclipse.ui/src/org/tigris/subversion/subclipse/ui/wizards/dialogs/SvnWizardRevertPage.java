@@ -6,15 +6,21 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.action.ControlContribution;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -22,7 +28,9 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.dialogs.CompareDialog;
 import org.tigris.subversion.subclipse.ui.util.ResourceSelectionTree;
@@ -37,9 +45,14 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
     
     private ResourceSelectionTree resourceSelectionTree;
     private boolean resourceRemoved;
+    
+    private Button includeUnversionedButton;
+    private boolean includeUnversioned;
  
 	public SvnWizardRevertPage(IResource[] resourcesToRevert, String url, HashMap statusMap) {
 		super("RevertDialog", Policy.bind("RevertDialog.title")); //$NON-NLS-1$
+		includeUnversioned = 
+			SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT);    		
 		this.resourcesToRevert = resourcesToRevert;
 		this.url = url;
 		this.statusMap = statusMap;
@@ -66,12 +79,50 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 		if (url == null) {
 		  text.setText(Policy.bind("RevertDialog.multiple")); //$NON-NLS-1$
 		} else {
-      text.setText(url);
-    }
+		  text.setText(url);
+		}
+
+		ResourceSelectionTree.IToolbarControlCreator toolbarControlCreator = new ResourceSelectionTree.IToolbarControlCreator() {
+			public void createToolbarControls(ToolBarManager toolbarManager) {
+			      toolbarManager.add(new ControlContribution("ignoreUnversioned") { //$NON-NLS-1$
+			          protected Control createControl(Composite parent) {
+			              includeUnversionedButton = new Button(parent, SWT.CHECK);
+			              includeUnversionedButton.setText(Policy.bind("CommitDialog.includeUnversioned")); //$NON-NLS-1$
+			              includeUnversionedButton.setSelection(includeUnversioned);
+			              includeUnversionedButton.addSelectionListener(
+			              		new SelectionListener(){
+			              			public void widgetSelected(SelectionEvent e) {
+			              				includeUnversioned = includeUnversionedButton.getSelection();
+			              				if( !includeUnversioned )
+			              				{
+			              					resourceSelectionTree.removeUnversioned();
+			              				}
+			              				else
+			              				{
+			              					resourceSelectionTree.addUnversioned();
+			              				}
+			              				selectedResources = resourceSelectionTree.getSelectedResources();
+			              				setPageComplete(canFinish());
+			              				updatePreference(includeUnversioned);
+			              			}
+			              			public void widgetDefaultSelected(SelectionEvent e) {
+			              			}
+			              		}
+			              		);
+			              return includeUnversionedButton;
+			            }
+			          });
+			}
+			public int getControlCount() {
+				return 1;
+			}			
+		};
 		
 		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE,
-        Policy.bind("GenerateSVNDiff.Changes"), resourcesToRevert, statusMap, null, false, null, null); //$NON-NLS-1$
-    // resourceSelectionTree.getTreeViewer().setAllChecked(true);
+        Policy.bind("GenerateSVNDiff.Changes"), resourcesToRevert, statusMap, null, false, toolbarControlCreator, null); //$NON-NLS-1$
+    	if (!resourceSelectionTree.showIncludeUnversionedButton()) includeUnversionedButton.setVisible(false);    
+		
+		// resourceSelectionTree.getTreeViewer().setAllChecked(true);
     resourceSelectionTree.getTreeViewer().addSelectionChangedListener(
         new ISelectionChangedListener() {
           public void selectionChanged(SelectionChangedEvent event) {
@@ -95,6 +146,11 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
             }
           }
         });
+    
+	if( !includeUnversioned )
+	{
+		resourceSelectionTree.removeUnversioned();
+	}
 
     resourceSelectionTree.getTreeViewer().getTree().setLayoutData(
         new GridData(SWT.FILL, SWT.FILL, true, true));		
@@ -102,6 +158,9 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 //		Composite composite_1 = new Composite(composite, SWT.NONE);
 //		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 //		composite_1.setLayout(new GridLayout());
+    
+    	selectedResources = resourceSelectionTree.getSelectedResources();
+    	setPageComplete(canFinish());
 
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.REVERT_DIALOG);		
 	}
@@ -140,6 +199,15 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 
 	public boolean isResourceRemoved() {
 		return resourceRemoved;
-	}	
+	}
+	
+	public void updatePreference( boolean includeUnversioned )
+	{
+		SVNUIPlugin.getPlugin().getPreferenceStore().setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, includeUnversioned);    
+	}
+	
+	private boolean canFinish() {
+		return selectedResources.length > 0;
+	}
 
 }
