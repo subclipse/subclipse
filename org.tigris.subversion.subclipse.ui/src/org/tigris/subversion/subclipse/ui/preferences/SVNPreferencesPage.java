@@ -76,6 +76,15 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 	private Button quickDiffAnnotateYes;
 	private Button quickDiffAnnotateNo;
 	private Button quickDiffAnnotatePrompt;
+
+	private Button resourcesWithErrorsYes;
+	private Button resourcesWithErrorsNo;
+	private Button resourcesWithErrorsPrompt;
+	
+	private Button resourcesWithWarningsYes;
+	private Button resourcesWithWarningsNo;
+	private Button resourcesWithWarningsPrompt;
+	
 	protected final ArrayList fFields;
 	private String [] CLIENT_VALUES;
 	private String [] CLIENT_LABELS;
@@ -192,6 +201,22 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		quickDiffAnnotateYes = createRadio(group, Policy.bind("yes"), 1);
 		quickDiffAnnotateNo = createRadio(group, Policy.bind("no"), 1);
 		quickDiffAnnotatePrompt = createRadio(group, Policy.bind("prompt"), 1);
+		
+		Group groupErrors = new Group(composite, SWT.NONE);
+		groupErrors.setText(Policy.bind("SVNPreferencePage.commitWithErrors")); //$NON-NLS-1$
+		groupErrors.setLayout(new GridLayout(3, true));
+		groupErrors.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		resourcesWithErrorsYes = createRadio(groupErrors, Policy.bind("yes"), 1);
+		resourcesWithErrorsNo = createRadio(groupErrors, Policy.bind("no"), 1);
+		resourcesWithErrorsPrompt = createRadio(groupErrors, Policy.bind("prompt"), 1);
+		
+		Group groupWarnings = new Group(composite, SWT.NONE);
+		groupWarnings.setText(Policy.bind("SVNPreferencePage.commitWithWarnings")); //$NON-NLS-1$
+		groupWarnings.setLayout(new GridLayout(3, true));
+		groupWarnings.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		resourcesWithWarningsYes = createRadio(groupWarnings, Policy.bind("yes"), 1);
+		resourcesWithWarningsNo = createRadio(groupWarnings, Policy.bind("no"), 1);
+		resourcesWithWarningsPrompt = createRadio(groupWarnings, Policy.bind("prompt"), 1);
 		
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
@@ -315,6 +340,14 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		quickDiffAnnotateNo.setSelection(MessageDialogWithToggle.NEVER.equals(store.getString(ISVNUIConstants.PREF_USE_QUICKDIFFANNOTATE)));
 		quickDiffAnnotatePrompt.setSelection(MessageDialogWithToggle.PROMPT.equals(store.getString(ISVNUIConstants.PREF_USE_QUICKDIFFANNOTATE)));
 		
+		resourcesWithErrorsYes.setSelection(MessageDialogWithToggle.ALWAYS.equals(store.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS)));
+		resourcesWithErrorsNo.setSelection(MessageDialogWithToggle.NEVER.equals(store.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS)));
+		resourcesWithErrorsPrompt.setSelection(MessageDialogWithToggle.PROMPT.equals(store.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS)));
+		
+		resourcesWithWarningsYes.setSelection(MessageDialogWithToggle.ALWAYS.equals(store.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS)));
+		resourcesWithWarningsNo.setSelection(MessageDialogWithToggle.NEVER.equals(store.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS)));
+		resourcesWithWarningsPrompt.setSelection(MessageDialogWithToggle.PROMPT.equals(store.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS)));
+		
         String configLocation = store.getString(ISVNUIConstants.PREF_SVNCONFIGDIR); 
         directoryLocationText.setText(configLocation);
         if (configLocation.equals("")) { //$NON-NLS-1$
@@ -376,6 +409,22 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 			store.setValue(ISVNUIConstants.PREF_USE_QUICKDIFFANNOTATE, MessageDialogWithToggle.NEVER);
 		} else if (quickDiffAnnotatePrompt.getSelection()) {
 			store.setValue(ISVNUIConstants.PREF_USE_QUICKDIFFANNOTATE, MessageDialogWithToggle.PROMPT);
+		}
+		
+		if (resourcesWithErrorsYes.getSelection()) {
+			store.setValue(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS, MessageDialogWithToggle.ALWAYS);
+		} else if (resourcesWithErrorsNo.getSelection()) {
+			store.setValue(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS, MessageDialogWithToggle.NEVER);
+		} else if (resourcesWithErrorsPrompt.getSelection()) {
+			store.setValue(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS, MessageDialogWithToggle.PROMPT);
+		}
+		
+		if (resourcesWithWarningsYes.getSelection()) {
+			store.setValue(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS, MessageDialogWithToggle.ALWAYS);
+		} else if (resourcesWithWarningsNo.getSelection()) {
+			store.setValue(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS, MessageDialogWithToggle.NEVER);
+		} else if (resourcesWithWarningsPrompt.getSelection()) {
+			store.setValue(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS, MessageDialogWithToggle.PROMPT);
 		}
 		
 		int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);

@@ -20,14 +20,18 @@ import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
 import org.eclipse.team.internal.core.subscribers.ChangeSet;
@@ -40,6 +44,7 @@ import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.operations.CommitOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
@@ -221,6 +226,27 @@ public class CommitAction extends WorkbenchWindowAction {
 	    return (IResource[]) modified.toArray(new IResource[modified.size()]);
 	}
 
+    public int getHighestProblemSeverity(IResource[] resources) {
+    	int mostSeriousSeverity = -1;
+    	
+    	for (int i = 0; i < resources.length; i++) {
+    		IResource resource = resources[i];
+    		try {
+				IMarker[] problems = resource.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
+				for (int j = 0; j < problems.length; j++) {
+					IMarker problem = problems[j];
+					int severity = problem.getAttribute(IMarker.SEVERITY, 0);
+					if (severity > mostSeriousSeverity) {
+						mostSeriousSeverity = severity;
+					}
+				}
+			} catch (CoreException e) {
+			}
+    	}
+    	
+    	return mostSeriousSeverity;
+    }
+    
 	/**
 	 * prompt commit of selected resources.
 	 * @throws SVNException
@@ -231,6 +257,30 @@ public class CommitAction extends WorkbenchWindowAction {
 	       if (!MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.tag"))) //$NON-NLS-1$ //$NON-NLS-2$
 	           return false;	       
 	   }
+	   
+	   int highestProblemSeverity = getHighestProblemSeverity(modifiedResources);
+	   IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin().getPreferenceStore();
+	   switch (highestProblemSeverity) {
+	   case IMarker.SEVERITY_WARNING:
+		   String allowCommitsWithWarnings = preferenceStore.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS);
+		   if (MessageDialogWithToggle.PROMPT.equals(allowCommitsWithWarnings) || MessageDialogWithToggle.NEVER.equals(allowCommitsWithWarnings)) {
+			   MessageDialogWithToggle warningDialog = MessageDialogWithToggle.openYesNoQuestion(shell, Policy.bind("CommitWizard.commitResources"), Policy.bind("CommitWizard.warningMarkers"), Policy.bind("CommitWizard.warningQuestion"), false, preferenceStore, ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS);
+			   if (IDialogConstants.YES_ID != warningDialog.getReturnCode()) {
+				   return false;
+			   }
+		   }
+		   break;
+	   case IMarker.SEVERITY_ERROR:
+		   String allowCommitsWithErrors = preferenceStore.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS);
+		   if (MessageDialogWithToggle.PROMPT.equals(allowCommitsWithErrors) || MessageDialogWithToggle.NEVER.equals(allowCommitsWithErrors)) {
+			   MessageDialogWithToggle errorDialog = MessageDialogWithToggle.openYesNoQuestion(shell, Policy.bind("CommitWizard.commitResources"), Policy.bind("CommitWizard.errorMarkers"), Policy.bind("CommitWizard.errorQuestion"), false, preferenceStore, ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS);
+			   if (IDialogConstants.YES_ID != errorDialog.getReturnCode()) {
+				   return false;
+			   }
+		   }
+		   break;
+	   }
+	   
 	   SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modifiedResources, url, projectProperties, statusMap, null);
 //	   commitPage.setSharing(sharing);
 	   

@@ -64,6 +64,9 @@ public class SVNUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		node.putBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE, true);
         node.putBoolean(ISVNUIConstants.PREF_COMMIT_SET_DEFAULT_ENABLEMENT, false);
         
+        node.put(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS, MessageDialogWithToggle.ALWAYS);
+        node.put(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS, MessageDialogWithToggle.PROMPT);
+        
         node.putBoolean(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK, true);
         
         node.put(ISVNUIConstants.PREF_SVNINTERFACE, "javahl"); //$NON-NLS-1$
