@@ -77,8 +77,6 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             }
             monitor.beginTask(null, 1000);
             resource.delete();
-            tree.deletedFolder(folder);
-
         } catch (SVNException e) {
             tree.failed(e.getStatus());
         } finally {
