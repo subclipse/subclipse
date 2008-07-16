@@ -60,7 +60,7 @@ public class SVNUIPreferenceInitializer extends AbstractPreferenceInitializer {
         
         node.putBoolean(ISVNUIConstants.PREF_SHOW_COMPARE_REVISION_IN_DIALOG, false);
         node.putBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT, true);
-        node.putBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, false);
+        node.putBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, true);
 		node.putBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE, true);
         node.putBoolean(ISVNUIConstants.PREF_COMMIT_SET_DEFAULT_ENABLEMENT, false);
         
