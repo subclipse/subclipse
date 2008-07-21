@@ -432,6 +432,21 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 			  if (property != null && property.getValue() != null) return true;
 		  }
 	  } catch (SVNException e) {}
+	  
+	  IResource checkResource = resource;
+      while (checkResource.getParent() != null) {
+          checkResource = checkResource.getParent();
+          if (checkResource.getParent() == null) return false;
+          svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
+    	  try {
+    		  if (svnResource.isManaged()) {
+    			  ISVNProperty property = null;
+    			  property = svnResource.getSvnProperty("subclipse:tags"); //$NON-NLS-1$
+    			  if (property != null && property.getValue() != null) return true;
+    		  }
+    	  } catch (SVNException e) {}          
+      }
+	  
 	  return false;
   }
   
@@ -441,8 +456,19 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 			ISVNProperty property = null;
 	        SVNProviderPlugin.disableConsoleLogging(); 
 			property = client.propertyGet(resource.getUrl(), "subclipse:tags"); //$NON-NLS-1$
-	        SVNProviderPlugin.enableConsoleLogging(); 
-			if (property != null && property.getValue() != null) return true;
+			if (property != null && property.getValue() != null) {
+				SVNProviderPlugin.enableConsoleLogging(); 
+				return true;
+			}
+			ISVNRemoteResource checkResource = resource;
+			while (checkResource.getParent() != null) {
+	          checkResource = checkResource.getParent();		
+	          property = client.propertyGet(checkResource.getUrl(), "subclipse:tags"); //$NON-NLS-1$
+			  if (property != null && property.getValue() != null) {
+				SVNProviderPlugin.enableConsoleLogging(); 
+				return true;		          
+			  }
+			}
 		} catch (Exception e) {        
 			SVNProviderPlugin.enableConsoleLogging(); 
 		}
