@@ -27,19 +27,21 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
-import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
+import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNCompareRevisionsInput;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 /**
  * Used when you want to compare local resource with remote ones 
  */
 public class CompareWithRevisionAction extends WorkbenchWindowAction {
+	private boolean refresh;
 	
 	/**
 	 * Returns the selected remote file
@@ -61,6 +63,7 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
 	 * @see SVNAction#execute(IAction)
 	 */
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
+		refresh = false;
 		
 		// Setup holders
 		final ISVNRemoteFile[] file = new ISVNRemoteFile[] { null };
@@ -79,6 +82,10 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
 			return;
 		}
 		
+		if (!file[0].getResource().isSynchronized(Depth.immediates)) {
+			refresh = MessageDialog.openQuestion(getShell(), Policy.bind("DifferencesDialog.compare"), Policy.bind("CompareWithRemoteAction.fileChanged"));
+		}
+		
 		// Fetch the log entries
 		run(new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
@@ -86,12 +93,13 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
 					monitor.beginTask(Policy.bind("CompareWithRevisionAction.fetching"), 100); //$NON-NLS-1$
 					AliasManager tagManager = null;
 					IResource[] resources = getSelectedResources();
+					if (refresh) resources[0].refreshLocal(Depth.immediates, monitor);
 					if (resources.length == 1) tagManager = new AliasManager(resources[0]);
 					GetLogsCommand logCmd = new GetLogsCommand(file[0], SVNRevision.HEAD, SVNRevision.HEAD, new SVNRevision.Number(0), false, 0, tagManager, false);
 					logCmd.run(Policy.subMonitorFor(monitor, 100));
 					entries[0] = logCmd.getLogEntries(); 					
 					monitor.done();
-				} catch (TeamException e) {
+				} catch (Exception e) {
 					throw new InvocationTargetException(e);
 				}
 			}

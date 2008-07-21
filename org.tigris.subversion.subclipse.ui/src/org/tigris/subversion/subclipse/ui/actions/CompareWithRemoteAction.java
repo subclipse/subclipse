@@ -11,19 +11,24 @@
 package org.tigris.subversion.subclipse.ui.actions;
  
 import org.eclipse.compare.CompareUI;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 
 	private final SVNRevision revision;
+	private boolean refresh;
 
 	/**
 	 * Creates a new CompareWithRemoteAction for the specified revision
@@ -34,8 +39,13 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 	}
 
 	public void execute(IAction action) {
+		refresh = false;
 		IResource[] resources = getSelectedResources();
 		if (resources.length != 1) return;
+		
+		if (resources[0] instanceof IFile && !resources[0].isSynchronized(Depth.immediates)) {
+			refresh = MessageDialog.openQuestion(getShell(), Policy.bind("DifferencesDialog.compare"), Policy.bind("CompareWithRemoteAction.fileChanged"));
+		}
 		
 		try {
 			final ISVNLocalResource localResource= SVNWorkspaceRoot.getSVNResourceFor(resources[0]);
@@ -43,10 +53,11 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 			run(new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) {
 					try {
+						if (refresh) localResource.getResource().refreshLocal(Depth.immediates, monitor);
 						CompareUI.openCompareEditorOnPage(
 								new SVNLocalCompareInput(localResource, revision),
 								getTargetPage());
-					} catch (SVNException e) {
+					} catch (Exception e) {
 						handle(e, null, null);
 					}
 				}
