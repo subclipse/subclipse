@@ -118,7 +118,7 @@ public class Util {
 	public static String unescape(String s) {
 		try {
 			return URLDecoder.decode(s, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			return s;
 		}
 	}
