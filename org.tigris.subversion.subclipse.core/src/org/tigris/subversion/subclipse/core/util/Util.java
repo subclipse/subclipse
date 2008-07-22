@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.core.util;
 
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import org.eclipse.core.resources.IFile;
