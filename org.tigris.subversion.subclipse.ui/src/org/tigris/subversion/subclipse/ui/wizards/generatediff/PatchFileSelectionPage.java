@@ -21,7 +21,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -107,7 +109,7 @@ class PatchFileSelectionPage extends WizardPage {
 		} else {
 			setErrorMessage(Policy.bind("GenerateSVNDiff.EnterFilename")); //$NON-NLS-1$
 		}
-		setPageComplete(valid);
+		setPageComplete(valid && getSelectedResources().length > 0);
 		return valid;
 	}
 
@@ -269,6 +271,12 @@ class PatchFileSelectionPage extends WizardPage {
 		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resources, statusMap, null, true, null, null); //$NON-NLS-1$
 		((CheckboxTreeViewer)resourceSelectionTree.getTreeViewer()).setAllChecked(true);
         
+		resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				validatePage();
+			}			
+		});
+		
 		saveToClipboard.setSelection(true);
 		validatePage();
 		updateEnablements();

@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -163,7 +164,7 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 				if (selectedResources == null) svnClient.diff(files,tmpFile,recursive);
 				else {
 					if (eclipseFormat) {
-						List includedResources = new ArrayList();
+						HashSet includedResources = new HashSet();
 						includedResources.addAll(Arrays.asList(unaddedResources));
 						includedResources.addAll(Arrays.asList(resources));
 						createEclipsePatch((IResource[]) includedResources.toArray(new IResource[0]), tmpFile, recursive);
