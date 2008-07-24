@@ -15,7 +15,10 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.CheckStateChangedEvent;
+import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -249,6 +252,11 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 				selectedResources = resourceSelectionTree.getSelectedResources();
 			}
 		});
+    	((CheckboxTreeViewer)resourceSelectionTree.getTreeViewer()).addCheckStateListener(new ICheckStateListener() {
+			public void checkStateChanged(CheckStateChangedEvent event) {
+				selectedResources = resourceSelectionTree.getSelectedResources();
+			}	
+    	});
 		resourceSelectionTree.getTreeViewer().addDoubleClickListener(new IDoubleClickListener(){
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();

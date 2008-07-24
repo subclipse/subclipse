@@ -8,7 +8,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.ControlContribution;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.viewers.CheckStateChangedEvent;
+import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -132,6 +135,11 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
             selectedResources = resourceSelectionTree.getSelectedResources();
           }
         });
+	((CheckboxTreeViewer)resourceSelectionTree.getTreeViewer()).addCheckStateListener(new ICheckStateListener() {
+		public void checkStateChanged(CheckStateChangedEvent event) {
+			selectedResources = resourceSelectionTree.getSelectedResources();
+		}	
+	});
     resourceSelectionTree.getTreeViewer().addDoubleClickListener(
         new IDoubleClickListener() {
           public void doubleClick(DoubleClickEvent event) {

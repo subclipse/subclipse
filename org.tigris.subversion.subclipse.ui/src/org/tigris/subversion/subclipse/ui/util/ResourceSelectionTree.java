@@ -799,6 +799,9 @@ public class ResourceSelectionTree extends Composite {
 	}
 
 	public boolean isResourceRemoved() {
+		if (checkbox) {
+			resourceRemoved = resources.length > getSelectedResources().length;
+		}
 		return resourceRemoved;
 	}
 
