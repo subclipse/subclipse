@@ -55,7 +55,7 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 					revert = false;
 					return;
 				}
-				revertPage = new SvnWizardRevertPage(resources, url, statusMap);
+				revertPage = new SvnWizardRevertPage(resources, url, statusMap, true);
 				SvnWizard wizard = new SvnWizard(revertPage);
 				SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 				revert = (dialog.open() == SvnWizardDialog.OK);

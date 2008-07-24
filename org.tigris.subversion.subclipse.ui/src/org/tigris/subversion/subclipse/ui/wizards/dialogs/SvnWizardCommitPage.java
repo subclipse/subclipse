@@ -73,16 +73,19 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private CommentProperties commentProperties;
 	private SyncInfoSet syncInfoSet;
 	private String removalError;
+	private boolean fromSyncView;
 
 //	private boolean sharing;
 	
 	private HashMap statusMap;
 	private ResourceSelectionTree resourceSelectionTree;
 
-	public SvnWizardCommitPage(IResource[] resourcesToCommit, String url, ProjectProperties projectProperties, HashMap statusMap, ChangeSet changeSet) {
-		super("CommitDialog", null); //$NON-NLS-1$		
-		includeUnversioned = 
-			SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT);    
+	public SvnWizardCommitPage(IResource[] resourcesToCommit, String url, ProjectProperties projectProperties, HashMap statusMap, ChangeSet changeSet, boolean fromSyncView) {
+		super("CommitDialog", null); //$NON-NLS-1$	
+		this.fromSyncView = fromSyncView;
+		if (fromSyncView) includeUnversioned = true;
+		else includeUnversioned = 
+			 SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT);    
 		
 		this.resourcesToCommit = resourcesToCommit;
 //		this.url = url;
@@ -208,7 +211,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
             				}
             				selectedResources = resourceSelectionTree.getSelectedResources();
             				setPageComplete(canFinish());
-            				updatePreference(includeUnversioned);
+            				if (!fromSyncView) updatePreference(includeUnversioned);
             			}
             			public void widgetDefaultSelected(SelectionEvent e) {
             			}
@@ -229,7 +232,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
         return 1;
       }
     };
-    	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, false, toolbarControlCreator, syncInfoSet); //$NON-NLS-1$    	
+    	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, true, toolbarControlCreator, syncInfoSet); //$NON-NLS-1$    	
     	if (!resourceSelectionTree.showIncludeUnversionedButton()) includeUnversionedButton.setVisible(false);
     	
     	resourceSelectionTree.setRemoveFromViewValidator(new ResourceSelectionTree.IRemoveFromViewValidator() {

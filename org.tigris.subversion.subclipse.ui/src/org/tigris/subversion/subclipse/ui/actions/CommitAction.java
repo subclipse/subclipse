@@ -281,7 +281,7 @@ public class CommitAction extends WorkbenchWindowAction {
 		   break;
 	   }
 	   
-	   SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modifiedResources, url, projectProperties, statusMap, null);
+	   SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modifiedResources, url, projectProperties, statusMap, null, false);
 //	   commitPage.setSharing(sharing);
 	   
 	   SvnWizard wizard = new SvnWizard(commitPage);

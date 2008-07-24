@@ -137,7 +137,7 @@ public class RevertAction extends WorkbenchWindowAction {
 	 */		
 	protected boolean confirmRevert(IResource[] modifiedResources) {
 	   if (modifiedResources.length == 0) return false;
-	   revertPage = new SvnWizardRevertPage(modifiedResources, url, statusMap);
+	   revertPage = new SvnWizardRevertPage(modifiedResources, url, statusMap, false);
 	   SvnWizard wizard = new SvnWizard(revertPage);
 	   SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 	   boolean revert = (dialog.open() == SvnWizardDialog.OK);

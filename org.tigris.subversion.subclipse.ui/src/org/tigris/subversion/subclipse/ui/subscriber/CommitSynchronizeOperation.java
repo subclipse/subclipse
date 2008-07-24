@@ -106,7 +106,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 	        try {
                 ProjectProperties projectProperties = ProjectProperties.getProjectProperties(modified[0]);
                 
-                SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties, new HashMap(), changeSet);                
+                SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties, new HashMap(), changeSet, true);                
                 commitPage.setComment(proposedComment);
                 commitPage.setSyncInfoSet(set);
          	    SvnWizard wizard = new SvnWizard(commitPage);

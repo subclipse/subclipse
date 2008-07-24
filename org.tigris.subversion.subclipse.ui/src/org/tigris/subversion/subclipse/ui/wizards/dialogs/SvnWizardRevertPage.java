@@ -21,8 +21,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -39,7 +37,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 public class SvnWizardRevertPage extends SvnWizardDialogPage {
 
     private IResource[] resourcesToRevert;
-    private String url;
+//  private String url;
     private Object[] selectedResources;
     private HashMap statusMap;
     
@@ -48,14 +46,18 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
     
     private Button includeUnversionedButton;
     private boolean includeUnversioned;
+    private boolean fromSyncView;
  
-	public SvnWizardRevertPage(IResource[] resourcesToRevert, String url, HashMap statusMap) {
+	public SvnWizardRevertPage(IResource[] resourcesToRevert, String url, HashMap statusMap, boolean fromSyncView) {
 		super("RevertDialog", Policy.bind("RevertDialog.title")); //$NON-NLS-1$
-		includeUnversioned = 
-			SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT);    		
+		this.fromSyncView = fromSyncView;
+		if (fromSyncView) includeUnversioned = true;
+		else includeUnversioned = 
+			 SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT);    
+		
 		this.resourcesToRevert = resourcesToRevert;
-		this.url = url;
-		this.statusMap = statusMap;
+//		this.url = url;
+		this.statusMap = statusMap;	
 	}
 
 	public void createControls(Composite outerContainer) {
@@ -66,21 +68,22 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
-		Composite labelComposite = new Composite(composite, SWT.NONE);
-		labelComposite.setLayout(new GridLayout(2, false));
-		labelComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		Label label = new Label(labelComposite, SWT.NONE);
-		label.setText(Policy.bind("RevertDialog.url")); //$NON-NLS-1$
-		
-		Text text = new Text(labelComposite, SWT.READ_ONLY);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		if (url == null) {
-		  text.setText(Policy.bind("RevertDialog.multiple")); //$NON-NLS-1$
-		} else {
-		  text.setText(url);
-		}
+//		Composite labelComposite = new Composite(composite, SWT.NONE);
+//		labelComposite.setLayout(new GridLayout(2, false));
+//		labelComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+//		
+//		Label label = new Label(labelComposite, SWT.NONE);
+//		label.setText(Policy.bind("RevertDialog.url")); //$NON-NLS-1$
+//		
+//		Text text = new Text(labelComposite, SWT.READ_ONLY);
+//		text.setEditable(false);
+//		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+//		
+//		if (url == null) {
+//		  text.setText(Policy.bind("RevertDialog.multiple")); //$NON-NLS-1$
+//		} else {
+//		  text.setText(url);
+//		}
 
 		ResourceSelectionTree.IToolbarControlCreator toolbarControlCreator = new ResourceSelectionTree.IToolbarControlCreator() {
 			public void createToolbarControls(ToolBarManager toolbarManager) {
@@ -103,7 +106,7 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 			              				}
 			              				selectedResources = resourceSelectionTree.getSelectedResources();
 			              				setPageComplete(canFinish());
-			              				updatePreference(includeUnversioned);
+			              				if (!fromSyncView) updatePreference(includeUnversioned);
 			              			}
 			              			public void widgetDefaultSelected(SelectionEvent e) {
 			              			}
@@ -119,7 +122,7 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 		};
 		
 		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE,
-        Policy.bind("GenerateSVNDiff.Changes"), resourcesToRevert, statusMap, null, false, toolbarControlCreator, null); //$NON-NLS-1$
+        Policy.bind("GenerateSVNDiff.Changes"), resourcesToRevert, statusMap, null, true, toolbarControlCreator, null); //$NON-NLS-1$
     	if (!resourceSelectionTree.showIncludeUnversionedButton()) includeUnversionedButton.setVisible(false);    
 		
 		// resourceSelectionTree.getTreeViewer().setAllChecked(true);

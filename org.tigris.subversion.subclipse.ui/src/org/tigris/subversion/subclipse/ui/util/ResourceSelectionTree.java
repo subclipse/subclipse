@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.structuremergeviewer.Differencer;
@@ -31,18 +33,15 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ViewForm;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.team.core.diff.IDiff;
 import org.eclipse.team.core.diff.IThreeWayDiff;
 import org.eclipse.team.core.diff.ITwoWayDiff;
@@ -64,7 +63,7 @@ public class ResourceSelectionTree extends Composite {
 	private int mode;
 	private IResource[] resources;
 	private ArrayList resourceList;
-	private ArrayList unversionedResourceList;
+	private Set unversionedResourceList;
 	private IContainer[] compressedFolders;
 	private IContainer[] folders;
 	private ArrayList folderList;
@@ -73,8 +72,8 @@ public class ResourceSelectionTree extends Composite {
 	private TreeViewer treeViewer;
 	private LabelProvider labelProvider;
 	private String label;
-	private Button selectAllButton;
-	private Button deselectAllButton;
+//	private Button selectAllButton;
+//	private Button deselectAllButton;
 	private Action treeAction;
 	private Action flatAction;
 	private Action compressedAction;
@@ -88,6 +87,8 @@ public class ResourceSelectionTree extends Composite {
 	private boolean showRemoveFromViewAction = true;
 	private ResourceSelectionTreeDecorator resourceSelectionTreeDecorator = new ResourceSelectionTreeDecorator();
 	private boolean resourceRemoved = false;
+	private boolean includeUnversioned = true;
+	private ResourceSelectionContentProvider resourceSelectionContentProvider = new ResourceSelectionContentProvider();
 	
 	public final static String MODE_SETTING = "ResourceSelectionTree.mode"; //$NON-NLS-1$
 	public final static int MODE_COMPRESSED_FOLDERS = 0;
@@ -113,7 +114,7 @@ public class ResourceSelectionTree extends Composite {
 		        IResource resource = resources[i];
 				resourceList.add(resource);
 	  		}
-	  		unversionedResourceList = new ArrayList();
+	  		unversionedResourceList = new HashSet();
 	  		try
 	  		{
 		  		for (int i = 0; i < resources.length; i++) 
@@ -295,30 +296,30 @@ public class ResourceSelectionTree extends Composite {
 		}
 		
 		treeViewer.setLabelProvider(labelProvider);
-		treeViewer.setContentProvider(new ResourceSelectionContentProvider());
+		treeViewer.setContentProvider(resourceSelectionContentProvider);
 		treeViewer.setUseHashlookup(true);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.heightHint = 125;
 		treeViewer.getControl().setLayoutData(gd);
 		treeViewer.setInput(this);
 
-		if (checkbox) {
-		  SelectionListener selectionListener = new SelectionAdapter() {
-		    public void widgetSelected(SelectionEvent e) {
-		      setAllChecked(e.getSource() == selectAllButton);
-		    }			
-		  };
-
-		  deselectAllButton = new Button(this, SWT.PUSH);
-  	  deselectAllButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
-  	  deselectAllButton.setText(Policy.bind("ResourceSelectionTree.DeselectAll")); //$NON-NLS-1$
-  	  deselectAllButton.addSelectionListener(selectionListener);
-  	
-  	  selectAllButton = new Button(this, SWT.PUSH);
-  	  selectAllButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-  	  selectAllButton.setText(Policy.bind("ResourceSelectionTree.SelectAll")); //$NON-NLS-1$
-  	  selectAllButton.addSelectionListener(selectionListener);
-		}
+//		if (checkbox) {
+//		  SelectionListener selectionListener = new SelectionAdapter() {
+//		    public void widgetSelected(SelectionEvent e) {
+//		      setAllChecked(e.getSource() == selectAllButton);
+//		    }			
+//		  };
+//
+//		  deselectAllButton = new Button(this, SWT.PUSH);
+//  	  deselectAllButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+//  	  deselectAllButton.setText(Policy.bind("ResourceSelectionTree.DeselectAll")); //$NON-NLS-1$
+//  	  deselectAllButton.addSelectionListener(selectionListener);
+//  	
+//  	  selectAllButton = new Button(this, SWT.PUSH);
+//  	  selectAllButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+//  	  selectAllButton.setText(Policy.bind("ResourceSelectionTree.SelectAll")); //$NON-NLS-1$
+//  	  selectAllButton.addSelectionListener(selectionListener);
+//		}
 		
 		treeViewer.expandAll();
 		
@@ -351,6 +352,36 @@ public class ResourceSelectionTree extends Composite {
 	}
 	
 	protected void fillTreeMenu(IMenuManager menuMgr) {
+		if (checkbox) {
+			Action selectAllAction = new Action(Policy.bind("ResourceSelectionTree.SelectAll")) { //$NON-NLS-1$
+				public void run() {
+					setAllChecked(true);
+				}
+			};
+			menuMgr.add(selectAllAction);
+			Action deselectAllAction = new Action(Policy.bind("ResourceSelectionTree.DeselectAll")) { //$NON-NLS-1$
+				public void run() {
+					setAllChecked(false);
+				}
+			};
+			menuMgr.add(deselectAllAction);	
+			if (showIncludeUnversionedButton() && includeUnversioned) {
+				menuMgr.add(new Separator());
+				Action selectUnversionedAction = new Action(Policy.bind("ResourceSelectionTree.SelectUnversioned")) { //$NON-NLS-1$
+					public void run() {
+						checkUnversioned(tree.getItems(), true);
+					}
+				};
+				menuMgr.add(selectUnversionedAction);
+				Action deselectUnversionedAction = new Action(Policy.bind("ResourceSelectionTree.DeselectUnversioned")) { //$NON-NLS-1$
+					public void run() {
+						checkUnversioned(tree.getItems(), false);
+					}
+				};
+				menuMgr.add(deselectUnversionedAction);				
+			}
+		}
+		menuMgr.add(new Separator());
 		if (mode != MODE_FLAT) {
 			Action expandAllAction = new Action(Policy.bind("SyncAction.expandAll")) { //$NON-NLS-1$
 				public void run() {
@@ -421,6 +452,7 @@ public class ResourceSelectionTree extends Composite {
 			rootFolders = null;
 			folders = null;
 			refresh();
+			includeUnversioned = false;
 		}
 		catch (Exception e) {
 			SVNUIPlugin.openError(getShell(), null, null, e);
@@ -440,9 +472,20 @@ public class ResourceSelectionTree extends Composite {
 			rootFolders = null;
 			folders = null;
 			refresh();
+			checkUnversioned(tree.getItems(), true);
+			includeUnversioned = true;
 		}
 		catch (Exception e) {
 			SVNUIPlugin.openError(getShell(), null, null, e);
+		}
+	}
+	
+	private void checkUnversioned(TreeItem[] items, boolean state) {
+		for (int i = 0; i < items.length; i++) {
+			if (unversionedResourceList.contains(items[i].getData())) {
+				items[i].setChecked(state);
+			}
+			checkUnversioned(items[i].getItems(), state);
 		}
 	}
 	
@@ -457,64 +500,34 @@ public class ResourceSelectionTree extends Composite {
 	}
 	
 	private void handleCheckStateChange(CheckStateChangedEvent event) {
-        IResource resource = (IResource) event.getElement();
-        boolean state = event.getChecked();
-
-        ((CheckboxTreeViewer)treeViewer).setGrayed(resource, false);
-        if (resource instanceof IContainer) {
-        	if (!(resourceList.contains(resource)))
-        		setSubtreeChecked((IContainer)resource, state);
-        }
-        else updateParentState(resource);
+		((CheckboxTreeViewer)treeViewer).setGrayed(event.getElement(), false);
+		((CheckboxTreeViewer)treeViewer).setSubtreeChecked(event.getElement(), event.getChecked());	
+		IResource resource = (IResource) event.getElement();
+		updateParentState(resource, event.getChecked());
 	}
-	
-	private void setSubtreeChecked(IContainer container, boolean state) {
-		IResource[] members = getChildResources(container);
-        for (int i = members.length - 1; i >= 0; i--) {
-            IResource element = members[i];
-            if (!(element instanceof IContainer)) {
-	            if (state) {
-	            	((CheckboxTreeViewer)treeViewer).setChecked(element, true);
-	            	((CheckboxTreeViewer)treeViewer).setGrayed(element, false);
-	            } else {
-	            	((CheckboxTreeViewer)treeViewer).setGrayChecked(element, false);
-	            }
-            }
-        }
-    }
-    
-    private void updateParentState(IResource child) {
-        if (mode == MODE_FLAT || child == null || child.getParent() == null || resourceList.contains(child.getParent())) {
+
+	private void updateParentState(IResource child, boolean baseChildState) {
+		if (mode == MODE_FLAT || child == null || child.getParent() == null || resourceList.contains(child.getParent())) {
 			return;
 		}
-        IContainer parent = child.getParent();
-        boolean childChecked = false;
-        boolean childUnchecked = false;
-        IResource[] members;
-        if (mode == MODE_COMPRESSED_FOLDERS) members = getChildResources(parent);
-        else members = getFolderChildren(parent);
-        for (int i = members.length - 1; i >= 0; i--) {      	
-        	if (!(members[i] instanceof IContainer)) { 	
-	            if (((CheckboxTreeViewer)treeViewer).getChecked(members[i]) || ((CheckboxTreeViewer)treeViewer).getGrayed(members[i])) 
-	            	childChecked = true;
-	            else
-	            	childUnchecked = true;
-	            if (childChecked && childUnchecked) break;
-        	}       
-        }
-        if (!childChecked) {
-        	((CheckboxTreeViewer)treeViewer).setGrayChecked(parent, false);
-        	((CheckboxTreeViewer)treeViewer).setChecked(parent, false);
-        } else {
-        	if (childUnchecked) {
-        		((CheckboxTreeViewer)treeViewer).setChecked(parent, false);
-        		((CheckboxTreeViewer)treeViewer).setGrayChecked(parent, true);
-        	} else {
-        		((CheckboxTreeViewer)treeViewer).setGrayChecked(parent, false);
-        		((CheckboxTreeViewer)treeViewer).setChecked(parent, true);
-        	}
-        }
-    }    
+		CheckboxTreeViewer checkboxTreeViewer = (CheckboxTreeViewer)treeViewer;
+		if (child == null) return;
+		Object parent = resourceSelectionContentProvider.getParent(child);
+		if (parent == null) return;
+		boolean allSameState = true;
+		Object[] children = null;
+		children = resourceSelectionContentProvider.getChildren(parent);
+		for (int i = children.length - 1; i >= 0; i--) {
+			if (checkboxTreeViewer.getChecked(children[i]) != baseChildState || checkboxTreeViewer.getGrayed(children[i])) {
+			   allSameState = false;
+		       break;
+			}
+		}
+		checkboxTreeViewer.setGrayed(parent, !allSameState);
+		checkboxTreeViewer.setChecked(parent, !allSameState || baseChildState);
+		updateParentState((IResource)parent, baseChildState);
+	}
+
 
 	private void refresh() {
 		Object[] checkedElements = null;
@@ -522,21 +535,7 @@ public class ResourceSelectionTree extends Composite {
 		treeViewer.refresh();
 		treeViewer.expandAll();
 		if (checkbox) ((CheckboxTreeViewer)treeViewer).setCheckedElements(checkedElements);
-		if (checkbox && mode == MODE_COMPRESSED_FOLDERS) {
-			for (int i = 0; i < compressedFolders.length; i++) {
-				IResource[] children = getChildResources(compressedFolders[i]);
-				if (children.length > 0) {
-					updateParentState(children[0]);
-				}
-			}
-		}
 		if (checkbox && mode == MODE_TREE) {
-			for (int i = 0; i < folders.length; i++) {
-				IResource[] children = getFolderChildren(folders[i]);
-				if (children.length > 0) {
-					updateParentState(children[0]);
-				}
-			}
 			treeViewer.collapseAll();
 		}
 	}
@@ -623,7 +622,7 @@ public class ResourceSelectionTree extends Composite {
 	
 	private class ResourceSelectionContentProvider extends WorkbenchContentProvider {
 		public Object getParent(Object element) {
-			return null;
+			return ((IResource)element).getParent();
 		}
 		public boolean hasChildren(Object element) {
 			if (mode != MODE_FLAT && element instanceof IContainer) return true;
