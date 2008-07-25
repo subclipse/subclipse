@@ -410,22 +410,13 @@
                id="org.tigris.subversion.subclipse.ui.replaceWithBase">
          </action>
          <action
-               label="%CompareWithBaseAction.label"
-               helpContextId="org.tigris.subversion.subclipse.ui.compare_with_base_action_context"
-               tooltip="%CompareWithBaseAction.tooltip"
-               class="org.tigris.subversion.subclipse.ui.actions.CompareWithBaseRevisionAction"
-               menubarPath="compareWithMenu/compareWithGroup"
-			   			 definitionId="org.tigris.subversion.subclipse.ui.compareWithBase"
-               id="org.tigris.subversion.subclipse.ui.compareWithBase">
-         </action>
-         <action
                label="%CompareWithBranchTagAction.label"
                class="org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffActionWC"
                enablesFor="1"
                menubarPath="compareWithMenu/compareWithGroup"
 			   			 definitionId="org.tigris.subversion.subclipse.ui.compareWithBranchTag"
                id="org.tigris.subversion.subclipse.ui.compareWithBranchTag">
-         </action>         
+         </action>
          <action
                label="%CompareWithRevisionAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.compare_with_revision_action_context"
@@ -434,7 +425,7 @@
                menubarPath="compareWithMenu/compareWithGroup"
 			   			 definitionId="org.tigris.subversion.subclipse.ui.compareWithRevision"
                id="org.tigris.subversion.subclipse.ui.compareWithRevision">
-         </action>
+         </action> 
          <action
                label="%CompareWithHeadAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.compare_with_latest_action_context"
@@ -443,6 +434,15 @@
                menubarPath="compareWithMenu/compareWithGroup"
 			   			 definitionId="org.tigris.subversion.subclipse.ui.compareWithHead"
                id="org.tigris.subversion.subclipse.ui.compareWithHead">
+         </action>                                   
+         <action
+               label="%CompareWithBaseAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.compare_with_base_action_context"
+               tooltip="%CompareWithBaseAction.tooltip"
+               class="org.tigris.subversion.subclipse.ui.actions.CompareWithBaseRevisionAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+			   			 definitionId="org.tigris.subversion.subclipse.ui.compareWithBase"
+               id="org.tigris.subversion.subclipse.ui.compareWithBase">
          </action>
          <action
                label="%ExportAction.label"
@@ -645,15 +645,7 @@
                menubarPath="team.main/group4"
 			   definitionId="org.tigris.subversion.subclipse.ui.lock"
                id="org.tigris.subversion.subclipse.ui.lock">
-         </action>         
-         <action
-               label="%CompareWithRevisionAction.label"
-               helpContextId="org.tigris.subversion.subclipse.ui.compare_with_revision_action_context"
-               tooltip="%CompareWithRevisionAction.tooltip"
-               class="org.tigris.subversion.subclipse.ui.actions.CompareWithRevisionAction"
-               menubarPath="compareWithMenu/compareWithGroup"
-               id="org.tigris.subversion.subclipse.ui.compareWithRevision">
-         </action>         
+         </action>           
          <action
                label="%ReplaceWithRevisionAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.replace_with_revision_action_context"
