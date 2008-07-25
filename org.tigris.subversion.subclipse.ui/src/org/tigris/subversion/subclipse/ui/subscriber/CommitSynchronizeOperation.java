@@ -28,6 +28,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
+import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
 import org.eclipse.team.internal.core.subscribers.ChangeSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
@@ -107,7 +108,10 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
                 ProjectProperties projectProperties = ProjectProperties.getProjectProperties(modified[0]);
                 
                 SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties, new HashMap(), changeSet, true);                
-                commitPage.setComment(proposedComment);
+         	    if (proposedComment == null || proposedComment.length() == 0)
+         		  commitPage.setComment(getProposedComment(modified));  
+         		else
+                  commitPage.setComment(proposedComment);
                 commitPage.setSyncInfoSet(set);
          	    SvnWizard wizard = new SvnWizard(commitPage);
         	    final SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);	                
@@ -135,6 +139,47 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 	protected boolean promptForConflictHandling(Shell shell, SyncInfoSet syncSet) {
 		return true;
 	}
+	
+    /*
+     * Get a proposed comment by looking at the active change sets
+     */
+    private String getProposedComment(IResource[] resourcesToCommit) {
+    	StringBuffer comment = new StringBuffer();
+    	ChangeSet[] sets = SVNProviderPlugin.getPlugin().getChangeSetManager().getSets();
+    	int numMatchedSets = 0;
+    	for (int i = 0; i < sets.length; i++) {
+    		ChangeSet set = sets[i];
+    		if (isUserSet(set) && containsOne(set, resourcesToCommit)) {
+    			if(numMatchedSets > 0) comment.append(System.getProperty("line.separator")); //$NON-NLS-1$
+    			comment.append(set.getComment());
+    			numMatchedSets++;
+    		}
+    	}
+    	return comment.toString();
+    }
+    
+    private boolean isUserSet(ChangeSet set) {
+    	if (set instanceof ActiveChangeSet) {
+    		ActiveChangeSet acs = (ActiveChangeSet) set;
+    		return acs.isUserCreated();
+    	}
+    	return false;
+    }
+
+    private boolean containsOne(ChangeSet set, IResource[] resourcesToCommit) {
+    	for (int j = 0; j < resourcesToCommit.length; j++) {
+    		IResource resource = resourcesToCommit[j];
+    		if (set.contains(resource)) {
+    			return true;
+    		}
+    		if (set instanceof ActiveChangeSet) {
+    			ActiveChangeSet acs = (ActiveChangeSet) set;
+    			if (acs.getDiffTree().members(resource).length > 0)
+    				return true;
+    		}
+    	}
+    	return false;
+    }
 	
 	/**
 	 * Prompts the user to determine how conflicting changes should be handled.
