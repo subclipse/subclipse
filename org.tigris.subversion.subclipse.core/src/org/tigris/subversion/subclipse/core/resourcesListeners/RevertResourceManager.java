@@ -22,6 +22,7 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.resources.SVNMoveDeleteHook;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -93,16 +94,21 @@ public class RevertResourceManager implements IResourceChangeListener {
             event.getDelta().accept(new IResourceDeltaVisitor() {
 
                 public boolean visit(IResourceDelta delta) throws CoreException {
-                    if (delta.getResource().getType() == IResource.FILE && delta.getKind() == IResourceDelta.ADDED) {
-                        addedFileResources.add(delta.getResource());
-                    }
+                	if (delta.getResource().getType() == IResource.FILE) {
+                        if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
+                        	addedFileResources.add(delta);
+                        }  
+                        else if (delta.getKind() == IResourceDelta.REMOVED) {
+                        	SVNMoveDeleteHook.removeFromDeletedFileList((IFile)delta.getResource());
+                        }
+                	}
                     return true;
                 }
 
             });
             if (!addedFileResources.isEmpty()) {
-                final IResource[] resources = (IResource[]) addedFileResources.toArray(new IResource[addedFileResources
-                        .size()]);
+                final IResourceDelta[] resources = (IResourceDelta[]) addedFileResources.toArray(new IResourceDelta[addedFileResources
+                                                                                                     .size()]);                
                 ISVNLocalResource[] revertResources = processResources(resources);
                 if (revertResources.length > 0) {
                 	new RevertWorkspaceJob(revertResources).schedule(500);
@@ -122,14 +128,21 @@ public class RevertResourceManager implements IResourceChangeListener {
      * 
      * @param resources
      */
-    private ISVNLocalResource[] processResources(IResource[] resources) throws CoreException {
+
+	private ISVNLocalResource[] processResources(IResourceDelta[] resources) throws CoreException {
     	List revertedResources = new ArrayList();
         for (int i = 0; i < resources.length; i++) {
-            IResource resource = resources[i];
+        	IResource resource = resources[i].getResource();
             if (resource.getType() == IResource.FILE) {
                 ISVNLocalFile res = SVNWorkspaceRoot.getSVNFileFor((IFile) resource);
                 if (res.getFile().exists()) {
-                    boolean deleted = res.getStatus().isDeleted();
+                	boolean deleted;
+                	if (resources[i].getKind() == IResourceDelta.ADDED)
+                		deleted = res.getStatus().isDeleted();
+                	else {
+                		deleted = SVNMoveDeleteHook.isDeleted((IFile)resource);
+                		if (deleted) SVNMoveDeleteHook.removeFromDeletedFileList((IFile)resource);
+                	}
                     if (deleted) {
                         revertedResources.add(res);
                     }

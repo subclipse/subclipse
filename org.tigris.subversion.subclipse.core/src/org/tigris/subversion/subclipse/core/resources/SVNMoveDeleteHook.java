@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -34,6 +37,7 @@ import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class SVNMoveDeleteHook implements IMoveDeleteHook {
+	private static Set deletedFiles = new HashSet();
 
     public boolean deleteFile(IResourceTree tree, IFile file, int updateFlags,
             IProgressMonitor monitor) {
@@ -51,8 +55,9 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             	return false;
             
             monitor.beginTask(null, 1000);
+            deletedFiles.add(file);
             resource.delete();
-            tree.deletedFile(file);
+            tree.deletedFile(file);           
 
         } catch (SVNException e) {
             tree.failed(e.getStatus());
@@ -63,6 +68,14 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
 
     }
 
+    public static boolean isDeleted(IFile file) {
+    	return deletedFiles.contains(file);
+    }
+    
+    public static void removeFromDeletedFileList(IFile file) {
+    	deletedFiles.remove(file);
+    }
+    
     public boolean deleteFolder(IResourceTree tree, IFolder folder,
             int updateFlags, IProgressMonitor monitor) {
 
