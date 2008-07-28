@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 
 import java.io.File;
 
-import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -38,20 +37,12 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
-import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
-import org.tigris.subversion.subclipse.core.resources.RemoteFile;
-import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
 import org.tigris.subversion.subclipse.ui.util.UrlCombo;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -74,6 +65,11 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 	private Button okButton;
 	private boolean success;
 	private File file;
+	
+	private SVNUrl toUrl;
+	private SVNRevision toRevision;
+	private ISVNLocalResource svnResource;
+	private boolean diffToOutputFile;
 
 	public ShowDifferencesAsUnifiedDiffDialogWC(Shell parentShell, IResource resource, IWorkbenchPart targetPart) {
 		super(parentShell, "ShowDifferencesAsUnifiedDiffDialogWC"); //$NON-NLS-1$
@@ -274,8 +270,6 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
 				try {
-					SVNUrl toUrl = null;
-					SVNRevision toRevision;
 					if (toHeadButton.getSelection()) toRevision = SVNRevision.HEAD;
 					else {
 						int toRevisionInt = Integer.parseInt(toRevisionText.getText().trim());
@@ -284,7 +278,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 					}
 					toUrl = new SVNUrl(toUrlText.getText().trim());	
 					File path = new File(resource.getLocation().toString());
-					ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+					svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 					ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
 					ISVNInfo svnInfo = svnClient.getInfo(toUrl, toRevision, toRevision);
 					SVNNodeKind nodeKind = svnInfo.getNodeKind();
@@ -302,29 +296,15 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 						}						
 					}
 					if (diffButton.getSelection()) {
+						diffToOutputFile = true;
 						file = new File(fileText.getText().trim());
 						if (file.exists()) {
 							if (!MessageDialog.openQuestion(getShell(), Policy.bind("HistoryView.showDifferences"), Policy.bind("HistoryView.overwriteOutfile", file.getName()))) return;
 						}
 						new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file).run();														
 					} else {
-						try {
-							if (resource instanceof IContainer) {
-								ISVNRemoteFolder remoteFolder = new RemoteFolder(svnResource.getRepository(), toUrl, toRevision);
-								CompareUI.openCompareEditorOnPage(
-										new SVNLocalCompareInput(svnResource, remoteFolder),
-										getTargetPage());								
-							} else {
-								ISVNRemoteFile remoteFile = new RemoteFile(svnResource.getRepository(), toUrl, toRevision);
-								((RemoteFile)remoteFile).setPegRevision(toRevision);
-								CompareUI.openCompareEditorOnPage(
-										new SVNLocalCompareInput(svnResource, remoteFile),
-										getTargetPage());
-							}
-						} catch (SVNException e) {
-							MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), e.getMessage());
-							success = false;							
-						}
+						diffToOutputFile = false;
+						success = true;
 					}
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage());
@@ -360,13 +340,20 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		setOkButtonStatus();
 	}
 
-	/**
-	 * Return the path that was active when the menu item was selected.
-	 * @return IWorkbenchPage
-	 */
-	private IWorkbenchPage getTargetPage() {
-		if (targetPart == null) return SVNUIPlugin.getActivePage();
-		return targetPart.getSite().getPage();
+	public SVNUrl getToUrl() {
+		return toUrl;
+	}
+
+	public SVNRevision getToRevision() {
+		return toRevision;
+	}
+
+	public ISVNLocalResource getSvnResource() {
+		return svnResource;
+	}
+
+	public boolean isDiffToOutputFile() {
+		return diffToOutputFile;
 	}
 
 }

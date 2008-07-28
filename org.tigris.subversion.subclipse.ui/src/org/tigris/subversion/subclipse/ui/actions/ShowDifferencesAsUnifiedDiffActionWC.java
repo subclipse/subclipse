@@ -12,6 +12,8 @@ package org.tigris.subversion.subclipse.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.compare.CompareUI;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -19,7 +21,13 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.resources.RemoteFile;
+import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.dialogs.ShowDifferencesAsUnifiedDiffDialogWC;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
 
@@ -42,8 +50,24 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 			}			
 		}
 			ShowDifferencesAsUnifiedDiffDialogWC dialog = new ShowDifferencesAsUnifiedDiffDialogWC(getShell(), resources[0], getTargetPart());
-			dialog.open();
-//		}
+			if (dialog.open() == ShowDifferencesAsUnifiedDiffDialogWC.OK && !dialog.isDiffToOutputFile()) {
+				try {
+					if (resources[0] instanceof IContainer) {
+						ISVNRemoteFolder remoteFolder = new RemoteFolder(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
+						CompareUI.openCompareEditorOnPage(
+								new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder),
+								getTargetPage());								
+					} else {
+						ISVNRemoteFile remoteFile = new RemoteFile(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
+						((RemoteFile)remoteFile).setPegRevision(dialog.getToRevision());
+						CompareUI.openCompareEditorOnPage(
+								new SVNLocalCompareInput(dialog.getSvnResource(), remoteFile),
+								getTargetPage());
+					}
+				} catch (SVNException e) {
+					MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), e.getMessage());						
+				}				
+			}
 	}
 
 	protected boolean isEnabled() throws TeamException {
