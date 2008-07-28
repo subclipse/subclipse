@@ -43,6 +43,7 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RepositoryResourcesManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.resourcesListeners.FileModificationManager;
+import org.tigris.subversion.subclipse.core.resourcesListeners.RevertResourceManager;
 import org.tigris.subversion.subclipse.core.resourcesListeners.SyncFileChangeListener;
 import org.tigris.subversion.subclipse.core.resourcesListeners.TeamPrivateListener;
 import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
@@ -96,6 +97,8 @@ public class SVNProviderPlugin extends Plugin {
 	private ISVNFileModificationValidatorPrompt svnFileModificationValidatorPrompt;
 	
 	private SVNActiveChangeSetCollector changeSetManager;
+	
+	private RevertResourceManager revertManager;
 	
 	private static boolean consoleLoggingEnabled = true;
 	
@@ -160,6 +163,8 @@ public class SVNProviderPlugin extends Plugin {
 		// subdir)
 		metaFileSyncListener = new SyncFileChangeListener();
 
+		revertManager = new RevertResourceManager();
+		
 		workspace.addResourceChangeListener(teamPrivateListener,
 				IResourceChangeEvent.POST_CHANGE);
 		workspace.addResourceChangeListener(statusCacheManager,
@@ -168,7 +173,8 @@ public class SVNProviderPlugin extends Plugin {
 				IResourceChangeEvent.PRE_BUILD);
 		workspace.addResourceChangeListener(fileModificationManager,
 				IResourceChangeEvent.POST_CHANGE);
-
+		workspace.addResourceChangeListener(revertManager, IResourceChangeEvent.PRE_BUILD);
+		
 		teamPrivateListener.registerSaveParticipant();
 		fileModificationManager.registerSaveParticipant();
 
@@ -190,7 +196,8 @@ public class SVNProviderPlugin extends Plugin {
 		workspace.removeResourceChangeListener(metaFileSyncListener);
 		workspace.removeResourceChangeListener(fileModificationManager);
 		workspace.removeResourceChangeListener(teamPrivateListener);
-
+		workspace.removeResourceChangeListener(revertManager);
+		
 		// save the state which includes the known repositories
 		if (repositories != null) {
 			repositories.shutdown();

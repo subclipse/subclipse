@@ -461,4 +461,15 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		return Platform.getAdapterManager().getAdapter(this,adapter);
 	}
 
+	public boolean equals(Object obj) {
+		if (obj instanceof LocalResource) {
+			LocalResource resource = (LocalResource)obj;
+			return resource.getResource().getFullPath().equals(getResource().getFullPath());
+		}
+		return false;
+	}
+	
+	public int hashCode() {
+		return 23 * resource.getFullPath().hashCode();
+	}
 }
