@@ -422,11 +422,19 @@ public class CommitOperation extends SVNOperation {
 			return rootURL;
 		}
 		
-		public File getParent() {
+		private File getParent() {
 			if (parent == null) {
-				if (useJavaHLHack)
+				if (useJavaHLHack) {
 					parent = provider.getSVNWorkspaceRoot().getLocalRoot().getFile().getParentFile();
-				else
+					if (isWorkingCopy(parent)) {
+						// If the parent folder is part of a working copy
+						// return the top-most folder of that working copy
+						// this allows commits from folders with different
+						// parents in the same working copy to be committed
+						// as a single transaction.
+						parent = getWorkingCopyRoot(parent);
+					}
+				} else
 					parent = provider.getProject().getFullPath().toFile();
 				if (parent == null)
 					parent = provider.getSVNWorkspaceRoot().getLocalRoot().getFile();
@@ -434,6 +442,41 @@ public class CommitOperation extends SVNOperation {
 			return parent;
 		}
 		
+		/**
+		 * Given a folder that is currently managed by SVN, it returns
+		 * the top-most parent folder that is also managed by SVN.  This
+		 * could be the same folder passed to the function.
+		 * 
+		 * @param folder - a folder currently managed by SVN
+		 * @return - topmost folder in same working copy
+		 */
+		private File getWorkingCopyRoot(File folder) {
+			File parentFolder = folder.getParentFile();
+			if (isWorkingCopy(parentFolder)) {
+				return getWorkingCopyRoot(parentFolder);
+			} else {
+				return folder;
+			}
+		}
+
+		/**
+		 * Method requires a folder name.  It then checks if that folder
+		 * is part of a working copy, by returning whether it contains a
+		 * child folder named ".svn" or "_svn" as appropriate.
+		 * 
+		 * It does not verify that it is truly an SVN working copy.  The
+		 * goal here is to run as fast as possible.
+		 * 
+		 * @param folder - the folder to check
+		 * @return - whether that folder is part of a working copy
+		 */
+		private boolean isWorkingCopy(File folder) {
+			if (folder != null && folder.isDirectory()) {
+				return new File(folder, SVNProviderPlugin.getPlugin().getAdminDirectoryName()).exists();
+			}
+			return false;
+		}
+
 		private String getKey() {
 			if (key == null)
 				try {
