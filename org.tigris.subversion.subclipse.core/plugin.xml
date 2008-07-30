@@ -10,7 +10,7 @@
             typeClass="org.tigris.subversion.subclipse.core.SVNTeamProviderType"
             class="org.tigris.subversion.subclipse.core.SVNTeamProvider"
             id="org.tigris.subversion.subclipse.core.svnnature"
-            metaFilePaths=".svn/entries,.project">
+            metaFilePaths=".svn/entries">
       </repository>
    </extension>
    <extension
