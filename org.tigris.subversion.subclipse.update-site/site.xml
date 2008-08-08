@@ -15,13 +15,13 @@
    <feature url="features/org.tigris.subversion.clientadapter.feature_1.5.1.jar" id="org.tigris.subversion.clientadapter.feature" version="1.5.1">
       <category name="Subclipse (required)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse_1.4.2.jar" id="org.tigris.subversion.subclipse" version="1.4.2">
+   <feature url="features/org.tigris.subversion.subclipse_1.4.3.jar" id="org.tigris.subversion.subclipse" version="1.4.3">
       <category name="Subclipse (required)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.5.1.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.5.1">
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.5.1.1.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.5.1.1">
       <category name="JavaHL Adapter (recommended)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.5.1.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.5.1">
+   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.5.1.1.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.5.1.1">
       <category name="SVNKit Adapter BETA (optional)"/>
    </feature>
    <category-def name="Subclipse (required)" label="Subclipse (required)">
