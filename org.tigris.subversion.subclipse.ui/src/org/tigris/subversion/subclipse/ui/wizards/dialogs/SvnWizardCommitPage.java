@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.ControlContribution;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -20,9 +21,11 @@ import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DisposeEvent;
@@ -48,6 +51,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.actions.SVNPluginAction;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.dialogs.CompareDialog;
@@ -191,7 +195,11 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 		SVNUIPlugin.getPlugin().getPreferenceStore().setValue(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT, includeUnversioned);    
 	}
 	
-    private void addResourcesArea(Composite composite) {  
+    private void addResourcesArea(Composite composite) {
+    	// get the toolbar actions from any contributing plug-in
+    	final SVNPluginAction[] toolbarActions = SVNUIPlugin.getCommitDialogToolBarActions();
+    	final SVNPluginAction[] alternateCompareActions = SVNUIPlugin.getCommitDialogCompareActions();
+    	
     	ResourceSelectionTree.IToolbarControlCreator toolbarControlCreator = new ResourceSelectionTree.IToolbarControlCreator() {
       public void createToolbarControls(ToolBarManager toolbarManager) {
 
@@ -230,6 +238,15 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
             return keepLocksButton;
           }
         });
+          
+          // add any contributing actions from the extension point
+          if (toolbarActions.length > 0) {
+        	  toolbarManager.add(new Separator());
+        	  for (int i = 0; i < toolbarActions.length; i++) {
+        		  SVNPluginAction action = toolbarActions[i];
+        		  toolbarManager.add(action);
+        	  }
+          }
       }
       public int getControlCount() {
         return 1;
@@ -250,6 +267,15 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
     	resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				selectedResources = resourceSelectionTree.getSelectedResources();
+				
+				// need to update the toolbar actions too - but we use the tree viewer's selection
+				if (toolbarActions.length > 0) {
+					ISelection selection = resourceSelectionTree.getTreeViewer().getSelection();
+					for (int i = 0; i < toolbarActions.length; i++) {
+						SVNPluginAction action = toolbarActions[i];
+						action.selectionChanged(selection);
+					}
+				}
 			}
 		});
     	((CheckboxTreeViewer)resourceSelectionTree.getTreeViewer()).addCheckStateListener(new ICheckStateListener() {
@@ -264,8 +290,19 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 				if (sel0 instanceof IFile) {
 					final ISVNLocalResource localResource= SVNWorkspaceRoot.getSVNResourceFor((IFile)sel0);
 					try {
-						new CompareDialog(getShell(),
-							new SVNLocalCompareInput(localResource, SVNRevision.BASE, true)).open();
+						// if any alternate compare actions are defined from the extension point
+						// then call those actions instead of showing the default compare dialog
+						if (alternateCompareActions.length > 0) {
+							StructuredSelection selection = new StructuredSelection(localResource);
+							for (int i = 0; i < alternateCompareActions.length; i++) {
+								// make sure the selection is up to date
+								alternateCompareActions[i].selectionChanged(selection);
+								alternateCompareActions[i].run();
+							}
+						} else {
+							new CompareDialog(getShell(),
+									new SVNLocalCompareInput(localResource, SVNRevision.BASE, true)).open();
+						}
 					} catch (SVNException e1) {
 					}
 				}

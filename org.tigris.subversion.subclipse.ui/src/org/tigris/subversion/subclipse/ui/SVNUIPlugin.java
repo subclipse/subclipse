@@ -58,6 +58,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.resources.BaseResourceStorageFactory;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.actions.SVNPluginAction;
 import org.tigris.subversion.subclipse.ui.actions.ShowOutOfDateFoldersAction;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.authentication.SVNPromptUserPassword;
@@ -81,6 +82,10 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	// Merge provider extension point ID
 	public static final String MERGE_PROVIDERS = "org.tigris.subversion.subclipse.ui.mergeProviders"; //$NON-NLS-1$	
 	
+	// Commit Dialog extension points
+	public static final String COMMIT_DIALOG_TOOLBAR_ACTIONS = "org.tigris.subversion.subclipse.ui.commitDialogToolBarActions"; //$NON-NLS-1$
+	public static final String COMMIT_DIALOG_COMPARE_ACTIONS = "org.tigris.subversion.subclipse.ui.commitDialogCompareActions"; //$NON-NLS-1$
+
 	/**
 	 * Property constant indicating the decorator configuration has changed. 
 	 */
@@ -100,6 +105,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
     private Preferences preferences;
     
     private static WorkspaceAction[] mergeProviders;
+	private static SVNPluginAction[] commitDialogToolBarActions;
+	private static SVNPluginAction[] commitDialogCompareActions;
 	
 //	// Property change listener
 //	IPropertyChangeListener teamUIListener = new IPropertyChangeListener() {
@@ -455,6 +462,42 @@ public class SVNUIPlugin extends AbstractUIPlugin {
         console.shutdown();
 	}
 	
+	/** Returns all the commit dialog toolbar actions that were found from the extension point. */
+	public static SVNPluginAction[] getCommitDialogToolBarActions() {
+		if (commitDialogToolBarActions == null) {
+			ArrayList actionsList = new ArrayList();
+			IConfigurationElement[] elements = 
+				Platform.getExtensionRegistry().getConfigurationElementsFor(COMMIT_DIALOG_TOOLBAR_ACTIONS);
+			for (int i = 0; i < elements.length; i++) {
+				SVNPluginAction action = new SVNPluginAction(elements[i]);
+				if (action.getDelegate() != null) {
+					actionsList.add(action);
+				}
+			}
+			commitDialogToolBarActions = new SVNPluginAction[actionsList.size()];
+			actionsList.toArray(commitDialogToolBarActions);
+		}
+		return commitDialogToolBarActions;
+	}
+
+	/** Returns the commit dialog compare actions found from the extension point. */
+	public static SVNPluginAction[] getCommitDialogCompareActions() {
+		if (commitDialogCompareActions == null) {
+			ArrayList actionsList = new ArrayList();
+			IConfigurationElement[] elements = 
+				Platform.getExtensionRegistry().getConfigurationElementsFor(COMMIT_DIALOG_COMPARE_ACTIONS);
+			for (int i = 0; i < elements.length; i++) {
+				SVNPluginAction action = new SVNPluginAction(elements[i]);
+				if (action.getDelegate() != null) {
+					actionsList.add(action);
+				}
+			}
+			commitDialogCompareActions = new SVNPluginAction[actionsList.size()];
+			actionsList.toArray(commitDialogCompareActions);
+		}
+		return commitDialogCompareActions;
+	}
+
 	// Initialize the merge providers by searching the registry for users of the
 	// mergeProviders extension point.
 	public static WorkspaceAction[] getMergeProviders() throws Exception {

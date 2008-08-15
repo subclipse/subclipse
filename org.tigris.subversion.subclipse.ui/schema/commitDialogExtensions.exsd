@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.tigris.subversion.subclipse.ui" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="org.tigris.subversion.subclipse.ui" id="org.tigris.subversion.subclipse.ui.commitDialogExtensions" name="Commit Dialog Extensions"/>
+      </appinfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+   <element name="action">
+      <annotation>
+         <documentation>
+            This element defines an action that the user can invoke in the UI.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a unique identifier used as a reference for this action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="label" type="string">
+            <annotation>
+               <documentation>
+                  a translatable name used either as the menu item text or toolbar button label. The name can include mnenomic information.
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a fully qualified name of a class that implements &lt;samp&gt;org.eclipse.ui.IActionDelegate&lt;/samp&gt;
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.ui.IActionDelegate"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="icon" type="string">
+            <annotation>
+               <documentation>
+                  a relative path of an icon used to visually represent the action
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="resource"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="tooltip" type="string">
+            <annotation>
+               <documentation>
+                  a translatable text representing the action&apos;s tool tip. Only used if the action appears in the toolbar.
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="style" use="default" value="push">
+            <annotation>
+               <documentation>
+                  an attribute to define the user interface style type for the action. If omitted, then it is &lt;samp&gt;push&lt;/samp&gt; by default. The attribute value will be one of the following:
+    &lt;table border=&quot;0&quot; width=&quot;80%&quot;&gt;
+      &lt;tr&gt;
+ &lt;td valign=&quot;top&quot; width=&quot;25&quot;&gt;&lt;/td&gt;
+        &lt;td valign=&quot;top&quot; nowrap&gt;&lt;b&gt;push&lt;/b&gt;&lt;/td&gt;
+        &lt;td valign=&quot;top&quot;&gt;- as a regular menu item or tool item.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+ &lt;td valign=&quot;top&quot; width=&quot;25&quot;&gt;&lt;/td&gt;
+        &lt;td valign=&quot;top&quot; nowrap&gt;&lt;b&gt;radio&lt;/b&gt;&lt;/td&gt;
+        &lt;td valign=&quot;top&quot;&gt;- as a radio style menu item or tool item. Actions with the radio style within the same menu or toolbar group behave as a radio set. The initial value is specified by the &lt;samp&gt;state&lt;/samp&gt; attribute.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+ &lt;td valign=&quot;top&quot; width=&quot;25&quot;&gt;&lt;/td&gt;
+        &lt;td valign=&quot;top&quot; nowrap&gt;&lt;b&gt;toggle&lt;/b&gt;&lt;/td&gt;
+        &lt;td valign=&quot;top&quot;&gt;a toggle tool item. The initial value is specified by the &lt;samp&gt;state&lt;/samp&gt; attribute.&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="push">
+                  </enumeration>
+                  <enumeration value="radio">
+                  </enumeration>
+                  <enumeration value="toggle">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+         <attribute name="state" type="boolean">
+            <annotation>
+               <documentation>
+                  an optional attribute indicating the initial state (either &lt;samp&gt;true&lt;/samp&gt; or &lt;samp&gt;false&lt;/samp&gt;). Used only when the &lt;samp&gt;style&lt;/samp&gt; attribute has the value &lt;samp&gt;radio&lt;/samp&gt; or &lt;samp&gt;toggle&lt;/samp&gt;.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         [Enter the first release in which this extension point appears.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         [Enter extension point usage example here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiInfo"/>
+      </appinfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+
+</schema>
