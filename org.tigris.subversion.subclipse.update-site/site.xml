@@ -3,7 +3,7 @@
    <description url="http://subclipse.tigris.org/update_1.4.x">
       Eclipse Install/Update site for Subclipse
    </description>
-   <feature url="features/org.tmatesoft.svnkit_1.2.0.4583.jar" id="org.tmatesoft.svnkit" version="1.2.0.4583">
+   <feature url="features/org.tmatesoft.svnkit_1.2.0.4710.jar" id="org.tmatesoft.svnkit" version="1.2.0.4710">
       <category name="SVNKit Adapter BETA (optional)"/>
    </feature>
    <feature url="features/org.tigris.subversion.subclipse.mylyn_2.0.4.jar" id="org.tigris.subversion.subclipse.mylyn" version="2.0.4">
@@ -15,14 +15,14 @@
    <feature url="features/org.tigris.subversion.clientadapter.feature_1.5.1.jar" id="org.tigris.subversion.clientadapter.feature" version="1.5.1">
       <category name="Subclipse (required)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse_1.4.3.jar" id="org.tigris.subversion.subclipse" version="1.4.3">
-      <category name="Subclipse (required)"/>
-   </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.5.1.1.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.5.1.1">
-      <category name="JavaHL Adapter (recommended)"/>
-   </feature>
    <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.5.1.1.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.5.1.1">
       <category name="SVNKit Adapter BETA (optional)"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.subclipse_1.4.4.jar" id="org.tigris.subversion.subclipse" version="1.4.4">
+      <category name="Subclipse (required)"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.5.2.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.5.2">
+      <category name="JavaHL Adapter (recommended)"/>
    </feature>
    <category-def name="Subclipse (required)" label="Subclipse (required)">
       <description>
