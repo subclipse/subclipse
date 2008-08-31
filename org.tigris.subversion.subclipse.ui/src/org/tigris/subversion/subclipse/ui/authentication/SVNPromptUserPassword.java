@@ -139,6 +139,8 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
         maySave = askMaySave;
         showAnswer = askShowAnswer;
         question = askQuestion;
+        if (question.indexOf("certificate") > 0)
+        	maySave = false;
 		SVNUIPlugin.getStandardDisplay().syncExec(new Runnable() {
 			public void run() {
 		        QuestionDialog dialog = new QuestionDialog(Display.getCurrent().getActiveShell(),
