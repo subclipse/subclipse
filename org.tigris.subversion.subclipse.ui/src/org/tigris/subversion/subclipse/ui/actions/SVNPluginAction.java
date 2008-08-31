@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.actions;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -21,6 +20,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IActionDelegate2;
 import org.eclipse.ui.IPluginContribution;
@@ -129,8 +129,7 @@ public class SVNPluginAction extends Action implements IPluginContribution,
                 if (e instanceof CoreException) {
                     SVNUIPlugin.log((CoreException)e);
                 } else {
-                	Status status = new Status(IStatus.ERROR, pluginId, "Internal plug-in action delegate error on creation.");	//$NON-NLS-1$
-					SVNUIPlugin.log(status); 
+                    SVNUIPlugin.log(new Status(Status.ERROR, SVNUIPlugin.ID, TeamException.UNABLE, "Internal plug-in action delegate error on creation.", e)); //$NON-NLS-1$
                 }
             }
         }
