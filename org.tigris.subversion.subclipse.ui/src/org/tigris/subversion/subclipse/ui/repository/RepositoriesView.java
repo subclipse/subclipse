@@ -504,7 +504,16 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 			}
         }
         if (object == null) treeViewer.refresh();
-        else treeViewer.refresh(object); 
+        else {
+        	if (object instanceof ISVNRemoteFolder) {
+        		ISVNRemoteFolder parent = ((ISVNRemoteFolder)object).getParent();
+        		if (parent == null) {
+        			treeViewer.refresh();
+        			return;
+        		}
+        	}
+        	treeViewer.refresh(object); 
+        }
     }
     
     protected void refreshViewerNode() {
