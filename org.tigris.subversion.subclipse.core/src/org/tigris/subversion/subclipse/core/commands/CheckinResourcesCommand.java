@@ -26,7 +26,9 @@ import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 
 /**
  * Checkin any local changes to given resources in the given project
@@ -44,6 +46,8 @@ public class CheckinResourcesCommand implements ISVNCommand {
     protected int depth;
     
     protected SVNWorkspaceRoot root;
+    
+    private ISVNNotifyListener notifyListener;
 
     public CheckinResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int depth, String message, boolean keepLocks) {
     	this.resources = resources;
@@ -85,13 +89,29 @@ public class CheckinResourcesCommand implements ISVNCommand {
         for (int i = 0; i < parents;i++)
         	resourceFiles[i] = ((IResource)parentsList.get(i)).getLocation().toFile();
         for (int i = 0, j = parents; i < resources.length;i++, j++)
-            resourceFiles[j] = resources[i].getLocation().toFile(); 
+            resourceFiles[j] = resources[i].getLocation().toFile();      
         
         SVNProviderPlugin.run(new ISVNRunnable() {
             public void run(final IProgressMonitor pm) throws SVNException {
-                try {
+                try {             	
+                    notifyListener = new ISVNNotifyListener() {
+            			public void logCommandLine(String commandLine) {}
+            			public void logCompleted(String message) {}
+            			public void logError(String message) {}
+            			public void logMessage(String message) {
+            				if (message.startsWith("Transmitting file data"))
+            					pm.subTask(message);
+            			}
+            			public void logRevision(long revision, String path) {}
+            			public void onNotify(File path, SVNNodeKind kind) {}
+            			public void setCommand(int command) {}     	
+                    };   
+                	
                     pm.beginTask(null, resourceFiles.length);
+                    pm.setTaskName("Checking in...");
                     OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm));
+                    
+                    svnClient.addNotifyListener(notifyListener);
                     
                     // then the resources the user has requested to commit
                     if (svnClient.canCommitAcrossWC()) svnClient.commitAcrossWC(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks,true);
@@ -101,6 +121,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
                 } finally {
                     OperationManager.getInstance().endOperation();
                     pm.done();
+                    svnClient.removeNotifyListener(notifyListener);
                 }
             }
         }, Policy.monitorFor(monitor));

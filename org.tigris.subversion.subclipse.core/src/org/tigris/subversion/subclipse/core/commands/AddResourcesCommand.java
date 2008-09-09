@@ -29,6 +29,7 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -119,8 +120,9 @@ public class AddResourcesCommand implements ISVNCommand {
 
         // Add the folders, followed by files!
         ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
-        monitor.beginTask(null, files.size() * 10 + (folders.isEmpty() ? 0 : 10));
-        OperationManager.getInstance().beginOperation(svnClient);
+        monitor.beginTask(null, files.size() + folders.size());
+        monitor.setTaskName("Adding...");
+        OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
         try {
             for(Iterator it=folders.iterator(); it.hasNext();) {
                 final ISVNLocalResource localResource = (ISVNLocalResource)it.next();

@@ -63,7 +63,8 @@ public class CommitOperation extends SVNOperation {
     }
 
     protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
-		String adminFolderName = SVNProviderPlugin.getPlugin().getAdminDirectoryName();
+    	monitor.beginTask(null, resourcesToAdd.length + resourcesToDelete.length + resourcesToCommit.length);
+    	String adminFolderName = SVNProviderPlugin.getPlugin().getAdminDirectoryName();
 		File cleanUpPathList = null;
         try {
         	svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
@@ -78,7 +79,7 @@ public class CommitOperation extends SVNOperation {
 					SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
 					List list = (List)table.get(provider);
 					IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
-					provider.add(providerResources, IResource.DEPTH_ZERO, null);
+					provider.add(providerResources, IResource.DEPTH_ZERO, Policy.subMonitorFor(monitor, resourcesToAdd.length));
 				}						
 			}
         	if (resourcesToDelete.length > 0) {
@@ -111,7 +112,7 @@ public class CommitOperation extends SVNOperation {
 			Map table = getCommitProviderMapping(resourcesToCommit);
 			Set keySet = table.keySet();
 			Iterator iterator = keySet.iterator();
-	        monitor.beginTask(null, 100 * keySet.size());
+//	        monitor.beginTask(null, 100 * keySet.size());
 			while (iterator.hasNext()) {
 				ProjectAndRepository mapKey = (ProjectAndRepository)iterator.next();
 				SVNTeamProvider provider = mapKey.getTeamProvider();
@@ -119,7 +120,8 @@ public class CommitOperation extends SVNOperation {
 				IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
 				if(createAdminFolder(mapKey.getParent(), adminFolderName, providerResources))
 					cleanUpPathList = mapKey.getParent();
-				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, 100));
+//				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, 100));
+				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, providerResources.length));
 				deleteAdminFolders(cleanUpPathList, adminFolderName);
 			}			
 //			for (int i = 0; i < selectedResources.length; i++) {
