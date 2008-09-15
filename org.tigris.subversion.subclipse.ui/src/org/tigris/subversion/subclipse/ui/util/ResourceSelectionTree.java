@@ -670,7 +670,7 @@ public class ResourceSelectionTree extends Composite {
 		};
 		
 		public Image getImage(Object element) {
-			if (resourceList.contains(element)) {
+			if (resourceList.contains(element)) {					
 				SVNStatusKind statusKind = ResourceWithStatusUtil.getStatusKind((IResource)element);
 				Image image = null;
 				if (element instanceof IContainer && (statusKind == null || !statusKind.equals(SVNStatusKind.DELETED))) {
@@ -683,6 +683,9 @@ public class ResourceSelectionTree extends Composite {
 					}
 					if (image == null) image = syncLabelProvider.getImage(element);
 					if (element instanceof IContainer) return image;
+					if (unversionedResourceList.contains(element)) {
+						image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.UNVERSIONED);
+					}	
 				}
 				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus((IResource)element);
 				if (propertyStatus != null && propertyStatus.length() > 0) {

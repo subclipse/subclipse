@@ -11,15 +11,17 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 public class ResourceSelectionTreeDecorator {
 	public final static int PROPERTY_CHANGE = 0;
 	public final static int TEXT_CONFLICTED = 1;
+	public final static int UNVERSIONED = 2;
 	
-	private static ImageDescriptor[] fgImages = new ImageDescriptor[2];
+	private static ImageDescriptor[] fgImages = new ImageDescriptor[3];
 	private static HashMap fgMap= new HashMap(20);
 	
-	private Image[] fImages= new Image[2];
+	private Image[] fImages= new Image[3];
 	
 	static {
 		fgImages[PROPERTY_CHANGE] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CHANGED);
 		fgImages[TEXT_CONFLICTED] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TEXT_CONFLICTED);
+		fgImages[UNVERSIONED] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_QUESTIONABLE);
 	}
 	
 	public Image getImage(Image base, int kind) {
@@ -30,7 +32,7 @@ public class ResourceSelectionTreeDecorator {
 
 		Image[] a= (Image[]) fgMap.get(key);
 		if (a == null) {
-			a= new Image[2];
+			a= new Image[3];
 			fgMap.put(key, a);
 		}
 		Image b= a[kind];
