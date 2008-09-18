@@ -685,7 +685,10 @@ public class ResourceSelectionTree extends Composite {
 					if (element instanceof IContainer) return image;
 					if (unversionedResourceList.contains(element)) {
 						image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.UNVERSIONED);
-					}	
+					}
+					if (statusKind != null && statusKind.equals(SVNStatusKind.MISSING)) {
+						image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.MISSING);
+					}
 				}
 				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus((IResource)element);
 				if (propertyStatus != null && propertyStatus.length() > 0) {
