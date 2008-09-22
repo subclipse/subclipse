@@ -33,6 +33,8 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ViewForm;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -94,6 +96,8 @@ public class ResourceSelectionTree extends Composite {
 	public final static int MODE_COMPRESSED_FOLDERS = 0;
 	public final static int MODE_FLAT = 1;
 	public final static int MODE_TREE = 2;
+	
+	private final static int SPACEBAR = 32;
 
 	public ResourceSelectionTree(Composite parent, int style, String label, IResource[] resources, HashMap statusMap, LabelProvider labelProvider, boolean checkbox, IToolbarControlCreator toolbarControlCreator, SyncInfoSet syncInfoSet) {
 		super(parent, style);
@@ -283,10 +287,23 @@ public class ResourceSelectionTree extends Composite {
 		}
 
 		if (checkbox) {
-      treeViewer = new CheckboxTreeViewer(viewerPane, SWT.MULTI);
-    } else {
-      treeViewer = new TreeViewer(viewerPane, SWT.MULTI);
-    }
+		  treeViewer = new CheckboxTreeViewer(viewerPane, SWT.MULTI); 
+		  
+		  // Override the spacebar behavior to toggle checked state for all selected items.
+	      treeViewer.getControl().addKeyListener(new KeyAdapter() {
+	          public void keyPressed(KeyEvent event) {
+	              if (event.keyCode == SPACEBAR) {
+	            	  Tree tree = (Tree)treeViewer.getControl();
+	            	  TreeItem[] items = tree.getSelection();
+	            	  for (int i = 0; i < items.length; i++) {
+	            		  if (i > 0) items[i].setChecked(!items[i].getChecked());
+	            	  }
+	              }
+	          }
+	      });	    
+	    } else {
+	      treeViewer = new TreeViewer(viewerPane, SWT.MULTI);
+	    }
 		tree = treeViewer.getTree();
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     viewerPane.setContent(tree);
