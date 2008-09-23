@@ -2,6 +2,7 @@ package org.tigris.subversion.subclipse.ui.wizards.dialogs;
 
 import java.text.ParseException;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
@@ -22,6 +23,7 @@ import org.eclipse.swt.widgets.Text;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.HistoryDialog;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
@@ -41,6 +43,8 @@ public class SvnWizardAnnotatePage extends SvnWizardDialogPage {
 	private boolean ignoreMimeType;
 	private SVNRevision fromRevision;
 	private SVNRevision toRevision;
+	
+	private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
 
 	public SvnWizardAnnotatePage(ISVNRemoteFile svnResource) {
 		super("AnnotateDialog", Policy.bind("AnnotateDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -62,7 +66,12 @@ public class SvnWizardAnnotatePage extends SvnWizardDialogPage {
 		
 		includeMergedRevisionsButton = new Button(composite, SWT.CHECK);
 		includeMergedRevisionsButton.setText(Policy.bind("AnnotateDialog.includeMerged")); //$NON-NLS-1$
-		includeMergedRevisionsButton.setSelection(true);
+		includeMergedRevisionsButton.setSelection(settings.getBoolean("AnnotateDialog.includeMerged")); //$NON-NLS-1$
+		includeMergedRevisionsButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent arg0) {
+				settings.put("AnnotateDialog.includeMerged", includeMergedRevisionsButton.getSelection()); //$NON-NLS-1$
+			}			
+		});
 		
 		ignoreMimeTypeButton = new Button(composite, SWT.CHECK);
 		ignoreMimeTypeButton.setText(Policy.bind("AnnotateDialog.ignoreMimeType")); //$NON-NLS-1$
