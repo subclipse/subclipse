@@ -30,18 +30,22 @@ public class GetAnnotationsCommand implements ISVNCommand {
     private final SVNRevision toRevision;
     private final ISVNRemoteFile remoteFile;
     private final boolean includeMergedRevisions;
+    private final boolean ignoreMimeType;
   
     /**
      * Constructor
      * @param remoteFile
      * @param fromRevision
      * @param toRevision
+     * @param includeMergedRevisions
+     * @param ignoreMimeType
      */
-    public GetAnnotationsCommand(ISVNRemoteFile remoteFile, SVNRevision fromRevision, SVNRevision toRevision, boolean includeMergedRevisions) {
+    public GetAnnotationsCommand(ISVNRemoteFile remoteFile, SVNRevision fromRevision, SVNRevision toRevision, boolean includeMergedRevisions, boolean ignoreMimeType) {
         this.remoteFile = remoteFile;
         this.fromRevision = fromRevision;
         this.toRevision = toRevision;
         this.includeMergedRevisions = includeMergedRevisions;
+        this.ignoreMimeType = ignoreMimeType;
     }
     
     /* (non-Javadoc)
@@ -51,7 +55,7 @@ public class GetAnnotationsCommand implements ISVNCommand {
 		IProgressMonitor monitor = Policy.monitorFor(aMonitor);
 		monitor.beginTask(Policy.bind("RemoteFile.getAnnotations"), 100);//$NON-NLS-1$
         try {        	
-            annotations = remoteFile.getAnnotations(fromRevision, toRevision, includeMergedRevisions);
+            annotations = remoteFile.getAnnotations(fromRevision, toRevision, includeMergedRevisions, ignoreMimeType);
             monitor.worked(100);
         } catch (TeamException e) {
             throw SVNException.wrapException(e);

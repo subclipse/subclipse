@@ -20,6 +20,9 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.operations.ShowAnnotationOperation;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardAnnotatePage;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 
 public class ShowAnnotationAction extends WorkbenchWindowAction {
 
@@ -33,8 +36,8 @@ public class ShowAnnotationAction extends WorkbenchWindowAction {
         } 
         else {
         	// Get the selected resource.
-			final ISVNRemoteFile cvsResource = getSingleSelectedSVNRemoteFile();
-			execute(cvsResource);
+			final ISVNRemoteFile svnResource = getSingleSelectedSVNRemoteFile();
+			execute(svnResource);
         }
 	}
 
@@ -43,8 +46,15 @@ public class ShowAnnotationAction extends WorkbenchWindowAction {
 		if (svnResource == null) {
 			return;
 		}
+		
+		SvnWizardAnnotatePage annotatePage = new SvnWizardAnnotatePage(svnResource);
+		SvnWizard wizard = new SvnWizard(annotatePage);
+        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+        wizard.setParentDialog(dialog);
+        if (dialog.open() == SvnWizardDialog.CANCEL) return;
 
-        new ShowAnnotationOperation(getTargetPart(), svnResource, true).run();
+        ShowAnnotationOperation showAnnotationOperation = new ShowAnnotationOperation(getTargetPart(), svnResource, annotatePage.getFromRevision(), annotatePage.getToRevision(), annotatePage.isIncludeMergedRevisions(), annotatePage.isIgnoreMimeType());
+        showAnnotationOperation.run();
 
 	}
 	

@@ -77,25 +77,28 @@ public class ShowAnnotationOperation extends SVNOperation {
     private final SVNRevision toRevision;
     private final ISVNRemoteFile remoteFile;
     private final boolean includeMergedRevisions;
+    private final boolean ignoreMimeType;
 
-    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, SVNRevision fromRevision, boolean includeMergedRevisions) {
+    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, SVNRevision fromRevision, boolean includeMergedRevisions, boolean ignoreMimeType) {
         super(part);
         this.remoteFile = remoteFile;
         this.fromRevision = fromRevision;
         this.toRevision = remoteFile.getLastChangedRevision();
         this.includeMergedRevisions = includeMergedRevisions;
+        this.ignoreMimeType = ignoreMimeType;
     }
     
-    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, SVNRevision fromRevision, SVNRevision toRevision, boolean includeMergedRevisions) {
+    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, SVNRevision fromRevision, SVNRevision toRevision, boolean includeMergedRevisions, boolean ignoreMimeType) {
         super(part);
         this.remoteFile = remoteFile;
         this.fromRevision = fromRevision;
         this.toRevision = toRevision;
         this.includeMergedRevisions = includeMergedRevisions;
+        this.ignoreMimeType = ignoreMimeType;
     }
     
-    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, boolean includeMergedRevisions) {
-        this(part, remoteFile, SVNRevision.START, includeMergedRevisions);
+    public ShowAnnotationOperation(IWorkbenchPart part, ISVNRemoteFile remoteFile, boolean includeMergedRevisions, boolean ignoreMimeType) {
+        this(part, remoteFile, SVNRevision.START, includeMergedRevisions, ignoreMimeType);
     }
     
     /* (non-Javadoc)
@@ -119,7 +122,7 @@ public class ShowAnnotationOperation extends SVNOperation {
         monitor.beginTask(null, 100);
 
         try {
-            GetAnnotationsCommand command = new GetAnnotationsCommand(remoteFile, fromRevision, toRevision, includeMergedRevisions);
+            GetAnnotationsCommand command = new GetAnnotationsCommand(remoteFile, fromRevision, toRevision, includeMergedRevisions, ignoreMimeType);
             command.run(new SubProgressMonitor(monitor, 100));
             final ISVNAnnotations annotations = command.getAnnotations();
             final AnnotateBlocks annotateBlocks = new AnnotateBlocks(annotations);

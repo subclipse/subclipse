@@ -27,10 +27,11 @@ public interface ISVNRemoteFile extends ISVNRemoteResource, ISVNFile {
 	 * @param fromRevision
 	 * @param toRevision
 	 * @param includeMergedRevisions 
+	 * @param ignoreMimeType
 	 * @return annotations of the receiver for the specified range
 	 * @throws TeamException
 	 */
 	public ISVNAnnotations getAnnotations(SVNRevision fromRevision,
-			SVNRevision toRevision, boolean includeMergedRevisions) throws TeamException;
+			SVNRevision toRevision, boolean includeMergedRevisions, boolean ignoreMimeType) throws TeamException;
 
 }

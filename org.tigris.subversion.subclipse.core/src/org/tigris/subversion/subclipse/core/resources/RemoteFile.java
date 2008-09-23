@@ -163,9 +163,8 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 	 *      org.tigris.subversion.svnclientadapter.SVNRevision)
 	 */
 	public ISVNAnnotations getAnnotations(SVNRevision fromRevision,
-			SVNRevision toRevision, boolean includeMergedRevisions) throws TeamException {
+			SVNRevision toRevision, boolean includeMergedRevisions, boolean ignoreMimeType) throws TeamException {
 		try {
-			boolean ignoreMimeType = false; //hard-coding for now
 			return repository.getSVNClient().annotate(url, fromRevision,
 					toRevision, ignoreMimeType, includeMergedRevisions);
 		} catch (SVNClientException e) {

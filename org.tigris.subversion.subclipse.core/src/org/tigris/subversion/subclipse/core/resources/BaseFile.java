@@ -77,9 +77,8 @@ public class BaseFile extends BaseResource implements ISVNRemoteFile {
 	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteFile#getAnnotations(org.tigris.subversion.svnclientadapter.SVNRevision, org.tigris.subversion.svnclientadapter.SVNRevision)
 	 */
 	public ISVNAnnotations getAnnotations(SVNRevision fromRevision,
-			SVNRevision toRevision, boolean includeMergedRevisions) throws TeamException {
+			SVNRevision toRevision, boolean includeMergedRevisions, boolean ignoreMimeType) throws TeamException {
 		try {
-			boolean ignoreMimeType = false; //hard-coded for now
 			return getRepository().getSVNClient().annotate(
 					localResourceStatus.getFile(), fromRevision, toRevision, ignoreMimeType, includeMergedRevisions);
 		} catch (SVNClientException e) {
