@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -176,23 +178,49 @@ public class SVNRepositories
 	 * The format of the String is an url
 	 */
 	public ISVNRepositoryLocation getRepository(String location) throws SVNException {
-        
-        
+		
 		Set keys = repositories.keySet();
 		for(Iterator iter = keys.iterator();iter.hasNext();){
 			String url = (String)iter.next();
 			if (url.equals(location) || location.indexOf(url + "/") != -1){
 			    return (ISVNRepositoryLocation) repositories.get(url);
-			}
-        	
-		}//else we couldn't find it, fall through to adding new repo.
+			}    	
+		}
+
+		// If we haven't found a matching repository yet, check to see if the default
+		// port is redundantly specified in the location.  If it is, check the known
+		// repositories again to see if there is a match for the location with the 
+		// default port stripped out (normalizedLocation).
+		String normalizedLocation = getNormalizedLocation(location);
+		if (!normalizedLocation.equals(location)) {
+			for(Iterator iter = keys.iterator();iter.hasNext();){
+				String url = (String)iter.next();
+				if (url.equals(normalizedLocation) || normalizedLocation.indexOf(url + "/") != -1){
+				    return (ISVNRepositoryLocation) repositories.get(url);
+				}    	
+			}			
+		}
+		
+		//else we couldn't find it, fall through to adding new repo.
+		
 		ISVNRepositoryLocation repository = SVNRepositoryLocation.fromString(location, false, true);
 		addToRepositoriesCache(repository);
         
 		return repository;
 	}
     
-    
+	// If the default port is redundantly specified in the location, strip it out.
+	private String getNormalizedLocation(String location) {
+		try {
+			URL url = new URL(location);
+			if (url.getPort() == -1 || url.getDefaultPort() == -1 || url.getPort() != url.getDefaultPort())
+				return location;
+			url = new URL(url.getProtocol(), url.getHost(), -1, url.getPath());
+			return url.toString();
+		} catch (MalformedURLException e) {
+			return location;
+		}
+	}
 
     /**
      * load the state of the plugin, ie the repositories locations 
