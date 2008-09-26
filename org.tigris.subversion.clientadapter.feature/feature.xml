@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.clientadapter.feature"
       label="Subversion Client Adapter"
-      version="1.5.1"
+      version="1.5.2"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.clientadapter"
       colocation-affinity="org.tigris.subversion.subclipse">

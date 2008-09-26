@@ -3,8 +3,11 @@
    <description url="http://subclipse.tigris.org/update_1.4.x">
       Eclipse Install/Update site for Subclipse
    </description>
-   <feature url="features/org.tmatesoft.svnkit_1.2.0.4710.jar" id="org.tmatesoft.svnkit" version="1.2.0.4710">
-      <category name="SVNKit Adapter BETA (optional)"/>
+   <feature url="features/org.tmatesoft.svnkit_1.2.0.4927.jar" id="org.tmatesoft.svnkit" version="1.2.0.4927">
+      <category name="SVNKit Adapter Release Candidate (optional)"/>
+   </feature>
+   <feature url="features/com.sun.jna_3.0.5.jar" id="com.sun.jna" version="3.0.5">
+      <category name="SVNKit Adapter Release Candidate (optional)"/>
    </feature>
    <feature url="features/org.tigris.subversion.subclipse.mylyn_2.0.4.jar" id="org.tigris.subversion.subclipse.mylyn" version="2.0.4">
       <category name="Integrations (optional)"/>
@@ -12,17 +15,17 @@
    <feature url="features/org.tigris.subversion.subclipse.mylyn_3.0.0.jar" id="org.tigris.subversion.subclipse.mylyn" version="3.0.0">
       <category name="Integrations (optional)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.feature_1.5.1.jar" id="org.tigris.subversion.clientadapter.feature" version="1.5.1">
+   <feature url="features/org.tigris.subversion.clientadapter.feature_1.5.2.jar" id="org.tigris.subversion.clientadapter.feature" version="1.5.2">
       <category name="Subclipse (required)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.5.1.1.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.5.1.1">
-      <category name="SVNKit Adapter BETA (optional)"/>
-   </feature>
-   <feature url="features/org.tigris.subversion.subclipse_1.4.4.jar" id="org.tigris.subversion.subclipse" version="1.4.4">
+   <feature url="features/org.tigris.subversion.subclipse_1.4.5.jar" id="org.tigris.subversion.subclipse" version="1.4.5">
       <category name="Subclipse (required)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.5.2.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.5.2">
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.5.2.1.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.5.2.1">
       <category name="JavaHL Adapter (recommended)"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.5.2.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.5.2">
+      <category name="SVNKit Adapter Release Candidate (optional)"/>
    </feature>
    <category-def name="Subclipse (required)" label="Subclipse (required)">
       <description>
@@ -34,7 +37,7 @@
          The native adapter.  Uses JNI to work directly with native Subversion libraries.
       </description>
    </category-def>
-   <category-def name="SVNKit Adapter BETA (optional)" label="SVNKit Adapter BETA (optional)">
+   <category-def name="SVNKit Adapter Release Candidate (optional)" label="SVNKit Adapter Release Candidate (optional)">
       <description>
          The pure Java adapter.  Use SVNKit, a pure Java  implementation of Subversion client and protocols.
       </description>
