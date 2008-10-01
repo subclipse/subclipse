@@ -448,14 +448,12 @@ public class SVNLightweightDecorator
 		    if (svnResource.getIResource().getType() == IResource.FOLDER) {
 		    	if (status.isDeleted()) {
 		    		return deleted;
-		    	} else {
-		    	    if (status.isAdded())
-		    	        return added;
-		    	    else
-		    	        return dirty;
 		    	}
 		    }
-			return dirty;
+    	    if (status.isAdded())
+    	        return added;
+    	    else
+    	        return dirty;
 		}
 
         // show added icon
