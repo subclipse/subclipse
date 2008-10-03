@@ -42,6 +42,7 @@ public interface ISVNUIConstants {
   public final String IMG_GET_ALL = "clcl16/get_all.gif"; //$NON-NLS-1$
   public final String IMG_GET_NEXT = "clcl16/get_next.gif"; //$NON-NLS-1$
   public final String IMG_FILTER_HISTORY = "clcl16/filter_history.gif"; //$NON-NLS-1$
+  public final String IMG_EXPORT_IMAGE = "clcl16/export_image.gif"; //$NON-NLS-1$
 
   // toolbar (disabled)
   public final String IMG_REFRESH_DISABLED = "dlcl16/refresh.gif"; //$NON-NLS-1$
