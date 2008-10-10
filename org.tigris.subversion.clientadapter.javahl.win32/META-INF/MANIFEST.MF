@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Win32 JavaHL Binaries
 Bundle-SymbolicName: org.tigris.subversion.clientadapter.javahl.win32
-Bundle-Version: 1.5.2
+Bundle-Version: 1.5.3
 Bundle-Vendor: tigris.org
 Fragment-Host: org.tigris.subversion.clientadapter.javahl;bundle-version="[1.5.1,1.6.0)"
 Eclipse-PlatformFilter: (osgi.os=win32)
