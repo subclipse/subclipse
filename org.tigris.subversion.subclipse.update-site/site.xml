@@ -24,7 +24,7 @@
    <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.5.2.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.5.2">
       <category name="SVNKit Adapter (optional)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.5.3.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.5.3">
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.5.4.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.5.4">
       <category name="JavaHL Adapter (recommended)"/>
    </feature>
    <category-def name="Subclipse (required)" label="Subclipse (required)">
