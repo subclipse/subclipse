@@ -351,7 +351,11 @@ public class ShowRevisionsDialog extends TrayDialog {
 		
 		if (selectFirst && treeHistoryViewer.getTree().getItemCount() > 0) {
 			TreeItem item = treeHistoryViewer.getTree().getItem(0);
-			treeHistoryViewer.getTree().select(item);
+			treeHistoryViewer.getTree().setSelection(item);
+			
+// Method not available in 3.3
+//			treeHistoryViewer.getTree().select(item);
+			
 			treeHistoryViewer.setSelection(treeHistoryViewer.getSelection());
 			changePathsViewer.refresh();
 		}
