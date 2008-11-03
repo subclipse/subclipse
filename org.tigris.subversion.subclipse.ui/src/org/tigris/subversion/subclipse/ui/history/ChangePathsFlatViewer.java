@@ -260,22 +260,22 @@ public class ChangePathsFlatViewer extends TableViewer {
     }
 
     public Object[] getElements(Object inputElement) {
-      if (!this.page.isShowChangePaths()
+      if ((page != null && !this.page.isShowChangePaths())
           || !(inputElement instanceof ILogEntry)) {
         return EMPTY_CHANGE_PATHS;
       }
 
-      if (this.page.currentLogEntryChangePath != null) {
+      if (page != null && this.page.currentLogEntryChangePath != null) {
 
       }
 
       ILogEntry logEntry = (ILogEntry) inputElement;
       if (SVNProviderPlugin.getPlugin().getSVNClientManager()
           .isFetchChangePathOnDemand()) {
-        if (this.page.currentLogEntryChangePath != null) {
+        if (page != null && this.page.currentLogEntryChangePath != null) {
           return getGroups(this.page.currentLogEntryChangePath);
         }
-        this.page.scheduleFetchChangePathJob(logEntry);
+        if (page != null) this.page.scheduleFetchChangePathJob(logEntry);
         return EMPTY_CHANGE_PATHS;
       }
 
@@ -290,7 +290,7 @@ public class ChangePathsFlatViewer extends TableViewer {
     }
 
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-      this.page.currentLogEntryChangePath = null;
+      if (page != null) this.page.currentLogEntryChangePath = null;
     }
 
   }

@@ -358,6 +358,7 @@ public class ShowRevisionsDialog extends TrayDialog {
 			
 			treeHistoryViewer.setSelection(treeHistoryViewer.getSelection());
 			changePathsViewer.refresh();
+			if (changePathsViewer instanceof ChangePathsTreeViewer) ((ChangePathsTreeViewer)changePathsViewer).expandAll();
 		}
 		
 		return composite;
