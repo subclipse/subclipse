@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -75,7 +76,9 @@ public class ShowRevisionsDialog extends TrayDialog {
     private TreeColumn authorColumn;
     private TreeColumn commentColumn;
     private SVNHistoryPage historyPage;
-    
+    private String title;
+    private boolean selectFirst;
+
 	private static final int WIDTH_HINT = 500;
 	private final static int LOG_HEIGHT_HINT = 200;
 	private final static int COMMENT_HEIGHT_HINT = 100;
@@ -110,7 +113,10 @@ public class ShowRevisionsDialog extends TrayDialog {
     }
     
 	protected Control createDialogArea(Composite parent) {
-	    getShell().setText(Policy.bind("HistoryView.showMergedRevisions")); //$NON-NLS-1$
+		if (title == null)
+			getShell().setText(Policy.bind("HistoryView.showMergedRevisions")); //$NON-NLS-1$
+		else
+			getShell().setText(title);
 		
 	    Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
@@ -341,7 +347,14 @@ public class ShowRevisionsDialog extends TrayDialog {
 			weights[1] = settings.getInt("ShowRevisionsDialog.weights.1"); //$NON-NLS-1$
 			weights[2] = settings.getInt("ShowRevisionsDialog.weights.2"); //$NON-NLS-1$
 			sashForm.setWeights(weights);
-		} catch (Exception e) {}		
+		} catch (Exception e) {}
+		
+		if (selectFirst && treeHistoryViewer.getTree().getItemCount() > 0) {
+			TreeItem item = treeHistoryViewer.getTree().getItem(0);
+			treeHistoryViewer.getTree().select(item);
+			treeHistoryViewer.setSelection(treeHistoryViewer.getSelection());
+			changePathsViewer.refresh();
+		}
 		
 		return composite;
 	}
@@ -409,6 +422,14 @@ public class ShowRevisionsDialog extends TrayDialog {
         saveLocation();
         super.okPressed();
     }
+    
+	public void setSelectFirst(boolean selectFirst) {
+		this.selectFirst = selectFirst;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
     
 	protected Point getInitialLocation(Point initialSize) {
 	    try {
