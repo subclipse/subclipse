@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Revision Graph Tests
+Bundle-SymbolicName: org.tigris.subversion.subclipse.graph.test
+Bundle-Version: 1.0.0
+Bundle-Activator: org.eclipse.core.internal.compatibility.PluginActivator
+Bundle-Vendor: tigris.org
+Bundle-Localization: plugin
+Require-Bundle: org.tigris.subversion.subclipse.graph,
+ org.tigris.subversion.subclipse.core,
+ org.eclipse.core.runtime.compatibility,
+ org.eclipse.core.runtime;bundle-version="2.1"
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
