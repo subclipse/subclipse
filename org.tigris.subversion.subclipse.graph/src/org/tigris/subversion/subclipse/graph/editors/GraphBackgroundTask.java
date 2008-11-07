@@ -20,9 +20,7 @@ import org.tigris.subversion.sublicpse.graph.cache.Graph;
 import org.tigris.subversion.sublicpse.graph.cache.Node;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
-import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
-import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class GraphBackgroundTask extends SVNOperation {
 	
@@ -118,47 +116,23 @@ public class GraphBackgroundTask extends SVNOperation {
 					else if (refreshRevisions != null) unitWork = VERY_LONG_TASK/refreshRevisions.length;
 					else unitWork = VERY_LONG_TASK;
 					if (refreshRevisions != null) {
-						List refreshedMessages = new ArrayList();
-						for (int i = 0; i < refreshRevisions.length; i++) {
-							if (monitor.isCanceled()) {
-								return;
-							}
-							SVNRevision rev = refreshRevisions[i];
-							Node node = refreshNodes[i];
-							if (!(node.getAction() == 'D')) {
-								ISVNLogMessage[] refreshedMessageArray = client.getLogMessages(new SVNUrl(info.getRepository() + node.getPath()),
-										rev,
-										rev,
-										rev,
-										false, true, 0, includeMergedRevisions);
-								monitor.worked(unitWork);
-								for (int j = 0; j < refreshedMessageArray.length; j++)
-									refreshedMessages.add(refreshedMessageArray[j]);	
-							}
-						}
-						if (monitor.isCanceled()) {
-							return;
-						}
+						if (monitor.isCanceled()) return;
 						monitor.setTaskName("Refreshing cache");
-						cache.refresh(refreshedMessages, monitor, unitWork);
+						List refreshedNodes = new ArrayList();
+						for (int i = 0; i < refreshNodes.length; i++) {
+							if (refreshNodes[i].getAction() != 'D')
+								refreshedNodes.add(refreshNodes[i]);
+						}
+						cache.refresh(refreshedNodes, info, monitor, unitWork);	
 					}
 					else if (refreshRevision != null) {		
+						if (monitor.isCanceled()) return;
+						monitor.setTaskName("Refreshing cache");	
 						revision = refreshNode.getRevision();
 						path = refreshNode.getPath();
-						if (monitor.isCanceled()) return;
-						ISVNLogMessage[] refreshedMessageArray = client.getLogMessages(new SVNUrl(info.getRepository() + refreshNode.getPath()),
-								latest,
-								latest,
-								endRevision,
-								false, true, 0, includeMergedRevisions);
-						if (monitor.isCanceled()) {
-							return;
-						}
-						List refreshedMessages = new ArrayList();
-						for (int i = 0; i < refreshedMessageArray.length; i++)
-							refreshedMessages.add(refreshedMessageArray[i]);
-						monitor.setTaskName("Refreshing cache");					
-						cache.refresh(refreshedMessages, monitor, unitWork);
+						List refreshedNodes = new ArrayList();
+						refreshedNodes.add(refreshNode);
+						cache.refresh(refreshedNodes, info, monitor, unitWork);						
 					} 
 					if (getNewRevisions) {
 						CallbackUpdater callbackUpdater = new CallbackUpdater(cache, monitor, unitWork, client);

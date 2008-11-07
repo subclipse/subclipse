@@ -11,9 +11,15 @@ import java.util.List;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
+import org.tigris.subversion.svnclientadapter.ISVNLogMessageCallback;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class Cache {
 	
@@ -53,6 +59,85 @@ public class Cache {
 	public Cache(File f, String uuid, long refreshRevision) {
 		this(f, uuid);
 		this.refreshRevision = refreshRevision;
+	}
+	
+	public void refresh(List refreshedNodes, ISVNInfo info, IProgressMonitor monitor, int unitWorked) {
+		ISVNLogMessageCallback callback = new ISVNLogMessageCallback() {
+			public void singleMessage(ISVNLogMessage message) {
+				update(message, true);
+			}			
+		};
+		
+		revisionsTempFile = new File(root, "revisionsTemp");
+		logMessagesTempFile = new File(root, "logMessagesTemp");
+		revisionsTempFile.delete();
+		logMessagesTempFile.delete();
+		try {
+			revisionsTempFile.createNewFile();
+			logMessagesTempFile.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		
+		List revisions = new ArrayList();
+		Iterator iter = refreshedNodes.iterator();
+		while (iter.hasNext()) {
+			Node node = (Node)iter.next();
+			revisions.add(Long.toString(node.getRevision()));
+		}	
+		
+		startTempUpdate();
+		RandomAccessFile file = null;
+		try {
+			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
+			file = new RandomAccessFile(logMessagesFile, "r");
+			int revInt = new Long(getLatestRevision()).intValue();
+			while(file.getFilePointer() < file.length()) {
+				ISVNLogMessage lm = readNext(file, true);
+
+				level = 0;
+				
+				int index = revisions.indexOf(lm.getRevision().toString());
+				if (index == -1) {
+					update(lm, true);
+					if (lm.hasChildren() && lm.getChildMessages() != null) {
+						updateChildren(lm, true);
+					}	
+					monitor.worked(unitWorked/revInt);
+				} else {
+					Node updateNode = (Node)refreshedNodes.get(index);
+					SVNRevision updateRevision = new SVNRevision.Number(updateNode.getRevision());
+					client.getLogMessages(new SVNUrl(info.getRepository() + updateNode.getPath()),
+							updateRevision,
+							updateRevision,
+							updateRevision,
+							false, true, 0, true,
+							ISVNClientAdapter.DEFAULT_LOG_PROPERTIES,
+							callback);
+					monitor.worked(unitWorked);
+//					updateRevision = (ISVNLogMessage)refreshedMessages.get(index);
+//					monitor.worked(unitWorked);
+				}
+				if (monitor.isCanceled()) {
+					break;
+				}
+			}
+		} catch (Exception e) {
+			
+		} finally {
+			closeFile(file);
+		}
+		finishTempUpdate();
+		if (monitor.isCanceled()) {
+			revisionsTempFile.delete();
+			logMessagesTempFile.delete();
+			return;
+		}
+		revisionsFile.delete();
+		logMessagesFile.delete();
+		revisionsTempFile.renameTo(revisionsFile);
+		logMessagesTempFile.renameTo(logMessagesFile);		
 	}
 	
 	public void refresh(List refreshedMessages, IProgressMonitor monitor, int unitWorked) {
@@ -188,7 +273,8 @@ public class Cache {
 		
 		long revision = logMessage.getRevision().getNumber();
 		long fp = logRaf.getFilePointer();
-//		System.out.println("writing rev "+revision+" at "+fp+" "+revisionsRaf.getFilePointer());
+//		if (writingTempFile) System.out.println("writing rev "+revision+" at "+fp+" "+revisionsTempRaf.getFilePointer());
+//		else System.out.println("writing rev "+revision+" at "+fp+" "+revisionsRaf.getFilePointer());
 		revRaf.writeLong(fp);
 		logRaf.writeLong(revision);
 		logRaf.writeLong(logMessage.getDate().getTime());
@@ -227,7 +313,7 @@ public class Cache {
 			}
 		}
 		
-		if(level == 0 && (!logMessage.hasChildren() || logMessage.getChildMessages() == null)) {
+		if(level == 0 && (!logMessage.hasChildren())) {
 			logRaf.writeInt(0);
 //			System.out.println("A. Children: 0");
 		}
@@ -268,7 +354,7 @@ public class Cache {
 //					dump(logMessage, level);
 				}
 				
-				if(logMessage.hasChildren() && logMessage.getChildMessages() != null) {
+				if(logMessage.hasChildren()) {
 					level++;
 				}
 			}
