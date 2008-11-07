@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.tigris.subversion.subclipse.graph.feature"
+      label="Subversion Revision Graph"
+      version="1.0.0"
+      provider-name="tigris.org"
+      plugin="org.tigris.subversion.subclipse.graph"
+      colocation-affinity="org.tigris.subversion.subclipse">
+
+   <description url="%changesURL">
+      %description
+   </description>
+
+   <copyright url="http://subclipse.tigris.org/">
+      http://subclipse.tigris.org/
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.4.x"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.tigris.subversion.subclipse.core"/>
+      <import plugin="org.eclipse.team.core"/>
+      <import plugin="org.eclipse.team.ui"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.tigris.subversion.subclipse.ui" version="1.4.6" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.draw2d" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.gef" version="3.2.0" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="org.tigris.subversion.subclipse.graph"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
