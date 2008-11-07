@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension point="org.eclipse.ui.editors">
+      <editor
+            class="org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditor"
+            contributorClass="org.tigris.subversion.subclipse.graph.editors.GraphActionBarContributor"
+            icon="icons/chart_organisation.png"
+            id="org.tigris.subversion.subclipse.graph.editors.revisionGraphEditor"
+            name="Revision Graph Editor">
+      </editor>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.core.resources.mapping.ResourceMapping"
+            adaptable="true"
+            id="org.tigris.subversion.subclipse.ui.ResourceContributions">
+		 <enablement>
+           <adapt type="org.eclipse.core.resources.mapping.ResourceMapping">
+              <test property="org.eclipse.core.resources.projectPersistentProperty" args="org.eclipse.team.core.repository,org.tigris.subversion.subclipse.core.svnnature" />
+           </adapt>
+         </enablement>             
+         <action
+               class="org.tigris.subversion.subclipse.graph.popup.actions.ViewGraphAction"
+               icon="icons/chart_organisation.png"
+               enablesFor="1"
+               id="org.tigris.subversion.subclipse.graph.newAction"
+               label="View file history as graph"
+               menubarPath="team.main/group2">
+         </action>
+      </objectContribution>
+      <objectContribution
+            objectClass="org.tigris.subversion.subclipse.core.ISVNRemoteResource"
+            adaptable = "true"
+            id="org.tigris.subversion.subclipse.ui.RemoteResourceContributions">
+         <action
+               label="View file history as graph"
+               class="org.tigris.subversion.subclipse.graph.popup.actions.RemoteResourceViewGraphAction"
+               icon="icons/chart_organisation.png"
+               menubarPath="historyGroup"
+               id="org.tigris.subversion.subclipse.graph.popup.actions.RemoteResourceViewGraphAction">
+         </action>                   
+      </objectContribution>  
+      <objectContribution
+            objectClass="org.tigris.subversion.subclipse.core.ISVNRepositoryLocation"
+            adaptable="true"
+            id="org.tigris.subversion.subclipse.ui.RepositoryLocationContributions">
+         <action
+               label="Clear revision graph cache"
+               class="org.tigris.subversion.subclipse.graph.popup.actions.DeleteCacheAction"
+               menubarPath="revisionHistoryGroup"
+               enablesFor="1"
+               id="org.tigris.subversion.subclipse.graph.popup.actions.DeleteCacheAction">
+         </action> 
+         <action
+               label="Build/update revision graph cache"
+               class="org.tigris.subversion.subclipse.graph.popup.actions.UpdateCacheAction"
+               menubarPath="revisionHistoryGroup"
+               enablesFor="1"
+               id="org.tigris.subversion.subclipse.graph.popup.actions.UpdateCacheAction">
+         </action>                            
+      </objectContribution>     
+   </extension>
+</plugin>
