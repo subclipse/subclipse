@@ -8,7 +8,7 @@
       colocation-affinity="org.tigris.subversion.subclipse">
 
    <description url="%changesURL">
-      %description
+      Subversion Revision Graph for Subclipse
    </description>
 
    <copyright url="http://subclipse.tigris.org/">
