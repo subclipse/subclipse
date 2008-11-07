@@ -19,11 +19,11 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IEditorPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.graph.Activator;
+import org.tigris.subversion.subclipse.graph.cache.Graph;
+import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.subclipse.graph.popup.actions.ImageAction;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.sublicpse.graph.cache.Graph;
-import org.tigris.subversion.sublicpse.graph.cache.Node;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class GraphActionBarContributor extends ActionBarContributor {

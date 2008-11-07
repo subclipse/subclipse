@@ -10,7 +10,7 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.tigris.subversion.subclipse.graph.Activator;
-import org.tigris.subversion.sublicpse.graph.cache.Node;
+import org.tigris.subversion.subclipse.graph.cache.Node;
 
 public class NodeFigure extends RoundedRectangle {
 

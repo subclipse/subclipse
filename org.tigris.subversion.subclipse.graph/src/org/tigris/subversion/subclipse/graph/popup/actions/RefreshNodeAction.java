@@ -5,13 +5,13 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.subclipse.graph.editors.GraphBackgroundTask;
 import org.tigris.subversion.subclipse.graph.editors.NodeFigure;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditor;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditorInput;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.sublicpse.graph.cache.Node;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class RefreshNodeAction extends Action {

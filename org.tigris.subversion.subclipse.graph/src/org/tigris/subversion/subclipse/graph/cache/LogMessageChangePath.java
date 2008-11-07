@@ -1,4 +1,4 @@
-package org.tigris.subversion.sublicpse.graph.cache;
+package org.tigris.subversion.subclipse.graph.cache;
 
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
 import org.tigris.subversion.svnclientadapter.SVNRevision.Number;

@@ -1,4 +1,4 @@
-package org.tigris.subversion.sublicpse.graph.cache;
+package org.tigris.subversion.subclipse.graph.cache;
 
 public interface WorkListener {
 	

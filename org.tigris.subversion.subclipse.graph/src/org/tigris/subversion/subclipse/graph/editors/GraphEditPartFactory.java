@@ -6,7 +6,7 @@ import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
-import org.tigris.subversion.sublicpse.graph.cache.Graph;
+import org.tigris.subversion.subclipse.graph.cache.Graph;
 
 public class GraphEditPartFactory implements EditPartFactory {
 	

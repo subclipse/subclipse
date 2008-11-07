@@ -27,10 +27,10 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.graphics.Color;
 import org.tigris.subversion.subclipse.graph.Activator;
-import org.tigris.subversion.sublicpse.graph.cache.Branch;
-import org.tigris.subversion.sublicpse.graph.cache.Cache;
-import org.tigris.subversion.sublicpse.graph.cache.Graph;
-import org.tigris.subversion.sublicpse.graph.cache.Node;
+import org.tigris.subversion.subclipse.graph.cache.Branch;
+import org.tigris.subversion.subclipse.graph.cache.Cache;
+import org.tigris.subversion.subclipse.graph.cache.Graph;
+import org.tigris.subversion.subclipse.graph.cache.Node;
 
 public class GraphEditPart extends AbstractGraphicalEditPart implements MouseListener {
 

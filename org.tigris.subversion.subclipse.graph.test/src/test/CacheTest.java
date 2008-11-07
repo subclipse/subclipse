@@ -12,10 +12,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.tigris.subversion.sublicpse.graph.cache.Branch;
-import org.tigris.subversion.sublicpse.graph.cache.Cache;
-import org.tigris.subversion.sublicpse.graph.cache.Graph;
-import org.tigris.subversion.sublicpse.graph.cache.Node;
+import org.tigris.subversion.subclipse.graph.cache.Branch;
+import org.tigris.subversion.subclipse.graph.cache.Cache;
+import org.tigris.subversion.subclipse.graph.cache.Graph;
+import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 
 public class CacheTest extends TestCase {

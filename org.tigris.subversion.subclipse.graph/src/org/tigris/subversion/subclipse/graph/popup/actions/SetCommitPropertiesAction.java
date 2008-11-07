@@ -13,6 +13,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.ChangeCommitPropertiesCommand;
+import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.subclipse.graph.editors.NodeFigure;
 import org.tigris.subversion.subclipse.graph.editors.NodeTooltipFigure;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditor;
@@ -20,7 +21,6 @@ import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditorInput;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.SetCommitPropertiesDialog;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
-import org.tigris.subversion.sublicpse.graph.cache.Node;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
