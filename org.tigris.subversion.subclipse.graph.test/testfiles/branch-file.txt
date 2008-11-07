@@ -1,0 +1,33 @@
+# 
+# Basic branch of a file.
+#
+
+clear
+load
+1
+A	/trunk
+A	/branches
+A	/tags
+2
+A	/trunk/project
+3
+A	/trunk/project/foo.txt
+4
+D	/trunk/project/foo.txt
+5
+A	/trunk/project/bar.txt	/trunk/project/foo.txt	3
+update
+test	/trunk/project/foo.txt	3
+/trunk/project/foo.txt
+3	A
+4	D
+/trunk/project/bar.txt
+5	A
+endtest
+test	/trunk/project/bar.txt	5
+/trunk/project/foo.txt
+3	A
+4	D
+/trunk/project/bar.txt
+5	A
+endtest

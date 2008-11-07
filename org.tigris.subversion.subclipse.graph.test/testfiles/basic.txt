@@ -1,0 +1,28 @@
+
+clear
+load
+1
+A	/trunk
+A	/branches
+A	/tags
+2
+A	/trunk/project
+3
+A	/trunk/project/foo.txt
+4
+M	/trunk/project/foo.txt
+5
+A	/trunk/project/bar.txt
+6
+M	/trunk/project/foo.txt
+M	/trunk/project/bar.txt
+7
+D	/trunk/project/foo.txt
+update
+test	/trunk/project/foo.txt	3
+/trunk/project/foo.txt
+3	A
+4	M
+6	M
+7	D
+endtest

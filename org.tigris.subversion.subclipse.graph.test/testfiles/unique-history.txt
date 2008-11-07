@@ -1,0 +1,39 @@
+# 
+# Basic adding, modifying and deleting a file.
+# Then a different file with the same path is added.
+# But it has a totally different history
+#
+
+
+clear
+load
+1
+A	/trunk
+A	/branches
+A	/tags
+2
+A	/trunk/project
+3
+A	/trunk/project/foo.txt
+4
+D	/trunk/project/foo.txt
+5
+A	/trunk/project/bar.txt
+6
+A	/trunk/project/foo.txt
+7
+M	/trunk/project/foo.txt
+update
+# testnull	/trunk/project/foo.txt	2
+# testnull	/trunk/project/foo.txt	4
+# testnull	/trunk/project/foo.txt	5
+test	/trunk/project/foo.txt	3
+/trunk/project/foo.txt
+3	A
+4	D
+endtest
+test	/trunk/project/foo.txt	6
+/trunk/project/foo.txt
+6	A
+7	M
+endtest
