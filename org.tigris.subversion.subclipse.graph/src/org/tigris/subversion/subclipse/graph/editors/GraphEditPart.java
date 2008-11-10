@@ -95,9 +95,13 @@ public class GraphEditPart extends AbstractGraphicalEditPart implements MouseLis
 				Node lastNode = (Node)branch.getNodes().get(branch.getNodes().size() - 1);
 				if (lastNode.getAction() == 'D' && Cache.isEqualsOrParent(lastNode.getPath(), branch.getPath())) {
 					if (showDeleted == RevisionGraphEditor.SHOW_DELETED_NO || (showDeleted == RevisionGraphEditor.SHOW_DELETED_MODIFIED && !isModified(branch))) {
-						// branch has been deleted and item was not modified in that location
-						i--;
-						continue;
+						// branch has been deleted and item was not modified in that location.
+						// do not show this branch, unless it is the location where the item came
+						// into existence.
+						if (!graph.getRootPath().equals(branch.getPath())) {
+							i--;
+							continue;
+						}
 					}
 				}
 			}
