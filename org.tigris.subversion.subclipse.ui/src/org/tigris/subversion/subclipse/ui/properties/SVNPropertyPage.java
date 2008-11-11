@@ -43,7 +43,7 @@ public class SVNPropertyPage extends PropertyPage {
     private Text ignoredValue;
     private Text managedValue;
     private Text switchedValue;
-    private Label urlValue;
+    private Text urlValue;
     private Text lastChangedRevisionValue;
     private Text lastChangedDateValue;
     private Text lastCommitAuthorValue;
@@ -72,18 +72,21 @@ public class SVNPropertyPage extends PropertyPage {
         label.setText(Policy.bind("SVNPropertyPage.path")); //$NON-NLS-1$
 
         // Path text field
-        Label pathValue = new Label(composite, SWT.WRAP);
+        Text pathValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
         GridData gd = new GridData();
         gd.widthHint = 500;
         pathValue.setLayoutData(gd);
         pathValue.setText(((IResource) getElement()).getFullPath().toString());
+        pathValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.url")); //$NON-NLS-1$
-        urlValue = new Label(composite, SWT.WRAP);
+        
+        urlValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
         gd = new GridData();
         gd.widthHint = 500;
         urlValue.setLayoutData(gd);
+        urlValue.setBackground(composite.getBackground());
 
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.revision")); //$NON-NLS-1$
