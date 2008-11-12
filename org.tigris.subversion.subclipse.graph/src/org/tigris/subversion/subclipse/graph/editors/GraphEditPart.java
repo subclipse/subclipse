@@ -87,6 +87,7 @@ public class GraphEditPart extends AbstractGraphicalEditPart implements MouseLis
 					// is not the root node and is not the target of any arrow
 					// therefore is a tag
 					i--;
+					branch.setView(null);
 					continue;
 				}
 			}
@@ -100,6 +101,7 @@ public class GraphEditPart extends AbstractGraphicalEditPart implements MouseLis
 						// into existence.
 						if (!graph.getRootPath().equals(branch.getPath())) {
 							i--;
+							branch.setView(null);
 							continue;
 						}
 					}

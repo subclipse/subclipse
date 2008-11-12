@@ -185,7 +185,11 @@ public class GraphActionBarContributor extends ActionBarContributor {
 	    public void run() {
 	    	if (isChecked()) {
 	    		Activator.getDefault().getPreferenceStore().setValue(RevisionGraphEditor.SHOW_DELETED_PREFERENCE, show);
-	    		editor.refresh();
+//	    		editor.refresh();
+	    		GraphEditPart graphEditPart = (GraphEditPart)editor.getViewer().getContents();
+	    		Graph graph = (Graph)graphEditPart.getModel();
+	    		editor.getViewer().setContents("Redrawing graph...");
+	    		editor.getViewer().setContents(graph);
 	    	}
 	    }
 		
