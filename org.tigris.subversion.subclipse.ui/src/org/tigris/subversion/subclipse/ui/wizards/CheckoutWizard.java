@@ -58,7 +58,10 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 
 	private IProject project;
 	private String projectName;
-	private boolean hasProjectFile;
+	private String projectNamePrefix;
+	private String projectNameSuffix;
+
+    private boolean hasProjectFile;
 	private ISVNRepositoryLocation repositoryLocation;
 
 	private ISVNRemoteFolder[] remoteFolders;
@@ -79,18 +82,18 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	public void addPages() {
 		setNeedsProgressMonitor(true);
 		if (remoteFolders == null) {
-			locationPage = new CheckoutWizardLocationPage("locationPage", //$NON-NLS-1$ 
+			locationPage = new CheckoutWizardLocationPage("locationPage", //$NON-NLS-1$
 					Policy.bind("CheckoutWizardLocationPage.heading"), //$NON-NLS-1$
 					SVNUIPlugin.getPlugin().getImageDescriptor(
 							ISVNUIConstants.IMG_WIZBAN_SHARE));
 			addPage(locationPage);
 			createLocationPage = new ConfigurationWizardMainPage(
-					"createLocationPage", //$NON-NLS-1$ 
+					"createLocationPage", //$NON-NLS-1$
 					Policy.bind("CheckoutWizardLocationPage.heading"), //$NON-NLS-1$
 					SVNUIPlugin.getPlugin().getImageDescriptor(
 							ISVNUIConstants.IMG_WIZBAN_SHARE));
 			addPage(createLocationPage);
-			selectionPage = new CheckoutWizardSelectionPage("selectionPage", //$NON-NLS-1$ 
+			selectionPage = new CheckoutWizardSelectionPage("selectionPage", //$NON-NLS-1$
 					Policy.bind("CheckoutWizardSelectionPage.heading"), //$NON-NLS-1$
 					SVNUIPlugin.getPlugin().getImageDescriptor(
 							ISVNUIConstants.IMG_WIZBAN_SHARE));
@@ -98,7 +101,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 		}
 		if (remoteFolders == null || remoteFolders.length > 1) {
 			checkoutAsMultiplePage = new CheckoutWizardCheckoutAsMultiplePage(
-					"checkoutAsMultiplePage", //$NON-NLS-1$ 
+					"checkoutAsMultiplePage", //$NON-NLS-1$
 					Policy.bind("CheckoutWizardCheckoutAsPage.heading"), //$NON-NLS-1$
 					SVNUIPlugin.getPlugin().getImageDescriptor(
 							ISVNUIConstants.IMG_WIZBAN_SHARE));
@@ -107,7 +110,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 		if (remoteFolders == null || remoteFolders.length == 1) {
 			if (remoteFolders == null || hasProjectFile) {
 				checkoutAsWithProjectFilePage = new CheckoutWizardCheckoutAsWithProjectFilePage(
-						"checkoutAsWithProjectFilePage", //$NON-NLS-1$ 
+						"checkoutAsWithProjectFilePage", //$NON-NLS-1$
 						Policy.bind("CheckoutWizardCheckoutAsPage.heading"), //$NON-NLS-1$
 						SVNUIPlugin.getPlugin().getImageDescriptor(
 								ISVNUIConstants.IMG_WIZBAN_SHARE));
@@ -118,14 +121,14 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 			}
 			if (remoteFolders == null || !hasProjectFile) {
 				checkoutAsWithoutProjectFilePage = new CheckoutWizardCheckoutAsWithoutProjectFilePage(
-						"checkoutAsWithoutProjectFilePage", //$NON-NLS-1$ 
+						"checkoutAsWithoutProjectFilePage", //$NON-NLS-1$
 						Policy.bind("CheckoutWizardCheckoutAsPage.heading"), //$NON-NLS-1$
 						SVNUIPlugin.getPlugin().getImageDescriptor(
 								ISVNUIConstants.IMG_WIZBAN_SHARE));
 				addPage(checkoutAsWithoutProjectFilePage);
 			}
 		}
-		projectPage = new CheckoutWizardProjectPage("projectPage", //$NON-NLS-1$ 
+		projectPage = new CheckoutWizardProjectPage("projectPage", //$NON-NLS-1$
 				Policy.bind("CheckoutWizardProjectPage.heading"), //$NON-NLS-1$
 				SVNUIPlugin.getPlugin().getImageDescriptor(
 						ISVNUIConstants.IMG_WIZBAN_SHARE));
@@ -185,11 +188,11 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 //									checkoutAsWithoutProjectFilePage.setProject(remoteFolders[0].getName());
 								}
 							}
-						}						
+						}
 					});
 				} else {
 					if (checkoutAsMultiplePage != null) checkoutAsMultiplePage.setText(Policy.bind("CheckoutWizardCheckoutAsPage.multiple", Integer.toString(remoteFolders.length))); //$NON-NLS-1$
-				}			
+				}
 			}
 			if (remoteFolders.length > 1) return checkoutAsMultiplePage;
 			else {
@@ -244,7 +247,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 				if (error.isMultiStatus() && error.getChildren().length == 1) {
 					error = error.getChildren()[0];
 				}
-					
+
 				boolean keep = false;
 				if (error.isMultiStatus()) {
 					SVNUIPlugin.openError(getContainer().getShell(), Policy.bind("NewLocationWizard.validationFailedTitle"), null, e); //$NON-NLS-1$
@@ -270,7 +273,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	}
 
 	private void checkForProjectFile() {
-		
+
 		if(!hasProjectFile && project == null)
 		{
 			try
@@ -279,11 +282,11 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 				{
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException
 					{
-						
+
 						monitor = Policy.monitorFor(monitor);
 						monitor.beginTask("Getting remote project info", 100);
 						ISVNRemoteFolder folder = remoteFolders[0];
-	//					String url = folder.getUrl().toString() + "/.project"; //$NON-NLS-1$ 
+	//					String url = folder.getUrl().toString() + "/.project"; //$NON-NLS-1$
 						try {
 //							ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
 //							client.getInfo(new SVNUrl(url));
@@ -293,7 +296,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 						} catch (Exception e) {
 							hasProjectFile = false;
 							project = SVNWorkspaceRoot.getProject(folder.getName());
-						}		
+						}
 						finally
 						{
 							monitor.done();
@@ -344,16 +347,16 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 			if (useWizard)
 				return checkoutUsingWizard();
 		}
-		if (projectPage.getLocation().equals(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString())) 
+		if (projectPage.getLocation().equals(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()))
 			return checkoutAsProject();
-		else 
+		else
 			return checkoutAsProjectInto();
 	}
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 
 	}
-	
+
 	public void setProjectName(String projectName) {
 		this.projectName = projectName;
 		projectPage.setLocation();
@@ -382,13 +385,13 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 					checkoutAction.setSvnRevision(checkoutAsWithoutProjectFilePage.getRevision());
 					checkoutAction.setDepth(checkoutAsWithoutProjectFilePage.getDepth());
 					checkoutAction.setIgnoreExternals(checkoutAsWithoutProjectFilePage.isIgnoreExternals());
-					checkoutAction.setForce(checkoutAsWithoutProjectFilePage.isForce());					
+					checkoutAction.setForce(checkoutAsWithoutProjectFilePage.isForce());
 				}
 			} else {
 				checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
 				checkoutAction.setDepth(checkoutAsMultiplePage.getDepth());
 				checkoutAction.setIgnoreExternals(checkoutAsMultiplePage.isIgnoreExternals());
-				checkoutAction.setForce(checkoutAsMultiplePage.isForce());				
+				checkoutAction.setForce(checkoutAsMultiplePage.isForce());
 			}
 			checkoutAction.execute(null);
 		} catch (Exception e) {
@@ -400,7 +403,12 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	}
 
 	private boolean checkoutAsProjectInto() {
-		CheckoutIntoAction checkoutAction = new CheckoutIntoAction(remoteFolders, projectName, projectPage.getCanonicalLocation(), getShell());
+		CheckoutIntoAction checkoutAction;
+		if (shouldRenameMultipleProjects()) {
+		    checkoutAction = new CheckoutIntoAction(remoteFolders, getProjectNamePrefix(), getProjectNameSuffix(), projectPage.getCanonicalLocation(), getShell());
+		} else {
+		    checkoutAction = new CheckoutIntoAction(remoteFolders, projectName, projectPage.getCanonicalLocation(), getShell());
+		}
 		try {
 			if (remoteFolders.length == 1) {
 				if (hasProjectFile) {
@@ -412,13 +420,13 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 					checkoutAction.setSvnRevision(checkoutAsWithoutProjectFilePage.getRevision());
 					checkoutAction.setDepth(checkoutAsWithoutProjectFilePage.getDepth());
 					checkoutAction.setIgnoreExternals(checkoutAsWithoutProjectFilePage.isIgnoreExternals());
-					checkoutAction.setForce(checkoutAsWithoutProjectFilePage.isForce());					
+					checkoutAction.setForce(checkoutAsWithoutProjectFilePage.isForce());
 				}
 			} else {
 				checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
 				checkoutAction.setDepth(checkoutAsMultiplePage.getDepth());
 				checkoutAction.setIgnoreExternals(checkoutAsMultiplePage.isIgnoreExternals());
-				checkoutAction.setForce(checkoutAsMultiplePage.isForce());				
+				checkoutAction.setForce(checkoutAsMultiplePage.isForce());
 			}
 			checkoutAction.execute(null);
 		} catch (Exception e) {
@@ -428,9 +436,14 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 		}
 		return true;
 	}
-	
+
 	private boolean checkoutAsProject() {
-		CheckoutAsProjectAction checkoutAction = new CheckoutAsProjectAction(remoteFolders, projectName, getShell());
+		CheckoutAsProjectAction checkoutAction;
+		if (shouldRenameMultipleProjects()) {
+		    checkoutAction = new CheckoutAsProjectAction(remoteFolders, getProjectNamePrefix(), getProjectNameSuffix(), getShell());
+		} else {
+		    checkoutAction = new CheckoutAsProjectAction(remoteFolders, projectName, getShell());
+		}
 		try {
 			if (remoteFolders.length == 1) {
 				if (hasProjectFile) {
@@ -442,25 +455,50 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 					checkoutAction.setSvnRevision(checkoutAsWithoutProjectFilePage.getRevision());
 					checkoutAction.setDepth(checkoutAsWithoutProjectFilePage.getDepth());
 					checkoutAction.setIgnoreExternals(checkoutAsWithoutProjectFilePage.isIgnoreExternals());
-					checkoutAction.setForce(checkoutAsWithoutProjectFilePage.isForce());					
+					checkoutAction.setForce(checkoutAsWithoutProjectFilePage.isForce());
 				}
 			} else {
 				checkoutAction.setSvnRevision(checkoutAsMultiplePage.getRevision());
 				checkoutAction.setDepth(checkoutAsMultiplePage.getDepth());
 				checkoutAction.setIgnoreExternals(checkoutAsMultiplePage.isIgnoreExternals());
-				checkoutAction.setForce(checkoutAsMultiplePage.isForce());				
+				checkoutAction.setForce(checkoutAsMultiplePage.isForce());
 			}
 			checkoutAction.execute(null);
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), Policy
 					.bind("CheckoutAsAction.title"), e.getMessage());
 			return false;
-		}		
+		}
 		return true;
 	}
 
 	public String getProjectName() {
 		return projectName;
 	}
+
+    public String getProjectNamePrefix() {
+        return projectNamePrefix;
+    }
+
+    public void setProjectNamePrefix(String projectNamePrefix) {
+        this.projectNamePrefix = projectNamePrefix;
+    }
+
+    public String getProjectNameSuffix() {
+        return projectNameSuffix;
+    }
+
+    public void setProjectNameSuffix(String projectNameSuffix) {
+        this.projectNameSuffix = projectNameSuffix;
+    }
+
+    /**
+     * @return <code>true</code>, if multiple projects should be checked out and project name
+     * prefix and/or suffix is set
+     */
+    protected boolean shouldRenameMultipleProjects() {
+        return ((remoteFolders != null) && (remoteFolders.length > 1)
+                && ((getProjectNamePrefix() != null) || (getProjectNameSuffix() != null)));
+    }
 
 }

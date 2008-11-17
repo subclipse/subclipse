@@ -47,21 +47,29 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
     protected boolean proceed;
 	private ISVNRemoteFolder[] selectedFolders;
 	private String projectName;
+	private String projectNamePrefix;
+	private String projectNameSuffix;
 	private SVNRevision svnRevision = SVNRevision.HEAD;
     private int depth = ISVNCoreConstants.DEPTH_INFINITY;
     private boolean ignoreExternals = false;
-    private boolean force = true;	
-	
+    private boolean force = true;
+
 	public CheckoutAsProjectAction() {
 		super();
 	}
-    
+
 	public CheckoutAsProjectAction(ISVNRemoteFolder[] selectedFolders, String projectName, Shell shell) {
 		super();
 		this.selectedFolders = selectedFolders;
 		this.projectName = projectName;
 		this.shell = shell;
 	}
+
+    public CheckoutAsProjectAction(ISVNRemoteFolder[] selectedFolders, String projectNamePrefix, String projectNameSuffix, Shell shell) {
+        this(selectedFolders, null, shell);
+        this.projectNamePrefix = projectNamePrefix;
+        this.projectNameSuffix = projectNameSuffix;
+    }
 
 	/*
 	 * @see SVNAction#execute()
@@ -75,13 +83,13 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
      * checkout into a workspace directory, ie as a project
      * @throws InvocationTargetException
      * @throws InterruptedException
-     */	
-	protected void checkoutSelectionIntoWorkspaceDirectory() throws InvocationTargetException, InterruptedException { 
+     */
+	protected void checkoutSelectionIntoWorkspaceDirectory() throws InvocationTargetException, InterruptedException {
 	    run(new WorkspaceModifyOperation() {
 			public void execute(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 			    try {
 					final ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
-							
+					final boolean renameMultipleProjects = shouldRenameMultipleProjects();
 					List targetProjects = new ArrayList();
 					Map targetFolders = new HashMap();
 
@@ -91,18 +99,27 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 					    if (folders[i].getRepository().getRepositoryRoot().toString().equals(folders[i].getUrl().toString())) {
 						    shell.getDisplay().syncExec(new Runnable() {
 	                            public void run() {
-	        					     proceed = MessageDialog.openQuestion(shell, Policy.bind("CheckoutAsProjectAction.title"), Policy.bind("AddToWorkspaceAction.checkingOutRoot")); //$NON-NLS-1$                               
-	                            }					        
-						    });					        
+	        					     proceed = MessageDialog.openQuestion(shell, Policy.bind("CheckoutAsProjectAction.title"), Policy.bind("AddToWorkspaceAction.checkingOutRoot")); //$NON-NLS-1$
+	                            }
+						    });
 					    }
 					    if (proceed) {
 					    	IProject project;
-					    	if (projectName == null) {
+					    	if (renameMultipleProjects) {
+					    	    String originalProjectName;
+					    	    try {
+					    	        originalProjectName = SVNWorkspaceRoot.getProjectName(folders[i], monitor);
+					    	    } catch (Exception e) {
+					    	        originalProjectName = folders[i].getName();
+					    	    }
+					    	    final String newProjectName = modifyProjectName(originalProjectName);
+					    	    project = SVNWorkspaceRoot.getProject(newProjectName);
+					    	} else if (projectName == null) {
 					    		try {
 					    			project = SVNWorkspaceRoot.getProject(folders[i],monitor);
 					    		} catch (Exception e) {
 					    			project = SVNWorkspaceRoot.getProject(folders[i].getName());
-					    		}	    		
+					    		}
 					    	} else {
 					    		project = SVNWorkspaceRoot.getProject(projectName);
 					    	}
@@ -110,16 +127,16 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 							targetProjects.add(project);
 					    } else return;
 					}
-					
+
 
 					projects = (IResource[]) targetProjects.toArray(new IResource[targetProjects.size()]);
-					
+
 					// if a project with the same name already exist, we ask the user if he want to overwrite it
-					PromptingDialog prompt = new PromptingDialog(getShell(), projects, 
-																  getOverwriteLocalAndFileSystemPrompt(), 
+					PromptingDialog prompt = new PromptingDialog(getShell(), projects,
+																  getOverwriteLocalAndFileSystemPrompt(),
 																  Policy.bind("ReplaceWithAction.confirmOverwrite"));//$NON-NLS-1$
 					projects = prompt.promptForMultiple();
-															
+
 					if (projects.length != 0) {
 						localFolders = new IProject[projects.length];
 						remoteFolders = new ISVNRemoteFolder[projects.length];
@@ -127,7 +144,7 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 							localFolders[i] = (IProject)projects[i];
 							remoteFolders[i] = (ISVNRemoteFolder)targetFolders.get(projects[i].getName());
 						}
-					} else 
+					} else
 					    proceed = false;
 				} catch (Exception e) {
 					throw new InvocationTargetException(e);
@@ -145,7 +162,7 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 	    	checkoutAsProjectOperation.run();
 	    }
 	}
-		
+
 	/*
 	 * @see TeamAction#isEnabled()
 	 */
@@ -174,9 +191,9 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
             return Policy.bind("AddToWorkspace.taskNameN", new Integer(remoteFolders.length).toString());  //$NON-NLS-1$
         }
     }
-    
+
     /**
-     * get an IPromptCondition 
+     * get an IPromptCondition
      */
     static public IPromptCondition getOverwriteLocalAndFileSystemPrompt() {
         return new IPromptCondition() {
@@ -209,8 +226,8 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 
 	public void setSvnRevision(SVNRevision svnRevision) {
 		this.svnRevision = svnRevision;
-	} 
-	
+	}
+
 	public void setDepth(int depth) {
 		this.depth = depth;
 	}
@@ -221,6 +238,41 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 
 	public void setForce(boolean force) {
 		this.force = force;
-	}			
+	}
 
+    private String getProjectNamePrefix() {
+        return projectNamePrefix;
+    }
+
+    private String getProjectNameSuffix() {
+        return projectNameSuffix;
+    }
+
+    /**
+     * @return <code>true</code>, if multiple projects should be checked out and project name
+     * prefix and/or suffix is specified
+     */
+    private boolean shouldRenameMultipleProjects() {
+        final ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
+        return ((folders != null) && (folders.length > 1)
+                && ((getProjectNamePrefix() != null) || (getProjectNameSuffix() != null)));
+    }
+
+    /**
+     * Modifies the original project name to have an optional prefix and/or suffix.
+     *
+     * @param originalProjectName the project name to modify
+     * @return the project name with optional prefix and/or suffix
+     */
+    private String modifyProjectName(String originalProjectName) {
+        final StringBuffer buffer = new StringBuffer();
+        if (getProjectNamePrefix() != null) {
+            buffer.append(getProjectNamePrefix().trim());
+        }
+        buffer.append(originalProjectName);
+        if (getProjectNameSuffix() != null) {
+            buffer.append(getProjectNameSuffix().trim());
+        }
+        return buffer.toString();
+    }
 }

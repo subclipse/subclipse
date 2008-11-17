@@ -65,7 +65,7 @@ import org.w3c.dom.Text;
  * <code>
  * SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(myIProject, SVNProviderPlugin.getTypeId()); <br>
  * SVNWorkspaceRoot svnProject = teamProvider.getSVNWorkspaceRoot();
- * </code> 
+ * </code>
  * </p>
  */
 public class SVNWorkspaceRoot {
@@ -74,7 +74,7 @@ public class SVNWorkspaceRoot {
     private String url;
     private static boolean nullResourceLogged = false;
     private static Set sharedProjects = new HashSet();
-	
+
 	public SVNWorkspaceRoot(IContainer resource){
 		this.localRoot = getSVNFolderFor(resource);
 	}
@@ -102,9 +102,43 @@ public class SVNWorkspaceRoot {
 			sharedProjects.remove(project);
 		}
 	}
-	
+
+    /**
+     * get the project name for the remote folder. The name is either the name of the
+     * remote folder or the name in .project if this file exists.
+     * @param folder
+     * @param monitor
+     * @return
+     */
+    public static String getProjectName(ISVNRemoteFolder folder,IProgressMonitor monitor) throws Exception {
+        ISVNClientAdapter client = folder.getRepository().getSVNClient();
+        try {
+            client.getNotificationHandler().disableLog();
+            String result = folder.getName();
+
+            InputStream is = client.getContent(folder.getUrl().appendPath(".project"), SVNRevision.HEAD);
+            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            org.w3c.dom.Document doc = db.parse(is);
+            is.close();
+            NodeList nl = doc.getDocumentElement().getChildNodes();
+            for (int j = 0; j < nl.getLength(); ++j) {
+                Node child = nl.item(j);
+                if (child instanceof Element && "name".equals(child.getNodeName())) {
+                    Node grandChild = child.getFirstChild();
+                    if (grandChild instanceof Text) result = ((Text)grandChild).getData();
+                }
+            }
+
+            return result;
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            client.getNotificationHandler().enableLog();
+        }
+    }
+
 	/**
-	 * get a project for the remote folder. The name is either the name of the 
+	 * get a project for the remote folder. The name is either the name of the
 	 * remote folder or the name in .project if this file exists.
 	 * Project is not created. There is no check to see if the project already exists
 	 * @param folder
@@ -112,30 +146,8 @@ public class SVNWorkspaceRoot {
 	 * @return
 	 */
 	public static IProject getProject(ISVNRemoteFolder folder,IProgressMonitor monitor) throws Exception {
-		ISVNClientAdapter client = folder.getRepository().getSVNClient();
-		try {
-			client.getNotificationHandler().disableLog();
-			String name = folder.getName();
-			
-			InputStream is = client.getContent(folder.getUrl().appendPath(".project"), SVNRevision.HEAD);
-			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			org.w3c.dom.Document doc = db.parse(is);
-			is.close();
-			NodeList nl = doc.getDocumentElement().getChildNodes();
-			for (int j = 0; j < nl.getLength(); ++j) {
-				Node child = nl.item(j);
-				if (child instanceof Element && "name".equals(child.getNodeName())) {
-					Node grandChild = child.getFirstChild();
-					if (grandChild instanceof Text) name = ((Text)grandChild).getData(); 	
-				}
-			}									
-	
-			return getProject(name);
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			client.getNotificationHandler().enableLog();			
-		}
+	    final String name = getProjectName(folder, monitor);
+        return getProject(name);
 	}
 
 	/**
@@ -147,11 +159,11 @@ public class SVNWorkspaceRoot {
 	}
 
     /**
-	 * Checkout the remote resources into the local workspace as projects. 
+	 * Checkout the remote resources into the local workspace as projects.
 	 * Each resource will be checked out into the corresponding project.
-	 * You can use getProject to get a project for a given remote Folder 
-	 * 
-	 * Resources existing in the local file system at the target project location but now 
+	 * You can use getProject to get a project for a given remote Folder
+	 *
+	 * Resources existing in the local file system at the target project location but now
 	 * known to the workbench will be overwritten.
 	 */
 	public static void checkout(
@@ -162,26 +174,26 @@ public class SVNWorkspaceRoot {
         CheckoutCommand command = new CheckoutCommand(resources, projects);
         command.run(monitor);
 	}
-					
+
 	/**
 	 * Create a remote directory in the SVN repository and link the project directory to this remote directory.
 	 * The contents of the project are not imported.
      * if remoteDirName is null, the name of the project is used
-     * if location is not in repositories, it is added 
+     * if location is not in repositories, it is added
 	 */
 	public static void shareProject(ISVNRepositoryLocation location, IProject project, String remoteDirName, String comment, boolean createDirectory, IProgressMonitor monitor) throws TeamException {
 		ShareProjectCommand command = new ShareProjectCommand(location, project, remoteDirName, createDirectory);
 		command.setComment(comment);
         command.run(monitor);
     }
-	
+
 	/**
 	 * Set the sharing for a project to enable it to be used with the SVNTeamProvider.
      * This is used when a project has .svn directory but is not shared in Eclipse.
 	 * An exception is thrown if project does not have a remote directory counterpart
 	 */
 	public static void setSharing(IProject project, IProgressMonitor monitor) throws TeamException {
-		
+
 		// Ensure provided info matches that of the project
 		LocalResourceStatus status = peekResourceStatusFor(project);
 
@@ -190,44 +202,44 @@ public class SVNWorkspaceRoot {
         // we will change this exception !
         if (!status.hasRemote())
             throw new SVNException(new SVNStatus(IStatus.ERROR, Policy.bind("SVNProvider.infoMismatch", project.getName())));//$NON-NLS-1$
-        
+
         String repositoryURL = null;
         ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
         try {
-            SVNProviderPlugin.disableConsoleLogging(); 
+            SVNProviderPlugin.disableConsoleLogging();
 			ISVNInfo info = client.getInfoFromWorkingCopy(project.getLocation().toFile());
 			if (info.getRepository() != null)
 				repositoryURL = info.getRepository().toString();
 		} catch (SVNClientException e) {
 		} finally {
-	        SVNProviderPlugin.enableConsoleLogging(); 
+	        SVNProviderPlugin.enableConsoleLogging();
 		}
 		if (repositoryURL == null)
 			repositoryURL = status.getUrlString();
-        
+
 		// Ensure that the provided location is managed
 		SVNProviderPlugin.getPlugin().getRepositories().getRepository(repositoryURL);
-		
+
 		// Register the project with Team
 		RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
 	}
-		
+
     /**
-     * get the SVNLocalFolder for the given resource 
-     */           	
+     * get the SVNLocalFolder for the given resource
+     */
 	public static ISVNLocalFolder getSVNFolderFor(IContainer resource) {
 		return new LocalFolder(resource);
 	}
 
     /**
-     * get the SVNLocalFile for the given resource 
+     * get the SVNLocalFile for the given resource
      */
 	public static ISVNLocalFile getSVNFileFor(IFile resource) {
 		return new LocalFile(resource);
 	}
 
     /**
-     * get the SVNLocalResource for the given resource 
+     * get the SVNLocalResource for the given resource
      */
 	public static ISVNLocalResource getSVNResourceFor(IResource resource) {
 		if (resource.getType() == IResource.FILE)
@@ -235,7 +247,7 @@ public class SVNWorkspaceRoot {
 		else // container
 			return getSVNFolderFor((IContainer) resource);
 	}
-	
+
     /**
      * get the SVNLocalResources for the given resources
      * @param resources
@@ -248,7 +260,7 @@ public class SVNWorkspaceRoot {
         }
         return svnResources;
     }
-    
+
     /**
      * get the base resource corresponding to the local one
      * @param resource
@@ -259,7 +271,7 @@ public class SVNWorkspaceRoot {
 		ISVNLocalResource managed = getSVNResourceFor(resource);
 		return managed.getBaseResource();
 	}
-	
+
     /**
      * get the latest remote resource corresponding to the local one
      * @param resource
@@ -268,9 +280,9 @@ public class SVNWorkspaceRoot {
      */
     public static ISVNRemoteResource getLatestResourceFor(IResource resource) throws SVNException {
         ISVNLocalResource managed = getSVNResourceFor(resource);
-        return managed.getLatestRemoteResource();        
+        return managed.getLatestRemoteResource();
     }
-    
+
     /**
      * Peek for (get) the resource status.
      * Do not descend to children and DO NOT affect sync cache in any way !
@@ -281,18 +293,18 @@ public class SVNWorkspaceRoot {
     {
 		PeekStatusCommand command = new PeekStatusCommand(resource);
 		command.execute(SVNProviderPlugin.getPlugin().getSVNClient());
-		return command.getLocalResourceStatus();	
+		return command.getLocalResourceStatus();
     }
 
     public static LocalResourceStatus peekResourceStatusFor(IPath path) throws SVNException
     {
 		PeekStatusCommand command = new PeekStatusCommand(path);
 		command.execute(SVNProviderPlugin.getPlugin().getSVNClient());
-		return command.getLocalResourceStatus();	
+		return command.getLocalResourceStatus();
     }
-    
+
 	/**
-     * get the repository for this project 
+     * get the repository for this project
 	 */
 	public ISVNRepositoryLocation getRepository() throws SVNException {
 		if (url == null)
@@ -307,23 +319,23 @@ public class SVNWorkspaceRoot {
 	}
 
     /**
-     * get the svn folder corresponding to the project  
+     * get the svn folder corresponding to the project
      */
 	public ISVNLocalFolder getLocalRoot() {
 		return localRoot;
 	}
-	
+
 	/**
 	 * Return true if the resource is part of a link (i.e. a linked resource or
 	 * one of it's children.
-	 * 
+	 *
 	 * @param container
 	 * @return boolean
 	 */
 	public static boolean isLinkedResource(IResource resource) {
 		return resource.isLinked(IResource.CHECK_ANCESTORS);
 		// check the resource directly first
-/* Commented out		
+/* Commented out
 		if (resource.isLinked()) return true;
 		// projects and root cannot be links
 		if (resource.getType() == IResource.PROJECT || resource.getType() == IResource.ROOT) {
@@ -333,9 +345,9 @@ public class SVNWorkspaceRoot {
 		String linkedParentName = resource.getProjectRelativePath().segment(0);
 		IFolder linkedParent = resource.getProject().getFolder(linkedParentName);
 		return linkedParent.isLinked();
-*/		
+*/
 	}
-	
+
 	/**
 	 * Return true when a resource is a SVN "meta" resource.
 	 * I.e. .svn dir or any file within it.
@@ -346,7 +358,7 @@ public class SVNWorkspaceRoot {
 	{
 		if ((resource.getType() == IResource.FOLDER) && (SVNProviderPlugin.getPlugin().isAdminDirectory(resource.getName())))
 			return true;
-		
+
         IResource parent = resource.getParent();
         if (parent == null) {
             return false;
@@ -366,18 +378,18 @@ public class SVNWorkspaceRoot {
 	{
 		if (aResourcePath == null) return 0;
 		IResource r = ResourcesPlugin.getWorkspace().getRoot().findMember(aResourcePath);
-		return r == null ? 0 : r.getType();	
+		return r == null ? 0 : r.getType();
 	}
-	
+
 	/**
 	 * Returns workspace resource for the given local file system <code>location</code>
 	 * and which is a child of the given <code>parent</code> resource. Returns
 	 * <code>parent</code> if parent's file system location equals to the given
-	 * <code>location</code>. Returns <code>null</code> if <code>parent</code> is the 
+	 * <code>location</code>. Returns <code>null</code> if <code>parent</code> is the
 	 * workspace root.
-	 * 
+	 *
 	 * Resource does not have to exist in the workspace in which case resource
-	 * type will be determined by the type of the local filesystem object. 
+	 * type will be determined by the type of the local filesystem object.
 	 */
     public static IResource getResourceFor(IResource parent, IPath location) {
     	if (parent == null || location == null) {
@@ -419,7 +431,7 @@ public class SVNWorkspaceRoot {
 
 		if (location.toFile().isDirectory()) {
 			return root.getFolder(fullPath);
-		} 
+		}
 
 		return root.getFile(fullPath);
     }
@@ -430,7 +442,7 @@ public class SVNWorkspaceRoot {
     	}
     	return getResourceFor(parent, new Path(status.getFile().getAbsolutePath()));
     }
-    
+
     public static IResource[] getResourcesFor(IPath location) {
     	return getResourcesFor(location, true);
     }
@@ -439,7 +451,7 @@ public class SVNWorkspaceRoot {
      * Gets the resources to which the local filesystem <code>location</code> is corresponding to.
      * The resources do not need to exists (yet)
      * @return IResource[]
-     * @throws SVNException 
+     * @throws SVNException
      */
     public static IResource[] getResourcesFor(IPath location, boolean includeProjects) {
 		Set resources = new LinkedHashSet();
