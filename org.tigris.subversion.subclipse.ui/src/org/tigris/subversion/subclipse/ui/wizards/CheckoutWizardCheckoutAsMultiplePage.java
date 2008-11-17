@@ -96,7 +96,7 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
             }
         });
         Label projectTextLabel = new Label(projectGroup, SWT.NONE);
-        projectTextLabel.setText("<folder name>"); //$NON-NLS-1$
+        projectTextLabel.setText("<default_name>"); //$NON-NLS-1$
         projectNameSuffixText = new Text(projectGroup, SWT.BORDER);
         data = new GridData();
         data.horizontalSpan = 2;
@@ -124,7 +124,7 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
         previewText = new Label(previewGroup, SWT.NONE);
         data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
         previewText.setLayoutData(data);
-        previewText.setText("<folder name>"); //$NON-NLS-1$
+        previewText.setText("default_name"); //$NON-NLS-1$
         
 		existingButton = new Button(outerContainer, SWT.RADIO);
 		existingButton.setText(Policy.bind("CheckoutWizardCheckoutAsPage.existing")); //$NON-NLS-1$
@@ -212,7 +212,7 @@ public class CheckoutWizardCheckoutAsMultiplePage extends WizardPage {
 	}
 	
 	private void setPreview() {
-		previewText.setText(projectNamePrefixText.getText().trim() + "<folder name>" + projectNameSuffixText.getText().trim()); //$NON-NLS-1$
+		previewText.setText(projectNamePrefixText.getText().trim() + "default_name" + projectNameSuffixText.getText().trim()); //$NON-NLS-1$
 	}
 
 	private void showLog() {
