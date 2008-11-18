@@ -39,6 +39,7 @@
                label="View file history as graph"
                class="org.tigris.subversion.subclipse.graph.popup.actions.RemoteResourceViewGraphAction"
                icon="icons/chart_organisation.png"
+               enablesFor="1"
                menubarPath="historyGroup"
                id="org.tigris.subversion.subclipse.graph.popup.actions.RemoteResourceViewGraphAction">
          </action>                   
