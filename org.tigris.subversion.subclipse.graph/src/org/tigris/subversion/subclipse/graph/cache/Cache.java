@@ -681,6 +681,25 @@ public class Cache {
 		} finally {
 			closeFile(file);
 		}
+		
+		// Tags
+		List paths = graph.getPaths();
+		Iterator iter = paths.iterator();
+		while (iter.hasNext()) {
+			String path = (String) iter.next();
+			Branch branch = graph.getBranch(path);
+			if(branch.getNodes().size() == 1) {
+				Node firstNode = (Node) branch.getNodes().iterator().next();
+				if(firstNode.getSource() != null && firstNode.getChildCount() == 0) {
+					// is not the root node and is not the target of any arrow
+					// therefore is a tag
+					if (firstNode.getSource() != null) {
+						firstNode.getSource().addTag(firstNode);
+					}
+				}
+			}			
+		}
+		
 		return graph;
 	}
 	

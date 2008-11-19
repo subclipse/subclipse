@@ -19,7 +19,7 @@ public class RevisionGraphMenuProvider extends ContextMenuProvider {
 	}
 
 	public void buildContextMenu(IMenuManager menu) {
-		GraphEditPart graphEditPart = (GraphEditPart)getViewer().getContents();
+		GraphEditPart2 graphEditPart = (GraphEditPart2)getViewer().getContents();
 		NodeFigure nodeFigure = graphEditPart.getSelectedNode();
 		if (nodeFigure != null) {
 			menu.add(new RevisionDetailsAction(nodeFigure, editor));

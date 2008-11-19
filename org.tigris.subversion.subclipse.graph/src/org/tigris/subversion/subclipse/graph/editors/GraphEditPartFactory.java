@@ -6,7 +6,10 @@ import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
+import org.tigris.subversion.subclipse.graph.cache.Branch;
 import org.tigris.subversion.subclipse.graph.cache.Graph;
+import org.tigris.subversion.subclipse.graph.cache.Node;
+import org.tigris.subversion.subclipse.graph.cache.Path;
 
 public class GraphEditPartFactory implements EditPartFactory {
 	
@@ -16,9 +19,10 @@ public class GraphEditPartFactory implements EditPartFactory {
 		this.viewer = viewer;
 	}
 
-	public EditPart createEditPart(EditPart editPart, Object node) {
-		if (node instanceof String) {
-			final String s = (String) node;
+	public EditPart createEditPart(EditPart context, Object model) {
+		EditPart editPart = null;
+		if (model instanceof String) {
+			final String s = (String) model;
 			return new AbstractGraphicalEditPart() {
 				protected IFigure createFigure() {
 					return new Label(s);
@@ -27,10 +31,20 @@ public class GraphEditPartFactory implements EditPartFactory {
 				protected void createEditPolicies() {
 				}
 			};
-		} else if (node instanceof Graph) {
-			return new GraphEditPart((Graph) node, viewer);
+		} else if (model instanceof Graph) {
+			editPart = new GraphEditPart2((Graph) model, viewer);
+		} else if (model instanceof Branch) {
+			editPart = new BranchEditPart();
+		} else if (model instanceof Path) {
+			editPart = new PathEditPart();
+		} else if (model instanceof Node) {
+			editPart = new RevisionEditPart();
 		}
-		throw new RuntimeException("cannot create EditPart for "+node.getClass().getName()+" class");
+		if (editPart == null)
+			throw new RuntimeException("cannot create EditPart for "+model.getClass().getName()+" class");
+		else
+			editPart.setModel(model);
+		return editPart;
 	}
 
 }

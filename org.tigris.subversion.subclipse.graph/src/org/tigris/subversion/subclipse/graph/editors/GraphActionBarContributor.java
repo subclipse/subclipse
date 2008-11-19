@@ -68,7 +68,7 @@ public class GraphActionBarContributor extends ActionBarContributor {
         Action filterConnectionsAction = new Action() {
         	public void run() {
         		store.setValue(RevisionGraphEditor.FILTER_CONNECTIONS, isChecked());
-        		GraphEditPart graphEditPart = (GraphEditPart)editor.getViewer().getContents();
+        		GraphEditPart2 graphEditPart = (GraphEditPart2)editor.getViewer().getContents();
         		graphEditPart.setConnectionVisibility(graphEditPart.getSelectedNode());
         	}
         };
@@ -174,7 +174,6 @@ public class GraphActionBarContributor extends ActionBarContributor {
 		public ToggleShowDeletedAction(String text, int show) {
 			super(text, AS_RADIO_BUTTON);
 			this.show = show;
-//			IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 			setChecked(show == store.getInt(RevisionGraphEditor.SHOW_DELETED_PREFERENCE));
 		}
 		
@@ -185,8 +184,7 @@ public class GraphActionBarContributor extends ActionBarContributor {
 	    public void run() {
 	    	if (isChecked()) {
 	    		Activator.getDefault().getPreferenceStore().setValue(RevisionGraphEditor.SHOW_DELETED_PREFERENCE, show);
-//	    		editor.refresh();
-	    		GraphEditPart graphEditPart = (GraphEditPart)editor.getViewer().getContents();
+	    		GraphEditPart2 graphEditPart = (GraphEditPart2)editor.getViewer().getContents();
 	    		Graph graph = (Graph)graphEditPart.getModel();
 	    		editor.getViewer().setContents("Redrawing graph...");
 	    		editor.getViewer().setContents(graph);
@@ -212,7 +210,7 @@ public class GraphActionBarContributor extends ActionBarContributor {
 			Node[] nodes = null;
 			if (type == TYPE_NODES || type == TYPE_BOTH) {
 				List refreshList = new ArrayList();
-				GraphEditPart graphEditPart = (GraphEditPart)editor.getViewer().getContents();
+				GraphEditPart2 graphEditPart = (GraphEditPart2)editor.getViewer().getContents();
 				Graph graph = (Graph)graphEditPart.getModel();
 				nodes = graph.getNodes();
 				for (int i = 0; i < nodes.length; i++) {
@@ -234,7 +232,6 @@ public class GraphActionBarContributor extends ActionBarContributor {
 			} catch (Exception e) {
 				MessageDialog.openError(Display.getDefault().getActiveShell(), "Refresh " + getText(), e.getMessage()); //$NON-NLS-1$
 			}	
-			//			editor.refresh();
 		}		
 	}
 

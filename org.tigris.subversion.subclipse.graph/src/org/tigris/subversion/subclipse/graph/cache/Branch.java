@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class Branch implements Serializable {
+public class Branch extends Path implements Serializable {
 	
 	private static final long serialVersionUID = -1236475833029223413L;
 
@@ -36,11 +36,10 @@ public class Branch implements Serializable {
 			return 0;
 		}
 	};
-	
-	private String path;
+
 	private List nodes = new ArrayList();
 	private Node lastNode;
-	
+
 	private transient Object view;
 	
 	public Object getView() {
@@ -52,7 +51,7 @@ public class Branch implements Serializable {
 	}
 
 	public Branch(String path) {
-		this.path = path;
+		super(path);
 	}
 	
 	public void addNode(Node n) {
@@ -62,10 +61,6 @@ public class Branch implements Serializable {
 	
 	public Node getLastNode() {
 		return lastNode;
-	}
-
-	public String getPath() {
-		return path;
 	}
 
 	public List getNodes() {

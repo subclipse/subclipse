@@ -27,6 +27,10 @@ public class Node implements Serializable {
 	private transient Object view;
 	
 	private List mergedRevisions;
+	private List tags;
+	
+	private transient Branch branch;
+	private transient int index;
 
 	public Node() {
 	}
@@ -143,6 +147,33 @@ public class Node implements Serializable {
 			mergedRevisions = new ArrayList();
 		}
 		mergedRevisions.add(node);
+	}
+	
+	public List getTags() {
+		return tags;
+	}
+	
+	public void addTag(Node node) {
+		if(tags == null) {
+			tags = new ArrayList();
+		}
+		tags.add(node);
+	}
+	
+	public void setBranch(Branch branch) {
+		this.branch = branch;
+	}
+	
+	public Branch getBranch() {
+		return branch;
+	}
+	
+	public void setIndex(int index) {
+		this.index = index;
+	}
+	
+	public int getIndex() {
+		return index;
 	}
 	
 }
