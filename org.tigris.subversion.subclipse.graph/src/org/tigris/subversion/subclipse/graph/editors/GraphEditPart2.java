@@ -25,10 +25,8 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
-import org.eclipse.gef.editpolicies.SelectionEditPolicy;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.graphics.Color;
 import org.tigris.subversion.subclipse.graph.Activator;
 import org.tigris.subversion.subclipse.graph.cache.Branch;
@@ -63,15 +61,7 @@ public class GraphEditPart2 extends AbstractGraphicalEditPart implements MouseLi
 	}
 
 	protected void createEditPolicies() {
-		installEditPolicy(EditPolicy.SELECTION_FEEDBACK_ROLE, new SelectionEditPolicy() {
-			protected void hideSelection() {
-//				System.out.println("hide graph");
-			}
-
-			protected void showSelection() {
-//				System.out.println("show graph");
-			}			
-		});		
+		installEditPolicy(EditPolicy.SELECTION_FEEDBACK_ROLE, null);
 	}
 
 	protected List getModelChildren() {
@@ -240,36 +230,6 @@ public class GraphEditPart2 extends AbstractGraphicalEditPart implements MouseLi
 		selected = figure;
 		if (figure == null) graph.setSelectedNode(null);
 		else graph.setSelectedNode(figure.getNode());
-		getViewer().setSelection(new IStructuredSelection() {
-
-			public Object getFirstElement() {
-				return GraphEditPart2.this;
-			}
-
-			public Iterator iterator() {
-				return toList().iterator();
-			}
-
-			public int size() {
-				return toArray().length;
-			}
-
-			public Object[] toArray() {
-				Object[] selectedObjects = { GraphEditPart2.this };
-				return selectedObjects;
-			}
-
-			public List toList() {
-				List list = new ArrayList();
-				list.add(GraphEditPart2.this);
-				return list;
-			}
-
-			public boolean isEmpty() {
-				return false;
-			}
-			
-		});
 	}	
 
 	public NodeFigure getSelectedNode() {

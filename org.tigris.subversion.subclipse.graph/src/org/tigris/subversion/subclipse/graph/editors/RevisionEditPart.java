@@ -2,9 +2,6 @@ package org.tigris.subversion.subclipse.graph.editors;
 
 import java.util.Iterator;
 
-import org.eclipse.draw2d.BorderLayout;
-import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.EditPolicy;
@@ -23,12 +20,6 @@ public class RevisionEditPart extends AbstractGraphicalEditPart {
 	}
 
 	protected IFigure createFigure() {
-		Figure f = new Figure();
-		f.setBackgroundColor(ColorConstants.white);
-		f.setOpaque(true);
-		BorderLayout layout = new BorderLayout();
-		f.setLayoutManager(layout);
-		
 		Node node = (Node)getModel();
 		GraphEditPart2 graphEditPart = (GraphEditPart2)getParent().getParent();
 		NodeFigure nodeFigure = graphEditPart.getNodeFigure(node);
@@ -44,30 +35,19 @@ public class RevisionEditPart extends AbstractGraphicalEditPart {
 		}
 		
 		nodeFigure.endLayout();
-		
-		f.add(nodeFigure, BorderLayout.CENTER);
-		
+
 		Rectangle rect = new Rectangle(NODE_OFFSET_X, 10+BranchEditPart.BRANCH_HEIGHT+node.getIndex()*NODE_OFFSET_Y, NODE_WIDTH, NODE_HEIGHT);
-		((AbstractGraphicalEditPart)getParent()).getFigure().getLayoutManager().setConstraint(f, rect);
+		((AbstractGraphicalEditPart)getParent()).getFigure().getLayoutManager().setConstraint(nodeFigure, rect);
 
-		
-		return f;
-	}
-
-	public boolean isSelectable() {
-//		System.out.println("RevisionEditPart.isSelectable");
-		return true;
+		return nodeFigure;
 	}
 
 	protected void createEditPolicies() {
 		installEditPolicy(EditPolicy.SELECTION_FEEDBACK_ROLE, new SelectionEditPolicy() {
 			protected void hideSelection() {
-//				System.out.println("hide revision");
 			}
-
 			protected void showSelection() {
-//				System.out.println("show revision");
-			}			
+			}
 		});
 	}
 
