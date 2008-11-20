@@ -19,8 +19,7 @@ public class NodeFigure extends RoundedRectangle {
 	private int sourceIndex;
 	private boolean hasTags;
 	private Color bgcolor;
-	
-//	private List connections = null;
+	private boolean selected;
 	
 	public NodeFigure(Node node, Color bgcolor, Color fgcolor) {
 		this.node = node;
@@ -51,19 +50,6 @@ public class NodeFigure extends RoundedRectangle {
 		return node;
 	}
 	
-//	public int addConnection(PolylineConnection c, Node source) {
-//		if(connections == null)
-//			connections = new ArrayList();
-//		connections.add(c);
-//		NodeTooltipFigure tt = (NodeTooltipFigure) getToolTip();
-//		tt.addSource(source);
-//		return connections.size();
-//	}
-//	
-//	public List getConnections() {
-//		return connections;
-//	}
-	
 	public void addTag(Node source) {
 		NodeTooltipFigure tt = (NodeTooltipFigure) getToolTip();
 		tt.addTag(source);
@@ -88,10 +74,15 @@ public class NodeFigure extends RoundedRectangle {
 	}
 	
 	public void setSelected(boolean selected) {
+		this.selected = selected;
 		if(selected)
 			setBackgroundColor(ColorConstants.white);
 		else
 			setBackgroundColor(bgcolor);
+	}
+	
+	public boolean isSelected() {
+		return selected;
 	}
 	
 }

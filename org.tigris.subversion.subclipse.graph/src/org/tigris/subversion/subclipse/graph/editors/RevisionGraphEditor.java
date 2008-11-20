@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.gef.ContextMenuProvider;
+import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.MouseWheelHandler;
@@ -16,15 +17,12 @@ import org.eclipse.gef.editparts.ZoomManager;
 import org.eclipse.gef.ui.actions.ActionRegistry;
 import org.eclipse.gef.ui.actions.ZoomInAction;
 import org.eclipse.gef.ui.actions.ZoomOutAction;
-import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
+import org.eclipse.gef.ui.parts.GraphicalEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.tigris.subversion.subclipse.graph.cache.Cache;
@@ -34,10 +32,9 @@ import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageCallback;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
-public class RevisionGraphEditor extends EditorPart {
+public class RevisionGraphEditor extends GraphicalEditor {
 
 	private OverviewOutlinePage overviewOutlinePage;
-	private ScrollingGraphicalViewer viewer;
 
 	private ActionRegistry actionRegistry;
 	
@@ -46,6 +43,11 @@ public class RevisionGraphEditor extends EditorPart {
 	public final static int SHOW_DELETED_MODIFIED = 0;
 	public final static int SHOW_DELETED_YES = 1;
 	public final static int SHOW_DELETED_NO = 2;
+
+	public RevisionGraphEditor() {
+		super();
+		setEditDomain(new DefaultEditDomain(this));
+	}
 
 	public ActionRegistry getActionRegistry() {
 		if (actionRegistry == null)
@@ -58,9 +60,8 @@ public class RevisionGraphEditor extends EditorPart {
 	
 	public void showGraphFor(IResource resource) {
 		setPartName(resource.getName()+" revision graph");
-//		setContentDescription("Revision graph for "+resource.getName());
 		GraphBackgroundTask task =
-			new GraphBackgroundTask(getSite().getPart(), viewer, this, resource);
+			new GraphBackgroundTask(getSite().getPart(), getGraphicalViewer(), this, resource);
 		try {
 			task.run();
 		} catch (Exception e) {
@@ -72,8 +73,8 @@ public class RevisionGraphEditor extends EditorPart {
 	public void showGraphFor(RevisionGraphEditorInput editorInput) {
 		setPartName(editorInput.getName() + " revision graph");
 		GraphBackgroundTask task;
-		if (editorInput.getResource() == null) task = new GraphBackgroundTask(getSite().getPart(), viewer, this, editorInput.getRemoteResource());
-		else task = new GraphBackgroundTask(getSite().getPart(), viewer, this, editorInput.getResource());
+		if (editorInput.getResource() == null) task = new GraphBackgroundTask(getSite().getPart(), getGraphicalViewer(), this, editorInput.getRemoteResource());
+		else task = new GraphBackgroundTask(getSite().getPart(), getGraphicalViewer(), this, editorInput.getResource());
 		try {
 			task.run();
 		} catch (Exception e) {
@@ -85,20 +86,59 @@ public class RevisionGraphEditor extends EditorPart {
 	public Object getAdapter(Class adapter) {
 		if(adapter == GraphicalViewer.class ||
 				adapter == EditPartViewer.class) {
-			return viewer;
+			return getGraphicalViewer();
 		} else if(adapter == ZoomManager.class) {
-			return ((ScalableRootEditPart) viewer.getRootEditPart()).getZoomManager();
+			return ((ScalableRootEditPart) getGraphicalViewer().getRootEditPart()).getZoomManager();
 		} else if (adapter == IContentOutlinePage.class) {
 			return getOverviewOutlinePage();
 		}
 		return super.getAdapter(adapter);
 	}
+
+	public void refresh() {
+		getGraphicalViewer().setContents("Loading graph... This can take several minutes");
+		showGraphFor((RevisionGraphEditorInput)getEditorInput());
+	}
+
+	public void doSave(IProgressMonitor monitor) {
+	}
+
+	public void doSaveAs() {
+	}
+
+	public void init(IEditorSite site, IEditorInput input)
+			throws PartInitException {
+		setSite(site);
+		setInput(input);
+	}
+
+	public boolean isDirty() {
+		return false;
+	}
+
+	public boolean isSaveAsAllowed() {
+		return false;
+	}
 	
-	public void createPartControl(Composite parent) {
-		GC gc = new GC(parent);
-		gc.setAntialias(SWT.ON);
-		viewer = new ScrollingGraphicalViewer();
-		viewer.createControl(parent);
+	public GraphicalViewer getViewer() {
+		return getGraphicalViewer();
+	}
+	
+	protected OverviewOutlinePage getOverviewOutlinePage() {
+		if(null == overviewOutlinePage && null != getGraphicalViewer()) {
+			RootEditPart rootEditPart = getGraphicalViewer().getRootEditPart();
+			if(rootEditPart instanceof ScalableRootEditPart) {
+				overviewOutlinePage =
+					new OverviewOutlinePage(
+							(ScalableRootEditPart) rootEditPart);
+			}
+		}
+		return overviewOutlinePage;
+	}
+
+	protected void configureGraphicalViewer() {
+		super.configureGraphicalViewer();
+		GraphicalViewer viewer = getGraphicalViewer();
 		ScalableRootEditPart root = new ScalableRootEditPart();
 		viewer.setRootEditPart(root);
 		viewer.setEditPartFactory(new GraphEditPartFactory(viewer));
@@ -106,7 +146,6 @@ public class RevisionGraphEditor extends EditorPart {
 		ContextMenuProvider cmProvider = new RevisionGraphMenuProvider(viewer, this);
 		viewer.setContextMenu(cmProvider);
 		getSite().setSelectionProvider(viewer);
-//		getSite().registerContextMenu(cmProvider, viewer);
 		IEditorInput input = getEditorInput();
 		if(input instanceof FileEditorInput) {
 			FileEditorInput fileEditorInput = (FileEditorInput) input;
@@ -134,47 +173,11 @@ public class RevisionGraphEditor extends EditorPart {
 		viewer.setProperty(MouseWheelHandler.KeyGenerator.getKey(SWT.MOD1),
 				MouseWheelZoomHandler.SINGLETON);
 	}
-	
-	public void refresh() {
-		viewer.setContents("Loading graph... This can take several minutes");
-		showGraphFor((RevisionGraphEditorInput)getEditorInput());
-	}
 
-	public void doSave(IProgressMonitor monitor) {
-	}
-
-	public void doSaveAs() {
-	}
-
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
-		setSite(site);
-		setInput(input);
-	}
-
-	public boolean isDirty() {
-		return false;
-	}
-
-	public boolean isSaveAsAllowed() {
-		return false;
+	protected void initializeGraphicalViewer() {
 	}
 	
-	public ScrollingGraphicalViewer getViewer() {
-		return viewer;
-	}
 	
-	protected OverviewOutlinePage getOverviewOutlinePage() {
-		if(null == overviewOutlinePage && null != viewer) {
-			RootEditPart rootEditPart = viewer.getRootEditPart();
-			if(rootEditPart instanceof ScalableRootEditPart) {
-				overviewOutlinePage =
-					new OverviewOutlinePage(
-							(ScalableRootEditPart) rootEditPart);
-			}
-		}
-		return overviewOutlinePage;
-	}
 
 } class WorkMonitorListener implements WorkListener {
 	
@@ -191,9 +194,7 @@ public class RevisionGraphEditor extends EditorPart {
 	}
 
 } class CallbackUpdater implements ISVNLogMessageCallback {
-	
-//	private List messages = new ArrayList();
-	
+
 	private Cache cache;
 	private IProgressMonitor monitor;
 	private int unitWork;
@@ -215,19 +216,8 @@ public class RevisionGraphEditor extends EditorPart {
 			} catch (SVNClientException e) {}
 			return;
 		}
-//		messages.add(message);
-//		monitor.worked(unitWork);
 		cache.update(message);
 		monitor.worked(unitWork);
 	}
-	
-//	public void writeMessages() {
-//		Iterator iter = messages.iterator();
-//		while (iter.hasNext()) {
-//			ISVNLogMessage message = (ISVNLogMessage)iter.next();
-//			cache.update(message);
-//			monitor.worked(unitWork);
-//		}
-//	}
 
 }

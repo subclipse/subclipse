@@ -7,7 +7,6 @@ import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.subclipse.graph.editors.GraphBackgroundTask;
-import org.tigris.subversion.subclipse.graph.editors.NodeFigure;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditor;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditorInput;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -18,10 +17,10 @@ public class RefreshNodeAction extends Action {
 	private Node node;
 	private RevisionGraphEditor editor;
 
-	public RefreshNodeAction(NodeFigure nodeFigure, RevisionGraphEditor editor) {
+	public RefreshNodeAction(Node node, RevisionGraphEditor editor) {
 		super();
 		this.editor = editor;
-		node = nodeFigure.getNode();
+		this.node = node;
 		setText(Policy.bind("RefreshNodeAction.title")); //$NON-NLS-1$
 	}
 	

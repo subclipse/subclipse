@@ -1,9 +1,15 @@
 package org.tigris.subversion.subclipse.graph.editors;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.gef.ContextMenuProvider;
+import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartViewer;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
+import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.subclipse.graph.popup.actions.BranchTagAction;
 import org.tigris.subversion.subclipse.graph.popup.actions.ImageAction;
 import org.tigris.subversion.subclipse.graph.popup.actions.RefreshNodeAction;
@@ -19,16 +25,29 @@ public class RevisionGraphMenuProvider extends ContextMenuProvider {
 	}
 
 	public void buildContextMenu(IMenuManager menu) {
-		GraphEditPart2 graphEditPart = (GraphEditPart2)getViewer().getContents();
-		NodeFigure nodeFigure = graphEditPart.getSelectedNode();
-		if (nodeFigure != null) {
-			menu.add(new RevisionDetailsAction(nodeFigure, editor));
+		List selectedRevisions = getSelectedRevisions();
+		if (selectedRevisions.size() == 1) {
+			RevisionEditPart revision = (RevisionEditPart)selectedRevisions.get(0);
+			Node node = (Node)revision.getModel();
+			NodeFigure nodeFigure = (NodeFigure)revision.getFigure();
+			menu.add(new RevisionDetailsAction(node, editor));
 			menu.add(new SetCommitPropertiesAction(nodeFigure, editor));
-			menu.add(new BranchTagAction("Create Branch/Tag from Revision " + nodeFigure.getNode().getRevision() + "...", editor, nodeFigure));
-			menu.add(new RefreshNodeAction(nodeFigure, editor));		
+			menu.add(new BranchTagAction("Create Branch/Tag from Revision " + node.getRevision() + "...", editor, node));
+			menu.add(new RefreshNodeAction(node, editor));		
 		}
 		menu.add(new Separator());
 		menu.add(new ImageAction(editor));
+	}
+	
+	private List getSelectedRevisions() {
+		List selectedRevisions = new ArrayList();
+		List selectedEditParts = getViewer().getSelectedEditParts();
+		Iterator iter = selectedEditParts.iterator();
+		while (iter.hasNext()) {
+			EditPart editPart = (EditPart)iter.next();
+			if (editPart instanceof RevisionEditPart) selectedRevisions.add(editPart);
+		}
+		return selectedRevisions;
 	}
 
 }

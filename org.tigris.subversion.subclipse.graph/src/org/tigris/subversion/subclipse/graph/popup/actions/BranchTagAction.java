@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.Alias;
-import org.tigris.subversion.subclipse.graph.editors.NodeFigure;
+import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditor;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditorInput;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -22,12 +22,12 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class BranchTagAction extends Action {
 	private RevisionGraphEditor editor;
-	private NodeFigure nodeFigure;
+	private Node node;
 
-	public BranchTagAction(String text, RevisionGraphEditor editor, NodeFigure nodeFigure) {
+	public BranchTagAction(String text, RevisionGraphEditor editor, Node node) {		
 		super(text);
 		this.editor = editor;
-		this.nodeFigure = nodeFigure;
+		this.node = node;
 	}
 
 	public void run() {
@@ -41,7 +41,7 @@ public class BranchTagAction extends Action {
 			IResource[] resources = { resource };
 			wizard = new BranchTagWizard(resources);
 		}
-		wizard.setRevisionNumber(nodeFigure.getNode().getRevision());
+		wizard.setRevisionNumber(node.getRevision());
     	WizardDialog dialog = new ClosableWizardDialog(Display.getDefault().getActiveShell(), wizard);
     	if (dialog.open() == WizardDialog.OK) {	
             final SVNUrl sourceUrl = wizard.getUrl();

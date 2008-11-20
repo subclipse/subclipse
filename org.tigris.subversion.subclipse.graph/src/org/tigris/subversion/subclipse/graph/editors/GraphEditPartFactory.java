@@ -4,8 +4,8 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
+import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
-import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.tigris.subversion.subclipse.graph.cache.Branch;
 import org.tigris.subversion.subclipse.graph.cache.Graph;
 import org.tigris.subversion.subclipse.graph.cache.Node;
@@ -13,9 +13,9 @@ import org.tigris.subversion.subclipse.graph.cache.Path;
 
 public class GraphEditPartFactory implements EditPartFactory {
 	
-	private ScrollingGraphicalViewer viewer;
+	private GraphicalViewer viewer;
 	
-	public GraphEditPartFactory(ScrollingGraphicalViewer viewer) {
+	public GraphEditPartFactory(GraphicalViewer viewer) {
 		this.viewer = viewer;
 	}
 
@@ -32,7 +32,7 @@ public class GraphEditPartFactory implements EditPartFactory {
 				}
 			};
 		} else if (model instanceof Graph) {
-			editPart = new GraphEditPart2((Graph) model, viewer);
+			editPart = new GraphEditPart2(viewer);
 		} else if (model instanceof Branch) {
 			editPart = new BranchEditPart();
 		} else if (model instanceof Path) {

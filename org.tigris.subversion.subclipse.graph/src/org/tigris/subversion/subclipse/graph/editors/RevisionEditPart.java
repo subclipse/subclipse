@@ -42,11 +42,21 @@ public class RevisionEditPart extends AbstractGraphicalEditPart {
 		return nodeFigure;
 	}
 
+	protected void refreshVisuals() {
+		Node node = (Node)getModel();
+		GraphEditPart2 graphEditPart = (GraphEditPart2)getParent().getParent();
+		NodeFigure nodeFigure = graphEditPart.getNodeFigure(node);
+		nodeFigure.setSelected(getSelected() != SELECTED_NONE);
+		graphEditPart.setConnectionVisibility();
+	}
+
 	protected void createEditPolicies() {
 		installEditPolicy(EditPolicy.SELECTION_FEEDBACK_ROLE, new SelectionEditPolicy() {
 			protected void hideSelection() {
+				refreshVisuals();
 			}
 			protected void showSelection() {
+				refreshVisuals();				
 			}
 		});
 	}

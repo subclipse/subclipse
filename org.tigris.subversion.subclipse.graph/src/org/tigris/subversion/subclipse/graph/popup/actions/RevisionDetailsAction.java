@@ -12,7 +12,6 @@ import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.graph.cache.Node;
-import org.tigris.subversion.subclipse.graph.editors.NodeFigure;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditor;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditorInput;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -23,18 +22,16 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class RevisionDetailsAction extends Action {
-	private NodeFigure nodeFigure;
 	private Node node;
 	private RevisionGraphEditor editor;
 	private ISVNRemoteResource remoteResource;
 	private ILogEntry logEntry;
 	private boolean includeTags;
 
-	public RevisionDetailsAction(NodeFigure nodeFigure, RevisionGraphEditor editor) {
+	public RevisionDetailsAction(Node node, RevisionGraphEditor editor) {
 		super();
-		this.nodeFigure = nodeFigure;
+		this.node = node;
 		this.editor = editor;
-		node = nodeFigure.getNode();
 		setText("Revision info...");		
 	}
 	
@@ -48,7 +45,6 @@ public class RevisionDetailsAction extends Action {
 					RevisionGraphEditorInput input = (RevisionGraphEditorInput)editor.getEditorInput();
 					ISVNInfo info = input.getInfo();
 					ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(info.getRepository().toString());
-//					remoteResource = repository.getRemoteFile(node.getPath());
 					
 					remoteResource = new RemoteFile(repository, new SVNUrl(repository.getLocation() + node.getPath()), new SVNRevision.Number(node.getRevision()));
 					

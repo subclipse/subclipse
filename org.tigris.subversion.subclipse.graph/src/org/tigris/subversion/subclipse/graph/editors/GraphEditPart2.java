@@ -24,8 +24,8 @@ import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.EditPolicy;
+import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
-import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.Color;
 import org.tigris.subversion.subclipse.graph.Activator;
@@ -34,18 +34,15 @@ import org.tigris.subversion.subclipse.graph.cache.Cache;
 import org.tigris.subversion.subclipse.graph.cache.Graph;
 import org.tigris.subversion.subclipse.graph.cache.Node;
 
-public class GraphEditPart2 extends AbstractGraphicalEditPart implements MouseListener {
-	private Graph graph;
-	private NodeFigure selected;
-	private ScrollingGraphicalViewer viewer;
+public class GraphEditPart2 extends AbstractGraphicalEditPart {
+	private GraphicalViewer viewer;
 	private Map branchMap = new HashMap();
 	private Map nodeMap = new HashMap();
 	private List connections = new ArrayList();
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-	public GraphEditPart2(Graph graph, ScrollingGraphicalViewer viewer) {
+	public GraphEditPart2(GraphicalViewer viewer) {		
 		super();
-		this.graph = graph;
 		this.viewer = viewer;
 	}
 
@@ -121,7 +118,6 @@ public class GraphEditPart2 extends AbstractGraphicalEditPart implements MouseLi
 				Color bgcolor = Activator.BG_COLORS[mod];
 				Color fgcolor = Activator.FG_COLORS[mod];
 				NodeFigure nodeFigure = new NodeFigure(node, bgcolor, fgcolor);
-				nodeFigure.addMouseListener(this);
 				nodeMap.put(node, nodeFigure);
 			}
 		}
@@ -170,18 +166,19 @@ public class GraphEditPart2 extends AbstractGraphicalEditPart implements MouseLi
 			}
 		}
 
-		Branch selectedBranch = graph.getBranch(graph.getSelectedPath());
-		if (selectedBranch != null) {
-			Node n = selectedBranch.getSource(graph.getSelectedRevision());
-			NodeFigure nodeFigure = (NodeFigure)nodeMap.get(n);
-			if(nodeFigure != null) {
-				selectNode(nodeFigure);
-				// FIXME: it doesn't work
-//				scrollTo((Rectangle) contentsLayout.getConstraint(nodeFigure)); 
-			}
-		}
+// TODO: Preserve selections
+//		Branch selectedBranch = graph.getBranch(graph.getSelectedPath());
+//		if (selectedBranch != null) {
+//			Node n = selectedBranch.getSource(graph.getSelectedRevision());
+//			NodeFigure nodeFigure = (NodeFigure)nodeMap.get(n);
+//			if(nodeFigure != null) {
+//				selectNode(nodeFigure);
+//				// FIXME: it doesn't work
+////				scrollTo((Rectangle) contentsLayout.getConstraint(nodeFigure)); 
+//			}
+//		}
 		
-		setConnectionVisibility(selected);
+		setConnectionVisibility();
 		
 		return branches;
 	}
@@ -212,30 +209,22 @@ public class GraphEditPart2 extends AbstractGraphicalEditPart implements MouseLi
 		super.refreshVisuals();
 	}
 	
-	public void setConnectionVisibility(NodeFigure figure) {
+	public void setConnectionVisibility() {
 		Iterator iter = connections.iterator();
 		while (iter.hasNext()) {
 			PolylineConnection con = (PolylineConnection)iter.next();
-			boolean show = !store.getBoolean(RevisionGraphEditor.FILTER_CONNECTIONS) || (con.getSourceAnchor().getOwner() == figure || con.getTargetAnchor().getOwner() == figure);
+			boolean show = false;
+			if (!store.getBoolean(RevisionGraphEditor.FILTER_CONNECTIONS)) show = true;
+			else {
+				IFigure source =con.getSourceAnchor().getOwner();
+				IFigure target = con.getTargetAnchor().getOwner();
+				if (source instanceof NodeFigure && ((NodeFigure)source).isSelected()) show = true;
+				else if (target instanceof NodeFigure && ((NodeFigure)target).isSelected()) show = true;
+			}
 			con.setVisible(show);
 		}		
 	}
-	
-	private void selectNode(NodeFigure figure) {
-		setConnectionVisibility(figure);
-		
-		if(selected != null)
-			selected.setSelected(false);
-		figure.setSelected(true);
-		selected = figure;
-		if (figure == null) graph.setSelectedNode(null);
-		else graph.setSelectedNode(figure.getNode());
-	}	
 
-	public NodeFigure getSelectedNode() {
-		return selected;
-	}	
-	
 	private PolylineConnection makeConnection(IFigure contents, IFigure source, NodeFigure target) {
 		return makeConnection(contents, source, target, Activator.CONNECTION_COLOR);
 	}
@@ -276,20 +265,7 @@ public class GraphEditPart2 extends AbstractGraphicalEditPart implements MouseLi
 	private void scrollTo(IFigure target) {
 		scrollTo(target.getBounds());
 	}
-	
-	public void mouseDoubleClicked(MouseEvent event) {
-	}
 
-	public void mousePressed(MouseEvent event) {
-	}
-
-	public void mouseReleased(MouseEvent event) {
-		Object source = event.getSource();
-		if (source instanceof NodeFigure) {
-			selectNode((NodeFigure) source);
-		}
-	}
-	
 	class ConnectionMouseListener implements MouseMotionListener, MouseListener {
 
 		private PolylineConnection connection;
@@ -324,7 +300,7 @@ public class GraphEditPart2 extends AbstractGraphicalEditPart implements MouseLi
 		public void mouseReleased(MouseEvent event) {
 			NodeFigure nodeFigure = (NodeFigure) connection.getTargetAnchor().getOwner();
 			scrollTo(nodeFigure);
-			selectNode(nodeFigure);
+//			selectNode(nodeFigure);
 		}
 
 	} class MyXYAnchor extends XYAnchor {

@@ -69,7 +69,7 @@ public class GraphActionBarContributor extends ActionBarContributor {
         	public void run() {
         		store.setValue(RevisionGraphEditor.FILTER_CONNECTIONS, isChecked());
         		GraphEditPart2 graphEditPart = (GraphEditPart2)editor.getViewer().getContents();
-        		graphEditPart.setConnectionVisibility(graphEditPart.getSelectedNode());
+        		graphEditPart.setConnectionVisibility();
         	}
         };
         filterConnectionsAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_FILTER_CONNECTIONS));
