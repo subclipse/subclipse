@@ -1,12 +1,18 @@
 package org.tigris.subversion.subclipse.graph.cache;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Node implements Serializable {
+import org.eclipse.ui.views.properties.IPropertyDescriptor;
+import org.eclipse.ui.views.properties.IPropertySource;
+import org.eclipse.ui.views.properties.PropertyDescriptor;
+
+public class Node implements Serializable, IPropertySource {
 	
 	private static final long serialVersionUID = 2835522933811459843L;
 	
@@ -31,6 +37,32 @@ public class Node implements Serializable {
 	
 	private transient Branch branch;
 	private transient int index;
+	
+	private static DateFormat dateFormat;
+
+	public static String P_ID_ACTION = "action";
+	public static String P_ACTION = "Action";
+	public static String P_ID_PATH = "path";
+	public static String P_PATH = "Path";	
+	public static String P_ID_DATE = "date";
+	public static String P_DATE = "Date";	
+	public static String P_ID_AUTHOR = "author";
+	public static String P_AUTHOR = "Author";
+	public static String P_ID_FROM = "from";
+	public static String P_FROM = "From";	
+	public static String P_ID_MSG = "msg";
+	public static String P_MSG = "Message";	
+	public static List descriptors;
+	static
+	{	
+		descriptors = new ArrayList();
+		descriptors.add(new PropertyDescriptor(P_ID_ACTION, P_ACTION));
+		descriptors.add(new PropertyDescriptor(P_ID_PATH, P_PATH));
+		descriptors.add(new PropertyDescriptor(P_ID_DATE, P_DATE));
+		descriptors.add(new PropertyDescriptor(P_ID_AUTHOR, P_AUTHOR));
+		descriptors.add(new PropertyDescriptor(P_ID_MSG, P_MSG));
+		descriptors.add(new PropertyDescriptor(P_ID_FROM, P_FROM));
+	}		
 
 	public Node() {
 	}
@@ -175,5 +207,66 @@ public class Node implements Serializable {
 	public int getIndex() {
 		return index;
 	}
+	
+	public Object getEditableValue() {
+		return "r" + revision;
+	}
+
+	public IPropertyDescriptor[] getPropertyDescriptors() {
+		return (IPropertyDescriptor[])getDescriptors().toArray(new IPropertyDescriptor[getDescriptors().size()]);
+	}
+	
+	private static List getDescriptors() {
+		return descriptors;
+	}	
+
+	public Object getPropertyValue(Object propKey) {
+		if (P_ID_MSG.equals(propKey)) {
+			if (message != null) {
+				return message;
+			}
+		}
+		if (P_ID_AUTHOR.equals(propKey)) {
+			if (author != null) {
+				return author;
+			}
+		}
+		if (P_ID_ACTION.equals(propKey)) {
+			return action + "";
+		}
+		if (P_ID_PATH.equals(propKey)) {
+			if (path != null) {
+				return path;
+			}
+		}
+		if (P_ID_FROM.equals(propKey)) {
+			if (copySrcPath != null) {
+				return "r"+Long.toString(copySrcRevision)+" "+copySrcPath;
+			}
+		}
+		if (P_ID_DATE.equals(propKey)) {
+			if (revisionDate != null) {
+				return getDateFormat().format(revisionDate);
+			}
+		}
+		return "";
+	}
+
+	public boolean isPropertySet(Object arg0) {
+		return false;
+	}
+
+	public void resetPropertyValue(Object arg0) {		
+	}
+
+	public void setPropertyValue(Object arg0, Object arg1) {
+	}
+	
+	private static DateFormat getDateFormat() {
+		if(dateFormat == null) {
+			dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+		}
+		return dateFormat;
+	}	
 	
 }
