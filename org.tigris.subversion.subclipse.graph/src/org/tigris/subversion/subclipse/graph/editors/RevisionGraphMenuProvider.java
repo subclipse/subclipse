@@ -11,6 +11,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.subclipse.graph.popup.actions.BranchTagAction;
+import org.tigris.subversion.subclipse.graph.popup.actions.CompareRevisionsAction;
 import org.tigris.subversion.subclipse.graph.popup.actions.ImageAction;
 import org.tigris.subversion.subclipse.graph.popup.actions.RefreshNodeAction;
 import org.tigris.subversion.subclipse.graph.popup.actions.RevisionDetailsAction;
@@ -34,6 +35,14 @@ public class RevisionGraphMenuProvider extends ContextMenuProvider {
 			menu.add(new SetCommitPropertiesAction(nodeFigure, editor));
 			menu.add(new BranchTagAction("Create Branch/Tag from Revision " + node.getRevision() + "...", editor, node));
 			menu.add(new RefreshNodeAction(node, editor));		
+		}
+		menu.add(new Separator());
+		if (selectedRevisions.size() == 2) {
+			RevisionEditPart revision1 = (RevisionEditPart)selectedRevisions.get(0);
+			Node node1 = (Node)revision1.getModel();
+			RevisionEditPart revision2 = (RevisionEditPart)selectedRevisions.get(1);
+			Node node2 = (Node)revision2.getModel();
+			menu.add(new CompareRevisionsAction(node1, node2, editor));
 		}
 		menu.add(new Separator());
 		menu.add(new ImageAction(editor));
