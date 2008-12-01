@@ -354,6 +354,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
             }
         }
         keepLocks = keepLocksButton.getSelection();
+        selectedResources = resourceSelectionTree.getSelectedResources();
 		return true;
 	}
 	
@@ -464,6 +465,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	}
 
 	private boolean canFinish() {
+		selectedResources = resourceSelectionTree.getSelectedResources();
 		if( selectedResources.length == 0 )
 		{
 			return false;
