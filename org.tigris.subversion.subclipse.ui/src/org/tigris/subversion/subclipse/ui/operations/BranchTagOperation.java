@@ -10,8 +10,13 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.operations;
 
+import java.util.HashSet;
+
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -56,7 +61,7 @@ public class BranchTagOperation extends RepositoryProviderOperation {
     }
 
     protected void execute(SVNTeamProvider provider, IResource[] resources, IProgressMonitor monitor) throws SVNException, InterruptedException {
-        if (branchCreated) return;
+    	if (branchCreated) return;
         branchCreated = true;
     	monitor.beginTask(null, 100);
 		try {			
@@ -93,6 +98,17 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 			monitor.done();
 		}         
     }
+    
+	protected ISchedulingRule getSchedulingRule(SVNTeamProvider provider) {
+		IResource[] resources = getResources();
+		if (resources == null) return super.getSchedulingRule(provider);
+		IResourceRuleFactory ruleFactory = provider.getRuleFactory();
+		HashSet rules = new HashSet();
+		for (int i = 0; i < resources.length; i++) {
+			rules.add(ruleFactory.modifyRule(resources[i].getProject()));
+		}
+		return MultiRule.combine((ISchedulingRule[]) rules.toArray(new ISchedulingRule[rules.size()]));
+	}
     
     private void updateBranchTagProperty(IResource resource) {
 		AliasManager aliasManager = new AliasManager(resource, false);
