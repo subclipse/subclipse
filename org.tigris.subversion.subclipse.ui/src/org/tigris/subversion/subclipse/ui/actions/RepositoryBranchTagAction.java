@@ -24,6 +24,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.RepositoryBranchTagOperation;
 import org.tigris.subversion.subclipse.ui.wizards.BranchTagWizard;
 import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
+import org.tigris.subversion.subclipse.ui.wizards.SizePersistedWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -33,7 +34,7 @@ public class RepositoryBranchTagAction extends SVNAction {
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		ISVNRemoteResource[] resources = getSelectedRemoteResources();
     	BranchTagWizard wizard = new BranchTagWizard(resources);
-    	WizardDialog dialog = new ClosableWizardDialog(getShell(), wizard);
+    	WizardDialog dialog = new SizePersistedWizardDialog(getShell(), wizard, "BranchTag"); //$NON-NLS-1$
     	if (dialog.open() == WizardDialog.OK) {	
     	  SVNUrl[] sourceUrls = wizard.getUrls();
           SVNUrl destinationUrl = wizard.getToUrl();

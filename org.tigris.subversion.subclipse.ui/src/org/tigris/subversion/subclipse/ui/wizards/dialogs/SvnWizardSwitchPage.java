@@ -86,7 +86,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
     
     private long revisionNumber;
     
-	private String[] columnHeaders = {"Resource"};
+	private String[] columnHeaders = {Policy.bind("SwitchDialog.resources")}; //$NON-NLS-1$
 	private ColumnLayoutData columnLayouts[] = {
 		new ColumnWeightData(100, 100, true)};
 
@@ -214,15 +214,15 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		headButton.addSelectionListener(listener);
 		
 		if (resources.length > 1) {
-			Label label = new Label(composite, SWT.NONE);
-			label.setText(Policy.bind("SwitchDialog.resources"));
-			data = new GridData();
-			data.horizontalSpan = 3;
-			label.setLayoutData(data);
+//			Label label = new Label(composite, SWT.NONE);
+//			label.setText(Policy.bind("SwitchDialog.resources"));
+//			data = new GridData();
+//			data.horizontalSpan = 3;
+//			label.setLayoutData(data);
 			
 			table = new Table(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 			table.setLinesVisible(false);
-			table.setHeaderVisible(false);
+			table.setHeaderVisible(true);
 //			data = new GridData(GridData.FILL_HORIZONTAL);
 //			data.heightHint = 200;
 			data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL);

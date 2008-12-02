@@ -55,7 +55,7 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
     private BranchResource[] branchResources;
     private String commonRoot;
     private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
-	private String[] columnHeaders = {"Resource"};
+	private String[] columnHeaders = {Policy.bind("BranchTagDialog.resources")}; //$NON-NLS-1$
 	private ColumnLayoutData columnLayouts[] = {
 		new ColumnWeightData(100, 100, true)};
 	
@@ -167,12 +167,12 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 			}		
 		});	
 		
-		Label label = new Label(outerContainer, SWT.NONE);
-		label.setText(Policy.bind("BranchTagDialog.resources"));
+//		Label label = new Label(outerContainer, SWT.NONE);
+//		label.setText(Policy.bind("BranchTagDialog.resources"));
 		
 		table = new Table(outerContainer, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		table.setLinesVisible(false);
-		table.setHeaderVisible(false);
+//		table.setLinesVisible(false);
+		table.setHeaderVisible(true);
 		data = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL);
 		data.heightHint = 75;
 		table.setLayoutData(data);
