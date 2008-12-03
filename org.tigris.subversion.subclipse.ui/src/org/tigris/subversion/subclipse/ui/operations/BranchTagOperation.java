@@ -42,6 +42,7 @@ public class BranchTagOperation extends RepositoryProviderOperation {
     private Alias newAlias;
 	private boolean switchAfterTagBranch;
 	private boolean branchCreated = false;
+	private boolean multipleTransactions = true;
 
     public BranchTagOperation(IWorkbenchPart part, IResource[] resources, SVNUrl[] sourceUrls, SVNUrl destinationUrl, boolean createOnServer, SVNRevision revision, String message) {
         super(part, resources);
@@ -67,6 +68,7 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 		try {			
 	    	BranchTagCommand command = new BranchTagCommand(provider.getSVNWorkspaceRoot(),getResources(), sourceUrls, destinationUrl, message, createOnServer, revision);
 	        command.setMakeParents(makeParents);
+	        command.setMultipleTransactions(multipleTransactions);
 	    	command.run(Policy.subMonitorFor(monitor,1000));
 	        if (newAlias != null) updateBranchTagProperty(resources[0]);
 	        if(switchAfterTagBranch) {
@@ -155,6 +157,10 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 
 	public void setMakeParents(boolean makeParents) {
 		this.makeParents = makeParents;
+	}
+	
+	public void setMultipleTransactions(boolean multipleTransactions) {
+		this.multipleTransactions = multipleTransactions;
 	}
 
 }

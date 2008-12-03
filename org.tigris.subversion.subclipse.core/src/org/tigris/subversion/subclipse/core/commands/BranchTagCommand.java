@@ -35,8 +35,10 @@ public class BranchTagCommand implements ISVNCommand {
     private ISVNClientAdapter svnClient;
     
     private SVNWorkspaceRoot root;
+    
+    private boolean multipleTransactions = true;
 
-    public BranchTagCommand(SVNWorkspaceRoot root, IResource[] resources, SVNUrl[] sourceUrls, SVNUrl destinationUrl, String message, boolean createOnServer, SVNRevision revision) {
+	public BranchTagCommand(SVNWorkspaceRoot root, IResource[] resources, SVNUrl[] sourceUrls, SVNUrl destinationUrl, String message, boolean createOnServer, SVNRevision revision) {
         super();
         this.root = root;
         this.resources = resources;
@@ -70,7 +72,7 @@ public class BranchTagCommand implements ISVNCommand {
             	if (copyAsChild) {
             		commonRoot = getCommonRoot();
             	}
-            	if (!copyAsChild || destinationUrl.toString().startsWith(commonRoot))
+            	if (!multipleTransactions || !copyAsChild || destinationUrl.toString().startsWith(commonRoot))
             		svnClient.copy(sourceUrls, destinationUrl, message, revision, copyAsChild, makeParents);
             	else {
             		for (int i = 0; i < sourceUrls.length; i++) {
@@ -94,7 +96,7 @@ public class BranchTagCommand implements ISVNCommand {
             	if (copyAsChild) {
             		commonRoot = getCommonRoot();
             	}
-            	if (!copyAsChild || destinationUrl.toString().startsWith(commonRoot))  
+            	if (!multipleTransactions || !copyAsChild || destinationUrl.toString().startsWith(commonRoot))  
             		try {
             			svnClient.copy(files, destinationUrl, message, copyAsChild, makeParents);
             		} catch (IllegalArgumentException ex) {
@@ -126,6 +128,10 @@ public class BranchTagCommand implements ISVNCommand {
 
 	public void setMakeParents(boolean makeParents) {
 		this.makeParents = makeParents;
+	}
+	
+    public void setMultipleTransactions(boolean multipleTransactions) {
+		this.multipleTransactions = multipleTransactions;
 	}
 	
 	private String getCommonRoot() {

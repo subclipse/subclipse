@@ -15,8 +15,9 @@ public class RepositoryBranchTagOperation extends SVNOperation {
     private SVNUrl destinationUrl;
     private SVNRevision revision;
     private boolean makeParents;
-    private String message;	
-	
+    private String message;
+    private boolean multipleTransactions = true;
+
 	public RepositoryBranchTagOperation(IWorkbenchPart part, ISVNClientAdapter svnClient, SVNUrl[] sourceUrls, SVNUrl destinationUrl, SVNRevision revision, String message, boolean makeParents) {
 		super(part);
 		this.svnClient = svnClient;
@@ -32,12 +33,17 @@ public class RepositoryBranchTagOperation extends SVNOperation {
 		try {	
 			BranchTagCommand command = new BranchTagCommand(svnClient, null, sourceUrls, destinationUrl, message, true, revision);
 	        command.setMakeParents(makeParents);
+	        command.setMultipleTransactions(multipleTransactions);
 	    	command.run(Policy.subMonitorFor(monitor,1000));
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		} finally {
 			monitor.done();
 		}         
+	}
+	
+	public void setMultipleTransactions(boolean multipleTransactions) {
+		this.multipleTransactions = multipleTransactions;
 	}
 
 	protected String getTaskName() {

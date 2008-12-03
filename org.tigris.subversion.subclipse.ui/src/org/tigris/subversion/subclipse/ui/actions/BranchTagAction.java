@@ -42,6 +42,7 @@ public class BranchTagAction extends WorkbenchWindowAction {
         		boolean createOnServer = wizard.isCreateOnServer();
 	            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrls, destinationUrl, createOnServer, wizard.getRevision(), message);
 	            branchTagOperation.setMakeParents(wizard.isMakeParents());
+	            branchTagOperation.setMultipleTransactions(wizard.isSameStructure());
 	            branchTagOperation.setNewAlias(wizard.getNewAlias());
 	            branchTagOperation.switchAfterTagBranchOperation(wizard.isSwitchAfterBranchTag());
 	            branchTagOperation.run();        		

@@ -33,6 +33,7 @@ public class BranchTagWizard extends Wizard {
     private long revisionNumber = 0;
     private String comment;
     private boolean alreadyExists;
+    private boolean sameStructure;
 
 	public BranchTagWizard(IResource[] resources) {
 		super();
@@ -76,6 +77,7 @@ public class BranchTagWizard extends Wizard {
         repositoryPage.saveUrl();
         createOnServer = !copyPage.workingCopyButton.getSelection();
         makeParents = repositoryPage.makeParentsButton.getSelection();
+        sameStructure = repositoryPage.sameStructureButton != null && repositoryPage.sameStructureButton.getSelection();
         if(commentPage.switchAfterBranchTagCheckBox != null) {
         	switchAfterBranchTag = commentPage.switchAfterBranchTagCheckBox.getSelection();
         }
@@ -191,6 +193,10 @@ public class BranchTagWizard extends Wizard {
 
 	public boolean isMakeParents() {
 		return makeParents;
+	}
+	
+	public boolean isSameStructure() {
+		return sameStructure;
 	}
 
 	public Alias getNewAlias() {

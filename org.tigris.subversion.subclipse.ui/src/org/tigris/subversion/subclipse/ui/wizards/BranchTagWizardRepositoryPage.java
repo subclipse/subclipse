@@ -46,6 +46,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 public class BranchTagWizardRepositoryPage extends SVNWizardPage {
     private UrlCombo toUrlCombo;
     protected Button makeParentsButton;
+    protected Button sameStructureButton;
 	private Table table;
 	private TableViewer viewer; 
     private IResource[] resources;
@@ -167,6 +168,21 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 			}		
 		});	
 		
+		if (multipleSelections() && !sameParents()) {
+			sameStructureButton = new Button(urlComposite, SWT.CHECK);
+			sameStructureButton.setText(Policy.bind("BranchTagDialog.sameStructure")); //$NON-NLS-1$  
+			data = new GridData();
+			data.horizontalSpan = 2;
+			sameStructureButton.setLayoutData(data);	
+			sameStructureButton.setSelection(settings.getBoolean("BranchTagDialog.sameStructure")); //$NON-NLS-1$  
+			sameStructureButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					settings.put("BranchTagDialog.sameStructure", sameStructureButton.getSelection()); //$NON-NLS-1$ 
+					viewer.refresh();
+				}		
+			});	
+		}
+		
 //		Label label = new Label(outerContainer, SWT.NONE);
 //		label.setText(Policy.bind("BranchTagDialog.resources"));
 		
@@ -204,6 +220,16 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 	
 	private boolean multipleSelections() {
 		return (resources != null && resources.length > 1) || (remoteResources != null && remoteResources.length > 1);
+	}
+	
+	private boolean sameParents() {
+		for (int i = 0; i < branchResources.length; i++) {
+			String name = null;
+			if (branchResources[i].getResource() == null) name = branchResources[i].getRemoteResource().getName();
+			else name = branchResources[i].getResource().getName();
+			if (!branchResources[i].getPartialPath().equals(name)) return false;
+		}
+		return true;
 	}
 	
 	public String getCommonRoot() {
@@ -318,7 +344,16 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 		
 		public String getText(Object element) {
 			BranchResource branchResource = (BranchResource)element;
-			if (multipleSelections()) return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + branchResource.getPartialPath() + "]";
+			if (multipleSelections()) {
+				if (sameStructureButton != null && sameStructureButton.getSelection())
+					return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + branchResource.getPartialPath() + "]";
+				else {
+					String name = null;
+					if (branchResource.getResource() == null) name = branchResource.getRemoteResource().getName();
+					else name = branchResource.getResource().getName();
+					return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + name + "]";
+				}
+			}
 			else return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
 		}
 
