@@ -19,7 +19,6 @@ import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -67,7 +66,22 @@ public class BranchTagCommand implements ISVNCommand {
 //            monitor.subTask("Branch Tag");
             if (createOnServer) {
             	boolean copyAsChild = sourceUrls.length > 1;
-            	svnClient.copy(sourceUrls, destinationUrl, message, revision, copyAsChild, makeParents);
+            	String commonRoot = null;
+            	if (copyAsChild) {
+            		commonRoot = getCommonRoot();
+            	}
+            	if (!copyAsChild || destinationUrl.toString().startsWith(commonRoot))
+            		svnClient.copy(sourceUrls, destinationUrl, message, revision, copyAsChild, makeParents);
+            	else {
+            		for (int i = 0; i < sourceUrls.length; i++) {
+            			String fromUrl = sourceUrls[i].toString();
+            			String uncommonPortion = fromUrl.substring(commonRoot.length());
+            			String toUrl = destinationUrl.toString() + uncommonPortion;
+            			SVNUrl destination = new SVNUrl(toUrl);
+            			SVNUrl[] source = { sourceUrls[i] };
+            			svnClient.copy(source, destination, message, revision, copyAsChild, makeParents);
+            		}
+            	}
             }
             else {
             	File[] files = new File[resources.length];
@@ -76,10 +90,33 @@ public class BranchTagCommand implements ISVNCommand {
 //                File file = resource.getLocation().toFile();
 //                svnClient.copy(file, destinationUrl, message);
             	boolean copyAsChild = files.length > 1;
-            	svnClient.copy(files, destinationUrl, message, copyAsChild, makeParents);
+            	String commonRoot = null;
+            	if (copyAsChild) {
+            		commonRoot = getCommonRoot();
+            	}
+            	if (!copyAsChild || destinationUrl.toString().startsWith(commonRoot))  
+            		try {
+            			svnClient.copy(files, destinationUrl, message, copyAsChild, makeParents);
+            		} catch (IllegalArgumentException ex) {
+            			// Ignore.  Bug in JavaHL results in this error when parent directories are created, even though copy succeeds.
+            		}
+            	else {
+            		for (int i = 0; i < sourceUrls.length; i++) {
+            			String fromUrl = sourceUrls[i].toString();
+            			String uncommonPortion = fromUrl.substring(commonRoot.length());
+            			String toUrl = destinationUrl.toString() + uncommonPortion;
+            			SVNUrl destination = new SVNUrl(toUrl);
+            			File[] source = { files[i] };
+            			try {
+            				svnClient.copy(source, destination, message, copyAsChild, makeParents);
+            			} catch (IllegalArgumentException ex) {
+            				// Ignore.  Bug in JavaHL results in this error when parent directories are created, even though copy succeeds.
+            			}
+            		}            		
+            	}
             }
             monitor.worked(100);
-        } catch (SVNClientException e) {
+        } catch (Exception e) {
             throw SVNException.wrapException(e);
         } finally {
             OperationManager.getInstance().endOperation();
@@ -89,6 +126,22 @@ public class BranchTagCommand implements ISVNCommand {
 
 	public void setMakeParents(boolean makeParents) {
 		this.makeParents = makeParents;
+	}
+	
+	private String getCommonRoot() {
+		String commonRoot = null;
+		String urlString = sourceUrls[0].toString();
+    	tag1:
+        	for (int i = 0; i < urlString.length(); i++) {
+        		String partialPath = urlString.substring(0, i+1);
+        		if (partialPath.endsWith("/")) {
+    	    		for (int j = 1; j < sourceUrls.length; j++) {
+    	    			if (!sourceUrls[j].toString().startsWith(partialPath)) break tag1;
+    	    		}
+    	    		commonRoot = partialPath.substring(0, i);
+        		}
+        	}
+		return commonRoot;
 	}
 
 }
