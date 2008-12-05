@@ -73,8 +73,9 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 	        if (newAlias != null) updateBranchTagProperty(resources[0]);
 	        if(switchAfterTagBranch) {
 	        	for (int i = 0; i < sourceUrls.length; i++) {
-		        	String lastPathSegment = sourceUrls[i].getLastPathSegment();
-		        	SVNUrl switchDestinationUrl = destinationUrl.appendPath(lastPathSegment);
+//		        	String lastPathSegment = sourceUrls[i].getLastPathSegment();
+//		        	SVNUrl switchDestinationUrl = destinationUrl.appendPath(lastPathSegment);
+	        		SVNUrl switchDestinationUrl = command.getDestinationUrl(sourceUrls[i].toString());
 		        	
 		        	// the copy command's destination URL can either be a path to an existing directory
 		        	// or a path to a new directory. In the former case the last path segment of the

@@ -11,6 +11,8 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,12 +25,12 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class BranchTagCommand implements ISVNCommand {
-	// selected resources
-    private IResource[] resources; 
-    
-    private SVNUrl[] sourceUrls;
+	private SVNUrl[] sourceUrls;
     private SVNUrl destinationUrl;
-    private boolean createOnServer;
+    // selected resources
+	private IResource[] resources;
+
+	private boolean createOnServer;
     private String message;
     private SVNRevision revision;
     private boolean makeParents;
@@ -37,6 +39,7 @@ public class BranchTagCommand implements ISVNCommand {
     private SVNWorkspaceRoot root;
     
     private boolean multipleTransactions = true;
+    private Map urlMap = new HashMap();
 
 	public BranchTagCommand(SVNWorkspaceRoot root, IResource[] resources, SVNUrl[] sourceUrls, SVNUrl destinationUrl, String message, boolean createOnServer, SVNRevision revision) {
         super();
@@ -72,15 +75,17 @@ public class BranchTagCommand implements ISVNCommand {
             	if (copyAsChild) {
             		commonRoot = getCommonRoot();
             	}
-            	if (!multipleTransactions || !copyAsChild || destinationUrl.toString().startsWith(commonRoot))
+            	if (!multipleTransactions || !copyAsChild || destinationUrl.toString().startsWith(commonRoot)) {
             		svnClient.copy(sourceUrls, destinationUrl, message, revision, copyAsChild, makeParents);
-            	else {
+            		multipleTransactions = false;
+            	} else {
             		for (int i = 0; i < sourceUrls.length; i++) {
             			String fromUrl = sourceUrls[i].toString();
             			String uncommonPortion = fromUrl.substring(commonRoot.length());
             			String toUrl = destinationUrl.toString() + uncommonPortion;
             			SVNUrl destination = new SVNUrl(toUrl);
             			SVNUrl[] source = { sourceUrls[i] };
+            			urlMap.put(fromUrl, destination);
             			svnClient.copy(source, destination, message, revision, copyAsChild, makeParents);
             		}
             	}
@@ -99,6 +104,7 @@ public class BranchTagCommand implements ISVNCommand {
             	if (!multipleTransactions || !copyAsChild || destinationUrl.toString().startsWith(commonRoot))  
             		try {
             			svnClient.copy(files, destinationUrl, message, copyAsChild, makeParents);
+            			multipleTransactions = false;
             		} catch (IllegalArgumentException ex) {
             			// Ignore.  Bug in JavaHL results in this error when parent directories are created, even though copy succeeds.
             		}
@@ -110,6 +116,7 @@ public class BranchTagCommand implements ISVNCommand {
             			SVNUrl destination = new SVNUrl(toUrl);
             			File[] source = { files[i] };
             			try {
+            				urlMap.put(fromUrl, destination);
             				svnClient.copy(source, destination, message, copyAsChild, makeParents);
             			} catch (IllegalArgumentException ex) {
             				// Ignore.  Bug in JavaHL results in this error when parent directories are created, even though copy succeeds.
@@ -133,6 +140,11 @@ public class BranchTagCommand implements ISVNCommand {
     public void setMultipleTransactions(boolean multipleTransactions) {
 		this.multipleTransactions = multipleTransactions;
 	}
+    
+    public SVNUrl getDestinationUrl(String sourceUrl) {
+    	if (!multipleTransactions) return destinationUrl;
+    	else return (SVNUrl)urlMap.get(sourceUrl);
+    }
 	
 	private String getCommonRoot() {
 		String commonRoot = null;
