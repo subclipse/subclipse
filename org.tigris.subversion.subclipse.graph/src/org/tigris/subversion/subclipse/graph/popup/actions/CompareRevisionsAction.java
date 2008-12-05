@@ -40,11 +40,11 @@ public class CompareRevisionsAction extends Action {
 			ISVNRemoteResource remoteResource1;
 			ISVNRemoteResource remoteResource2;
 			if (isFolder) {
-				remoteResource1 = new RemoteFolder(repository, new SVNUrl(repository.getLocation() + node1.getPath()), new SVNRevision.Number(node1.getRevision()));
-				remoteResource2 = new RemoteFolder(repository, new SVNUrl(repository.getLocation() + node2.getPath()), new SVNRevision.Number(node2.getRevision()));
+				remoteResource1 = new RemoteFolder(repository, new SVNUrl(repository.getLocation() + node1.getBranch().getPath()), new SVNRevision.Number(node1.getRevision()));
+				remoteResource2 = new RemoteFolder(repository, new SVNUrl(repository.getLocation() + node2.getBranch().getPath()), new SVNRevision.Number(node2.getRevision()));
 			} else {
-				remoteResource1 = new RemoteFile(repository, new SVNUrl(repository.getLocation() + node1.getPath()), new SVNRevision.Number(node1.getRevision()));
-				remoteResource2 = new RemoteFile(repository, new SVNUrl(repository.getLocation() + node2.getPath()), new SVNRevision.Number(node2.getRevision()));				
+				remoteResource1 = new RemoteFile(repository, new SVNUrl(repository.getLocation() + node1.getBranch().getPath()), new SVNRevision.Number(node1.getRevision()));
+				remoteResource2 = new RemoteFile(repository, new SVNUrl(repository.getLocation() + node2.getBranch().getPath()), new SVNRevision.Number(node2.getRevision()));				
 			}
 			ISVNRemoteResource[] selectedResources = { remoteResource1, remoteResource2 };
 			DifferencesDialog dialog = new DifferencesDialog(Display.getDefault().getActiveShell(), null, selectedResources, editor.getEditorSite().getPart());
