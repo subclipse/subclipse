@@ -295,12 +295,11 @@ public class GraphEditPart2 extends AbstractGraphicalEditPart {
 		}
 
 		public void mousePressed(MouseEvent event) {
+			NodeFigure nodeFigure = (NodeFigure) connection.getTargetAnchor().getOwner();
+			scrollTo(nodeFigure);
 		}
 
 		public void mouseReleased(MouseEvent event) {
-			NodeFigure nodeFigure = (NodeFigure) connection.getTargetAnchor().getOwner();
-			scrollTo(nodeFigure);
-//			selectNode(nodeFigure);
 		}
 
 	} class MyXYAnchor extends XYAnchor {
