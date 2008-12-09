@@ -46,7 +46,7 @@ public class RevisionGraphEditor extends GraphicalEditor {
 
 	public RevisionGraphEditor() {
 		super();
-		setEditDomain(new DefaultEditDomain(this));
+		setEditDomain(new RevisionGraphEditDomain(this));
 	}
 
 	public ActionRegistry getActionRegistry() {

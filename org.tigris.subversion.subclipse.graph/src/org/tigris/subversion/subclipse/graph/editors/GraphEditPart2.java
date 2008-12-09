@@ -23,6 +23,7 @@ import org.eclipse.draw2d.XYAnchor;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
@@ -297,6 +298,9 @@ public class GraphEditPart2 extends AbstractGraphicalEditPart {
 		public void mousePressed(MouseEvent event) {
 			NodeFigure nodeFigure = (NodeFigure) connection.getTargetAnchor().getOwner();
 			scrollTo(nodeFigure);
+			Map map = viewer.getEditPartRegistry();
+			EditPart editPart = (EditPart)map.get(nodeFigure.getNode());
+			if (editPart != null) viewer.select(editPart);
 		}
 
 		public void mouseReleased(MouseEvent event) {
