@@ -32,7 +32,7 @@ public class GraphEditPartFactory implements EditPartFactory {
 				}
 			};
 		} else if (model instanceof Graph) {
-			editPart = new GraphEditPart2(viewer);
+			editPart = new GraphEditPart(viewer);
 		} else if (model instanceof Branch) {
 			editPart = new BranchEditPart();
 		} else if (model instanceof Path) {

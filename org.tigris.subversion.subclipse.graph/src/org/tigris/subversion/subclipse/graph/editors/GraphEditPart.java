@@ -35,14 +35,14 @@ import org.tigris.subversion.subclipse.graph.cache.Cache;
 import org.tigris.subversion.subclipse.graph.cache.Graph;
 import org.tigris.subversion.subclipse.graph.cache.Node;
 
-public class GraphEditPart2 extends AbstractGraphicalEditPart {
+public class GraphEditPart extends AbstractGraphicalEditPart {
 	private GraphicalViewer viewer;
 	private Map branchMap = new HashMap();
 	private Map nodeMap = new HashMap();
 	private List connections = new ArrayList();
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-	public GraphEditPart2(GraphicalViewer viewer) {		
+	public GraphEditPart(GraphicalViewer viewer) {		
 		super();
 		this.viewer = viewer;
 	}

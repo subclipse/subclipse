@@ -24,7 +24,7 @@ public class PathEditPart extends AbstractGraphicalEditPart {
 		f.setLayoutManager(layout);
 		
 		Path path = (Path)getModel();
-		GraphEditPart2 graphEditPart = (GraphEditPart2)getParent().getParent();
+		GraphEditPart graphEditPart = (GraphEditPart)getParent().getParent();
 		branchFigure = graphEditPart.getBranchFigure(path.getPath());
 		
 		f.add(branchFigure, BorderLayout.CENTER);
