@@ -1,6 +1,7 @@
 package org.tigris.subversion.subclipse.graph.editors;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -109,12 +110,14 @@ public class GraphEditPart extends AbstractGraphicalEditPart {
 			branchMap.put(branch.getPath(), branchFigure);
 		}
 		
+		List nodeList = new ArrayList();
 		iter = branches.iterator();
 		while (iter.hasNext()) {
 			Branch branch = (Branch)iter.next();
 			Iterator nodeIter = branch.getNodes().iterator();
 			while (nodeIter.hasNext()) {
 				Node node = (Node)nodeIter.next();
+				nodeList.add(node);
 				int mod = branch.getIndex() % Activator.BG_COLORS.length;
 				Color bgcolor = Activator.BG_COLORS[mod];
 				Color fgcolor = Activator.FG_COLORS[mod];
@@ -181,6 +184,13 @@ public class GraphEditPart extends AbstractGraphicalEditPart {
 		
 		setConnectionVisibility();
 		
+		Node[] nodeArray = new Node[nodeList.size()];
+		nodeList.toArray(nodeArray);
+		Arrays.sort(nodeArray);
+		for (int j = 0; j < nodeArray.length; j++) {
+			nodeArray[j].setGraphIndex(j);
+		}
+		
 		return branches;
 	}
 	
@@ -224,6 +234,10 @@ public class GraphEditPart extends AbstractGraphicalEditPart {
 			}
 			con.setVisible(show);
 		}		
+	}
+	
+	public boolean isChronologicalMode() {
+		return store.getBoolean(RevisionGraphEditor.CHRONOLOGICAL);
 	}
 
 	private PolylineConnection makeConnection(IFigure contents, IFigure source, NodeFigure target) {

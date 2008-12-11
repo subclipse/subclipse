@@ -12,7 +12,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-public class Node implements Serializable, IPropertySource {
+public class Node implements Serializable, IPropertySource, Comparable {
 	
 	private static final long serialVersionUID = 2835522933811459843L;
 	
@@ -36,8 +36,9 @@ public class Node implements Serializable, IPropertySource {
 	private List tags;
 	
 	private transient Branch branch;
-	private transient int index;
-	
+	private transient int branchIndex;
+	private transient int graphIndex;
+
 	private static DateFormat dateFormat;
 
 	public static String P_ID_ACTION = "action";
@@ -200,12 +201,20 @@ public class Node implements Serializable, IPropertySource {
 		return branch;
 	}
 	
-	public void setIndex(int index) {
-		this.index = index;
+	public void setBranchIndex(int branchIndex) {
+		this.branchIndex = branchIndex;
 	}
 	
-	public int getIndex() {
-		return index;
+	public int getBranchIndex() {
+		return branchIndex;
+	}
+	
+	public int getGraphIndex() {
+		return graphIndex;
+	}
+
+	public void setGraphIndex(int graphIndex) {
+		this.graphIndex = graphIndex;
 	}
 	
 	public Object getEditableValue() {
@@ -267,6 +276,16 @@ public class Node implements Serializable, IPropertySource {
 			dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
 		}
 		return dateFormat;
+	}
+
+	public int compareTo(Object object) {
+		if (object instanceof Node) {
+			Node compareTo = (Node)object;
+			if (compareTo.getRevision() < revision) return 1;
+			else if (compareTo.getRevision() > revision) return -1;
+			else return 0;
+		}
+		return 0;
 	}	
 	
 }

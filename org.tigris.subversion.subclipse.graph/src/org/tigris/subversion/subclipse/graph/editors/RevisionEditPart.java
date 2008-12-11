@@ -35,8 +35,11 @@ public class RevisionEditPart extends AbstractGraphicalEditPart {
 		}
 		
 		nodeFigure.endLayout();
-
-		Rectangle rect = new Rectangle(NODE_OFFSET_X, 10+BranchEditPart.BRANCH_HEIGHT+node.getIndex()*NODE_OFFSET_Y, NODE_WIDTH, NODE_HEIGHT);
+		
+		int index;
+		if (graphEditPart.isChronologicalMode()) index = node.getGraphIndex();
+		else index = node.getBranchIndex();
+		Rectangle rect = new Rectangle(NODE_OFFSET_X, 10+BranchEditPart.BRANCH_HEIGHT+index*NODE_OFFSET_Y, NODE_WIDTH, NODE_HEIGHT);
 		((AbstractGraphicalEditPart)getParent()).getFigure().getLayoutManager().setConstraint(nodeFigure, rect);
 
 		return nodeFigure;

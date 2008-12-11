@@ -53,7 +53,9 @@ public class BranchEditPart extends AbstractGraphicalEditPart {
 		while (iter.hasNext()) {
 			Node node = (Node)iter.next();
 			node.setBranch(branch);
-			node.setIndex(i++);
+			
+			node.setBranchIndex(i++);
+			
 			children.add(node);
 		}
 		

@@ -77,6 +77,20 @@ public class GraphActionBarContributor extends ActionBarContributor {
         filterConnectionsAction.setChecked(store.getBoolean(RevisionGraphEditor.FILTER_CONNECTIONS));
         toolBarManager.add(filterConnectionsAction);
         
+        Action chronologicalAction = new Action() {
+        	public void run() {
+        		store.setValue(RevisionGraphEditor.CHRONOLOGICAL, isChecked());
+	    		GraphEditPart graphEditPart = (GraphEditPart)editor.getViewer().getContents();
+	    		Graph graph = (Graph)graphEditPart.getModel();
+	    		editor.getViewer().setContents("Redrawing graph...");
+	    		editor.getViewer().setContents(graph);
+        	}
+        };
+        chronologicalAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REVISION_GRAPH_CHRONOLOGICAL));
+        chronologicalAction.setToolTipText("Chronological layout");
+        chronologicalAction.setChecked(store.getBoolean(RevisionGraphEditor.CHRONOLOGICAL));
+        toolBarManager.add(chronologicalAction);        
+        
         Action imageAction = new Action() {
 			public void run() {
 				Action action = new ImageAction(editor);

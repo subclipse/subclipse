@@ -44,6 +44,7 @@ public interface ISVNUIConstants {
   public final String IMG_FILTER_HISTORY = "clcl16/filter_history.gif"; //$NON-NLS-1$
   public final String IMG_EXPORT_IMAGE = "clcl16/export_image.gif"; //$NON-NLS-1$
   public final String IMG_FILTER_CONNECTIONS = "clcl16/filter_connections.gif"; //$NON-NLS-1$
+  public final String IMG_REVISION_GRAPH_CHRONOLOGICAL = "clcl16/revision_graph_chronological.gif"; //$NON-NLS-1$
   public final String IMG_SHOW_DELETED = "tortoise/delete.gif"; //$NON-NLS-1$
 
   // toolbar (disabled)
