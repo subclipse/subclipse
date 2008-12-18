@@ -64,9 +64,6 @@ public class ImageDescriptors {
         // objects
         createImageDescriptor(ISVNUIConstants.IMG_REPOSITORY, baseURL); 
         createImageDescriptor(ISVNUIConstants.IMG_REFRESH, baseURL);
-        createImageDescriptor(ISVNUIConstants.IMG_EXPORT_IMAGE, baseURL);
-        createImageDescriptor(ISVNUIConstants.IMG_FILTER_CONNECTIONS, baseURL);
-        createImageDescriptor(ISVNUIConstants.IMG_REVISION_GRAPH_CHRONOLOGICAL, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_REFRESH_ENABLED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_REFRESH_DISABLED, baseURL);
 //        createImageDescriptor(ISVNUIConstants.IMG_LINK_WITH_EDITOR, baseURL);

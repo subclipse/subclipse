@@ -2,9 +2,9 @@ package org.tigris.subversion.subclipse.graph.popup.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Display;
+import org.tigris.subversion.subclipse.graph.IRevisionGraphConstants;
 import org.tigris.subversion.subclipse.graph.dialogs.SaveImageDialog;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditor;
-import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class ImageAction extends Action {
@@ -14,7 +14,7 @@ public class ImageAction extends Action {
 		super();
 		this.editor = editor;
 		setText("Save image to file...");
-		setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_EXPORT_IMAGE));
+		setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(IRevisionGraphConstants.IMG_EXPORT_IMAGE));
 	}
 
 	public void run() {

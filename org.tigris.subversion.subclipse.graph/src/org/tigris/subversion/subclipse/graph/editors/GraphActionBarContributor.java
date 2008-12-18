@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IEditorPart;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.graph.Activator;
+import org.tigris.subversion.subclipse.graph.IRevisionGraphConstants;
 import org.tigris.subversion.subclipse.graph.cache.Graph;
 import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.subclipse.graph.popup.actions.ImageAction;
@@ -72,7 +73,7 @@ public class GraphActionBarContributor extends ActionBarContributor {
         		graphEditPart.setConnectionVisibility();
         	}
         };
-        filterConnectionsAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_FILTER_CONNECTIONS));
+        filterConnectionsAction.setImageDescriptor(Activator.getDefault().getImageDescriptor(IRevisionGraphConstants.IMG_FILTER_CONNECTIONS));
         filterConnectionsAction.setToolTipText("Show connections only for selected revision");
         filterConnectionsAction.setChecked(store.getBoolean(RevisionGraphEditor.FILTER_CONNECTIONS));
         toolBarManager.add(filterConnectionsAction);
@@ -86,7 +87,7 @@ public class GraphActionBarContributor extends ActionBarContributor {
 	    		editor.getViewer().setContents(graph);
         	}
         };
-        chronologicalAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_REVISION_GRAPH_CHRONOLOGICAL));
+        chronologicalAction.setImageDescriptor(Activator.getDefault().getImageDescriptor(IRevisionGraphConstants.IMG_REVISION_GRAPH_CHRONOLOGICAL));
         chronologicalAction.setToolTipText("Chronological layout");
         chronologicalAction.setChecked(store.getBoolean(RevisionGraphEditor.CHRONOLOGICAL));
         toolBarManager.add(chronologicalAction);        
@@ -97,7 +98,7 @@ public class GraphActionBarContributor extends ActionBarContributor {
 				action.run();
 			}            	
         };
-        imageAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_EXPORT_IMAGE));
+        imageAction.setImageDescriptor(Activator.getDefault().getImageDescriptor(IRevisionGraphConstants.IMG_EXPORT_IMAGE));
         toolBarManager.add(imageAction);
 	}
 	
@@ -151,7 +152,7 @@ public class GraphActionBarContributor extends ActionBarContributor {
 		
 		public ShowDeletedAction() {
 			setText("Show deleted branches");
-			setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_SHOW_DELETED));			
+			setImageDescriptor(Activator.getDefault().getImageDescriptor(IRevisionGraphConstants.IMG_SHOW_DELETED));			
 			setMenuCreator(this);
 		}
 		

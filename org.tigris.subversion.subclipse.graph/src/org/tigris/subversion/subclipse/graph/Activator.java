@@ -1,5 +1,7 @@
 package org.tigris.subversion.subclipse.graph;
 
+import java.net.URL;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -9,6 +11,9 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
+	
+	private ImageDescriptors imageDescriptors;
+	private URL baseURL;
 	
 	public static final Color FONT_COLOR = new Color(null, 1, 70, 122);
 	public static final Color CONNECTION_COLOR = new Color(null, 172, 182, 198);
@@ -43,6 +48,7 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		baseURL = context.getBundle().getEntry("/"); //$NON-NLS-1$
 	}
 
 	/*
@@ -68,14 +74,15 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path
-	 *
-	 * @param path the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
-	}
+    /**
+     * Returns the image descriptor for the given image ID.
+     * Returns null if there is no such image.
+     */
+    public ImageDescriptor getImageDescriptor(String id) {
+        if (imageDescriptors == null) {
+            imageDescriptors = new ImageDescriptors();
+            imageDescriptors.initializeImages(baseURL);
+        }
+        return imageDescriptors.getImageDescriptor(id);
+    }
 }
