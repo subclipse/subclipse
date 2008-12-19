@@ -27,7 +27,7 @@
    <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.5.4.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.5.4">
       <category name="SVNKit Adapter (optional)"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse.graph.feature_1.0.1.jar" id="org.tigris.subversion.subclipse.graph.feature" version="1.0.1">
+   <feature url="features/org.tigris.subversion.subclipse.graph.feature_1.0.3.jar" id="org.tigris.subversion.subclipse.graph.feature" version="1.0.3">
       <category name="Revision Graph (optional)"/>
    </feature>
    <category-def name="Subclipse (required)" label="Subclipse (required)">
