@@ -17,6 +17,7 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.core.variants.IResourceVariantComparator;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.resources.BaseFile;
 import org.tigris.subversion.subclipse.core.resources.BaseFolder;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
@@ -279,11 +280,18 @@ public class SVNStatusSyncInfo extends SyncInfo {
      */
     public String getLabel()
     {
-		if ((getRemote() != null) && 
+    	IResourceVariant remote = getRemote();
+		if ((remote != null) && 
 				((SyncInfo.INCOMING == SyncInfo.getDirection(getKind())) ||
 				(SyncInfo.CONFLICTING == SyncInfo.getDirection(getKind()))))
 		{
-			return " (" + getRemote().getContentIdentifier() + ")" ;
+			if (remote instanceof ISVNRemoteResource) {
+				ISVNRemoteResource remoteResource = (ISVNRemoteResource)remote;
+				if (remoteResource.getAuthor() != null) {
+					return " (" + remote.getContentIdentifier() + " - " + remoteResource.getAuthor() + ")" ;
+				}
+			}
+			return " (" + remote.getContentIdentifier() + ")" ;
 		}
 		else
 		{
