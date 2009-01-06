@@ -113,6 +113,13 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             return false;
 
         try {
+        	
+        	RepositoryProvider repositoryProvider = RepositoryProvider
+            .getProvider(destination.getProject());
+        	
+            if (repositoryProvider == null || !(repositoryProvider instanceof SVNTeamProvider)) //target is not SVN project
+                throw new SVNException(Policy.bind("SVNMoveHook.moveFileException"));
+        	
             ISVNLocalFile resource = new LocalFile(source);
 
             if (!resource.isManaged())
@@ -129,10 +136,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 // see bug #15
                 if (!SVNWorkspaceRoot.getSVNFolderFor(destination.getParent())
                         .isManaged()) {
-                    SVNTeamProvider provider = (SVNTeamProvider) RepositoryProvider
-                            .getProvider(destination.getProject());
-                    if (provider == null) //target is not SVN project
-                        throw new SVNException(Policy.bind("SVNMoveHook.moveFileException"));
+                    SVNTeamProvider provider = (SVNTeamProvider) repositoryProvider;
                     provider.add(new IResource[] { destination.getParent() },
                             IResource.DEPTH_ZERO, new NullProgressMonitor());
                     ISVNLocalResource parent = SVNWorkspaceRoot.getSVNResourceFor(destination.getParent());
@@ -179,6 +183,12 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             ISVNLocalFolder resource = new LocalFolder(source);
             if (!resource.isManaged())
                 return false;
+            
+        	RepositoryProvider repositoryProvider = RepositoryProvider
+            .getProvider(destination.getProject());
+
+        	if (repositoryProvider == null || !(repositoryProvider instanceof SVNTeamProvider)) //target is not SVN project
+        		 throw new SVNException(Policy.bind("SVNMoveHook.moveFolderException"));
 
             monitor.beginTask(null, 1000);
 
@@ -190,11 +200,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 // see bug #15
                 if (!SVNWorkspaceRoot.getSVNFolderFor(destination.getParent())
                         .isManaged()) {
-                    SVNTeamProvider provider = (SVNTeamProvider) RepositoryProvider
-                            .getProvider(destination.getProject());
-                    if (provider == null) {
-                        throw new SVNException(Policy.bind("SVNMoveHook.moveFolderException"));
-                    }
+                    SVNTeamProvider provider = (SVNTeamProvider)repositoryProvider;
                     provider.add(new IResource[] { destination.getParent() },
                             IResource.DEPTH_ZERO, new NullProgressMonitor());
                     ISVNLocalResource parent = SVNWorkspaceRoot.getSVNResourceFor(destination.getParent());
