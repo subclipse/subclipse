@@ -46,6 +46,7 @@ public class AddIgnoredPatternCommand implements ISVNCommand {
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void run(IProgressMonitor monitor) throws SVNException {
+		monitor = Policy.monitorFor(monitor);
         monitor.beginTask(null, 100); //$NON-NLS-1$
         if (!folder.getStatus().isManaged())
             throw new SVNException(IStatus.ERROR, TeamException.UNABLE,
