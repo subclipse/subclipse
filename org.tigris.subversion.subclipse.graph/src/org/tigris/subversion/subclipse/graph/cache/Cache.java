@@ -13,6 +13,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.subclipse.graph.Activator;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
@@ -76,8 +77,7 @@ public class Cache {
 			revisionsTempFile.createNewFile();
 			logMessagesTempFile.createNewFile();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.handleError(e);
 		}	
 		
 		List revisions = new ArrayList();
@@ -149,8 +149,7 @@ public class Cache {
 			revisionsTempFile.createNewFile();
 			logMessagesTempFile.createNewFile();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.handleError(e);
 		}		
 		
 		List revisions = new ArrayList();

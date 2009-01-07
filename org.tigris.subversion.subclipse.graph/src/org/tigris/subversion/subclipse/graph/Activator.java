@@ -2,8 +2,12 @@ package org.tigris.subversion.subclipse.graph;
 
 import java.net.URL;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -72,6 +76,33 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+	
+	public static void handleError(Exception exception) {
+		handleError(null, exception);
+	}
+	
+	public static void handleError(String message, Exception exception) {
+		if (message == null) getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, exception.getMessage(), exception));
+		else getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, message, exception));
+	}
+	
+	public static void showErrorDialog(final String title, final Exception exception, boolean uiThread) {
+		if (uiThread) showErrorDialog(title, exception);
+		else {
+			Display.getDefault().syncExec(new Runnable(){
+				public void run() {
+					showErrorDialog(title, exception);
+				}			
+			});
+		}
+	}
+	
+	public static void showErrorDialog(String title, Exception exception) {
+		String message;
+		if (exception.getMessage() == null) message = "" + exception;
+		else message = exception.getMessage();
+		MessageDialog.openError(Display.getDefault().getActiveShell(), title, message);
 	}
 
     /**

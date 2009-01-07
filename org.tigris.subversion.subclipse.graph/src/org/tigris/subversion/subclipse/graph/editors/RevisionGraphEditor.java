@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.gef.ContextMenuProvider;
-import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.MouseWheelHandler;
@@ -25,6 +24,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.tigris.subversion.subclipse.graph.Activator;
 import org.tigris.subversion.subclipse.graph.cache.Cache;
 import org.tigris.subversion.subclipse.graph.cache.WorkListener;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -66,8 +66,8 @@ public class RevisionGraphEditor extends GraphicalEditor {
 		try {
 			task.run();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.handleError(e);
+			Activator.showErrorDialog("Show Revision Graphp for " + resource.getName(), e);
 		}
 	}
 	
@@ -79,8 +79,8 @@ public class RevisionGraphEditor extends GraphicalEditor {
 		try {
 			task.run();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.handleError(e);
+			Activator.showErrorDialog("Show Revision Graphp for " + editorInput.getName(), e);
 		}
 	}
 	

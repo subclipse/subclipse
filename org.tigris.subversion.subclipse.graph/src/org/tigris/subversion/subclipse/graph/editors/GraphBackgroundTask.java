@@ -14,6 +14,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.graph.Activator;
 import org.tigris.subversion.subclipse.graph.cache.Cache;
 import org.tigris.subversion.subclipse.graph.cache.Graph;
 import org.tigris.subversion.subclipse.graph.cache.Node;
@@ -63,6 +64,7 @@ public class GraphBackgroundTask extends SVNOperation {
 
 	protected void execute(IProgressMonitor monitor) throws SVNException,
 			InterruptedException {
+		boolean error = false;
 		Cache cache = null;
 		monitor.beginTask("Calculating graph information", TOTAL_STEPS);
 		monitor.worked(SHORT_TASK_STEPS);
@@ -147,13 +149,15 @@ public class GraphBackgroundTask extends SVNOperation {
 						cache.finishUpdate();
 					}
 				} catch(Exception e) {
-					e.printStackTrace();
+					Activator.handleError(e);
+					error = true;
+					Activator.showErrorDialog("Calculate Revision Graph Information", e, false);
 				}
 			} else {
 				monitor.worked(VERY_LONG_TASK);
 			}
 			if (editor != null) {
-				if (monitor.isCanceled()) {
+				if (error == true || monitor.isCanceled()) {
 					if (refreshRevision == null && refreshRevisions == null) {
 						Display.getDefault().syncExec(new Runnable() {
 							public void run() {
@@ -170,7 +174,8 @@ public class GraphBackgroundTask extends SVNOperation {
 			}
 			monitor.done();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Activator.handleError(e);
+			Activator.showErrorDialog("Calculate Revision Graph Information", e, false);
 			return;
 		} finally {
 			if(cache != null)

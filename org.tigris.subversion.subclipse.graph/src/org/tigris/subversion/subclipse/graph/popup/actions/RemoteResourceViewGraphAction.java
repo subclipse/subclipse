@@ -7,6 +7,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.graph.Activator;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditorInput;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.actions.SVNAction;
@@ -25,9 +26,9 @@ public class RemoteResourceViewGraphAction extends SVNAction {
 								new RevisionGraphEditorInput(resources[0]),
 								"org.tigris.subversion.subclipse.graph.editors.revisionGraphEditor");
 					}
-				} catch (Throwable e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					Activator.handleError(e);
+					Activator.showErrorDialog(getErrorTitle(), e);
 				}				
 			}
 		}, false /* cancelable */, PROGRESS_BUSYCURSOR);
