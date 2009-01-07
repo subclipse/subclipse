@@ -3,6 +3,7 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -35,6 +36,7 @@ import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.CompareRemoteResourcesAction;
 import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -441,11 +443,9 @@ public class DifferencesDialog extends SvnDialog {
     		try {
 				compareAction.execute(null);
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			}
     	}
     }

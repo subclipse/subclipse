@@ -27,6 +27,7 @@ import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.resources.mapping.ResourceTraversal;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -177,8 +178,7 @@ public abstract class TeamAction extends ActionDelegate implements IObjectAction
 					}
 				}
 			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			}
 		}		
 		IResource[] selectedResources = new IResource[resourceArray.size()];

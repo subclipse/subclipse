@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -127,7 +128,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
         	        keepLocks = commitPage.isKeepLocks();        	    	
         	    }
 	        } catch (SVNException e) {
-                e.printStackTrace();
+	        	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
             }
 	    }
 		return commit;
@@ -222,7 +223,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 //			if ((resource.getType() == IResource.FOLDER) && isSymLink(resource)) // don't traverse into symlink folders
 //				return false;
 //		} catch (SVNException e) {
-//		    e.printStackTrace();
+//		    SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 //		    return false;
 //		}
 //		return true;
@@ -287,7 +288,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
                     if (!svnResource.isManaged()) toBeAddedList.add(resource);
                     if (svnResource.getStatus().isMissing()) toBeDeletedList.add(resource);
                 } catch (SVNException e) {
-                    e.printStackTrace();
+                	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
                 }
 		    }
 		    resourcesToBeAdded[0] = new IResource[toBeAddedList.size()];
@@ -300,9 +301,9 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
                 	commit.setConfiguration(configuration);
                 commit.run();
             } catch (InvocationTargetException e) {
-                e.printStackTrace();
+            	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+            	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
             }
 	    }
 	}

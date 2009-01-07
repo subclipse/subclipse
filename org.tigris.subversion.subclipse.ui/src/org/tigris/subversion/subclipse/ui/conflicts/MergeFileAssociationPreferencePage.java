@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
@@ -448,7 +449,7 @@ public class MergeFileAssociationPreferencePage extends PreferencePage implement
 		try {
 			return SVNUIPlugin.getPlugin().getMergeFileAssociations();
 		} catch (BackingStoreException e) {
-			e.printStackTrace();
+			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			return new MergeFileAssociation[0];
 		}
 	}

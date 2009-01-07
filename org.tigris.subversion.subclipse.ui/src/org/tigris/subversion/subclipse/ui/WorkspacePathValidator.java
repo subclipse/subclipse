@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui;
 
+import org.eclipse.core.runtime.IStatus;
+
 //import java.io.File;
 //import java.io.IOException;
 //
@@ -26,7 +28,7 @@ public class WorkspacePathValidator {
 //        try {
 //            canonicalPath = file.getCanonicalPath();
 //        } catch (IOException e) {
-//            e.printStackTrace();
+//            SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 //        }
 //        if (!file.getAbsolutePath().equals(canonicalPath)) {
 //            MessageDialog.openError(Display.getCurrent().getActiveShell(), Policy.bind("WorkspacePathValidator.title"),

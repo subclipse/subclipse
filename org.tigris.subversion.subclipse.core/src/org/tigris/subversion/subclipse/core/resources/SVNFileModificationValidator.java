@@ -77,7 +77,7 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
 	    		try {
 	    			command.run(new NullProgressMonitor());
 	    		} catch (SVNException e) {
-	    			e.printStackTrace();
+	    			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
 	    			return Status.CANCEL_STATUS;
 	    		}
 	    	}

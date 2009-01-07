@@ -25,6 +25,7 @@ import org.eclipse.compare.structuremergeviewer.IStructureComparator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Composite;
@@ -241,7 +242,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 		try {
 			right.setCharset(localCharset);
 		} catch (CoreException e) {
-			e.printStackTrace();
+			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 		}
 
         if (SVNRevision.BASE.equals(remoteRevision)) {

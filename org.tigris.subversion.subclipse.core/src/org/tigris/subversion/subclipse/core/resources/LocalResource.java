@@ -341,7 +341,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     		try {
 				Util.saveLocalHistory(resource);
 			} catch (CoreException e) {
-				e.printStackTrace();
+				SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			}        	
             ISVNClientAdapter svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);

@@ -1141,7 +1141,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       try {
         fetchChangePathJob.join();
       } catch(InterruptedException e) {
-        e.printStackTrace();
+    	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);  
         // SVNUIPlugin.log(new
         // SVNException(Policy.bind("HistoryView.errorFetchingEntries",
         // remoteResource.getName()), e)); //$NON-NLS-1$

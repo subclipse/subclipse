@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.ui;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -92,7 +93,7 @@ public class SVNConflictsFilter extends ViewerFilter {
             }            
         } catch( CoreException ce ) {
             // what can we do here aside from log the exception?
-            ce.printStackTrace();
+        	SVNUIPlugin.log(IStatus.ERROR, ce.getMessage(), ce);
             return true;                        
         }
         return true;

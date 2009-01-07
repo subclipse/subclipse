@@ -10,6 +10,7 @@ import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -82,7 +83,7 @@ public class GenerateDiffFileSynchronizeOperation extends SVNSynchronizeOperatio
 				if (!svnResource.isManaged() && !svnResource.isIgnored())
 					unaddedList.add(resources[i]);
 			} catch (SVNException e) {
-				e.printStackTrace();
+				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			}
 		}
 		ArrayList dedupedList = new ArrayList();

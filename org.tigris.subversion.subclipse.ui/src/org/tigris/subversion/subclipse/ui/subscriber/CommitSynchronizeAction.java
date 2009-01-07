@@ -16,6 +16,7 @@ import java.util.Iterator;
 import org.eclipse.compare.structuremergeviewer.IDiffContainer;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
@@ -31,6 +32,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 /**
  * Put action that appears in the synchronize view. It's main purpose is
@@ -76,7 +78,7 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 			                url = svnResource.getStatus().getUrlString();
 			                if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
 			            } catch (SVNException e) {
-			                e.printStackTrace();
+			            	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			            }	    
 				    }
 				}

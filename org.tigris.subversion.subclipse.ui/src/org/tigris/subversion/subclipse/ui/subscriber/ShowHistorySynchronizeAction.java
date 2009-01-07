@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
@@ -22,6 +23,7 @@ import org.eclipse.team.ui.synchronize.SynchronizeModelOperation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class ShowHistorySynchronizeAction extends SynchronizeModelAction {
 
@@ -58,7 +60,7 @@ public class ShowHistorySynchronizeAction extends SynchronizeModelAction {
         		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 				return new ShowHistorySynchronizeOperation(configuration, elements, svnResource.getLatestRemoteResource());
         	} catch (SVNException e) {
-				e.printStackTrace();
+        		SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			}
         }
         return new ShowHistorySynchronizeOperation(configuration, elements, resource);

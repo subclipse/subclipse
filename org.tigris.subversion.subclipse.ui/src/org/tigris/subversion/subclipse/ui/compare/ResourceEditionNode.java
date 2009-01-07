@@ -20,6 +20,7 @@ import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.IStructureComparator;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
@@ -101,7 +102,7 @@ public class ResourceEditionNode
 												try {
 													children[i].setCharset(localNode.getCharset());
 												} catch (CoreException e) {
-													e.printStackTrace();
+													SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 												}
 											}
 										}

@@ -26,8 +26,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.internal.BufferedResourceNode;
 import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 
@@ -181,7 +183,7 @@ public class ConflictsCompareInput extends CompareEditorInput {
                         try {                    
                             saveChanges(new NullProgressMonitor());
                         } catch (CoreException e) {
-                            e.printStackTrace();
+                        	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
                         }
                     }
                 }            

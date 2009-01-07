@@ -13,11 +13,13 @@ package org.tigris.subversion.subclipse.core.sync;
 import org.eclipse.core.resources.IEncodedStorage;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.core.variants.IResourceVariantComparator;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.BaseFile;
 import org.tigris.subversion.subclipse.core.resources.BaseFolder;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
@@ -247,7 +249,7 @@ public class SVNStatusSyncInfo extends SyncInfo {
         	try {
         		charset = ((IEncodedStorage)local).getCharset();
         	} catch (CoreException e) {
-        		e.printStackTrace();
+        		SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
         	}
         	return new BaseFile(local, baseStatusInfo, charset);
         }

@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -35,6 +36,7 @@ import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.wizards.WizardDialogWithPersistedLocation;
 import org.tigris.subversion.subclipse.ui.wizards.generatediff.GenerateDiffFileWizard;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
@@ -65,8 +67,7 @@ public class GenerateDiffFileAction extends WorkspaceAction {
 				 try {
 					modifiedResources = getModifiedResources(resources, monitor);
 				} catch (SVNException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				}		
 			}
 			

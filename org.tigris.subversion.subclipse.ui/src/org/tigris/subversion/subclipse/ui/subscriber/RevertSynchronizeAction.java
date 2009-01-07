@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
@@ -84,7 +85,7 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 	                url = svnResource.getStatus().getUrlString();
 	                if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
 	            } catch (SVNException e) {
-	                e.printStackTrace();
+	            	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 	            }
 		    }
 	    }

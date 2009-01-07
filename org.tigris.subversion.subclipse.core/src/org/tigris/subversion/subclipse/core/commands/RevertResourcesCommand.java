@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -86,7 +87,7 @@ public class RevertResourcesCommand implements ISVNCommand {
 	            		try {
 							Util.saveLocalHistory(resourcesToRevert[i]);
 						} catch (CoreException e) {
-							e.printStackTrace();
+							SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
 						} 
 						LocalResourceStatus status = SVNWorkspaceRoot.getSVNResourceFor( resourcesToRevert[i] ).getStatus();
 						if (!(resourcesToRevert[i].getType() == IResource.FOLDER) || !status.isAdded()) {
@@ -146,7 +147,7 @@ public class RevertResourcesCommand implements ISVNCommand {
 	                		try {
 								Util.saveLocalHistory(resources[i]);
 							} catch (CoreException e) {
-								e.printStackTrace();
+								SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
 							}
                 		}
                 		File path = resources[i].getLocation().toFile();
