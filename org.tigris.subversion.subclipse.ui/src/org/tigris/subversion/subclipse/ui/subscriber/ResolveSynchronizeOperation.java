@@ -17,7 +17,9 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -28,8 +30,11 @@ import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
@@ -39,6 +44,8 @@ import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class ResolveSynchronizeOperation extends SVNSynchronizeOperation {
+	boolean propertyConflicts = false;
+	boolean textConflicts = false;
 	private boolean canceled;
 	private int selectedResolution;
     
@@ -54,7 +61,9 @@ public class ResolveSynchronizeOperation extends SVNSynchronizeOperation {
     }
 
     protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-    	boolean folderSelected = false;  
+    	boolean folderSelected = false; 
+    	propertyConflicts = false;
+    	textConflicts = false;
     	canceled = false;
     	final IResource[] resources = set.getResources();
 		for (int i = 0; i < resources.length; i++) {
@@ -62,21 +71,43 @@ public class ResolveSynchronizeOperation extends SVNSynchronizeOperation {
 				folderSelected = true;
 				break;
 			}
+			if (!propertyConflicts || !textConflicts) {
+				ISVNLocalResource resource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
+				try {
+					LocalResourceStatus status = resource.getStatus();
+					if (status != null && status.isPropConflicted()) propertyConflicts = true;
+					if (status != null && status.isTextConflicted()) textConflicts = true;
+				} catch (SVNException e) {
+					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				}
+			}		
 		}
 		if (folderSelected) {
 			selectedResolution = ISVNConflictResolver.Choice.chooseMerged;
 		} else {
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
-					SvnWizardMarkResolvedPage markResolvedPage = new SvnWizardMarkResolvedPage(resources);
-					SvnWizard wizard = new SvnWizard(markResolvedPage);
-			        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
-			        wizard.setParentDialog(dialog);
-			        if (dialog.open() == SvnWizardDialog.CANCEL) {
-			        	canceled = true;
-			        	return;
-			        }
-			        selectedResolution = markResolvedPage.getResolution();					
+					if (propertyConflicts && !textConflicts) {
+						String message;
+						if (resources.length > 1) message = Policy.bind("ResolveAction.confirmMultiple"); //$NON-NLS-1$
+						else message = Policy.bind("ResolveAction.confirm", resources[0].getName()); //$NON-NLS-1$
+						if (!MessageDialog.openConfirm(getShell(), Policy.bind("ResolveOperation.taskName"), message)) { //$NON-NLS-1$
+							canceled = true;
+							return;
+						}
+						selectedResolution = ISVNConflictResolver.Choice.chooseMerged;							
+					} else {
+						SvnWizardMarkResolvedPage markResolvedPage = new SvnWizardMarkResolvedPage(resources);
+						markResolvedPage.setPropertyConflicts(propertyConflicts);
+						SvnWizard wizard = new SvnWizard(markResolvedPage);
+				        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+				        wizard.setParentDialog(dialog);
+				        if (dialog.open() == SvnWizardDialog.CANCEL) {
+				        	canceled = true;
+				        	return;
+				        }
+				        selectedResolution = markResolvedPage.getResolution();	
+					}
 				}				
 			});
 		}

@@ -46,7 +46,7 @@ public class ResolveSynchronizeAction extends SynchronizeModelAction {
 		                ISVNLocalResource svnResource = SVNWorkspaceRoot
 		                .getSVNResourceFor(element.getResource());	
 		                try {
-		                    if (svnResource.getStatus().isTextConflicted()) return true;
+		                    if (svnResource.getStatus().isTextConflicted() || svnResource.getStatus().isPropConflicted()) return true;
 		                } catch (SVNException e) {}
 			        }			        
 			    }
