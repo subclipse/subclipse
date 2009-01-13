@@ -25,6 +25,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
@@ -60,6 +61,9 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     protected int textStatus;
     protected int propStatus;
     protected int nodeKind;
+    protected boolean treeConflicted;
+    protected boolean fileExternal;
+    protected SVNConflictDescriptor conflictDescriptor;
 	
     protected ResourceStatus() 
     {
@@ -103,6 +107,9 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
         this.lastCommitAuthor = status.getLastCommitAuthor();
         this.textStatus = status.getTextStatus().toInt();
         this.propStatus = status.getPropStatus().toInt();
+        this.treeConflicted = status.hasTreeConflict();
+        this.fileExternal = status.isFileExternal();
+        this.conflictDescriptor = status.getConflictDescriptor();
 
         this.nodeKind = status.getNodeKind().toInt();
         
@@ -143,6 +150,18 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
 
     public SVNStatusKind getPropStatus() {
         return SVNStatusKind.fromInt(propStatus);
+    }
+    
+    public boolean hasTreeConflict() {
+    	return treeConflicted;
+    }
+    
+    public boolean isFileExternal() {
+    	return fileExternal;
+    }
+    
+    public SVNConflictDescriptor getConflictDescriptor() {
+    	return conflictDescriptor;
     }
 
 	/**
