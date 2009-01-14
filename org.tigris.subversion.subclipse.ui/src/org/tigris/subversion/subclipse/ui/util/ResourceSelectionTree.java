@@ -694,9 +694,15 @@ public class ResourceSelectionTree extends Composite {
 					image = workbenchLabelProvider.getImage(element);
 					image = compareConfiguration.getImage(image, Differencer.NO_CHANGE);
 				} else {
-					if (statusKind != null && statusKind.equals(SVNStatusKind.CONFLICTED)) {
-						image = workbenchLabelProvider.getImage(element);
-						image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.TEXT_CONFLICTED);
+					if (statusKind != null) {
+						if (statusKind.hasTreeConflict()) {
+							image = workbenchLabelProvider.getImage(element);
+							image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.TREE_CONFLICT);
+						}
+						else if (statusKind != null && statusKind.equals(SVNStatusKind.CONFLICTED)) {
+							image = workbenchLabelProvider.getImage(element);
+							image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.TEXT_CONFLICTED);
+						}
 					}
 					if (image == null) image = syncLabelProvider.getImage(element);
 					if (element instanceof IContainer) return image;

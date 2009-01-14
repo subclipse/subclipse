@@ -146,7 +146,9 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     }
 
     public SVNStatusKind getTextStatus() {
-        return SVNStatusKind.fromInt(textStatus);
+    	SVNStatusKind statusKind = SVNStatusKind.fromInt(textStatus);
+    	statusKind.setTreeConflicted(treeConflicted);
+        return statusKind;
     }
 
     public SVNStatusKind getPropStatus() {

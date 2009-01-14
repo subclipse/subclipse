@@ -13,28 +13,30 @@ public class ResourceSelectionTreeDecorator {
 	public final static int TEXT_CONFLICTED = 1;
 	public final static int UNVERSIONED = 2;
 	public final static int MISSING = 3;
+	public final static int TREE_CONFLICT = 4;
 	
-	private static ImageDescriptor[] fgImages = new ImageDescriptor[4];
+	private static ImageDescriptor[] fgImages = new ImageDescriptor[5];
 	private static HashMap fgMap= new HashMap(20);
 	
-	private Image[] fImages= new Image[4];
+	private Image[] fImages= new Image[5];
 	
 	static {
 		fgImages[PROPERTY_CHANGE] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CHANGED);
 		fgImages[TEXT_CONFLICTED] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TEXT_CONFLICTED);
 		fgImages[UNVERSIONED] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_QUESTIONABLE);
 		fgImages[MISSING] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_DELETED);
+		fgImages[TREE_CONFLICT] = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TREE_CONFLICT);
 	}
 	
 	public Image getImage(Image base, int kind) {
 
 		Object key= base;
 
-		kind &= 3;
+//		kind &= 3;
 
 		Image[] a= (Image[]) fgMap.get(key);
 		if (a == null) {
-			a= new Image[4];
+			a= new Image[5];
 			fgMap.put(key, a);
 		}
 		Image b= a[kind];
