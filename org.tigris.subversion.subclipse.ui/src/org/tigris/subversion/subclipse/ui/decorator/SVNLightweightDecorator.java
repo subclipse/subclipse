@@ -84,6 +84,7 @@ public class SVNLightweightDecorator
     private static ImageDescriptor external;
     private static ImageDescriptor locked;
     private static ImageDescriptor needsLock;
+    private static ImageDescriptor treeConflict;
 
 	private static IPropertyChangeListener propertyListener;
 
@@ -130,6 +131,7 @@ public class SVNLightweightDecorator
 		conflicted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_CONFLICTED));
 		deleted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_DELETED));
 		switched = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_SWITCHED));
+		treeConflict = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TREE_CONFLICT));
 	}
 
 	public SVNLightweightDecorator() {
@@ -418,7 +420,9 @@ public class SVNLightweightDecorator
 	 * Return null if no overlay is to be used.
 	 */	
 	protected ImageDescriptor getOverlay(ISVNLocalResource svnResource, LocalResourceStatus status, boolean isDirty, SVNTeamProvider provider) {
-        
+        // Tree conflict
+		if (status.hasTreeConflict()) return treeConflict;
+		
 		// show newResource icon
 		if (showNewResources) {
 			try {

@@ -52,6 +52,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     protected static final int FORMAT_VERSION_1 = 1;
     protected static final int FORMAT_VERSION_2 = 2;
     protected static final int FORMAT_VERSION_3 = 3;
+    protected static final int FORMAT_VERSION_4 = 4;
 
     protected String url;
     protected File file; // file (absolute path) -- not stored in bytes in this class. Subclasses may store it ...
@@ -277,7 +278,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     	int version; 
         try {
             version = dis.readInt();
-            if (version != FORMAT_VERSION_1 && version != FORMAT_VERSION_2 && version != FORMAT_VERSION_3) {
+            if (version != FORMAT_VERSION_1 && version != FORMAT_VERSION_2 && version != FORMAT_VERSION_3 && version != FORMAT_VERSION_4) {
                 throw new SVNException("Invalid format");
             }
 
@@ -285,12 +286,23 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
                 readFromVersion2Stream(dis);            	
             } else {
             	readFromVersion3Stream(dis);
-            }            
+            }  
+            if (version == FORMAT_VERSION_4) {
+            	readFromVersion4Stream(dis);
+            }
         } catch (IOException e) {
             throw new SVNException(
                     "cannot create RemoteResourceStatus from bytes", e);
         }
         return version;
+    }
+    
+    private void readFromVersion4Stream(StatusFromBytesStream dis) throws IOException {
+    	fileExternal = dis.readBoolean();
+    	treeConflicted = dis.readBoolean();
+    	if (treeConflicted) {
+    		conflictDescriptor = new SVNConflictDescriptor(url, dis.readInt(), dis.readInt(), dis.readInt());
+    	} else conflictDescriptor = null;
     }
 
 	private void readFromVersion3Stream(StatusFromBytesStream dis) throws IOException {
@@ -379,7 +391,8 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
      */
     protected void getBytesInto(StatusToBytesStream dos) {
         try {
-            dos.writeInt(FORMAT_VERSION_3);
+//            dos.writeInt(FORMAT_VERSION_3);
+        	dos.writeInt(FORMAT_VERSION_4);
 
             // url
             dos.writeString(url);
@@ -401,6 +414,19 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
 
             // nodeKind
             dos.writeInt(nodeKind);
+            
+            // fileExternal
+            dos.writeBoolean(fileExternal);
+            
+            // treeConflicted
+            dos.writeBoolean(treeConflicted);
+            
+            // conflictDescriptor
+            if (treeConflicted && conflictDescriptor != null) {
+            	dos.writeInt(conflictDescriptor.getAction());
+            	dos.writeInt(conflictDescriptor.getReason());
+            	dos.writeInt(conflictDescriptor.getOperation());
+            }
 
         } catch (IOException e) {
             return;
