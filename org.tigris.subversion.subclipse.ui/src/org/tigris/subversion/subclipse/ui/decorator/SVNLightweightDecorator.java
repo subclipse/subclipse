@@ -80,6 +80,7 @@ public class SVNLightweightDecorator
 	
 	private static ImageDescriptor newResource;
 	private static ImageDescriptor conflicted;
+	private static ImageDescriptor propertyConflicted;
 	private static ImageDescriptor merged;
     private static ImageDescriptor external;
     private static ImageDescriptor locked;
@@ -132,6 +133,7 @@ public class SVNLightweightDecorator
 		deleted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_DELETED));
 		switched = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_SWITCHED));
 		treeConflict = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_TREE_CONFLICT));
+		propertyConflicted = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CONFLICTED));
 	}
 
 	public SVNLightweightDecorator() {
@@ -464,6 +466,9 @@ public class SVNLightweightDecorator
 		if (showAdded) {
 			if (status.isTextConflicted()) {
 				return conflicted;
+			}
+			if (status.isPropConflicted()) {
+				return propertyConflicted;
 			}
 			if (status.isTextMerged()) {
 				return merged;

@@ -111,6 +111,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CHANGED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_TEXT_CONFLICTED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_TREE_CONFLICT, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CONFLICTED, baseURL);
         
         createImageDescriptor(ISVNUIConstants.IMG_UPDATE_ALL, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_COMMIT_ALL, baseURL);
