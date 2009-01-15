@@ -715,7 +715,10 @@ public class ResourceSelectionTree extends Composite {
 				}
 				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus((IResource)element);
 				if (propertyStatus != null && propertyStatus.length() > 0) {
-				  image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CHANGE);
+				  if (propertyStatus.equals("conflicted")) //$NON-NLS-1$
+					  image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CONFLICTED);
+				  else
+					  image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CHANGE);
 				}
 				return image;
 			}
