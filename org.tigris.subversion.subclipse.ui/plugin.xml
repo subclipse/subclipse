@@ -42,6 +42,13 @@
             class="org.tigris.subversion.subclipse.ui.annotations.AnnotateView"
             id="org.tigris.subversion.subclipse.ui.annotations.AnnotateView">
       </view>
+      <view
+            name="%TreeConflictsView.name"
+            icon="icons/full/cview16/tree_conflicts_view.gif"
+            category="org.tigris.subversion.subclipse"
+            class="org.tigris.subversion.subclipse.ui.conflicts.TreeConflictsView"
+            id="org.tigris.subversion.subclipse.ui.conflicts.TreeConflictsView">
+      </view>      
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
