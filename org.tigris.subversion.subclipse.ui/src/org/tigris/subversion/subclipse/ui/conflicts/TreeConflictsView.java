@@ -1,9 +1,11 @@
 package org.tigris.subversion.subclipse.ui.conflicts;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
@@ -17,9 +19,12 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -33,6 +38,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.actions.OpenWithMenu;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.ViewPart;
 import org.tigris.subversion.subclipse.core.resources.ISVNTreeConflict;
@@ -54,6 +60,7 @@ public class TreeConflictsView extends ViewPart {
 	private TableViewer tableViewer;
 	
 	private Action refreshAction;
+	private OpenFileInSystemEditorAction openAction;
 	
 	private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
 	
@@ -94,6 +101,12 @@ public class TreeConflictsView extends ViewPart {
 		}
 		
 		tableViewer.setInput(this);
+		
+		tableViewer.addOpenListener(new IOpenListener() {
+			public void open(OpenEvent evt) {
+				openAction.run();
+			}	
+		});
 		
 		createMenus();
 		createToolbar();
@@ -147,6 +160,7 @@ public class TreeConflictsView extends ViewPart {
 	}
 	
 	private void createMenus() {
+		openAction = new OpenFileInSystemEditorAction(getSite().getPage(), tableViewer);
 		MenuManager menuMgr = new MenuManager("#TreeConflictsViewPopupMenu"); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
@@ -183,6 +197,30 @@ public class TreeConflictsView extends ViewPart {
 	
 	private void fillContextMenu(IMenuManager manager) {
 		if (resource != null) {
+			boolean enableOpen = false;
+			IStructuredSelection selection = (IStructuredSelection)tableViewer.getSelection();
+			Iterator iter = selection.iterator();
+			while (iter.hasNext()) {
+				Object element = iter.next();
+				if (element instanceof SVNTreeConflict) {
+					SVNTreeConflict treeConflict = (SVNTreeConflict)element;
+					if (treeConflict.getResource() instanceof IFile && treeConflict.getResource().exists()) {
+						enableOpen = true;
+						break;
+					}
+				}
+			}
+			if (enableOpen) {
+				manager.add(openAction);
+			}	
+			if (enableOpen && selection.size() == 1) {
+	            MenuManager submenu =
+	                new MenuManager(Policy.bind("TreeConflictsView.openWith")); //$NON-NLS-1$
+	            SVNTreeConflict treeConflict = (SVNTreeConflict)selection.getFirstElement();
+	            submenu.add(new OpenWithMenu(getSite().getPage(), treeConflict.getResource()));
+	            manager.add(submenu);
+			}
+			manager.add(new Separator());
 			manager.add(getRefreshAction());
 		}
 	}
