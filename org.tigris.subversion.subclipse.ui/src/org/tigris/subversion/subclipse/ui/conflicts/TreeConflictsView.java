@@ -63,6 +63,8 @@ public class TreeConflictsView extends ViewPart {
 	private OpenFileInSystemEditorAction openAction;
 	
 	private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
+	private boolean disposed;
+	private static TreeConflictsView view;
 	
 	private String[] columnHeaders = {Policy.bind("TreeConflictsView.resource"), Policy.bind("TreeConflictsView.description")}; //$NON-NLS-1$ //$NON-NLS-2$
 	private ColumnLayoutData columnLayouts[] = {
@@ -71,6 +73,7 @@ public class TreeConflictsView extends ViewPart {
 	
 	public TreeConflictsView() {
 		super();
+		view = this;
 	}
 
 	public void createPartControl(Composite parent) {
@@ -138,7 +141,34 @@ public class TreeConflictsView extends ViewPart {
 		refresh();
 	}
 	
-	private void refresh() {
+	public void dispose() {
+		disposed = true;
+		super.dispose();
+	}
+	
+	public boolean isDisposed() {
+		return disposed;
+	}
+
+	public IResource getResource() {
+		return resource;
+	}
+
+	public static void refresh(IResource[] resources) {
+		if (view == null || view.isDisposed() || view.getResource() == null) return;
+		for (int i = 0; i < resources.length; i++) {
+			if (view.getResource().equals(resources[i]) || resources[i].getFullPath().toString().startsWith(view.getResource().getFullPath().toString())) {
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						view.refresh();
+					}					
+				});
+				break;
+			}
+		}
+	}
+	
+	public void refresh() {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				treeConflicts = new ArrayList();

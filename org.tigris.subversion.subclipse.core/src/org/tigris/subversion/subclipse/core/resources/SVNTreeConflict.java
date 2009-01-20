@@ -77,7 +77,7 @@ public class SVNTreeConflict implements ISVNTreeConflict, IAdaptable {
 	public ISVNStatus getStatus() {
 		return status;
 	}
-	
+
 	public IResource getResource() {
 		return File2Resource.getResource(status.getFile());
 	}

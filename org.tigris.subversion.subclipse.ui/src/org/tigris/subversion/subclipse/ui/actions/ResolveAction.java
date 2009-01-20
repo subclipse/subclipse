@@ -47,6 +47,10 @@ public class ResolveAction extends WorkspaceAction {
         }
     }
 
+	protected boolean isEnabledForInaccessibleResources() {
+		return true;
+	}
+	
 	protected String getImageId()
 	{
 		return ISVNUIConstants.IMG_MENU_RESOLVE;
