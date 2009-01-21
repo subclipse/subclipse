@@ -18,6 +18,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ColumnLayoutData;
+import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -30,6 +31,8 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -95,12 +98,19 @@ public class TreeConflictsView extends ViewPart {
 		tableViewer = new TableViewer(table);
 		tableViewer.setContentProvider(new TreeConflictsContentProvider());
 		tableViewer.setLabelProvider(new TreeConflictsLabelProvider());
+
+		DisposeListener disposeListener = new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				TableColumn col = (TableColumn)e.getSource();
+				if (col.getWidth() > 0) settings.put("TreeConflictsView.col." + col.getText(), col.getWidth()); //$NON-NLS-1$
+			}			
+		};
 		
 		for (int i = 0; i < columnHeaders.length; i++) {
-			tableLayout.addColumnData(columnLayouts[i]);
 			TableColumn tc = new TableColumn(table, SWT.NONE,i);
 			tc.setResizable(columnLayouts[i].resizable);
 			tc.setText(columnHeaders[i]);
+			setColumnWidth(tableLayout, disposeListener, tc, i);
 		}
 		
 		tableViewer.setInput(this);
@@ -124,6 +134,15 @@ public class TreeConflictsView extends ViewPart {
 			setContentDescription(Policy.bind("TreeConflictsView.noResource")); //$NON-NLS-1$
 		else
 			showTreeConflictsFor(resource);
+	}
+	
+	private void setColumnWidth(TableLayout layout,
+			DisposeListener disposeListener, TableColumn col, int colIndex) {
+		String columnWidth = null;
+		columnWidth = settings.get("TreeConflictsView.col." + col.getText()); //$NON-NLS-1$ //$NON-NLS-1$
+		if (columnWidth == null || columnWidth.equals("0")) layout.addColumnData(columnLayouts[colIndex]); //$NON-NLS-1$
+		else layout.addColumnData(new ColumnPixelData(Integer.parseInt(columnWidth), true));
+		col.addDisposeListener(disposeListener);
 	}
 
 	public void setFocus() {
