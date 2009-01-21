@@ -12,6 +12,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.actions.WorkbenchWindowAction;
 
 public class ViewGraphAction extends WorkbenchWindowAction {
+	private IResource selectedResource;
 
 	public void execute(IAction action) throws InterruptedException, InvocationTargetException {
         if (action != null && !action.isEnabled()) { 
@@ -60,6 +61,18 @@ public class ViewGraphAction extends WorkbenchWindowAction {
 	 */
 	protected boolean isEnabledForCopiedResources() {
 		return true;
+	}
+
+	protected IResource[] getSelectedResources() {
+		if (selectedResource != null) {
+			IResource[] selectedResources  = { selectedResource };
+			return selectedResources;
+		}
+		return super.getSelectedResources();
+	}
+	
+	public void setSelectedResource(IResource selectedResource) {
+		this.selectedResource = selectedResource;
 	}
 
 }
