@@ -24,6 +24,7 @@ public class SvnWizardMarkResolvedPage extends SvnWizardDialogPage {
 	private Button chooseBaseVersionButton;
 	private IDialogSettings settings;
 	private int resolution;
+	private boolean propertyConflicts;
 	private final static String LAST_CHOICE = "ResolveConflictDialog.lastChoice"; //$NON-NLS-1$
 	
 	public SvnWizardMarkResolvedPage(IResource[] resources) {
@@ -58,6 +59,16 @@ public class SvnWizardMarkResolvedPage extends SvnWizardDialogPage {
 		data.widthHint = 500;
 		label.setLayoutData(data);
 		
+		if (propertyConflicts) {
+			new Label(composite, SWT.NONE);
+			Label propertyLabel1 = new Label(composite, SWT.WRAP);
+			if (resources.length > 1) propertyLabel1.setText(Policy.bind("ResolveDialog.propertyConflictMultiple")); //$NON-NLS-1$
+			else propertyLabel1.setText(Policy.bind("ResolveDialog.propertyConflict")); //$NON-NLS-1$
+			data = new GridData();
+			data.widthHint = 500;
+			propertyLabel1.setLayoutData(data);
+		}
+		
 		new Label(composite, SWT.NONE);
 		
 		Group conflictGroup = new Group(composite, SWT.NULL);
@@ -71,6 +82,10 @@ public class SvnWizardMarkResolvedPage extends SvnWizardDialogPage {
 
 		markResolvedButton = new Button(conflictGroup, SWT.RADIO);
 		markResolvedButton.setText(Policy.bind("ResolveDialog.resolved")); //$NON-NLS-1$	
+		if (propertyConflicts) {
+			Label propertyLabel2 = new Label(conflictGroup, SWT.NONE);
+			propertyLabel2.setText(Policy.bind("ResolveDialog.nonPropertyOnly")); //$NON-NLS-1$	
+		}		
 		chooseUserVersionButton = new Button(conflictGroup, SWT.RADIO);
 		chooseUserVersionButton.setText(Policy.bind("ResolveDialog.useMine")); //$NON-NLS-1$
 		chooseIncomingVersionButton = new Button(conflictGroup, SWT.RADIO);
@@ -131,6 +146,10 @@ public class SvnWizardMarkResolvedPage extends SvnWizardDialogPage {
 	
 	public int getResolution() {
 		return resolution;
+	}
+
+	public void setPropertyConflicts(boolean propertyConflicts) {
+		this.propertyConflicts = propertyConflicts;
 	}
 
 }
