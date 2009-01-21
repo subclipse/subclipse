@@ -25,18 +25,20 @@ public class ResolveActionWithChoices extends ResolveAction {
 		boolean folderSelected = false;
 		boolean propertyConflicts = false;
 		boolean textConflicts = false;
+		boolean treeConflicts = false;
 		IResource[] resources = getSelectedResources();
 		for (int i = 0; i < resources.length; i++) {
 			if (resources[i] instanceof IContainer) {
 				folderSelected = true;
 				break;
 			}
-			if (!propertyConflicts || !textConflicts) {
+			if (!propertyConflicts || !textConflicts || !treeConflicts) {
 				ISVNLocalResource resource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
 				try {
 					LocalResourceStatus status = resource.getStatus();
 					if (status != null && status.isPropConflicted()) propertyConflicts = true;
 					if (status != null && status.isTextConflicted()) textConflicts = true;
+					if (status != null && status.hasTreeConflict()) treeConflicts = true;
 				} catch (SVNException e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				}
@@ -55,6 +57,7 @@ public class ResolveActionWithChoices extends ResolveAction {
 			} else {
 				SvnWizardMarkResolvedPage markResolvedPage = new SvnWizardMarkResolvedPage(resources);
 				markResolvedPage.setPropertyConflicts(propertyConflicts);
+				markResolvedPage.setTreeConflicts(treeConflicts);
 				SvnWizard wizard = new SvnWizard(markResolvedPage);
 		        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 		        wizard.setParentDialog(dialog);

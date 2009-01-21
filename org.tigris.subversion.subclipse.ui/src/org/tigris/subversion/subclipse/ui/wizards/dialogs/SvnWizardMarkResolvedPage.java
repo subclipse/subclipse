@@ -25,6 +25,8 @@ public class SvnWizardMarkResolvedPage extends SvnWizardDialogPage {
 	private IDialogSettings settings;
 	private int resolution;
 	private boolean propertyConflicts;
+	private boolean treeConflicts;
+
 	private final static String LAST_CHOICE = "ResolveConflictDialog.lastChoice"; //$NON-NLS-1$
 	
 	public SvnWizardMarkResolvedPage(IResource[] resources) {
@@ -59,7 +61,16 @@ public class SvnWizardMarkResolvedPage extends SvnWizardDialogPage {
 		data.widthHint = 500;
 		label.setLayoutData(data);
 		
-		if (propertyConflicts) {
+		if (treeConflicts) {
+			new Label(composite, SWT.NONE);
+			Label propertyLabel1 = new Label(composite, SWT.WRAP);
+			if (resources.length > 1) propertyLabel1.setText(Policy.bind("ResolveDialog.treeConflictMultiple")); //$NON-NLS-1$
+			else propertyLabel1.setText(Policy.bind("ResolveDialog.treeConflict")); //$NON-NLS-1$
+			data = new GridData();
+			data.widthHint = 500;
+			propertyLabel1.setLayoutData(data);			
+		}
+		else if (propertyConflicts) {
 			new Label(composite, SWT.NONE);
 			Label propertyLabel1 = new Label(composite, SWT.WRAP);
 			if (resources.length > 1) propertyLabel1.setText(Policy.bind("ResolveDialog.propertyConflictMultiple")); //$NON-NLS-1$
@@ -82,7 +93,11 @@ public class SvnWizardMarkResolvedPage extends SvnWizardDialogPage {
 
 		markResolvedButton = new Button(conflictGroup, SWT.RADIO);
 		markResolvedButton.setText(Policy.bind("ResolveDialog.resolved")); //$NON-NLS-1$	
-		if (propertyConflicts) {
+		if (treeConflicts) {
+			Label propertyLabel2 = new Label(conflictGroup, SWT.NONE);
+			propertyLabel2.setText(Policy.bind("ResolveDialog.nonTreeOnly")); //$NON-NLS-1$				
+		}
+		else if (propertyConflicts) {
 			Label propertyLabel2 = new Label(conflictGroup, SWT.NONE);
 			propertyLabel2.setText(Policy.bind("ResolveDialog.nonPropertyOnly")); //$NON-NLS-1$	
 		}		
@@ -150,6 +165,10 @@ public class SvnWizardMarkResolvedPage extends SvnWizardDialogPage {
 
 	public void setPropertyConflicts(boolean propertyConflicts) {
 		this.propertyConflicts = propertyConflicts;
+	}
+	
+	public void setTreeConflicts(boolean treeConflicts) {
+		this.treeConflicts = treeConflicts;
 	}
 
 }
