@@ -38,6 +38,7 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
+import org.tigris.subversion.svnclientadapter.SVNConflictVersion;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class SVNPropertyPage extends PropertyPage {
@@ -257,6 +258,26 @@ public class SVNPropertyPage extends PropertyPage {
             	else {
             		SVNTreeConflict svnTreeConflict = new SVNTreeConflict(status);
             		treeConflict.setText(svnTreeConflict.getDescription());
+            		SVNConflictVersion srcLeftVersion = svnTreeConflict.getConflictDescriptor().getSrcLeftVersion();
+            		if (srcLeftVersion != null) {
+            			new Label(composite, SWT.NONE);
+            	        Text srcLeftVersionValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+            	        gd = new GridData();
+            	        gd.widthHint = 500;
+            	        srcLeftVersionValue.setLayoutData(gd);
+            	        srcLeftVersionValue.setText("Source  left: " + srcLeftVersion.toString()); //$NON-NLS-1$
+            	        srcLeftVersionValue.setBackground(composite.getBackground());            			
+            		}
+            		SVNConflictVersion srcRightVersion = svnTreeConflict.getConflictDescriptor().getSrcRightVersion();
+            		if (srcRightVersion != null) {
+            			new Label(composite, SWT.NONE);
+            	        Text srcRightVersionValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+            	        gd = new GridData();
+            	        gd.widthHint = 500;
+            	        srcRightVersionValue.setLayoutData(gd);
+            	        srcRightVersionValue.setText("Source right: " + srcRightVersion.toString()); //$NON-NLS-1$
+            	        srcRightVersionValue.setBackground(composite.getBackground());            			
+            		}            		
             	}
             }
         } catch (Exception e) {

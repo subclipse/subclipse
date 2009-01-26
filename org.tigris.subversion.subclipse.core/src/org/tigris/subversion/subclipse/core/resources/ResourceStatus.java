@@ -26,6 +26,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
+import org.tigris.subversion.svnclientadapter.SVNConflictVersion;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
@@ -303,7 +304,23 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     	fileExternal = dis.readBoolean();
     	treeConflicted = dis.readBoolean();
     	if (treeConflicted) {
-    		conflictDescriptor = new SVNConflictDescriptor(url, dis.readInt(), dis.readInt(), dis.readInt());
+    		int action = dis.readInt();
+    		int reason = dis.readInt();
+    		int operation = dis.readInt();
+ 
+    		String leftReposURL = dis.readString();
+    		long leftPegRevision = dis.readLong();
+    		String leftPathInRepos = dis.readString();
+    		int leftNodeKind = dis.readInt();
+    		SVNConflictVersion srcLeftVersion = new SVNConflictVersion(leftReposURL, leftPegRevision, leftPathInRepos, leftNodeKind);
+    		
+    		String rightReposURL = dis.readString();
+    		long rightPegRevision = dis.readLong();
+    		String rightPathInRepos = dis.readString();
+    		int rightNodeKind = dis.readInt();	
+    		SVNConflictVersion srcRightVersion = new SVNConflictVersion(rightReposURL, rightPegRevision, rightPathInRepos, rightNodeKind);
+    		
+    		conflictDescriptor = new SVNConflictDescriptor(url, action, reason, operation, srcLeftVersion, srcRightVersion);
     	} else conflictDescriptor = null;
     }
 
@@ -428,6 +445,16 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
             	dos.writeInt(conflictDescriptor.getAction());
             	dos.writeInt(conflictDescriptor.getReason());
             	dos.writeInt(conflictDescriptor.getOperation());
+            	
+            	dos.writeString(conflictDescriptor.getSrcLeftVersion().getReposURL());
+            	dos.writeLong(conflictDescriptor.getSrcLeftVersion().getPegRevision());
+            	dos.writeString(conflictDescriptor.getSrcLeftVersion().getPathInRepos());
+            	dos.writeInt(conflictDescriptor.getSrcLeftVersion().getNodeKind());
+            	
+            	dos.writeString(conflictDescriptor.getSrcRightVersion().getReposURL());
+            	dos.writeLong(conflictDescriptor.getSrcRightVersion().getPegRevision());
+            	dos.writeString(conflictDescriptor.getSrcRightVersion().getPathInRepos());
+            	dos.writeInt(conflictDescriptor.getSrcRightVersion().getNodeKind());            	
             }
 
         } catch (IOException e) {
