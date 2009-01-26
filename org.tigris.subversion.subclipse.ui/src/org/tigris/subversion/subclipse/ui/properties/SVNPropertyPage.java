@@ -29,6 +29,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.SVNTreeConflict;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -36,6 +37,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
+import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class SVNPropertyPage extends PropertyPage {
@@ -58,7 +60,7 @@ public class SVNPropertyPage extends PropertyPage {
     private Text lockOwner;
     private Text lockCreationDate;
     private Label lockComment;
-   
+    private Text treeConflict;
 
     public SVNPropertyPage() {
         super();
@@ -244,6 +246,18 @@ public class SVNPropertyPage extends PropertyPage {
 	            	} catch (Exception e) {
 	            	}
            		}
+            }
+            if (status.hasTreeConflict()) {
+            	label = new Label(composite, SWT.NONE);
+            	label.setText(Policy.bind("SVNPropertyPage.treeConflict")); //$NON-NLS-1$
+                treeConflict = new Text(composite, SWT.READ_ONLY);
+                treeConflict.setBackground(composite.getBackground());            	
+            	SVNConflictDescriptor conflictDescriptor = status.getConflictDescriptor();
+            	if (conflictDescriptor == null) treeConflict.setText("true"); //$NON-NLS-1$
+            	else {
+            		SVNTreeConflict svnTreeConflict = new SVNTreeConflict(status);
+            		treeConflict.setText(svnTreeConflict.getDescription());
+            	}
             }
         } catch (Exception e) {
             SVNUIPlugin.log(new Status(IStatus.ERROR, SVNUIPlugin.ID, TeamException.UNABLE,
