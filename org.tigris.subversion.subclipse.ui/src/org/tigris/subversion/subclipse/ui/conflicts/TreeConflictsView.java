@@ -29,6 +29,7 @@ import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.DisposeEvent;
@@ -42,6 +43,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.actions.OpenWithMenu;
+import org.eclipse.ui.dialogs.PropertyDialogAction;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.ViewPart;
 import org.tigris.subversion.subclipse.core.resources.ISVNTreeConflict;
@@ -208,7 +210,7 @@ public class TreeConflictsView extends ViewPart {
 		});
 	}
 	
-	private void createMenus() {
+	private void createMenus() {		
 		openAction = new OpenFileInSystemEditorAction(getSite().getPage(), tableViewer);
 		MenuManager menuMgr = new MenuManager("#TreeConflictsViewPopupMenu"); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
@@ -248,6 +250,7 @@ public class TreeConflictsView extends ViewPart {
 		if (resource != null) {
 			boolean enableOpen = false;
 			IStructuredSelection selection = (IStructuredSelection)tableViewer.getSelection();
+			
 			Iterator iter = selection.iterator();
 			while (iter.hasNext()) {
 				Object element = iter.next();
@@ -270,6 +273,11 @@ public class TreeConflictsView extends ViewPart {
 	            manager.add(submenu);
 			}
 			manager.add(new Separator());
+			if (selection.size() == 1) {
+				PropertyDialogAction propertiesAction = new PropertyDialogAction(new SameShellProvider(Display.getDefault().getActiveShell()), tableViewer);
+				manager.add(propertiesAction);
+				manager.add(new Separator());
+			}
 			manager.add(getRefreshAction());
 		}
 	}
