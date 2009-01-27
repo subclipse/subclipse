@@ -7,6 +7,7 @@ import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -17,36 +18,24 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.viewers.ColumnLayoutData;
-import org.eclipse.jface.viewers.ColumnPixelData;
-import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IOpenListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.OpenEvent;
-import org.eclipse.jface.viewers.TableLayout;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.SameShellProvider;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.actions.OpenWithMenu;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
+import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.ViewPart;
-import org.tigris.subversion.subclipse.core.resources.ISVNTreeConflict;
 import org.tigris.subversion.subclipse.core.resources.SVNTreeConflict;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -60,9 +49,9 @@ public class TreeConflictsView extends ViewPart {
 
 	private IResource resource;
 	private List treeConflicts;
+	private ArrayList folderList;
 	
-	private Table table;
-	private TableViewer tableViewer;
+	private TreeViewer treeViewer;
 	
 	private Action refreshAction;
 	private OpenFileInSystemEditorAction openAction;
@@ -70,11 +59,6 @@ public class TreeConflictsView extends ViewPart {
 	private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
 	private boolean disposed;
 	private static TreeConflictsView view;
-	
-	private String[] columnHeaders = {Policy.bind("TreeConflictsView.resource"), Policy.bind("TreeConflictsView.description")}; //$NON-NLS-1$ //$NON-NLS-2$
-	private ColumnLayoutData columnLayouts[] = {
-		new ColumnWeightData(75, 75, true),
-		new ColumnWeightData(450, 450, true)};
 	
 	public TreeConflictsView() {
 		super();
@@ -88,36 +72,19 @@ public class TreeConflictsView extends ViewPart {
 		layout.numColumns = 1;
 		parent.setLayout(layout);		
 
-		table = new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
+		treeViewer = new TreeViewer(parent);
+		treeViewer.setLabelProvider(new ConflictsLabelProvider());
+		treeViewer.setContentProvider(new ConflictsContentProvider());
+		treeViewer.setUseHashlookup(true);
+		GridData layoutData = new GridData();
+		layoutData.grabExcessHorizontalSpace = true;
+		layoutData.grabExcessVerticalSpace = true;
+		layoutData.horizontalAlignment = GridData.FILL;
+		layoutData.verticalAlignment = GridData.FILL;
+		treeViewer.getControl().setLayoutData(layoutData);
+		treeViewer.setInput(this);
 
-		GridData gridData = new GridData(GridData.FILL_BOTH);
-		table.setLayoutData(gridData);
-		TableLayout tableLayout = new TableLayout();
-		table.setLayout(tableLayout);
-        
-		tableViewer = new TableViewer(table);
-		tableViewer.setContentProvider(new TreeConflictsContentProvider());
-		tableViewer.setLabelProvider(new TreeConflictsLabelProvider());
-
-		DisposeListener disposeListener = new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				TableColumn col = (TableColumn)e.getSource();
-				if (col.getWidth() > 0) settings.put("TreeConflictsView.col." + col.getText(), col.getWidth()); //$NON-NLS-1$
-			}			
-		};
-		
-		for (int i = 0; i < columnHeaders.length; i++) {
-			TableColumn tc = new TableColumn(table, SWT.NONE,i);
-			tc.setResizable(columnLayouts[i].resizable);
-			tc.setText(columnHeaders[i]);
-			setColumnWidth(tableLayout, disposeListener, tc, i);
-		}
-		
-		tableViewer.setInput(this);
-		
-		tableViewer.addOpenListener(new IOpenListener() {
+		treeViewer.addOpenListener(new IOpenListener() {
 			public void open(OpenEvent evt) {
 				openAction.run();
 			}	
@@ -137,18 +104,9 @@ public class TreeConflictsView extends ViewPart {
 		else
 			showTreeConflictsFor(resource);
 	}
-	
-	private void setColumnWidth(TableLayout layout,
-			DisposeListener disposeListener, TableColumn col, int colIndex) {
-		String columnWidth = null;
-		columnWidth = settings.get("TreeConflictsView.col." + col.getText()); //$NON-NLS-1$ //$NON-NLS-1$
-		if (columnWidth == null || columnWidth.equals("0")) layout.addColumnData(columnLayouts[colIndex]); //$NON-NLS-1$
-		else layout.addColumnData(new ColumnPixelData(Integer.parseInt(columnWidth), true));
-		col.addDisposeListener(disposeListener);
-	}
 
 	public void setFocus() {
-		tableViewer.getControl().setFocus();
+		treeViewer.getControl().setFocus();
 	}
 	
 	public void showTreeConflictsFor(IResource resource) {
@@ -192,6 +150,7 @@ public class TreeConflictsView extends ViewPart {
 	public void refresh() {
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
+				folderList = new ArrayList();				
 				treeConflicts = new ArrayList();
 				try {
 					ISVNClientAdapter client = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getSVNClient();
@@ -199,10 +158,23 @@ public class TreeConflictsView extends ViewPart {
 					for (int i = 0; i < statuses.length; i++) {
 						if (statuses[i].hasTreeConflict()) {
 							SVNTreeConflict treeConflict = new SVNTreeConflict(statuses[i]);
+							
+							IResource treeConflictResource = treeConflict.getResource();
+							if (treeConflictResource instanceof IContainer && !folderList.contains(treeConflictResource)) {
+								folderList.add(treeConflict);
+							}
+							if (!(treeConflictResource instanceof IContainer)) {
+								IContainer parent = treeConflictResource.getParent();
+								if (parent != null && !(parent instanceof IWorkspaceRoot) && !folderList.contains(parent)) {	
+									folderList.add(parent);
+								}
+							}
+							
 							treeConflicts.add(treeConflict);
 						}
-					}
-					tableViewer.refresh();
+					}		
+					treeViewer.refresh();
+					treeViewer.expandAll();
 				} catch (Exception e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				}		
@@ -211,7 +183,7 @@ public class TreeConflictsView extends ViewPart {
 	}
 	
 	private void createMenus() {		
-		openAction = new OpenFileInSystemEditorAction(getSite().getPage(), tableViewer);
+		openAction = new OpenFileInSystemEditorAction(getSite().getPage(), treeViewer);
 		MenuManager menuMgr = new MenuManager("#TreeConflictsViewPopupMenu"); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
@@ -219,9 +191,11 @@ public class TreeConflictsView extends ViewPart {
 				fillContextMenu(manager);
 			}
 		});
-		Menu menu = menuMgr.createContextMenu(tableViewer.getControl());
-		tableViewer.getControl().setMenu(menu);		
-		getSite().registerContextMenu(menuMgr, tableViewer);		
+		Menu menu = menuMgr.createContextMenu(treeViewer.getControl());
+		
+		treeViewer.getControl().setMenu(menu);
+		
+		getSite().registerContextMenu(menuMgr, treeViewer);	
 	}
 	
 	private void createToolbar() {
@@ -249,7 +223,7 @@ public class TreeConflictsView extends ViewPart {
 	private void fillContextMenu(IMenuManager manager) {
 		if (resource != null) {
 			boolean enableOpen = false;
-			IStructuredSelection selection = (IStructuredSelection)tableViewer.getSelection();
+			IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 			
 			Iterator iter = selection.iterator();
 			while (iter.hasNext()) {
@@ -274,7 +248,7 @@ public class TreeConflictsView extends ViewPart {
 			}
 			manager.add(new Separator());
 			if (selection.size() == 1) {
-				PropertyDialogAction propertiesAction = new PropertyDialogAction(new SameShellProvider(Display.getDefault().getActiveShell()), tableViewer);
+				PropertyDialogAction propertiesAction = new PropertyDialogAction(new SameShellProvider(Display.getDefault().getActiveShell()), treeViewer);
 				manager.add(propertiesAction);
 				manager.add(new Separator());
 			}
@@ -282,37 +256,71 @@ public class TreeConflictsView extends ViewPart {
 		}
 	}
 	
-	class TreeConflictsContentProvider implements IStructuredContentProvider {
-		public void dispose() {
+	class ConflictsContentProvider extends WorkbenchContentProvider {
+		public Object getParent(Object element) {
+			return null;
 		}
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public boolean hasChildren(Object element) {
+			if (element instanceof SVNTreeConflict) {
+				return (((SVNTreeConflict)element).getResource() instanceof IContainer);
+			}
+			else return true;
 		}
-		public Object[] getElements(Object obj) {
+		public Object[] getElements(Object inputElement) {
+			return getChildren(inputElement);
+		}
+		public Object[] getChildren(Object parentElement) {
 			if (treeConflicts == null) return new Object[0];
-			ISVNTreeConflict[] treeConflictArray = new ISVNTreeConflict[treeConflicts.size()];
-			treeConflicts.toArray(treeConflictArray);
-			return treeConflictArray;
+			if (parentElement instanceof TreeConflictsView) {
+				Object[] folderArray = new Object[folderList.size()];
+				folderList.toArray(folderArray);
+				return folderArray;
+			}
+			if (parentElement instanceof IContainer) {
+				return getFolderChildren((IResource)parentElement);
+			}
+			if (parentElement instanceof SVNTreeConflict) {
+				if (((SVNTreeConflict)parentElement).getResource() instanceof IContainer) {
+					return getFolderChildren(((SVNTreeConflict)parentElement).getResource());
+				}
+			}
+			return new Object[0];
 		}
-	}	
+		private Object[] getFolderChildren(IResource parentElement) {
+			List childList = new ArrayList();
+			Iterator iter = treeConflicts.iterator();
+			while (iter.hasNext()) {
+				SVNTreeConflict treeConflict = (SVNTreeConflict)iter.next();
+				if ((!(treeConflict.getResource() instanceof IContainer)) && treeConflict.getResource().getParent() != null && treeConflict.getResource().getParent().getFullPath().toString().equals(parentElement.getFullPath().toString()))
+					childList.add(treeConflict);
+			}
+			Object[] children = new Object[childList.size()];
+			childList.toArray(children);
+			return children;
+		}
+	}
 	
-	class TreeConflictsLabelProvider extends LabelProvider implements ITableLabelProvider {
-		WorkbenchLabelProvider workbenchLabelProvider = new WorkbenchLabelProvider();
-		
-		public String getColumnText(Object element, int columnIndex) {
-			ISVNTreeConflict treeConflict = (ISVNTreeConflict)element;
-			switch (columnIndex) {
-			case 0:
-				return treeConflict.getStatus().getFile().getName();
-			case 1:
-				return treeConflict.getDescription();
-			default:
-				return ""; //$NON-NLS-1$
+	class ConflictsLabelProvider extends LabelProvider {
+		public Image getImage(Object element) {
+			IResource elementResource;
+			if (element instanceof SVNTreeConflict)
+				elementResource = ((SVNTreeConflict)element).getResource();
+			else
+				elementResource = (IResource)element;
+			return WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider().getImage(elementResource);
+		}
+		public String getText(Object element) {
+			if (element instanceof SVNTreeConflict) {
+				SVNTreeConflict treeConflict = (SVNTreeConflict)element;
+				if (treeConflict.getResource() instanceof IContainer)
+					return treeConflict.getResource().getFullPath() + " (" + treeConflict.getDescription() + ")"; 
+				else
+					return treeConflict.getResource().getName() + " (" + treeConflict.getDescription() + ")"; 
+			}
+			else {
+				return ((IResource)element).getFullPath().toString();
 			}
 		}
-		public Image getColumnImage(Object element, int columnIndex) {
-			if (columnIndex == 0) return workbenchLabelProvider.getDecoratingWorkbenchLabelProvider().getImage(((SVNTreeConflict)element).getResource());
-			return null;
-		}		
 	}
 
 }
