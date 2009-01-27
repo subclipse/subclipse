@@ -46,6 +46,7 @@ public class SVNPropertyPage extends PropertyPage {
 	private Text urlValue;
 	private Text revisionValue;
 	private Text repositoryRootValue;
+	private Text repositoryUuidValue;
 	private Text statusValue;
 	private Text propertiesValue;
 	private Text copiedFromValue;
@@ -60,6 +61,7 @@ public class SVNPropertyPage extends PropertyPage {
 	private ISVNLocalResource svnResource;
 	private LocalResourceStatus status;
 	private SVNRevision revision;
+	private ISVNInfo info;
 	private String lockOwnerText;
 	private String lockDateText;
 	private String lockCommentText;
@@ -72,9 +74,10 @@ public class SVNPropertyPage extends PropertyPage {
 
         composite.setLayoutData(data);
 
+        getStatus();
+        
         addFirstSection(composite);
         
-        getStatus();
         if (status != null) {
 	        addSeparator(composite);
 	        addSecondSection(composite);
@@ -131,6 +134,17 @@ public class SVNPropertyPage extends PropertyPage {
         gd.widthHint = 500;
         repositoryRootValue.setLayoutData(gd);
         repositoryRootValue.setBackground(composite.getBackground());
+        
+        if (info != null && info.getUuid() != null) {
+            label = new Label(composite, SWT.NONE);
+            label.setText(Policy.bind("SVNPropertyPage.uuid")); //$NON-NLS-1$                	
+            Text uuidValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+            gd = new GridData();
+            gd.widthHint = 500;
+            uuidValue.setLayoutData(gd);
+            uuidValue.setBackground(composite.getBackground());
+            uuidValue.setText(info.getUuid());
+        }
         
         label = new Label(composite, SWT.NONE);
         label.setText(Policy.bind("SVNPropertyPage.revision")); //$NON-NLS-1$
@@ -263,19 +277,18 @@ public class SVNPropertyPage extends PropertyPage {
             revision = svnResource.getRevision(); 
             lockOwnerText = status.getLockOwner();
             lockCommentText = status.getLockComment();
-            lockDateText = status.getLockCreationDate().toString();
+            if (status.getLockCreationDate() != null) lockDateText = status.getLockCreationDate().toString();
+            try {
+            	ISVNClientAdapter client = svnResource.getRepository().getSVNClient();
+            	info = client.getInfo(status.getUrl());
+            } catch (Exception e) {}
             // Get lock information from server if svn:needs-lock property is set
-            if (status.getLockOwner() == null && status.getUrlString() != null) {
+            if (info != null && status.getLockOwner() == null && status.getUrlString() != null) {
            		ISVNProperty prop = svnResource.getSvnProperty("svn:needs-lock");
            		if (prop != null) {
-	           	    ISVNClientAdapter client = svnResource.getRepository().getSVNClient();
-	            	try {
-	            		ISVNInfo info = client.getInfo(status.getUrl());
-	                    lockOwnerText = info.getLockOwner();
-	                    lockDateText = info.getLockCreationDate().toString();
-	                    lockCommentText = info.getLockComment();
-	            	} catch (Exception e) {
-	            	}
+                    lockOwnerText = info.getLockOwner();
+                    if (info.getLockCreationDate() != null) lockDateText = info.getLockCreationDate().toString();
+                    lockCommentText = info.getLockComment();
            		}
             }            
     	} catch (Exception e) {
