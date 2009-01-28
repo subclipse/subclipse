@@ -20,19 +20,28 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.viewers.ColumnLayoutData;
+import org.eclipse.jface.viewers.ColumnPixelData;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.OpenEvent;
+import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.SameShellProvider;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.actions.OpenWithMenu;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
 import org.eclipse.ui.model.WorkbenchContentProvider;
@@ -62,6 +71,11 @@ public class TreeConflictsView extends ViewPart {
 	private boolean disposed;
 	private static TreeConflictsView view;
 	
+	private String[] columnHeaders = {Policy.bind("TreeConflictsView.resource"), Policy.bind("TreeConflictsView.description")}; //$NON-NLS-1$ //$NON-NLS-2$
+	private ColumnLayoutData columnLayouts[] = {
+			new ColumnWeightData(75, 75, true),
+			new ColumnWeightData(450, 450, true)};
+	
 	public TreeConflictsView() {
 		super();
 		view = this;
@@ -74,7 +88,7 @@ public class TreeConflictsView extends ViewPart {
 		layout.numColumns = 1;
 		parent.setLayout(layout);		
 
-		treeViewer = new TreeViewer(parent);
+		treeViewer = new TreeViewer(parent, SWT.FULL_SELECTION);
 		treeViewer.setLabelProvider(new ConflictsLabelProvider());
 		treeViewer.setContentProvider(new ConflictsContentProvider());
 		treeViewer.setUseHashlookup(true);
@@ -84,6 +98,25 @@ public class TreeConflictsView extends ViewPart {
 		layoutData.horizontalAlignment = GridData.FILL;
 		layoutData.verticalAlignment = GridData.FILL;
 		treeViewer.getControl().setLayoutData(layoutData);
+		TableLayout tableLayout = new TableLayout();
+		treeViewer.getTree().setLayout(tableLayout);
+
+		DisposeListener disposeListener = new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				TreeColumn col = (TreeColumn)e.getSource();
+				if (col.getWidth() > 0) settings.put("TreeConflictsView.col." + col.getText(), col.getWidth()); //$NON-NLS-1$
+			}			
+		};
+		for (int i = 0; i < columnHeaders.length; i++) {
+			TreeColumn tc = new TreeColumn(treeViewer.getTree(), SWT.NONE,i);
+			tc.setResizable(columnLayouts[i].resizable);
+			tc.setText(columnHeaders[i]);
+			setColumnWidth(tableLayout, disposeListener, tc, i);
+		}
+		
+		treeViewer.getTree().setHeaderVisible(true);
+		treeViewer.getTree().setLinesVisible(false);
+		
 		treeViewer.setInput(this);
 
 		treeViewer.addOpenListener(new IOpenListener() {
@@ -105,6 +138,15 @@ public class TreeConflictsView extends ViewPart {
 			setContentDescription(Policy.bind("TreeConflictsView.noResource")); //$NON-NLS-1$
 		else
 			showTreeConflictsFor(resource);
+	}
+	
+	private void setColumnWidth(TableLayout layout,
+			DisposeListener disposeListener, TreeColumn col, int colIndex) {
+		String columnWidth = null;
+		columnWidth = settings.get("TreeConflictsView.col." + col.getText()); //$NON-NLS-1$ //$NON-NLS-1$
+		if (columnWidth == null || columnWidth.equals("0")) layout.addColumnData(columnLayouts[colIndex]); //$NON-NLS-1$
+		else layout.addColumnData(new ColumnPixelData(Integer.parseInt(columnWidth), true));
+		col.addDisposeListener(disposeListener);
 	}
 
 	public void setFocus() {
@@ -328,26 +370,40 @@ public class TreeConflictsView extends ViewPart {
 		}
 	}
 	
-	class ConflictsLabelProvider extends LabelProvider {
-		public Image getImage(Object element) {
-			IResource elementResource;
-			if (element instanceof SVNTreeConflict)
-				elementResource = ((SVNTreeConflict)element).getResource();
-			else
-				elementResource = (IResource)element;
-			return WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider().getImage(elementResource);
-		}
-		public String getText(Object element) {
-			if (element instanceof SVNTreeConflict) {
-				SVNTreeConflict treeConflict = (SVNTreeConflict)element;
-				if (treeConflict.getResource() instanceof IContainer)
-					return treeConflict.getResource().getFullPath() + " (" + treeConflict.getDescription() + ")"; 
+	class ConflictsLabelProvider extends LabelProvider implements ITableLabelProvider {
+		public Image getColumnImage(Object element, int columnIndex) {
+			if (columnIndex == 0) {
+				IResource elementResource;
+				if (element instanceof SVNTreeConflict)
+					elementResource = ((SVNTreeConflict)element).getResource();
 				else
-					return treeConflict.getResource().getName() + " (" + treeConflict.getDescription() + ")"; 
+					elementResource = (IResource)element;
+				return WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider().getImage(elementResource);				
 			}
-			else {
-				return ((IResource)element).getFullPath().toString();
+			return null;
+		}
+		public String getColumnText(Object element, int columnIndex) {
+			switch (columnIndex) {
+			case 0:
+				if (element instanceof SVNTreeConflict) {
+					SVNTreeConflict treeConflict = (SVNTreeConflict)element;
+					if (treeConflict.getResource() instanceof IContainer)
+						return treeConflict.getResource().getFullPath().toString();
+					else
+						return treeConflict.getResource().getName();
+				}
+				else {
+					return ((IResource)element).getFullPath().toString();
+				}	
+			case 1:
+				if (element instanceof SVNTreeConflict)
+					return ((SVNTreeConflict)element).getDescription();
+				else
+					return "";
+			default:
+				break;
 			}
+			return null;
 		}
 	}
 
