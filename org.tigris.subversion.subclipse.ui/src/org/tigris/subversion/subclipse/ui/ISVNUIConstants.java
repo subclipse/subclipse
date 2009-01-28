@@ -223,6 +223,7 @@ public interface ISVNUIConstants {
   public final String IMG_WIZBAN_NEW_LOCATION = "wizban/newlocation_wizban.gif"; //$NON-NLS-1$
   public final String IMG_WIZBAN_NEW_FOLDER = "wizban/newfolder_wizban.gif"; //$NON-NLS-1$
   public final String IMG_WIZBAN_SYNCH = "wizban/share_wizban.gif"; //$NON-NLS-1$
+  public final String IMG_WIZBAN_RESOLVE_TREE_CONFLICT = "wizban/resolve_treeconflict_wizban.png"; //$NON-NLS-1$
 
   // Properties
   public final String PROP_NAME = "svn.name"; //$NON-NLS-1$
