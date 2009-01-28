@@ -1,6 +1,8 @@
 package org.tigris.subversion.subclipse.ui.conflicts;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -274,6 +276,7 @@ public class TreeConflictsView extends ViewPart {
 			if (parentElement instanceof TreeConflictsView) {
 				Object[] folderArray = new Object[folderList.size()];
 				folderList.toArray(folderArray);
+				sort(folderArray);
 				return folderArray;
 			}
 			if (parentElement instanceof IContainer) {
@@ -296,7 +299,27 @@ public class TreeConflictsView extends ViewPart {
 			}
 			Object[] children = new Object[childList.size()];
 			childList.toArray(children);
+			sort(children);
 			return children;
+		}
+		private void sort(Object[] items) {
+			Arrays.sort(items, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					IResource r1;
+					IResource r2;
+					if (o1 instanceof IResource) r1 = (IResource)o1;
+					else {
+						SVNTreeConflict tc = (SVNTreeConflict)o1;
+						r1 = tc.getResource();
+					}
+					if (o2 instanceof IResource) r2 = (IResource)o2;
+					else {
+						SVNTreeConflict tc = (SVNTreeConflict)o2;
+						r2 = tc.getResource();
+					}					
+					return r1.getFullPath().toString().compareTo(r2.getFullPath().toString());
+				}				
+			});
 		}
 	}
 	
