@@ -224,6 +224,7 @@ public class TreeConflictsView extends ViewPart {
 	
 	private void fillContextMenu(IMenuManager manager) {
 		if (resource != null) {
+			boolean conflictSelected = false;
 			boolean enableOpen = false;
 			IStructuredSelection selection = (IStructuredSelection)treeViewer.getSelection();
 			
@@ -231,6 +232,7 @@ public class TreeConflictsView extends ViewPart {
 			while (iter.hasNext()) {
 				Object element = iter.next();
 				if (element instanceof SVNTreeConflict) {
+					conflictSelected = true;
 					SVNTreeConflict treeConflict = (SVNTreeConflict)element;
 					if (treeConflict.getResource() instanceof IFile && treeConflict.getResource().exists()) {
 						enableOpen = true;
@@ -250,6 +252,9 @@ public class TreeConflictsView extends ViewPart {
 			}
 			manager.add(new Separator());
 			if (selection.size() == 1) {
+				if (conflictSelected) {
+					manager.add(new ResolveTreeConflictAction(treeViewer));
+				}
 				PropertyDialogAction propertiesAction = new PropertyDialogAction(new SameShellProvider(Display.getDefault().getActiveShell()), treeViewer);
 				manager.add(propertiesAction);
 				manager.add(new Separator());
