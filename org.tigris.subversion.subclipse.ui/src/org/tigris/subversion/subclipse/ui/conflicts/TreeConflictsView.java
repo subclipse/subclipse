@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.OpenWithMenu;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
 import org.eclipse.ui.model.WorkbenchContentProvider;
@@ -295,7 +296,7 @@ public class TreeConflictsView extends ViewPart {
 			manager.add(new Separator());
 			if (selection.size() == 1) {
 				if (conflictSelected) {
-					manager.add(new ResolveTreeConflictAction(treeViewer));
+					manager.add(new ResolveTreeConflictAction(treeViewer, this));
 				}
 				PropertyDialogAction propertiesAction = new PropertyDialogAction(new SameShellProvider(Display.getDefault().getActiveShell()), treeViewer);
 				manager.add(propertiesAction);

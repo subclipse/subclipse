@@ -1,16 +1,29 @@
 package org.tigris.subversion.subclipse.ui.conflicts;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.dialogs.ResourceSelectionDialog;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNTreeConflict;
+import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
 
 public class ResolveTreeConflictWizardMainPage extends WizardPage {
@@ -23,6 +36,11 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private Button removeUnversionedSelectedResourceButton;
 	private Button deleteConflictedResourceButton;
 	private Button markResolvedButton;
+	
+	private Text mergeTargetText;
+	
+	private ISVNStatus copiedTo;
+	private IResource mergeTarget;
 
 	public ResolveTreeConflictWizardMainPage() {
 		super("main", "Specify steps", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_RESOLVE_TREE_CONFLICT));
@@ -30,7 +48,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 
 	public void createControl(Composite parent) {
 		ResolveTreeConflictWizard wizard = (ResolveTreeConflictWizard)getWizard();
-		SVNTreeConflict treeConflict = wizard.getTreeConflict();
+		final SVNTreeConflict treeConflict = wizard.getTreeConflict();
 		
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		outerContainer.setLayout(new GridLayout());
@@ -90,8 +108,36 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		int action = conflictDescriptor.getAction();
 		int operation = conflictDescriptor.getOperation();
 		if ((reason == SVNConflictDescriptor.Reason.deleted || reason == SVNConflictDescriptor.Reason.missing) && action == SVNConflictDescriptor.Action.edit) {
+			copiedTo = getCopiedTo();
 			mergeFromRepositoryButton = new Button(resolutionGroup, SWT.CHECK);
-			mergeFromRepositoryButton.setText("Merge " + treeConflict.getResource().getName() + "@" + conflictDescriptor.getSrcRightVersion().getPegRevision() + " into selected working copy resource");
+			mergeFromRepositoryButton.setText("Merge " + treeConflict.getResource().getName() + " r" + conflictDescriptor.getSrcLeftVersion().getPegRevision() + ":" + conflictDescriptor.getSrcRightVersion().getPegRevision() + " into:");
+			Composite mergeTargetGroup = new Composite(resolutionGroup, SWT.NONE);
+			GridLayout mergeTargetLayout = new GridLayout();
+			mergeTargetLayout.numColumns = 2;
+			mergeTargetGroup.setLayout(mergeTargetLayout);
+			mergeTargetGroup.setLayoutData(
+			new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));	
+			mergeTargetText = new Text(mergeTargetGroup, SWT.BORDER | SWT.READ_ONLY);
+			gd = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+			mergeTargetText.setLayoutData(gd);
+			if (copiedTo != null) {
+				mergeTarget = File2Resource.getResource(copiedTo.getFile());
+				mergeTargetText.setText(copiedTo.getPath());
+			} else setPageComplete(false);
+			Button selectMergeTargetButton = new Button(mergeTargetGroup, SWT.PUSH);
+			selectMergeTargetButton.setText("Browse...");
+			selectMergeTargetButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent evt) {
+					ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), treeConflict.getResource().getProject(), "Select merge target");
+					if (dialog.open() == ResourceSelectionDialog.OK) {
+						Object[] selectedResources = dialog.getResult();
+						if (selectedResources != null && selectedResources.length > 0 && (selectedResources[0] instanceof IResource)) {
+							mergeTarget = (IResource)selectedResources[0];
+							mergeTargetText.setText(mergeTarget.getLocation().toString());
+						}
+					}
+				}				
+			});
 			mergeFromRepositoryButton.setSelection(true);
 		}
 		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {
@@ -167,6 +213,32 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	
 	public boolean getMarkResolved() {
 		return markResolvedButton.getSelection();
+	}
+	
+	public IResource getMergeTarget() {
+		return mergeTarget;
+	}
+	
+	private ISVNStatus getCopiedTo() {
+		IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				monitor.setTaskName("Looking for copied-to URL");
+				monitor.beginTask("Looking for copied-to URL", IProgressMonitor.UNKNOWN);
+				ResolveTreeConflictWizard wizard = (ResolveTreeConflictWizard)getWizard();
+				try {
+					copiedTo = wizard.getCopiedTo();
+				} catch (SVNException e) {
+					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				}
+				monitor.done();
+			}			
+		};
+		try {
+			getContainer().run(false, false, runnable);
+		} catch (Exception e) {
+			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+		}
+		return copiedTo;
 	}
 
 }
