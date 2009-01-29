@@ -58,6 +58,9 @@ public class SVNTreeConflict implements ISVNTreeConflict, IAdaptable {
 			break;
 		}
 		switch (status.getConflictDescriptor().getOperation()) {
+		case SVNConflictDescriptor.Operation._none:
+			operation = "none"; //$NON-NLS-1$
+			break;
 		case SVNConflictDescriptor.Operation._update:
 			operation = "update"; //$NON-NLS-1$
 			break;
