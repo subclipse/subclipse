@@ -40,6 +40,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private Text mergeTargetText;
 	
 	private ISVNStatus copiedTo;
+//	private ISVNLogMessageChangePath remoteCopiedTo;
+	private ISVNStatus remoteCopiedTo;
 	private IResource mergeTarget;
 
 	public ResolveTreeConflictWizardMainPage() {
@@ -134,6 +136,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						if (selectedResources != null && selectedResources.length > 0 && (selectedResources[0] instanceof IResource)) {
 							mergeTarget = (IResource)selectedResources[0];
 							mergeTargetText.setText(mergeTarget.getLocation().toString());
+							setPageComplete(true);
 						}
 					}
 				}				
@@ -141,9 +144,39 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			mergeFromRepositoryButton.setSelection(true);
 		}
 		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {
+			remoteCopiedTo = getRemoteCopiedTo();
 			mergeFromWorkingCopyButton = new Button(resolutionGroup, SWT.CHECK);
-			mergeFromWorkingCopyButton.setText("Merge " + treeConflict.getResource().getName() + " from working copy into selected working copy resource");
+			mergeFromWorkingCopyButton.setText("Merge " + treeConflict.getResource().getName() + " working copy changes into:");
 			mergeFromWorkingCopyButton.setSelection(true);
+			Composite mergeTargetGroup = new Composite(resolutionGroup, SWT.NONE);
+			GridLayout mergeTargetLayout = new GridLayout();
+			mergeTargetLayout.numColumns = 2;
+			mergeTargetGroup.setLayout(mergeTargetLayout);
+			mergeTargetGroup.setLayoutData(
+			new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));	
+			mergeTargetText = new Text(mergeTargetGroup, SWT.BORDER | SWT.READ_ONLY);
+			gd = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+			mergeTargetText.setLayoutData(gd);
+			if (remoteCopiedTo != null) {
+				mergeTarget = File2Resource.getResource(remoteCopiedTo.getFile());
+				mergeTargetText.setText(remoteCopiedTo.getPath());
+			} else setPageComplete(false);
+			Button selectMergeTargetButton = new Button(mergeTargetGroup, SWT.PUSH);
+			selectMergeTargetButton.setText("Browse...");
+			selectMergeTargetButton.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent evt) {
+					ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), treeConflict.getResource().getProject(), "Select merge target");
+					if (dialog.open() == ResourceSelectionDialog.OK) {
+						Object[] selectedResources = dialog.getResult();
+						if (selectedResources != null && selectedResources.length > 0 && (selectedResources[0] instanceof IResource)) {
+							mergeTarget = (IResource)selectedResources[0];
+							mergeTargetText.setText(mergeTarget.getLocation().toString());
+							setPageComplete(true);
+						}
+					}
+				}				
+			});
+			
 			if (operation == SVNConflictDescriptor.Operation._update) {
 				revertConflictedResourceButton = new Button(resolutionGroup, SWT.CHECK);
 				revertConflictedResourceButton.setText("Revert " + treeConflict.getResource().getName());
@@ -226,7 +259,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				monitor.beginTask("Looking for copied-to URL", IProgressMonitor.UNKNOWN);
 				ResolveTreeConflictWizard wizard = (ResolveTreeConflictWizard)getWizard();
 				try {
-					copiedTo = wizard.getCopiedTo();
+					copiedTo = wizard.getLocalCopiedTo();
 				} catch (SVNException e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				}
@@ -239,6 +272,29 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 		}
 		return copiedTo;
+	}
+	
+//	private ISVNLogMessageChangePath getRemoteCopiedTo() {
+	private ISVNStatus getRemoteCopiedTo() {
+		IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				monitor.setTaskName("Looking for copied-to URL");
+				monitor.beginTask("Looking for copied-to URL", IProgressMonitor.UNKNOWN);
+				ResolveTreeConflictWizard wizard = (ResolveTreeConflictWizard)getWizard();
+				try {
+					remoteCopiedTo = wizard.getRemoteCopiedTo();
+				} catch (Exception e) {
+					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				}
+				monitor.done();
+			}			
+		};
+		try {
+			getContainer().run(false, false, runnable);
+		} catch (Exception e) {
+			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+		}
+		return remoteCopiedTo;		
 	}
 
 }
