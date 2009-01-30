@@ -163,11 +163,18 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			});
 			mergeFromRepositoryButton.setSelection(true);
 		}
-		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {
-			remoteCopiedTo = getRemoteCopiedTo(false);
-			mergeFromWorkingCopyButton = new Button(resolutionGroup, SWT.CHECK);
-			mergeFromWorkingCopyButton.setText("Compare " + treeConflict.getResource().getName() + " to:");
-			mergeFromWorkingCopyButton.setSelection(false);
+		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {					
+			if (operation == SVNConflictDescriptor.Operation._merge) {
+				remoteCopiedTo = getRemoteCopiedTo(true);
+				mergeFromRepositoryButton = new Button(resolutionGroup, SWT.CHECK);
+				mergeFromRepositoryButton.setText("Merge " + treeConflict.getResource().getName() + " r" + conflictDescriptor.getSrcLeftVersion().getPegRevision() + ":" + conflictDescriptor.getSrcRightVersion().getPegRevision() + " into:");			
+				mergeFromRepositoryButton.setSelection(true);
+			} else {
+				remoteCopiedTo = getRemoteCopiedTo(false);
+				mergeFromWorkingCopyButton = new Button(resolutionGroup, SWT.CHECK);
+				mergeFromWorkingCopyButton.setText("Compare " + treeConflict.getResource().getName() + " to:");
+				mergeFromWorkingCopyButton.setSelection(false);
+			}
 			Composite mergeTargetGroup = new Composite(resolutionGroup, SWT.NONE);
 			GridLayout mergeTargetLayout = new GridLayout();
 			mergeTargetLayout.numColumns = 2;
@@ -215,7 +222,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 							revertConflictedResourceButton.setEnabled(false);
 							removeUnversionedConflictedResourceButton.setEnabled(false);
 							markResolvedButton.setEnabled(false);
+							setPageComplete(mergeTargetText.getText().length() > 0);
 						} else {
+							setPageComplete(true);
 							compareLabel.setVisible(false);
 							revertConflictedResourceButton.setEnabled(true);
 							removeUnversionedConflictedResourceButton.setEnabled(true);
@@ -240,6 +249,13 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				deleteConflictedResourceButton = new Button(resolutionGroup, SWT.CHECK);
 				deleteConflictedResourceButton.setText("Delete " + treeConflict.getResource().getName());
 				deleteConflictedResourceButton.setSelection(true);
+				SelectionListener choiceListener = new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent evt) {
+						if (!mergeFromRepositoryButton.getSelection()) setPageComplete(true);
+						else setPageComplete(mergeTargetText.getText().length() > 0);
+					}				
+				};
+				mergeFromRepositoryButton.addSelectionListener(choiceListener);
 			}
 		}
 		if (reason == SVNConflictDescriptor.Reason.deleted && action == SVNConflictDescriptor.Action.delete) {

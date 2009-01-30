@@ -106,7 +106,11 @@ public class ResolveTreeConflictWizard extends Wizard {
 			}
 		}
 		if (mainPage.getDeleteConflictedResource()) {
-			System.out.println("Delete " + treeConflict.getResource().getName());
+			try {
+				svnResource.getResource().delete(true, new NullProgressMonitor());
+			} catch (CoreException e) {
+				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+			}
 		}
 		if (mainPage.getRevertSelectedResource()) {
 			try {
