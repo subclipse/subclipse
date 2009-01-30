@@ -10,6 +10,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -39,8 +40,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	
 	private Text mergeTargetText;
 	
+	private boolean markResolvedEnabled = true;
+	
 	private ISVNStatus copiedTo;
-//	private ISVNLogMessageChangePath remoteCopiedTo;
 	private ISVNStatus remoteCopiedTo;
 	private IResource mergeTarget;
 
@@ -179,12 +181,26 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			
 			if (operation == SVNConflictDescriptor.Operation._update) {
 				revertConflictedResourceButton = new Button(resolutionGroup, SWT.CHECK);
-				revertConflictedResourceButton.setText("Revert " + treeConflict.getResource().getName());
+				revertConflictedResourceButton.setText("Revert " + treeConflict.getResource().getName() + " (conflict will be resolved)");
 				revertConflictedResourceButton.setSelection(true);
 				removeUnversionedConflictedResourceButton = new Button(resolutionGroup, SWT.CHECK);
-				// TODO:  Only allow selection of remove button if revert button selected.
 				removeUnversionedConflictedResourceButton.setText("Remove " + treeConflict.getResource().getName() + " from working copy");
 				removeUnversionedConflictedResourceButton.setSelection(true);
+				markResolvedEnabled = false;
+				SelectionListener choiceListener = new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent arg0) {
+						if (revertConflictedResourceButton.getSelection()) {						
+							removeUnversionedConflictedResourceButton.setEnabled(true);
+							markResolvedButton.setEnabled(false);							
+						} else {
+							removeUnversionedConflictedResourceButton.setSelection(false);
+							removeUnversionedConflictedResourceButton.setEnabled(false);
+							markResolvedButton.setEnabled(true);	
+						}
+					}				
+				};
+				revertConflictedResourceButton.addSelectionListener(choiceListener);
+				removeUnversionedConflictedResourceButton.addSelectionListener(choiceListener);
 			}
 			if (operation == SVNConflictDescriptor.Operation._merge) {
 				deleteConflictedResourceButton = new Button(resolutionGroup, SWT.CHECK);
@@ -205,7 +221,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		}
 		markResolvedButton = new Button(resolutionGroup, SWT.CHECK);
 		markResolvedButton.setText("Mark conflict resolved");
-		markResolvedButton.setSelection(true);
+		if (markResolvedEnabled) markResolvedButton.setSelection(true);
+		else markResolvedButton.setEnabled(false);
 		
 		setMessage("Specify the steps to take to resolve the tree conflict");
 		
