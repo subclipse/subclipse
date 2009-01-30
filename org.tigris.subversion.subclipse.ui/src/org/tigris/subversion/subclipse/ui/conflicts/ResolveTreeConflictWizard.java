@@ -22,6 +22,7 @@ import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class ResolveTreeConflictWizard extends Wizard {
 	private SVNTreeConflict treeConflict;
@@ -60,11 +61,16 @@ public class ResolveTreeConflictWizard extends Wizard {
 	public boolean performFinish() {
 		if (mainPage.getMergeFromRepository()) {
 			try {
+				SVNUrl url;
+				if (svnResource.getUrl() == null)
+					url = new SVNUrl(treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos());
+				else
+					url = svnResource.getUrl();
 				SVNRevision revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision());
 				SVNRevision revision2 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
 				IResource mergeTarget = mainPage.getMergeTarget();
 				IResource[] resources = { mergeTarget };
-				MergeOperation mergeOperation = new MergeOperation(targetPart, resources, svnResource.getUrl(), revision1, svnResource.getUrl(), revision2);
+				MergeOperation mergeOperation = new MergeOperation(targetPart, resources, url, revision1, url, revision2);
 				mergeOperation.setForce(true);
 				mergeOperation.setRecurse(false);
 				mergeOperation.setIgnoreAncestry(true);
@@ -166,10 +172,10 @@ public class ResolveTreeConflictWizard extends Wizard {
 					ISVNLogMessageChangePath[] changePaths = logMessages[i].getChangedPaths();
 					for (int j = 0; j < changePaths.length; j++) {
 						if (changePaths[j].getAction() == 'A') {
-							if (svnResource.getUrl().toString().endsWith(changePaths[j].getCopySrcPath())) {
+							if ((svnResource.getUrl() != null && svnResource.getUrl().toString().endsWith(changePaths[j].getCopySrcPath())) || changePaths[j].getCopySrcPath().endsWith(svnResource.getIResource().getFullPath().toString())) {
 								statuses = getStatuses(getAll);
 								for (int k = 0; k < statuses.length; k++) {
-									if (statuses[k].getUrl().toString().endsWith(changePaths[j].getPath())) {
+									if (statuses[k].getUrl() != null && statuses[k].getUrl().toString().endsWith(changePaths[j].getPath())) {
 										remoteCopiedTo = statuses[k];
 										return remoteCopiedTo;
 									}

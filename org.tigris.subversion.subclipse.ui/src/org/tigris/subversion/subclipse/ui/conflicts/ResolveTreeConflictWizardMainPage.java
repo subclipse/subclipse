@@ -121,7 +121,10 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		int action = conflictDescriptor.getAction();
 		int operation = conflictDescriptor.getOperation();
 		if ((reason == SVNConflictDescriptor.Reason.deleted || reason == SVNConflictDescriptor.Reason.missing) && action == SVNConflictDescriptor.Action.edit) {
-			copiedTo = getCopiedTo(false);
+			if (operation == SVNConflictDescriptor.Operation._merge) 
+				remoteCopiedTo = getRemoteCopiedTo(true);
+			else
+				copiedTo = getCopiedTo(false);
 			mergeFromRepositoryButton = new Button(resolutionGroup, SWT.CHECK);
 			mergeFromRepositoryButton.setText("Merge " + treeConflict.getResource().getName() + " r" + conflictDescriptor.getSrcLeftVersion().getPegRevision() + ":" + conflictDescriptor.getSrcRightVersion().getPegRevision() + " into:");
 			Composite mergeTargetGroup = new Composite(resolutionGroup, SWT.NONE);
@@ -136,7 +139,13 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			if (copiedTo != null) {
 				mergeTarget = File2Resource.getResource(copiedTo.getFile());
 				mergeTargetText.setText(copiedTo.getPath());
-			} else setPageComplete(false);
+			} else if (remoteCopiedTo != null) {
+				mergeTarget = File2Resource.getResource(remoteCopiedTo.getFile());
+				mergeTargetText.setText(remoteCopiedTo.getPath());				
+			}
+			else {
+				setPageComplete(false);
+			}
 			Button selectMergeTargetButton = new Button(mergeTargetGroup, SWT.PUSH);
 			selectMergeTargetButton.setText("Browse...");
 			selectMergeTargetButton.addSelectionListener(new SelectionAdapter() {
