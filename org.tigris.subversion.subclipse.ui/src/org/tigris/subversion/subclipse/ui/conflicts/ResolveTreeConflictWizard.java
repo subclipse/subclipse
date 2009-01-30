@@ -93,16 +93,30 @@ public class ResolveTreeConflictWizard extends Wizard {
 			}
 		}
 		if (mainPage.getDeleteSelectedResource()) {
-			System.out.println("Delete selected resource");
+			try {
+				mainPage.getTheirs().delete(true, new NullProgressMonitor());
+			} catch (CoreException e) {
+				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+			}
 		}
 		if (mainPage.getDeleteConflictedResource()) {
 			System.out.println("Delete " + treeConflict.getResource().getName());
 		}
 		if (mainPage.getRevertSelectedResource()) {
-			System.out.println("Revert selected resource");
+			try {
+				IResource[] revertResources = { mainPage.getMine() };
+				RevertOperation revertOperation = new RevertOperation(targetPart, revertResources);
+				revertOperation.run();
+			} catch (Exception e) {
+				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+			}
 		}
 		if (mainPage.getRemoveUnversionedSelectedResource()) {
-			System.out.println("Remove selected resource from working copy");
+			try {
+				mainPage.getMine().delete(true, new NullProgressMonitor());
+			} catch (CoreException e) {
+				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+			}
 		}
 		if (mainPage.getMarkResolved()) {
 			try {
@@ -125,9 +139,9 @@ public class ResolveTreeConflictWizard extends Wizard {
 		return svnResource;
 	}
 	
-	public ISVNStatus getLocalCopiedTo() throws SVNException {
+	public ISVNStatus getLocalCopiedTo(boolean getAll) throws SVNException {
 		if (copiedTo == null && !copiedToRetrieved) {
-			statuses = getStatuses();
+			statuses = getStatuses(getAll);
 			for (int i = 0; i < statuses.length; i++) {
 				if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) {
 					if (statuses[i].getUrlCopiedFrom() != null) {
@@ -143,7 +157,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 		return copiedTo;
 	}
 	
-	public ISVNStatus getRemoteCopiedTo() throws Exception {
+	public ISVNStatus getRemoteCopiedTo(boolean getAll) throws Exception {
 		if (remoteCopiedTo == null && !remoteCopiedToRetrieved) {
 			remoteCopiedToRetrieved = true;
 			logMessages = getLogMessages();
@@ -153,7 +167,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 					for (int j = 0; j < changePaths.length; j++) {
 						if (changePaths[j].getAction() == 'A') {
 							if (svnResource.getUrl().toString().endsWith(changePaths[j].getCopySrcPath())) {
-								statuses = getStatuses();
+								statuses = getStatuses(getAll);
 								for (int k = 0; k < statuses.length; k++) {
 									if (statuses[k].getUrl().toString().endsWith(changePaths[j].getPath())) {
 										remoteCopiedTo = statuses[k];
@@ -169,12 +183,12 @@ public class ResolveTreeConflictWizard extends Wizard {
 		return remoteCopiedTo;
 	}
 	
-	private ISVNStatus[] getStatuses() throws SVNException {
+	private ISVNStatus[] getStatuses(boolean getAll) throws SVNException {
 		if (statuses == null) {
 			IProject project = treeConflict.getResource().getProject();
 			if (project == null) return new ISVNStatus[0];
 			ISVNLocalResource svnProject =  SVNWorkspaceRoot.getSVNResourceFor(project);
-			GetStatusCommand command = new GetStatusCommand(svnProject, true, false);
+			GetStatusCommand command = new GetStatusCommand(svnProject, true, getAll);
 			command.run(new NullProgressMonitor());
 			statuses = command.getStatuses();
 		}
