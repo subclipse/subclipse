@@ -39,6 +39,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private Button markResolvedButton;
 	
 	private Text mergeTargetText;
+	private Label compareLabel;
 	
 	private boolean markResolvedEnabled = true;
 	
@@ -148,8 +149,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {
 			remoteCopiedTo = getRemoteCopiedTo();
 			mergeFromWorkingCopyButton = new Button(resolutionGroup, SWT.CHECK);
-			mergeFromWorkingCopyButton.setText("Merge " + treeConflict.getResource().getName() + " working copy changes into:");
-			mergeFromWorkingCopyButton.setSelection(true);
+			mergeFromWorkingCopyButton.setText("Compare " + treeConflict.getResource().getName() + " to:");
+			mergeFromWorkingCopyButton.setSelection(false);
 			Composite mergeTargetGroup = new Composite(resolutionGroup, SWT.NONE);
 			GridLayout mergeTargetLayout = new GridLayout();
 			mergeTargetLayout.numColumns = 2;
@@ -180,6 +181,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			});
 			
 			if (operation == SVNConflictDescriptor.Operation._update) {
+				compareLabel = new Label(resolutionGroup, SWT.NONE);
+				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+				compareLabel.setVisible(false);
 				revertConflictedResourceButton = new Button(resolutionGroup, SWT.CHECK);
 				revertConflictedResourceButton.setText("Revert " + treeConflict.getResource().getName() + " (conflict will be resolved)");
 				revertConflictedResourceButton.setSelection(true);
@@ -188,17 +192,30 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				removeUnversionedConflictedResourceButton.setSelection(true);
 				markResolvedEnabled = false;
 				SelectionListener choiceListener = new SelectionAdapter() {
-					public void widgetSelected(SelectionEvent arg0) {
-						if (revertConflictedResourceButton.getSelection()) {						
-							removeUnversionedConflictedResourceButton.setEnabled(true);
-							markResolvedButton.setEnabled(false);							
-						} else {
-							removeUnversionedConflictedResourceButton.setSelection(false);
+					public void widgetSelected(SelectionEvent evt) {
+						if (mergeFromWorkingCopyButton.getSelection()) {
+							compareLabel.setVisible(true);
+							revertConflictedResourceButton.setEnabled(false);
 							removeUnversionedConflictedResourceButton.setEnabled(false);
-							markResolvedButton.setEnabled(true);	
+							markResolvedButton.setEnabled(false);
+						} else {
+							compareLabel.setVisible(false);
+							revertConflictedResourceButton.setEnabled(true);
+							removeUnversionedConflictedResourceButton.setEnabled(true);
+							markResolvedButton.setEnabled(true);
+							if (revertConflictedResourceButton.getSelection()) {						
+								removeUnversionedConflictedResourceButton.setEnabled(true);
+								markResolvedButton.setSelection(false);
+								markResolvedButton.setEnabled(false);							
+							} else {
+								removeUnversionedConflictedResourceButton.setSelection(false);
+								removeUnversionedConflictedResourceButton.setEnabled(false);
+								markResolvedButton.setEnabled(true);	
+							}
 						}
 					}				
 				};
+				mergeFromWorkingCopyButton.addSelectionListener(choiceListener);
 				revertConflictedResourceButton.addSelectionListener(choiceListener);
 				removeUnversionedConflictedResourceButton.addSelectionListener(choiceListener);
 			}

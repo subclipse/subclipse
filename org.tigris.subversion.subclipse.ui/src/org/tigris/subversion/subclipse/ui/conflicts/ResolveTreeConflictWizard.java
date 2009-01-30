@@ -74,7 +74,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 			}
 		}
 		if (mainPage.getMergeFromWorkingCopy()) {
-			System.out.println("Merge " + treeConflict.getResource().getName() + " in working copy into selected working copy resource");
+			System.out.println("Merge " + treeConflict.getResource().getName() + " in working copy into selected working copy resource");	
 		}
 		if (mainPage.getRevertConflictedResource()) {
 			try {
