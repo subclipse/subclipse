@@ -19,8 +19,10 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNTreeConflict;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -267,7 +269,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			if (remoteCopiedTo != null) theirs = File2Resource.getResource(remoteCopiedTo.getFile());
 			if (copiedTo != null) mine = File2Resource.getResource(copiedTo.getFile());
 			
-			if (mine != null) {
+			if (mine != null && mine.exists()) {
 				option1Button = new Button(resolutionGroup, SWT.RADIO);
 				option1Button.setText("Choose " + mine.getFullPath());
 				option1Button.setSelection(true);
@@ -278,16 +280,17 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				option1Group.setLayout(option1Layout);
 				option1Group.setLayoutData(
 				new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));		
-				if (theirs != null) {
+				if (theirs != null && theirs.exists()) {
 					deleteSelectedResourceButton = new Button(option1Group, SWT.CHECK);
 					deleteSelectedResourceButton.setText("Delete " + theirs.getName());
 					deleteSelectedResourceButton.setSelection(true);
-				}			
+				} else option1Group.setVisible(false);		
 			}
 			
-			if (theirs != null) {
+			if (theirs != null && theirs.exists()) {
 				option2Button = new Button(resolutionGroup, SWT.RADIO);
 				option2Button.setText("Choose " + theirs.getFullPath());
+				if (option1Button == null) option2Button.setSelection(true);
 				option2Group = new Group(resolutionGroup, SWT.NONE);
 				option2Group.setText(theirs.getName());
 				GridLayout option2Layout = new GridLayout();
@@ -295,19 +298,28 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				option2Group.setLayout(option2Layout);
 				option2Group.setLayoutData(
 				new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));		
-				if (mine != null) {
-					revertSelectedResourceButton = new Button(option2Group, SWT.CHECK);
-					revertSelectedResourceButton.setText("Revert " + mine.getName());
-					revertSelectedResourceButton.setSelection(true);
+				if (mine != null && mine.exists()) {
+					ISVNLocalResource myResource = SVNWorkspaceRoot.getSVNResourceFor(mine);
+					try {
+						if (myResource.getStatus().isAdded()) {
+							revertSelectedResourceButton = new Button(option2Group, SWT.CHECK);
+							revertSelectedResourceButton.setText("Revert " + mine.getName());
+							revertSelectedResourceButton.setSelection(true);
+						}
+					} catch (SVNException e) {
+						SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+					}
 					removeUnversionedSelectedResourceButton = new Button(option2Group, SWT.CHECK);
 					removeUnversionedSelectedResourceButton.setText("Remove " + mine.getName() + " from working copy");
 					removeUnversionedSelectedResourceButton.setSelection(true);
-				}
-				option2Group.setEnabled(false);
+					option2Group.setEnabled(option1Button == null);
+				} else option2Group.setVisible(false);
 			}
 			
-			option3Button = new Button(resolutionGroup, SWT.RADIO);
-			option3Button.setText("Choose both (just mark conflict resolved)");
+			if (mine != null && mine.exists() && theirs != null && theirs.exists()) {
+				option3Button = new Button(resolutionGroup, SWT.RADIO);
+				option3Button.setText("Choose both (just mark conflict resolved)");
+			}
 
 			SelectionListener optionListener = new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent evt) {
@@ -335,7 +347,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			};
 			if (option1Button != null) option1Button.addSelectionListener(optionListener);
 			if (option2Button != null) option2Button.addSelectionListener(optionListener);
-			option3Button.addSelectionListener(optionListener);
+			if (option3Button != null) option3Button.addSelectionListener(optionListener);
 			if (revertSelectedResourceButton != null) revertSelectedResourceButton.addSelectionListener(optionListener);
 		}
 		markResolvedButton = new Button(resolutionGroup, SWT.CHECK);
