@@ -1,5 +1,8 @@
 package org.tigris.subversion.subclipse.ui.conflicts;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -191,6 +194,18 @@ public class ResolveTreeConflictWizard extends Wizard {
 			}
 		}		
 		return remoteCopiedTo;
+	}
+	
+	public ISVNStatus[] getAdds() throws SVNException {
+		List adds = new ArrayList();
+		statuses = getStatuses(false);
+		for (int i = 0; i < statuses.length; i++) {
+			if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED))
+				adds.add(statuses[i]);
+		}
+		ISVNStatus[] addArray = new ISVNStatus[adds.size()];
+		adds.toArray(addArray);
+		return addArray;
 	}
 	
 	private ISVNStatus[] getStatuses(boolean getAll) throws SVNException {
