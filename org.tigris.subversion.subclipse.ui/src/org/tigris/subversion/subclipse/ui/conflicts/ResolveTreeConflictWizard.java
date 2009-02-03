@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -64,11 +65,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 	public boolean performFinish() {
 		if (mainPage.getMergeFromRepository()) {
 			try {
-				SVNUrl url;
-				if (svnResource.getUrl() == null)
-					url = new SVNUrl(treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos());
-				else
-					url = svnResource.getUrl();
+				SVNUrl url = new SVNUrl(treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos());
 				SVNRevision revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision());
 				SVNRevision revision2 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
 				IResource mergeTarget = mainPage.getMergeTarget();
@@ -80,10 +77,12 @@ public class ResolveTreeConflictWizard extends Wizard {
 				mergeOperation.run();
 			} catch (Exception e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				MessageDialog.openError(getShell(), "Merge Error", e.getMessage());
+				return false;
 			}
 		}
 		if (mainPage.getMergeFromWorkingCopy()) {
-			System.out.println("Merge " + treeConflict.getResource().getName() + " in working copy into selected working copy resource");	
+			MessageDialog.openInformation(getShell(), "Open Compare Editor", "Not yet implemented.");
 		}
 		if (mainPage.getRevertResource() != null) {
 			try {
@@ -92,6 +91,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 				revertOperation.run();
 			} catch (Exception e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				MessageDialog.openError(getShell(), "Revert Error", e.getMessage());
+				return false;
 			}
 		}
 		if (mainPage.getDeleteResource() != null) {
@@ -99,6 +100,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 				mainPage.getDeleteResource().delete(true, new NullProgressMonitor());
 			} catch (CoreException e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				MessageDialog.openError(getShell(), "Delete Error", e.getMessage());
+				return false;
 			}			
 		}
 		if (mainPage.getMarkResolved()) {
@@ -109,6 +112,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 				TreeConflictsView.refresh(refreshResources);
 			} catch (Exception e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				MessageDialog.openError(getShell(), "Mark Resolved Error", e.getMessage());
+				return false;
 			}
 		}
 		return true;
