@@ -49,6 +49,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private Combo mergeTargetCombo;
 	private Label compareLabel;
 	
+	private Combo revertCombo;
+	
 	private boolean markResolvedEnabled = true;
 	
 	private ISVNStatus copiedTo;
@@ -402,7 +404,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				option1Button.setText("Choose " + mine.getFullPath());
 				option1Button.setSelection(true);
 				
-				if (adds != null && adds.length == 1) {
+				
+				if (adds != null && adds.length > 0) {
 					option1Group = new Group(resolutionGroup, SWT.NONE);
 					option1Group.setText(mine.getName());
 					GridLayout option1Layout = new GridLayout();
@@ -410,14 +413,38 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					option1Group.setLayout(option1Layout);
 					option1Group.setLayoutData(
 					new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));						
-					revertResource = File2Resource.getResource(adds[0].getFile());
-					revertButton = new Button(option1Group, SWT.CHECK);
-					revertButton.setText("Revert " + revertResource.getName());
-					revertButton.setSelection(true);
-					deleteResource1 = File2Resource.getResource(adds[0].getFile());
-					deleteButton1 = new Button(option1Group, SWT.CHECK);
-					deleteButton1.setText("Remove " + deleteResource1.getName() + " from working copy");
-					deleteButton1.setSelection(true);
+					if (adds.length == 1) {
+						revertResource = File2Resource.getResource(adds[0].getFile());
+						revertButton = new Button(option1Group, SWT.CHECK);
+						revertButton.setText("Revert " + revertResource.getName());
+						revertButton.setSelection(true);
+						deleteResource1 = File2Resource.getResource(adds[0].getFile());
+						deleteButton1 = new Button(option1Group, SWT.CHECK);
+						deleteButton1.setText("Remove " + deleteResource1.getName() + " from working copy");
+						deleteButton1.setSelection(true);
+					} else {
+						revertButton = new Button(option1Group, SWT.CHECK);
+						revertButton.setText("Revert the selected resource:");
+						revertCombo = new Combo(option1Group, SWT.BORDER | SWT.READ_ONLY);
+						gd = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
+						revertCombo.setLayoutData(gd);
+						revertCombo.addSelectionListener(new SelectionAdapter() {
+							public void widgetSelected(SelectionEvent evt) {
+								ISVNStatus selectedRevert = adds[revertCombo.getSelectionIndex()];
+								revertResource = File2Resource.getResource(selectedRevert.getFile());
+								deleteResource1 = revertResource;
+							}				
+						});
+						for (int i = 0; i < adds.length; i++) {
+							revertCombo.add(adds[i].getPath());
+						}
+						revertCombo.select(0);
+						revertResource = File2Resource.getResource(adds[0].getFile());
+						deleteResource1 = revertResource;
+						deleteButton1 = new Button(option1Group, SWT.CHECK);
+						deleteButton1.setText("Remove the selected resource from working copy");
+						deleteButton1.setEnabled(false);
+					}
 				}
 				
 				option2Button = new Button(resolutionGroup, SWT.RADIO);
@@ -446,12 +473,12 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					public void widgetSelected(SelectionEvent evt) {
 						if (option1Group != null) option1Group.setEnabled(option1Button.getSelection());
 						if (option2Group != null) option2Group.setEnabled(option2Button.getSelection());
-						if (revertButton != null) {
+						if (revertButton != null && deleteButton1 != null) {
 							if (revertButton.getSelection()) {
-								deleteButton2.setEnabled(true);
+								deleteButton1.setEnabled(true);
 							} else {
-								deleteButton2.setEnabled(false);
-								deleteButton2.setSelection(false);
+								deleteButton1.setEnabled(false);
+								deleteButton1.setSelection(false);
 							}
 						}					
 					}				
