@@ -33,12 +33,10 @@ import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
 public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private Button mergeFromRepositoryButton;
 	private Button mergeFromWorkingCopyButton;
-	private Button revertConflictedResourceButton;
-	private Button removeUnversionedConflictedResourceButton;
-	private Button deleteSelectedResourceButton;
-	private Button revertSelectedResourceButton;
-	private Button removeUnversionedSelectedResourceButton;
-	private Button deleteConflictedResourceButton;
+	
+	private Button revertButton;
+	private Button deleteButton1;
+	private Button deleteButton2;
 	private Button markResolvedButton;
 	
 	private Button option1Button;
@@ -60,6 +58,10 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private IResource theirs;
 	private IResource mine;
 
+	private IResource revertResource;
+	private IResource deleteResource1;
+	private IResource deleteResource2;
+	
 	public ResolveTreeConflictWizardMainPage() {
 		super("main", "Specify steps", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_RESOLVE_TREE_CONFLICT));
 	}
@@ -203,7 +205,6 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					public void widgetSelected(SelectionEvent evt) {
 						ISVNStatus selectedAdd = adds[mergeTargetCombo.getSelectionIndex()];
 						mergeTarget = File2Resource.getResource(selectedAdd.getFile());
-						System.out.println(mergeTarget.getName());
 					}				
 				});
 			}
@@ -237,51 +238,54 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			});
 			
 			if (operation == SVNConflictDescriptor.Operation._update) {
+				revertResource = treeConflict.getResource();
 				compareLabel = new Label(resolutionGroup, SWT.NONE);
 				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
 				compareLabel.setVisible(false);
-				revertConflictedResourceButton = new Button(resolutionGroup, SWT.CHECK);
-				revertConflictedResourceButton.setText("Revert " + treeConflict.getResource().getName() + " (conflict will be resolved)");
-				revertConflictedResourceButton.setSelection(true);
-				removeUnversionedConflictedResourceButton = new Button(resolutionGroup, SWT.CHECK);
-				removeUnversionedConflictedResourceButton.setText("Remove " + treeConflict.getResource().getName() + " from working copy");
-				removeUnversionedConflictedResourceButton.setSelection(true);
+				revertButton = new Button(resolutionGroup, SWT.CHECK);
+				revertButton.setText("Revert " + revertResource.getName() + " (conflict will be resolved)");
+				revertButton.setSelection(true);
+				deleteResource1 = treeConflict.getResource();
+				deleteButton1 = new Button(resolutionGroup, SWT.CHECK);
+				deleteButton1.setText("Remove " + deleteResource1.getName() + " from working copy");
+				deleteButton1.setSelection(true);
 				markResolvedEnabled = false;
 				SelectionListener choiceListener = new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent evt) {
 						if (mergeFromWorkingCopyButton.getSelection()) {
 							compareLabel.setVisible(true);
-							revertConflictedResourceButton.setEnabled(false);
-							removeUnversionedConflictedResourceButton.setEnabled(false);
+							revertButton.setEnabled(false);
+							deleteButton1.setEnabled(false);
 							markResolvedButton.setEnabled(false);
 							setPageComplete(mergeTargetText.getText().length() > 0);
 						} else {
 							setPageComplete(true);
 							compareLabel.setVisible(false);
-							revertConflictedResourceButton.setEnabled(true);
-							removeUnversionedConflictedResourceButton.setEnabled(true);
+							revertButton.setEnabled(true);
+							deleteButton1.setEnabled(true);
 							markResolvedButton.setEnabled(true);
-							if (revertConflictedResourceButton.getSelection()) {						
-								removeUnversionedConflictedResourceButton.setEnabled(true);
+							if (revertButton.getSelection()) {						
+								deleteButton1.setEnabled(true);
 								markResolvedButton.setSelection(false);
 								markResolvedButton.setEnabled(false);							
 							} else {
-								removeUnversionedConflictedResourceButton.setSelection(false);
-								removeUnversionedConflictedResourceButton.setEnabled(false);
+								deleteButton1.setSelection(false);
+								deleteButton1.setEnabled(false);
 								markResolvedButton.setEnabled(true);	
 							}
 						}
 					}				
 				};
 				mergeFromWorkingCopyButton.addSelectionListener(choiceListener);
-				revertConflictedResourceButton.addSelectionListener(choiceListener);
-				removeUnversionedConflictedResourceButton.addSelectionListener(choiceListener);
+				revertButton.addSelectionListener(choiceListener);
+				deleteButton1.addSelectionListener(choiceListener);
 			}
 			if (operation == SVNConflictDescriptor.Operation._merge) {
 				if (treeConflict.getResource().exists()) {
-					deleteConflictedResourceButton = new Button(resolutionGroup, SWT.CHECK);
-					deleteConflictedResourceButton.setText("Delete " + treeConflict.getResource().getName());
-					deleteConflictedResourceButton.setSelection(true);
+					deleteResource1 = treeConflict.getResource();
+					deleteButton1 = new Button(resolutionGroup, SWT.CHECK);
+					deleteButton1.setText("Delete " + deleteResource1.getName());
+					deleteButton1.setSelection(true);
 				}
 				SelectionListener choiceListener = new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent evt) {
@@ -292,7 +296,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				mergeFromRepositoryButton.addSelectionListener(choiceListener);
 			}
 		}
-		if (reason == SVNConflictDescriptor.Reason.deleted && action == SVNConflictDescriptor.Action.delete) {
+		if (reason == SVNConflictDescriptor.Reason.deleted && action == SVNConflictDescriptor.Action.delete && operation != SVNConflictDescriptor.Operation._merge) {
 			copiedTo = getCopiedTo(true);
 			remoteCopiedTo = getRemoteCopiedTo(true);
 			
@@ -313,9 +317,10 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				option1Group.setLayoutData(
 				new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));		
 				if (theirs != null && theirs.exists()) {
-					deleteSelectedResourceButton = new Button(option1Group, SWT.CHECK);
-					deleteSelectedResourceButton.setText("Delete " + theirs.getName());
-					deleteSelectedResourceButton.setSelection(true);
+					deleteResource1 = theirs;
+					deleteButton1 = new Button(option1Group, SWT.CHECK);
+					deleteButton1.setText("Delete " + deleteResource1.getName());
+					deleteButton1.setSelection(true);
 				} else option1Group.setVisible(false);		
 			}
 			
@@ -334,16 +339,18 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					ISVNLocalResource myResource = SVNWorkspaceRoot.getSVNResourceFor(mine);
 					try {
 						if (myResource.getStatus().isAdded()) {
-							revertSelectedResourceButton = new Button(option2Group, SWT.CHECK);
-							revertSelectedResourceButton.setText("Revert " + mine.getName());
-							revertSelectedResourceButton.setSelection(true);
+							revertResource = mine;
+							revertButton = new Button(option2Group, SWT.CHECK);
+							revertButton.setText("Revert " + mine.getName());
+							revertButton.setSelection(true);
 						}
 					} catch (SVNException e) {
 						SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 					}
-					removeUnversionedSelectedResourceButton = new Button(option2Group, SWT.CHECK);
-					removeUnversionedSelectedResourceButton.setText("Remove " + mine.getName() + " from working copy");
-					removeUnversionedSelectedResourceButton.setSelection(true);
+					deleteResource2 = mine;
+					deleteButton2 = new Button(option2Group, SWT.CHECK);
+					deleteButton2.setText("Remove " + deleteResource2.getName() + " from working copy");
+					deleteButton2.setSelection(true);
 					option2Group.setEnabled(option1Button == null);
 				} else option2Group.setVisible(false);
 			}
@@ -367,12 +374,12 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						option1Group.setEnabled(false);
 						option2Group.setEnabled(false);
 					}
-					if (revertSelectedResourceButton != null) {
-						if (revertSelectedResourceButton.getSelection()) {
-							removeUnversionedSelectedResourceButton.setEnabled(true);
+					if (revertButton != null) {
+						if (revertButton.getSelection()) {
+							deleteButton2.setEnabled(true);
 						} else {
-							removeUnversionedSelectedResourceButton.setEnabled(false);
-							removeUnversionedSelectedResourceButton.setSelection(false);
+							deleteButton2.setEnabled(false);
+							deleteButton2.setSelection(false);
 						}
 					}
 				}				
@@ -380,7 +387,80 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			if (option1Button != null) option1Button.addSelectionListener(optionListener);
 			if (option2Button != null) option2Button.addSelectionListener(optionListener);
 			if (option3Button != null) option3Button.addSelectionListener(optionListener);
-			if (revertSelectedResourceButton != null) revertSelectedResourceButton.addSelectionListener(optionListener);
+			if (revertButton != null) revertButton.addSelectionListener(optionListener);
+		}
+		if (reason == SVNConflictDescriptor.Reason.deleted && action == SVNConflictDescriptor.Action.delete && operation == SVNConflictDescriptor.Operation._merge) {
+			remoteCopiedTo = getRemoteCopiedTo(true);
+			if (remoteCopiedTo != null) mine = File2Resource.getResource(remoteCopiedTo.getFile());
+			if (mine != null && mine.exists()) {
+				try {
+					adds = wizard.getAdds();
+				} catch (SVNException e) {
+					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				}
+				option1Button = new Button(resolutionGroup, SWT.RADIO);
+				option1Button.setText("Choose " + mine.getFullPath());
+				option1Button.setSelection(true);
+				
+				if (adds != null && adds.length == 1) {
+					option1Group = new Group(resolutionGroup, SWT.NONE);
+					option1Group.setText(mine.getName());
+					GridLayout option1Layout = new GridLayout();
+					option1Layout.numColumns = 1;
+					option1Group.setLayout(option1Layout);
+					option1Group.setLayoutData(
+					new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));						
+					revertResource = File2Resource.getResource(adds[0].getFile());
+					revertButton = new Button(option1Group, SWT.CHECK);
+					revertButton.setText("Revert " + revertResource.getName());
+					revertButton.setSelection(true);
+					deleteResource1 = File2Resource.getResource(adds[0].getFile());
+					deleteButton1 = new Button(option1Group, SWT.CHECK);
+					deleteButton1.setText("Remove " + deleteResource1.getName() + " from working copy");
+					deleteButton1.setSelection(true);
+				}
+				
+				option2Button = new Button(resolutionGroup, SWT.RADIO);
+				option2Group = new Group(resolutionGroup, SWT.NONE);
+				GridLayout option2Layout = new GridLayout();
+				option2Layout.numColumns = 1;
+				option2Group.setLayout(option2Layout);
+				option2Group.setLayoutData(
+				new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));						
+				if (adds == null || adds.length != 1) {
+					option2Button.setText("Choose incoming");
+					option2Group.setText("Incoming");
+				} else {
+					IResource addResource = File2Resource.getResource(adds[0].getFile());
+					option2Button.setText("Choose " + addResource.getFullPath());
+					option2Group.setText(addResource.getName());
+				}
+				deleteResource2 = mine;
+				deleteButton2 = new Button(option2Group, SWT.CHECK);
+				deleteButton2.setText("Delete " + deleteResource2.getName());
+				deleteButton2.setSelection(true);
+				option2Group.setEnabled(false);
+				option3Button = new Button(resolutionGroup, SWT.RADIO);
+				option3Button.setText("Choose both (just mark conflict resolved)");
+				SelectionListener choiceListener = new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent evt) {
+						if (option1Group != null) option1Group.setEnabled(option1Button.getSelection());
+						if (option2Group != null) option2Group.setEnabled(option2Button.getSelection());
+						if (revertButton != null) {
+							if (revertButton.getSelection()) {
+								deleteButton2.setEnabled(true);
+							} else {
+								deleteButton2.setEnabled(false);
+								deleteButton2.setSelection(false);
+							}
+						}					
+					}				
+				};
+				option1Button.addSelectionListener(choiceListener);
+				option2Button.addSelectionListener(choiceListener);
+				option3Button.addSelectionListener(choiceListener);
+				if (revertButton != null) revertButton.addSelectionListener(choiceListener);
+			}
 		}
 		markResolvedButton = new Button(resolutionGroup, SWT.CHECK);
 		markResolvedButton.setText("Mark conflict resolved");
@@ -399,31 +479,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	public boolean getMergeFromWorkingCopy() {
 		return mergeFromWorkingCopyButton != null && mergeFromWorkingCopyButton.getSelection();
 	}
-	
-	public boolean getRevertConflictedResource() {
-		return revertConflictedResourceButton != null && revertConflictedResourceButton.getSelection();
-	}
-	
-	public boolean getRemoveUnversionedConflictedResource() {
-		return removeUnversionedConflictedResourceButton != null && removeUnversionedConflictedResourceButton.getSelection();
-	}
-	
-	public boolean getDeleteSelectedResource() {
-		return deleteSelectedResourceButton != null && deleteSelectedResourceButton.isEnabled() && deleteSelectedResourceButton.getSelection();
-	}
-	
-	public boolean getRevertSelectedResource() {
-		return revertSelectedResourceButton != null && revertSelectedResourceButton.isEnabled() && revertSelectedResourceButton.getSelection();
-	}
-	
-	public boolean getRemoveUnversionedSelectedResource() {
-		return removeUnversionedSelectedResourceButton != null && removeUnversionedSelectedResourceButton.isEnabled() && removeUnversionedSelectedResourceButton.getSelection();
-	}
-	
-	public boolean getDeleteConflictedResource() {
-		return deleteConflictedResourceButton != null && deleteConflictedResourceButton.getSelection();
-	}
-	
+
 	public boolean getMarkResolved() {
 		return markResolvedButton.getSelection();
 	}
@@ -431,13 +487,20 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	public IResource getMergeTarget() {
 		return mergeTarget;
 	}
-	
-	public IResource getTheirs() {
-		return theirs;
-	}
 
-	public IResource getMine() {
-		return mine;
+	public IResource getRevertResource() {
+		if (revertButton != null && revertButton.isEnabled() && revertButton.getSelection())
+			return revertResource;
+		else
+			return null;
+	}
+	
+	public IResource getDeleteResource() {
+		if (deleteButton1 != null && deleteButton1.isEnabled() && deleteButton1.getSelection())
+			return deleteResource1;
+		if (deleteButton2 != null && deleteButton2.isEnabled() && deleteButton2.getSelection())
+			return deleteResource2;		
+		return null;
 	}
 	
 	private ISVNStatus getCopiedTo(final boolean getAll) {

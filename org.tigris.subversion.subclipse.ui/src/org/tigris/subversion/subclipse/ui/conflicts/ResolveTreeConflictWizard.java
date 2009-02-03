@@ -85,51 +85,21 @@ public class ResolveTreeConflictWizard extends Wizard {
 		if (mainPage.getMergeFromWorkingCopy()) {
 			System.out.println("Merge " + treeConflict.getResource().getName() + " in working copy into selected working copy resource");	
 		}
-		if (mainPage.getRevertConflictedResource()) {
+		if (mainPage.getRevertResource() != null) {
 			try {
-				IResource[] revertResources = { treeConflict.getResource() };
+				IResource[] revertResources = { mainPage.getRevertResource() };
 				RevertOperation revertOperation = new RevertOperation(targetPart, revertResources);
 				revertOperation.run();
 			} catch (Exception e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			}
 		}
-		if (mainPage.getRemoveUnversionedConflictedResource()) {
+		if (mainPage.getDeleteResource() != null) {
 			try {
-				treeConflict.getResource().delete(true, new NullProgressMonitor());
+				mainPage.getDeleteResource().delete(true, new NullProgressMonitor());
 			} catch (CoreException e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-			}
-		}
-		if (mainPage.getDeleteSelectedResource()) {
-			try {
-				mainPage.getTheirs().delete(true, new NullProgressMonitor());
-			} catch (CoreException e) {
-				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-			}
-		}
-		if (mainPage.getDeleteConflictedResource()) {
-			try {
-				svnResource.getResource().delete(true, new NullProgressMonitor());
-			} catch (CoreException e) {
-				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-			}
-		}
-		if (mainPage.getRevertSelectedResource()) {
-			try {
-				IResource[] revertResources = { mainPage.getMine() };
-				RevertOperation revertOperation = new RevertOperation(targetPart, revertResources);
-				revertOperation.run();
-			} catch (Exception e) {
-				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-			}
-		}
-		if (mainPage.getRemoveUnversionedSelectedResource()) {
-			try {
-				mainPage.getMine().delete(true, new NullProgressMonitor());
-			} catch (CoreException e) {
-				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-			}
+			}			
 		}
 		if (mainPage.getMarkResolved()) {
 			try {
