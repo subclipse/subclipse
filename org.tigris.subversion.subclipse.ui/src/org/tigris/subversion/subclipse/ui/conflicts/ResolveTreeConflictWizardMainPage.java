@@ -219,7 +219,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			} else if (remoteCopiedTo != null) {
 				mergeTarget = File2Resource.getResource(remoteCopiedTo.getFile());
 				mergeTargetText.setText(remoteCopiedTo.getPath());
-			} else setPageComplete(false);
+			} // else setPageComplete(false);
 			Button selectMergeTargetButton = new Button(mergeTargetGroup, SWT.PUSH);
 			selectMergeTargetButton.setText("Browse...");
 			selectMergeTargetButton.addSelectionListener(new SelectionAdapter() {
@@ -239,7 +239,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				}				
 			});
 			
-			if (operation == SVNConflictDescriptor.Operation._update) {
+			if (operation != SVNConflictDescriptor.Operation._merge) {
 				revertResource = treeConflict.getResource();
 				compareLabel = new Label(resolutionGroup, SWT.NONE);
 				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
