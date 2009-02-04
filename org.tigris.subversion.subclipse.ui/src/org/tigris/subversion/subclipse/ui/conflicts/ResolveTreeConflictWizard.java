@@ -42,12 +42,18 @@ public class ResolveTreeConflictWizard extends Wizard {
 	private ISVNStatus copiedTo;
 	private ISVNStatus remoteCopiedTo;
 	private ISVNLogMessage[] logMessages;
+	private boolean added;
 
 	public ResolveTreeConflictWizard(SVNTreeConflict treeConflict, IWorkbenchPart targetPart) {
 		super();
 		this.treeConflict = treeConflict;
 		this.targetPart = targetPart;
 		svnResource =  SVNWorkspaceRoot.getSVNResourceFor(treeConflict.getResource());
+		try {
+			added = svnResource.isAdded();
+		} catch (SVNException e) {
+			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+		}
 	}
 	
 	public void addPages() {
@@ -131,6 +137,10 @@ public class ResolveTreeConflictWizard extends Wizard {
 	
 	public ISVNLocalResource getSvnResource() {
 		return svnResource;
+	}
+	
+	public boolean isAdded() {
+		return added;
 	}
 	
 	public ISVNStatus getLocalCopiedTo(boolean getAll) throws SVNException {
