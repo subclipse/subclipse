@@ -64,6 +64,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private IResource deleteResource1;
 	private IResource deleteResource2;
 	
+	private IResource compareResource1;
+	private IResource compareResource2;
+	
 	public ResolveTreeConflictWizardMainPage() {
 		super("main", "Specify steps", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_RESOLVE_TREE_CONFLICT));
 	}
@@ -188,6 +191,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				mergeFromWorkingCopyButton = new Button(resolutionGroup, SWT.CHECK);
 				mergeFromWorkingCopyButton.setText("Compare " + treeConflict.getResource().getName() + " to:");
 				mergeFromWorkingCopyButton.setSelection(false);
+				compareResource1 = treeConflict.getResource();
 			}
 			Composite mergeTargetGroup = new Composite(resolutionGroup, SWT.NONE);
 			GridLayout mergeTargetLayout = new GridLayout();
@@ -207,6 +211,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					public void widgetSelected(SelectionEvent evt) {
 						ISVNStatus selectedAdd = adds[mergeTargetCombo.getSelectionIndex()];
 						mergeTarget = File2Resource.getResource(selectedAdd.getFile());
+						compareResource2 = mergeTarget;
 					}				
 				});
 			}
@@ -216,6 +221,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				}
 				mergeTargetCombo.select(0);
 				mergeTarget = File2Resource.getResource(adds[0].getFile());
+				compareResource2 = mergeTarget;
 			} else if (remoteCopiedTo != null) {
 				mergeTarget = File2Resource.getResource(remoteCopiedTo.getFile());
 				mergeTargetText.setText(remoteCopiedTo.getPath());
@@ -313,6 +319,14 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			mine = null;
 			if (remoteCopiedTo != null) theirs = File2Resource.getResource(remoteCopiedTo.getFile());
 			if (copiedTo != null) mine = File2Resource.getResource(copiedTo.getFile());
+			
+			if (mine != null && mine.exists() && theirs != null && theirs.exists()) {
+				mergeFromWorkingCopyButton = new Button(resolutionGroup, SWT.CHECK);
+				mergeFromWorkingCopyButton.setText("Compare " + mine.getName() + " to " + theirs.getName());
+				mergeFromWorkingCopyButton.setSelection(false);
+				compareResource1 = mine;
+				compareResource2 = theirs;
+			}
 			
 			if (mine != null && mine.exists()) {
 				option1Button = new Button(resolutionGroup, SWT.RADIO);
@@ -535,6 +549,14 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		if (deleteButton2 != null && deleteButton2.isEnabled() && deleteButton2.getSelection())
 			return deleteResource2;		
 		return null;
+	}
+	
+	public IResource getCompareResource1() {
+		return compareResource1;
+	}
+
+	public IResource getCompareResource2() {
+		return compareResource2;
 	}
 	
 	private ISVNStatus getCopiedTo(final boolean getAll) {

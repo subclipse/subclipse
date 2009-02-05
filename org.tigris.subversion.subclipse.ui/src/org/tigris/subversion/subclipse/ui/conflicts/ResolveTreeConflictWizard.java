@@ -94,7 +94,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 			}
 		}
 		if (mainPage.getMergeFromWorkingCopy()) {
-			MessageDialog.openInformation(getShell(), "Open Compare Editor", "Not yet implemented.");
+			MessageDialog.openInformation(getShell(), "Compare " + mainPage.getCompareResource1().getName() + " to " + mainPage.getCompareResource2().getName(), "Not yet implemented.");
 		}
 		if (mainPage.getRevertResource() != null) {
 			try {
