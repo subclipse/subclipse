@@ -327,6 +327,20 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				mergeFromWorkingCopyButton.setSelection(false);
 				compareResource1 = mine;
 				compareResource2 = theirs;
+				compareLabel = new Label(resolutionGroup, SWT.NONE);
+				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+				compareLabel.setVisible(false);
+				mergeFromWorkingCopyButton.addSelectionListener(new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent evt) {
+						compareLabel.setVisible(mergeFromWorkingCopyButton.getSelection());
+						if (option1Button != null) option1Button.setEnabled(!mergeFromWorkingCopyButton.getSelection());
+						if (option1Group != null) option1Group.setEnabled(!mergeFromWorkingCopyButton.getSelection());
+						if (option2Button != null) option2Button.setEnabled(!mergeFromWorkingCopyButton.getSelection());
+						if (option2Group != null) option2Group.setEnabled(!mergeFromWorkingCopyButton.getSelection());
+						if (option3Button != null) option3Button.setEnabled(!mergeFromWorkingCopyButton.getSelection());
+						markResolvedButton.setEnabled(!mergeFromWorkingCopyButton.getSelection());
+					}				
+				});
 			}
 			
 			if (mine != null && mine.exists()) {
@@ -530,7 +544,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	}
 
 	public boolean getMarkResolved() {
-		return markResolvedButton.getSelection();
+		return !getMergeFromWorkingCopy() && markResolvedButton.getSelection();
 	}
 	
 	public IResource getMergeTarget() {
@@ -538,6 +552,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	}
 
 	public IResource getRevertResource() {
+		if (getMergeFromWorkingCopy()) return null;
 		if (revertButton != null && revertButton.isEnabled() && revertButton.getSelection())
 			return revertResource;
 		else
@@ -545,6 +560,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	}
 	
 	public IResource getDeleteResource() {
+		if (getMergeFromWorkingCopy()) return null;
 		if (deleteButton1 != null && deleteButton1.isEnabled() && deleteButton1.getSelection())
 			return deleteResource1;
 		if (deleteButton2 != null && deleteButton2.isEnabled() && deleteButton2.getSelection())
