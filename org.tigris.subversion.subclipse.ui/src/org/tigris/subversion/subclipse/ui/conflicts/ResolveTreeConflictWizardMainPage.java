@@ -225,6 +225,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			} else if (remoteCopiedTo != null) {
 				mergeTarget = File2Resource.getResource(remoteCopiedTo.getFile());
 				mergeTargetText.setText(remoteCopiedTo.getPath());
+				compareResource2 = mergeTarget;
 			} // else setPageComplete(false);
 			Button selectMergeTargetButton = new Button(mergeTargetGroup, SWT.PUSH);
 			selectMergeTargetButton.setText("Browse...");
@@ -235,6 +236,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						Object[] selectedResources = dialog.getResult();
 						if (selectedResources != null && selectedResources.length > 0 && (selectedResources[0] instanceof IResource)) {
 							mergeTarget = (IResource)selectedResources[0];
+							compareResource2 = mergeTarget;
 							if (mergeTargetText == null)
 								mergeTargetCombo.setText(mergeTarget.getLocation().toString());
 							else
@@ -244,7 +246,6 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					}
 				}				
 			});
-			
 			if (operation != SVNConflictDescriptor.Operation._merge) {
 				revertResource = treeConflict.getResource();
 				compareLabel = new Label(resolutionGroup, SWT.NONE);

@@ -1,14 +1,20 @@
 package org.tigris.subversion.subclipse.ui.conflicts;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.compare.internal.CompareAction;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -94,7 +100,42 @@ public class ResolveTreeConflictWizard extends Wizard {
 			}
 		}
 		if (mainPage.getMergeFromWorkingCopy()) {
-			MessageDialog.openInformation(getShell(), "Compare " + mainPage.getCompareResource1().getName() + " to " + mainPage.getCompareResource2().getName(), "Not yet implemented.");
+			ISelection selection = new IStructuredSelection() {
+				public Object getFirstElement() {
+					return mainPage.getCompareResource1();
+				}
+
+				public Iterator iterator() {
+					return toList().iterator();
+				}
+
+				public int size() {
+					return 2;
+				}
+
+				public Object[] toArray() {
+					IResource[] compareResources = { mainPage.getCompareResource1(), mainPage.getCompareResource2() };
+					return compareResources;
+				}
+
+				public List toList() {
+					List compareList = new ArrayList();
+					compareList.add(mainPage.getCompareResource1());
+					compareList.add(mainPage.getCompareResource2());
+					return compareList;
+				}
+
+				public boolean isEmpty() {
+					return false;
+				}
+				
+			};
+			CompareAction compareAction = new CompareAction();
+			compareAction.setActivePart(null, targetPart);
+			IAction action = new Action() {				
+			};
+			compareAction.selectionChanged(action, selection);
+			compareAction.run(selection);
 		}
 		if (mainPage.getRevertResource() != null) {
 			try {
