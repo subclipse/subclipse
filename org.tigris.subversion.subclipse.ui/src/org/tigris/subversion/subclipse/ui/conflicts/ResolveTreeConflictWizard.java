@@ -247,7 +247,11 @@ public class ResolveTreeConflictWizard extends Wizard {
 				for (int i = 0; i < logMessages.length; i++) {
 					ISVNLogMessageChangePath[] changePaths = logMessages[i].getChangedPaths();
 					for (int j = 0; j < changePaths.length; j++) {
-						if (changePaths[j].getAction() == 'A') {
+						
+						System.out.println(changePaths[j].getAction() + " - " + changePaths[j].getPath());
+						System.out.println("copySrcPath: " + changePaths[j].getCopySrcPath());
+						
+						if (changePaths[j].getAction() == 'A' && changePaths[j].getCopySrcPath() != null) {
 							if ((svnResource.getUrl() != null && svnResource.getUrl().toString().endsWith(changePaths[j].getCopySrcPath())) || changePaths[j].getCopySrcPath().endsWith(svnResource.getIResource().getFullPath().toString())) {
 								statuses = getStatuses(getAll);
 								for (int k = 0; k < statuses.length; k++) {
@@ -294,8 +298,9 @@ public class ResolveTreeConflictWizard extends Wizard {
 			svnClient = getSvnClient();
 			IProject project = treeConflict.getResource().getProject();
 			ISVNLocalResource svnProject =  SVNWorkspaceRoot.getSVNResourceFor(project);
-			SVNRevision revision = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
-			logMessages = svnClient.getLogMessages(svnProject.getUrl(), revision, revision, true); 
+			SVNRevision revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision());
+			SVNRevision revision2 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
+			logMessages = svnClient.getLogMessages(svnProject.getUrl(), revision1, revision2, true); 
 		}
 		return logMessages;
 	}
