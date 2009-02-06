@@ -247,10 +247,6 @@ public class ResolveTreeConflictWizard extends Wizard {
 				for (int i = 0; i < logMessages.length; i++) {
 					ISVNLogMessageChangePath[] changePaths = logMessages[i].getChangedPaths();
 					for (int j = 0; j < changePaths.length; j++) {
-						
-						System.out.println(changePaths[j].getAction() + " - " + changePaths[j].getPath());
-						System.out.println("copySrcPath: " + changePaths[j].getCopySrcPath());
-						
 						if (changePaths[j].getAction() == 'A' && changePaths[j].getCopySrcPath() != null) {
 							if ((svnResource.getUrl() != null && svnResource.getUrl().toString().endsWith(changePaths[j].getCopySrcPath())) || changePaths[j].getCopySrcPath().endsWith(svnResource.getIResource().getFullPath().toString())) {
 								statuses = getStatuses(getAll);
