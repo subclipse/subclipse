@@ -532,9 +532,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				if (revertButton != null) revertButton.addSelectionListener(choiceListener);
 			}
 		}
-		if (reason == SVNConflictDescriptor.Reason.obstructed && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._merge) {
+		if ((reason == SVNConflictDescriptor.Reason.added && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._update) || (reason == SVNConflictDescriptor.Reason.obstructed && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._merge)) {
 			compareButton = new Button(resolutionGroup, SWT.CHECK);
-			compareButton.setText("Compare " + treeConflict.getResource().getName() + " to " + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos());
+			compareButton.setText("Compare " + treeConflict.getResource().getName() + " to " + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos() + " in repository.");
 			compareButton.setSelection(false);
 			compareResource1 = treeConflict.getResource();
 			
