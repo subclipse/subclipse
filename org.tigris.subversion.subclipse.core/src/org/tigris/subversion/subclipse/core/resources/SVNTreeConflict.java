@@ -38,7 +38,10 @@ public class SVNTreeConflict implements ISVNTreeConflict, IAdaptable {
 			break;	
 		case SVNConflictDescriptor.Reason.unversioned:
 			reason = "unversioned"; //$NON-NLS-1$
-			break;				
+			break;
+		case SVNConflictDescriptor.Reason.added:
+			reason = "add"; //$NON-NLS-1$
+			break;					
 		default:
 			reason = Integer.toString(status.getConflictDescriptor().getReason());
 			break;
