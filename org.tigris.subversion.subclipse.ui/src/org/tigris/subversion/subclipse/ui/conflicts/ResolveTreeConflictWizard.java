@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.internal.CompareAction;
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.resources.IProject;
@@ -24,11 +25,13 @@ import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNTreeConflict;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.operations.MergeOperation;
 import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
 import org.tigris.subversion.subclipse.ui.wizards.SizePersistedWizardDialog;
@@ -106,73 +109,62 @@ public class ResolveTreeConflictWizard extends Wizard {
 				return false;
 			}
 		}
-		if (mainPage.getMergeFromWorkingCopy()) {
-			ISelection selection = new IStructuredSelection() {
-				public Object getFirstElement() {
-					return mainPage.getCompareResource1();
-				}
-
-				public Iterator iterator() {
-					return toList().iterator();
-				}
-
-				public int size() {
-					return 2;
-				}
-
-				public Object[] toArray() {
-					IResource[] compareResources = { mainPage.getCompareResource1(), mainPage.getCompareResource2() };
-					return compareResources;
-				}
-
-				public List toList() {
-					List compareList = new ArrayList();
-					compareList.add(mainPage.getCompareResource1());
-					compareList.add(mainPage.getCompareResource2());
-					return compareList;
-				}
-
-				public boolean isEmpty() {
+		if (mainPage.getCompare()) {
+			
+			if (mainPage.getCompareResource2() == null) {
+				ISVNRemoteResource remoteResource = mainPage.getRemoteResource();
+				try {
+					CompareCloseListener closeListener = new CompareCloseListener("Compare " + treeConflict.getResource().getName() + " <workspace>");
+					targetPart.getSite().getPage().addPartListener(closeListener);					
+					CompareUI.openCompareEditorOnPage(
+							new SVNLocalCompareInput(svnResource, remoteResource),
+							targetPart.getSite().getPage());
+				} catch (SVNException e) {
+					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+					MessageDialog.openError(getShell(), "Compare Error", e.getMessage());
 					return false;
 				}
-				
-			};
-			CompareAction compareAction = new CompareAction();
-			compareAction.setActivePart(null, targetPart);
-			IAction action = new Action() {				
-			};
-			compareAction.selectionChanged(action, selection);
-			compareAction.run(selection);
-			IPartListener2 closeListener = new IPartListener2() {
-				
-				public void partClosed(IWorkbenchPartReference partRef) {
-					String compareName = "Compare ('" + mainPage.getCompareResource1().getName() + "' - '" + mainPage.getCompareResource2().getName() + "')";
-					IWorkbenchPart part = partRef.getPart(false);
-					if (part instanceof CompareEditor) {
-						CompareEditor editor = (CompareEditor)part;
-						IEditorInput input = editor.getEditorInput();
-						String name = input.getName();
-						if (name != null && name.equals(compareName)) {
-							if (MessageDialog.openQuestion(getShell(), "Compare Editor Closed", "Do you want to reopen the Resolve Tree Conflict dialog in order to resolve the conflict on " + treeConflict.getResource().getName() + "?")) {
-								targetPart.getSite().getPage().removePartListener(this);
-								ResolveTreeConflictWizard wizard = new ResolveTreeConflictWizard(treeConflict, targetPart);
-								WizardDialog dialog = new SizePersistedWizardDialog(Display.getDefault().getActiveShell(), wizard, "ResolveTreeConflict"); //$NON-NLS-1$
-								dialog.open();
-							}
-						}
+			} else {
+			
+				ISelection selection = new IStructuredSelection() {
+					public Object getFirstElement() {
+						return mainPage.getCompareResource1();
 					}
-				}							
-				
-				public void partActivated(IWorkbenchPartReference partRef) {}
-				public void partBroughtToTop(IWorkbenchPartReference partRef) {}
-				public void partDeactivated(IWorkbenchPartReference partRef) {}
-				public void partHidden(IWorkbenchPartReference partRef) {}
-				public void partInputChanged(IWorkbenchPartReference partRef) {}
-				public void partOpened(IWorkbenchPartReference partRef) {}
-				public void partVisible(IWorkbenchPartReference partRef) {}
-				
-			};
-			targetPart.getSite().getPage().addPartListener(closeListener);			
+	
+					public Iterator iterator() {
+						return toList().iterator();
+					}
+	
+					public int size() {
+						return 2;
+					}
+	
+					public Object[] toArray() {
+						IResource[] compareResources = { mainPage.getCompareResource1(), mainPage.getCompareResource2() };
+						return compareResources;
+					}
+	
+					public List toList() {
+						List compareList = new ArrayList();
+						compareList.add(mainPage.getCompareResource1());
+						compareList.add(mainPage.getCompareResource2());
+						return compareList;
+					}
+	
+					public boolean isEmpty() {
+						return false;
+					}
+					
+				};
+				CompareAction compareAction = new CompareAction();
+				compareAction.setActivePart(null, targetPart);
+				IAction action = new Action() {				
+				};
+				compareAction.selectionChanged(action, selection);
+				compareAction.run(selection);
+				CompareCloseListener closeListener = new CompareCloseListener("Compare ('" + mainPage.getCompareResource1().getName() + "' - '" + mainPage.getCompareResource2().getName() + "')");
+				targetPart.getSite().getPage().addPartListener(closeListener);
+			}
 		}
 		if (mainPage.getRevertResource() != null) {
 			try {
@@ -306,6 +298,40 @@ public class ResolveTreeConflictWizard extends Wizard {
 			svnClient = svnResource.getRepository().getSVNClient();
 		}
 		return svnClient;
+	}
+	
+	class CompareCloseListener implements IPartListener2 {
+		private String compareName;
+		
+		public CompareCloseListener(String compareName) {
+			this.compareName = compareName;
+		}
+		
+		public void partClosed(IWorkbenchPartReference partRef) {
+			String compareName = "Compare " + treeConflict.getResource().getName() + " <workspace>";
+			IWorkbenchPart part = partRef.getPart(false);
+			if (part instanceof CompareEditor) {
+				CompareEditor editor = (CompareEditor)part;
+				IEditorInput input = editor.getEditorInput();
+				String name = input.getName();
+				if (name != null && name.startsWith(compareName)) {
+					if (MessageDialog.openQuestion(getShell(), "Compare Editor Closed", "Do you want to reopen the Resolve Tree Conflict dialog in order to resolve the conflict on " + treeConflict.getResource().getName() + "?")) {
+						targetPart.getSite().getPage().removePartListener(this);
+						ResolveTreeConflictWizard wizard = new ResolveTreeConflictWizard(treeConflict, targetPart);
+						WizardDialog dialog = new SizePersistedWizardDialog(Display.getDefault().getActiveShell(), wizard, "ResolveTreeConflict"); //$NON-NLS-1$
+						dialog.open();
+					}
+				}
+			}
+		}							
+		
+		public void partActivated(IWorkbenchPartReference partRef) {}
+		public void partBroughtToTop(IWorkbenchPartReference partRef) {}
+		public void partDeactivated(IWorkbenchPartReference partRef) {}
+		public void partHidden(IWorkbenchPartReference partRef) {}
+		public void partInputChanged(IWorkbenchPartReference partRef) {}
+		public void partOpened(IWorkbenchPartReference partRef) {}
+		public void partVisible(IWorkbenchPartReference partRef) {}		
 	}
 
 }
