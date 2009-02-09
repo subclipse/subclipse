@@ -308,7 +308,6 @@ public class ResolveTreeConflictWizard extends Wizard {
 		}
 		
 		public void partClosed(IWorkbenchPartReference partRef) {
-			String compareName = "Compare " + treeConflict.getResource().getName() + " <workspace>";
 			IWorkbenchPart part = partRef.getPart(false);
 			if (part instanceof CompareEditor) {
 				CompareEditor editor = (CompareEditor)part;
