@@ -112,12 +112,14 @@ public class ResolveTreeConflictWizard extends Wizard {
 		if (mainPage.getCompare()) {
 			
 			if (mainPage.getCompareResource2() == null) {
+				ISVNLocalResource svnCompareResource = mainPage.getSvnCompareResource();
+				if (svnCompareResource == null) svnCompareResource = svnResource;
 				ISVNRemoteResource remoteResource = mainPage.getRemoteResource();
 				try {
-					CompareCloseListener closeListener = new CompareCloseListener("Compare " + treeConflict.getResource().getName() + " <workspace>");
+					CompareCloseListener closeListener = new CompareCloseListener("Compare " + svnCompareResource.getName() + " <workspace>");
 					targetPart.getSite().getPage().addPartListener(closeListener);					
 					CompareUI.openCompareEditorOnPage(
-							new SVNLocalCompareInput(svnResource, remoteResource),
+							new SVNLocalCompareInput(svnCompareResource, remoteResource),
 							targetPart.getSite().getPage());
 				} catch (SVNException e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);

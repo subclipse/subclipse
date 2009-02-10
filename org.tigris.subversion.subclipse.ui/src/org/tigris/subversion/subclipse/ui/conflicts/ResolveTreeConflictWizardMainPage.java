@@ -69,7 +69,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private IResource revertResource;
 	private IResource deleteResource1;
 	private IResource deleteResource2;
-	
+	private ISVNLocalResource svnCompareResource;
+
 	private IResource compareResource1;
 	private IResource compareResource2;
 	private ISVNRemoteResource remoteResource;
@@ -144,9 +145,16 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				remoteCopiedTo = getRemoteCopiedTo(true);
 			else
 				copiedTo = getCopiedTo(false);
+			getRemoteResource(wizard, treeConflict);
+			compareButton = new Button(resolutionGroup, SWT.CHECK);
+			compareButton.setText("Compare " + conflictDescriptor.getSrcRightVersion().getPathInRepos() + " to Compare/Merge target:");			
+			compareLabel = new Label(resolutionGroup, SWT.NONE);
+			compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+			compareLabel.setVisible(false);			
 			mergeFromRepositoryButton = new Button(resolutionGroup, SWT.CHECK);
-			mergeFromRepositoryButton.setText("Merge " + treeConflict.getResource().getName() + " r" + conflictDescriptor.getSrcLeftVersion().getPegRevision() + ":" + conflictDescriptor.getSrcRightVersion().getPegRevision() + " into:");
-			Composite mergeTargetGroup = new Composite(resolutionGroup, SWT.NONE);
+			mergeFromRepositoryButton.setText("Merge " + conflictDescriptor.getSrcRightVersion().getPathInRepos() + " into Compare/Merge target:");
+			Group mergeTargetGroup = new Group(resolutionGroup, SWT.NONE);
+			mergeTargetGroup.setText("Compare/Merge Target:");
 			GridLayout mergeTargetLayout = new GridLayout();
 			mergeTargetLayout.numColumns = 2;
 			mergeTargetGroup.setLayout(mergeTargetLayout);
@@ -157,9 +165,11 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			mergeTargetText.setLayoutData(gd);
 			if (copiedTo != null) {
 				mergeTarget = File2Resource.getResource(copiedTo.getFile());
+				svnCompareResource =  SVNWorkspaceRoot.getSVNResourceFor(mergeTarget);
 				mergeTargetText.setText(copiedTo.getPath());
 			} else if (remoteCopiedTo != null) {
 				mergeTarget = File2Resource.getResource(remoteCopiedTo.getFile());
+				svnCompareResource =  SVNWorkspaceRoot.getSVNResourceFor(mergeTarget);
 				mergeTargetText.setText(remoteCopiedTo.getPath());				
 			}
 			else {
@@ -174,6 +184,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						Object[] selectedResources = dialog.getResult();
 						if (selectedResources != null && selectedResources.length > 0 && (selectedResources[0] instanceof IResource)) {
 							mergeTarget = (IResource)selectedResources[0];
+							svnCompareResource =  SVNWorkspaceRoot.getSVNResourceFor(mergeTarget);
 							mergeTargetText.setText(mergeTarget.getLocation().toString());
 							setPageComplete(true);
 						}
@@ -181,6 +192,20 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				}				
 			});
 			mergeFromRepositoryButton.setSelection(true);
+			SelectionListener choiceListener = new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent evt) {
+					if (compareButton.getSelection()) {
+						compareLabel.setVisible(true);
+						mergeFromRepositoryButton.setEnabled(false);
+						markResolvedButton.setEnabled(false);
+					} else {
+						compareLabel.setVisible(false);
+						mergeFromRepositoryButton.setEnabled(true);
+						markResolvedButton.setEnabled(true);
+					}
+				}				
+			};
+			compareButton.addSelectionListener(choiceListener);
 		}
 		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {					
 			if (operation == SVNConflictDescriptor.Operation._merge) {
@@ -538,16 +563,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			compareButton.setSelection(false);
 			compareResource1 = treeConflict.getResource();
 			
-			ISVNRepositoryLocation repository = wizard.getSvnResource().getRepository();
-			SVNRevision revision = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
-			try {
-				SVNUrl url = new SVNUrl(treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos());
-				GetRemoteResourceCommand command = new GetRemoteResourceCommand(repository, url, revision);
-				command.run(new NullProgressMonitor());
-				remoteResource = command.getRemoteResource();
-			} catch (Exception e) {
-				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-			}
+			getRemoteResource(wizard, treeConflict);
 			
 			compareLabel = new Label(resolutionGroup, SWT.NONE);
 			compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
@@ -575,8 +591,23 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		
 		setControl(outerContainer);	
 	}
+
+	private void getRemoteResource(ResolveTreeConflictWizard wizard,
+			final SVNTreeConflict treeConflict) {
+		ISVNRepositoryLocation repository = wizard.getSvnResource().getRepository();
+		SVNRevision revision = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
+		try {
+			SVNUrl url = new SVNUrl(treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos());
+			GetRemoteResourceCommand command = new GetRemoteResourceCommand(repository, url, revision);
+			command.run(new NullProgressMonitor());
+			remoteResource = command.getRemoteResource();
+		} catch (Exception e) {
+			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+		}
+	}
 	
 	public boolean getMergeFromRepository() {
+		if (compareButton != null && compareButton.getSelection()) return false;
 		return mergeFromRepositoryButton != null && mergeFromRepositoryButton.getSelection();
 	}
 	
@@ -619,6 +650,10 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	
 	public ISVNRemoteResource getRemoteResource() {
 		return remoteResource;
+	}
+	
+	public ISVNLocalResource getSvnCompareResource() {
+		return svnCompareResource;
 	}
 	
 	private ISVNStatus getCopiedTo(final boolean getAll) {
