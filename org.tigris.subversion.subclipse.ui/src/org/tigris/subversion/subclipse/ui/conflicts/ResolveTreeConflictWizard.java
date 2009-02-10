@@ -220,8 +220,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 			statuses = getStatuses(getAll);
 			for (int i = 0; i < statuses.length; i++) {
 				if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) {
-					if (statuses[i].getUrlCopiedFrom() != null) {
-						if (statuses[i].getUrlCopiedFrom().toString().equals(svnResource.getUrl().toString())) {
+					if (statuses[i].getUrlCopiedFrom() != null) {		
+						if ((svnResource.getUrl() != null && statuses[i].getUrlCopiedFrom().toString().equals(svnResource.getUrl().toString())) || (statuses[i].getUrlCopiedFrom().toString().endsWith(treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos()))) {
 							copiedTo = statuses[i];
 							break;
 						}
