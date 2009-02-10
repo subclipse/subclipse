@@ -116,11 +116,11 @@ public class ResolveTreeConflictWizard extends Wizard {
 				if (svnCompareResource == null) svnCompareResource = svnResource;
 				ISVNRemoteResource remoteResource = mainPage.getRemoteResource();
 				try {
-					CompareCloseListener closeListener = new CompareCloseListener("Compare " + svnCompareResource.getName() + " <workspace>");
-					targetPart.getSite().getPage().addPartListener(closeListener);					
 					CompareUI.openCompareEditorOnPage(
 							new SVNLocalCompareInput(svnCompareResource, remoteResource),
 							targetPart.getSite().getPage());
+					CompareCloseListener closeListener = new CompareCloseListener("Compare " + svnCompareResource.getName() + " <workspace>");
+					targetPart.getSite().getPage().addPartListener(closeListener);										
 				} catch (SVNException e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 					MessageDialog.openError(getShell(), "Compare Error", e.getMessage());
@@ -316,8 +316,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 				IEditorInput input = editor.getEditorInput();
 				String name = input.getName();
 				if (name != null && name.startsWith(compareName)) {
+					targetPart.getSite().getPage().removePartListener(this);
 					if (MessageDialog.openQuestion(getShell(), "Compare Editor Closed", "Do you want to reopen the Resolve Tree Conflict dialog in order to resolve the conflict on " + treeConflict.getResource().getName() + "?")) {
-						targetPart.getSite().getPage().removePartListener(this);
 						ResolveTreeConflictWizard wizard = new ResolveTreeConflictWizard(treeConflict, targetPart);
 						WizardDialog dialog = new SizePersistedWizardDialog(Display.getDefault().getActiveShell(), wizard, "ResolveTreeConflict"); //$NON-NLS-1$
 						dialog.open();

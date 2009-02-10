@@ -223,7 +223,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				compareButton = new Button(resolutionGroup, SWT.CHECK);
 				compareButton.setText("Compare " + treeConflict.getResource().getName() + " to:");
 				compareButton.setSelection(false);
-				compareResource1 = treeConflict.getResource();
+				compareResource2 = treeConflict.getResource();
 			}
 			Composite mergeTargetGroup = new Composite(resolutionGroup, SWT.NONE);
 			GridLayout mergeTargetLayout = new GridLayout();
@@ -243,7 +243,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					public void widgetSelected(SelectionEvent evt) {
 						ISVNStatus selectedAdd = adds[mergeTargetCombo.getSelectionIndex()];
 						mergeTarget = File2Resource.getResource(selectedAdd.getFile());
-						compareResource2 = mergeTarget;
+						compareResource1 = mergeTarget;
 					}				
 				});
 			}
@@ -253,11 +253,11 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				}
 				mergeTargetCombo.select(0);
 				mergeTarget = File2Resource.getResource(adds[0].getFile());
-				compareResource2 = mergeTarget;
+				compareResource1 = mergeTarget;
 			} else if (remoteCopiedTo != null) {
 				mergeTarget = File2Resource.getResource(remoteCopiedTo.getFile());
 				mergeTargetText.setText(remoteCopiedTo.getPath());
-				compareResource2 = mergeTarget;
+				compareResource1 = mergeTarget;
 			} // else setPageComplete(false);
 			Button selectMergeTargetButton = new Button(mergeTargetGroup, SWT.PUSH);
 			selectMergeTargetButton.setText("Browse...");
