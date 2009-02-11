@@ -211,24 +211,27 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			compareButton.addSelectionListener(choiceListener);
 		}
 		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {					
+			compareButton = new Button(resolutionGroup, SWT.CHECK);
+			compareButton.setText("Compare " + treeConflict.getResource().getName() + " to:");
+			compareButton.setSelection(false);
+			compareLabel = new Label(resolutionGroup, SWT.NONE);
+			compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+			compareLabel.setVisible(false);
+			compareResource2 = treeConflict.getResource();			
 			if (operation == SVNConflictDescriptor.Operation._merge) {
 				try {
 					adds = wizard.getAdds();
 				} catch (SVNException e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-				}
-				
+				}				
 				mergeFromRepositoryButton = new Button(resolutionGroup, SWT.CHECK);
 				mergeFromRepositoryButton.setText("Merge " + treeConflict.getResource().getName() + " into:");			
 				mergeFromRepositoryButton.setSelection(true);
 				mergeFromUrl = wizard.getSvnResource().getUrl().toString();
 			} else {
 				remoteCopiedTo = getRemoteCopiedTo(false);
-				compareButton = new Button(resolutionGroup, SWT.CHECK);
-				compareButton.setText("Compare " + treeConflict.getResource().getName() + " to:");
-				compareButton.setSelection(false);
-				compareResource2 = treeConflict.getResource();
 			}
+			
 			Composite mergeTargetGroup = new Composite(resolutionGroup, SWT.NONE);
 			GridLayout mergeTargetLayout = new GridLayout();
 			mergeTargetLayout.numColumns = 2;
@@ -284,9 +287,6 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			});
 			if (operation != SVNConflictDescriptor.Operation._merge) {
 				revertResource = treeConflict.getResource();
-				compareLabel = new Label(resolutionGroup, SWT.NONE);
-				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
-				compareLabel.setVisible(false);
 				if (wizard.isAdded()) {
 					revertButton = new Button(resolutionGroup, SWT.CHECK);
 					revertButton.setText("Revert " + revertResource.getName() + " (conflict will be resolved)");
@@ -341,10 +341,22 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				}
 				SelectionListener choiceListener = new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent evt) {
-						if (!mergeFromRepositoryButton.getSelection()) setPageComplete(true);
-						else setPageComplete(mergeTargetText.getText().length() > 0);
+						if (!compareButton.getSelection() && !mergeFromRepositoryButton.getSelection()) setPageComplete(true);
+						else setPageComplete((mergeTargetText != null && mergeTargetText.getText().length() > 0) || (mergeTargetCombo != null && mergeTargetCombo.getText().length() > 0));
+						if (compareButton.getSelection()) {
+							compareLabel.setVisible(true);
+							if (mergeFromRepositoryButton != null) mergeFromRepositoryButton.setEnabled(false);
+							if (deleteButton1 != null) deleteButton1.setEnabled(false);
+							if (markResolvedButton != null) markResolvedButton.setEnabled(false);
+						} else {
+							compareLabel.setVisible(false);
+							if (mergeFromRepositoryButton != null) mergeFromRepositoryButton.setEnabled(true);
+							if (deleteButton1 != null) deleteButton1.setEnabled(true);
+							if (markResolvedButton != null) markResolvedButton.setEnabled(true);							
+						}
 					}				
-				};
+				};				
+				compareButton.addSelectionListener(choiceListener);
 				mergeFromRepositoryButton.addSelectionListener(choiceListener);
 			}
 		}
