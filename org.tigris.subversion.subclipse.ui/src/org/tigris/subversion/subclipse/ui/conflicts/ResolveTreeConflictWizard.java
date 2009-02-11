@@ -87,7 +87,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 	public boolean performFinish() {
 		if (mainPage.getMergeFromRepository()) {
 			try {
-				SVNUrl url = new SVNUrl(treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos());
+				SVNUrl url = new SVNUrl(mainPage.getMergeFromUrl());
 				SVNRevision revision1;
 				if (treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision() == treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision())
 					revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision() - 1);

@@ -74,6 +74,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private IResource compareResource1;
 	private IResource compareResource2;
 	private ISVNRemoteResource remoteResource;
+	private String mergeFromUrl;
+	
+	private SVNTreeConflict treeConflict;
 	
 	public ResolveTreeConflictWizardMainPage() {
 		super("main", "Specify steps", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_RESOLVE_TREE_CONFLICT));
@@ -81,7 +84,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 
 	public void createControl(Composite parent) {
 		ResolveTreeConflictWizard wizard = (ResolveTreeConflictWizard)getWizard();
-		final SVNTreeConflict treeConflict = wizard.getTreeConflict();
+		treeConflict = wizard.getTreeConflict();
 		
 		Composite outerContainer = new Composite(parent,SWT.NONE);
 		outerContainer.setLayout(new GridLayout());
@@ -216,8 +219,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				}
 				
 				mergeFromRepositoryButton = new Button(resolutionGroup, SWT.CHECK);
-				mergeFromRepositoryButton.setText("Merge " + treeConflict.getResource().getName() + " r" + conflictDescriptor.getSrcLeftVersion().getPegRevision() + ":" + conflictDescriptor.getSrcRightVersion().getPegRevision() + " into:");			
+				mergeFromRepositoryButton.setText("Merge " + treeConflict.getResource().getName() + " into:");			
 				mergeFromRepositoryButton.setSelection(true);
+				mergeFromUrl = wizard.getSvnResource().getUrl().toString();
 			} else {
 				remoteCopiedTo = getRemoteCopiedTo(false);
 				compareButton = new Button(resolutionGroup, SWT.CHECK);
@@ -654,6 +658,13 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	
 	public ISVNLocalResource getSvnCompareResource() {
 		return svnCompareResource;
+	}
+	
+	public String getMergeFromUrl() {
+		if (mergeFromUrl == null)
+			return treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos();
+		else
+			return mergeFromUrl;
 	}
 	
 	private ISVNStatus getCopiedTo(final boolean getAll) {
