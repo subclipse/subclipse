@@ -247,12 +247,18 @@ public class ResolveTreeConflictWizard extends Wizard {
 	}
 	
 	public ISVNStatus getLocalCopiedTo(boolean getAll) throws SVNException {
+		String endsWithCheck = treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos();
+		IProject project = svnResource.getResource().getProject();
+		if (project != null) {
+			int index = endsWithCheck.indexOf("/" + project.getName() + "/");
+			if (index != -1) endsWithCheck = endsWithCheck.substring(index);
+		}
 		if (copiedTo == null && !copiedToRetrieved) {
 			statuses = getStatuses(getAll);
 			for (int i = 0; i < statuses.length; i++) {
 				if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) {
 					if (statuses[i].getUrlCopiedFrom() != null) {	
-						if ((svnResource.getUrl() != null && statuses[i].getUrlCopiedFrom().toString().equals(svnResource.getUrl().toString())) || (statuses[i].getUrlCopiedFrom().toString().endsWith(treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos()))) {
+						if ((svnResource.getUrl() != null && statuses[i].getUrlCopiedFrom().toString().equals(svnResource.getUrl().toString())) || (statuses[i].getUrlCopiedFrom().toString().endsWith(endsWithCheck))) {
 							copiedTo = statuses[i];
 							break;
 						}
