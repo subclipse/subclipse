@@ -197,6 +197,10 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			mergeFromRepositoryButton.setSelection(true);
 			SelectionListener choiceListener = new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent evt) {
+					if (compareButton.getSelection() || (mergeFromRepositoryButton != null && mergeFromRepositoryButton.getSelection()))
+						setPageComplete((mergeTargetText != null && mergeTargetText.getText().length() > 0) || (mergeTargetCombo != null && mergeTargetCombo.getText().length() > 0));
+					else
+						setPageComplete(true);
 					if (compareButton.getSelection()) {
 						compareLabel.setVisible(true);
 						mergeFromRepositoryButton.setEnabled(false);
@@ -209,6 +213,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				}				
 			};
 			compareButton.addSelectionListener(choiceListener);
+			if (mergeFromRepositoryButton != null) mergeFromRepositoryButton.addSelectionListener(choiceListener);
 		}
 		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {					
 			compareButton = new Button(resolutionGroup, SWT.CHECK);
@@ -309,14 +314,16 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				if (wizard.isAdded()) markResolvedEnabled = false;
 				SelectionListener choiceListener = new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent evt) {
+						if (compareButton.getSelection() || (mergeFromRepositoryButton != null && mergeFromRepositoryButton.getSelection()))
+							setPageComplete((mergeTargetText != null && mergeTargetText.getText().length() > 0) || (mergeTargetCombo != null && mergeTargetCombo.getText().length() > 0));
+						else
+							setPageComplete(true);
 						if (compareButton.getSelection()) {
 							compareLabel.setVisible(true);
 							if (revertButton != null) revertButton.setEnabled(false);
 							deleteButton1.setEnabled(false);
 							markResolvedButton.setEnabled(false);
-							setPageComplete(mergeTargetText.getText().length() > 0);
 						} else {
-							setPageComplete(true);
 							compareLabel.setVisible(false);
 							if (revertButton != null) {
 								revertButton.setEnabled(true);
@@ -336,6 +343,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					}				
 				};
 				compareButton.addSelectionListener(choiceListener);
+				if (mergeFromRepositoryButton != null) mergeFromRepositoryButton.addSelectionListener(choiceListener);
 				if (revertButton != null) revertButton.addSelectionListener(choiceListener);
 				deleteButton1.addSelectionListener(choiceListener);
 			}
