@@ -214,9 +214,11 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			compareButton = new Button(resolutionGroup, SWT.CHECK);
 			compareButton.setText("Compare " + treeConflict.getResource().getName() + " to:");
 			compareButton.setSelection(false);
-			compareLabel = new Label(resolutionGroup, SWT.NONE);
-			compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
-			compareLabel.setVisible(false);
+			if (operation != SVNConflictDescriptor.Operation._switch) {
+				compareLabel = new Label(resolutionGroup, SWT.NONE);
+				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+				compareLabel.setVisible(false);
+			}
 			compareResource2 = treeConflict.getResource();			
 			if (operation == SVNConflictDescriptor.Operation._merge) {
 				try {
@@ -275,7 +277,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						Object[] selectedResources = dialog.getResult();
 						if (selectedResources != null && selectedResources.length > 0 && (selectedResources[0] instanceof IResource)) {
 							mergeTarget = (IResource)selectedResources[0];
-							compareResource2 = mergeTarget;
+							compareResource1 = mergeTarget;
 							if (mergeTargetText == null)
 								mergeTargetCombo.setText(mergeTarget.getLocation().toString());
 							else
@@ -285,6 +287,11 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					}
 				}				
 			});
+			if (operation == SVNConflictDescriptor.Operation._switch) {
+				compareLabel = new Label(resolutionGroup, SWT.NONE);
+				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+				compareLabel.setVisible(false);
+			}
 			if (operation != SVNConflictDescriptor.Operation._merge) {
 				revertResource = treeConflict.getResource();
 				if (wizard.isAdded()) {
