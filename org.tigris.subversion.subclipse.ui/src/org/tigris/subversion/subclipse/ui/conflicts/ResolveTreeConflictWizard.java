@@ -1,5 +1,6 @@
 package org.tigris.subversion.subclipse.ui.conflicts;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPartListener2;
@@ -28,12 +30,11 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
+import org.tigris.subversion.subclipse.core.commands.RevertResourcesCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNTreeConflict;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
-import org.tigris.subversion.subclipse.ui.operations.MergeOperation;
-import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
 import org.tigris.subversion.subclipse.ui.wizards.SizePersistedWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
@@ -59,6 +60,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 	private ISVNStatus remoteCopiedTo;
 	private ISVNLogMessage[] logMessages;
 	private boolean added;
+	private Exception mergeException;
+	private Exception revertException;
 
 	public ResolveTreeConflictWizard(SVNTreeConflict treeConflict, IWorkbenchPart targetPart) {
 		super();
@@ -87,22 +90,42 @@ public class ResolveTreeConflictWizard extends Wizard {
 	public boolean performFinish() {
 		if (mainPage.getMergeFromRepository()) {
 			try {
-				SVNUrl url = new SVNUrl(mainPage.getMergeFromUrl());
+				final SVNUrl url = new SVNUrl(mainPage.getMergeFromUrl());
 				SVNRevision revision1;
 				if (treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision() == treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision())
 					revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision() - 1);
 				else
 					revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision());
-				SVNRevision revision2 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
+				final SVNRevision revision2 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
 				if (treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision() == treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision())
 					revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision() - 1);
-				IResource mergeTarget = mainPage.getMergeTarget();
-				IResource[] resources = { mergeTarget };
-				MergeOperation mergeOperation = new MergeOperation(targetPart, resources, url, revision1, url, revision2);
-				mergeOperation.setForce(true);
-				mergeOperation.setRecurse(false);
-				mergeOperation.setIgnoreAncestry(true);
-				mergeOperation.run();
+				final IResource mergeTarget = mainPage.getMergeTarget();
+				final SVNRevision rev1 = revision1;
+
+				svnClient = getSvnClient();
+				mergeException = null;
+				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
+					public void run() {
+						try {
+							File localPath = mergeTarget.getLocation().toFile();
+							svnClient.merge(url, rev1, url, revision2, localPath, true, false, false, true);
+				            try {
+				                // Refresh the resource after merge
+				            	if (mergeTarget.getParent() != null)
+				            		mergeTarget.getParent().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				            	else
+				            		mergeTarget.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				            } catch (CoreException e1) {}							
+						} catch (Exception e) {
+							mergeException = e;
+						}						
+					}				
+				});			
+				if (mergeException != null) {
+					SVNUIPlugin.log(IStatus.ERROR, mergeException.getMessage(), mergeException);
+					MessageDialog.openError(getShell(), "Merge Error", mergeException.getMessage());
+					return false;				
+				}
 			} catch (Exception e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				MessageDialog.openError(getShell(), "Merge Error", e.getMessage());
@@ -168,15 +191,23 @@ public class ResolveTreeConflictWizard extends Wizard {
 				targetPart.getSite().getPage().addPartListener(closeListener);
 			}
 		}
-		if (mainPage.getRevertResource() != null) {
-			try {
-				IResource[] revertResources = { mainPage.getRevertResource() };
-				RevertOperation revertOperation = new RevertOperation(targetPart, revertResources);
-				revertOperation.run();
-			} catch (Exception e) {
-				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-				MessageDialog.openError(getShell(), "Revert Error", e.getMessage());
-				return false;
+		if (mainPage.getRevertResource() != null) {				
+			revertException = null;
+			BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+				public void run() {
+					try {
+						IResource[] revertResources = { mainPage.getRevertResource() };
+						RevertResourcesCommand revertCommand = new RevertResourcesCommand(svnResource.getWorkspaceRoot(), revertResources);
+						revertCommand.run(new NullProgressMonitor());							
+					} catch (Exception e) {
+						revertException = e;
+					}					
+				}					
+			});	
+			if (revertException != null) {
+				SVNUIPlugin.log(IStatus.ERROR, revertException.getMessage(), revertException);
+				MessageDialog.openError(getShell(), "Revert Error", revertException.getMessage());
+				return false;					
 			}
 		}
 		if (mainPage.getDeleteResource() != null) {
