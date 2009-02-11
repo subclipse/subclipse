@@ -516,6 +516,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						deleteButton1 = new Button(option1Group, SWT.CHECK);
 						deleteButton1.setText("Remove the selected resource from working copy");
 						deleteButton1.setEnabled(false);
+						setPageComplete(false);
 					}
 				}
 				
@@ -552,12 +553,21 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 								deleteButton1.setEnabled(false);
 								deleteButton1.setSelection(false);
 							}
-						}					
+						}	
+						if (option1Button.getSelection()) {
+							setPageComplete(revertButton == null || revertButton.getSelection());
+						}
+						if (option2Button.getSelection()) {
+							setPageComplete(deleteButton2 == null || deleteButton2.getSelection());
+						}
+						if (option3Button.getSelection()) setPageComplete(true);
 					}				
 				};
 				option1Button.addSelectionListener(choiceListener);
 				option2Button.addSelectionListener(choiceListener);
 				option3Button.addSelectionListener(choiceListener);
+				if (revertButton != null) revertButton.addSelectionListener(choiceListener);
+				if (deleteButton2 != null) deleteButton2.addSelectionListener(choiceListener);
 				if (revertButton != null) revertButton.addSelectionListener(choiceListener);
 			}
 		}
