@@ -410,7 +410,18 @@ public class HistoryTableProvider {
 		if (includeBugs) {
 			col = new TableColumn(table, SWT.NONE);
 			col.setResizable(true);
-			col.setText(Policy.bind("HistoryView.bugs")); //$NON-NLS-1$
+			String label = projectProperties.getLabel();
+			if (label != null && label.trim().length() > 0)
+			{
+				label = label.trim();
+				// many have i guess labels that ends with : strip that one for the table header.
+				if (label.endsWith(":")) label = label.substring(0,label.length()-1);
+				col.setText(label);
+			}
+			else
+			{
+				col.setText(Policy.bind("HistoryView.bugs")); //$NON-NLS-1$
+			}
 			col.addSelectionListener(headerListener);
 			setColumnWidth(layout, disposeListener, col, 10);
 		}
