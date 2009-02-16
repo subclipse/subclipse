@@ -13,6 +13,8 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.graph.Activator;
 import org.tigris.subversion.subclipse.graph.cache.Node;
 
@@ -66,8 +68,14 @@ public class NodeTooltipFigure extends Figure {
 		if (tagCount > tagsAdded) add(createLabel((tagCount - tagsAdded) + " more...", JFaceResources.getTextFont()));
 		
 		Dimension d = getPreferredSize();
+		int width = d.width+BORDER_WIDTH2;
+		int height = d.height+BORDER_WIDTH2;
 		
-		setPreferredSize(d.width+BORDER_WIDTH2, d.height+BORDER_WIDTH2);
+		Rectangle b = PlatformUI.getWorkbench().getDisplay().getClientArea();
+		width = width > b.width?b.width-30:width;
+		height = height > b.height?b.height-50:height;
+		
+		setPreferredSize(width, height);
 		setBorder(new LineBorder(Activator.BGCOLOR, BORDER_WIDTH));
 	}
 	
