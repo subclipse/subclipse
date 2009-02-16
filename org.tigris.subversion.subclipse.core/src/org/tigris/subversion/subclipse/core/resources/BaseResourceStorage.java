@@ -53,7 +53,11 @@ public class BaseResourceStorage extends PlatformObject implements IStorage ,IEn
 	 * @see org.eclipse.core.resources.IStorage#getFullPath()
 	 */
 	public IPath getFullPath() {
-		return baseResource.getPath();
+		IPath path = baseResource.getPath();
+		String lastSegment = path.lastSegment();
+		lastSegment += " " + baseResource.getLastChangedRevision().toString();
+		path = path.removeLastSegments(1);
+		return path.append(lastSegment);
 	}
 
 	/* (non-Javadoc)
