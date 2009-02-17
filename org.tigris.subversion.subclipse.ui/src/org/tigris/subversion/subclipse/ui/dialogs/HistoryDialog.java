@@ -287,7 +287,12 @@ public class HistoryDialog extends TrayDialog {
   }   
 
 	private void setIncludeBugsAndTags(ISVNRemoteResource res) {
-	    ProjectProperties projectProperties = ProjectProperties.getProjectProperties(res);
+	    ProjectProperties projectProperties = null;
+		try {
+			projectProperties = ProjectProperties.getProjectProperties(res);
+		} catch (SVNException e) {
+			SVNUIPlugin.openError(Display.getCurrent().getActiveShell(), null, null, e);
+		}
 	  	includeBugs = projectProperties != null;
 	  	includeTags = tagsPropertySet(res);
 	}

@@ -353,7 +353,7 @@ public class ProjectProperties {
     	return resolvedUrl;
     }
     
-    public static ProjectProperties getProjectProperties(ISVNRemoteResource remoteResource) {
-        return null;
+    public static ProjectProperties getProjectProperties(ISVNRemoteResource remoteResource)  throws SVNException {
+		return getProjectProperties(remoteResource.getResource());
     }
 }

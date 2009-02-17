@@ -388,7 +388,11 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     	  refreshTable();
       }
       
-      this.projectProperties = ProjectProperties.getProjectProperties(this.remoteResource);
+      try {
+		this.projectProperties = ProjectProperties.getProjectProperties(this.remoteResource);
+	  } catch (SVNException e) {
+		SVNUIPlugin.openError(getSite().getShell(), null, null, e);
+  	  }
   	  boolean includeBugs = projectProperties != null;
       if (includeTags != this.includeTags || this.includeBugs != includeBugs ) {
       	  this.includeTags = includeTags;
