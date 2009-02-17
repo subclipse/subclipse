@@ -62,6 +62,7 @@ public class OpenBugUrlAction extends WorkbenchWindowAction {
 			{
 				ILogEntry logEntry = (ILogEntry)selectedObjects[i];
 				ProjectProperties projectProperties = ProjectProperties.getProjectProperties(logEntry.getResource().getResource());
+				if (projectProperties == null) return false;
 				LinkList linkList = projectProperties.getLinkList(logEntry.getComment());
 				return linkList.getUrls().length != 0;
 			}
