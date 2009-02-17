@@ -21,15 +21,21 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.RevertResourcesCommand;
 import org.tigris.subversion.subclipse.core.commands.UpdateResourcesCommand;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperation {
@@ -78,9 +84,10 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 		}
 		SVNRevision revision = SVNRevision.HEAD;
 		monitor.beginTask(null, 100);
-		try {			
-		    SVNWorkspaceSubscriber.getInstance().updateRemote(resourceArray);
-	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resourceArray, revision);
+		try {	
+			IResource[] incomingResources = getIncoming(resourceArray);
+		    SVNWorkspaceSubscriber.getInstance().updateRemote(incomingResources);
+	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),incomingResources, revision);
 	        command.run(Policy.subMonitorFor(monitor,100));
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
@@ -89,6 +96,21 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
         } finally {
             monitor.done();
 		}
+	}
+	
+	private IResource[] getIncoming(IResource[] resources) throws TeamException {
+		List incomingResources = new ArrayList();
+		for (int i = 0; i < resources.length; i++) {
+			IResource resource = resources[i];
+			SVNStatusSyncInfo info = (SVNStatusSyncInfo) SVNWorkspaceSubscriber.getInstance().getSyncInfo(resource);	
+			if (info != null) {
+				if (SyncInfo.getDirection(info.getKind()) == SyncInfo.INCOMING || SyncInfo.getDirection(info.getKind()) == SyncInfo.CONFLICTING)
+					incomingResources.add(resource);
+			}
+		}
+		IResource[] incomingArray = new IResource[incomingResources.size()];
+		incomingResources.toArray(incomingArray);
+		return incomingArray;
 	}
 	
 	private void collectStatus(IStatus status)  {
