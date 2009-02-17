@@ -267,7 +267,8 @@ public class ProjectProperties {
     // then works up through ancestors until a folder with the bugtraq:message property
     // is found.  If none found, returns null.
     public static ProjectProperties getProjectProperties(IResource resource) throws SVNException {
-        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+        if (resource == null) return null;
+    	ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         ISVNProperty property = null;
         boolean hasBugtraq = false;
         if (svnResource != null) {
