@@ -11,7 +11,10 @@
 package org.tigris.subversion.subclipse.ui.subscriber;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.compare.structuremergeviewer.IDiffContainer;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
@@ -24,6 +27,7 @@ import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter.SyncInfoDirectionFilter;
 import org.eclipse.team.internal.core.subscribers.ChangeSet;
 import org.eclipse.team.internal.ui.synchronize.ChangeSetDiffNode;
+import org.eclipse.team.internal.ui.synchronize.SyncInfoModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
@@ -56,11 +60,73 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 		return new SyncInfoDirectionFilter(new int[] {SyncInfo.OUTGOING});
 	}
 	
+	private static void collectAllNodes(IDiffElement element, Set nodes, List selected) {
+		boolean added = false;
+		if(element.getKind() != SyncInfo.IN_SYNC) {
+			nodes.add(element);
+			added = true;
+		}
+		if(element instanceof IDiffContainer) {
+			if (added)
+			{
+				// if a container itself was changed/added then check if there is a selection inside it. 
+				// Then only take that one and not auto all its children
+				for (int i = 0; i < selected.size(); i++) {
+					Object object = selected.get(i);
+					if(object instanceof IDiffElement && object != element) {
+						IDiffContainer parent = ((IDiffElement)object).getParent();
+						while (parent != null)
+						{
+							if (parent == element) return;
+							parent = parent.getParent();
+						}
+					}
+				}
+			}
+			IDiffElement[] children = ((IDiffContainer)element).getChildren();
+			for (int i = 0; i < children.length; i++) {
+				collectAllNodes(children[i], nodes,selected);
+			}
+		}
+	}
+
+	
+	/**
+	 * Return the selected diff element for which this action is enabled.
+	 * @return the list of selected diff elements for which this action is
+	 *               enabled.
+	 */
+	protected final IDiffElement[] getFilteredDiffElementsOverride() {
+		List selected = getStructuredSelection().toList();
+		Set result = new HashSet();
+		for (int i = 0; i < selected.size(); i++) {
+			Object object = selected.get(i);
+			if(object instanceof IDiffElement) {
+				collectAllNodes((IDiffElement)object, result, selected);
+			}
+		}
+		Iterator it = result.iterator();
+		List filtered = new ArrayList();
+		while(it.hasNext()) {
+			IDiffElement e = (IDiffElement) it.next();
+			if (e instanceof SyncInfoModelElement) {
+				SyncInfo info = ((SyncInfoModelElement) e).getSyncInfo();
+				if (info != null && getSyncInfoFilter().select(info)) {
+					filtered.add(e);
+				}
+			}
+		}
+		return (IDiffElement[]) filtered.toArray(new IDiffElement[filtered.size()]);
+	}
+
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.team.ui.synchronize.SynchronizeModelAction#getSubscriberOperation(org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration, org.eclipse.compare.structuremergeviewer.IDiffElement[])
 	 */
 	protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
 		changeSets = new ArrayList();
+		// override the elemenents (this has to be done this way because of final methods in eclipse api)
+		elements = getFilteredDiffElementsOverride();
 		String url = null;
 		ChangeSet changeSet = null;
 	    IStructuredSelection selection = getStructuredSelection();
