@@ -83,8 +83,8 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public static void handleError(String message, Exception exception) {
-		if (message == null) getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, exception.getMessage(), exception));
-		else getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, message, exception));
+		if (message == null) getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, exception.getMessage(), exception));
+		else getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, message, exception));
 	}
 	
 	public static void showErrorDialog(final String title, final Exception exception, boolean uiThread) {
