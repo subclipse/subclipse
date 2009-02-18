@@ -36,6 +36,9 @@ import org.eclipse.team.ui.synchronize.SynchronizePageActionGroup;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.PartInitException;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -43,6 +46,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.ShowOutOfDateFoldersAction;
 import org.tigris.subversion.subclipse.ui.internal.ScopableSubscriberParticipant;
+import org.tigris.subversion.subclipse.ui.util.ResourceSelectionTreeDecorator;
 
 
 /**
@@ -73,11 +77,29 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	 * file.
 	 */
 	private class SVNParticipantLabelDecorator extends LabelProvider implements ILabelDecorator {
+		ResourceSelectionTreeDecorator resourceDecorator = new ResourceSelectionTreeDecorator();
+		
 		/* (non-Javadoc)
 		 * @see org.eclipse.jface.viewers.ILabelDecorator#decorateImage(org.eclipse.swt.graphics.Image, java.lang.Object)
 		 */
 		public Image decorateImage(Image image, Object element) {
-			return null;
+//			return null;
+			if (element instanceof ISynchronizeModelElement) {
+				IResource resource = ((ISynchronizeModelElement) element).getResource();
+				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+				try {
+					if (svnResource.getStatus().hasTreeConflict()) {
+						image = resourceDecorator.getImage(image, ResourceSelectionTreeDecorator.TREE_CONFLICT);
+					}
+					else if (svnResource.getStatus().isTextConflicted()) {
+						image = resourceDecorator.getImage(image, ResourceSelectionTreeDecorator.TEXT_CONFLICTED);
+					}
+					else if (svnResource.getStatus().isPropConflicted()) {
+						
+					}							
+				} catch (SVNException e) {}
+			}
+			return image;
 		}
 		
 		/* (non-Javadoc)

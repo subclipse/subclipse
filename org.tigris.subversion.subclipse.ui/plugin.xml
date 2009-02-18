@@ -42,6 +42,13 @@
             class="org.tigris.subversion.subclipse.ui.annotations.AnnotateView"
             id="org.tigris.subversion.subclipse.ui.annotations.AnnotateView">
       </view>
+      <view
+            name="%TreeConflictsView.name"
+            icon="icons/full/cview16/tree_conflicts_view.gif"
+            category="org.tigris.subversion.subclipse"
+            class="org.tigris.subversion.subclipse.ui.conflicts.TreeConflictsView"
+            id="org.tigris.subversion.subclipse.ui.conflicts.TreeConflictsView">
+      </view>      
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -535,6 +542,14 @@
                menubarPath="team.main/group2"
                id="org.tigris.subversion.subclipse.ui.ShowResourceInHistoryAction">
          </action>
+         <action
+               label="%ShowTreeConflictsAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.ShowTreeConflictsAction"
+			   definitionId="org.tigris.subversion.subclipse.ui.actions.ShowTreeConflictsAction"
+               menubarPath="team.main/group2"
+               icon="icons/full/cview16/tree_conflicts_view.gif"
+               id="org.tigris.subversion.subclipse.ui.actions.ShowTreeConflictsAction">
+         </action>         
          <action
                label="%SwitchAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.team_switch_action_context"

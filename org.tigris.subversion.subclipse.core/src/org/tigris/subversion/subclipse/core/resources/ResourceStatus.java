@@ -25,6 +25,8 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
+import org.tigris.subversion.svnclientadapter.SVNConflictVersion;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
@@ -51,6 +53,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     protected static final int FORMAT_VERSION_1 = 1;
     protected static final int FORMAT_VERSION_2 = 2;
     protected static final int FORMAT_VERSION_3 = 3;
+    protected static final int FORMAT_VERSION_4 = 4;
 
     protected String url;
     protected File file; // file (absolute path) -- not stored in bytes in this class. Subclasses may store it ...
@@ -60,6 +63,9 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     protected int textStatus;
     protected int propStatus;
     protected int nodeKind;
+    protected boolean treeConflicted;
+    protected boolean fileExternal;
+    protected SVNConflictDescriptor conflictDescriptor;
 	
     protected ResourceStatus() 
     {
@@ -103,6 +109,9 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
         this.lastCommitAuthor = status.getLastCommitAuthor();
         this.textStatus = status.getTextStatus().toInt();
         this.propStatus = status.getPropStatus().toInt();
+        this.treeConflicted = status.hasTreeConflict();
+        this.fileExternal = status.isFileExternal();
+        this.conflictDescriptor = status.getConflictDescriptor();
 
         this.nodeKind = status.getNodeKind().toInt();
         
@@ -138,11 +147,25 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     }
 
     public SVNStatusKind getTextStatus() {
-        return SVNStatusKind.fromInt(textStatus);
+    	SVNStatusKind statusKind = SVNStatusKind.fromInt(textStatus);
+    	statusKind.setTreeConflicted(treeConflicted);
+        return statusKind;
     }
 
     public SVNStatusKind getPropStatus() {
         return SVNStatusKind.fromInt(propStatus);
+    }
+    
+    public boolean hasTreeConflict() {
+    	return treeConflicted;
+    }
+    
+    public boolean isFileExternal() {
+    	return fileExternal;
+    }
+    
+    public SVNConflictDescriptor getConflictDescriptor() {
+    	return conflictDescriptor;
     }
 
 	/**
@@ -258,7 +281,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     	int version; 
         try {
             version = dis.readInt();
-            if (version != FORMAT_VERSION_1 && version != FORMAT_VERSION_2 && version != FORMAT_VERSION_3) {
+            if (version != FORMAT_VERSION_1 && version != FORMAT_VERSION_2 && version != FORMAT_VERSION_3 && version != FORMAT_VERSION_4) {
                 throw new SVNException("Invalid format");
             }
 
@@ -266,12 +289,39 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
                 readFromVersion2Stream(dis);            	
             } else {
             	readFromVersion3Stream(dis);
-            }            
+            }  
+            if (version == FORMAT_VERSION_4) {
+            	readFromVersion4Stream(dis);
+            }
         } catch (IOException e) {
             throw new SVNException(
                     "cannot create RemoteResourceStatus from bytes", e);
         }
         return version;
+    }
+    
+    private void readFromVersion4Stream(StatusFromBytesStream dis) throws IOException {
+    	fileExternal = dis.readBoolean();
+    	treeConflicted = dis.readBoolean();
+    	if (treeConflicted) {
+    		int action = dis.readInt();
+    		int reason = dis.readInt();
+    		int operation = dis.readInt();
+ 
+    		String leftReposURL = dis.readString();
+    		long leftPegRevision = dis.readLong();
+    		String leftPathInRepos = dis.readString();
+    		int leftNodeKind = dis.readInt();
+    		SVNConflictVersion srcLeftVersion = new SVNConflictVersion(leftReposURL, leftPegRevision, leftPathInRepos, leftNodeKind);
+    		
+    		String rightReposURL = dis.readString();
+    		long rightPegRevision = dis.readLong();
+    		String rightPathInRepos = dis.readString();
+    		int rightNodeKind = dis.readInt();	
+    		SVNConflictVersion srcRightVersion = new SVNConflictVersion(rightReposURL, rightPegRevision, rightPathInRepos, rightNodeKind);
+    		
+    		conflictDescriptor = new SVNConflictDescriptor(url, action, reason, operation, srcLeftVersion, srcRightVersion);
+    	} else conflictDescriptor = null;
     }
 
 	private void readFromVersion3Stream(StatusFromBytesStream dis) throws IOException {
@@ -360,7 +410,8 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
      */
     protected void getBytesInto(StatusToBytesStream dos) {
         try {
-            dos.writeInt(FORMAT_VERSION_3);
+//            dos.writeInt(FORMAT_VERSION_3);
+        	dos.writeInt(FORMAT_VERSION_4);
 
             // url
             dos.writeString(url);
@@ -382,6 +433,29 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
 
             // nodeKind
             dos.writeInt(nodeKind);
+            
+            // fileExternal
+            dos.writeBoolean(fileExternal);
+            
+            // treeConflicted
+            dos.writeBoolean(treeConflicted);
+            
+            // conflictDescriptor
+            if (treeConflicted && conflictDescriptor != null) {
+            	dos.writeInt(conflictDescriptor.getAction());
+            	dos.writeInt(conflictDescriptor.getReason());
+            	dos.writeInt(conflictDescriptor.getOperation());
+            	
+            	dos.writeString(conflictDescriptor.getSrcLeftVersion().getReposURL());
+            	dos.writeLong(conflictDescriptor.getSrcLeftVersion().getPegRevision());
+            	dos.writeString(conflictDescriptor.getSrcLeftVersion().getPathInRepos());
+            	dos.writeInt(conflictDescriptor.getSrcLeftVersion().getNodeKind());
+            	
+            	dos.writeString(conflictDescriptor.getSrcRightVersion().getReposURL());
+            	dos.writeLong(conflictDescriptor.getSrcRightVersion().getPegRevision());
+            	dos.writeString(conflictDescriptor.getSrcRightVersion().getPathInRepos());
+            	dos.writeInt(conflictDescriptor.getSrcRightVersion().getNodeKind());            	
+            }
 
         } catch (IOException e) {
             return;

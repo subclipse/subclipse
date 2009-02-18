@@ -13,10 +13,13 @@ package org.tigris.subversion.subclipse.ui;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.conflicts.TreeConflictsView;
+import org.tigris.subversion.subclipse.ui.decorator.ConflictResolutionGenerator;
 
 public class SVNMarkerListener implements IResourceStateChangeListener {
 
@@ -35,11 +38,14 @@ public class SVNMarkerListener implements IResourceStateChangeListener {
     	    		changedResources[i].deleteMarkers("org.tigris.subversion.subclipse.ui.conflictMarker", true, IResource.DEPTH_ZERO); //$NON-NLS-1$
     	    		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(changedResources[i]);
     	    		LocalResourceStatus status = svnResource.getStatus();
-    	    		if (status.isTextConflicted()) {
+    	    		if (status.isTextConflicted()  || status.isPropConflicted() || status.hasTreeConflict()) {
     	    			try {
     	    				IMarker marker = changedResources[i].createMarker("org.tigris.subversion.subclipse.ui.conflictMarker"); //$NON-NLS-1$
-    	    				marker.setAttribute(IMarker.MESSAGE, Policy.bind("SVNConflicts")); //$NON-NLS-1$
+    	    				setMessage(status, marker); 
     	    				marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+    	    				((ConflictResolutionGenerator)marker).setTextConflict(status.isTextConflicted());
+    	    				((ConflictResolutionGenerator)marker).setPropertyConflict(status.isPropConflicted());
+    	    				((ConflictResolutionGenerator)marker).setTreeConflict(status.hasTreeConflict()); 	    				
     	    			} catch (Exception e) {
     	    				SVNUIPlugin.log(e.getMessage());
     	    			}
@@ -49,8 +55,33 @@ public class SVNMarkerListener implements IResourceStateChangeListener {
     	        SVNUIPlugin.log(e.getMessage());
     	    }
         }
-
+        TreeConflictsView.refresh(changedResources);
     }
+
+	private void setMessage(LocalResourceStatus status, IMarker marker)
+			throws CoreException {
+		int count = 0;
+		if (status.isTextConflicted()) count++;
+		if (status.isPropConflicted()) count++;
+		if (status.hasTreeConflict()) count++;
+		StringBuffer message = new StringBuffer(Policy.bind("SVNConflicts") + " ("); //$NON-NLS-1$ //$NON-NLS-2$
+		if (status.isTextConflicted()) {
+			message.append("Text"); //$NON-NLS-1$
+			if (count == 2) message.append(" and "); //$NON-NLS-1$
+			if (count == 3) message.append(", "); //$NON-NLS-1$
+		}
+		if (status.isPropConflicted()) {
+			message.append("Property"); //$NON-NLS-1$
+			if (count == 3) message.append(" and "); //$NON-NLS-1$
+		}
+		if (status.hasTreeConflict()) {
+			message.append("Tree"); //$NON-NLS-1$
+		}
+		if (count == 1) message.append(" Conflict"); //$NON-NLS-1$
+		else message.append(" Conflicts"); //$NON-NLS-1$
+		message.append(")"); //$NON-NLS-1$
+		marker.setAttribute(IMarker.MESSAGE, message.toString());
+	}
 
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.IResourceStateChangeListener#resourceModified(org.eclipse.core.resources.IResource[])

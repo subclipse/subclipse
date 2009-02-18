@@ -187,7 +187,7 @@ public class LocalResourceStatus extends ResourceStatus {
     protected int initFromBytes(StatusFromBytesStream dis) throws SVNException {
     	int version = super.initFromBytes(dis);
         try {
-            if (version == FORMAT_VERSION_3) {
+            if (version == FORMAT_VERSION_4 || version == FORMAT_VERSION_3) {
                 readFromVersion3Stream(dis);            	
             } else if (version == FORMAT_VERSION_2) {
             	readFromVersion2Stream(dis);

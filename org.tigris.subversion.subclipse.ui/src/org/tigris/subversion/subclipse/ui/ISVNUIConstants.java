@@ -17,6 +17,7 @@ public interface ISVNUIConstants {
   // overlays
   public final String IMG_QUESTIONABLE = "ovr16/question_ov.gif"; //$NON-NLS-1$
   public final String IMG_CONFLICTED = "ovr16/conflicted_ov.gif"; //$NON-NLS-1$
+  public final String IMG_PROPERTY_CONFLICTED = "ovr16/prop_conflicted_ov.gif"; //$NON-NLS-1$
   public final String IMG_ADDED = "ovr16/added_ov.gif"; //$NON-NLS-1$
   public final String IMG_EXTERNAL = "ovr16/external_ov.gif"; //$NON-NLS-1$
   public final String IMG_LOCKED = "ovr16/locked_ov.gif"; //$NON-NLS-1$
@@ -25,6 +26,7 @@ public interface ISVNUIConstants {
   public final String IMG_SWITCHED = "ovr16/switched_ov.gif"; //$NON-NLS-1$
   public final String IMG_PROPERTY_CHANGED = "ovr16/propchg_ov.gif"; //$NON-NLS-1$
   public final String IMG_TEXT_CONFLICTED = "ovr16/text_conflicted_ov.gif"; //$NON-NLS-1$
+  public final String IMG_TREE_CONFLICT = "ovr16/tree_conflict_ov.gif"; //$NON-NLS-1$
 
   // objects
   public final String IMG_REPOSITORY = "obj16/repository_rep.gif"; //$NON-NLS-1$
@@ -221,6 +223,7 @@ public interface ISVNUIConstants {
   public final String IMG_WIZBAN_NEW_LOCATION = "wizban/newlocation_wizban.gif"; //$NON-NLS-1$
   public final String IMG_WIZBAN_NEW_FOLDER = "wizban/newfolder_wizban.gif"; //$NON-NLS-1$
   public final String IMG_WIZBAN_SYNCH = "wizban/share_wizban.gif"; //$NON-NLS-1$
+  public final String IMG_WIZBAN_RESOLVE_TREE_CONFLICT = "wizban/resolve_treeconflict_wizban.png"; //$NON-NLS-1$
 
   // Properties
   public final String PROP_NAME = "svn.name"; //$NON-NLS-1$

@@ -694,9 +694,15 @@ public class ResourceSelectionTree extends Composite {
 					image = workbenchLabelProvider.getImage(element);
 					image = compareConfiguration.getImage(image, Differencer.NO_CHANGE);
 				} else {
-					if (statusKind != null && statusKind.equals(SVNStatusKind.CONFLICTED)) {
-						image = workbenchLabelProvider.getImage(element);
-						image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.TEXT_CONFLICTED);
+					if (statusKind != null) {
+						if (statusKind.hasTreeConflict()) {
+							image = workbenchLabelProvider.getImage(element);
+							image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.TREE_CONFLICT);
+						}
+						else if (statusKind != null && statusKind.equals(SVNStatusKind.CONFLICTED)) {
+							image = workbenchLabelProvider.getImage(element);
+							image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.TEXT_CONFLICTED);
+						}
 					}
 					if (image == null) image = syncLabelProvider.getImage(element);
 					if (element instanceof IContainer) return image;
@@ -709,7 +715,10 @@ public class ResourceSelectionTree extends Composite {
 				}
 				String propertyStatus = ResourceWithStatusUtil.getPropertyStatus((IResource)element);
 				if (propertyStatus != null && propertyStatus.length() > 0) {
-				  image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CHANGE);
+				  if (propertyStatus.equals("conflicted")) //$NON-NLS-1$
+					  image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CONFLICTED);
+				  else
+					  image = resourceSelectionTreeDecorator.getImage(image, ResourceSelectionTreeDecorator.PROPERTY_CHANGE);
 				}
 				return image;
 			}

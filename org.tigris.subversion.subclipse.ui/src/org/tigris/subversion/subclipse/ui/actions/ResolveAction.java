@@ -41,12 +41,16 @@ public class ResolveAction extends WorkspaceAction {
      */
     protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
         try {
-            return svnResource.getStatus().isTextConflicted() || svnResource.getStatus().isPropConflicted();
+            return svnResource.getStatus().isTextConflicted() || svnResource.getStatus().isPropConflicted() || svnResource.getStatus().hasTreeConflict();
         } catch (SVNException e) {
             return false;
         }
     }
 
+	protected boolean isEnabledForInaccessibleResources() {
+		return true;
+	}
+	
 	protected String getImageId()
 	{
 		return ISVNUIConstants.IMG_MENU_RESOLVE;

@@ -10,12 +10,18 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.decorator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolutionGenerator2;
 
 public class ConflictResolutionGenerator implements IMarkerResolutionGenerator2 {
-
+	private boolean textConflict;
+	private boolean propertyConflict;
+	private boolean treeConflict;
+	
     public ConflictResolutionGenerator() {
         super();
     }
@@ -25,8 +31,28 @@ public class ConflictResolutionGenerator implements IMarkerResolutionGenerator2 
     }
 
     public IMarkerResolution[] getResolutions(IMarker marker) {
-        IMarkerResolution[] conflictResolutions = {new EditConflictsResolution(), new AcceptMineResolution(), new AcceptTheirsResolution(), new MarkAsResolvedResolution()};
-        return conflictResolutions;
+    	List conflictResolutions = new ArrayList();
+    	if (textConflict) {
+    		conflictResolutions.add(new EditConflictsResolution());
+    		conflictResolutions.add(new AcceptMineResolution());
+    		conflictResolutions.add(new AcceptTheirsResolution());
+    	}
+    	conflictResolutions.add(new MarkAsResolvedResolution());
+    	IMarkerResolution[] resolutionArray = new IMarkerResolution[conflictResolutions.size()];
+    	conflictResolutions.toArray(resolutionArray);
+        return resolutionArray;
     }
+    
+	public void setTextConflict(boolean textConflict) {
+		this.textConflict = textConflict;
+	}
+
+	public void setPropertyConflict(boolean propertyConflict) {
+		this.propertyConflict = propertyConflict;
+	}
+
+	public void setTreeConflict(boolean treeConflict) {
+		this.treeConflict = treeConflict;
+	}
 
 }

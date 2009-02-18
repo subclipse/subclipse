@@ -90,6 +90,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_WARNING, baseURL);
 //        createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_MERGE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SVN, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_RESOLVE_TREE_CONFLICT, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SHARE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SYNCH, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_DIFF, baseURL);
@@ -110,6 +111,8 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_SWITCHED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CHANGED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_TEXT_CONFLICTED, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_TREE_CONFLICT, baseURL);
+        createImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CONFLICTED, baseURL);
         
         createImageDescriptor(ISVNUIConstants.IMG_UPDATE_ALL, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_COMMIT_ALL, baseURL);
