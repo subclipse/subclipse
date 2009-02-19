@@ -267,6 +267,11 @@ public abstract class WorkspaceAction extends SVNAction {
 	protected IResource[] getSelectedResources() {
 		return getNonOverlapping(super.getSelectedResources());
 	}
+	
+	protected IResource[] getSelectedResources(boolean includeOverlapping) {
+		if (includeOverlapping) return super.getSelectedResources();
+		else return getSelectedResources();
+	}
 
 	protected IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
 	    final List modified = new ArrayList();

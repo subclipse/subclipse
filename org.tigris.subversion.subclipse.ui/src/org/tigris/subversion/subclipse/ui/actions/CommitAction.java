@@ -32,6 +32,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
 import org.eclipse.team.internal.core.subscribers.ChangeSet;
@@ -100,7 +101,7 @@ public class CommitAction extends WorkbenchWindowAction {
             else {
             	run(new IRunnableWithProgress() {
         			public void run(IProgressMonitor monitor) throws InvocationTargetException {
-        				try {
+        				try {	
         				    // search for modified or added, non-ignored resources in the selection.
         				    IResource[] modified = getModifiedResources(resources, monitor);
         					
@@ -147,6 +148,10 @@ public class CommitAction extends WorkbenchWindowAction {
 	 * get the modified and unadded resources in resources parameter
 	 */	
 	protected IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
+		IResource[] allResources = getSelectedResources(true);
+		List allSelections = new ArrayList();
+		for (int i = 0; i < allResources.length; i++)
+			allSelections.add(allResources[i]);
 		List conflictFiles = new ArrayList();	    
 		final List modified = new ArrayList();
 	    List unversionedFolders = new ArrayList();
@@ -166,14 +171,32 @@ public class CommitAction extends WorkbenchWindowAction {
 				   if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
 			 }
 			 
+			 boolean descend = true;
+			 if (resource instanceof IContainer)
+			 {
+				 outer: for (int j = 0; j < allResources.length; j++) {
+					 if (allResources[j] == resource) continue;
+					 
+					 IContainer parent = allResources[j].getParent();
+					 while (parent != null)
+					 {
+						 if (parent.equals(resource))
+						 {
+							 descend = false;
+							 break outer;
+						 }
+						 parent = parent.getParent();
+					 }
+				 }
+			 }
 			 // get adds, deletes, updates and property updates.
-			 GetStatusCommand command = new GetStatusCommand(svnResource, true, false);
+			 GetStatusCommand command = new GetStatusCommand(svnResource, descend, false);
 			 command.run(iProgressMonitor);
 			 ISVNStatus[] statuses = command.getStatuses();
 			 for (int j = 0; j < statuses.length; j++) {
 			     if (SVNStatusUtils.isReadyForCommit(statuses[j]) || SVNStatusUtils.isMissing(statuses[j])) {
 			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(resource, statuses[j]);
-			         if (currentResource != null) {
+			         if (currentResource != null && (descend == true || allSelections.contains(currentResource))) {
 			             ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
 			             if (!localResource.isIgnored()) {
 			                 if (!SVNStatusUtils.isManaged(statuses[j])) {
@@ -214,6 +237,7 @@ public class CommitAction extends WorkbenchWindowAction {
 			     }
 			 }
 	    }
+	    
 	    IResource[] unaddedResources = getUnaddedResources(unversionedFolders, iProgressMonitor);
 	    for (int i = 0; i < unaddedResources.length; i++)
 	    	if (!modified.contains(unaddedResources[i])) modified.add(unaddedResources[i]);
@@ -222,7 +246,7 @@ public class CommitAction extends WorkbenchWindowAction {
 	    	IFile conflictFile = (IFile)iter.next();
 	    	modified.remove(conflictFile);
 	    	statusMap.remove(conflictFile);
-	    }		    
+	    }
 	    return (IResource[]) modified.toArray(new IResource[modified.size()]);
 	}
 
@@ -328,13 +352,34 @@ public class CommitAction extends WorkbenchWindowAction {
 		return true;
 	}
     
-    /*
-     *  (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForInaccessibleResources()
-     */
-    protected boolean isEnabledForInaccessibleResources() {
-        return true;
-    }
+    protected boolean isEnabled() throws TeamException {
+		
+		// invoke the inherited method so that overlaps are maintained
+		IResource[] resources = super.getSelectedResources();
+		
+		// disable if no resources are selected
+		if(resources.length==0) return false;
+		
+		// validate enabled for each resource in the selection
+		for (int i = 0; i < resources.length; i++) {
+			IResource resource = resources[i];
+			
+			// no SVN actions are enabled if the selection contains a linked resource
+			if (SVNWorkspaceRoot.isLinkedResource(resource)) return false;
+			
+			// only enable for resources in a project shared with SVN
+			if(RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId()) == null) {
+				return false;
+			}
+			
+			// ensure that resource management state matches what the action requires
+			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+			if (!isEnabledForSVNResource(svnResource)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * get the unadded resources in resources parameter
