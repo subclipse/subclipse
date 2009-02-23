@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description url="http://subclipse.tigris.org/update_1.4.x">
+   <description url="http://subclipse.tigris.org/update_1.6.x">
       Eclipse Install/Update site for Subclipse
    </description>
    <feature url="features/org.tigris.subversion.subclipse.mylyn_2.0.4.jar" id="org.tigris.subversion.subclipse.mylyn" version="2.0.4">
