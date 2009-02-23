@@ -116,9 +116,9 @@ public class ConflictsCompareInput extends CompareEditorInput {
     private void initializeCompareConfiguration() {
         CompareConfiguration cc = getCompareConfiguration();
 
-        String leftLabel = "Merged - " + fDestinationResource.getName();
-        String rightLabel = "Theirs - " + fTheirsResource.getName();
-        String ancestorLabel = "Ancestor -" + fAncestorResource.getName();
+        String leftLabel = "Merged - " + fDestinationResource.getName(); //$NON-NLS-1$
+        String rightLabel = "Theirs - " + fTheirsResource.getName(); //$NON-NLS-1$
+        String ancestorLabel = "Ancestor -" + fAncestorResource.getName(); //$NON-NLS-1$
 
         cc.setLeftLabel(leftLabel);
 
@@ -199,7 +199,7 @@ public class ConflictsCompareInput extends CompareEditorInput {
                 }
             };
 
-            String title = "Conflicts on " + fDestinationResource.getName();
+            String title = "Conflicts on " + fDestinationResource.getName(); //$NON-NLS-1$
             setTitle(title);
 
             // Override the default difference visit method to use MyDiffNode 

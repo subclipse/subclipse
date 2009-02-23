@@ -30,6 +30,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNTreeConflict;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
+import org.tigris.subversion.subclipse.ui.Messages;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
@@ -79,7 +80,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private SVNTreeConflict treeConflict;
 	
 	public ResolveTreeConflictWizardMainPage() {
-		super("main", "Specify steps", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_RESOLVE_TREE_CONFLICT));
+		super("main", Messages.ResolveTreeConflictWizardMainPage_specifySteps, SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_RESOLVE_TREE_CONFLICT)); //$NON-NLS-1$
 	}
 
 	public void createControl(Composite parent) {
@@ -92,7 +93,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));	
 
 		Group detailsGroup = new Group(outerContainer, SWT.NONE);
-		detailsGroup.setText("Conflict description:");
+		detailsGroup.setText(Messages.ResolveTreeConflictWizardMainPage_conflictDescription);
 		GridLayout detailsLayout = new GridLayout();
 		detailsLayout.numColumns = 2;
 		detailsGroup.setLayout(detailsLayout);
@@ -111,7 +112,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		label.setLayoutData(gd);
 		
 		label = new Label(detailsGroup, SWT.NONE);
-		label.setText("Source left: ");
+		label.setText(Messages.ResolveTreeConflictWizardMainPage_sourceLeft);
 		label = new Label(detailsGroup, SWT.WRAP);
 		label.setText(treeConflict.getConflictDescriptor().getSrcLeftVersion().toString());
 		gd = new GridData();
@@ -124,7 +125,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		label.setLayoutData(gd);
 		
 		label = new Label(detailsGroup, SWT.NONE);
-		label.setText("Source right: ");
+		label.setText(Messages.ResolveTreeConflictWizardMainPage_sourceRight);
 		label = new Label(detailsGroup, SWT.WRAP);
 		label.setText(treeConflict.getConflictDescriptor().getSrcRightVersion().toString());
 		gd = new GridData();
@@ -132,7 +133,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		label.setLayoutData(gd);
 		
 		Group resolutionGroup = new Group(outerContainer, SWT.NONE);
-		resolutionGroup.setText("Resolution steps:");
+		resolutionGroup.setText(Messages.ResolveTreeConflictWizardMainPage_resolutionSteps);
 		GridLayout resolutionLayout = new GridLayout();
 		resolutionLayout.numColumns = 1;
 		resolutionGroup.setLayout(resolutionLayout);
@@ -150,14 +151,14 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				copiedTo = getCopiedTo(false);
 			getRemoteResource(wizard, treeConflict);
 			compareButton = new Button(resolutionGroup, SWT.CHECK);
-			compareButton.setText("Compare " + conflictDescriptor.getSrcRightVersion().getPathInRepos() + " to Compare/Merge target:");			
+			compareButton.setText(Messages.ResolveTreeConflictWizardMainPage_compare + conflictDescriptor.getSrcRightVersion().getPathInRepos() + Messages.ResolveTreeConflictWizardMainPage_compareTo);			
 			compareLabel = new Label(resolutionGroup, SWT.NONE);
-			compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+			compareLabel.setText(Messages.ResolveTreeConflictWizardMainPage_compareEditorInformation);
 			compareLabel.setVisible(false);			
 			mergeFromRepositoryButton = new Button(resolutionGroup, SWT.CHECK);
-			mergeFromRepositoryButton.setText("Merge " + conflictDescriptor.getSrcRightVersion().getPathInRepos() + " into Compare/Merge target:");
+			mergeFromRepositoryButton.setText(Messages.ResolveTreeConflictWizardMainPage_merge + conflictDescriptor.getSrcRightVersion().getPathInRepos() + Messages.ResolveTreeConflictWizardMainPage_intoTarget);
 			Group mergeTargetGroup = new Group(resolutionGroup, SWT.NONE);
-			mergeTargetGroup.setText("Compare/Merge Target:");
+			mergeTargetGroup.setText(Messages.ResolveTreeConflictWizardMainPage_compareMergeTarget);
 			GridLayout mergeTargetLayout = new GridLayout();
 			mergeTargetLayout.numColumns = 2;
 			mergeTargetGroup.setLayout(mergeTargetLayout);
@@ -179,10 +180,10 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				setPageComplete(false);
 			}
 			Button selectMergeTargetButton = new Button(mergeTargetGroup, SWT.PUSH);
-			selectMergeTargetButton.setText("Browse...");
+			selectMergeTargetButton.setText(Messages.ResolveTreeConflictWizardMainPage_browse);
 			selectMergeTargetButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent evt) {
-					ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), treeConflict.getResource().getProject(), "Select merge target");
+					ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), treeConflict.getResource().getProject(), Messages.ResolveTreeConflictWizardMainPage_selectMergeTarget);
 					if (dialog.open() == ResourceSelectionDialog.OK) {
 						Object[] selectedResources = dialog.getResult();
 						if (selectedResources != null && selectedResources.length > 0 && (selectedResources[0] instanceof IResource)) {
@@ -217,11 +218,11 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		}
 		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {					
 			compareButton = new Button(resolutionGroup, SWT.CHECK);
-			compareButton.setText("Compare " + treeConflict.getResource().getName() + " to:");
+			compareButton.setText(Messages.ResolveTreeConflictWizardMainPage_compare + treeConflict.getResource().getName() + Messages.ResolveTreeConflictWizardMainPage_to);
 			compareButton.setSelection(false);
 			if (operation != SVNConflictDescriptor.Operation._switch) {
 				compareLabel = new Label(resolutionGroup, SWT.NONE);
-				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+				compareLabel.setText(Messages.ResolveTreeConflictWizardMainPage_compareEditorInformation);
 				compareLabel.setVisible(false);
 			}
 			compareResource2 = treeConflict.getResource();			
@@ -232,7 +233,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				}				
 				mergeFromRepositoryButton = new Button(resolutionGroup, SWT.CHECK);
-				mergeFromRepositoryButton.setText("Merge " + treeConflict.getResource().getName() + " into:");			
+				mergeFromRepositoryButton.setText(Messages.ResolveTreeConflictWizardMainPage_merge + treeConflict.getResource().getName() + Messages.ResolveTreeConflictWizardMainPage_into);			
 				mergeFromRepositoryButton.setSelection(true);
 				mergeFromUrl = wizard.getSvnResource().getUrl().toString();
 			} else {
@@ -275,10 +276,10 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				compareResource1 = mergeTarget;
 			} // else setPageComplete(false);
 			Button selectMergeTargetButton = new Button(mergeTargetGroup, SWT.PUSH);
-			selectMergeTargetButton.setText("Browse...");
+			selectMergeTargetButton.setText(Messages.ResolveTreeConflictWizardMainPage_browse);
 			selectMergeTargetButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent evt) {
-					ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), treeConflict.getResource().getProject(), "Select merge target");
+					ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), treeConflict.getResource().getProject(), Messages.ResolveTreeConflictWizardMainPage_selectMergeTarget);
 					if (dialog.open() == ResourceSelectionDialog.OK) {
 						Object[] selectedResources = dialog.getResult();
 						if (selectedResources != null && selectedResources.length > 0 && (selectedResources[0] instanceof IResource)) {
@@ -295,22 +296,22 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			});
 			if (operation == SVNConflictDescriptor.Operation._switch) {
 				compareLabel = new Label(resolutionGroup, SWT.NONE);
-				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+				compareLabel.setText(Messages.ResolveTreeConflictWizardMainPage_compareEditorInformation);
 				compareLabel.setVisible(false);
 			}
 			if (operation != SVNConflictDescriptor.Operation._merge) {
 				revertResource = treeConflict.getResource();
 				if (wizard.isAdded()) {
 					revertButton = new Button(resolutionGroup, SWT.CHECK);
-					revertButton.setText("Revert " + revertResource.getName() + " (conflict will be resolved)");
+					revertButton.setText(Messages.ResolveTreeConflictWizardMainPage_revert + revertResource.getName() + Messages.ResolveTreeConflictWizardMainPage_conflictWillBeResolved);
 					revertButton.setSelection(true);
 				}
 				deleteResource1 = treeConflict.getResource();
 				deleteButton1 = new Button(resolutionGroup, SWT.CHECK);
 				if (wizard.isAdded())
-					deleteButton1.setText("Remove " + deleteResource1.getName() + " from working copy");
+					deleteButton1.setText(Messages.ResolveTreeConflictWizardMainPage_remove + deleteResource1.getName() + Messages.ResolveTreeConflictWizardMainPage_fromWorkingCopy);
 				else
-					deleteButton1.setText("Delete " + deleteResource1.getName());
+					deleteButton1.setText(Messages.ResolveTreeConflictWizardMainPage_delete + deleteResource1.getName());
 				deleteButton1.setSelection(true);
 				if (wizard.isAdded()) markResolvedEnabled = false;
 				SelectionListener choiceListener = new SelectionAdapter() {
@@ -352,7 +353,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				if (treeConflict.getResource().exists()) {
 					deleteResource1 = treeConflict.getResource();
 					deleteButton1 = new Button(resolutionGroup, SWT.CHECK);
-					deleteButton1.setText("Delete " + deleteResource1.getName());
+					deleteButton1.setText(Messages.ResolveTreeConflictWizardMainPage_delete + deleteResource1.getName());
 					deleteButton1.setSelection(true);
 				}
 				SelectionListener choiceListener = new SelectionAdapter() {
@@ -387,12 +388,12 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			
 			if (mine != null && mine.exists() && theirs != null && theirs.exists()) {
 				compareButton = new Button(resolutionGroup, SWT.CHECK);
-				compareButton.setText("Compare " + mine.getName() + " to " + theirs.getName());
+				compareButton.setText(Messages.ResolveTreeConflictWizardMainPage_compare + mine.getName() + Messages.ResolveTreeConflictWizardMainPage_to2 + theirs.getName());
 				compareButton.setSelection(false);
 				compareResource1 = mine;
 				compareResource2 = theirs;
 				compareLabel = new Label(resolutionGroup, SWT.NONE);
-				compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+				compareLabel.setText(Messages.ResolveTreeConflictWizardMainPage_compareEditorInformation);
 				compareLabel.setVisible(false);
 				compareButton.addSelectionListener(new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent evt) {
@@ -409,7 +410,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			
 			if (mine != null && mine.exists()) {
 				option1Button = new Button(resolutionGroup, SWT.RADIO);
-				option1Button.setText("Choose " + mine.getFullPath());
+				option1Button.setText(Messages.ResolveTreeConflictWizardMainPage_choose + mine.getFullPath());
 				option1Button.setSelection(true);
 				option1Group = new Group(resolutionGroup, SWT.NONE);
 				option1Group.setText(mine.getName());
@@ -421,14 +422,14 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				if (theirs != null && theirs.exists()) {
 					deleteResource1 = theirs;
 					deleteButton1 = new Button(option1Group, SWT.CHECK);
-					deleteButton1.setText("Delete " + deleteResource1.getName());
+					deleteButton1.setText(Messages.ResolveTreeConflictWizardMainPage_delete + deleteResource1.getName());
 					deleteButton1.setSelection(true);
 				} else option1Group.setVisible(false);		
 			}
 			
 			if (theirs != null && theirs.exists()) {
 				option2Button = new Button(resolutionGroup, SWT.RADIO);
-				option2Button.setText("Choose " + theirs.getFullPath());
+				option2Button.setText(Messages.ResolveTreeConflictWizardMainPage_choose + theirs.getFullPath());
 				if (option1Button == null) option2Button.setSelection(true);
 				option2Group = new Group(resolutionGroup, SWT.NONE);
 				option2Group.setText(theirs.getName());
@@ -443,7 +444,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						if (myResource.getStatus().isAdded()) {
 							revertResource = mine;
 							revertButton = new Button(option2Group, SWT.CHECK);
-							revertButton.setText("Revert " + mine.getName());
+							revertButton.setText(Messages.ResolveTreeConflictWizardMainPage_revert + mine.getName());
 							revertButton.setSelection(true);
 						}
 					} catch (SVNException e) {
@@ -451,7 +452,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					}
 					deleteResource2 = mine;
 					deleteButton2 = new Button(option2Group, SWT.CHECK);
-					deleteButton2.setText("Remove " + deleteResource2.getName() + " from working copy");
+					deleteButton2.setText(Messages.ResolveTreeConflictWizardMainPage_remove + deleteResource2.getName() + Messages.ResolveTreeConflictWizardMainPage_fromWorkingCopy);
 					deleteButton2.setSelection(true);
 					option2Group.setEnabled(option1Button == null);
 				} else option2Group.setVisible(false);
@@ -459,7 +460,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			
 			if (mine != null && mine.exists() && theirs != null && theirs.exists()) {
 				option3Button = new Button(resolutionGroup, SWT.RADIO);
-				option3Button.setText("Choose both (just mark conflict resolved)");
+				option3Button.setText(Messages.ResolveTreeConflictWizardMainPage_chooseBoth);
 			}
 
 			SelectionListener optionListener = new SelectionAdapter() {
@@ -501,7 +502,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				}
 				option1Button = new Button(resolutionGroup, SWT.RADIO);
-				option1Button.setText("Choose " + mine.getFullPath());
+				option1Button.setText(Messages.ResolveTreeConflictWizardMainPage_choose + mine.getFullPath());
 				option1Button.setSelection(true);
 				
 				
@@ -516,15 +517,15 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					if (adds.length == 1) {
 						revertResource = File2Resource.getResource(adds[0].getFile());
 						revertButton = new Button(option1Group, SWT.CHECK);
-						revertButton.setText("Revert " + revertResource.getName());
+						revertButton.setText(Messages.ResolveTreeConflictWizardMainPage_revert + revertResource.getName());
 						revertButton.setSelection(true);
 						deleteResource1 = File2Resource.getResource(adds[0].getFile());
 						deleteButton1 = new Button(option1Group, SWT.CHECK);
-						deleteButton1.setText("Remove " + deleteResource1.getName() + " from working copy");
+						deleteButton1.setText(Messages.ResolveTreeConflictWizardMainPage_remove + deleteResource1.getName() + Messages.ResolveTreeConflictWizardMainPage_fromWorkingCopy);
 						deleteButton1.setSelection(true);
 					} else {
 						revertButton = new Button(option1Group, SWT.CHECK);
-						revertButton.setText("Revert the selected resource:");
+						revertButton.setText(Messages.ResolveTreeConflictWizardMainPage_revertSelected);
 						revertCombo = new Combo(option1Group, SWT.BORDER | SWT.READ_ONLY);
 						gd = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 						revertCombo.setLayoutData(gd);
@@ -543,7 +544,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						revertResource = File2Resource.getResource(adds[0].getFile());
 						deleteResource1 = revertResource;
 						deleteButton1 = new Button(option1Group, SWT.CHECK);
-						deleteButton1.setText("Remove the selected resource from working copy");
+						deleteButton1.setText(Messages.ResolveTreeConflictWizardMainPage_removeSelected);
 						deleteButton1.setEnabled(false);
 						setPageComplete(false);
 					}
@@ -557,20 +558,20 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				option2Group.setLayoutData(
 				new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));						
 				if (adds == null || adds.length != 1) {
-					option2Button.setText("Choose incoming");
-					option2Group.setText("Incoming");
+					option2Button.setText(Messages.ResolveTreeConflictWizardMainPage_chooseIncoming);
+					option2Group.setText(Messages.ResolveTreeConflictWizardMainPage_incoming);
 				} else {
 					IResource addResource = File2Resource.getResource(adds[0].getFile());
-					option2Button.setText("Choose " + addResource.getFullPath());
+					option2Button.setText(Messages.ResolveTreeConflictWizardMainPage_choose + addResource.getFullPath());
 					option2Group.setText(addResource.getName());
 				}
 				deleteResource2 = mine;
 				deleteButton2 = new Button(option2Group, SWT.CHECK);
-				deleteButton2.setText("Delete " + deleteResource2.getName());
+				deleteButton2.setText(Messages.ResolveTreeConflictWizardMainPage_delete + deleteResource2.getName());
 				deleteButton2.setSelection(true);
 				option2Group.setEnabled(false);
 				option3Button = new Button(resolutionGroup, SWT.RADIO);
-				option3Button.setText("Choose both (just mark conflict resolved)");
+				option3Button.setText(Messages.ResolveTreeConflictWizardMainPage_chooseBoth);
 				SelectionListener choiceListener = new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent evt) {
 						if (option1Group != null) option1Group.setEnabled(option1Button.getSelection());
@@ -602,14 +603,14 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		}
 		if ((reason == SVNConflictDescriptor.Reason.added && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._update) || (reason == SVNConflictDescriptor.Reason.obstructed && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._merge)) {
 			compareButton = new Button(resolutionGroup, SWT.CHECK);
-			compareButton.setText("Compare " + treeConflict.getResource().getName() + " to " + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos() + " in repository.");
+			compareButton.setText(Messages.ResolveTreeConflictWizardMainPage_compare + treeConflict.getResource().getName() + Messages.ResolveTreeConflictWizardMainPage_to2 + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos() + Messages.ResolveTreeConflictWizardMainPage_inRepository);
 			compareButton.setSelection(false);
 			compareResource1 = treeConflict.getResource();
 			
 			getRemoteResource(wizard, treeConflict);
 			
 			compareLabel = new Label(resolutionGroup, SWT.NONE);
-			compareLabel.setText("You will be prompted with the following options when the compare editor is closed:");
+			compareLabel.setText(Messages.ResolveTreeConflictWizardMainPage_compareEditorInformation);
 			compareLabel.setVisible(false);			
 			SelectionListener choiceListener = new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent evt) {
@@ -626,11 +627,11 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			
 		}
 		markResolvedButton = new Button(resolutionGroup, SWT.CHECK);
-		markResolvedButton.setText("Mark conflict resolved");
+		markResolvedButton.setText(Messages.ResolveTreeConflictWizardMainPage_markResolved);
 		if (markResolvedEnabled) markResolvedButton.setSelection(true);
 		else markResolvedButton.setEnabled(false);
 		
-		setMessage("Specify the steps to take to resolve the tree conflict");
+		setMessage(Messages.ResolveTreeConflictWizardMainPage_message);
 		
 		setControl(outerContainer);	
 	}
@@ -640,7 +641,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		ISVNRepositoryLocation repository = wizard.getSvnResource().getRepository();
 		SVNRevision revision = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
 		try {
-			SVNUrl url = new SVNUrl(treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos());
+			SVNUrl url = new SVNUrl(treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos()); //$NON-NLS-1$
 			GetRemoteResourceCommand command = new GetRemoteResourceCommand(repository, url, revision);
 			command.run(new NullProgressMonitor());
 			remoteResource = command.getRemoteResource();
@@ -701,7 +702,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	
 	public String getMergeFromUrl() {
 		if (mergeFromUrl == null)
-			return treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos();
+			return treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos(); //$NON-NLS-1$
 		else
 			return mergeFromUrl;
 	}
@@ -709,8 +710,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private ISVNStatus getCopiedTo(final boolean getAll) {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				monitor.setTaskName("Looking for copied-to URL");
-				monitor.beginTask("Looking for copied-to URL", IProgressMonitor.UNKNOWN);
+				monitor.setTaskName(Messages.ResolveTreeConflictWizardMainPage_lookingForCopiedToUrl);
+				monitor.beginTask(Messages.ResolveTreeConflictWizardMainPage_lookingForCopiedToUrl, IProgressMonitor.UNKNOWN);
 				ResolveTreeConflictWizard wizard = (ResolveTreeConflictWizard)getWizard();
 				try {
 					copiedTo = wizard.getLocalCopiedTo(getAll);
@@ -731,8 +732,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private ISVNStatus getRemoteCopiedTo(final boolean getAll) {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				monitor.setTaskName("Looking for copied-to URL");
-				monitor.beginTask("Looking for copied-to URL", IProgressMonitor.UNKNOWN);
+				monitor.setTaskName(Messages.ResolveTreeConflictWizardMainPage_lookingForCopiedToUrl);
+				monitor.beginTask(Messages.ResolveTreeConflictWizardMainPage_lookingForCopiedToUrl, IProgressMonitor.UNKNOWN);
 				ResolveTreeConflictWizard wizard = (ResolveTreeConflictWizard)getWizard();
 				try {
 					remoteCopiedTo = wizard.getRemoteCopiedTo(getAll);

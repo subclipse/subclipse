@@ -383,9 +383,9 @@ public class MergeFileAssociationPreferencePage extends PreferencePage implement
 		}
 		for (int i = 0; i < mergeFileAssociations.length; i++) {
 			Preferences prefs = MergeFileAssociation.getParentPreferences().node(mergeFileAssociations[i].getFileType());
-			if (mergeFileAssociations[i].getMergeProgram() == null) prefs.put("mergeProgram", ""); //$NON-NLS-1$ //$NON-NLS-1$
+			if (mergeFileAssociations[i].getMergeProgram() == null) prefs.put("mergeProgram", ""); //$NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$
 			else prefs.put("mergeProgram", mergeFileAssociations[i].getMergeProgram()); //$NON-NLS-1$
-			if (mergeFileAssociations[i].getParameters() == null)prefs.put("parameters", ""); //$NON-NLS-1$ //$NON-NLS-1$ 
+			if (mergeFileAssociations[i].getParameters() == null)prefs.put("parameters", ""); //$NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$ 
 			else prefs.put("parameters", mergeFileAssociations[i].getParameters()); //$NON-NLS-1$
 			prefs.putInt("type", mergeFileAssociations[i].getType()); //$NON-NLS-1$
 			try {
@@ -397,7 +397,7 @@ public class MergeFileAssociationPreferencePage extends PreferencePage implement
 
 	public boolean performCancel() {
 		if (associationsUpdated) {
-			if (MessageDialog.openQuestion(getShell(), Policy.bind("MergeFileAssociationPreferencePage.title"), Policy.bind("MergeFileAssociationPreferencePage.confirmCancel"))) //$NON-NLS-1$ //$NON-NLS-1$
+			if (MessageDialog.openQuestion(getShell(), Policy.bind("MergeFileAssociationPreferencePage.title"), Policy.bind("MergeFileAssociationPreferencePage.confirmCancel"))) //$NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$
 				performOk();
 		}
 		return super.performCancel();

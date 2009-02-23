@@ -15,7 +15,7 @@ public class NewMergeFileAssociationWizard extends Wizard {
 	}
 
 	public void addPages() {
-		mainPage = new NewMergeFileAssociationWizardPage("mainPage", Policy.bind("NewMergeFileAssociationWizard.heading"), null, mergeFileAssociations); //$NON-NLS-1$
+		mainPage = new NewMergeFileAssociationWizardPage("mainPage", Policy.bind("NewMergeFileAssociationWizard.heading"), null, mergeFileAssociations); //$NON-NLS-1$ //$NON-NLS-2$
 		mainPage.setDescription(Policy.bind("NewMergeFileAssociationWizard.description")); //$NON-NLS-1$		
 		addPage(mainPage);		
 	}

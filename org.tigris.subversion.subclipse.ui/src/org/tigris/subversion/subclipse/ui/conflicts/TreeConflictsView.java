@@ -400,7 +400,7 @@ public class TreeConflictsView extends ViewPart {
 				if (element instanceof SVNTreeConflict)
 					return ((SVNTreeConflict)element).getDescription();
 				else
-					return "";
+					return ""; //$NON-NLS-1$
 			default:
 				break;
 			}

@@ -239,7 +239,7 @@ public class NewMergeFileAssociationWizardPage extends WizardPage {
 		for (int i = 0; i < mergeFileAssociations.length; i++) {
 			if (mergeFileAssociations[i].getFileType().equals(fileTypeText.getText().trim())) {
 				String[] fileType = { fileTypeText.getText().trim() };
-				setErrorMessage(Policy.bind("NewMergeFileAssociationWizardPage.fileTypeExists", fileType));
+				setErrorMessage(Policy.bind("NewMergeFileAssociationWizardPage.fileTypeExists", fileType)); //$NON-NLS-1$
 				return false;
 			}
 		}

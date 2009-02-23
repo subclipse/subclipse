@@ -33,6 +33,7 @@ import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.commands.RevertResourcesCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNTreeConflict;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.Messages;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.wizards.SizePersistedWizardDialog;
@@ -77,7 +78,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 	
 	public void addPages() {
 		super.addPages();
-		setWindowTitle("Resolve Tree Conflict on " + treeConflict.getResource().getName());
+		setWindowTitle(Messages.ResolveTreeConflictWizard_title + treeConflict.getResource().getName());
 		
 		mainPage = new ResolveTreeConflictWizardMainPage();
 		addPage(mainPage);
@@ -123,12 +124,12 @@ public class ResolveTreeConflictWizard extends Wizard {
 				});			
 				if (mergeException != null) {
 					SVNUIPlugin.log(IStatus.ERROR, mergeException.getMessage(), mergeException);
-					MessageDialog.openError(getShell(), "Merge Error", mergeException.getMessage());
+					MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_mergeError, mergeException.getMessage());
 					return false;				
 				}
 			} catch (Exception e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-				MessageDialog.openError(getShell(), "Merge Error", e.getMessage());
+				MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_mergeError, e.getMessage());
 				return false;
 			}
 		}
@@ -142,11 +143,11 @@ public class ResolveTreeConflictWizard extends Wizard {
 					CompareUI.openCompareEditorOnPage(
 							new SVNLocalCompareInput(svnCompareResource, remoteResource),
 							targetPart.getSite().getPage());
-					CompareCloseListener closeListener = new CompareCloseListener("Compare " + svnCompareResource.getName() + " <workspace>");
+					CompareCloseListener closeListener = new CompareCloseListener(Messages.ResolveTreeConflictWizard_compare + svnCompareResource.getName() + " <workspace>"); //$NON-NLS-1$
 					targetPart.getSite().getPage().addPartListener(closeListener);										
 				} catch (SVNException e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-					MessageDialog.openError(getShell(), "Compare Error", e.getMessage());
+					MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_compareError, e.getMessage());
 					return false;
 				}
 			} else {
@@ -187,7 +188,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 				};
 				compareAction.selectionChanged(action, selection);
 				compareAction.run(selection);
-				CompareCloseListener closeListener = new CompareCloseListener("Compare ('" + mainPage.getCompareResource1().getName() + "' - '" + mainPage.getCompareResource2().getName() + "')");
+				CompareCloseListener closeListener = new CompareCloseListener(Messages.ResolveTreeConflictWizard_compare2 + mainPage.getCompareResource1().getName() + "' - '" + mainPage.getCompareResource2().getName() + "')"); //$NON-NLS-1$ //$NON-NLS-2$
 				targetPart.getSite().getPage().addPartListener(closeListener);
 			}
 		}
@@ -206,7 +207,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 			});	
 			if (revertException != null) {
 				SVNUIPlugin.log(IStatus.ERROR, revertException.getMessage(), revertException);
-				MessageDialog.openError(getShell(), "Revert Error", revertException.getMessage());
+				MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_revertError, revertException.getMessage());
 				return false;					
 			}
 		}
@@ -215,7 +216,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 				mainPage.getDeleteResource().delete(true, new NullProgressMonitor());
 			} catch (CoreException e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-				MessageDialog.openError(getShell(), "Delete Error", e.getMessage());
+				MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_deleteError, e.getMessage());
 				return false;
 			}			
 		}
@@ -227,7 +228,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 				TreeConflictsView.refresh(refreshResources);
 			} catch (Exception e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-				MessageDialog.openError(getShell(), "Mark Resolved Error", e.getMessage());
+				MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_markResolvedError, e.getMessage());
 				return false;
 			}
 		}
@@ -250,7 +251,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 		String endsWithCheck = treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos();
 		IProject project = svnResource.getResource().getProject();
 		if (project != null) {
-			int index = endsWithCheck.indexOf("/" + project.getName() + "/");
+			int index = endsWithCheck.indexOf("/" + project.getName() + "/"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (index != -1) endsWithCheck = endsWithCheck.substring(index);
 		}
 		if (copiedTo == null && !copiedToRetrieved) {
@@ -354,7 +355,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 				String name = input.getName();
 				if (name != null && name.startsWith(compareName)) {
 					targetPart.getSite().getPage().removePartListener(this);
-					if (MessageDialog.openQuestion(getShell(), "Compare Editor Closed", "Do you want to reopen the Resolve Tree Conflict dialog in order to resolve the conflict on " + treeConflict.getResource().getName() + "?")) {
+					if (MessageDialog.openQuestion(getShell(), Messages.ResolveTreeConflictWizard_editorClosed, Messages.ResolveTreeConflictWizard_promptToReolve + treeConflict.getResource().getName() + "?")) { //$NON-NLS-1$
 						ResolveTreeConflictWizard wizard = new ResolveTreeConflictWizard(treeConflict, targetPart);
 						WizardDialog dialog = new SizePersistedWizardDialog(Display.getDefault().getActiveShell(), wizard, "ResolveTreeConflict"); //$NON-NLS-1$
 						dialog.open();
