@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.subclipse"
       label="Subclipse"
-      version="1.4.7"
+      version="1.6.0"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.subclipse.core"
       colocation-affinity="org.tigris.subversion.subclipse">
@@ -21,7 +21,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.4.x"/>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.6.x"/>
    </url>
 
    <requires>
@@ -39,7 +39,7 @@
       <import plugin="org.eclipse.compare"/>
       <import plugin="org.eclipse.ui.console"/>
       <import plugin="org.eclipse.help"/>
-      <import plugin="org.tigris.subversion.clientadapter" version="1.5.0" match="greaterOrEqual"/>
+      <import plugin="org.tigris.subversion.clientadapter" version="1.6.0" match="equivalent"/>
    </requires>
 
    <plugin
