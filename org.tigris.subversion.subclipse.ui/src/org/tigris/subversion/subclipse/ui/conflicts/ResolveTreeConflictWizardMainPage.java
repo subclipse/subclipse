@@ -169,11 +169,11 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			if (copiedTo != null) {
 				mergeTarget = File2Resource.getResource(copiedTo.getFile());
 				svnCompareResource =  SVNWorkspaceRoot.getSVNResourceFor(mergeTarget);
-				mergeTargetText.setText(copiedTo.getPath());
+				mergeTargetText.setText(mergeTarget.getFullPath().toString());
 			} else if (remoteCopiedTo != null) {
 				mergeTarget = File2Resource.getResource(remoteCopiedTo.getFile());
 				svnCompareResource =  SVNWorkspaceRoot.getSVNResourceFor(mergeTarget);
-				mergeTargetText.setText(remoteCopiedTo.getPath());				
+				mergeTargetText.setText(mergeTarget.getFullPath().toString());
 			}
 			else {
 				setPageComplete(false);
@@ -188,7 +188,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						if (selectedResources != null && selectedResources.length > 0 && (selectedResources[0] instanceof IResource)) {
 							mergeTarget = (IResource)selectedResources[0];
 							svnCompareResource =  SVNWorkspaceRoot.getSVNResourceFor(mergeTarget);
-							mergeTargetText.setText(mergeTarget.getLocation().toString());
+							mergeTargetText.setText(mergeTarget.getFullPath().toString());							
 							setPageComplete(true);
 						}
 					}
@@ -250,7 +250,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				gd = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 				mergeTargetText.setLayoutData(gd);
 			} else {
-				mergeTargetCombo = new Combo(mergeTargetGroup, SWT.BORDER);
+				mergeTargetCombo = new Combo(mergeTargetGroup, SWT.BORDER | SWT.READ_ONLY);
 				gd = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 				mergeTargetCombo.setLayoutData(gd);
 				mergeTargetCombo.addSelectionListener(new SelectionAdapter() {
@@ -263,14 +263,15 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			}
 			if (adds != null && adds.length > 0) {
 				for (int i = 0; i < adds.length; i++) {
-					mergeTargetCombo.add(adds[i].getPath());
+					IResource mergeTargetResource = File2Resource.getResource(adds[i].getFile());
+					mergeTargetCombo.add(mergeTargetResource.getFullPath().toString());
 				}
 				mergeTargetCombo.select(0);
 				mergeTarget = File2Resource.getResource(adds[0].getFile());
 				compareResource1 = mergeTarget;
 			} else if (remoteCopiedTo != null) {
 				mergeTarget = File2Resource.getResource(remoteCopiedTo.getFile());
-				mergeTargetText.setText(remoteCopiedTo.getPath());
+				mergeTargetText.setText(mergeTarget.getFullPath().toString());
 				compareResource1 = mergeTarget;
 			} // else setPageComplete(false);
 			Button selectMergeTargetButton = new Button(mergeTargetGroup, SWT.PUSH);
@@ -284,9 +285,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 							mergeTarget = (IResource)selectedResources[0];
 							compareResource1 = mergeTarget;
 							if (mergeTargetText == null)
-								mergeTargetCombo.setText(mergeTarget.getLocation().toString());
+								mergeTargetCombo.setText(mergeTarget.getFullPath().toString());
 							else
-								mergeTargetText.setText(mergeTarget.getLocation().toString());
+								mergeTargetText.setText(mergeTarget.getFullPath().toString());
 							setPageComplete(true);
 						}
 					}
@@ -535,7 +536,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 							}				
 						});
 						for (int i = 0; i < adds.length; i++) {
-							revertCombo.add(adds[i].getPath());
+							IResource revertResource = File2Resource.getResource(adds[i].getFile());
+							revertCombo.add(revertResource.getFullPath().toString());
 						}
 						revertCombo.select(0);
 						revertResource = File2Resource.getResource(adds[0].getFile());
