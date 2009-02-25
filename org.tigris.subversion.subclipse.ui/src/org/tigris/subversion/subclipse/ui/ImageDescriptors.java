@@ -206,6 +206,7 @@ public class ImageDescriptors {
         		createImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWHISTORY,  "cview16/history_view.gif", baseURL);
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_ANNOTATE,     "cview16/annotate_view.gif", baseURL);
 		        createImageDescriptor(ISVNUIConstants.IMG_MENU_COPY,         "ctool16/copy_edit.gif", baseURL);
+		        createImageDescriptor(ISVNUIConstants.IMG_MENU_SHOWPROPERTY, "cview16/props_view.gif", baseURL);
         		break;
         }
     }
