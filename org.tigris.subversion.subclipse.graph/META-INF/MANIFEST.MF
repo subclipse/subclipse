@@ -21,3 +21,4 @@ Eclipse-LazyStart: true
 Export-Package: org.tigris.subversion.subclipse.graph.cache
 Bundle-ClassPath: .
 Bundle-Vendor: tigris.org
+Bundle-Localization: plugin

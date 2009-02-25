@@ -7,7 +7,7 @@
             contributorClass="org.tigris.subversion.subclipse.graph.editors.GraphActionBarContributor"
             icon="icons/chart_organisation.png"
             id="org.tigris.subversion.subclipse.graph.editors.revisionGraphEditor"
-            name="Revision Graph Editor">
+            name="%editor.name">
       </editor>
    </extension>
 
@@ -22,7 +22,7 @@
                icon="icons/chart_organisation.png"
                enablesFor="1"
                id="org.tigris.subversion.subclipse.graph.popup.actions.SynchronizeViewGraphAction"
-               label="View file history as graph">
+               label="%actionLabel.showGraph">
          </action>
       </objectContribution>         
          
@@ -39,9 +39,9 @@
                class="org.tigris.subversion.subclipse.graph.popup.actions.ViewGraphAction"
                icon="icons/chart_organisation.png"
                enablesFor="1"
-               id="org.tigris.subversion.subclipse.graph.newAction"
-               label="View file history as graph"
-               menubarPath="team.main/group2">
+               id="org.tigris.subversion.subclipse.graph.ResourceMappingViewGraphAction"
+               label="%actionLabel.showGraph"
+               menubarPath="team.main/group4">
          </action>
       </objectContribution>
       <objectContribution
@@ -49,7 +49,7 @@
             adaptable = "true"
             id="org.tigris.subversion.subclipse.ui.RemoteResourceContributions">
          <action
-               label="View file history as graph"
+               label="%actionLabel.showGraph"
                class="org.tigris.subversion.subclipse.graph.popup.actions.RemoteResourceViewGraphAction"
                icon="icons/chart_organisation.png"
                enablesFor="1"
@@ -62,14 +62,14 @@
             adaptable="true"
             id="org.tigris.subversion.subclipse.ui.RepositoryLocationContributions">
          <action
-               label="Clear revision graph cache"
+               label="%actionLabel.clearCache"
                class="org.tigris.subversion.subclipse.graph.popup.actions.DeleteCacheAction"
                menubarPath="revisionHistoryGroup"
                enablesFor="1"
                id="org.tigris.subversion.subclipse.graph.popup.actions.DeleteCacheAction">
          </action> 
          <action
-               label="Build/update revision graph cache"
+               label="%actionLabel.updateCache"
                class="org.tigris.subversion.subclipse.graph.popup.actions.UpdateCacheAction"
                menubarPath="revisionHistoryGroup"
                enablesFor="1"
