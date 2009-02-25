@@ -173,7 +173,7 @@ public class RemoteResourceStatus extends ResourceStatus {
     protected int initFromBytes(StatusFromBytesStream dis) throws SVNException {
     	int version = super.initFromBytes(dis);    	
         try {
-        	if (version == FORMAT_VERSION_3) {
+        	if (version >= FORMAT_VERSION_3) {
         		readFromVersion3Stream(dis);            	
         	} else {
         		readFromVersion2Stream(dis);

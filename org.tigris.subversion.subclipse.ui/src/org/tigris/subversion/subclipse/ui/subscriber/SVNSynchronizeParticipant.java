@@ -86,6 +86,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 //			return null;
 			if (element instanceof ISynchronizeModelElement) {
 				IResource resource = ((ISynchronizeModelElement) element).getResource();
+				if (resource == null) return null;
 				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 				try {
 					if (svnResource.getStatus().hasTreeConflict()) {
