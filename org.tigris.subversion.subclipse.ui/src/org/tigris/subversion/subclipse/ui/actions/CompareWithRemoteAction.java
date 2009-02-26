@@ -20,6 +20,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -100,5 +101,10 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 	 */
 	protected boolean isEnabledForMultipleResources() {
 		return false;
+	}
+	
+	protected String getImageId()
+	{
+		return ISVNUIConstants.IMG_MENU_COMPARE;
 	}
 }

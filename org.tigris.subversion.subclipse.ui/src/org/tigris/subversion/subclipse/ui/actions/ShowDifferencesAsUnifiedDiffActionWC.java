@@ -26,6 +26,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.dialogs.ShowDifferencesAsUnifiedDiffDialogWC;
@@ -72,6 +73,11 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 
 	protected boolean isEnabled() throws TeamException {
 		return getSelectedResources().length == 1;
+	}
+	
+	protected String getImageId()
+	{
+		return ISVNUIConstants.IMG_MENU_COMPARE;
 	}
 
 }

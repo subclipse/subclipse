@@ -23,7 +23,7 @@ import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 /**
  * Action to mark conflicted file as resolved. 
  */
-public class ResolveAction extends WorkspaceAction {
+public class ResolveAction extends WorkbenchWindowAction {
 	private int resolution = ISVNConflictResolver.Choice.chooseMerged;
 	
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {

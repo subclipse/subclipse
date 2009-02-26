@@ -1113,13 +1113,22 @@ For example:
 				<separator name="SVNGroupMenu6"></separator>
 				<separator name="SVNGroupMenu7"></separator>
 			</menu>
+			
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.GenerateDiff"
+				label="%generatediff.label"
+				icon="icons/full/empty/empty.gif"
+				class="org.tigris.subversion.subclipse.ui.actions.GenerateDiffFileAction"
+				tooltip="%generatediff.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu1"
+				id="org.tigris.subversion.subclipse.ui.GenerateDiff">
+			</action>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.update"
 				label="%UpdateAction.label"
 				icon="icons/full/empty/empty.gif"
 				class="org.tigris.subversion.subclipse.ui.actions.UpdateAction"
 				tooltip="%UpdateAction.tooltip"
-		   	toolbarPath="SVNToolbar"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu1"
 				id="org.tigris.subversion.subclipse.ui.update">
 			</action>
@@ -1150,30 +1159,11 @@ For example:
 				icon="icons/full/wizards/newconnect_wiz.gif"
 				tooltip="%CheckoutWizard.tooltip"
 				class="org.tigris.subversion.subclipse.ui.actions.CheckoutWizardAction"
+				toolbarPath="SVNToolbar"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu1"
 				id="org.tigris.subversion.subclipse.ui.checkout">
 			</action>
-
-			<action
-				definitionId="org.tigris.subversion.subclipse.ui.showannotation"
-				label="%ShowAnnotationCommand.label"
-				icon="icons/full/empty/empty.gif"
-				helpContextId="org.tigris.subversion.subclipse.ui.get_annotate_action_context"
-				class="org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction"
-				tooltip="%ShowAnnotationAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu2"
-				id="org.tigris.subversion.subclipse.ui.showannotation">
-			</action>
-			<action
-				definitionId="org.tigris.subversion.subclipse.ui.showresourceinhistoryaction"
-				label="%ShowHistoryAction.label"
-				icon="icons/full/empty/empty.gif"
-				helpContextId="org.tigris.subversion.subclipse.ui.show_in_history_action_context"
-				class="org.tigris.subversion.subclipse.ui.actions.ShowResourceInHistoryAction"
-				tooltip="%ShowHistoryAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu2"
-				id="org.tigris.subversion.subclipse.ui.showresourceinhistoryaction">
-			</action>
+			
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.switch"
 				label="%SwitchCommand.label"
@@ -1187,7 +1177,7 @@ For example:
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.merge"
 				label="%MergeAction.label"
-				icon="icons/full/empty/empty.gif"
+				icon="icons/full/tortoise/merge.gif"
 				helpContextId="org.tigris.subversion.subclipse.ui.team_merge_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.ConfigurableMergeAction"
 				tooltip="%MergeAction.tooltip"
@@ -1203,8 +1193,47 @@ For example:
 				tooltip="%BranchTagAction.tooltip"
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu2"
 				id="org.tigris.subversion.subclipse.ui.branchtag">
+			</action>						
+						
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.showannotation"
+				label="%ShowAnnotationCommand.label"
+				icon="icons/full/cview16/annotate_view.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.get_annotate_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.ShowAnnotationAction"
+				tooltip="%ShowAnnotationAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu3"
+				id="org.tigris.subversion.subclipse.ui.showannotation">
 			</action>
-
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.showsvnproperties"
+				label="%ShowSvnPropertiesAction.label"
+				icon="icons/full/cview16/props_view.gif"
+				helpContextId="org.tigris.subversion.subclipse.team_show_svn_properties_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.ShowSvnPropertiesAction"
+				tooltip="%ShowSvnPropertiesAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu3"
+				id="org.tigris.subversion.subclipse.ui.showsvnproperties">
+			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.actions.ShowTreeConflictsAction"
+				label="%ShowTreeConflictsAction.label"
+				icon="icons/full/cview16/tree_conflicts_view.gif"
+				class="org.tigris.subversion.subclipse.ui.actions.ShowTreeConflictsAction"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu3"
+				id="org.tigris.subversion.subclipse.ui.actions.ShowTreeConflictsAction">
+			</action>			
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.showresourceinhistoryaction"
+				label="%ShowHistoryAction.label"
+				icon="icons/full/cview16/history_view.gif"
+				helpContextId="org.tigris.subversion.subclipse.ui.show_in_history_action_context"
+				class="org.tigris.subversion.subclipse.ui.actions.ShowResourceInHistoryAction"
+				tooltip="%ShowHistoryAction.tooltip"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu3"
+				id="org.tigris.subversion.subclipse.ui.showresourceinhistoryaction">
+			</action>							
+			
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.setsvnproperty"
 				label="%SetSvnProperty.label"
@@ -1212,18 +1241,8 @@ For example:
 				helpContextId="org.tigris.subversion.subclipse.ui.team_set_svnpropery_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.SetSvnPropertyAction"
 				tooltip="%SetSvnProperty.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu3"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu4"
 				id="org.tigris.subversion.subclipse.ui.setsvnproperty">
-			</action>
-			<action
-				definitionId="org.tigris.subversion.subclipse.ui.showsvnproperties"
-				label="%ShowSvnPropertiesAction.label"
-				icon="icons/full/empty/empty.gif"
-				helpContextId="org.tigris.subversion.subclipse.team_show_svn_properties_action_context"
-				class="org.tigris.subversion.subclipse.ui.actions.ShowSvnPropertiesAction"
-				tooltip="%ShowSvnPropertiesAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu3"
-				id="org.tigris.subversion.subclipse.ui.showsvnproperties">
 			</action>
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.ignore"
@@ -1232,7 +1251,7 @@ For example:
 				helpContextId="org.tigris.subversion.subclipse.ui.team_ignore_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.IgnoreAction"
 				tooltip="%IgnoreAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu3"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu4"
 				id="org.tigris.subversion.subclipse.ui.ignore">
 			</action>
 			<action
@@ -1242,10 +1261,10 @@ For example:
 				helpContextId="org.tigris.subversion.subclipse.ui.team_add_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.AddAction"
 				tooltip="%AddAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu3"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu4"
 				id="org.tigris.subversion.subclipse.ui.add">
-			</action>
-
+			</action>								
+							
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.unlock"
 				label="%UnlockAction.label"
@@ -1253,7 +1272,7 @@ For example:
 				helpContextId="org.tigris.subversion.subclipse.ui.team_unlock_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.UnlockAction"
 				tooltip="%UnlockAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu4"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu5"
 				id="org.tigris.subversion.subclipse.ui.unlock">
 			</action>
 			<action
@@ -1263,9 +1282,25 @@ For example:
 				helpContextId="org.tigris.subversion.subclipse.ui.team_lock_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.LockAction"
 				tooltip="%LockAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu4"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu5"
 				id="org.tigris.subversion.subclipse.ui.lock">
 			</action>
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.resolve"
+				label="%ResolveAction.label"
+				icon="icons/full/empty/empty.gif"
+				class="org.tigris.subversion.subclipse.ui.actions.ResolveActionWithChoices"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu5"
+				id="org.tigris.subversion.subclipse.ui.resolve">
+			</action>				
+			<action
+				definitionId="org.tigris.subversion.subclipse.ui.editConflicts"
+				label="%EditConflictsAction.label"
+				icon="icons/full/empty/empty.gif"
+				class="org.tigris.subversion.subclipse.ui.actions.EditConflictsAction"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu5"
+				id="org.tigris.subversion.subclipse.ui.editConflicts">
+			</action>			
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.revert"
 				label="%RevertAction.label"
@@ -1273,7 +1308,7 @@ For example:
 				helpContextId="org.tigris.subversion.subclipse.ui.team_revert_action_context"
 				class="org.tigris.subversion.subclipse.ui.actions.RevertAction"
 				tooltip="%RevertAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu4"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu5"
 				id="org.tigris.subversion.subclipse.ui.revert">
 			</action>
 
@@ -1283,7 +1318,7 @@ For example:
 				icon="icons/full/empty/empty.gif"
 				class="org.tigris.subversion.subclipse.ui.actions.ExportAction"
 				tooltip="%ExportAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu5"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
 				id="org.tigris.subversion.subclipse.ui.export">
 			</action>
 			<action
@@ -1292,16 +1327,17 @@ For example:
 				icon="icons/full/empty/empty.gif"
 				class="org.tigris.subversion.subclipse.ui.actions.CopyAction"
 				tooltip="%CopyAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu5"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
 				id="org.tigris.subversion.subclipse.ui.copy">
 			</action>
 	    <action
 	      label="%CleanupAction.label"
+	      icon="icons/full/empty/empty.gif"
 	      helpContextId="org.tigris.subversion.subclipse.ui.team_cleanup_action_context"
 	      class="org.tigris.subversion.subclipse.ui.actions.CleanupAction"
 	      tooltip="%CleanupAction.tooltip"
 			  definitionId="org.tigris.subversion.subclipse.ui.cleanup"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu7"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
 	      id="org.tigris.subversion.subclipse.ui.cleanup">
 	    </action>
 
@@ -1311,7 +1347,7 @@ For example:
 				icon="icons/full/empty/empty.gif"
         class="org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffActionWC"
 				tooltip="%CompareWithBranchTagCommand.label"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu7"
 				id="org.tigris.subversion.subclipse.ui.compareWithBranchTag">
 			</action>
 			<action
@@ -1320,7 +1356,7 @@ For example:
 				icon="icons/full/empty/empty.gif"
         class="org.tigris.subversion.subclipse.ui.actions.CompareWithRevisionAction"
 				tooltip="%CompareWithRevisionAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu7"
 				id="org.tigris.subversion.subclipse.ui.compareWithRevision">
 			</action>
 			<action
@@ -1329,7 +1365,7 @@ For example:
 				icon="icons/full/empty/empty.gif"
         class="org.tigris.subversion.subclipse.ui.actions.CompareWithHeadRevisionAction"
 				tooltip="%CompareWithHeadAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu7"
 				id="org.tigris.subversion.subclipse.ui.compareWithHead">
 			</action>
 			<action
@@ -1338,7 +1374,7 @@ For example:
 				icon="icons/full/empty/empty.gif"
         class="org.tigris.subversion.subclipse.ui.actions.CompareWithBaseRevisionAction"
 				tooltip="%CompareWithBaseAction.tooltip"
-				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu7"
 				id="org.tigris.subversion.subclipse.ui.compareWithBase">
 			</action>
 

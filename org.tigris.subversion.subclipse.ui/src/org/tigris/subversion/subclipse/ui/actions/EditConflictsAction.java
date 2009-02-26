@@ -38,7 +38,7 @@ import org.tigris.subversion.svnclientadapter.utils.Command;
 /**
  * Action to edit conflicts
  */
-public class EditConflictsAction extends WorkspaceAction {
+public class EditConflictsAction extends WorkbenchWindowAction {
     private IFile selectedResource;
     
     public EditConflictsAction() {

@@ -159,4 +159,8 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
 		return false;
 	}
 
+	protected String getImageId()
+	{
+		return ISVNUIConstants.IMG_MENU_COMPARE;
+	}
 }
