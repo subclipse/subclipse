@@ -119,9 +119,9 @@ public class DirectorySelectionPage extends SVNWizardPage {
                    ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), repositoryLocationProvider.getProject());
                    dialog.setRepositoryLocation(repositoryLocation);
                    if (dialog.open() == ChooseUrlDialog.OK && dialog.getUrl() != null) {
-                       text.setText(dialog.getUrl().toString().substring(repositoryLocation.getLocation().length() + 1) + "/New Folder");
+                       text.setText(dialog.getUrl().toString().substring(repositoryLocation.getLocation().length() + 1) + "/" + repositoryLocationProvider.getProject().getName());
                        text.setFocus();
-                       text.setSelection(text.getText().indexOf("/New Folder") + 1, text.getText().length());
+                       text.setSelection(text.getText().indexOf(repositoryLocationProvider.getProject().getName()), text.getText().length());
                    }                    
                 } catch (Exception e) {}
             }
