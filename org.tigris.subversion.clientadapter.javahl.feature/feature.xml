@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.clientadapter.javahl.feature"
       label="Subversion Native Library Adapter (JavaHL) - Required"
-      version="1.6.0"
+      version="1.6.0.1"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.clientadapter.javahl"
       colocation-affinity="org.tigris.subversion.subclipse">
