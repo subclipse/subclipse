@@ -265,6 +265,7 @@ public interface ISVNUIConstants {
   public final String DEPTH_IMMEDIATES = "Immediate children, including folders"; //$NON-NLS-1$
   public final String DEPTH_INFINITY = "Fully recursive"; //$NON-NLS-1$
   public final String DEPTH_UNKNOWN = "Working copy"; //$NON-NLS-1$
+  public final String DEPTH_EXCLUDE = "Exclude"; //$NON-NLS-1$
   
   // This is in Internal class in team.ui, so we are mirroring it
   public final static String HISTORY_VIEW_ID = "org.eclipse.team.ui.GenericHistoryView"; //$NON-NLS-1$
