@@ -19,6 +19,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 /**
  * UpdateAction performs a 'svn update' command on the selected resources.
@@ -28,6 +29,8 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  */
 public class UpdateAction extends WorkbenchWindowAction {
 	private IResource[] selectedResources;
+	private int depth = ISVNCoreConstants.DEPTH_UNKNOWN;
+	private boolean setDepth = false;
 	private boolean canRunAsJob = true;
 	
 	/*
@@ -40,8 +43,8 @@ public class UpdateAction extends WorkbenchWindowAction {
         else {
 	        IResource[] resources = getSelectedResources(); 
         	UpdateOperation updateOperation = new UpdateOperation(getTargetPart(), resources, SVNRevision.HEAD);
-	    	updateOperation.setDepth(ISVNCoreConstants.DEPTH_UNKNOWN);
-	    	updateOperation.setSetDepth(false);
+	    	updateOperation.setDepth(depth);
+	    	updateOperation.setSetDepth(setDepth);
 	    	updateOperation.setForce(true);
 	    	updateOperation.setIgnoreExternals(false);
 	    	updateOperation.setCanRunAsJob(canRunAsJob);
@@ -76,6 +79,15 @@ public class UpdateAction extends WorkbenchWindowAction {
 	public void setCanRunAsJob(boolean canRunAsJob) {
 		this.canRunAsJob = canRunAsJob;
 	}
+	
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public void setSetDepth(boolean setDepth) {
+		this.setDepth = setDepth;
+	}
+
 
 	public void setSelectedResources(IResource[] selectedResources) {
 		this.selectedResources = selectedResources;
