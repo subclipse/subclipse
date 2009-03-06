@@ -60,6 +60,11 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 		super("UpdateDialog", Policy.bind("UpdateDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$
 		this.resources = resources;
 	}
+	
+	public SvnWizardUpdatePage(String name, IResource[] resources) {
+		super(name, Policy.bind("UpdateDialog.title")); //$NON-NLS-1$
+		this.resources = resources;
+	}
 
 	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {}
 
@@ -74,7 +79,7 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 		GridData data = new GridData(GridData.FILL_BOTH);
 		composite.setLayoutData(data);
 		
-		Composite revisionGroup = new Composite(composite, SWT.NULL);
+		final Composite revisionGroup = new Composite(composite, SWT.NULL);
 		GridLayout revisionLayout = new GridLayout();
 		revisionLayout.numColumns = 3;
 		revisionLayout.marginWidth = 0;
@@ -151,7 +156,25 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 		Label depthLabel = new Label(parameterGroup, SWT.NONE);
 		depthLabel.setText(Policy.bind("SvnDialog.depth")); //$NON-NLS-1$
 		depthCombo = new Combo(parameterGroup, SWT.READ_ONLY);
-		DepthComboHelper.addDepths(depthCombo, true, ISVNUIConstants.DEPTH_UNKNOWN);
+		DepthComboHelper.addDepths(depthCombo, true, true, ISVNUIConstants.DEPTH_UNKNOWN);
+
+		depthCombo.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent evt) {
+				if (depthCombo.getText().equals(ISVNUIConstants.DEPTH_EXCLUDE)) {
+					setDepthButton.setSelection(true);
+					setDepthButton.setEnabled(false);
+					ignoreExternalsButton.setVisible(false);
+					forceButton.setVisible(false);
+					revisionGroup.setVisible(false);
+				} else {
+					setDepthButton.setEnabled(true);
+					ignoreExternalsButton.setVisible(true);
+					forceButton.setVisible(true);
+					revisionGroup.setVisible(true);
+				}
+				setPageComplete(canFinish());
+			}			
+		});
 		
 		setDepthButton = new Button(parameterGroup, SWT.CHECK);
 		setDepthButton.setText(Policy.bind("SvnDialog.setDepth")); //$NON-NLS-1$

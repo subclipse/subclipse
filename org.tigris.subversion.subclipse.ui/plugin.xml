@@ -590,6 +590,15 @@
                id="org.tigris.subversion.subclipse.ui.GenerateDiff">
          </action>
          <action
+               label="%UpdateDialogAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.team_update_action_context"
+               class="org.tigris.subversion.subclipse.ui.actions.UpdateDialogAction"
+               tooltip="%UpdateAction.tooltip"
+               menubarPath="team.main/group1"
+               definitionId="org.tigris.subversion.subclipse.ui.updateDialog"
+               id="org.tigris.subversion.subclipse.ui.updateDialog">
+         </action>         
+         <action
                label="%UpdateAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.team_update_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.UpdateAction"
@@ -1123,6 +1132,15 @@ For example:
 				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu1"
 				id="org.tigris.subversion.subclipse.ui.GenerateDiff">
 			</action>
+            <action
+                definitionId="org.tigris.subversion.subclipse.ui.updateDialog"
+                label="%UpdateDialogAction.label"
+                icon="icons/full/empty/empty.gif"
+                class="org.tigris.subversion.subclipse.ui.actions.UpdateDialogAction"
+                tooltip="%UpdateAction.tooltip"
+                menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu1"
+                id="org.tigris.subversion.subclipse.ui.updateDialog">
+            </action>  			
 			<action
 				definitionId="org.tigris.subversion.subclipse.ui.update"
 				label="%UpdateAction.label"
