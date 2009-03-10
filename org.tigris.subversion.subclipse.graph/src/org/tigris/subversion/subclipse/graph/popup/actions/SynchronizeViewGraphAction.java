@@ -38,6 +38,7 @@ public class SynchronizeViewGraphAction extends ActionDelegate {
 		if (fSelection == null || fSelection.isEmpty()) return false;
 		ISynchronizeModelElement element = (ISynchronizeModelElement)fSelection.getFirstElement();
 		IResource resource = element.getResource();
+		if (resource == null) return false;
 		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);	
 		try {
 			return (svnResource != null && svnResource.isManaged() && !svnResource.isAdded());

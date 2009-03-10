@@ -15,7 +15,7 @@
          point="org.eclipse.ui.popupMenus">
          
       <objectContribution
-            objectClass="org.eclipse.team.ui.synchronize.ISynchronizeModelElement"
+            objectClass="org.eclipse.team.internal.ui.synchronize.SyncInfoModelElement"
             id="org.tigris.subversion.subclipse.graph.SyncContributions">         
          <action
                class="org.tigris.subversion.subclipse.graph.popup.actions.SynchronizeViewGraphAction"
@@ -24,7 +24,19 @@
                id="org.tigris.subversion.subclipse.graph.popup.actions.SynchronizeViewGraphAction"
                label="%actionLabel.showGraph">
          </action>
-      </objectContribution>         
+      </objectContribution> 
+      
+      <objectContribution
+            objectClass="org.eclipse.team.internal.ui.synchronize.UnchangedResourceModelElement"
+            id="org.tigris.subversion.subclipse.graph.SyncContributions">         
+         <action
+               class="org.tigris.subversion.subclipse.graph.popup.actions.SynchronizeViewGraphAction"
+               icon="icons/chart_organisation.png"
+               enablesFor="1"
+               id="org.tigris.subversion.subclipse.graph.popup.actions.SynchronizeViewGraphAction"
+               label="%actionLabel.showGraph">
+         </action>
+      </objectContribution>                   
          
       <objectContribution
             objectClass="org.eclipse.core.resources.mapping.ResourceMapping"
