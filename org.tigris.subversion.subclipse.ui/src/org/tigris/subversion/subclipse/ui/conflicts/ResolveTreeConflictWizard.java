@@ -63,6 +63,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 	private boolean added;
 	private Exception mergeException;
 	private Exception revertException;
+	
+	private boolean compare;
 
 	public ResolveTreeConflictWizard(SVNTreeConflict treeConflict, IWorkbenchPart targetPart) {
 		super();
@@ -89,6 +91,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 	}
 
 	public boolean performFinish() {
+		compare = mainPage.getCompare();
 		if (mainPage.getMergeFromRepository()) {
 			try {
 				final SVNUrl url = new SVNUrl(mainPage.getMergeFromUrl());
@@ -307,6 +310,10 @@ public class ResolveTreeConflictWizard extends Wizard {
 		ISVNStatus[] addArray = new ISVNStatus[adds.size()];
 		adds.toArray(addArray);
 		return addArray;
+	}
+	
+	public boolean isCompare() {
+		return compare;
 	}
 	
 	private ISVNStatus[] getStatuses(boolean getAll) throws SVNException {
