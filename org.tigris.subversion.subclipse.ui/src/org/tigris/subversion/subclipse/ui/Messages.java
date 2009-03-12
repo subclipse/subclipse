@@ -40,6 +40,8 @@ public class Messages extends NLS {
 	public static String ResolveTreeConflictWizardMainPage_revert;
 	public static String ResolveTreeConflictWizardMainPage_revertSelected;
 	public static String ResolveTreeConflictWizardMainPage_selectMergeTarget;
+	public static String ResolveTreeConflictWizardMainPage_selectCompareTarget;
+	public static String ResolveTreeConflictWizardMainPage_selectCompareMergeTarget;
 	public static String ResolveTreeConflictWizardMainPage_sourceLeft;
 	public static String ResolveTreeConflictWizardMainPage_sourceRight;
 	public static String ResolveTreeConflictWizardMainPage_specifySteps;
