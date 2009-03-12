@@ -40,7 +40,6 @@ public class ResolveActionWithChoices extends ResolveAction {
 		for (int i = 0; i < resources.length; i++) {
 			if (resources[i] instanceof IContainer) {
 				folderSelected = true;
-				break;
 			}
 			if (!propertyConflicts || !textConflicts || !treeConflicts) {
 				ISVNLocalResource resource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
@@ -54,37 +53,28 @@ public class ResolveActionWithChoices extends ResolveAction {
 				}
 			}		
 		}
-		if (folderSelected) {
-			selectedResolution = ISVNConflictResolver.Choice.chooseMerged;
-			setResolution(selectedResolution);
-		} else {
-			if (resources.length == 1 && treeConflicts && !propertyConflicts && !textConflicts) {
-				treeConflict = getTreeConflict(resources[0]);
-				if (treeConflict != null) {
-					ResolveTreeConflictWizard wizard = new ResolveTreeConflictWizard(treeConflict, getTargetPart());
-					WizardDialog dialog = new SizePersistedWizardDialog(Display.getDefault().getActiveShell(), wizard, "ResolveTreeConflict"); //$NON-NLS-1$
-					if (dialog.open() != WizardDialog.OK) return;
-					treeConflictDialogShown = true;
-				}
-			}
-			if (!treeConflictDialogShown) {
-				if (propertyConflicts && !textConflicts) {
-					String message;
-					if (resources.length > 1) message = Policy.bind("ResolveAction.confirmMultiple"); //$NON-NLS-1$
-					else message = Policy.bind("ResolveAction.confirm", resources[0].getName()); //$NON-NLS-1$
-					if (!MessageDialog.openConfirm(getShell(), Policy.bind("ResolveOperation.taskName"), message)) return; //$NON-NLS-1$
-					setResolution(ISVNConflictResolver.Choice.chooseMerged);				
-				} else {
-					SvnWizardMarkResolvedPage markResolvedPage = new SvnWizardMarkResolvedPage(resources);
-					markResolvedPage.setPropertyConflicts(propertyConflicts);
-					markResolvedPage.setTreeConflicts(treeConflicts);
-					SvnWizard wizard = new SvnWizard(markResolvedPage);
-			        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
-			        wizard.setParentDialog(dialog);
-			        if (dialog.open() == SvnWizardDialog.CANCEL) return;
-			        setResolution(markResolvedPage.getResolution());
-				}
-			}
+		if (resources.length == 1 && treeConflicts && !propertyConflicts && !textConflicts) {
+			treeConflict = getTreeConflict(resources[0]);
+			if (treeConflict != null) {
+				ResolveTreeConflictWizard wizard = new ResolveTreeConflictWizard(treeConflict, getTargetPart());
+				WizardDialog dialog = new SizePersistedWizardDialog(Display.getDefault().getActiveShell(), wizard, "ResolveTreeConflict"); //$NON-NLS-1$
+				if (dialog.open() != WizardDialog.OK) return;
+				treeConflictDialogShown = true;
+			}			
+		}
+		if (resources.length > 1 && treeConflicts) {
+			if (!MessageDialog.openConfirm(getShell(), Policy.bind("ResolveOperation.taskName"), Policy.bind("ResolveAction.confirmTreeConflicts"))) return; //$NON-NLS-1$	//$NON-NLS-2$		
+			setResolution(ISVNConflictResolver.Choice.chooseMerged);				
+		}
+		else if (!treeConflictDialogShown) {
+			SvnWizardMarkResolvedPage markResolvedPage = new SvnWizardMarkResolvedPage(resources);
+			markResolvedPage.setPropertyConflicts(propertyConflicts);
+			markResolvedPage.setTreeConflicts(treeConflicts);
+			SvnWizard wizard = new SvnWizard(markResolvedPage);
+	        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+	        wizard.setParentDialog(dialog);
+	        if (dialog.open() == SvnWizardDialog.CANCEL) return;
+	        setResolution(markResolvedPage.getResolution());
 		}
 		if (!treeConflictDialogShown) super.execute(action);
 	}
