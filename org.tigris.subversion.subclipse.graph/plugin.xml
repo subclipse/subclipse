@@ -28,7 +28,7 @@
       
       <objectContribution
             objectClass="org.eclipse.team.internal.ui.synchronize.UnchangedResourceModelElement"
-            id="org.tigris.subversion.subclipse.graph.SyncContributions">         
+            id="org.tigris.subversion.subclipse.graph.UnchangedResourceModelElementSyncContributions">         
          <action
                class="org.tigris.subversion.subclipse.graph.popup.actions.SynchronizeViewGraphAction"
                icon="icons/chart_organisation.png"
