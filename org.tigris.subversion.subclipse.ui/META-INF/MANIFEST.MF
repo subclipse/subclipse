@@ -1,7 +1,7 @@
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.tigris.subversion.subclipse.ui; singleton:=true
-Bundle-Version: 1.6.1
+Bundle-Version: 1.6.2
 Bundle-Activator: org.tigris.subversion.subclipse.ui.SVNUIPlugin
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin

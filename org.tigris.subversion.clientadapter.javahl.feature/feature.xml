@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.tigris.subversion.clientadapter.javahl.feature"
-      label="Subversion Native Library Adapter (JavaHL) - Required"
-      version="1.6.0.1"
+      label="Subversion JavaHL Native Library Adapter (Required)"
+      version="1.6.0.2"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.clientadapter.javahl"
       colocation-affinity="org.tigris.subversion.subclipse">

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.tigris.subversion.clientadapter.feature"
-      label="Subversion Client Adapter - Required"
-      version="1.6.0"
+      label="Subversion Client Adapter (Required)"
+      version="1.6.0.1"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.clientadapter"
       colocation-affinity="org.tigris.subversion.subclipse">
