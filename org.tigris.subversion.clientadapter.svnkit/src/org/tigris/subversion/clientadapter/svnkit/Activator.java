@@ -81,7 +81,7 @@ public class Activator extends Plugin implements ISVNClientWrapper {
 //				SVNClientImpl adapter = SVNClientImpl.newInstance();
 //				version = adapter.getVersion().toString();
 //			} else
-				version = "Not Available";
+				version = "Not Supported with 1.6 Yet";
 			}
 		return version;
 	}
