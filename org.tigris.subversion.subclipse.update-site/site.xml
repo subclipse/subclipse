@@ -9,19 +9,19 @@
    <feature url="features/org.tigris.subversion.subclipse.mylyn_3.0.0.jar" id="org.tigris.subversion.subclipse.mylyn" version="3.0.0">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.feature_1.6.0.1.jar" id="org.tigris.subversion.clientadapter.feature" version="1.6.0.1">
-      <category name="Subclipse"/>
-   </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.0.2.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.0.2">
-      <category name="Subclipse"/>
-   </feature>
    <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.6.0.1.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.6.0.1">
       <category name="Subclipse"/>
    </feature>
    <feature url="features/org.tigris.subversion.subclipse_1.6.2.jar" id="org.tigris.subversion.subclipse" version="1.6.2">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse.graph.feature_1.0.6.jar" id="org.tigris.subversion.subclipse.graph.feature" version="1.0.6">
+   <feature url="features/org.tigris.subversion.subclipse.graph.feature_1.0.7.jar" id="org.tigris.subversion.subclipse.graph.feature" version="1.0.7">
+      <category name="Subclipse"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.clientadapter.feature_1.6.0.2.jar" id="org.tigris.subversion.clientadapter.feature" version="1.6.0.2">
+      <category name="Subclipse"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.0.3.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.0.3">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse">
