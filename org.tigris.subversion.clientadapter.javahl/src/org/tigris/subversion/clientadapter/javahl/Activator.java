@@ -1,6 +1,8 @@
 package org.tigris.subversion.clientadapter.javahl;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 import org.tigris.subversion.clientadapter.ISVNClientWrapper;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -75,9 +77,11 @@ public class Activator extends Plugin implements ISVNClientWrapper{
 			if (this.isAvailable()) {
 				JhlClientAdapter adapter = new JhlClientAdapter();
 				version = adapter.getNativeLibraryVersionString();
-			} else
+			} else {
 				version = "Not Available";
+				getLog().log(new Status(IStatus.INFO, PLUGIN_ID, 0, getLoadErrors(), null));
 			}
+		}
 		return version;
 	}
 
