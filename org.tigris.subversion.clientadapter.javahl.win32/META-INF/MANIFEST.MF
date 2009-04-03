@@ -5,4 +5,4 @@ Bundle-SymbolicName: org.tigris.subversion.clientadapter.javahl.win32
 Bundle-Version: 1.6.0.3
 Bundle-Vendor: tigris.org
 Fragment-Host: org.tigris.subversion.clientadapter.javahl;bundle-version="[1.6.0,1.7.0)"
-Eclipse-PlatformFilter: (osgi.os=win32)
+Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86))

@@ -38,6 +38,7 @@
    <plugin
          id="org.tigris.subversion.clientadapter.javahl.win32"
          os="win32"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
