@@ -9,9 +9,6 @@
    <feature url="features/org.tigris.subversion.subclipse.mylyn_3.0.0.jar" id="org.tigris.subversion.subclipse.mylyn" version="3.0.0">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.6.0.1.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.6.0.1">
-      <category name="Subclipse"/>
-   </feature>
    <feature url="features/org.tigris.subversion.subclipse_1.6.2.jar" id="org.tigris.subversion.subclipse" version="1.6.2">
       <category name="Subclipse"/>
    </feature>
@@ -24,6 +21,24 @@
    <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.1.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.1">
       <category name="Subclipse"/>
    </feature>
+   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.6.1.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.6.1">
+      <category name="Subclipse"/>
+   </feature>
+   <feature url="features/org.tmatesoft.svnkit_1.3.0.5726.jar" id="org.tmatesoft.svnkit" version="1.3.0.5726">
+      <category name="SVNKit Library"/>
+   </feature>
+   <feature url="features/com.sun.jna_3.0.9.jar" id="com.sun.jna" version="3.0.9">
+      <category name="JNA Library"/>
+   </feature>
+  
+   <category-def name="SVNKit Library" label="Core SVNKit Library (required)">
+      <description>SVNKit Library</description>
+   </category-def>
+   
+   <category-def name="JNA Library" label="Optional JNA Library (recommended)">
+      <description>Includes JNA Library plugin which is optionally used by SVNKit to improve performance of certain low-level filesystem operations and to implement some additional features. JNA Library is licensed under the terms of LGPL. It is strongly recommened to install JNA Library, unless you could not accept LGPL software in your environment.</description>
+   </category-def>
+   
    <category-def name="Subclipse" label="Subclipse">
       <description>
          Subversion 1.6 plug-in for Eclipse 3.2 and higher.
