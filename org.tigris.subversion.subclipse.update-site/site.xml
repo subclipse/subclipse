@@ -27,7 +27,7 @@
    <feature url="features/com.sun.jna_3.0.9.jar" id="com.sun.jna" version="3.0.9">
       <category name="JNA Library"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.2.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.2">
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.2.1.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.2.1">
       <category name="Subclipse"/>
    </feature>
    <category-def name="SVNKit Library" label="Core SVNKit Library (required)">
