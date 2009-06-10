@@ -244,7 +244,7 @@ public class HistoryTableProvider {
 			if (column > 1 && !includeTags) column++;
 			switch (column) {
 				case COL_REVISION: /* revision */
-                    return (e1.getRevision().getNumber()<e2.getRevision().getNumber() ? -1 : (e1.getRevision()==e2.getRevision() ? 0 : 1));
+                    return (e2.getRevision().getNumber()<e1.getRevision().getNumber() ? -1 : (e2.getRevision()==e1.getRevision() ? 0 : 1));
 				case COL_MERGED_REVISIONS: /* merged revisions */
 					return e1.getMergedRevisionsAsString().compareTo(e2.getMergedRevisionsAsString());
 //					return getCollator().compare(e1.getMergedRevisionsAsString(), e2.getMergedRevisionsAsString());
@@ -328,9 +328,7 @@ public class HistoryTableProvider {
 
 		viewer.setLabelProvider(new HistoryLabelProvider());
 		
-		// By default, reverse sort by revision.
 		HistorySorter sorter = new HistorySorter(COL_REVISION);
-		sorter.setReversed(true);
 		viewer.setSorter(sorter);
 		table.setSortDirection(SWT.DOWN);
 		table.setSortColumn(table.getColumn(0));
