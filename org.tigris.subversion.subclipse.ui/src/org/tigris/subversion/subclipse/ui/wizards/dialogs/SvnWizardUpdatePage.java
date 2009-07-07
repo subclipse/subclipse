@@ -55,6 +55,8 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
     
     private String[] urlStrings;
     private String commonRoot;
+    
+    private long defaultRevision;
 
 	public SvnWizardUpdatePage(IResource[] resources) {
 		super("UpdateDialog", Policy.bind("UpdateDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -106,6 +108,9 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 		data.widthHint = REVISION_WIDTH_HINT;
 		revisionText.setLayoutData(data);
 		revisionText.setEnabled(false);
+		if (defaultRevision > 0) {
+			revisionText.setText(Long.toString(defaultRevision));
+		}
 		
 		revisionText.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
@@ -227,6 +232,10 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 
 	public void setMessage() {
 		setMessage(Policy.bind("UpdateDialog.message")); //$NON-NLS-1$
+	}
+	
+	public void setDefaultRevision(long defaultRevision) {
+		this.defaultRevision = defaultRevision;
 	}
 	
 	private boolean canFinish() {
