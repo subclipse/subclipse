@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -161,7 +162,28 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 		Label depthLabel = new Label(parameterGroup, SWT.NONE);
 		depthLabel.setText(Policy.bind("SvnDialog.depth")); //$NON-NLS-1$
 		depthCombo = new Combo(parameterGroup, SWT.READ_ONLY);
-		DepthComboHelper.addDepths(depthCombo, true, true, ISVNUIConstants.DEPTH_UNKNOWN);
+		String defaultDepth;
+		switch (depth) {
+		case ISVNCoreConstants.DEPTH_EMPTY:
+			defaultDepth = ISVNUIConstants.DEPTH_EMPTY;
+			break;
+		case ISVNCoreConstants.DEPTH_EXCLUDE:
+			defaultDepth = ISVNUIConstants.DEPTH_EXCLUDE;
+			break;
+		case ISVNCoreConstants.DEPTH_FILES:
+			defaultDepth = ISVNUIConstants.DEPTH_FILES;
+			break;	
+		case ISVNCoreConstants.DEPTH_IMMEDIATES:
+			defaultDepth = ISVNUIConstants.DEPTH_IMMEDIATES;
+			break;	
+		case ISVNCoreConstants.DEPTH_INFINITY:
+			defaultDepth = ISVNUIConstants.DEPTH_INFINITY;
+			break;			
+		default:
+			defaultDepth = ISVNUIConstants.DEPTH_UNKNOWN;
+			break;
+		}
+		DepthComboHelper.addDepths(depthCombo, true, true, defaultDepth);
 
 		depthCombo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent evt) {
@@ -186,6 +208,7 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 		data = new GridData();
 		data.horizontalSpan = 2;
 		setDepthButton.setLayoutData(data);
+		setDepthButton.setSelection(setDepth);
 		
 		ignoreExternalsButton = new Button(parameterGroup, SWT.CHECK);
 		ignoreExternalsButton.setText(Policy.bind("SvnDialog.ignoreExternals")); //$NON-NLS-1$
@@ -236,6 +259,14 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 	
 	public void setDefaultRevision(long defaultRevision) {
 		this.defaultRevision = defaultRevision;
+	}
+	
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public void setSetDepth(boolean setDepth) {
+		this.setDepth = setDepth;
 	}
 	
 	private boolean canFinish() {
