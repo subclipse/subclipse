@@ -218,7 +218,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
         	status = statusCache.getStatus(resource);
 //        }
         
-        if (status == null) {
+        if (status == null && resource != null && resource.getLocation() != null) {
             status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false), null);
         }
         
