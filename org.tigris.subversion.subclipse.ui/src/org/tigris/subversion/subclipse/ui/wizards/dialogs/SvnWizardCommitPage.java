@@ -300,10 +300,10 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
             return keepLocksButton;
           }
         });
-          
+          toolbarManager.add(new Separator());
           toolbarManager.add(new ControlContribution("showCompare") {
               protected Control createControl(Composite parent) {
-            	  showCompareButton = new Button(parent, SWT.PUSH);
+            	  showCompareButton = new Button(parent, SWT.TOGGLE | SWT.FLAT);
             	  showCompareButton.setImage(SVNUIPlugin.getImage(ISVNUIConstants.IMG_SYNCPANE)); //$NON-NLS-1$
             	  showCompareButton.setToolTipText(Policy.bind("CommitDialog.showCompare"));
             	  showCompareButton.setSelection(showCompare);
