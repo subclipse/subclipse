@@ -13,6 +13,8 @@ package org.tigris.subversion.subclipse.ui;
 public interface ISVNUIConstants {
   // image path
   public final String ICON_PATH = "icons/full/"; //$NON-NLS-1$
+  
+  public final String IMG_SYNCPANE = "elcl16/syncpane_co.gif"; //$NON-NLS-1$
 
   // overlays
   public final String IMG_QUESTIONABLE = "ovr16/question_ov.gif"; //$NON-NLS-1$

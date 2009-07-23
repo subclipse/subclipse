@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.compare.CompareConfiguration;
+import org.eclipse.compare.CompareUI;
+import org.eclipse.compare.CompareViewerSwitchingPane;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -26,6 +29,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DisposeEvent;
@@ -54,7 +58,6 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.SVNPluginAction;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
-import org.tigris.subversion.subclipse.ui.dialogs.CompareDialog;
 import org.tigris.subversion.subclipse.ui.dialogs.ResourceWithStatusUtil;
 import org.tigris.subversion.subclipse.ui.settings.CommentProperties;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
@@ -63,7 +66,18 @@ import org.tigris.subversion.subclipse.ui.wizards.IClosableWizard;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class SvnWizardCommitPage extends SvnWizardDialogPage {
-	private SashForm sashForm;
+	public static final String COMMIT_WIZARD_DIALOG_SETTINGS = "CommitWizard"; //$NON-NLS-1$
+	
+    public static final String SHOW_COMPARE = "ShowCompare"; //$NON-NLS-1$
+    private static final String H_WEIGHT_1 = "HWeight1"; //$NON-NLS-1$
+    private static final String H_WEIGHT_2 = "HWeight2"; //$NON-NLS-1$
+    private static final String V_WEIGHT_1 = "VWeight1"; //$NON-NLS-1$
+    private static final String V_WEIGHT_2 = "VWeight2"; //$NON-NLS-1$
+
+	private SashForm verticalSash;
+	private SashForm horizontalSash;
+	private boolean showCompare;
+	
 	private CommitCommentArea commitCommentArea;
 	private IResource[] resourcesToCommit;
 //	private String url;
@@ -74,6 +88,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private String issue;
 	private Button keepLocksButton;
 	private Button includeUnversionedButton;
+	private Button showCompareButton;
 	private boolean keepLocks;
 	private boolean includeUnversioned;
 	private IDialogSettings settings;
@@ -86,6 +101,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	
 	private HashMap statusMap;
 	private ResourceSelectionTree resourceSelectionTree;
+	
+	private CompareViewerSwitchingPane compareViewerPane;
 
 	public SvnWizardCommitPage(IResource[] resourcesToCommit, String url, ProjectProperties projectProperties, HashMap statusMap, ChangeSet changeSet, boolean fromSyncView) {
 		super("CommitDialog", null); //$NON-NLS-1$	
@@ -124,21 +141,26 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	}
 
 	public void createControls(Composite composite) {
-	        sashForm = new SashForm(composite, SWT.VERTICAL);
-	        GridLayout gridLayout = new GridLayout();
+        horizontalSash = new SashForm(composite, SWT.HORIZONTAL);
+        horizontalSash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        
+        verticalSash = new SashForm(horizontalSash, SWT.VERTICAL);
+        //verticalSash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+        GridLayout gridLayout = new GridLayout();
 	        gridLayout.marginHeight = 0;
 	        gridLayout.marginWidth = 0;
-	        sashForm.setLayout(gridLayout);
-	        sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
+	        verticalSash.setLayout(gridLayout);
+	        verticalSash.setLayoutData(new GridData(GridData.FILL_BOTH));
 	                
-	        Composite cTop = new Composite(sashForm, SWT.NULL);
+	        Composite cTop = new Composite(verticalSash, SWT.NULL);
 	        GridLayout topLayout = new GridLayout();
 	        topLayout.marginHeight = 0;
 	        topLayout.marginWidth = 0;
 	        cTop.setLayout(topLayout);
 	        cTop.setLayoutData(new GridData(GridData.FILL_BOTH));
 	                
-	        Composite cBottom1 = new Composite(sashForm, SWT.NULL);
+	        Composite cBottom1 = new Composite(verticalSash, SWT.NULL);
 	        GridLayout bottom1Layout = new GridLayout();
 	        bottom1Layout.marginHeight = 0;
 	        bottom1Layout.marginWidth = 0;
@@ -156,14 +178,14 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 				int[] weights = new int[2];
 				weights[0] = settings.getInt("CommitDialog.weights.0"); //$NON-NLS-1$
 				weights[1] = settings.getInt("CommitDialog.weights.1"); //$NON-NLS-1$
-				sashForm.setWeights(weights);
+				verticalSash.setWeights(weights);
 			} catch (Exception e) {
-				sashForm.setWeights(new int[] {5, 4});			
+				verticalSash.setWeights(new int[] {5, 4});			
 			}
 			
-			sashForm.addDisposeListener(new DisposeListener() {
+			verticalSash.addDisposeListener(new DisposeListener() {
 				public void widgetDisposed(DisposeEvent e) {
-					int[] weights = sashForm.getWeights();
+					int[] weights = verticalSash.getWeights();
 			        for (int i = 0; i < weights.length; i++) 
 			        	settings.put("CommitDialog.weights." + i, weights[i]); //$NON-NLS-1$ 
 				}				
@@ -188,6 +210,46 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 			// set F1 help
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IHelpContextIds.COMMIT_DIALOG);	
 		setPageComplete(canFinish());
+		
+		 compareViewerPane = new CompareViewerSwitchingPane(horizontalSash, SWT.BORDER | SWT.FLAT) {
+				protected Viewer getViewer(Viewer oldViewer, Object input) {
+					CompareConfiguration cc = new CompareConfiguration();
+					cc.setLeftEditable(false);
+					cc.setRightEditable(false);
+					return CompareUI.findContentViewer(oldViewer, input, this, cc);	
+				}
+			};
+	        compareViewerPane.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	        
+	        IDialogSettings section = settings.getSection(COMMIT_WIZARD_DIALOG_SETTINGS);
+			showCompare = section == null ? false : section.getBoolean(SHOW_COMPARE);
+			int vWeight1 = 50;
+			int vWeight2 = 50;
+			if (section != null) {
+				try {
+					vWeight1 = section.getInt(V_WEIGHT_1);
+					vWeight2 = section.getInt(V_WEIGHT_2);
+				} catch (NumberFormatException e) {
+				}
+			}
+			
+			int hWeight1 = 35;
+			int hWeight2 = 65;
+			if (section != null) {
+				try {
+					hWeight1 = section.getInt(H_WEIGHT_1);
+					hWeight2 = section.getInt(H_WEIGHT_2);
+				} catch (NumberFormatException e) {
+				}
+			}
+
+			if (!showCompare) {
+				horizontalSash.setMaximizedControl(verticalSash);
+			}
+			
+			verticalSash.setWeights(new int[] {vWeight1, vWeight2});
+			horizontalSash.setWeights(new int[] {hWeight1, hWeight2});
+
 	}
 
 	public void updatePreference( boolean includeUnversioned )
@@ -238,6 +300,25 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
             return keepLocksButton;
           }
         });
+          
+          toolbarManager.add(new ControlContribution("showCompare") {
+              protected Control createControl(Composite parent) {
+            	  showCompareButton = new Button(parent, SWT.PUSH);
+            	  showCompareButton.setImage(SVNUIPlugin.getImage(ISVNUIConstants.IMG_SYNCPANE)); //$NON-NLS-1$
+            	  showCompareButton.setToolTipText(Policy.bind("CommitDialog.showCompare"));
+            	  showCompareButton.setSelection(showCompare);
+            	  showCompareButton.addSelectionListener(
+                		new SelectionListener(){
+                			public void widgetSelected(SelectionEvent e) {
+                				showComparePane(!showCompare);
+                			}
+                			public void widgetDefaultSelected(SelectionEvent e) {
+                			}
+                		}
+                		);
+                return showCompareButton;
+              }
+            });
           
           // add any contributing actions from the extension point
           if (toolbarActions.length > 0) {
@@ -300,8 +381,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 								alternateCompareActions[i].run();
 							}
 						} else {
-							new CompareDialog(getShell(),
-									new SVNLocalCompareInput(localResource, SVNRevision.BASE, true)).open();
+							setCompareInput(new SVNLocalCompareInput(localResource, SVNRevision.BASE, true));
+							showComparePane(true);
 						}
 					} catch (SVNException e1) {
 					}
@@ -355,7 +436,38 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
         }
         keepLocks = keepLocksButton.getSelection();
         selectedResources = resourceSelectionTree.getSelectedResources();
+        int[] hWeights = horizontalSash.getWeights();
+		int[] vWeights = verticalSash.getWeights();
+		IDialogSettings section = settings.getSection(COMMIT_WIZARD_DIALOG_SETTINGS);
+    	if (section == null)
+    		section= getDialogSettings().addNewSection(COMMIT_WIZARD_DIALOG_SETTINGS);
+		if (showCompare) {
+			section.put(H_WEIGHT_1, hWeights[0]);
+			section.put(H_WEIGHT_2, hWeights[1]);
+		}
+		section.put(V_WEIGHT_1, vWeights[0]);
+		section.put(V_WEIGHT_2, vWeights[1]);
+		section.put(SHOW_COMPARE, showCompare);
 		return true;
+	}
+	
+    private void setCompareInput(final SVNLocalCompareInput input) {
+    	try {
+			input.run(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		compareViewerPane.setInput(input.getCompareResult());
+    }
+    
+	public void showComparePane(boolean showCompare) {
+		this.showCompare = showCompare;
+		if (showCompare) {
+			horizontalSash.setMaximizedControl(null);
+		} else {
+			horizontalSash.setMaximizedControl(verticalSash);
+		}
+		
 	}
 	
     private boolean removalOk(ArrayList resourceList, IStructuredSelection selection) {
