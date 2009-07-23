@@ -22,6 +22,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.util.Assert;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
@@ -90,7 +91,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	 */
 	public String getName() {
 		SVNUrl url = localResourceStatus.getUrl();
-		return (url != null) ? url.getLastPathSegment() : "";
+		return (url != null) ? Util.unescape(url.getLastPathSegment()) : "";
 	}
 
     /* (non-Javadoc)
