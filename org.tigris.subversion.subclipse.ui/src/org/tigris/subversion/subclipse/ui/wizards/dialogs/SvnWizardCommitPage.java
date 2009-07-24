@@ -440,7 +440,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 		int[] vWeights = verticalSash.getWeights();
 		IDialogSettings section = settings.getSection(COMMIT_WIZARD_DIALOG_SETTINGS);
     	if (section == null)
-    		section= getDialogSettings().addNewSection(COMMIT_WIZARD_DIALOG_SETTINGS);
+    		section= settings.addNewSection(COMMIT_WIZARD_DIALOG_SETTINGS);
 		if (showCompare) {
 			section.put(H_WEIGHT_1, hWeights[0]);
 			section.put(H_WEIGHT_2, hWeights[1]);
