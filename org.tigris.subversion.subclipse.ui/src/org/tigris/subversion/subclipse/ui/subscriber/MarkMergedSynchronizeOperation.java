@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -32,6 +33,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.LocalResource;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -59,6 +61,8 @@ public class MarkMergedSynchronizeOperation extends SVNSynchronizeOperation {
                        tempFile = copyToTempFile(resources[i]);
 	                } catch (Exception e) {
 	                    SVNUIPlugin.log(e.getMessage());
+	                    showErrorMessage(e);
+	                    return;
 	                }
                     ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
 					if (svnResource instanceof LocalResource) ((LocalResource)svnResource).revert(false);
@@ -69,11 +73,20 @@ public class MarkMergedSynchronizeOperation extends SVNSynchronizeOperation {
                         copy(tempFile, file);
                     } catch (Exception e1) {
                         SVNUIPlugin.log(e1.getMessage());
+                        showErrorMessage(e1);
                     }
-                    tempFile.delete();
+                    if (tempFile != null) tempFile.delete();
                }
             }          
         }, false /* cancelable */, PROGRESS_BUSYCURSOR);
+    }
+    
+    private void showErrorMessage(final Exception e) {
+    	Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("SyncAction.markMerged"), e.getMessage()); //$NON-NLS-1$
+			}   		
+    	});
     }
     
     public File copyToTempFile(IResource resource) throws Exception {
