@@ -588,7 +588,7 @@ public class CommitCommentArea extends DialogArea {
     }
 	
 	public void addComment(String comment) {
-		if (comment != null && comment.trim().length() > 0) SVNUIPlugin.getPlugin().getRepositoryManager().getCommentsManager().addComment(comment.trim());
+		if (comment != null && comment.trim().length() > 0) SVNUIPlugin.getPlugin().getRepositoryManager().getCommentsManager().addComment(comment);
 	}
     
     public String getCommentWithPrompt(Shell shell) {
