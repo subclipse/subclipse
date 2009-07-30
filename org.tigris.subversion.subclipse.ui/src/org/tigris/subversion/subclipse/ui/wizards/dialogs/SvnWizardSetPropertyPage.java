@@ -10,6 +10,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -52,7 +54,7 @@ public class SvnWizardSetPropertyPage extends SvnWizardDialogPage {
 	private SVNPropertyDefinition[] propertyTypes;
 	private ArrayList propertyNames;
 	private int prop;	
-	
+
 	public SvnWizardSetPropertyPage(ISVNLocalResource svnResource) {
 		this(svnResource, null);
 	}	
@@ -186,6 +188,17 @@ public class SvnWizardSetPropertyPage extends SvnWizardDialogPage {
 			getProperty();
 		}
 		propertyValueText.addListener(SWT.Modify,updatePropertiesListener);
+		
+		propertyValueText.addTraverseListener(new TraverseListener() {
+			public void keyTraversed(TraverseEvent e) {
+	          if (e.detail == SWT.TRAVERSE_RETURN && (e.stateMask & SWT.CTRL) != 0) {
+                e.doit = false;
+                if (isPageComplete()) {
+                	((SvnWizard)getWizard()).finishAndClose();
+                }
+	          }
+			}			
+		});
 		
 		updateEnablements();
 	
