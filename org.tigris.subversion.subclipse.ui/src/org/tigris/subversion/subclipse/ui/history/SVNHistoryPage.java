@@ -136,7 +136,6 @@ import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.BranchTagOperation;
 import org.tigris.subversion.subclipse.ui.operations.MergeOperation;
 import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
-import org.tigris.subversion.subclipse.ui.operations.ShowAnnotationOperation;
 import org.tigris.subversion.subclipse.ui.operations.SwitchOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.EmptySearchViewerFilter;
@@ -144,7 +143,6 @@ import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.subclipse.ui.wizards.BranchTagWizard;
 import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
-import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardAnnotatePage;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardSwitchPage;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -1187,6 +1185,12 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
     return openAction;
   }
+  
+  private boolean deleteSelected() {
+	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+	  return (sel.size() == 1 && sel.getFirstElement() instanceof LogEntryChangePath &&
+			  ((LogEntryChangePath)sel.getFirstElement()).getAction() == 'D');
+  }
 
   // open changed Path (double-click)
   private IAction getOpenChangedPathAction() {
@@ -1208,6 +1212,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };
     }
+    openChangedPathAction.setEnabled(!deleteSelected());
     return openChangedPathAction;
 
   }
@@ -1222,7 +1227,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };	    	
     }
-  
+    showHistoryAction.setEnabled(!deleteSelected());
     return showHistoryAction;
   }
   
@@ -1236,7 +1241,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };	    	
     }
-  
+    exportAction.setEnabled(!deleteSelected());
     return exportAction;
   }  
   
@@ -1250,7 +1255,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };	    	
     }
-	    
+	showAnnotationAction.setEnabled(!deleteSelected());
 	return showAnnotationAction;
   }  
   
@@ -1264,7 +1269,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };	    	
     }
-	    
+	compareAction.setEnabled(!deleteSelected());
 	return compareAction;
   }
   
@@ -1360,7 +1365,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       SVNRevision selectedRevision = null;
       if(sel.size() == 1) {
           ISVNRemoteResource remoteResource = null;
-  		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
+  		  if (sel.getFirstElement() instanceof LogEntryChangePath && ((LogEntryChangePath)sel.getFirstElement()).getAction() != 'D') {
 			  try {
 				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
 				selectedRevision = remoteResource.getRevision();
@@ -1372,9 +1377,15 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 			  if (children != null && children.length > 0 && children[0] instanceof LogEntryChangePath) {
 				selectedRevision = getSelectedRevision();
 			  }
-		  }  
-        createTagFromRevisionChangedPathAction.setText(Policy.bind("HistoryView.createTagFromRevision", ""
-            + selectedRevision));
+		  } 
+  		createTagFromRevisionChangedPathAction.setEnabled(selectedRevision != null);
+  		if (selectedRevision == null) {
+	        createTagFromRevisionChangedPathAction.setText(Policy.bind("HistoryView.createTagFromRevision", ""
+		            + ((LogEntryChangePath)sel.getFirstElement()).getRevision()));
+  		} else {
+	        createTagFromRevisionChangedPathAction.setText(Policy.bind("HistoryView.createTagFromRevision", ""
+	            + selectedRevision));
+  		}
       }
     }	
     createTagFromRevisionChangedPathAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_BRANCHTAG));        
