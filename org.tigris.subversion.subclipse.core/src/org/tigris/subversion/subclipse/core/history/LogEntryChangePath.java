@@ -102,12 +102,18 @@ public class LogEntryChangePath extends PlatformObject {
      * @throws SVNException
      */
     public ISVNRemoteResource getRemoteResource() throws SVNException {
+    	SVNRevision revision = getRevision();
+    	if (getAction() == 'D') {
+    		long rev = Long.parseLong(revision.toString());
+    		rev--;
+    		revision = new SVNRevision.Number(rev);
+    	}
         SVNUrl url = getUrl();
         if (url == null) {
             return null;
         }
         if (remoteResource == null) {
-        	GetRemoteResourceCommand command = new GetRemoteResourceCommand(getRepository(), url, getRevision());
+        	GetRemoteResourceCommand command = new GetRemoteResourceCommand(getRepository(), url, revision);
         	command.run(null);
         	remoteResource = command.getRemoteResource();
         }

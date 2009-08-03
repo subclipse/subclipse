@@ -1197,12 +1197,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	  return false;
   }
   
-  private boolean deleteSelected() {
-	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
-	  return (sel.size() == 1 && sel.getFirstElement() instanceof LogEntryChangePath &&
-			  ((LogEntryChangePath)sel.getFirstElement()).getAction() == 'D');
-  }
-
   // open changed Path (double-click)
   private IAction getOpenChangedPathAction() {
     if(openChangedPathAction == null) {
@@ -1223,7 +1217,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };
     }
-    openChangedPathAction.setEnabled(!deleteSelected() && isFile());
+    openChangedPathAction.setEnabled(isFile());
     return openChangedPathAction;
 
   }
@@ -1238,7 +1232,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };	    	
     }
-    showHistoryAction.setEnabled(!deleteSelected());
     return showHistoryAction;
   }
   
@@ -1252,7 +1245,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };	    	
     }
-    exportAction.setEnabled(!deleteSelected());
     return exportAction;
   }  
   
@@ -1266,7 +1258,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };	    	
     }
-	showAnnotationAction.setEnabled(!deleteSelected() && isFile());
+	showAnnotationAction.setEnabled(isFile());
 	return showAnnotationAction;
   }  
   
@@ -1280,7 +1272,6 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };	    	
     }
-	compareAction.setEnabled(!deleteSelected());
 	return compareAction;
   }
   
