@@ -1186,6 +1186,17 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     return openAction;
   }
   
+  private boolean isFile() {
+	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+	  if (sel.size() == 1 && sel.getFirstElement() instanceof LogEntryChangePath) {
+		  LogEntryChangePath changePath = (LogEntryChangePath)sel.getFirstElement();
+		  try {
+			return changePath.getRemoteResource() instanceof ISVNRemoteFile;
+		} catch (SVNException e) {}
+	  }
+	  return false;
+  }
+  
   private boolean deleteSelected() {
 	  IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
 	  return (sel.size() == 1 && sel.getFirstElement() instanceof LogEntryChangePath &&
@@ -1212,7 +1223,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };
     }
-    openChangedPathAction.setEnabled(!deleteSelected());
+    openChangedPathAction.setEnabled(!deleteSelected() && isFile());
     return openChangedPathAction;
 
   }
@@ -1255,7 +1266,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };	    	
     }
-	showAnnotationAction.setEnabled(!deleteSelected());
+	showAnnotationAction.setEnabled(!deleteSelected() && isFile());
 	return showAnnotationAction;
   }  
   
