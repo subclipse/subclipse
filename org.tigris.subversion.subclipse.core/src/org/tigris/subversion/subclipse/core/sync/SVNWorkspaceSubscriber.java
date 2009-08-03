@@ -271,6 +271,10 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
                 	registerChangedResourceParent(changedResource);
                 }
 			}
+        	// Ensure that the local sync state is also updated
+            IContainer container = resource.getType() == IResource.FILE ? resource.getParent() : (IContainer)resource;
+        	SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(container, true);
+
             monitor.worked(30);            
             return (IResource[]) result.toArray(new IResource[result.size()]);
         } catch (SVNException e) {
