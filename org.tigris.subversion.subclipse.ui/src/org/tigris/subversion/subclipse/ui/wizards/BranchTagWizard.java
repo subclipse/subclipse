@@ -10,12 +10,15 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagPropertyUpdateDialog;
+import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 
 public class BranchTagWizard extends Wizard {
     private IResource[] resources;
@@ -58,21 +61,11 @@ public class BranchTagWizard extends Wizard {
 	}
 
 	public boolean performFinish() {
-        if (commentPage.getProjectProperties() != null) {
-            issue = commentPage.getIssue();
-            if (commentPage.getProjectProperties().isWarnIfNoIssue() && (issue == null || issue.length() == 0)) {
-                if (!MessageDialog.openQuestion(getShell(), Policy.bind("BranchTagDialog.title"), Policy.bind("BranchTagDialog.0", commentPage.getProjectProperties().getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
-                    return false;
-                }
-            }
-            if (issue != null && issue.length() > 0) {
-                String issueError = commentPage.getProjectProperties().validateIssue(issue);
-                if (issueError != null) {
-                    MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), issueError); //$NON-NLS-1$
-                    return false;
-                }
-            }
-        }     
+		
+        if (confirmUserData() == false) {
+        	return false;
+        }
+        
         comment = commentPage.getComment();
         repositoryPage.saveUrl();
         createOnServer = !copyPage.workingCopyButton.getSelection();
@@ -113,6 +106,62 @@ public class BranchTagWizard extends Wizard {
         if (resources != null) updateTagsProperty(toUrl);		
 		return true;
 	}
+	
+	private boolean confirmUserData() {
+		
+		ProjectProperties projectProperties = commentPage.getProjectProperties();
+        if (projectProperties != null)  {
+        	int issueCount = 0;
+        	if (projectProperties.getMessage() != null) {
+        		
+        		issue = commentPage.getIssue();
+        		if (issue.length() > 0) {
+        		    String issueError = projectProperties.validateIssue(issue);
+        		    if (issueError != null) {
+        		        MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), issueError); //$NON-NLS-1$
+        		        return false;
+        		    }
+        		    else {
+        		    	issueCount++;
+        		    }
+        		}
+        	}
+        	if (projectProperties.getLogregex() != null) {        		
+
+        		try {
+        			LinkList linkList = projectProperties.getLinkList(commentPage.getComment());
+        			String[] urls = linkList.getUrls();
+        			issueCount += urls.length;
+
+        		} catch (Exception e) {
+        			handle(e, null, null);
+        		}
+        	}
+    		if(projectProperties.isWarnIfNoIssue()) {
+
+    			if (issueCount == 0) {
+	    			if ((projectProperties.getMessage() != null) && (projectProperties.getLogregex() == null)) {
+	        		    if (!MessageDialog.openQuestion(getShell(), Policy.bind("BranchTagDialog.title"), Policy.bind("BranchTagDialog.0", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
+	        		        return false; //$NON-NLS-1$
+	        		    }	
+	    			}
+	    			else if ((projectProperties.getMessage() == null) && (projectProperties.getLogregex() != null)) {
+	    		        if (!MessageDialog.openQuestion(getShell(), Policy.bind("BranchTagDialog.title"), Policy.bind("BranchTagDialog.1", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
+	    		            return false; //$NON-NLS-1$
+	    		        }	    				
+	    			}
+	    			else if ((projectProperties.getMessage() != null) && (projectProperties.getLogregex() != null)) {
+	    		        if (!MessageDialog.openQuestion(getShell(), Policy.bind("BranchTagDialog.title"), Policy.bind("BranchTagDialog.2", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
+	    		            return false; //$NON-NLS-1$
+	    		        }	    					    				
+	    			}
+    			}
+    		}
+        }
+		return true;
+	}
+
+	
 	
     private void updateTagsProperty(SVNUrl toUrl) {
     	try {
@@ -214,5 +263,9 @@ public class BranchTagWizard extends Wizard {
 	public void setRevisionNumber(long revisionNumber) {
 		this.revisionNumber = revisionNumber;
 	}
+	
+	protected void handle(Exception exception, String title, String message) {
+		SVNUIPlugin.openError(getShell(), title, message, exception, SVNUIPlugin.LOG_NONTEAM_EXCEPTIONS);
+	}	
 
 }

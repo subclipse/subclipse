@@ -40,6 +40,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 import org.tigris.subversion.subclipse.ui.settings.CommentProperties;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
+import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class SetCommitPropertiesDialog extends TrayDialog {
@@ -93,7 +94,10 @@ public class SetCommitPropertiesDialog extends TrayDialog {
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		if (projectProperties != null) {
-		    addBugtrackingArea(composite);
+			if (projectProperties.getMessage() != null)
+			{
+				addBugtrackingArea(composite);
+			}
 		}
 
 		commitCommentArea.createArea(composite);
@@ -153,23 +157,8 @@ public class SetCommitPropertiesDialog extends TrayDialog {
 	
     protected void okPressed() {
         saveLocation();
-        if (projectProperties != null) {
-            issue = issueText.getText().trim();
-            if (projectProperties.isWarnIfNoIssue() && (issueText.getText().trim().length() == 0)) {
-                if (!MessageDialog.openQuestion(getShell(), Policy.bind("SetCommitPropertiesDialog.title"), Policy.bind("SetCommitPropertiesDialog.0", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
-                    issueText.setFocus();
-                    return; //$NON-NLS-1$
-                }
-            }
-            if (issueText.getText().trim().length() > 0) {
-                String issueError = projectProperties.validateIssue(issueText.getText().trim());
-                if (issueError != null) {
-                    MessageDialog.openError(getShell(), Policy.bind("SetCommitPropertiesDialog.title"), issueError); //$NON-NLS-1$
-                    issueText.selectAll();
-                    issueText.setFocus();
-                    return;
-                }
-            }
+        if (confirmUserData() == false) {
+        	return;
         }
         if (committerText.getText().trim().length() == 0) {
             MessageDialog.openError(getShell(), Policy.bind("SetCommitPropertiesDialog.title"), Policy.bind("SetCommitPropertiesDialog.noAuthor"));  //$NON-NLS-1$ //$NON-NLS-2$
@@ -181,6 +170,66 @@ public class SetCommitPropertiesDialog extends TrayDialog {
 
         super.okPressed();
     }
+    
+	private boolean confirmUserData() {
+		
+        if (projectProperties != null)  {
+        	int issueCount = 0;
+        	if (projectProperties.getMessage() != null) {
+        		
+        		issue = issueText.getText().trim();
+        		if (issue.length() > 0) {
+        		    String issueError = projectProperties.validateIssue(issue);
+        		    if (issueError != null) {
+        		        MessageDialog.openError(getShell(), Policy.bind("SetCommitPropertiesDialog.title"), issueError); //$NON-NLS-1$
+        		        issueText.selectAll();
+        		        issueText.setFocus();
+        		        return false;
+        		    }
+        		    else {
+        		    	issueCount++;
+        		    }
+        		}
+        	}
+        	if (projectProperties.getLogregex() != null) {        		
+
+        		try {
+        			LinkList linkList = projectProperties.getLinkList(commitCommentArea.getComment());
+        			String[] urls = linkList.getUrls();
+        			issueCount += urls.length;
+
+        		} catch (Exception e) {
+        			handle(e, null, null);
+        		}
+        	}
+    		if(projectProperties.isWarnIfNoIssue()) {
+
+    			if (issueCount == 0) {
+	    			if ((projectProperties.getMessage() != null) && (projectProperties.getLogregex() == null)) {
+	        		    if (!MessageDialog.openQuestion(getShell(), Policy.bind("SetCommitPropertiesDialog.title"), Policy.bind("SetCommitPropertiesDialog.0", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
+	        		        issueText.setFocus();
+	        		        return false; //$NON-NLS-1$
+	        		    }	
+	    			}
+	    			else if ((projectProperties.getMessage() == null) && (projectProperties.getLogregex() != null)) {
+	    		        if (!MessageDialog.openQuestion(getShell(), Policy.bind("SetCommitPropertiesDialog.title"), Policy.bind("SetCommitPropertiesDialog.1", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
+	    		        	commitCommentArea.setFocus();
+	    		            return false; //$NON-NLS-1$
+	    		        }	    				
+	    			}
+	    			else if ((projectProperties.getMessage() != null) && (projectProperties.getLogregex() != null)) {
+	    		        if (!MessageDialog.openQuestion(getShell(), Policy.bind("SetCommitPropertiesDialog.title"), Policy.bind("SetCommitPropertiesDialog.2", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
+	    		        	commitCommentArea.setFocus();
+	    		            return false; //$NON-NLS-1$
+	    		        }	    					    				
+	    			}
+    			}
+    		}
+        }
+		return true;
+	}
+
+    
     
     protected void cancelPressed() {
         saveLocation();
@@ -269,4 +318,8 @@ public class SetCommitPropertiesDialog extends TrayDialog {
 	public String getAuthor() {
 		return author;
 	}
+	
+	protected void handle(Exception exception, String title, String message) {
+		SVNUIPlugin.openError(getShell(), title, message, exception, SVNUIPlugin.LOG_NONTEAM_EXCEPTIONS);
+	}	
 }

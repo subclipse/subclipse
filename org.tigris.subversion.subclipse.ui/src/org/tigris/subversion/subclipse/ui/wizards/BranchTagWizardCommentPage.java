@@ -68,7 +68,10 @@ public class BranchTagWizardCommentPage extends SVNWizardPage {
 		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		
 		if (projectProperties != null) {
-		    addBugtrackingArea(outerContainer);
+			if (projectProperties.getMessage() != null)
+			{
+				addBugtrackingArea(outerContainer);
+			}
 		}
 		
 		commitCommentArea.createArea(outerContainer);

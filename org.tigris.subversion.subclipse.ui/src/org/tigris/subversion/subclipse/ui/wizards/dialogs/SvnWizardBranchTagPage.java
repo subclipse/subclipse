@@ -249,7 +249,10 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 		
 
 		if (projectProperties != null) {
-		    addBugtrackingArea(top);
+			if (projectProperties.getMessage() != null)
+			{
+				addBugtrackingArea(top);
+			}
 		}
 		
 		commitCommentArea.createArea(composite);

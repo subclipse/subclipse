@@ -61,6 +61,7 @@ import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.dialogs.ResourceWithStatusUtil;
 import org.tigris.subversion.subclipse.ui.settings.CommentProperties;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
+import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.subclipse.ui.util.ResourceSelectionTree;
 import org.tigris.subversion.subclipse.ui.wizards.IClosableWizard;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -192,7 +193,10 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 			});
 
 			if (projectProperties != null) {
-			    addBugtrackingArea(cTop);
+				if (projectProperties.getMessage() != null)
+				{
+					addBugtrackingArea(cTop);
+				}
 			}
 
 			commitCommentArea.createArea(cTop);
@@ -416,24 +420,11 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	}
 
 	public boolean performFinish() {
-        if (projectProperties != null) {
-            issue = issueText.getText().trim();
-            if (projectProperties.isWarnIfNoIssue() && (issueText.getText().trim().length() == 0)) {
-                if (!MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.0", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
-                    issueText.setFocus();
-                    return false; //$NON-NLS-1$
-                }
-            }
-            if (issueText.getText().trim().length() > 0) {
-                String issueError = projectProperties.validateIssue(issueText.getText().trim());
-                if (issueError != null) {
-                    MessageDialog.openError(getShell(), Policy.bind("CommitDialog.title"), issueError); //$NON-NLS-1$
-                    issueText.selectAll();
-                    issueText.setFocus();
-                    return false;
-                }
-            }
+
+        if (confirmUserData() == false) {
+        	return false;
         }
+        
         keepLocks = keepLocksButton.getSelection();
         selectedResources = resourceSelectionTree.getSelectedResources();
         int[] hWeights = horizontalSash.getWeights();
@@ -450,8 +441,66 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 		section.put(SHOW_COMPARE, showCompare);
 		return true;
 	}
+
+	private boolean confirmUserData() {
 	
-    private void setCompareInput(final SVNLocalCompareInput input) {
+        if (projectProperties != null)  {
+        	int issueCount = 0;
+        	if (projectProperties.getMessage() != null) {
+        		
+        		issue = issueText.getText().trim();
+        		if (issue.length() > 0) {
+        		    String issueError = projectProperties.validateIssue(issue);
+        		    if (issueError != null) {
+        		        MessageDialog.openError(getShell(), Policy.bind("CommitDialog.title"), issueError); //$NON-NLS-1$
+        		        issueText.selectAll();
+        		        issueText.setFocus();
+        		        return false;
+        		    }
+        		    else {
+        		    	issueCount++;
+        		    }
+        		}
+        	}
+        	if (projectProperties.getLogregex() != null) {        		
+
+        		try {
+        			LinkList linkList = projectProperties.getLinkList(commitCommentArea.getComment());
+        			String[] urls = linkList.getUrls();
+        			issueCount += urls.length;
+
+        		} catch (Exception e) {
+        			handle(e, null, null);
+        		}
+        	}
+    		if(projectProperties.isWarnIfNoIssue()) {
+
+    			if (issueCount == 0) {
+	    			if ((projectProperties.getMessage() != null) && (projectProperties.getLogregex() == null)) {
+	        		    if (!MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.0", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
+	        		        issueText.setFocus();
+	        		        return false; //$NON-NLS-1$
+	        		    }	
+	    			}
+	    			else if ((projectProperties.getMessage() == null) && (projectProperties.getLogregex() != null)) {
+	    		        if (!MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.1", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
+	    		        	commitCommentArea.setFocus();
+	    		            return false; //$NON-NLS-1$
+	    		        }	    				
+	    			}
+	    			else if ((projectProperties.getMessage() != null) && (projectProperties.getLogregex() != null)) {
+	    		        if (!MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.2", projectProperties.getLabel()))) { //$NON-NLS-1$ //$NON-NLS-2$
+	    		        	commitCommentArea.setFocus();
+	    		            return false; //$NON-NLS-1$
+	    		        }	    					    				
+	    			}
+    			}
+    		}
+        }
+		return true;
+	}
+
+	private void setCompareInput(final SVNLocalCompareInput input) {
     	try {
 			input.run(null);
 		} catch (Exception e) {
@@ -636,5 +685,9 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 
 	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
 	}
+	
+	protected void handle(Exception exception, String title, String message) {
+		SVNUIPlugin.openError(getShell(), title, message, exception, SVNUIPlugin.LOG_NONTEAM_EXCEPTIONS);
+	}	
 
 }

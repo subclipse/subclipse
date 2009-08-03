@@ -240,7 +240,7 @@ public class ProjectProperties {
     
     // Return error message if there are any problems with the issue that was entered.
     public String validateIssue(String issue) {
-        if (number && logregex == null) {
+        if (number) {
            if (!hasOnlyDigits(issue)) return Policy.bind("CommitDialog.number", label); //$NON-NLS-1$
         }
         return null;
