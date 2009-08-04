@@ -328,7 +328,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 					&& projectPage.isPageComplete();
 		}
 		if (page == selectionPage) {
-			return projectPage.isPageComplete();
+			return selectionPage.isPageComplete();
 		}
 		return super.canFinish();
 	}
