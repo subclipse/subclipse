@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.history;
 
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -23,10 +24,13 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -94,6 +98,7 @@ import org.eclipse.team.ui.history.IHistoryPageSite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.part.IPageSite;
@@ -212,6 +217,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction showAnnotationAction;
   private IAction exportAction;
   private IAction createTagFromRevisionChangedPathAction;
+  private IAction copyChangedPathAction;
+ 
 //  private IAction switchChangedPathAction;
 //  private IAction revertChangesChangedPathAction;
 
@@ -683,6 +690,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	  if (sel.size() == 1) {
 		  if (sel.getFirstElement() instanceof LogEntryChangePath) {
 			  manager.add(getExportAction());
+			  if (((LogEntryChangePath)sel.getFirstElement()).getAction() == 'D') {
+				  manager.add(getCopyChangedPathAction());
+			  }
 		  }		  
 	  }
 	  manager.add(new Separator("openGroup")); //$NON-NLS-1$
@@ -1233,6 +1243,55 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       };	    	
     }
     return showHistoryAction;
+  }
+  
+  private IAction getCopyChangedPathAction() {
+	  if (copyChangedPathAction == null) {
+		  copyChangedPathAction = new Action(Policy.bind("HistoryView.copyChangedPath")) {
+			  public void run() {
+				  ContainerSelectionDialog dialog = new ContainerSelectionDialog(Display.getDefault().getActiveShell(), null, false, Policy.bind("CopyAction.selectionLabel")); //$NON-NLS-1$
+				  if (dialog.open() == ContainerSelectionDialog.OK) {
+					Object[] result = dialog.getResult();
+					if (result == null || result.length == 0) return;
+					final Path path = (Path)result[0];
+					IProject selectedProject;
+					File target = null;
+					if (path.segmentCount() == 1) {
+						selectedProject = ResourcesPlugin.getWorkspace().getRoot().getProject(path.toString());
+						target = selectedProject.getLocation().toFile();
+					} else {
+						IFile targetFile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+						selectedProject = targetFile.getProject();
+						target = targetFile.getLocation().toFile();
+					}
+					final IProject targetProject = selectedProject;
+					final File destPath = target;
+					BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
+						public void run() {
+							try {		
+								IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
+								if (sel.getFirstElement() instanceof LogEntryChangePath) {
+									LogEntryChangePath changePath = (LogEntryChangePath)sel.getFirstElement();
+									SVNRevision revision = changePath.getRevision();
+									if (changePath.getAction() == 'D') {
+								   		long rev = Long.parseLong(revision.toString());
+							    		rev--;
+							    		revision = new SVNRevision.Number(rev);
+									}
+									ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
+									client.copy(changePath.getUrl(), destPath, revision, revision, true, false);
+									targetProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());								
+								}
+							} catch (Exception e) {
+								MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("HistoryView.copyError"), e.getMessage());
+							}
+						}						
+					});
+				  }
+			  }
+		  };
+	  }
+	  return copyChangedPathAction;
   }
   
   private IAction getExportAction() {
