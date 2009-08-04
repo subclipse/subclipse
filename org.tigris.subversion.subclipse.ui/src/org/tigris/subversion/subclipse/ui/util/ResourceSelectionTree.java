@@ -230,7 +230,7 @@ public class ResourceSelectionTree extends Composite {
 		  toolbarManager.add(new Separator());
 		}
 
-		flatAction = new Action(Policy.bind("ResourceSelectionTree.flat"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
+		flatAction = new Action(Policy.bind("ResourceSelectionTree.flat"), Action.AS_RADIO_BUTTON) {  //$NON-NLS-1$
 			public void run() {
 				mode = MODE_FLAT;
 				settings.put(MODE_SETTING, MODE_FLAT);
@@ -241,8 +241,7 @@ public class ResourceSelectionTree extends Composite {
 		};
 		flatAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE));
 		toolbarManager.add(flatAction);
-		
-		treeAction = new Action(Policy.bind("ResourceSelectionTree.tree"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
+		treeAction = new Action(Policy.bind("ResourceSelectionTree.tree"), Action.AS_RADIO_BUTTON) {  //$NON-NLS-1$
 			public void run() {
 				mode = MODE_TREE;
 				settings.put(MODE_SETTING, MODE_TREE);
@@ -254,7 +253,7 @@ public class ResourceSelectionTree extends Composite {
 		treeAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_TREE_MODE));
 		toolbarManager.add(treeAction);
 		
-		compressedAction = new Action(Policy.bind("ResourceSelectionTree.compressedFolders"), Action.AS_CHECK_BOX) {  //$NON-NLS-1$
+		compressedAction = new Action(Policy.bind("ResourceSelectionTree.compressedFolders"), Action.AS_RADIO_BUTTON) {  //$NON-NLS-1$
 			public void run() {
 				mode = MODE_COMPRESSED_FOLDERS;
 				settings.put(MODE_SETTING, MODE_COMPRESSED_FOLDERS);
