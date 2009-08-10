@@ -249,6 +249,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 
 			if (!showCompare) {
 				horizontalSash.setMaximizedControl(verticalSash);
+			} else {
+				showCompareButton.setSelection(true);
 			}
 			
 			verticalSash.setWeights(new int[] {vWeight1, vWeight2});
@@ -387,6 +389,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 						} else {
 							setCompareInput(new SVNLocalCompareInput(localResource, SVNRevision.BASE, true));
 							showComparePane(true);
+							showCompareButton.setSelection(true);
 						}
 					} catch (SVNException e1) {
 					}
