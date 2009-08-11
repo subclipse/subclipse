@@ -94,38 +94,29 @@ public class AliasManager {
 	public Alias getAlias(String revisionNamePathBranch, String url) {
 		boolean branch = false;
 		Alias alias = null;
-		int index = revisionNamePathBranch.indexOf(",");
-		if (index == -1) return null;
-		String rev = revisionNamePathBranch.substring(0, index);
-		int revision;
-		try {
-			int revNo = Integer.parseInt(rev);
-			revision = revNo;			
-		} catch (Exception e) { return null; }
-		revisionNamePathBranch = revisionNamePathBranch.substring(index + 1);
-		index = revisionNamePathBranch.indexOf(",");
-		String name;
-		String relativePath = null;
-		if (index == -1) name = revisionNamePathBranch;
-		else {
-			name = revisionNamePathBranch.substring(0, index);
-			if (revisionNamePathBranch.length() > index + 1) {
-				revisionNamePathBranch = revisionNamePathBranch.substring(index + 1);
-				index = revisionNamePathBranch.indexOf(",");
-				if (index == -1)
-					relativePath = revisionNamePathBranch;
-				else {
-					relativePath = revisionNamePathBranch.substring(0, index);
-					if (revisionNamePathBranch.length() > index + 1)
-						branch = revisionNamePathBranch.substring(index + 1).equalsIgnoreCase("branch"); //$NON-NLS-1$
+		
+		if (revisionNamePathBranch != null && revisionNamePathBranch.length() > 0) {
+			String[] aliasParts = revisionNamePathBranch.split(",");
+			if (aliasParts.length > 1) {
+				int revision;
+				try {
+					revision = Integer.parseInt(aliasParts[0]);
+				} catch (Exception e) { return null; }
+				String name = aliasParts[1];
+				String relativePath = null;
+				if (aliasParts.length > 2) {
+					relativePath = aliasParts[2];
 				}
+				if (aliasParts.length > 3) {
+					branch = aliasParts[3].equalsIgnoreCase("branch");
+				}
+				alias = new Alias(revision, name, relativePath, url);
+				alias.setBranch(branch);
 			}
 		}
-		alias = new Alias(revision, name, relativePath, url);
-		alias.setBranch(branch);
 		return alias;
 	}
-
+	
 	public static String getAliasesAsString(Alias[] aliases) {
 		if (aliases == null) return "";
 		StringBuffer stringBuffer = new StringBuffer();
@@ -235,7 +226,11 @@ public class AliasManager {
 						aliases.remove(checkAlias);
 						aliases.add(alias);
 					}					
-				} else aliases.add(alias);
+				} else {
+					if (alias != null) {
+						aliases.add(alias);
+					}
+				}
 				line = bReader.readLine();
 			}
 			bReader.close();
