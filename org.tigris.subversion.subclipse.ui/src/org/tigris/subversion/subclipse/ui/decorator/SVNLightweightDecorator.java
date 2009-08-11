@@ -444,7 +444,7 @@ public class SVNLightweightDecorator
 		}
 		
 		if (showExternal) {
-			if (SVNStatusKind.EXTERNAL.equals(status.getTextStatus())) {
+			if (status.isFileExternal() || SVNStatusKind.EXTERNAL.equals(status.getTextStatus())) {
 				return external;
 			}
 		}
