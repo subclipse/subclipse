@@ -9,10 +9,10 @@
    <feature url="features/org.tigris.subversion.subclipse.graph.feature_1.0.7.jar" id="org.tigris.subversion.subclipse.graph.feature" version="1.0.7">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tmatesoft.svnkit_1.3.0.5847.jar" id="org.tmatesoft.svnkit" version="1.3.0.5847">
+   <feature url="features/org.tmatesoft.svnkit_1.3.1.6109.jar" id="org.tmatesoft.svnkit" version="1.3.1.6109">
       <category name="SVNKit Library"/>
    </feature>
-   <feature url="features/com.sun.jna_3.0.9.jar" id="com.sun.jna" version="3.0.9">
+   <feature url="features/com.sun.jna_3.1.0.jar" id="com.sun.jna" version="3.1.0">
       <category name="JNA Library"/>
    </feature>
    <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.6.4.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.6.4">
@@ -24,7 +24,7 @@
    <feature url="features/org.tigris.subversion.subclipse_1.6.5.jar" id="org.tigris.subversion.subclipse" version="1.6.5">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.5.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.5">
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.6.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.6">
       <category name="Subclipse"/>
    </feature>
    <category-def name="SVNKit Library" label="Core SVNKit Library">
