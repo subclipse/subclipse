@@ -36,6 +36,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Messages;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
+import org.tigris.subversion.subclipse.ui.operations.ResolveOperation;
 import org.tigris.subversion.subclipse.ui.wizards.SizePersistedWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
@@ -225,8 +226,18 @@ public class ResolveTreeConflictWizard extends Wizard {
 		}
 		if (mainPage.getMarkResolved()) {
 			try {
-				svnClient = getSvnClient();
-				svnClient.resolve(treeConflict.getStatus().getFile(), ISVNConflictResolver.Choice.chooseMerged);
+				IResource[] resolvedResources = { treeConflict.getResource() };
+				ResolveOperation resolveOperation = new ResolveOperation(targetPart, resolvedResources, ISVNConflictResolver.Choice.chooseMerged) {
+
+					protected boolean canRunAsJob() {
+						return false;
+					}
+					
+				};
+				resolveOperation.run();
+				
+//				svnClient = getSvnClient();
+//				svnClient.resolve(treeConflict.getStatus().getFile(), ISVNConflictResolver.Choice.chooseMerged);
 				IResource[] refreshResources = { svnResource.getResource() };
 				TreeConflictsView.refresh(refreshResources);
 			} catch (Exception e) {
