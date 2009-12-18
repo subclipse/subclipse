@@ -145,6 +145,10 @@ public class EditConflictsAction extends WorkbenchWindowAction {
                     IFile conflictWorkingFile = (IFile) File2Resource
                             .getResource(svnResource.getStatus()
                                     .getConflictWorking());
+                    
+                    if (conflictWorkingFile == null) {
+                    	conflictWorkingFile = resource;
+                    }
 
                     MergeFileAssociation mergeFileAssociation = null;
                     try {
@@ -189,15 +193,7 @@ public class EditConflictsAction extends WorkbenchWindowAction {
      */
     protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
         try {
-            if (!svnResource.getStatus().isTextConflicted()) {
-            	return false;
-            }
-            
-            IFile conflictWorkingFile = (IFile) File2Resource
-            .getResource(svnResource.getStatus()
-                    .getConflictWorking());
-            
-            return conflictWorkingFile != null;
+            return svnResource.getStatus().isTextConflicted();
         } catch (SVNException e) {
             return false;
         }
