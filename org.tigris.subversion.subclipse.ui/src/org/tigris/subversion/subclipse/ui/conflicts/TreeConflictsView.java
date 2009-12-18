@@ -138,7 +138,7 @@ public class TreeConflictsView extends ViewPart {
 		if (resource == null)
 			setContentDescription(Policy.bind("TreeConflictsView.noResource")); //$NON-NLS-1$
 		else
-			showTreeConflictsFor(resource);
+			setContentDescription(resource.getFullPath().toString());
 	}
 	
 	private void setColumnWidth(TableLayout layout,
@@ -199,7 +199,7 @@ public class TreeConflictsView extends ViewPart {
 				treeConflicts = new ArrayList();
 				try {
 					ISVNClientAdapter client = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getSVNClient();
-					ISVNStatus[] statuses = client.getStatus(resource.getLocation().toFile(), true, true, true);
+					ISVNStatus[] statuses = client.getStatus(resource.getLocation().toFile(), true, false, true);
 					for (int i = 0; i < statuses.length; i++) {
 						if (statuses[i].hasTreeConflict()) {
 							SVNTreeConflict treeConflict = new SVNTreeConflict(statuses[i]);
