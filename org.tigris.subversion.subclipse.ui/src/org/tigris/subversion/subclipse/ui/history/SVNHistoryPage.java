@@ -122,6 +122,7 @@ import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.CancelableSVNLogMessageCallback;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -2604,8 +2605,11 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	        			getGetNextAction().setEnabled(false);
 	        		}
 	        	}
-	        }			
+	        }		
+	        ISVNClientAdapter svnClient = remoteResource.getRepository().getSVNClient();
+	        CancelableSVNLogMessageCallback callback = new CancelableSVNLogMessageCallback(monitor, svnClient);
 			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, start, end, stopOnCopy, fetchLimit, tagManager, includeMergedRevisions);
+			logCmd.setCallback(callback);
 			logCmd.run(monitor);
 			return logCmd.getLogEntries(); 					
 		}
@@ -2634,13 +2638,12 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           } else
             tagManager = new AliasManager(resource);
           SVNRevision pegRevision = remoteResource.getRevision();
-          revisionStart = SVNRevision.HEAD;
           SVNRevision revisionEnd = new SVNRevision.Number(0);
           boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
           boolean includeMergedRevisions = toggleIncludeMergedRevisionsAction.isChecked();
           long limit = 0;
-          entries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit,
-              tagManager, includeMergedRevisions);
+          entries = getLogEntries(monitor, remoteResource, pegRevision, SVNRevision.HEAD, revisionEnd, stopOnCopy, limit,
+                  tagManager, includeMergedRevisions);
           final SVNRevision.Number revisionId = remoteResource.getLastChangedRevision();
           getSite().getShell().getDisplay().asyncExec(new Runnable() {
             public void run() {

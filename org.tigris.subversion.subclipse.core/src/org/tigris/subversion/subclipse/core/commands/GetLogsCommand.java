@@ -11,19 +11,22 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
-import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.Tags;
+import org.tigris.subversion.subclipse.core.resources.BaseResource;
+import org.tigris.subversion.subclipse.core.resources.RemoteResource;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
+import org.tigris.subversion.svnclientadapter.SVNLogMessageCallback;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -42,6 +45,7 @@ public class GetLogsCommand implements ISVNCommand {
 	private boolean includeMergedRevisions;
 	private AliasManager tagManager;
     private ILogEntry[] logEntries;
+    private SVNLogMessageCallback callback;
    
     /**
      * Constructor
@@ -78,28 +82,41 @@ public class GetLogsCommand implements ISVNCommand {
         
         ISVNLogMessage[] logMessages;
         try {
-            logMessages = remoteResource.getLogMessages(
-                    pegRevision,
-                    revisionStart,
-                    revisionEnd, 
-                    stopOnCopy,
-                    !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(),
-                    limit, includeMergedRevisions);
-
+        	if (callback == null) {
+	            logMessages = remoteResource.getLogMessages(
+	                    pegRevision,
+	                    revisionStart,
+	                    revisionEnd, 
+	                    stopOnCopy,
+	                    !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(),
+	                    limit, includeMergedRevisions);
+        	} else {
+        		ISVNClientAdapter svnClient = remoteResource.getRepository().getSVNClient();
+        		if (remoteResource instanceof BaseResource) {
+        			svnClient.getLogMessages(((BaseResource)remoteResource).getFile(), pegRevision, revisionStart, revisionEnd, stopOnCopy, !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(), limit, includeMergedRevisions, ISVNClientAdapter.DEFAULT_LOG_PROPERTIES, callback);
+        		} else {
+        			svnClient.getLogMessages(remoteResource.getUrl(), pegRevision, revisionStart, revisionEnd, stopOnCopy, !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(), limit, includeMergedRevisions, ISVNClientAdapter.DEFAULT_LOG_PROPERTIES, callback);
+        		}
+        		logMessages = callback.getLogMessages();
+        	}
             if (remoteResource.isFolder()) {
                 logEntries = LogEntry.createLogEntriesFrom((ISVNRemoteFolder) remoteResource, logMessages, getTags(logMessages));   
             } else {
             	logEntries = LogEntry.createLogEntriesFrom((ISVNRemoteFile) remoteResource, logMessages, getTags(logMessages), getUrls(logMessages));
             }
 
-        } catch (TeamException e) {
+        } catch (Exception e) {
             throw SVNException.wrapException(e);
         } finally {
         	monitor.done();
         }
     }    
     
-    /**
+    public void setCallback(SVNLogMessageCallback callback) {
+		this.callback = callback;
+	}
+
+	/**
      * get the result of the command
      * @return log entries for the supplied resource and range
      */
