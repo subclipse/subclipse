@@ -2033,8 +2033,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             // get the resources for that instance (in order to get the 'best'
             // "bugtraq" properties)
             final ProjectProperties projectProperties = (resource != null) ? ProjectProperties
-                .getProjectProperties(resource) : ProjectProperties.getProjectProperties(ourSelection
-                .getRemoteResource()); // will return null!
+                .getProjectProperties(resource) : (ourSelection.getRemoteResource() != null) ? ProjectProperties.getProjectProperties(ourSelection
+                .getRemoteResource()) : ProjectProperties.getProjectProperties(remoteResource); // will return null!
 
             final ISVNResource svnResource = ourSelection.getRemoteResource() != null ? ourSelection
                 .getRemoteResource() : ourSelection.getResource();
