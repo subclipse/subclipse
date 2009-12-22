@@ -34,7 +34,8 @@ public class BranchTagAction extends WorkbenchWindowAction {
         else {
 	        IResource[] resources = getSelectedResources();
         	BranchTagWizard wizard = new BranchTagWizard(resources);
-        	WizardDialog dialog = new SizePersistedWizardDialog(getShell(), wizard, "BranchTag"); //$NON-NLS-1$
+        	SizePersistedWizardDialog dialog = new SizePersistedWizardDialog(getShell(), wizard, "BranchTag"); //$NON-NLS-1$
+        	wizard.setParentDialog(dialog);
         	if (dialog.open() == WizardDialog.OK) {	
         		SVNUrl[] sourceUrls = wizard.getUrls();
         		SVNUrl destinationUrl = wizard.getToUrl();
@@ -47,23 +48,6 @@ public class BranchTagAction extends WorkbenchWindowAction {
 	            branchTagOperation.switchAfterTagBranchOperation(wizard.isSwitchAfterBranchTag());
 	            branchTagOperation.run();        		
         	}
-//	        for (int i = 0; i < resources.length; i++) {
-//	        	SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[i]);
-//	        	SvnWizard wizard = new SvnWizard(branchTagPage);
-//		        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
-//		        wizard.setParentDialog(dialog);    
-//		        if (dialog.open() == SvnWizardDialog.OK) {
-//		            SVNUrl sourceUrl = branchTagPage.getUrl();
-//		            SVNUrl destinationUrl = branchTagPage.getToUrl();
-//		            String message = branchTagPage.getComment();
-//		            boolean createOnServer = branchTagPage.isCreateOnServer();
-//		            BranchTagOperation branchTagOperation = new BranchTagOperation(getTargetPart(), getSelectedResources(), sourceUrl, destinationUrl, createOnServer, branchTagPage.getRevision(), message);
-//		            branchTagOperation.setMakeParents(branchTagPage.isMakeParents());
-//		            branchTagOperation.setNewAlias(branchTagPage.getNewAlias());
-//		            branchTagOperation.switchAfterTagBranchOperation(branchTagPage.switchAfterTagBranch());
-//		            branchTagOperation.run();
-//		        }
-//	        }
         }
     }
     

@@ -20,7 +20,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 
-public class BranchTagWizard extends Wizard {
+public class BranchTagWizard extends Wizard implements IClosableWizard {
     private IResource[] resources;
     private ISVNRemoteResource[] remoteResources;
     private BranchTagWizardRepositoryPage repositoryPage;
@@ -37,6 +37,7 @@ public class BranchTagWizard extends Wizard {
     private String comment;
     private boolean alreadyExists;
     private boolean sameStructure;
+    private ClosableWizardDialog parentDialog;
 
 	public BranchTagWizard(IResource[] resources) {
 		super();
@@ -266,6 +267,16 @@ public class BranchTagWizard extends Wizard {
 	
 	protected void handle(Exception exception, String title, String message) {
 		SVNUIPlugin.openError(getShell(), title, message, exception, SVNUIPlugin.LOG_NONTEAM_EXCEPTIONS);
+	}
+
+	public void setParentDialog(ClosableWizardDialog parentDialog) {
+		this.parentDialog = parentDialog;
+	}
+
+	public void finishAndClose() {
+    	if (parentDialog != null && parentDialog instanceof ClosableWizardDialog && canFinish()) {
+    		((ClosableWizardDialog)parentDialog).finishPressed();
+    	}
 	}	
 
 }
