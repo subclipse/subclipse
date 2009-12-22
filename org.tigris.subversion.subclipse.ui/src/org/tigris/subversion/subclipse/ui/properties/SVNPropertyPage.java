@@ -278,10 +278,12 @@ public class SVNPropertyPage extends PropertyPage {
             lockOwnerText = status.getLockOwner();
             lockCommentText = status.getLockComment();
             if (status.getLockCreationDate() != null) lockDateText = status.getLockCreationDate().toString();
-            try {
-            	ISVNClientAdapter client = svnResource.getRepository().getSVNClient();
-            	info = client.getInfo(status.getUrl());
-            } catch (Exception e) {}
+            if (!status.isAdded()) {
+	            try {
+	            	ISVNClientAdapter client = svnResource.getRepository().getSVNClient();
+	            	info = client.getInfo(status.getUrl());
+	            } catch (Exception e) {}
+            }
             // Get lock information from server if svn:needs-lock property is set
             if (info != null && status.getLockOwner() == null && status.getUrlString() != null) {
            		ISVNProperty prop = svnResource.getSvnProperty("svn:needs-lock");
