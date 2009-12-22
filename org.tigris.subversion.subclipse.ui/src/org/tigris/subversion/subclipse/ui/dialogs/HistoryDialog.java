@@ -113,7 +113,11 @@ public class HistoryDialog extends TrayDialog {
     }    
     
 	protected Control createDialogArea(Composite parent) {
-		getLogEntries();
+		if (store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH) == 0) {
+			getAllLogEntries();
+		} else {
+			getLogEntries();
+		}
 	    if (resource == null) {
 	        getShell().setText(Policy.bind("HistoryDialog.title") + " - " + remoteResource.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	        setIncludeBugsAndTags(remoteResource);
@@ -407,14 +411,14 @@ public class HistoryDialog extends TrayDialog {
 							boolean stopOnCopy = store.getBoolean(ISVNUIConstants.PREF_STOP_ON_COPY);
 							long limit = 0;
 							entries = getLogEntries(remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy, limit, tagManager);
-							getNextButton.setEnabled(false);	
+							if (getNextButton != null) getNextButton.setEnabled(false);	
 			            }
 					} catch (TeamException e) {
 						SVNUIPlugin.openError(Display.getCurrent().getActiveShell(), null, null, e);
 					}	
 		        }       
 		   });
-		   tableHistoryViewer.refresh();
+		   if (tableHistoryViewer != null) tableHistoryViewer.refresh();
 		}
 
 	protected ILogEntry[] getLogEntries(ISVNRemoteResource remoteResource, SVNRevision pegRevision, SVNRevision revisionStart, SVNRevision revisionEnd, boolean stopOnCopy, long limit, AliasManager tagManager) throws TeamException
