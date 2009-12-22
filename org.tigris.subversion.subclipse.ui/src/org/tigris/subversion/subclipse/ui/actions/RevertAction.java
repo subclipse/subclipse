@@ -22,6 +22,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
@@ -136,7 +138,10 @@ public class RevertAction extends WorkbenchWindowAction {
 	 * prompt revert of selected resources.
 	 */		
 	protected boolean confirmRevert(IResource[] modifiedResources) {
-	   if (modifiedResources.length == 0) return false;
+	   if (modifiedResources.length == 0) {
+		   MessageDialog.openInformation(Display.getDefault().getActiveShell(), Policy.bind("RevertAction.0"), Policy.bind("RevertAction.1")); //$NON-NLS-1$ //$NON-NLS-2$
+		   return false;
+	   }
 	   revertPage = new SvnWizardRevertPage(modifiedResources, url, statusMap, false);
 	   SvnWizard wizard = new SvnWizard(revertPage);
 	   SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
