@@ -51,6 +51,7 @@ public class RevertAction extends WorkbenchWindowAction {
 	private SvnWizardRevertPage revertPage;
 	private IResource[] selectedResources;
 	private boolean canRunAsJob = true;
+	private boolean showNothingToRevertMessage = true;
     
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
 		statusMap = new HashMap();
@@ -139,7 +140,9 @@ public class RevertAction extends WorkbenchWindowAction {
 	 */		
 	protected boolean confirmRevert(IResource[] modifiedResources) {
 	   if (modifiedResources.length == 0) {
-		   MessageDialog.openInformation(Display.getDefault().getActiveShell(), Policy.bind("RevertAction.0"), Policy.bind("RevertAction.1")); //$NON-NLS-1$ //$NON-NLS-2$
+		   if (showNothingToRevertMessage) {
+			   MessageDialog.openInformation(Display.getDefault().getActiveShell(), Policy.bind("RevertAction.0"), Policy.bind("RevertAction.1")); //$NON-NLS-1$ //$NON-NLS-2$
+		   }
 		   return false;
 	   }
 	   revertPage = new SvnWizardRevertPage(modifiedResources, url, statusMap, false);
@@ -196,6 +199,10 @@ public class RevertAction extends WorkbenchWindowAction {
 
 	public void setCanRunAsJob(boolean canRunAsJob) {
 		this.canRunAsJob = canRunAsJob;
+	}
+
+	public void setShowNothingToRevertMessage(boolean showNothingToRevertMessage) {
+		this.showNothingToRevertMessage = showNothingToRevertMessage;
 	}
 	
 }
