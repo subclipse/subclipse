@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolutionGenerator2;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class ConflictResolutionGenerator implements IMarkerResolutionGenerator2 {
 	private boolean textConflict;
@@ -32,10 +33,14 @@ public class ConflictResolutionGenerator implements IMarkerResolutionGenerator2 
 
     public IMarkerResolution[] getResolutions(IMarker marker) {
     	List conflictResolutions = new ArrayList();
-    	if (textConflict) {
-    		conflictResolutions.add(new EditConflictsResolution());
-    		conflictResolutions.add(new AcceptMineResolution());
-    		conflictResolutions.add(new AcceptTheirsResolution());
+    	try {
+	    	if (marker.getAttribute("textConflict") != null && marker.getAttribute("textConflict").toString().equals("true")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	    		conflictResolutions.add(new EditConflictsResolution());
+	    		conflictResolutions.add(new AcceptMineResolution());
+	    		conflictResolutions.add(new AcceptTheirsResolution());
+	    	}
+    	} catch (Exception e) {
+    		 SVNUIPlugin.log(e.getMessage());
     	}
     	conflictResolutions.add(new MarkAsResolvedResolution());
     	IMarkerResolution[] resolutionArray = new IMarkerResolution[conflictResolutions.size()];

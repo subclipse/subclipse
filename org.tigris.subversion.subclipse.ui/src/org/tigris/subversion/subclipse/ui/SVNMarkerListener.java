@@ -43,9 +43,9 @@ public class SVNMarkerListener implements IResourceStateChangeListener {
     	    				IMarker marker = changedResources[i].createMarker("org.tigris.subversion.subclipse.ui.conflictMarker"); //$NON-NLS-1$
     	    				setMessage(status, marker); 
     	    				marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-    	    				((ConflictResolutionGenerator)marker).setTextConflict(status.isTextConflicted());
-    	    				((ConflictResolutionGenerator)marker).setPropertyConflict(status.isPropConflicted());
-    	    				((ConflictResolutionGenerator)marker).setTreeConflict(status.hasTreeConflict()); 	    				
+    	    				marker.setAttribute("textConflict", status.isTextConflicted()); //$NON-NLS-1$
+    	    				marker.setAttribute("propertyConflict", status.isPropConflicted()); //$NON-NLS-1$
+    	    				marker.setAttribute("treeConflict", status.hasTreeConflict()); //$NON-NLS-1$
     	    			} catch (Exception e) {
     	    				SVNUIPlugin.log(e.getMessage());
     	    			}
