@@ -378,7 +378,13 @@ public class TreeConflictsView extends ViewPart {
 					elementResource = ((SVNTreeConflict)element).getResource();
 				else
 					elementResource = (IResource)element;
-				return WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider().getImage(elementResource);				
+				Image image;
+				if (!elementResource.exists() && elementResource.getName().indexOf(".") == -1) { //$NON-NLS-1$
+					image = WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider().getImage(ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(elementResource.getFullPath().toString())));			
+				} else {
+					image = WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider().getImage(elementResource);				
+				}
+				return image;
 			}
 			return null;
 		}
