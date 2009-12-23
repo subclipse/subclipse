@@ -48,7 +48,11 @@ public class CleanupOperation extends RepositoryProviderOperation {
             CleanupResourcesCommand command = new CleanupResourcesCommand(provider.getSVNWorkspaceRoot(),resources);
             command.run(Policy.subMonitorFor(monitor,100));
         } catch (SVNException e) {
-            collectStatus(e.getStatus());
+        	if (e.operationInterrupted()) {
+        		showCancelledMessage();
+        	} else {
+        		collectStatus(e.getStatus());
+        	}
         } finally {
             monitor.done();
         }

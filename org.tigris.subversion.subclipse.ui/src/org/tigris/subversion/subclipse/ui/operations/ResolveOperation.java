@@ -51,7 +51,11 @@ public class ResolveOperation extends RepositoryProviderOperation {
             ResolveResourcesCommand command = new ResolveResourcesCommand(provider.getSVNWorkspaceRoot(),resources,resolution);
             command.run(Policy.subMonitorFor(monitor,100));
         } catch (SVNException e) {
-            collectStatus(e.getStatus());
+			if (e.operationInterrupted()) {
+				showCancelledMessage();
+			} else {
+				collectStatus(e.getStatus());
+			}
         } finally {
             monitor.done();
         }

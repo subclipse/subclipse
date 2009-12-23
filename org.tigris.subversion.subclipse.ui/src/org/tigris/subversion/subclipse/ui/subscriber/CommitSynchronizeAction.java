@@ -144,7 +144,9 @@ public class CommitSynchronizeAction extends SynchronizeModelAction {
 			                url = svnResource.getStatus().getUrlString();
 			                if ((url == null) || (resource.getType() == IResource.FILE)) url = Util.getParentUrl(svnResource);
 			            } catch (SVNException e) {
-			            	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+			            	if (!e.operationInterrupted()) {
+			            		SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+			            	}
 			            }	    
 				    }
 				}

@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.ui.TeamOperation;
 import org.eclipse.ui.IWorkbenchPart;
@@ -90,7 +91,9 @@ public abstract class SVNOperation extends TeamOperation {
 			endOperation();
 		} catch (SVNException e) {
 			// TODO: errors may not be empty (i.e. endOperation has not been executed)
-			throw new InvocationTargetException(e);
+			if (!e.operationInterrupted()) {
+				throw new InvocationTargetException(e);
+			}
 		} finally {
 			monitor.done();
 		}
@@ -292,6 +295,14 @@ public abstract class SVNOperation extends TeamOperation {
 	protected boolean canRunAsJob() {
 		// Put SVN jobs in the background by default.
 		return true;
+	}
+	
+	public void showCancelledMessage() {
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				MessageDialog.openInformation(getShell(), getJobName(), Policy.bind("SVNOperation.operationCancelled")); //$NON-NLS-1$
+			}			
+		});
 	}
 	
 //	protected ISchedulingRule getSchedulingRule() {

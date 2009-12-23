@@ -168,6 +168,11 @@ abstract public class SVNAction extends ReplaceableIconAction {
 	 * the action or the exception occured.
 	 */
 	protected void handle(Exception exception) {
+		if (exception instanceof SVNException) {
+			if (((SVNException)exception).operationInterrupted()) {
+				return;
+			}
+		}
 		// Get the non-OK statii
 		List problems = new ArrayList();
 		IStatus[] status = getAccumulatedStatus();

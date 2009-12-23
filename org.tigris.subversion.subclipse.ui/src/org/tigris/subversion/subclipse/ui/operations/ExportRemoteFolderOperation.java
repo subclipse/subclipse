@@ -51,7 +51,11 @@ public class ExportRemoteFolderOperation extends SVNOperation {
 				throw SVNException.wrapException(e);
 			}
 		} catch (SVNException e) {
-		    collectStatus(e.getStatus());
+			if (e.operationInterrupted()) {
+				showCancelledMessage();
+			} else {
+				collectStatus(e.getStatus());
+			}
 		} finally {
 			monitor.done();
 		}         

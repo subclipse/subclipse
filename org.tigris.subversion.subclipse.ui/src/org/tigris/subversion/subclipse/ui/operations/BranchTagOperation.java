@@ -96,7 +96,11 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 	        	}
 	        }
 		} catch (SVNException e) {
-		    collectStatus(e.getStatus());
+			if (e.operationInterrupted()) {
+				showCancelledMessage();
+			} else {
+				collectStatus(e.getStatus());
+			}
 		} finally {
 			monitor.done();
 		}         

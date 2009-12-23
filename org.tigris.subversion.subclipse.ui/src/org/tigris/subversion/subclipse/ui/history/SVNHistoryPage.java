@@ -397,7 +397,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       try {
 		this.projectProperties = ProjectProperties.getProjectProperties(this.remoteResource);
 	  } catch (SVNException e) {
-		SVNUIPlugin.openError(getSite().getShell(), null, null, e);
+		  if (!e.operationInterrupted()) {
+			  SVNUIPlugin.openError(getSite().getShell(), null, null, e);
+		  }
   	  }
   	  boolean includeBugs = projectProperties != null;
       if (includeTags != this.includeTags || this.includeBugs != includeBugs ) {
@@ -2511,6 +2513,11 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
         return Status.OK_STATUS;
       } catch(TeamException e) {
+    	if (e instanceof SVNException) {
+    		if (((SVNException)e).operationInterrupted()) {
+    			return Status.OK_STATUS;
+    		}
+    	}
         return e.getStatus();
       }
     }
@@ -2611,7 +2618,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, start, end, stopOnCopy, fetchLimit, tagManager, includeMergedRevisions);
 			logCmd.setCallback(callback);
 			logCmd.run(monitor);
-			return logCmd.getLogEntries(); 					
+			return logCmd.getLogEntries(); 		
 		}
   }
 
@@ -2875,7 +2882,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                   	tableHistoryViewer.refresh();
                   }
               } catch (SVNException e) {
-                  SVNUIPlugin.openError(getHistoryPageSite().getShell(), null, null, e);
+            	  if (!e.operationInterrupted()) {
+            		  SVNUIPlugin.openError(getHistoryPageSite().getShell(), null, null, e);
+            	  }
               }
       	}
       });

@@ -73,7 +73,11 @@ public class UpdateOperation extends RepositoryProviderOperation {
 	    	command.run(Policy.subMonitorFor(monitor,100));
 			//updateWorkspaceSubscriber(provider, resources, Policy.subMonitorFor(monitor, 5));
 		} catch (SVNException e) {
-		    collectStatus(e.getStatus());
+			if (e.operationInterrupted()) {
+				showCancelledMessage();
+			} else {
+				collectStatus(e.getStatus());
+			}
 		} catch (TeamException e) {
 		    collectStatus(e.getStatus());
         } finally {

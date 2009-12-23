@@ -309,11 +309,13 @@ public class SvnPropertiesView extends ViewPart {
 							resource.setSvnProperty(setPropertyPage.getPropertyName(), setPropertyPage.getPropertyFile(),setPropertyPage.getRecurse());
 						}
 					} catch (SVNException e) {
-						SVNUIPlugin.openError(
-							getSite().getShell(), 
-							Policy.bind("SvnPropertiesView.errorAddTitle"), //$NON-NLS-1$
-							Policy.bind("SvnPropertiesView.errorAddMessage"),//$NON-NLS-1$ 
-							e);
+						if (!e.operationInterrupted()) {
+							SVNUIPlugin.openError(
+								getSite().getShell(), 
+								Policy.bind("SvnPropertiesView.errorAddTitle"), //$NON-NLS-1$
+								Policy.bind("SvnPropertiesView.errorAddMessage"),//$NON-NLS-1$ 
+								e);
+						}
 					}
 										
 				}

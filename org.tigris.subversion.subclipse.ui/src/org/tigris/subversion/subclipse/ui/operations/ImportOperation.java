@@ -53,7 +53,11 @@ public class ImportOperation extends SVNOperation {
 		    ImportCommand command = new ImportCommand(folder, directory, commitComment, recurse);
 	        command.run(monitor);
 		} catch (SVNException e) {
-		    collectStatus(e.getStatus());
+			if (e.operationInterrupted()) {
+				showCancelledMessage();
+			} else {
+				collectStatus(e.getStatus());
+			}
 		} finally {
 			monitor.done();
 		}         

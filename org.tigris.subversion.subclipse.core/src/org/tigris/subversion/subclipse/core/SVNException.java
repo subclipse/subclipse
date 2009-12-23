@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 /**
  * A checked expection representing a failure in the SVN plugin.
@@ -29,28 +30,43 @@ import org.eclipse.team.core.TeamException;
  * @see IStatus
  */
 public class SVNException extends TeamException {
+	private boolean operationInterrupted;
 
 	/*
 	 * Helpers for creating SVN exceptions
 	 */
 	public SVNException(int severity, int code, String message, Throwable e) {
 		super(new SVNStatus(severity, code, message, null));
+		operationInterrupted = (getMessage() != null && getMessage().indexOf(SVNClientException.OPERATION_INTERRUPTED) != -1);
 	}
 	
 	public SVNException(int severity, int code, String message) {
 		this(severity, code, message, null);
+		operationInterrupted = (message != null && message.indexOf(SVNClientException.OPERATION_INTERRUPTED) != -1);
 	}
 
 	public SVNException(String message) {
 		super(new SVNStatus(IStatus.ERROR, UNABLE, message, null));
+		operationInterrupted = (message != null && message.indexOf(SVNClientException.OPERATION_INTERRUPTED) != -1);
+	}
+	
+	public SVNException(String message, boolean operationInterrupted) {
+		this(message);
+		this.operationInterrupted = operationInterrupted;
 	}
 
 	public SVNException(String message, Throwable e) {
 		this(IStatus.ERROR, UNABLE, message, e);
+		operationInterrupted = (getMessage() != null && getMessage().indexOf(SVNClientException.OPERATION_INTERRUPTED) != -1);
 	}
 
 	public SVNException(IStatus status) {
 		super(status);
+		operationInterrupted = (status.getMessage() != null && status.getMessage().indexOf(SVNClientException.OPERATION_INTERRUPTED) != -1);
+	}
+	
+	public boolean operationInterrupted() {
+		return operationInterrupted;
 	}
 
 	/*

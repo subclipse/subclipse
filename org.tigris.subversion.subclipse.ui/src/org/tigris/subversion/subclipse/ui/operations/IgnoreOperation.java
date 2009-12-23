@@ -58,7 +58,11 @@ public class IgnoreOperation extends RepositoryProviderOperation {
                 new AddIgnoredPatternCommand(svnResource.getParent(), pattern).run(monitor);
             }
         } catch (SVNException e) {
-            collectStatus(e.getStatus());
+        	if (e.operationInterrupted()) {
+        		showCancelledMessage();
+        	} else {
+        		collectStatus(e.getStatus());
+        	}
         } finally {
             monitor.done();
         }

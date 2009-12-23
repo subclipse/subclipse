@@ -128,7 +128,9 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
         	        keepLocks = commitPage.isKeepLocks();        	    	
         	    }
 	        } catch (SVNException e) {
-	        	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+	        	if (!e.operationInterrupted()) {
+	        		SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+	        	}
             }
 	    }
 		return commit;

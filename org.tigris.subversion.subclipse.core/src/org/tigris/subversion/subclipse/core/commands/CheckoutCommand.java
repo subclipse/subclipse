@@ -201,7 +201,7 @@ public class CheckoutCommand implements ISVNCommand {
 			OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm));
 			svnClient.checkout(resource.getUrl(), destPath, svnRevision, depth, ignoreExternals, force);
 		} catch (SVNClientException e) {
-			throw new SVNException("cannot checkout");
+			throw new SVNException("cannot checkout", e.operationInterrupted());
 		} finally {
 			OperationManager.getInstance().endOperation();
 			subPm.done();

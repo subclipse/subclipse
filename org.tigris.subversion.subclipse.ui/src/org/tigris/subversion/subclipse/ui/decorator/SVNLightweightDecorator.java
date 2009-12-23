@@ -239,7 +239,9 @@ public class SVNLightweightDecorator
             }
 		} catch (SVNException e) {
 			//if we get an error report it to the log but assume dirty
-			SVNUIPlugin.log(e.getStatus());
+			if (!e.operationInterrupted()) {
+				SVNUIPlugin.log(e.getStatus());
+			}
 			return true;
 		}
 	}
@@ -304,7 +306,9 @@ public class SVNLightweightDecorator
 				status = svnResource.getStatus();
 				isUnversioned = status.isUnversioned();
 			} catch (SVNException e1) {
-				SVNUIPlugin.log(e1.getStatus());
+				if (!e1.operationInterrupted()) {
+					SVNUIPlugin.log(e1.getStatus());
+				}
 			}
 			decorateTextLabel(svnResource, status, decoration, isDirty);
 		}
@@ -438,7 +442,9 @@ public class SVNLightweightDecorator
 					}
 				}
 			} catch (SVNException e) {
-				SVNUIPlugin.log(e.getStatus());
+				if (!e.operationInterrupted()) {
+					SVNUIPlugin.log(e.getStatus());
+				}
 				return null;
 			}
 		}

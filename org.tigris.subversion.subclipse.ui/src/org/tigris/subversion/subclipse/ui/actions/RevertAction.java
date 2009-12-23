@@ -70,7 +70,9 @@ public class RevertAction extends WorkbenchWindowAction {
             revertOperation.setCanRunAsJob(canRunAsJob);
             revertOperation.run();
         } catch (SVNException e) {
-            throw new InvocationTargetException(e);
+        	if (!e.operationInterrupted()) {
+        		throw new InvocationTargetException(e);
+        	}
         }
 	}
 	

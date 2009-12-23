@@ -66,7 +66,11 @@ public class SwitchOperation extends RepositoryProviderOperation {
 		        monitor.worked(1);
 			}
 		} catch (SVNException e) {
-		    collectStatus(e.getStatus());
+			if (e.operationInterrupted()) {
+				showCancelledMessage();
+			} else {
+				collectStatus(e.getStatus());
+			}
 		} catch (TeamException e) {
 		    collectStatus(e.getStatus());
         } finally {

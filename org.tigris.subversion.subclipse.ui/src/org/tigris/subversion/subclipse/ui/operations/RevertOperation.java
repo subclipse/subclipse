@@ -54,7 +54,11 @@ public class RevertOperation extends RepositoryProviderOperation {
             command.setProject(provider.getProject());
             command.run(Policy.subMonitorFor(monitor,100));
         } catch (SVNException e) {
-            collectStatus(e.getStatus());
+			if (e.operationInterrupted()) {
+				showCancelledMessage();
+			} else {
+				collectStatus(e.getStatus());
+			}
         } finally {
             monitor.done();
         }

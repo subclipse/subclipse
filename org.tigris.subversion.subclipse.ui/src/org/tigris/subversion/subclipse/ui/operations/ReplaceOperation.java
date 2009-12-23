@@ -103,7 +103,11 @@ public class ReplaceOperation extends UpdateOperation {
 		    if (resourcesToUpdate == null) resourcesToUpdate = resources;
 		    super.execute(provider, resourcesToUpdate, monitor);
 		} catch (SVNException e) {
-		    collectStatus(e.getStatus());
+			if (e.operationInterrupted()) {
+				showCancelledMessage();
+			} else {
+				collectStatus(e.getStatus());
+			}
 		} finally {
 			monitor.done();
 		}

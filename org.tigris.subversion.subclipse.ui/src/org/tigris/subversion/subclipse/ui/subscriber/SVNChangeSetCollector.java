@@ -189,7 +189,9 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 						}
 					}
 				} catch (SVNException e1) {
-					SVNUIPlugin.log(e1);
+					if (!e1.operationInterrupted()) {
+						SVNUIPlugin.log(e1);
+					}
 				} catch (SVNClientException e) {
 					SVNUIPlugin.log(SVNException.wrapException(e));
 				}

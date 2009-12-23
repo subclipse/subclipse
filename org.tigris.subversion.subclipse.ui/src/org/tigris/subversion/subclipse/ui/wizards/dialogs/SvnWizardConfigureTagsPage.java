@@ -345,7 +345,9 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 			try {
 				svnResource.setSvnProperty("subclipse:tags", getPropertyValue(), false); //$NON-NLS-1$
 			} catch (SVNException e) {
-				MessageDialog.openError(getShell(), Policy.bind("ConfigureTagsDialog.title"), e.getMessage()); //$NON-NLS-1$
+				if (!e.operationInterrupted()) {
+					MessageDialog.openError(getShell(), Policy.bind("ConfigureTagsDialog.title"), e.getMessage()); //$NON-NLS-1$
+				}
 				return false;
 			}
 		}		

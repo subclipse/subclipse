@@ -56,7 +56,11 @@ public class MergeOperation extends RepositoryProviderOperation {
 	    	command.setRecurse(recurse);
 	    	command.run(Policy.subMonitorFor(monitor,1000));
 		} catch (SVNException e) {
-		    collectStatus(e.getStatus());
+			if (e.operationInterrupted()) {
+				showCancelledMessage();
+			} else {
+				collectStatus(e.getStatus());
+			}
 		} finally {
 			monitor.done();
 		}      
