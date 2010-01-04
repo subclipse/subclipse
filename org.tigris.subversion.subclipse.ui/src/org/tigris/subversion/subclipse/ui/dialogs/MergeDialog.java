@@ -318,17 +318,16 @@ public class MergeDialog extends SvnDialog {
 		Label workingLabel = new Label(workingComposite, SWT.NONE);
 		workingLabel.setText(Policy.bind("MergeDialog.workingCopy")); //$NON-NLS-1$
 		
-		Text workingText = new Text(workingComposite, SWT.BORDER);
-		workingText.setEnabled(false);
+		Text workingText = new Text(workingComposite, SWT.BORDER | SWT.READ_ONLY);
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		workingText.setLayoutData(data);
-		workingText.setText(resource.getWorkspace().getRoot().getLocation().toString());
+//		workingText.setText(resource.getWorkspace().getRoot().getLocation().toString());
+		workingText.setText(resource.getLocation().toString());
 		
 		Label repositoryLabel = new Label(workingComposite, SWT.NONE);
 		repositoryLabel.setText(Policy.bind("MergeDialog.repositoryUrl")); //$NON-NLS-1$	
 		
-		Text repositoryText = new Text(workingComposite, SWT.BORDER);
-		repositoryText.setEnabled(false);
+		Text repositoryText = new Text(workingComposite, SWT.BORDER | SWT.READ_ONLY);
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		repositoryText.setLayoutData(data);	
 		if (urlString != null)repositoryText.setText(urlString);
