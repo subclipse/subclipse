@@ -193,6 +193,7 @@ public class CommitAction extends WorkbenchWindowAction {
 			 GetStatusCommand command = new GetStatusCommand(svnResource, descend, false);
 			 command.run(iProgressMonitor);
 			 ISVNStatus[] statuses = command.getStatuses();
+			 boolean switched = false;
 			 for (int j = 0; j < statuses.length; j++) {
 			     if (SVNStatusUtils.isReadyForCommit(statuses[j]) || SVNStatusUtils.isMissing(statuses[j])) {
 			         IResource currentResource = SVNWorkspaceRoot.getResourceFor(resource, statuses[j]);
@@ -212,6 +213,12 @@ public class CommitAction extends WorkbenchWindowAction {
 			                 	}
 			                 } else
 			                	 if (!modified.contains(currentResource)) {
+			                		 
+			                		 if (statuses[j].isSwitched()) {
+			                			 switched = true;
+				                		 url = statuses[j].getUrlString();
+			                		 }
+			                		 
 			                		 modified.add(currentResource);
 			                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
 			                 		 else {
@@ -235,6 +242,9 @@ public class CommitAction extends WorkbenchWindowAction {
 			             }
 			         }
 			     }
+			 }
+			 if (switched && modified.size() > 1) {
+				 url = null;
 			 }
 	    }
 	    

@@ -72,6 +72,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 	    IResource[] modified = set.getResources();
 	    List conflictFiles = new ArrayList();
 	    List filteredModified = new ArrayList();
+	    boolean switched = false;
 	    for (int i = 0; i < modified.length; i++) {
 	        IResource resource = modified[i];
 	        filteredModified.add(resource);
@@ -92,8 +93,15 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
                                 .getConflictWorking());
                         if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                            						
 					}
+					if (svnResource.getStatus().isSwitched()) {
+						url = svnResource.getStatus().getUrlString();
+						switched = true;
+					}
 				} catch (SVNException e) {}
 		        }
+	    }
+	    if (switched && modified.length > 1) {
+	    	url = null;
 	    }
 	    if (conflictFiles.size() > 0) {
 		    Iterator iter = conflictFiles.iterator();
