@@ -348,13 +348,20 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 				if (sameStructureButton != null && sameStructureButton.getSelection())
 					return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + branchResource.getPartialPath() + "]";
 				else {
-					String name = null;
-					if (branchResource.getResource() == null) name = branchResource.getRemoteResource().getName();
-					else name = branchResource.getResource().getName();
-					return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + name + "]";
+					return getDestinationText(branchResource);
 				}
 			}
-			else return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
+			else {
+//				return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
+				return getDestinationText(branchResource);
+			}
+		}
+
+		private String getDestinationText(BranchResource branchResource) {
+			String name = null;
+			if (branchResource.getResource() == null) name = branchResource.getRemoteResource().getName();
+			else name = branchResource.getResource().getName();
+			return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + name + "]";
 		}
 
 		public Image getColumnImage(Object element, int columnIndex) {

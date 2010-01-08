@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -141,8 +142,21 @@ public class BranchTagCommand implements ISVNCommand {
 		this.multipleTransactions = multipleTransactions;
 	}
     
+    // For switch
     public SVNUrl getDestinationUrl(String sourceUrl) {
-    	if (!multipleTransactions) return destinationUrl;
+    	if (!multipleTransactions) {
+    		if (sourceUrls.length == 1) {
+    			return destinationUrl;
+    		} else {
+    			String uncommonPortion = sourceUrl.substring(getCommonRoot().length());
+    			String toUrl = destinationUrl.toString() + uncommonPortion;
+    			try {
+					return new SVNUrl(toUrl);
+				} catch (MalformedURLException e) {
+					return destinationUrl;
+				}   			
+    		}
+    	}
     	else return (SVNUrl)urlMap.get(sourceUrl);
     }
 	
