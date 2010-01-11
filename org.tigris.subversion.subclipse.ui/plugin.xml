@@ -1433,11 +1433,16 @@ For example:
    <!-- history support -->
    <extension
          point="org.eclipse.core.runtime.adapters">
-			<factory
+	  <factory
             adaptableType="org.tigris.subversion.subclipse.core.SVNTeamProvider"
             class="org.tigris.subversion.subclipse.ui.repository.model.SVNAdapterFactory">
          <adapter type="org.eclipse.team.ui.history.IHistoryPageSource"/>
       </factory>
+	  <factory
+            adaptableType="org.eclipse.team.ui.synchronize.ISynchronizeModelElement"
+            class="org.tigris.subversion.subclipse.ui.repository.model.SVNSyncAdapterFactory">
+         <adapter type="org.eclipse.core.resources.IResource"/>
+      </factory>      
    </extension>
 
    <extension
