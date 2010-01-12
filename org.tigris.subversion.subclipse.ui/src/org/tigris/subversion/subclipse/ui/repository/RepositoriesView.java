@@ -22,8 +22,11 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.viewers.DecoratingLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ILabelDecorator;
+import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -39,6 +42,7 @@ import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -63,6 +67,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -366,7 +371,32 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         treeViewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
         contentProvider = new RemoteContentProvider();
         treeViewer.setContentProvider(contentProvider);
-        treeViewer.setLabelProvider(new WorkbenchLabelProvider());
+        final RepositoriesViewDecorator decorator = new RepositoriesViewDecorator();
+        DecoratingLabelProvider labelProvider = new DecoratingLabelProvider(new WorkbenchLabelProvider(), new ILabelDecorator() {
+			public Image decorateImage(Image image, Object obj) {
+				if (obj instanceof RemoteFile) {
+					RemoteFile remoteFile = (RemoteFile)obj;
+					if (remoteFile.getLock() != null) {
+						return decorator.getImage(image);
+					}
+				}
+				return null;
+			}
+			public String decorateText(String text, Object obj) {
+				return null;
+			}
+			public void addListener(ILabelProviderListener listener) {
+			}
+			public void dispose() {
+			}
+			public boolean isLabelProperty(Object obj, String prop) {
+				return false;
+			}
+			public void removeListener(ILabelProviderListener listener) {
+			}       	
+        });
+        treeViewer.setLabelProvider(labelProvider);
+        
         getSite().setSelectionProvider(treeViewer);
         root = new AllRootsElement();
         treeViewer.setInput(root);

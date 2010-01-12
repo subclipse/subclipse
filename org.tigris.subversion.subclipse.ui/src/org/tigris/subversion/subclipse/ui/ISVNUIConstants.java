@@ -234,6 +234,12 @@ public interface ISVNUIConstants {
   public final String PROP_COMMENT = "svn.comment"; //$NON-NLS-1$
   public final String PROP_DATE = "svn.date"; //$NON-NLS-1$
   public final String PROP_DIRTY = "svn.dirty"; //$NON-NLS-1$
+  
+  public final String PROP_LOCK_OWNER = "svn.lock.owner"; //$NON-NLS-1$
+  public final String PROP_LOCK_TOKEN = "svn.lock.token"; //$NON-NLS-1$
+  public final String PROP_LOCK_COMMENT = "svn.lock.comment"; //$NON-NLS-1$
+  public final String PROP_LOCK_CREATION_DATE = "svn.lock.creation.date"; //$NON-NLS-1$
+  public final String PROP_LOCK_EXPIRATION_DATE = "svn.lock.expiration.date"; //$NON-NLS-1$
 
   public final String PROP_MODIFIED = "svn.modified"; //$NON-NLS-1$
   public final String PROP_KEYWORD = "svn.date"; //$NON-NLS-1$

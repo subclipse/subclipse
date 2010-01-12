@@ -22,6 +22,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNAnnotations;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNLock;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -32,6 +33,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * repository and sync view.
  */
 public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
+	private ISVNLock lock;
 
 	/**
 	 * Constructor (from byte[])
@@ -84,6 +86,14 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 						.getLastChangedRevision(), remoteStatusInfo
 						.getLastChangedDate(), remoteStatusInfo
 						.getLastCommitAuthor());
+	}
+
+	public ISVNLock getLock() {
+		return lock;
+	}
+
+	public void setLock(ISVNLock lock) {
+		this.lock = lock;
 	}
 
 	/*

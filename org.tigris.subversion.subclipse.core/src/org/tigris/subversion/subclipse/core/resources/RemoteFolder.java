@@ -30,6 +30,8 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
+import org.tigris.subversion.svnclientadapter.ISVNDirEntryWithLock;
+import org.tigris.subversion.svnclientadapter.ISVNLock;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -160,14 +162,14 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 		
 		try {
             ISVNClientAdapter client = getRepository().getSVNClient();
-				
-			ISVNDirEntry[] list = client.getList(url, getRevision(), SVNRevision.HEAD, false);
+
+            ISVNDirEntryWithLock[] list = client.getListWithLocks(url, getRevision(), SVNRevision.HEAD, false);
 			List result = new ArrayList(list.length);
 
 			// directories first				
 			for (int i=0;i<list.length;i++)
 			{
-                ISVNDirEntry entry = list[i];
+				ISVNDirEntry entry = list[i].getDirEntry();
                 if (entry.getNodeKind() == SVNNodeKind.DIR)
 				{
 				    result.add(new RemoteFolder(this, getRepository(),
@@ -182,7 +184,8 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 			// files then				
 			for (int i=0;i<list.length;i++)
 			{
-				ISVNDirEntry entry = list[i];
+				ISVNDirEntry entry = list[i].getDirEntry();
+				ISVNLock lock = list[i].getLock();
 				if (entry.getNodeKind() == SVNNodeKind.FILE)
 				{
 					RemoteFile remoteFile = new RemoteFile(this, getRepository(),
@@ -192,6 +195,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 	                        entry.getLastChangedDate(),
 	                        entry.getLastCommitAuthor());
 					remoteFile.setPegRevision(getRevision());
+					remoteFile.setLock(lock);
 					result.add(remoteFile);
 			     }					 	
 			}
