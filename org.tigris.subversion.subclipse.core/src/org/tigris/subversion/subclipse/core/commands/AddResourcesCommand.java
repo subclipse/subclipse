@@ -129,6 +129,7 @@ public class AddResourcesCommand implements ISVNCommand {
   
                 try {
                     svnClient.addDirectory(localResource.getIResource().getLocation().toFile(),false);
+                    localResource.refreshStatus();
                 } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 }
