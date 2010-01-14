@@ -352,8 +352,8 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 				}
 			}
 			else {
-//				return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
-				return getDestinationText(branchResource);
+				return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
+//				return getDestinationText(branchResource);
 			}
 		}
 
