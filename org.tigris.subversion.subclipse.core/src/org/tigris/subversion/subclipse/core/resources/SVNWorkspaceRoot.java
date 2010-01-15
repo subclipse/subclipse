@@ -428,6 +428,12 @@ public class SVNWorkspaceRoot {
 		} else if (fullPath.segmentCount() == 1) {
 			return root.getProject(fullPath.segment(0));
 		}
+		
+		if (!location.toFile().exists()) {
+			if (location.toFile().getName().indexOf(".") == -1) {
+				return root.getFolder(fullPath);
+			}
+		}
 
 		if (location.toFile().isDirectory()) {
 			return root.getFolder(fullPath);
