@@ -19,7 +19,6 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.conflicts.TreeConflictsView;
-import org.tigris.subversion.subclipse.ui.decorator.ConflictResolutionGenerator;
 
 public class SVNMarkerListener implements IResourceStateChangeListener {
 
