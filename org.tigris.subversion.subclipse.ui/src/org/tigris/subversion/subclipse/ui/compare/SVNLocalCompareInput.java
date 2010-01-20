@@ -38,11 +38,14 @@ import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.commands.GetRemoteResourceCommand;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * A compare input for comparing local resource with its remote revision
@@ -54,7 +57,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
     private final SVNRevision remoteRevision;
 	private ISVNLocalResource resource;
 	private Shell shell;
-	private final ISVNRemoteResource remoteResource; // the remote resource to compare to or null if it does not exist
+	private ISVNRemoteResource remoteResource; // the remote resource to compare to or null if it does not exist
 	private boolean readOnly;
 	
     /**
@@ -182,9 +185,20 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
         this.remoteRevision = revision;
         this.readOnly = readOnly;
         this.resource = resource;
-		// SVNRevision can be any valid revision : BASE, HEAD, number ...
-		this.remoteResource = resource.getRemoteResource(revision);
         
+        LocalResourceStatus status = resource.getStatus();
+        if (status != null && status.isCopied()) {
+        	SVNUrl copiedFromUrl = status.getUrlCopiedFrom();
+        	if (copiedFromUrl != null) {
+        		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(resource.getRepository(), copiedFromUrl, SVNRevision.HEAD);
+        		getRemoteResourceCommand.run(null);
+        		this.remoteResource = getRemoteResourceCommand.getRemoteResource();
+        	}
+        }
+        
+		// SVNRevision can be any valid revision : BASE, HEAD, number ...
+		if (this.remoteResource == null) this.remoteResource = resource.getRemoteResource(revision);
+
         // remoteResouce can be null if there is no corresponding remote resource
         // (for example no base because resource has just been added)
 	}
