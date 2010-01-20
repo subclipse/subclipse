@@ -104,6 +104,9 @@ public class GetLogsCommand implements ISVNCommand {
         					if (copiedFromUrl != null) {
         						svnClient.getLogMessages(copiedFromUrl, SVNRevision.HEAD, revisionStart, revisionEnd, stopOnCopy, !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(), limit, includeMergedRevisions, ISVNClientAdapter.DEFAULT_LOG_PROPERTIES, callback);
         						logMessagesRetrieved = true;
+        		        		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(remoteResource.getRepository(), copiedFromUrl, SVNRevision.HEAD);
+        		        		getRemoteResourceCommand.run(null);
+        		        		remoteResource = getRemoteResourceCommand.getRemoteResource();
         					}
         				}
         			}
