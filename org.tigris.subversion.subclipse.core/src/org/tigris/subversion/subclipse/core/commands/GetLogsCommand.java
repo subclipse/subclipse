@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -22,7 +23,8 @@ import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.Tags;
 import org.tigris.subversion.subclipse.core.resources.BaseResource;
-import org.tigris.subversion.subclipse.core.resources.RemoteResource;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
@@ -93,7 +95,19 @@ public class GetLogsCommand implements ISVNCommand {
         	} else {
         		ISVNClientAdapter svnClient = remoteResource.getRepository().getSVNClient();
         		if (remoteResource instanceof BaseResource) {
-        			svnClient.getLogMessages(((BaseResource)remoteResource).getFile(), pegRevision, revisionStart, revisionEnd, stopOnCopy, !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(), limit, includeMergedRevisions, ISVNClientAdapter.DEFAULT_LOG_PROPERTIES, callback);
+        			boolean logMessagesRetrieved = false;
+        			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(remoteResource.getResource());
+        			if (svnResource != null) {
+        				LocalResourceStatus status = svnResource.getStatus();
+        				if (status != null && status.isCopied()) {
+        					SVNUrl copiedFromUrl = status.getUrlCopiedFrom();
+        					if (copiedFromUrl != null) {
+        						svnClient.getLogMessages(copiedFromUrl, SVNRevision.HEAD, revisionStart, revisionEnd, stopOnCopy, !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(), limit, includeMergedRevisions, ISVNClientAdapter.DEFAULT_LOG_PROPERTIES, callback);
+        						logMessagesRetrieved = true;
+        					}
+        				}
+        			}
+        			if (!logMessagesRetrieved) svnClient.getLogMessages(((BaseResource)remoteResource).getFile(), pegRevision, revisionStart, revisionEnd, stopOnCopy, !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(), limit, includeMergedRevisions, ISVNClientAdapter.DEFAULT_LOG_PROPERTIES, callback);
         		} else {
         			svnClient.getLogMessages(remoteResource.getUrl(), pegRevision, revisionStart, revisionEnd, stopOnCopy, !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(), limit, includeMergedRevisions, ISVNClientAdapter.DEFAULT_LOG_PROPERTIES, callback);
         		}
