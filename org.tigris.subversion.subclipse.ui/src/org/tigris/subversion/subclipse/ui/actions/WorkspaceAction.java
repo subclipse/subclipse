@@ -305,6 +305,10 @@ public abstract class WorkspaceAction extends SVNAction {
 		
 		IResource[] dirtyResources = getModifiedResources(resources, null);
 		
+		if (dirtyResources == null || dirtyResources.length == 0) {
+			return resources;
+		}
+		
 		PromptingDialog dialog = new PromptingDialog(getShell(), dirtyResources, 
 				getPromptCondition(dirtyResources), Policy.bind("ReplaceWithAction.confirmOverwrite"));//$NON-NLS-1$
 		return dialog.promptForMultiple();
