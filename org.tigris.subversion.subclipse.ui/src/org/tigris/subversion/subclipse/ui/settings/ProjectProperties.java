@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.settings;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,10 +19,13 @@ import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class ProjectProperties {
@@ -263,61 +267,74 @@ public class ProjectProperties {
               "bugtraq:append: " + append; //$NON-NLS-1$
     }
     
+    private static ISVNProperty getSvnProperty(File file, String name) throws SVNException {
+		try {
+			ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
+	        SVNProviderPlugin.disableConsoleLogging(); 
+			ISVNProperty prop = svnClient.propertyGet(file, name);
+	        return prop;
+		} catch (SVNClientException e) {
+	        throw SVNException.wrapException(e); 
+		} finally {
+	        SVNProviderPlugin.enableConsoleLogging(); 
+		}
+    }
+    
+    private static ProjectProperties getProjectProperties(File file, ISVNLocalResource svnResource) throws SVNException {
+    	if (file == null) return null;
+    	ISVNProperty property = null;
+    	boolean hasBugtraq = false;
+        try {
+        	property = getSvnProperty(file, "bugtraq:message"); //$NON-NLS-1$
+            if( property != null && !"".equals(property.getValue().trim()) ) {
+            	hasBugtraq = true;
+            }
+			property = getSvnProperty(file, "bugtraq:logregex"); //$NON-NLS-1$
+            if( property != null && !"".equals(property.getValue().trim()) ) {
+            	hasBugtraq = true;
+            }
+		} catch (SVNException e) {
+			if (e.getMessage() != null && e.getMessage().indexOf("Path is not a working copy") != -1) { //$NON-NLS-1$
+				return null;
+			}
+		}
+        if (hasBugtraq) {
+            ProjectProperties projectProperties = new ProjectProperties();
+            property = getSvnProperty(file, "bugtraq:message"); //$NON-NLS-1$
+            if (property != null) projectProperties.setMessage(property.getValue()); 
+            property = getSvnProperty(file, "bugtraq:label"); //$NON-NLS-1$
+            if (property != null) projectProperties.setLabel(property.getValue()); 
+            property = getSvnProperty(file, "bugtraq:url"); //$NON-NLS-1$
+            if (property != null) projectProperties.setUrl(resolveUrl(property.getValue(), svnResource));
+            property = getSvnProperty(file, "bugtraq:number"); //$NON-NLS-1$
+            if ((property != null) && (property.getValue() != null)) projectProperties.setNumber(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$  
+            property = getSvnProperty(file, "bugtraq:warnifnoissue"); //$NON-NLS-1$
+            if ((property != null) && (property.getValue() != null)) projectProperties.setWarnIfNoIssue(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$   
+            property = getSvnProperty(file, "bugtraq:append"); //$NON-NLS-1$
+            if ((property != null) && (property.getValue() != null)) projectProperties.setAppend(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$                                   
+            property = getSvnProperty(file, "bugtraq:logregex"); //$NON-NLS-1$
+            if ((property != null) && (property.getValue() != null)) projectProperties.setLogregex(property.getValue()); //$NON-NLS-1$                                   
+            return projectProperties;           
+        }
+        File checkFile = file;
+        while (checkFile.getParentFile() != null) {
+            checkFile = checkFile.getParentFile();
+            try {
+	            return getProjectProperties(checkFile, svnResource);
+            } catch (SVNException e) {}
+        }
+        return null;
+    }
+    
     // Get ProjectProperties for selected resource.  First looks at selected resource,
     // then works up through ancestors until a folder with the bugtraq:message property
     // is found.  If none found, returns null.
     public static ProjectProperties getProjectProperties(IResource resource) throws SVNException {
-        if (resource == null) return null;
+        if (resource == null || resource.getLocation() == null) return null;
     	ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-        ISVNProperty property = null;
-        boolean hasBugtraq = false;
-        if (svnResource != null) {
-            try {
-				property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
-	            if( property != null && !"".equals(property.getValue().trim()) ) {
-	            	hasBugtraq = true;
-	            }
-				property = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
-	            if( property != null && !"".equals(property.getValue().trim()) ) {
-	            	hasBugtraq = true;
-	            }
-			} catch (SVNException e) {
-			}
-        }
-        if (hasBugtraq) {
-            ProjectProperties projectProperties = new ProjectProperties();
-            property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
-            if (property != null) projectProperties.setMessage(property.getValue()); 
-            property = svnResource.getSvnProperty("bugtraq:label"); //$NON-NLS-1$
-            if (property != null) projectProperties.setLabel(property.getValue()); 
-            property = svnResource.getSvnProperty("bugtraq:url"); //$NON-NLS-1$
-//          if (property != null) projectProperties.setUrl(property.getValue()); 
-            if (property != null) projectProperties.setUrl(resolveUrl(property.getValue(), svnResource));
-            property = svnResource.getSvnProperty("bugtraq:number"); //$NON-NLS-1$
-            if ((property != null) && (property.getValue() != null)) projectProperties.setNumber(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$  
-            property = svnResource.getSvnProperty("bugtraq:warnifnoissue"); //$NON-NLS-1$
-            if ((property != null) && (property.getValue() != null)) projectProperties.setWarnIfNoIssue(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$   
-            property = svnResource.getSvnProperty("bugtraq:append"); //$NON-NLS-1$
-            if ((property != null) && (property.getValue() != null)) projectProperties.setAppend(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$                                   
-            property = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
-            if ((property != null) && (property.getValue() != null)) projectProperties.setLogregex(property.getValue()); //$NON-NLS-1$                                   
-            return projectProperties;           
-        }
-        IResource checkResource = resource;
-        while (checkResource.getParent() != null) {
-            checkResource = checkResource.getParent();
-            if (checkResource.getParent() == null) return null;
-            try {
-	            svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
-	            if (svnResource != null) {
-	                property = svnResource.getSvnProperty("bugtraq:message"); //$NON-NLS-1$
-	                if( property == null )
-	                	property = svnResource.getSvnProperty("bugtraq:logregex"); //$NON-NLS-1$
-	            }
-	            if (property != null) return getProjectProperties(checkResource);
-            } catch (SVNException e) {
-            }
-        }
+    	if (svnResource != null) {
+    		return getProjectProperties(new File(resource.getLocation().toString()), svnResource);
+    	}
         return null;
     }
     
