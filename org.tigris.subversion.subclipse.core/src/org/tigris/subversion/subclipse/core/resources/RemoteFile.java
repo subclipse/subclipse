@@ -113,8 +113,12 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 //				} catch (SVNClientException e1) {
 //					inputStream = svnClient.getContent(url, getRevision(), getRevision());
 //				}
-				if (pegRevision == null) inputStream = svnClient.getContent(url, getRevision());
+				
+//				if (pegRevision == null) inputStream = svnClient.getContent(url, getRevision());
+//				else inputStream = svnClient.getContent(url, revision, pegRevision);
+				if (pegRevision == null) inputStream = svnClient.getContent(url, getRevision(), getRevision());
 				else inputStream = svnClient.getContent(url, revision, pegRevision);
+				
 				super.setContents(inputStream, monitor);
 			} catch (SVNClientException e) {
 				throw new TeamException("Failed in RemoteFile.getContents()", e);
