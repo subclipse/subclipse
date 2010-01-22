@@ -123,7 +123,7 @@ class SourceViewerInformationControl implements IInformationControl, IInformatio
 		// fViewer.configure(new SourceViewerConfiguration());
 		fViewer.configure(new TextSourceViewerConfiguration(EditorsUI.getPreferenceStore()) {
       protected Map getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
-        return Collections.singletonMap("org.eclipse.ui.DefaultTextEditor", //$NON-NLS-1$
+        return Collections.singletonMap("org.eclipse.ui.DefaultTextEditor.Subclipse", //$NON-NLS-1$
             null);
 //            new IAdaptable() {
 //              public Object getAdapter(Class adapter) {
