@@ -168,6 +168,7 @@ public class ProjectProperties {
 			            } else {
 			                if (commitMessage.substring(index, index + 1).equals("\n") || commitMessage.substring(index, index + 1).equals("\r")) break; //$NON-NLS-1$ //$NON-NLS-2$
 			                if (commitMessage.substring(index).trim().equals(remainder.trim())) break;
+			                if (commitMessage.substring(index).startsWith(remainder + "\n")) break;
 			                if (commitMessage.substring(index, index + 1).equals(" ")) {
 			                    int lineIndex = commitMessage.indexOf("\n", index);
 			                    if (lineIndex == -1) lineIndex = commitMessage.indexOf("\r", index);
