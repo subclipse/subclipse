@@ -241,7 +241,6 @@ public class SvnPropertiesView extends ViewPart {
         };
         
         getSite().getPage().addPostSelectionListener(pageSelectionListener);
-        
 		resourceStateChangeListener = new ResourceStateChangeListener();
 		SVNProviderPlugin.addResourceStateChangeListener(resourceStateChangeListener);
 	}
@@ -273,7 +272,6 @@ public class SvnPropertiesView extends ViewPart {
 			}
 		} catch (SVNException e) {
 		}	
-		
 	}
 
 	private Action getRefreshAction() {
@@ -462,6 +460,7 @@ public class SvnPropertiesView extends ViewPart {
 	 * @see org.eclipse.ui.IWorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
+		tableViewer.getControl().setFocus();
 	}
 
 	/**
