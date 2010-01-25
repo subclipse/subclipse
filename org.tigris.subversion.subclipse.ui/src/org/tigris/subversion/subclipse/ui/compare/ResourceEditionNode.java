@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput.SVNLocalResourceNode;
@@ -82,6 +83,20 @@ public class ResourceEditionNode
 	public Object[] getChildren() {
 		if (children == null) {
 			children = new ResourceEditionNode[0];
+	        ISVNLocalResource mylocalResource = null;
+	        if (localResource instanceof SVNLocalCompareInput.SVNLocalResourceNode) {
+	            mylocalResource = ((SVNLocalCompareInput.SVNLocalResourceNode)localResource).getLocalResource();
+	            try {
+	            	
+	            	if (!mylocalResource.isDirty() && mylocalResource.getResource().getProjectRelativePath().toString().equals(getRemoteResource().getProjectRelativePath()) &&
+	            			mylocalResource.getStatus().getLastChangedRevision().equals(getRemoteResource().getLastChangedRevision())) {
+	            		return children;
+	            	}
+	            }
+	            catch(CoreException e) {
+					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				}
+	        }
 			if (resource != null) {
 				try {
 					SVNUIPlugin.runWithProgress(null, true /* cancelable */,
@@ -99,6 +114,7 @@ public class ResourceEditionNode
 											if (localNode != null) {
 												children[i]
 														.setLocalResource(localNode);
+												localNode.setRemoteResource(children[i]);
 												try {
 													children[i].setCharset(localNode.getCharset());
 												} catch (CoreException e) {
@@ -205,11 +221,11 @@ public class ResourceEditionNode
 	
 	private SVNLocalResourceNode matchLocalResource(ISVNRemoteResource remoteNode){
 	    if (localResource == null) return null;
+	    ISVNRemoteResource baseFolder = remoteNode;
+	    while(baseFolder.getParent() != null) {baseFolder = baseFolder.getParent(); }
 		Object[] lrn = localResource.getChildren();
 		String remotePath=remoteNode.getRepositoryRelativePath();
-		int idx = remotePath.indexOf("/",1);
-		if (idx > 0)
-			remotePath = remotePath.substring(idx);
+		remotePath = remotePath.replaceAll(baseFolder.getRepositoryRelativePath(),"");
 		for(int i=0;i<lrn.length;i++){
 			String localPath=((SVNLocalResourceNode)lrn[i]).getResource().getFullPath().toString();
 			localPath = localPath.substring(localPath.indexOf("/",1));

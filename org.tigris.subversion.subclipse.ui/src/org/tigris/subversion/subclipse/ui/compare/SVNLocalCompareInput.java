@@ -98,6 +98,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	class SVNLocalResourceNode extends ResourceNode {
 		
 		private final ISVNLocalResource svnResource;
+		private ResourceEditionNode remoteResource = null;
 		private ArrayList fChildren = null;
         
         public SVNLocalResourceNode(ISVNLocalResource svnResource) {
@@ -111,7 +112,9 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
         public ISVNLocalResource getLocalResource() {
             return svnResource;
         }
-        
+        public void setRemoteResource(ResourceEditionNode remote) {
+        	remoteResource = remote;
+        }
 		// used by getContentsAction
 		public void setContent(byte[] contents) {
 			if (contents == null) contents = new byte[0];
@@ -147,7 +150,18 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
         public Object[] getChildren() {
             if (fChildren == null) {
                 fChildren= new ArrayList();
-                
+     	        if (remoteResource instanceof ResourceEditionNode) {
+    	            try {
+    	            	if (!getLocalResource().isDirty() && getLocalResource().getResource().getProjectRelativePath().toString().equals(remoteResource.getRemoteResource().getProjectRelativePath()) &&
+    	            			getLocalResource().getStatus().getLastChangedRevision().equals(remoteResource.getRemoteResource().getLastChangedRevision())) {
+    	            		return fChildren.toArray();
+    	            	}
+    	            }
+    	            catch(CoreException e) {
+    					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+    				}
+    	        }
+
                 if (svnResource instanceof ISVNLocalFolder) {
                     try {
                         ISVNLocalResource[] members = (ISVNLocalResource[])((ISVNLocalFolder)svnResource).members(null, ISVNFolder.ALL_EXISTING_UNIGNORED_MEMBERS);
@@ -250,6 +264,9 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 		if(left.getType()==ITypedElement.FOLDER_TYPE){
 			right.setLocalResource((SVNLocalResourceNode) left);
 		}
+		if(right.getType()==ITypedElement.FOLDER_TYPE){
+			((SVNLocalResourceNode)left).setRemoteResource((ResourceEditionNode) right);
+		}
 
 
 		String localCharset = Utilities.getCharset(resource.getIResource());
@@ -262,7 +279,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
         if (SVNRevision.BASE.equals(remoteRevision)) {
             return new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
         }
-        return new RevisionAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
+        return new RevisionAwareDifferencer((SVNLocalResourceNode)left,right).findDifferences(false, monitor,null,null,left,right);
 	}
 	
 	/* (non-Javadoc)

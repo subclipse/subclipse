@@ -194,6 +194,12 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
         return SVNUrlUtils.getRelativePath(getRepository().getUrl(), getUrl(), true);
     }    
 
+    public String getProjectRelativePath() {
+    	ISVNRemoteResource project = this;
+    	while(project.getParent() != null) { project = project.getParent(); }
+        return SVNUrlUtils.getRelativePath(project.getUrl(), getUrl(), true);
+    }    
+
     public ISVNLogMessage[] getLogMessages(SVNRevision pegRevision,
 			SVNRevision revisionStart, SVNRevision revisionEnd,
 			boolean stopOnCopy, boolean fetchChangePath, long limit, boolean includeMergedRevisions)

@@ -125,6 +125,12 @@ public abstract class RemoteResource
         return SVNUrlUtils.getRelativePath(getRepository().getUrl(), getUrl(), true);
     }    
 	
+    public String getProjectRelativePath() {
+    	ISVNRemoteResource project = this;
+    	while(project.getParent() != null) { project = project.getParent(); }
+        return SVNUrlUtils.getRelativePath(project.getUrl(), getUrl(), false);
+    }    
+
     /*
 	 * @see ISVNRemoteResource#exists(IProgressMonitor)
 	 */

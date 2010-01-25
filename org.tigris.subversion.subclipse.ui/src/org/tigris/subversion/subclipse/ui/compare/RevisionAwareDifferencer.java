@@ -16,18 +16,39 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput.SVNLocalResourceNode;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
+import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 public final class RevisionAwareDifferencer extends Differencer {
     // comparison constants
     private static final int NODE_EQUAL = 0;
     private static final int NODE_NOT_EQUAL = 1;
     private static final int NODE_UNKNOWN = 2;
-    
+    SVNDiffSummary[] diffSummary;
+    String projectRelativePath;
     /**
      * compare two ResourceEditionNode
      */
+    public RevisionAwareDifferencer() {
+    	
+    }
+    public RevisionAwareDifferencer(SVNLocalResourceNode left,ResourceEditionNode right) {
+    	try {
+			diffSummary = null;
+
+    		ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+       		diffSummary = client.diffSummarize(left.getLocalResource().getUrl(), left.getLocalResource().getRevision(), right.getRemoteResource().getUrl(),
+        			right.getRemoteResource().getRevision(), Depth.infinity, true);
+       		projectRelativePath = left.getLocalResource().getResource().getProjectRelativePath().toString();
+       		if (left.getLocalResource().isFolder() && projectRelativePath.length() > 0) projectRelativePath = projectRelativePath + "/";
+    	} catch (Exception e) {
+    	}
+    }
     protected boolean contentsEqual(Object input1, Object input2) {
         int compare;
         
@@ -56,6 +77,7 @@ public final class RevisionAwareDifferencer extends Differencer {
             progressMonitor.worked(1);
         }
     }
+    
     
     /**
      * Compares two nodes to determine if they are equal.  Returns NODE_EQUAL
@@ -98,10 +120,18 @@ public final class RevisionAwareDifferencer extends Differencer {
             if (localStatus == null) {
                 return NODE_UNKNOWN;
             }
-            
-            if (!localResource.isDirty() && localResource.getUrl().equals(edition.getUrl()) &&
+            if (!localResource.isDirty() && localResource.getResource().getProjectRelativePath().toString().equals(edition.getProjectRelativePath()) &&
                 localStatus.getLastChangedRevision().equals(edition.getLastChangedRevision())) {
                 return NODE_EQUAL;
+            }
+            
+            if(!localResource.isDirty() && !localResource.isFolder()) {
+        		for (int i = 0; i < diffSummary.length; i++) {
+        			if(localResource.getResource().getProjectRelativePath().toString().equals(projectRelativePath + diffSummary[i].getPath())) {
+        				return NODE_NOT_EQUAL;
+        			}
+        		}
+        		return NODE_EQUAL;
             }
         } catch (SVNException e) {
             return NODE_UNKNOWN;

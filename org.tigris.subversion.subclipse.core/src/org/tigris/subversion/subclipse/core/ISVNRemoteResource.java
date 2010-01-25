@@ -42,7 +42,12 @@ public interface ISVNRemoteResource extends ISVNResource, IAdaptable, IResourceV
 	 * @return the repository relative path of this remote folder.
 	 */
 	public String getRepositoryRelativePath();
-	
+
+	/**
+	 * @return the project relative path of this remote folder.
+	 */
+	public String getProjectRelativePath();
+
 	/**
 	 * Compares two objects for equality; for svn emote resources, equality is defined in 
 	 * terms of their handles: same url, and identical revision numbers. 
