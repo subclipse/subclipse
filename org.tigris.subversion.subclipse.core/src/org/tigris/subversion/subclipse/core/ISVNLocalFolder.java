@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core;
 
+import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -40,5 +41,7 @@ public interface ISVNLocalFolder extends ISVNLocalResource, ISVNFolder {
      * Add the following pattern to the file's parent ignore list
      */  
     public void setIgnoredAs(final String pattern) throws SVNException;
+    
+    public boolean isDirty(ResourceMapping resourceMapping) throws SVNException;
 
 }

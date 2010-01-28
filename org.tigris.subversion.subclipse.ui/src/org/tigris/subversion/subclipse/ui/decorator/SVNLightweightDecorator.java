@@ -22,6 +22,9 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.mapping.ResourceMapping;
+import org.eclipse.core.resources.mapping.ResourceMappingContext;
+import org.eclipse.core.resources.mapping.ResourceTraversal;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -35,12 +38,14 @@ import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.RepositoryProvider;
+import org.eclipse.team.internal.ui.Utils;
 import org.eclipse.team.ui.ISharedImages;
 import org.eclipse.team.ui.TeamImages;
 import org.eclipse.team.ui.TeamUI;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.themes.ITheme;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
+import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -224,8 +229,8 @@ public class SVNLightweightDecorator
     /**
      * tells if given svn resource is dirty or not 
      */
-	public static boolean isDirty(final ISVNLocalResource svnResource) {
-	    try {
+	public static boolean isDirty(final ISVNLocalResource svnResource, ResourceMapping resourceMapping) {
+		try {
 			if (!svnResource.exists())
 			    return false;
             if (svnResource.getIResource().getType() == IResource.FILE) {
@@ -235,6 +240,9 @@ public class SVNLightweightDecorator
 							&& !status.isIgnored() && !svnResource.isIgnored());
             } else {
                 // a container with an added file, deleted file, conflicted file ... is considered as dirty
+            	if (svnResource instanceof ISVNLocalFolder) {
+            		return ((ISVNLocalFolder)svnResource).isDirty(resourceMapping);
+            	}
                 return svnResource.isDirty();
             }
 		} catch (SVNException e) {
@@ -254,12 +262,31 @@ public class SVNLightweightDecorator
 	 * @return the resource for the given object, or null
 	 */
 	private IResource getResource(Object object) {
+		if (object instanceof ResourceMapping) {
+			ResourceMapping resourceMapping = (ResourceMapping)object;
+			IResource modelObjectResource = Utils.getResource(resourceMapping.getModelObject());
+			if (modelObjectResource != null) return modelObjectResource;
+			try {
+				ResourceTraversal[] traversals = resourceMapping.getTraversals(ResourceMappingContext.LOCAL_CONTEXT, null);			
+				if (traversals != null) {
+					for (ResourceTraversal traversal : traversals) {
+						IResource[] traversalResources = traversal.getResources();
+						if (traversalResources != null && traversalResources.length == 1) {
+							IResource traversalResource = traversalResources[0];
+							return traversalResource;
+						}						
+					}
+				}
+			} catch (CoreException e) {}		
+		}
 		if (object instanceof IResource) {
 			return (IResource) object;
 		}
 		if (object instanceof IAdaptable) {
-			return (IResource) ((IAdaptable) object).getAdapter(
-				IResource.class);
+			IResource resource = (IResource) ((IAdaptable) object).getAdapter(IResource.class);
+			if (resource != null) {
+				return resource;
+			}
 		}
 		return null;
 	}
@@ -269,7 +296,6 @@ public class SVNLightweightDecorator
 	 * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.Object, org.eclipse.jface.viewers.IDecoration)
 	 */
 	public void decorate(Object element, IDecoration decoration) {
-		
 		IResource resource = getResource(element);
 		if (resource == null || resource.getType() == IResource.ROOT)
 			return;
@@ -300,7 +326,11 @@ public class SVNLightweightDecorator
 		LocalResourceStatus status = null;
 		if (!isIgnored) {
 			if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
-		        isDirty = SVNLightweightDecorator.isDirty(svnResource);
+				ResourceMapping resourceMapping = null;
+				if (element instanceof ResourceMapping) {
+					resourceMapping = (ResourceMapping) element;
+				}
+		        isDirty = SVNLightweightDecorator.isDirty(svnResource, resourceMapping);
 			}
 			try {
 				status = svnResource.getStatus();
