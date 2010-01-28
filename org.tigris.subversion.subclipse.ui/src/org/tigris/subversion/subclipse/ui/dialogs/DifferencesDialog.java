@@ -184,16 +184,21 @@ public class DifferencesDialog extends SvnDialog {
 			fromHeadButton.setSelection(false);
 		}
 		if (toRevision == null) {
-			if (fromRevision == null) {
-				ISVNRemoteResource resource = (ISVNRemoteResource)fromResource;
-				String fromRev = resource.getLastChangedRevision().toString();
-				int from = Integer.parseInt(fromRev);
-				from--;
-				toRevision = Integer.toString(from);
+			if (fromResource == toResource) {
+				if (fromRevision == null) {
+					ISVNRemoteResource resource = (ISVNRemoteResource)fromResource;
+					String fromRev = resource.getLastChangedRevision().toString();
+					int from = Integer.parseInt(fromRev);
+					from--;
+					toRevision = Integer.toString(from);
+				} else {
+					int from = Integer.parseInt(fromRevision);
+					from--;
+					toRevision = Integer.toString(from);
+				}
 			} else {
-				int from = Integer.parseInt(fromRevision);
-				from--;
-				toRevision = Integer.toString(from);
+				ISVNRemoteResource resource = (ISVNRemoteResource)toResource;
+				toRevision = resource.getLastChangedRevision().toString();	
 			}
 		}
 		if (toRevision != null) {
