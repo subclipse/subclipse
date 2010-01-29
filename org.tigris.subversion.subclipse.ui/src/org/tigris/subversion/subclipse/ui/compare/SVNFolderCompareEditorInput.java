@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
+import org.eclipse.compare.structuremergeviewer.DiffNode;
+import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -173,14 +175,14 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 						if (svnResource1 != null) {
 							SVNRevision pegRevision = svnResource1.getRevision();
 							if (pegRevision != null) {
-								diffSummary = svnClient.diffSummarize(folder1.getUrl(), pegRevision, folder1.getRevision(), folder2.getRevision(), Depth.infinity, false);
+								diffSummary = svnClient.diffSummarize(folder1.getUrl(), pegRevision, folder1.getRevision(), folder2.getRevision(), Depth.infinity, true);
 							}
 						}
 					} else {
-						diffSummary = svnClient.diffSummarize(folder1.getUrl(), SVNRevision.HEAD, folder1.getRevision(), folder2.getRevision(), Depth.infinity, false);
+						diffSummary = svnClient.diffSummarize(folder1.getUrl(), SVNRevision.HEAD, folder1.getRevision(), folder2.getRevision(), Depth.infinity, true);
 					}
 				}
-				if (diffSummary == null) diffSummary = svnClient.diffSummarize(folder1.getUrl(), folder1.getRevision(), folder2.getUrl(), folder2.getRevision(), Depth.infinity, false);				
+				if (diffSummary == null) diffSummary = svnClient.diffSummarize(folder1.getUrl(), folder1.getRevision(), folder2.getUrl(), folder2.getRevision(), Depth.infinity, true);				
 				diffSummary = getDiffSummaryWithSubfolders(diffSummary);
 				left.setDiffSummary(diffSummary);
 				right.setDiffSummary(diffSummary);
@@ -189,6 +191,12 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 				result[0] = new SummaryDifferencer().findDifferences(threeWay, sub, null, ancestor, left, right);
 			} finally {
 				sub.done();
+			}
+			if (result[0] instanceof DiffNode) {
+				IDiffElement[] diffs = ((DiffNode)result[0]).getChildren();
+				if (diffs == null || diffs.length == 0) {
+					result[0] = null;
+				}
 			}
 			return result[0];
 		} catch (OperationCanceledException e) {
