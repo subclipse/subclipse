@@ -172,12 +172,16 @@ public class SVNRepositories
 
         return location;
     }
+    
+    public ISVNRepositoryLocation getRepository(String location) throws SVNException {
+    	return getRepository(location, true);
+    }
 
 	/**
 	 * Get the repository instance which matches the given String. 
 	 * The format of the String is an url
 	 */
-	public ISVNRepositoryLocation getRepository(String location) throws SVNException {
+	public ISVNRepositoryLocation getRepository(String location, boolean useRootUrl) throws SVNException {
 		
 		Set keys = repositories.keySet();
 		for(Iterator iter = keys.iterator();iter.hasNext();){
@@ -203,7 +207,7 @@ public class SVNRepositories
 		
 		//else we couldn't find it, fall through to adding new repo.
 		
-		ISVNRepositoryLocation repository = SVNRepositoryLocation.fromString(location, false, true);
+		ISVNRepositoryLocation repository = SVNRepositoryLocation.fromString(location, false, useRootUrl);
 		addToRepositoriesCache(repository);
         
 		return repository;

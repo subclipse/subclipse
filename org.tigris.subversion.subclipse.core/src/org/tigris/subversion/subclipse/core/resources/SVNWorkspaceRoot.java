@@ -218,7 +218,7 @@ public class SVNWorkspaceRoot {
 			repositoryURL = status.getUrlString();
 
 		// Ensure that the provided location is managed
-		SVNProviderPlugin.getPlugin().getRepositories().getRepository(repositoryURL);
+		SVNProviderPlugin.getPlugin().getRepositories().getRepository(repositoryURL, false);
 
 		// Register the project with Team
 		RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
