@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.actions;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.compare.CompareUI;
@@ -53,16 +54,21 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 			ShowDifferencesAsUnifiedDiffDialogWC dialog = new ShowDifferencesAsUnifiedDiffDialogWC(getShell(), resources[0], getTargetPart());
 			if (dialog.open() == ShowDifferencesAsUnifiedDiffDialogWC.OK && !dialog.isDiffToOutputFile()) {
 				try {
+					File diffFile = dialog.getFile();
 					if (resources[0] instanceof IContainer) {
 						ISVNRemoteFolder remoteFolder = new RemoteFolder(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
+						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder);
+						compareInput.setDiffFile(diffFile);
 						CompareUI.openCompareEditorOnPage(
-								new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder),
+								compareInput,
 								getTargetPage());								
 					} else {
 						ISVNRemoteFile remoteFile = new RemoteFile(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
 						((RemoteFile)remoteFile).setPegRevision(dialog.getToRevision());
+						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFile);
+						compareInput.setDiffFile(diffFile);
 						CompareUI.openCompareEditorOnPage(
-								new SVNLocalCompareInput(dialog.getSvnResource(), remoteFile),
+								compareInput,
 								getTargetPage());
 					}
 				} catch (SVNException e) {

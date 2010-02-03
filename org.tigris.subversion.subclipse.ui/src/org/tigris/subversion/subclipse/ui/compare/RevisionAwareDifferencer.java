@@ -10,45 +10,42 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.compare;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput.SVNLocalResourceNode;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
-import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 public final class RevisionAwareDifferencer extends Differencer {
     // comparison constants
     private static final int NODE_EQUAL = 0;
     private static final int NODE_NOT_EQUAL = 1;
     private static final int NODE_UNKNOWN = 2;
-    SVNDiffSummary[] diffSummary;
-    String projectRelativePath;
+    
+    private File diffFile;
+    private List changedResources;
+    
     /**
      * compare two ResourceEditionNode
      */
     public RevisionAwareDifferencer() {
     	
     }
-    public RevisionAwareDifferencer(SVNLocalResourceNode left,ResourceEditionNode right) {
-    	try {
-			diffSummary = null;
-
-    		ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
-       		diffSummary = client.diffSummarize(left.getLocalResource().getUrl(), left.getLocalResource().getRevision(), right.getRemoteResource().getUrl(),
-        			right.getRemoteResource().getRevision(), Depth.infinity, true);
-       		projectRelativePath = left.getLocalResource().getResource().getProjectRelativePath().toString();
-       		if (left.getLocalResource().isFolder() && projectRelativePath.length() > 0) projectRelativePath = projectRelativePath + "/";
-    	} catch (Exception e) {
-    	}
+    public RevisionAwareDifferencer(SVNLocalResourceNode left,ResourceEditionNode right, File diffFile) {
+    	this.diffFile = diffFile;
     }
+    
     protected boolean contentsEqual(Object input1, Object input2) {
         int compare;
         
@@ -126,11 +123,14 @@ public final class RevisionAwareDifferencer extends Differencer {
             }
             
             if(!localResource.isDirty() && !localResource.isFolder()) {
-        		for (int i = 0; i < diffSummary.length; i++) {
-        			if(localResource.getResource().getProjectRelativePath().toString().equals(projectRelativePath + diffSummary[i].getPath())) {
-        				return NODE_NOT_EQUAL;
-        			}
-        		}
+            	
+                if (changedResources == null && diffFile != null) {
+                	parseDiffs();
+                }
+                
+                if (changedResources.contains(localResource.getResource().getLocation().toString())) {
+                	return NODE_NOT_EQUAL;
+                }
         		return NODE_EQUAL;
             }
         } catch (SVNException e) {
@@ -190,6 +190,29 @@ public final class RevisionAwareDifferencer extends Differencer {
         }
     }
     
+    private void parseDiffs() {
+    	changedResources = new ArrayList();
+    	BufferedReader input = null;
+    	try {
+			input = new BufferedReader(new FileReader(diffFile));
+			String line = null; 
+			while ((line = input.readLine()) != null){
+				if (line.startsWith("Index:")) {
+					changedResources.add(line.substring(7));
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {}
+			}
+		}
+    }
+
 //  private boolean considerContentIfRevisionOrPathDiffers() {
 //  return SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_CONSIDER_CONTENTS);
 //}

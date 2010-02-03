@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.compare;
 
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	private Shell shell;
 	private ISVNRemoteResource remoteResource; // the remote resource to compare to or null if it does not exist
 	private boolean readOnly;
+	private File diffFile;
 	
     /**
      * Differencer that only uses teh status to determine if a file has changed
@@ -279,7 +281,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
         if (SVNRevision.BASE.equals(remoteRevision)) {
             return new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
         }
-        return new RevisionAwareDifferencer((SVNLocalResourceNode)left,right).findDifferences(false, monitor,null,null,left,right);
+        return new RevisionAwareDifferencer((SVNLocalResourceNode)left,right, diffFile).findDifferences(false, monitor,null,null,left,right);
 	}
 	
 	/* (non-Javadoc)
@@ -364,6 +366,10 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	 * @see org.eclipse.ui.IWorkbenchPart#removePropertyListener(org.eclipse.ui.IPropertyListener)
 	 */
 	public void removePropertyListener(IPropertyListener listener) {
+	}
+
+	public void setDiffFile(File diffFile) {
+		this.diffFile = diffFile;
 	}
     
 }

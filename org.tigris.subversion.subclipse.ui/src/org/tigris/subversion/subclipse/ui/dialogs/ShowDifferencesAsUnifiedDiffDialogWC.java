@@ -301,11 +301,16 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 						if (file.exists()) {
 							if (!MessageDialog.openQuestion(getShell(), Policy.bind("HistoryView.showDifferences"), Policy.bind("HistoryView.overwriteOutfile", file.getName()))) return;
 						}
-						new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file).run();														
+//						new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file).run();														
 					} else {
+						
+						file = File.createTempFile("revision", ".diff");
+						file.deleteOnExit();
+						
 						diffToOutputFile = false;
 						success = true;
 					}
+					new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file).run();
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage());
 					success = false;
@@ -354,6 +359,10 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 
 	public boolean isDiffToOutputFile() {
 		return diffToOutputFile;
+	}
+
+	public File getFile() {
+		return file;
 	}
 
 }
