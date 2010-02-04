@@ -10,7 +10,11 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -48,6 +52,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
@@ -460,6 +465,142 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		}
 
         console.shutdown();
+	}
+	
+	public void clearPasswordStoresFromConfiguration(boolean restart) throws Exception {
+		Exception exception = null;
+		File configFile = getConfigFile();
+		if (configFile.exists()) {
+			File temp = null;
+			boolean written = false;
+			String newLine = System.getProperty("line.separator");
+		   	BufferedReader input = null;
+		   	BufferedWriter output = null;
+	    	try {
+	    		temp = File.createTempFile("config", null, configFile.getParentFile());
+				input = new BufferedReader(new FileReader(configFile));
+				output = new BufferedWriter(new FileWriter(temp));
+				String line = null; 
+				while ((line = input.readLine()) != null){
+					if (line.startsWith("password-stores =")) {
+						if (!line.trim().endsWith("password-stores =")) {
+							line = "password-stores =";
+						} 					
+					}
+					if (line.startsWith("password-stores=")) {
+						if (!line.trim().endsWith("password-stores=")) {
+							line = "password-stores=";
+						} 					
+					}
+					output.write(line + newLine);
+				}
+				written = true;
+			} catch (Exception e) { 
+				exception = e; 
+			} finally {
+				if (input != null) {
+					try {
+						input.close();
+					} catch (IOException e) {}
+				}
+				if (output != null) {
+					try {
+						output.close();
+					} catch (IOException e) {}
+				}
+			}	
+			if (exception != null) {
+				throw exception;
+			}
+			if (written) {
+				configFile.renameTo(new File(configFile.getParentFile(), "config_backup"));
+				temp.renameTo(configFile);
+				if (restart) {
+					PlatformUI.getWorkbench().restart();
+				}
+			} else {
+				if (temp != null && temp.exists()) {
+					temp.deleteOnExit();
+				}
+			}
+		}
+	}
+	
+	public File getConfigFile() {
+		File configDir;
+		String configDirPath = getPreferenceStore().getString(ISVNUIConstants.PREF_SVNCONFIGDIR);
+		if (configDirPath == null || configDirPath.trim().length() == 0) {
+			File homeDirectory = new File(System.getProperty("user.home"));
+			configDir = new File(homeDirectory, ".subversion");
+		} else {
+			configDir = new File(configDirPath);
+		}
+		File configFile = new File(configDir, "config");
+		return configFile;
+	}
+	
+	public String getPasswordStores() {
+		String passwordStores = null;
+		File configFile = getConfigFile();
+		if (configFile.exists()) {
+		   	BufferedReader input = null;
+	    	try {
+				input = new BufferedReader(new FileReader(configFile));
+				String line = null; 
+				while ((line = input.readLine()) != null){
+					if (line.startsWith("password-stores =") || line.startsWith("password-stores=")) {
+						if (!line.trim().endsWith("=")) {
+							int index = line.indexOf("=");
+							passwordStores = line.substring(index + 1);
+						}
+						break;
+					}
+				}
+			} catch (Exception e) {} finally {
+				if (input != null) {
+					try {
+						input.close();
+					} catch (IOException e) {}
+				}
+			}						
+		}
+		return passwordStores;
+	}
+	
+	public boolean passwordStoresConfiguredOnLinux() {
+		if (System.getProperty("os.name").toLowerCase().indexOf("linux") == -1) {
+			return false;
+		}
+		boolean passwordStoresEmpty = true;
+		File configFile = getConfigFile();
+		if (configFile.exists()) {
+		   	BufferedReader input = null;
+	    	try {
+				input = new BufferedReader(new FileReader(configFile));
+				String line = null; 
+				while ((line = input.readLine()) != null){
+					if (line.startsWith("password-stores =")) {
+						if (!line.trim().endsWith("password-stores =")) {
+							passwordStoresEmpty = false;
+						}
+						break;
+					}
+					if (line.startsWith("password-stores=")) {
+						if (!line.trim().endsWith("password-stores=")) {
+							passwordStoresEmpty = false;
+						}
+						break;
+					}
+				}
+			} catch (Exception e) {} finally {
+				if (input != null) {
+					try {
+						input.close();
+					} catch (IOException e) {}
+				}
+			}			
+		}
+		return !passwordStoresEmpty;
 	}
 	
 	/** Returns all the commit dialog toolbar actions that were found from the extension point. */

@@ -4,6 +4,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.tigris.subversion.subclipse.ui.messages"; //$NON-NLS-1$
+	public static String Preferences_0;
 	public static String ResolveTreeConflictWizard_compare;
 	public static String ResolveTreeConflictWizard_compare2;
 	public static String ResolveTreeConflictWizard_compareError;
@@ -47,6 +48,14 @@ public class Messages extends NLS {
 	public static String ResolveTreeConflictWizardMainPage_specifySteps;
 	public static String ResolveTreeConflictWizardMainPage_to;
 	public static String ResolveTreeConflictWizardMainPage_to2;
+	public static String UnsupportedPasswordStoresDialog_0;
+	public static String UnsupportedPasswordStoresDialog_1;
+	public static String UnsupportedPasswordStoresDialog_2;
+	public static String UnsupportedPasswordStoresDialog_3;
+	public static String UnsupportedPasswordStoresDialog_5;
+	public static String UnsupportedPasswordStoresDialog_6;
+	public static String UnsupportedPasswordStoresDialog_7;
+	public static String UnsupportedPasswordStoresDialog_8;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

@@ -12,11 +12,15 @@ package org.tigris.subversion.subclipse.ui;
 
 import java.io.File;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.SVNClientManager;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.ui.dialogs.UnsupportedPasswordStoresDialog;
 
 /**
  * Initializes preferences and updates markers when preferences are changed
@@ -52,6 +56,22 @@ private IPreferenceStore store;
      * @param configDir
      */
     private void setSvnClientConfigDir(String configDir) {
+    	if (SVNUIPlugin.getPlugin().passwordStoresConfiguredOnLinux()) {   		
+    		Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+			   		UnsupportedPasswordStoresDialog dialog = new UnsupportedPasswordStoresDialog(Display.getDefault().getActiveShell());
+		    		if (dialog.open() == UnsupportedPasswordStoresDialog.OK) {
+		    			try {
+							SVNUIPlugin.getPlugin().clearPasswordStoresFromConfiguration(false);
+						} catch (Exception e) {
+							SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+							MessageDialog.openError(Display.getDefault().getActiveShell(), Messages.Preferences_0, e.getMessage());
+						}
+		    		}
+				}   			
+    		});
+    	}
+    	
         SVNProviderPlugin plugin = SVNProviderPlugin.getPlugin();
         SVNClientManager svnClientManager = plugin.getSVNClientManager();
         if (configDir == null || "".equals(configDir)) { //$NON-NLS-1$
