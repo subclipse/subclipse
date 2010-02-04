@@ -85,7 +85,11 @@ public class UnsupportedPasswordStoresDialog extends SvnDialog {
 		Text storesText = new Text(configGroup, SWT.READ_ONLY | SWT.BORDER);
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
 		storesText.setLayoutData(gd);
-		storesText.setText(SVNUIPlugin.getPlugin().getPasswordStores());
+		String passwordStores = SVNUIPlugin.getPlugin().getPasswordStores();
+		if (passwordStores == null) {
+			passwordStores = "gnome-keyring";
+		}
+		storesText.setText(passwordStores);
 		
 		new Label(composite, SWT.NONE);
 		

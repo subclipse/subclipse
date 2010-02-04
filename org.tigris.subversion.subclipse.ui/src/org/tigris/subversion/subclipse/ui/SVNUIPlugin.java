@@ -481,18 +481,41 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 				input = new BufferedReader(new FileReader(configFile));
 				output = new BufferedWriter(new FileWriter(temp));
 				String line = null; 
+				boolean authSectionFound = false;
+				boolean passwordStoresFound = false;
+				boolean inAuthSection = false;
 				while ((line = input.readLine()) != null){
+					if (line.startsWith("[auth]")) {
+						authSectionFound = true;
+						inAuthSection = true;
+					} else {
+						if (line.startsWith("[")) {
+							if (inAuthSection && !passwordStoresFound) {
+								output.write("password-stores =" + newLine);
+							}
+							inAuthSection = false;
+						}
+					}
 					if (line.startsWith("password-stores =")) {
+						passwordStoresFound = true;
 						if (!line.trim().endsWith("password-stores =")) {
 							line = "password-stores =";
 						} 					
 					}
 					if (line.startsWith("password-stores=")) {
+						passwordStoresFound = true;
 						if (!line.trim().endsWith("password-stores=")) {
 							line = "password-stores=";
 						} 					
 					}
 					output.write(line + newLine);
+				}
+				if (!authSectionFound) {
+					output.write("[auth]" + newLine + "password-stores =");
+				} else {
+					if (inAuthSection && !passwordStoresFound) {
+						output.write("password-stores =" + newLine);
+					}
 				}
 				written = true;
 			} catch (Exception e) { 
@@ -571,6 +594,11 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		if (System.getProperty("os.name").toLowerCase().indexOf("linux") == -1) {
 			return false;
 		}
+		String svnInterface = getPreferenceStore().getString(ISVNUIConstants.PREF_SVNINTERFACE);
+		if (svnInterface != null && !svnInterface.equals("javahl")) {
+			return false;
+		}		
+		boolean passwordStoresFound = false;
 		boolean passwordStoresEmpty = true;
 		File configFile = getConfigFile();
 		if (configFile.exists()) {
@@ -580,12 +608,14 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 				String line = null; 
 				while ((line = input.readLine()) != null){
 					if (line.startsWith("password-stores =")) {
+						passwordStoresFound = true;
 						if (!line.trim().endsWith("password-stores =")) {
 							passwordStoresEmpty = false;
 						}
 						break;
 					}
 					if (line.startsWith("password-stores=")) {
+						passwordStoresFound = true;
 						if (!line.trim().endsWith("password-stores=")) {
 							passwordStoresEmpty = false;
 						}
@@ -600,7 +630,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 				}
 			}			
 		}
-		return !passwordStoresEmpty;
+		return !passwordStoresEmpty || !passwordStoresFound;
 	}
 	
 	/** Returns all the commit dialog toolbar actions that were found from the extension point. */
