@@ -33,6 +33,8 @@ public class SVNClientManager {
     private boolean fetchChangePathOnDemand = true;
     private HashMap clients = new HashMap();
     
+    public static final String UNABLE_TO_LOAD_DEFAULT_CLIENT = "Unable to load default SVN Client";
+    
     public void startup(IProgressMonitor monitor) throws CoreException {
     }
     
@@ -143,7 +145,7 @@ public class SVNClientManager {
     			client = Activator.getDefault().getAnyClientAdapter();
     		
     		if (client == null)
-    			throw new SVNException("Unable to load default SVN Client");
+    			throw new SVNException(UNABLE_TO_LOAD_DEFAULT_CLIENT);
     		
     		setupClientAdapter(client);
     		if (client.isThreadsafe())

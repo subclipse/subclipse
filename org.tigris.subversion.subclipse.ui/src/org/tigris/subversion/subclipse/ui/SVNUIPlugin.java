@@ -59,6 +59,7 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNClientManager;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.resources.BaseResourceStorageFactory;
@@ -99,6 +100,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	 * The singleton plug-in instance
 	 */
 	private static SVNUIPlugin plugin;
+	
+	private static boolean loadErrorHandled = false;
 	
 	/**
 	 * The repository manager
@@ -329,21 +332,28 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		
 		// Log if the user requested it
 		if (log) SVNUIPlugin.log(status);
-		
 		// Create a runnable that will display the error status
-		final String displayTitle = title;
-		final String displayMessage = message;
-		final IStatus displayStatus = status;
-		final IOpenableInShell openable = new IOpenableInShell() {
-			public void open(Shell shell) {
-				if (displayStatus.getSeverity() == IStatus.INFO && !displayStatus.isMultiStatus()) {
-					MessageDialog.openInformation(shell, Policy.bind("information"), displayStatus.getMessage()); //$NON-NLS-1$
-				} else {
-					ErrorDialog.openError(shell, displayTitle, displayMessage, displayStatus);
+		
+		String svnInterface = SVNUIPlugin.getPlugin().getPreferenceStore().getString(ISVNUIConstants.PREF_SVNINTERFACE);
+		boolean loadError = svnInterface.equals("javahl") && status != null && status.getMessage() != null && status.getMessage().equals(SVNClientManager.UNABLE_TO_LOAD_DEFAULT_CLIENT);
+		
+		if (!loadError || loadErrorHandled) {
+			final String displayTitle = title;
+			final String displayMessage = message;
+			final IStatus displayStatus = status;
+			final IOpenableInShell openable = new IOpenableInShell() {
+				public void open(Shell shell) {
+					if (displayStatus.getSeverity() == IStatus.INFO && !displayStatus.isMultiStatus()) {
+						MessageDialog.openInformation(shell, Policy.bind("information"), displayStatus.getMessage()); //$NON-NLS-1$
+					} else {
+						ErrorDialog.openError(shell, displayTitle, displayMessage, displayStatus);
+					}
 				}
-			}
-		};
-		openDialog(providedShell, openable, flags);
+			};
+			openDialog(providedShell, openable, flags);
+		}
+		
+		if (loadError) loadErrorHandled = true;
 		
 		// return the status we display
 		return status;

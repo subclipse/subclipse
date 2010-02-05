@@ -4,6 +4,10 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.tigris.subversion.subclipse.ui.messages"; //$NON-NLS-1$
+	public static String LoadErrorDialog_0;
+	public static String LoadErrorDialog_1;
+	public static String LoadErrorDialog_2;
+	public static String LoadErrorDialog_4;
 	public static String Preferences_0;
 	public static String ResolveTreeConflictWizard_compare;
 	public static String ResolveTreeConflictWizard_compare2;
