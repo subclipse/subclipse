@@ -24,6 +24,8 @@ public class Activator extends Plugin implements ISVNClientWrapper{
 	
 	private String version;
 	
+	private boolean loadErrorLogged = false;
+	
 	/**
 	 * The constructor
 	 */
@@ -79,14 +81,19 @@ public class Activator extends Plugin implements ISVNClientWrapper{
 				version = adapter.getNativeLibraryVersionString();
 			} else {
 				version = "Not Available";
-				getLog().log(new Status(IStatus.INFO, PLUGIN_ID, 0, getLoadErrors(), null));
+//				getLog().log(new Status(IStatus.INFO, PLUGIN_ID, 0, getLoadErrors(), null));
 			}
 		}
 		return version;
 	}
 
 	public boolean isAvailable() {
-		return JhlClientAdapterFactory.isAvailable();
+		boolean available = JhlClientAdapterFactory.isAvailable();
+		if (!available && !loadErrorLogged) {
+			getLog().log(new Status(IStatus.INFO, PLUGIN_ID, 0, getLoadErrors(), null));
+			loadErrorLogged = true;
+		}
+		return available;
 	}
 
 	public void setDisplayName(String string) {
