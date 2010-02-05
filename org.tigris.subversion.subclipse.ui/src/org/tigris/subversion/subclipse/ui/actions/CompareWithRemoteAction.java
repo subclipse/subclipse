@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.actions;
  
+import java.io.File;
+
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -23,6 +25,8 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
+import org.tigris.subversion.subclipse.ui.dialogs.ShowDifferencesAsUnifiedDiffDialogWC;
+import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
 
@@ -54,9 +58,16 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 			run(new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) {
 					try {
-						if (refresh) localResource.getResource().refreshLocal(Depth.immediates, monitor);
+						if (refresh) localResource.getResource().refreshLocal(Depth.immediates, monitor);				
+						File file = File.createTempFile("revision", ".diff");
+						file.deleteOnExit();
+						ShowDifferencesAsUnifiedDiffOperationWC operation = new ShowDifferencesAsUnifiedDiffOperationWC(getTargetPart(), localResource.getFile(), localResource.getUrl(), SVNRevision.HEAD, file);						
+						operation.setGraphicalCompare(true);
+						operation.run();
+						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(localResource, revision);
+						compareInput.setDiffFile(file);
 						CompareUI.openCompareEditorOnPage(
-								new SVNLocalCompareInput(localResource, revision),
+								compareInput,
 								getTargetPage());
 					} catch (Exception e) {
 						handle(e, null, null);
