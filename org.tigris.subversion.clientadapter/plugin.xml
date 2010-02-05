@@ -2,5 +2,6 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension-point id="wrapper" name="SVN Client Adapter wrapper" schema="schema/wrapper.exsd"/>
+   <extension-point id="loadErrorHandlers" name="Load Error Handler" schema="schema/loadErrorHandlers.exsd"/>
 
 </plugin>

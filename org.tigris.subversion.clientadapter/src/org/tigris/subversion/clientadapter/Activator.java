@@ -1,8 +1,13 @@
 package org.tigris.subversion.clientadapter;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -14,6 +19,8 @@ public class Activator extends Plugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.tigris.subversion.clientadapter";
+	
+	public static final String LOAD_ERROR_HANDLERS = "org.tigris.subversion.clientadapter.loadErrorHandlers";
 
 	// The shared instance
 	private static Activator plugin;
@@ -22,6 +29,8 @@ public class Activator extends Plugin {
 
 	// cache of available wrappers
 	private Map wrappers;
+	
+	private ILoadErrorHandler[] loadErrorHandlers;
 	
 	/**
 	 * The constructor
@@ -96,6 +105,33 @@ public class Activator extends Plugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+	
+	public void handleLoadErrors(ISVNClientWrapper clientWrapper) {
+		try {
+			loadErrorHandlers = getLoadErrorHandlers();
+			if (loadErrorHandlers != null) {
+				for (int i = 0; i < loadErrorHandlers.length; i++) {
+					loadErrorHandlers[i].handleLoadError(clientWrapper);
+				}
+			}
+		} catch (Exception e) {}
+	}
+	
+	private ILoadErrorHandler[] getLoadErrorHandlers() throws Exception {
+		if (loadErrorHandlers == null) {
+			List handlerList = new ArrayList();
+			IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+			IConfigurationElement[] configurationElements = extensionRegistry.getConfigurationElementsFor(LOAD_ERROR_HANDLERS);
+			for (int i = 0; i < configurationElements.length; i++) {
+				IConfigurationElement configurationElement = configurationElements[i];
+				ILoadErrorHandler handler = (ILoadErrorHandler)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
+				handlerList.add(handler);
+			}
+			loadErrorHandlers = new ILoadErrorHandler[handlerList.size()];
+			handlerList.toArray(loadErrorHandlers);
+		}
+		return loadErrorHandlers;
 	}
 
 }

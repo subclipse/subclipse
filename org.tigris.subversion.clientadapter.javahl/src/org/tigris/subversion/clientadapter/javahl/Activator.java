@@ -81,7 +81,6 @@ public class Activator extends Plugin implements ISVNClientWrapper{
 				version = adapter.getNativeLibraryVersionString();
 			} else {
 				version = "Not Available";
-//				getLog().log(new Status(IStatus.INFO, PLUGIN_ID, 0, getLoadErrors(), null));
 			}
 		}
 		return version;
@@ -92,6 +91,7 @@ public class Activator extends Plugin implements ISVNClientWrapper{
 		if (!available && !loadErrorLogged) {
 			getLog().log(new Status(IStatus.INFO, PLUGIN_ID, 0, getLoadErrors(), null));
 			loadErrorLogged = true;
+			org.tigris.subversion.clientadapter.Activator.getDefault().handleLoadErrors(this);
 		}
 		return available;
 	}
