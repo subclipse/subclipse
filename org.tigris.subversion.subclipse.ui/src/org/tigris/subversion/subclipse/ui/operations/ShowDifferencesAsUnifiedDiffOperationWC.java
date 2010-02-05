@@ -28,6 +28,7 @@ public class ShowDifferencesAsUnifiedDiffOperationWC extends SVNOperation {
 	private SVNUrl toUrl;
 	private SVNRevision toRevision;
 	private File file;
+	private boolean graphicalCompare = false;
 
 	public ShowDifferencesAsUnifiedDiffOperationWC(IWorkbenchPart part, File path, SVNUrl toUrl, SVNRevision toRevision, File file) {
 		super(part);
@@ -55,6 +56,15 @@ public class ShowDifferencesAsUnifiedDiffOperationWC extends SVNOperation {
 
 	protected String getTaskName() {
 		return Policy.bind("HistoryView.showDifferences"); //$NON-NLS-1$
+	}
+
+	public void setGraphicalCompare(boolean graphicalCompare) {
+		this.graphicalCompare = graphicalCompare;
+	}
+
+	protected boolean canRunAsJob() {
+		if (graphicalCompare) return false;
+		else return super.canRunAsJob();
 	}
 
 }
