@@ -45,6 +45,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
+import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -61,6 +62,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	private ISVNRemoteResource remoteResource; // the remote resource to compare to or null if it does not exist
 	private boolean readOnly;
 	private File diffFile;
+	private ShowDifferencesAsUnifiedDiffOperationWC diffOperation;
 	
     /**
      * Differencer that only uses teh status to determine if a file has changed
@@ -260,6 +262,17 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	 * Runs the compare operation and returns the compare result.
 	 */
 	protected Object prepareInput(IProgressMonitor monitor){
+		
+		if (diffOperation != null) {
+			try {
+				diffOperation.run(monitor);
+				diffFile = diffOperation.getFile();
+			} catch (Exception e) {}
+		}
+		if (diffOperation.isCanceled() || monitor.isCanceled()) {
+			return null;
+		}
+		
 		initLabels();
 		ITypedElement left = new SVNLocalResourceNode(resource);
 		ResourceEditionNode right = new ResourceEditionNode(remoteResource);
@@ -366,6 +379,11 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	 * @see org.eclipse.ui.IWorkbenchPart#removePropertyListener(org.eclipse.ui.IPropertyListener)
 	 */
 	public void removePropertyListener(IPropertyListener listener) {
+	}
+
+	public void setDiffOperation(
+			ShowDifferencesAsUnifiedDiffOperationWC diffOperation) {
+		this.diffOperation = diffOperation;
 	}
 
 	public void setDiffFile(File diffFile) {

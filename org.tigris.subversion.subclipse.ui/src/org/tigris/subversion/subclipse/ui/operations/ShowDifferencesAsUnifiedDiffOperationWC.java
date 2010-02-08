@@ -29,6 +29,7 @@ public class ShowDifferencesAsUnifiedDiffOperationWC extends SVNOperation {
 	private SVNRevision toRevision;
 	private File file;
 	private boolean graphicalCompare = false;
+	private boolean canceled = false;
 
 	public ShowDifferencesAsUnifiedDiffOperationWC(IWorkbenchPart part, File path, SVNUrl toUrl, SVNRevision toRevision, File file) {
 		super(part);
@@ -47,6 +48,7 @@ public class ShowDifferencesAsUnifiedDiffOperationWC extends SVNOperation {
 			client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 		try {
 			client.diff(path, toUrl, toRevision, file, true);
+			if (monitor.isCanceled()) canceled = true;
 		} catch (SVNClientException e) {
 			throw SVNException.wrapException(e);
 		} finally {
@@ -65,6 +67,14 @@ public class ShowDifferencesAsUnifiedDiffOperationWC extends SVNOperation {
 	protected boolean canRunAsJob() {
 		if (graphicalCompare) return false;
 		else return super.canRunAsJob();
+	}
+
+	public boolean isCanceled() {
+		return canceled;
+	}
+
+	public File getFile() {
+		return file;
 	}
 
 }

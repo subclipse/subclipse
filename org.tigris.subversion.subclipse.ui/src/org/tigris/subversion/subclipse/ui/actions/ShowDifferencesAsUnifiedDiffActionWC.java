@@ -52,24 +52,29 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 			}			
 		}
 			ShowDifferencesAsUnifiedDiffDialogWC dialog = new ShowDifferencesAsUnifiedDiffDialogWC(getShell(), resources[0], getTargetPart());
-			if (dialog.open() == ShowDifferencesAsUnifiedDiffDialogWC.OK && !dialog.isDiffToOutputFile()) {
+			if (dialog.open() == ShowDifferencesAsUnifiedDiffDialogWC.OK) {
 				try {
-					File diffFile = dialog.getFile();
-					if (resources[0] instanceof IContainer) {
-						ISVNRemoteFolder remoteFolder = new RemoteFolder(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
-						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder);
-						compareInput.setDiffFile(diffFile);
-						CompareUI.openCompareEditorOnPage(
-								compareInput,
-								getTargetPage());								
-					} else {
-						ISVNRemoteFile remoteFile = new RemoteFile(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
-						((RemoteFile)remoteFile).setPegRevision(dialog.getToRevision());
-						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFile);
-						compareInput.setDiffFile(diffFile);
-						CompareUI.openCompareEditorOnPage(
-								compareInput,
-								getTargetPage());
+					if (dialog.isDiffToOutputFile()) dialog.getOperation().run();
+					if (!dialog.isDiffToOutputFile()) {
+						File diffFile = dialog.getFile();
+						if (resources[0] instanceof IContainer) {
+							ISVNRemoteFolder remoteFolder = new RemoteFolder(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
+							SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder);
+//							compareInput.setDiffFile(diffFile);
+							compareInput.setDiffOperation(dialog.getOperation());
+							CompareUI.openCompareEditorOnPage(
+									compareInput,
+									getTargetPage());								
+						} else {
+							ISVNRemoteFile remoteFile = new RemoteFile(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
+							((RemoteFile)remoteFile).setPegRevision(dialog.getToRevision());
+							SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFile);
+//							compareInput.setDiffFile(diffFile);
+							compareInput.setDiffOperation(dialog.getOperation());
+							CompareUI.openCompareEditorOnPage(
+									compareInput,
+									getTargetPage());
+						}
 					}
 				} catch (SVNException e) {
 					MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), e.getMessage());						

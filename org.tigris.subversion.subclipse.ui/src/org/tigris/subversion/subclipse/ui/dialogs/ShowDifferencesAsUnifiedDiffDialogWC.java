@@ -70,6 +70,8 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 	private SVNRevision toRevision;
 	private ISVNLocalResource svnResource;
 	private boolean diffToOutputFile;
+	
+	private ShowDifferencesAsUnifiedDiffOperationWC operation;
 
 	public ShowDifferencesAsUnifiedDiffDialogWC(Shell parentShell, IResource resource, IWorkbenchPart targetPart) {
 		super(parentShell, "ShowDifferencesAsUnifiedDiffDialogWC"); //$NON-NLS-1$
@@ -309,9 +311,8 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 						diffToOutputFile = false;
 						success = true;
 					}
-					ShowDifferencesAsUnifiedDiffOperationWC operation = new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file);
+					operation = new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file);
 					operation.setGraphicalCompare(!diffButton.getSelection());
-					operation.run();
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage());
 					success = false;
@@ -344,6 +345,10 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 			MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage()); //$NON-NLS-1$
 		}
 		setOkButtonStatus();
+	}
+
+	public ShowDifferencesAsUnifiedDiffOperationWC getOperation() {
+		return operation;
 	}
 
 	public SVNUrl getToUrl() {
