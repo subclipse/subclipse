@@ -65,6 +65,7 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 						operation.run();
 						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(localResource, revision);
 						compareInput.setDiffFile(file);
+						compareInput.setDiffOperation(operation);
 						CompareUI.openCompareEditorOnPage(
 								compareInput,
 								getTargetPage());
