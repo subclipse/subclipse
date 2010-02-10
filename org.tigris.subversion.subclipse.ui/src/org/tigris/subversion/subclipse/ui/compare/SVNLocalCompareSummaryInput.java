@@ -76,7 +76,7 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 			Object[] result = new Object[] { null };
 			try {
 				ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
-				SVNDiffSummary[] diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);		
+				SVNDiffSummary[] diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
 				diffSummary = getDiffSummaryWithSubfolders(diffSummary);
 				ITypedElement left = new SVNLocalResourceSummaryNode(resource, diffSummary, resource.getResource().getLocation().toString());
 				SummaryEditionNode right = new SummaryEditionNode(remoteFolder);
@@ -102,7 +102,6 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 			}
 	        return result[0];
 		} catch (OperationCanceledException e) {
-			System.out.println("Cancelled!");
 			throw new InterruptedException(e.getMessage());
 		} catch (Exception e) {
 			handle(e);
@@ -196,7 +195,7 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 	public void removePropertyListener(IPropertyListener listener) {
 	}
 	
-	public void cancelPressed() {
+	public void cancelPressed() { 
 		super.cancelPressed();
 	}
 
