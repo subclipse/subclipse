@@ -124,9 +124,9 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 				diffOperation.run(monitor);
 				diffFile = diffOperation.getFile();
 			} catch (Exception e) {}
-		}
-		if (diffOperation.isCanceled() || monitor.isCanceled()) {
-			return null;
+			if (diffOperation.isCanceled() || monitor.isCanceled()) {
+				return null;
+			}
 		}
 		
 		initLabels();
