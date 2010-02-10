@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.actions;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.compare.CompareUI;
@@ -41,7 +40,6 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		IResource[] resources = getSelectedResources();
-//		if(resources.length != 0) {
 		if (resources.length > 0 && resources[0] instanceof IFile && !resources[0].isSynchronized(Depth.immediates)) {
 			if (MessageDialog.openQuestion(getShell(), Policy.bind("DifferencesDialog.compare"), Policy.bind("CompareWithRemoteAction.fileChanged"))) {
 				try {
@@ -51,35 +49,32 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 				}
 			}			
 		}
-			ShowDifferencesAsUnifiedDiffDialogWC dialog = new ShowDifferencesAsUnifiedDiffDialogWC(getShell(), resources[0], getTargetPart());
-			if (dialog.open() == ShowDifferencesAsUnifiedDiffDialogWC.OK) {
-				try {
-					if (dialog.isDiffToOutputFile()) dialog.getOperation().run();
-					if (!dialog.isDiffToOutputFile()) {
-						File diffFile = dialog.getFile();
-						if (resources[0] instanceof IContainer) {
-							ISVNRemoteFolder remoteFolder = new RemoteFolder(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
-							SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder);
-//							compareInput.setDiffFile(diffFile);
-							compareInput.setDiffOperation(dialog.getOperation());
-							CompareUI.openCompareEditorOnPage(
-									compareInput,
-									getTargetPage());								
-						} else {
-							ISVNRemoteFile remoteFile = new RemoteFile(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
-							((RemoteFile)remoteFile).setPegRevision(dialog.getToRevision());
-							SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFile);
-//							compareInput.setDiffFile(diffFile);
-							compareInput.setDiffOperation(dialog.getOperation());
-							CompareUI.openCompareEditorOnPage(
-									compareInput,
-									getTargetPage());
-						}
+		ShowDifferencesAsUnifiedDiffDialogWC dialog = new ShowDifferencesAsUnifiedDiffDialogWC(getShell(), resources[0], getTargetPart());
+		if (dialog.open() == ShowDifferencesAsUnifiedDiffDialogWC.OK) {
+			try {
+				if (dialog.isDiffToOutputFile()) dialog.getOperation().run();
+				if (!dialog.isDiffToOutputFile()) {
+					if (resources[0] instanceof IContainer) {
+						ISVNRemoteFolder remoteFolder = new RemoteFolder(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
+						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder);
+						compareInput.setDiffOperation(dialog.getOperation());
+						CompareUI.openCompareEditorOnPage(
+								compareInput,
+								getTargetPage());								
+					} else {
+						ISVNRemoteFile remoteFile = new RemoteFile(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
+						((RemoteFile)remoteFile).setPegRevision(dialog.getToRevision());
+						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFile);
+						compareInput.setDiffOperation(dialog.getOperation());
+						CompareUI.openCompareEditorOnPage(
+								compareInput,
+								getTargetPage());
 					}
-				} catch (SVNException e) {
-					MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), e.getMessage());						
-				}				
-			}
+				}
+			} catch (SVNException e) {
+				MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), e.getMessage());						
+			}				
+		}
 	}
 
 	protected boolean isEnabled() throws TeamException {

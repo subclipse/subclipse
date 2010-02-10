@@ -25,7 +25,6 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput.SVNLocalResourceNode;
 
 public final class RevisionAwareDifferencer extends Differencer {
     // comparison constants
@@ -49,7 +48,7 @@ public final class RevisionAwareDifferencer extends Differencer {
     protected boolean contentsEqual(Object input1, Object input2) {
         int compare;
         
-        if (input1 instanceof SVNLocalCompareInput.SVNLocalResourceNode) {
+        if (input1 instanceof SVNLocalResourceNode) {
             compare = compareStatusAndRevisions(input1, input2);
         } else {
             compare = compareEditions(input1, input2);
@@ -83,8 +82,8 @@ public final class RevisionAwareDifferencer extends Differencer {
      */
     protected int compareStatusAndRevisions(Object left, Object right) {
         ISVNLocalResource localResource = null;
-        if (left instanceof SVNLocalCompareInput.SVNLocalResourceNode) {
-            localResource = ((SVNLocalCompareInput.SVNLocalResourceNode)left).getLocalResource();
+        if (left instanceof SVNLocalResourceNode) {
+            localResource = ((SVNLocalResourceNode)left).getLocalResource();
         }
         
         ISVNRemoteResource edition = null;

@@ -18,6 +18,7 @@ import org.eclipse.compare.IEncodedStreamContentAccessor;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.IStructureComparator;
+import org.eclipse.core.internal.dtree.IComparator;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -27,7 +28,6 @@ import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput.SVNLocalResourceNode;
 /**
  * A class for comparing ISVNRemoteResource objects
  * 
@@ -84,8 +84,8 @@ public class ResourceEditionNode
 		if (children == null) {
 			children = new ResourceEditionNode[0];
 	        ISVNLocalResource mylocalResource = null;
-	        if (localResource instanceof SVNLocalCompareInput.SVNLocalResourceNode) {
-	            mylocalResource = ((SVNLocalCompareInput.SVNLocalResourceNode)localResource).getLocalResource();
+	        if (localResource instanceof SVNLocalResourceNode) {
+	            mylocalResource = ((SVNLocalResourceNode)localResource).getLocalResource();
 	            try {
 	            	
 	            	if (!mylocalResource.isDirty() && mylocalResource.getResource().getProjectRelativePath().toString().equals(getRemoteResource().getProjectRelativePath()) &&
