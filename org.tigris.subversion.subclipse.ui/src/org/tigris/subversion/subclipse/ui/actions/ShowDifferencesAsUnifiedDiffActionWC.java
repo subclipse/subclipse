@@ -29,6 +29,7 @@ import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareSummaryInput;
 import org.tigris.subversion.subclipse.ui.dialogs.ShowDifferencesAsUnifiedDiffDialogWC;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
 
@@ -56,8 +57,7 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 				if (!dialog.isDiffToOutputFile()) {
 					if (resources[0] instanceof IContainer) {
 						ISVNRemoteFolder remoteFolder = new RemoteFolder(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
-						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder);
-						compareInput.setDiffOperation(dialog.getOperation());
+						SVNLocalCompareSummaryInput compareInput = new SVNLocalCompareSummaryInput(dialog.getSvnResource(), remoteFolder);
 						CompareUI.openCompareEditorOnPage(
 								compareInput,
 								getTargetPage());								

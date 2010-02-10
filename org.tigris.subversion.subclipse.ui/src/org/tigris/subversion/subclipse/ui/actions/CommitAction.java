@@ -121,7 +121,7 @@ public class CommitAction extends WorkbenchWindowAction {
         					    for (int i = 0; i < resourcesToCommit.length; i++) {
         					        IResource resource = resourcesToCommit[i];
         					        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-        					        if (!svnResource.isManaged()) resourcesToBeAdded.add(resource);
+        					        if (svnResource.exists() && !svnResource.isManaged()) resourcesToBeAdded.add(resource);
         					        if (svnResource.getStatus().isMissing()) resourcesToBeDeleted.add(resource);
         					    }
         					}

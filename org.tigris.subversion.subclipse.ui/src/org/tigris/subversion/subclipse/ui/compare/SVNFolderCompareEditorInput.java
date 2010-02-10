@@ -223,6 +223,7 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 				String path = file.getPath();
 				path = path.replaceAll("\\\\", "/");
 				if (!paths.contains(path)) {
+					paths.add(path);
 					SVNDiffSummary folder = new SVNDiffSummary(path, SVNDiffKind.NORMAL, false, SVNNodeKind.DIR.toInt());
 					diffs.add(folder);
 				}
