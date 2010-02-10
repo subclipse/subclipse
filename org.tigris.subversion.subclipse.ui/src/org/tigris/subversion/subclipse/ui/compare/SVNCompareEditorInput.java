@@ -227,4 +227,12 @@ public class SVNCompareEditorInput extends CompareEditorInput {
 			monitor.done();
 		}
 	}
+	
+	public void cancelPressed() {
+		super.cancelPressed();
+	}
+
+	public boolean canRunAsJob() {
+		return true;
+	}
 }

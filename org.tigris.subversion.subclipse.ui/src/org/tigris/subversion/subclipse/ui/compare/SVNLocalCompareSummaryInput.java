@@ -3,6 +3,7 @@ package org.tigris.subversion.subclipse.ui.compare;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
@@ -69,7 +70,6 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 		initLabels();
 		
 		try {		
-			
 			monitor.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 30); //$NON-NLS-1$
 			IProgressMonitor sub = new SubProgressMonitor(monitor, 30);
 			sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); //$NON-NLS-1$
@@ -102,6 +102,7 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 			}
 	        return result[0];
 		} catch (OperationCanceledException e) {
+			System.out.println("Cancelled!");
 			throw new InterruptedException(e.getMessage());
 		} catch (Exception e) {
 			handle(e);
@@ -195,6 +196,14 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 	public void removePropertyListener(IPropertyListener listener) {
 	}
 	
+	public void cancelPressed() {
+		super.cancelPressed();
+	}
+
+	public boolean canRunAsJob() {
+		return true;
+	}
+
 	private void handle(Exception e) {
 		// create a status
 		Throwable t = e;

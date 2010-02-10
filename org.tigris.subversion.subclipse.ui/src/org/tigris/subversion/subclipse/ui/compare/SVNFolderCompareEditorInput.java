@@ -241,5 +241,11 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 	public void setLocalResource2(ISVNResource localResource2) {
 		this.localResource2 = localResource2;
 	}
+	public void cancelPressed() {
+		super.cancelPressed();
+	}
 
+	public boolean canRunAsJob() {
+		return true;
+	}
 }
