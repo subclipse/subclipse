@@ -24,7 +24,10 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
+import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
@@ -32,6 +35,8 @@ import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary.SVNDiffKind;
 
 public class SVNLocalCompareSummaryInput extends CompareEditorInput implements ISaveableWorkbenchPart {
@@ -74,8 +79,16 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 			sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); //$NON-NLS-1$
 			Object[] result = new Object[] { null };
 			try {
-				ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
-				SVNDiffSummary[] diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
+				SVNDiffSummary[] diffSummary = null;
+				if (remoteFolder.getRevision().equals(SVNRevision.HEAD) && remoteFolder.getUrl().equals(resource.getUrl())) {
+			        StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource.getResource() ), true, false, true );
+			        cmd.run(monitor);
+			        RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
+			        diffSummary = getDiffSymmary(statuses);
+				} else {
+					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+					diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
+				}
 				diffSummary = getDiffSummaryWithSubfolders(diffSummary);
 				ITypedElement left = new SVNLocalResourceSummaryNode(resource, diffSummary, resource.getResource().getLocation().toString());
 				SummaryEditionNode right = new SummaryEditionNode(remoteFolder);
@@ -110,6 +123,21 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 		}
 	}
 	
+	private SVNDiffSummary[] getDiffSymmary(RemoteResourceStatus[] statuses) {
+		int rootPathLength = resource.getResource().getLocation().toString().length() + 1;
+		SVNDiffSummary[] diffSummaries = new SVNDiffSummary[statuses.length];
+		for (int i = 0; i < statuses.length; i++) {
+			SVNDiffKind diffKind = null;
+			if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) diffKind = SVNDiffKind.ADDED;
+			else if (statuses[i].getTextStatus().equals(SVNStatusKind.DELETED)) diffKind = SVNDiffKind.DELETED;
+			else diffKind = SVNDiffKind.MODIFIED;
+			boolean propertyChanges = !statuses[i].getPropStatus().equals(SVNStatusKind.NORMAL);
+			SVNDiffSummary diffSummary = new SVNDiffSummary(statuses[i].getPath().substring(rootPathLength), diffKind, propertyChanges, statuses[i].getNodeKind().toInt());
+			diffSummaries[i] = diffSummary;
+		}
+		return diffSummaries;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.ISaveablePart#doSave(org.eclipse.core.runtime.IProgressMonitor)
 	 */
