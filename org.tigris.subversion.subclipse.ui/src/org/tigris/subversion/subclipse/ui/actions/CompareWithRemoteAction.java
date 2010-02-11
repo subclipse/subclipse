@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.ui.actions;
 import java.io.File;
 
 import org.eclipse.compare.CompareUI;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -20,11 +21,16 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.resources.RemoteFile;
+import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareSummaryInput;
 import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
@@ -44,7 +50,7 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 
 	public void execute(IAction action) {
 		refresh = false;
-		IResource[] resources = getSelectedResources();
+		final IResource[] resources = getSelectedResources();
 		if (resources.length != 1) return;
 		
 		if (resources[0] instanceof IFile && !resources[0].isSynchronized(Depth.immediates)) {
@@ -58,21 +64,37 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 				public void run(IProgressMonitor monitor) {
 					try {
 						if (refresh) localResource.getResource().refreshLocal(Depth.immediates, monitor);				
-						File file = null;
-						ShowDifferencesAsUnifiedDiffOperationWC operation = null;
-						if (SVNRevision.HEAD.equals(revision)) {
-							file = File.createTempFile("revision", ".diff");
-							file.deleteOnExit();
-							operation = new ShowDifferencesAsUnifiedDiffOperationWC(getTargetPart(), localResource.getFile(), localResource.getUrl(), SVNRevision.HEAD, file);						
-							operation.setGraphicalCompare(true);
-							operation.run();
+						if (SVNRevision.BASE.equals(revision)) {
+							SVNLocalCompareInput compareInput = new SVNLocalCompareInput(localResource, revision);
+							CompareUI.openCompareEditorOnPage(
+									compareInput,
+									getTargetPage());
+						} else {					
+							if (resources[0] instanceof IContainer) {
+								ISVNRemoteFolder remoteFolder = new RemoteFolder(localResource.getRepository(), localResource.getUrl(), revision);
+								SVNLocalCompareSummaryInput compareInput = new SVNLocalCompareSummaryInput(localResource, remoteFolder);
+								CompareUI.openCompareEditorOnPage(
+										compareInput,
+										getTargetPage());								
+							} else {
+								ISVNRemoteFile remoteFile = new RemoteFile(localResource.getRepository(), localResource.getUrl(), revision);
+								((RemoteFile)remoteFile).setPegRevision(revision);
+								SVNLocalCompareInput compareInput = new SVNLocalCompareInput(localResource, remoteFile);
+								ShowDifferencesAsUnifiedDiffOperationWC operation = null;
+								if (SVNRevision.HEAD.equals(revision)) {
+									File file = File.createTempFile("revision", ".diff");
+									file.deleteOnExit();
+									operation = new ShowDifferencesAsUnifiedDiffOperationWC(getTargetPart(), localResource.getFile(), localResource.getUrl(), SVNRevision.HEAD, file);						
+									operation.setGraphicalCompare(true);
+									operation.run();
+								}							
+								compareInput.setDiffOperation(operation);
+								CompareUI.openCompareEditorOnPage(
+										compareInput,
+										getTargetPage());
+							}
 						}
-						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(localResource, revision);
-						compareInput.setDiffFile(file);
-						compareInput.setDiffOperation(operation);
-						CompareUI.openCompareEditorOnPage(
-								compareInput,
-								getTargetPage());
+						
 					} catch (Exception e) {
 						handle(e, null, null);
 					}
