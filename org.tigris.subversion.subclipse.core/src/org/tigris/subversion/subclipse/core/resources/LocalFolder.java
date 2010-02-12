@@ -150,11 +150,11 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         if (resourceMapping != null)	 {
         	try {
 				ResourceTraversal[] traversals = resourceMapping.getTraversals(ResourceMappingContext.LOCAL_CONTEXT, null);
-				for (ResourceTraversal traversal : traversals) {
-					IResource[] traversalResources = traversal.getResources();
-					for (IResource traversalResource : traversalResources) {
-						if (traversalResource.equals(getResource())) {
-							if (traversal.getDepth() == 1) {
+				for (int i = 0; i < traversals.length; i++) {
+					IResource[] traversalResources = traversals[i].getResources();
+					for (int j = 0; j < traversalResources.length; j++) {
+						if (traversalResources[j].equals(getResource())) {
+							if (traversals[i].getDepth() == 1) {
 								recursive = false;
 							}
 							break;

@@ -269,8 +269,8 @@ public class SVNLightweightDecorator
 			try {
 				ResourceTraversal[] traversals = resourceMapping.getTraversals(ResourceMappingContext.LOCAL_CONTEXT, null);			
 				if (traversals != null) {
-					for (ResourceTraversal traversal : traversals) {
-						IResource[] traversalResources = traversal.getResources();
+					for (int i = 0; i < traversals.length; i++) {
+						IResource[] traversalResources = traversals[i].getResources();
 						if (traversalResources != null && traversalResources.length == 1) {
 							IResource traversalResource = traversalResources[0];
 							return traversalResource;
