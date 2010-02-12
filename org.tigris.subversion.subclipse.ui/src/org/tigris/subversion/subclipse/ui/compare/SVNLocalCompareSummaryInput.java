@@ -3,16 +3,20 @@ package org.tigris.subversion.subclipse.ui.compare;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
@@ -25,6 +29,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -124,17 +129,37 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 	}
 	
 	private SVNDiffSummary[] getDiffSymmary(RemoteResourceStatus[] statuses) {
+		List diffSummaryList = new ArrayList();
 		int rootPathLength = resource.getResource().getLocation().toString().length() + 1;
-		SVNDiffSummary[] diffSummaries = new SVNDiffSummary[statuses.length];
 		for (int i = 0; i < statuses.length; i++) {
-			SVNDiffKind diffKind = null;
-			if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) diffKind = SVNDiffKind.ADDED;
-			else if (statuses[i].getTextStatus().equals(SVNStatusKind.DELETED)) diffKind = SVNDiffKind.DELETED;
-			else diffKind = SVNDiffKind.MODIFIED;
-			boolean propertyChanges = !statuses[i].getPropStatus().equals(SVNStatusKind.NORMAL);
-			SVNDiffSummary diffSummary = new SVNDiffSummary(statuses[i].getPath().substring(rootPathLength), diffKind, propertyChanges, statuses[i].getNodeKind().toInt());
-			diffSummaries[i] = diffSummary;
+			if (statuses[i].getFile() != null && !statuses[i].getNodeKind().equals(SVNNodeKind.DIR)) {
+				SVNStatusKind textStatus = statuses[i].getTextStatus();
+				boolean propertyChanges = !statuses[i].getPropStatus().equals(SVNStatusKind.NORMAL) && !statuses[i].getPropStatus().equals(SVNStatusKind.NONE);
+				boolean localChanges = false;
+				if (textStatus.equals(SVNStatusKind.NONE) && propertyChanges && statuses[i].getNodeKind().equals(SVNNodeKind.FILE)) {
+					IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(statuses[i].getPath()));
+					if (file != null) {
+						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(file);
+						try {
+							LocalResourceStatus localStatus = svnResource.getStatus();
+							if (localStatus != null) {
+								localChanges = localStatus.isAdded() || localStatus.isDirty();
+							}
+						} catch (SVNException e) {}
+					}
+				}
+				if (!textStatus.equals(SVNStatusKind.NONE) || !propertyChanges || localChanges) {
+					SVNDiffKind diffKind = null;
+					if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) diffKind = SVNDiffKind.ADDED;
+					else if (statuses[i].getTextStatus().equals(SVNStatusKind.DELETED)) diffKind = SVNDiffKind.DELETED;
+					else diffKind = SVNDiffKind.MODIFIED;
+					SVNDiffSummary diffSummary = new SVNDiffSummary(statuses[i].getPath().substring(rootPathLength), diffKind, propertyChanges, statuses[i].getNodeKind().toInt());
+					diffSummaryList.add(diffSummary);
+				}
+			}
 		}
+		SVNDiffSummary[] diffSummaries = new SVNDiffSummary[diffSummaryList.size()];
+		diffSummaryList.toArray(diffSummaries);
 		return diffSummaries;
 	}
 
