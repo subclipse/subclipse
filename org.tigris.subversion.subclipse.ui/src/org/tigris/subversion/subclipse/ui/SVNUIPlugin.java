@@ -74,6 +74,7 @@ import org.tigris.subversion.subclipse.ui.console.SVNOutputConsole;
 import org.tigris.subversion.subclipse.ui.repository.RepositoryManager;
 import org.tigris.subversion.subclipse.ui.repository.model.SVNAdapterFactory;
 import org.tigris.subversion.subclipse.ui.util.SimpleDialogsHelper;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 /**
  * UI Plugin for Subversion provider-specific workbench functionality.
  */
@@ -611,35 +612,43 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		boolean passwordStoresFound = false;
 		boolean passwordStoresEmpty = true;
 		File configFile = getConfigFile();
-		if (configFile.exists()) {
-		   	BufferedReader input = null;
-	    	try {
-				input = new BufferedReader(new FileReader(configFile));
-				String line = null; 
-				while ((line = input.readLine()) != null){
-					if (line.startsWith("password-stores =")) {
-						passwordStoresFound = true;
-						if (!line.trim().endsWith("password-stores =")) {
-							passwordStoresEmpty = false;
-						}
-						break;
-					}
-					if (line.startsWith("password-stores=")) {
-						passwordStoresFound = true;
-						if (!line.trim().endsWith("password-stores=")) {
-							passwordStoresEmpty = false;
-						}
-						break;
-					}
-				}
-			} catch (Exception e) {} finally {
-				if (input != null) {
-					try {
-						input.close();
-					} catch (IOException e) {}
-				}
-			}			
+		if (!configFile.exists()) {
+			try {
+				// This is ja hack to cause the config file to be created so that we
+				// can offer to fix it.  We are using a non-existant path so that it will
+				// just end quickly.
+				ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+				client.cleanup(new File("/This/is/just/a/dummy/file"));
+			} catch (Exception e) {}
 		}
+		if (!configFile.exists()) return false;
+	   	BufferedReader input = null;
+    	try {
+			input = new BufferedReader(new FileReader(configFile));
+			String line = null; 
+			while ((line = input.readLine()) != null){
+				if (line.startsWith("password-stores =")) {
+					passwordStoresFound = true;
+					if (!line.trim().endsWith("password-stores =")) {
+						passwordStoresEmpty = false;
+					}
+					break;
+				}
+				if (line.startsWith("password-stores=")) {
+					passwordStoresFound = true;
+					if (!line.trim().endsWith("password-stores=")) {
+						passwordStoresEmpty = false;
+					}
+					break;
+				}
+			}
+		} catch (Exception e) {} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {}
+			}
+		}			
 		return !passwordStoresEmpty || !passwordStoresFound;
 	}
 	
