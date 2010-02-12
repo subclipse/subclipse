@@ -492,10 +492,6 @@ public class SVNCompareRevisionsInput extends CompareEditorInput implements ISav
 	 */
 	public void removePropertyListener(IPropertyListener listener) {
 	}
-	
-	public void cancelPressed() {
-		super.cancelPressed();
-	}
 
 	public boolean canRunAsJob() {
 		return true;

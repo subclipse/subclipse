@@ -245,10 +245,6 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	public void setDiffFile(File diffFile) {
 		this.diffFile = diffFile;
 	}
-	
-	public void cancelPressed() {
-		super.cancelPressed();
-	}
 
 	public boolean canRunAsJob() {
 		return true;

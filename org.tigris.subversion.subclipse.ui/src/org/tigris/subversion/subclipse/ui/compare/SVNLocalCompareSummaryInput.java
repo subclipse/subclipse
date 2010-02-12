@@ -246,10 +246,6 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 	 */
 	public void removePropertyListener(IPropertyListener listener) {
 	}
-	
-	public void cancelPressed() { 
-		super.cancelPressed();
-	}
 
 	public boolean canRunAsJob() {
 		return true;
