@@ -153,7 +153,7 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 					if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) diffKind = SVNDiffKind.ADDED;
 					else if (statuses[i].getTextStatus().equals(SVNStatusKind.DELETED)) diffKind = SVNDiffKind.DELETED;
 					else diffKind = SVNDiffKind.MODIFIED;
-					SVNDiffSummary diffSummary = new SVNDiffSummary(statuses[i].getPath().substring(rootPathLength), diffKind, propertyChanges, statuses[i].getNodeKind().toInt());
+					SVNDiffSummary diffSummary = new SVNDiffSummary(statuses[i].getPath().substring(rootPathLength).replaceAll("\\\\", "/"), diffKind, propertyChanges, statuses[i].getNodeKind().toInt());
 					diffSummaryList.add(diffSummary);
 				}
 			}
