@@ -65,5 +65,7 @@ public interface IResourceStateChangeListener extends EventListener{
 	 * @param project The project that has just been configured
 	 */
 	public void projectDeconfigured(IProject project);
+	
+	public void initialize();
 }
 

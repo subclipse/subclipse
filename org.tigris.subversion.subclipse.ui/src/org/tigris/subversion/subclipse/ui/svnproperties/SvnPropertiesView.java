@@ -107,6 +107,8 @@ public class SvnPropertiesView extends ViewPart {
 		public void projectConfigured(IProject project) {}
     
 		public void projectDeconfigured(IProject project) {}
+		
+		public void initialize() {}
 	}
 
 

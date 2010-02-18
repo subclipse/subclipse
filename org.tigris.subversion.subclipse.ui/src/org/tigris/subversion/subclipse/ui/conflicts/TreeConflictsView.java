@@ -177,8 +177,8 @@ public class TreeConflictsView extends ViewPart {
 		return resource;
 	}
 
-	public static void refresh(IResource[] resources) {
-		if (view == null || view.isDisposed() || view.getResource() == null) return;
+	public static boolean refresh(IResource[] resources) {
+		if (view == null || view.isDisposed() || view.getResource() == null) return false;
 		for (int i = 0; i < resources.length; i++) {
 			if (view.getResource().equals(resources[i]) || resources[i].getFullPath().toString().startsWith(view.getResource().getFullPath().toString())) {
 				Display.getDefault().asyncExec(new Runnable() {
@@ -186,12 +186,14 @@ public class TreeConflictsView extends ViewPart {
 						view.refresh();
 					}					
 				});
-				break;
+				return true;
 			}
 		}
+		return false;
 	}
 	
 	public void refresh() {
+		if (disposed || resource == null) return;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
 				folderList = new ArrayList();				

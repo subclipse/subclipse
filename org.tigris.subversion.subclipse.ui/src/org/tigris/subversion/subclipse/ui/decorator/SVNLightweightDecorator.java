@@ -639,7 +639,8 @@ public class SVNLightweightDecorator
 		refresh(project);
 	}
 	
-
+	public void initialize() {};
+	
 	/**
 	 * Post the label event to the UI thread
 	 *

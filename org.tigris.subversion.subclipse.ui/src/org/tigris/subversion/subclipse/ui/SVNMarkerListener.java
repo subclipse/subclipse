@@ -21,6 +21,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.conflicts.TreeConflictsView;
 
 public class SVNMarkerListener implements IResourceStateChangeListener {
+	private boolean treeConflictsViewRefreshed;
 
     public SVNMarkerListener() {
         super();
@@ -54,7 +55,9 @@ public class SVNMarkerListener implements IResourceStateChangeListener {
     	        SVNUIPlugin.log(e.getMessage());
     	    }
         }
-        TreeConflictsView.refresh(changedResources);
+        if (!treeConflictsViewRefreshed) {
+        	treeConflictsViewRefreshed = TreeConflictsView.refresh(changedResources);
+        }
     }
 
 	private void setMessage(LocalResourceStatus status, IMarker marker)
@@ -101,6 +104,10 @@ public class SVNMarkerListener implements IResourceStateChangeListener {
      */
     public void projectDeconfigured(IProject project) {
 
+    }
+    
+    public void initialize() {
+    	treeConflictsViewRefreshed = false;
     }
 
 }

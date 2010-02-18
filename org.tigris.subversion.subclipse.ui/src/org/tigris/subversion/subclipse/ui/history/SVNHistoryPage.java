@@ -2925,6 +2925,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   public void projectDeconfigured(IProject project) {
   }
 
+  public void initialize() {	  
+  }
+  
 public static void setHistorySearchViewerFilter(
 		HistorySearchViewerFilter historySearchViewerFilter) {
 	SVNHistoryPage.historySearchViewerFilter = historySearchViewerFilter;

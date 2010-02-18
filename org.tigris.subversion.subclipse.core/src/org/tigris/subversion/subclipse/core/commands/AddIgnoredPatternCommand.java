@@ -65,7 +65,7 @@ public class AddIgnoredPatternCommand implements ISVNCommand {
                     possiblesIgnores[i] = ((ISVNLocalResource)members[i]).getIResource();
                 }
                 folder.refreshStatus(false);
-                SVNProviderPlugin.broadcastSyncInfoChanges(possiblesIgnores);
+                SVNProviderPlugin.broadcastSyncInfoChanges(possiblesIgnores, false);
                 broadcastNestedFolders(possiblesIgnores);
             }
             catch (SVNClientException e) {
@@ -87,7 +87,7 @@ public class AddIgnoredPatternCommand implements ISVNCommand {
                 IFolder folder = (IFolder) resources[i];
                 try {
                     IResource[] children = folder.members(true);
-                    SVNProviderPlugin.broadcastSyncInfoChanges(children);
+                    SVNProviderPlugin.broadcastSyncInfoChanges(children, false);
                     broadcastNestedFolders(children);
                 } catch (CoreException e1) {
                 }

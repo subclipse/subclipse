@@ -14,7 +14,7 @@ public class LoadErrorHandler implements ILoadErrorHandler {
 			return;
 		}		
 		final String loadErrors = clientWrapper.getLoadErrors();
-		Display.getDefault().asyncExec(new Runnable() {
+		Display.getDefault().syncExec(new Runnable() {
 			public void run() {
 				loadErrorHandled = true;
 				LoadErrorDialog dialog = new LoadErrorDialog(Display.getDefault().getActiveShell(), loadErrors);

@@ -303,6 +303,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 		
 		protected void refreshProjectFolders(Set folders, IProgressMonitor monitor) throws SVNException
 		{
+			boolean initializeListeners = true;
 			for (Iterator it = folders.iterator(); it.hasNext();) {
 				IContainer dotSvnContainer = (IContainer)it.next();
 				IContainer container = dotSvnContainer.getParent();
@@ -318,7 +319,8 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 				//svnContainer.refreshStatus(IResource.DEPTH_ONE);
 				IResource[] refreshed = SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(container, false);
 
-				SVNProviderPlugin.broadcastSyncInfoChanges(refreshed);
+				SVNProviderPlugin.broadcastSyncInfoChanges(refreshed, initializeListeners);
+				initializeListeners = false;
 			}                			
 		}					
 	}

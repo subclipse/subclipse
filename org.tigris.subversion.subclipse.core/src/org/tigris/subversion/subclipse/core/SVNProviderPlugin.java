@@ -247,7 +247,7 @@ public class SVNProviderPlugin extends Plugin {
 	 * This method is called by SyncFileChangeListener when metafiles have
 	 * changed
 	 */
-	public static void broadcastSyncInfoChanges(final IResource[] resources) {
+	public static void broadcastSyncInfoChanges(final IResource[] resources, final boolean initializeListeners) {
 		IResourceStateChangeListener[] toNotify;
 		synchronized(listeners) {
 			toNotify = (IResourceStateChangeListener[])listeners.toArray(new IResourceStateChangeListener[listeners.size()]);
@@ -257,6 +257,7 @@ public class SVNProviderPlugin extends Plugin {
 			final IResourceStateChangeListener listener = toNotify[i];
 			ISafeRunnable code = new ISafeRunnable() {
 				public void run() throws Exception {
+					if (initializeListeners) listener.initialize();
 					listener.resourceSyncInfoChanged(resources);
 				}
 				public void handleException(Throwable e) {
