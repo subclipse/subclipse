@@ -340,7 +340,15 @@ public class SVNLightweightDecorator
 					SVNUIPlugin.log(e1.getStatus());
 				}
 			}
-			decorateTextLabel(svnResource, status, decoration, isDirty);
+			boolean decorateText = true;
+			if (element instanceof ResourceMapping) {
+				ResourceMapping resourceMapping = (ResourceMapping)element;
+				IResource modelObjectResource = Utils.getResource(resourceMapping.getModelObject());
+				if (modelObjectResource == null) decorateText = false;
+			}
+			if (decorateText) {
+				decorateTextLabel(svnResource, status, decoration, isDirty);
+			}
 		}
 		computeColorsAndFonts(isIgnored, isDirty || isUnversioned, decoration);
 		if (!isIgnored) {
