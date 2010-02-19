@@ -23,8 +23,10 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class OpenLogEntryAction extends SVNAction {
 
@@ -43,6 +45,11 @@ public class OpenLogEntryAction extends SVNAction {
                     if (!(remoteResource instanceof ISVNRemoteFile)) continue;
                     
                     ISVNRemoteFile file = (ISVNRemoteFile)remoteResource;
+                    
+                    if (file instanceof RemoteResource) {
+                    	((RemoteResource)file).setPegRevision(SVNRevision.HEAD);
+                    }
+                    
                     String filename = remoteResource.getName();
                     IEditorDescriptor descriptor = registry.getDefaultEditor(filename);
                     String id;

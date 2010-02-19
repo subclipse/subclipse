@@ -24,6 +24,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * This action is used on ISVNRemoteFile or ILogEntry
@@ -60,6 +61,8 @@ public class OpenRemoteFileAction extends SVNAction {
 						try {
 							if (usePegRevision && files[i] instanceof RemoteResource) 
 								((RemoteResource)files[i]).setPegRevision(files[i].getRevision());
+							else
+								((RemoteResource)files[i]).setPegRevision(SVNRevision.HEAD);
 							page.openEditor(new RemoteFileEditorInput(files[i],monitor), id);
 						} catch (PartInitException e) {
 							if (id.equals("org.eclipse.ui.DefaultTextEditor")) { //$NON-NLS-1$
