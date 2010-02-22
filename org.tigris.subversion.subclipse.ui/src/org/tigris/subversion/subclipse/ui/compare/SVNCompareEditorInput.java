@@ -26,8 +26,10 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * A compare input for comparing remote resources. Use <code>SVNLocalCompareInput</code> 
@@ -59,9 +61,15 @@ public class SVNCompareEditorInput extends CompareEditorInput {
 		this.ancestor = ancestor;
 		if (left != null) {
 			this.leftImage = left.getImage();
+			if (left.getRemoteResource() instanceof RemoteResource) {
+				((RemoteResource)left.getRemoteResource()).setPegRevision(SVNRevision.HEAD);
+			}
 		}
 		if (right != null) {
 			this.rightImage = right.getImage();
+			if (right.getRemoteResource() instanceof RemoteResource) {
+				((RemoteResource)right.getRemoteResource()).setPegRevision(SVNRevision.HEAD);
+			}
 		}
 		if (ancestor != null) {
 			this.ancestorImage = ancestor.getImage();
