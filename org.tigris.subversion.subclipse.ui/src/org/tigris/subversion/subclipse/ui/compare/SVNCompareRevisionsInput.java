@@ -57,6 +57,7 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -64,6 +65,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.history.HistoryTableProvider;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * A compare input for comparing local resource with remote ones 
@@ -134,6 +136,9 @@ public class SVNCompareRevisionsInput extends CompareEditorInput implements ISav
 		public ResourceRevisionNode(ILogEntry entry) {
 			super(entry.getRemoteResource());
 			this.entry = entry;
+			if (entry.getRemoteResource() instanceof RemoteResource) {
+				((RemoteResource)entry.getRemoteResource()).setPegRevision(SVNRevision.HEAD);
+			}
 		}
 		public ILogEntry getLogEntry() {
 			return entry;
