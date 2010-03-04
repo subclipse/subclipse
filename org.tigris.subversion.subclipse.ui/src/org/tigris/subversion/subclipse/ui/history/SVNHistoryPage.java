@@ -121,6 +121,7 @@ import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
+import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.CancelableSVNLogMessageCallback;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -1617,6 +1618,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
               try {
                 if(remoteFile != null) {
                   if(confirmOverwrite()) {
+                	if (remoteFile instanceof RemoteResource) {
+                		((RemoteResource)remoteFile).setPegRevision(SVNRevision.HEAD);
+                	}
                     InputStream in = ((IResourceVariant) remoteFile).getStorage(new SubProgressMonitor(monitor, 50))
                         .getContents();
                     IFile file = (IFile) resource;
