@@ -1619,7 +1619,12 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                 if(remoteFile != null) {
                   if(confirmOverwrite()) {
                 	if (remoteFile instanceof RemoteResource) {
-                		((RemoteResource)remoteFile).setPegRevision(SVNRevision.HEAD);
+                		if (resource != null) {
+                			ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+                			((RemoteResource)remoteFile).setPegRevision(localResource.getRevision());
+                		} else {
+                			((RemoteResource)remoteFile).setPegRevision(SVNRevision.HEAD);
+                		}
                 	}
                     InputStream in = ((IResourceVariant) remoteFile).getStorage(new SubProgressMonitor(monitor, 50))
                         .getContents();
