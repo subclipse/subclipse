@@ -27,21 +27,27 @@ import org.eclipse.core.resources.mapping.ResourceMappingContext;
 import org.eclipse.core.resources.mapping.ResourceTraversal;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IDecoration;
+import org.eclipse.jface.viewers.IDecorationContext;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.RepositoryProvider;
+import org.eclipse.team.core.diff.IDiff;
+import org.eclipse.team.core.diff.IThreeWayDiff;
 import org.eclipse.team.internal.ui.Utils;
 import org.eclipse.team.ui.ISharedImages;
 import org.eclipse.team.ui.TeamImages;
 import org.eclipse.team.ui.TeamUI;
+import org.eclipse.team.ui.mapping.SynchronizationStateTester;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.themes.ITheme;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
@@ -93,6 +99,8 @@ public class SVNLightweightDecorator
     private static ImageDescriptor treeConflict;
 
 	private static IPropertyChangeListener propertyListener;
+	
+	private static final SynchronizationStateTester DEFAULT_TESTER = new SynchronizationStateTester();
 
 	protected boolean computeDeepDirtyCheck;
 	protected IDecoratorComponent[][] folderDecoratorFormat;
@@ -320,17 +328,34 @@ public class SVNLightweightDecorator
 			return;
 		}
 
+		// Get the sync state tester from the context
+		IDecorationContext context = decoration.getDecorationContext();
+		SynchronizationStateTester tester = DEFAULT_TESTER;
+		Object property = context.getProperty(SynchronizationStateTester.PROP_TESTER);
+		if (property instanceof SynchronizationStateTester) {
+			tester = (SynchronizationStateTester) property;
+		}
+		int state = IDiff.NO_CHANGE;
+		try {
+			state = tester.getState(element, 
+					IDiff.ADD | IDiff.REMOVE | IDiff.CHANGE | IThreeWayDiff.OUTGOING, 
+					new NullProgressMonitor());
+		} catch (Exception e) {
+			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+		}
+		
 		// determine a if resource has outgoing changes (e.g. is dirty).
 		boolean isDirty = false;
 		boolean isUnversioned = false;
 		LocalResourceStatus status = null;
 		if (!isIgnored) {
 			if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
-				ResourceMapping resourceMapping = null;
-				if (element instanceof ResourceMapping) {
-					resourceMapping = (ResourceMapping) element;
-				}
-		        isDirty = SVNLightweightDecorator.isDirty(svnResource, resourceMapping);
+//				ResourceMapping resourceMapping = null;
+//				if (element instanceof ResourceMapping) {
+//					resourceMapping = (ResourceMapping) element;
+//				}
+//		        isDirty = SVNLightweightDecorator.isDirty(svnResource, resourceMapping);
+				isDirty = (state & IThreeWayDiff.OUTGOING) != 0;
 			}
 			try {
 				status = svnResource.getStatus();
