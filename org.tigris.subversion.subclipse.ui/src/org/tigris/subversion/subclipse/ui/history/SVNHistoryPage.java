@@ -279,7 +279,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
   public String getName() {
-    return remoteResource == null ? null : remoteResource.getRepositoryRelativePath() + " in " 
+    return remoteResource == null ? null : remoteResource.getRepositoryRelativePath() + Policy.bind("SVNHistoryPage.0")  //$NON-NLS-1$
         + remoteResource.getRepository();
   }
 
@@ -502,26 +502,26 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     this.svnHistoryPageControl.setLayoutData(new GridData(GridData.FILL_BOTH));
 
     this.toggleAffectedPathsModeActions = new ToggleAffectedPathsOptionAction[] {
-        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsTableLayout", 
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsTableLayout",  //$NON-NLS-1$
             ISVNUIConstants.IMG_AFFECTED_PATHS_TABLE_MODE, 
             ISVNUIConstants.PREF_AFFECTED_PATHS_MODE, 
             ISVNUIConstants.MODE_FLAT),
-        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsFlatLayout", 
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsFlatLayout",  //$NON-NLS-1$
             ISVNUIConstants.IMG_AFFECTED_PATHS_FLAT_MODE, 
             ISVNUIConstants.PREF_AFFECTED_PATHS_MODE, 
             ISVNUIConstants.MODE_FLAT2),
-        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsCompressedLayout", 
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsCompressedLayout",  //$NON-NLS-1$
             ISVNUIConstants.IMG_AFFECTED_PATHS_COMPRESSED_MODE, 
             ISVNUIConstants.PREF_AFFECTED_PATHS_MODE, 
             ISVNUIConstants.MODE_COMPRESSED),
       };
     
     this.toggleAffectedPathsLayoutActions = new ToggleAffectedPathsOptionAction[] {
-        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsHorizontalLayout", 
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsHorizontalLayout",  //$NON-NLS-1$
             ISVNUIConstants.IMG_AFFECTED_PATHS_HORIZONTAL_LAYOUT, 
             ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT, 
             ISVNUIConstants.LAYOUT_HORIZONTAL),
-        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsVerticalLayout", 
+        new ToggleAffectedPathsOptionAction(this, "HistoryView.affectedPathsVerticalLayout",  //$NON-NLS-1$
             ISVNUIConstants.IMG_AFFECTED_PATHS_VERTICAL_LAYOUT, 
             ISVNUIConstants.PREF_AFFECTED_PATHS_LAYOUT, 
             ISVNUIConstants.LAYOUT_VERTICAL),
@@ -872,7 +872,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
               public void open() {
                 try {
                   URL url = new URL(linkUrl);
-                  PlatformUI.getWorkbench().getBrowserSupport().createBrowser("Subclipse").openURL(url);
+                  PlatformUI.getWorkbench().getBrowserSupport().createBrowser("Subclipse").openURL(url); //$NON-NLS-1$
                 } catch (Exception e1) {
                   Program.launch(linkUrl);
                 }
@@ -1216,13 +1216,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     if(openChangedPathAction == null) {
       openChangedPathAction = new Action("Open") { //$NON-NLS-1$
         public void run() {
+          if (!isFile()) { 
+        	  MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("SVNHistoryPage.7"), Policy.bind("SVNHistoryPage.8")); //$NON-NLS-1$ //$NON-NLS-2$
+          	  return;
+          }
           OpenRemoteFileAction delegate = new OpenRemoteFileAction();
           delegate.setUsePegRevision(true);
           delegate.init(this);
           delegate.selectionChanged(this, changePathsViewer.getSelection());
           if(isEnabled()) {
             try {
-              // disableEditorActivation = true;
               delegate.run(this);
             } finally {
               // disableEditorActivation = false;
@@ -1231,7 +1234,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         }
       };
     }
-    openChangedPathAction.setEnabled(isFile());
+//  openChangedPathAction.setEnabled(isFile());
     return openChangedPathAction;
 
   }
@@ -1251,7 +1254,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   
   private IAction getCopyChangedPathAction() {
 	  if (copyChangedPathAction == null) {
-		  copyChangedPathAction = new Action(Policy.bind("HistoryView.copyChangedPath")) {
+		  copyChangedPathAction = new Action(Policy.bind("HistoryView.copyChangedPath")) { //$NON-NLS-1$
 			  public void run() {
 				  ContainerSelectionDialog dialog = new ContainerSelectionDialog(Display.getDefault().getActiveShell(), null, false, Policy.bind("CopyAction.selectionLabel")); //$NON-NLS-1$
 				  if (dialog.open() == ContainerSelectionDialog.OK) {
@@ -1287,7 +1290,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 									targetProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());								
 								}
 							} catch (Exception e) {
-								MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("HistoryView.copyError"), e.getMessage());
+								MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("HistoryView.copyError"), e.getMessage()); //$NON-NLS-1$
 							}
 						}						
 					});
@@ -1315,13 +1318,17 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     if(showAnnotationAction == null) {
       showAnnotationAction = new Action("Show Annotation", SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_ANNOTATE)) { //$NON-NLS-1$
         public void run() {
+          if (!isFile()) { 
+          	MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("SVNHistoryPage.11"), Policy.bind("SVNHistoryPage.12")); //$NON-NLS-1$ //$NON-NLS-2$
+            	return;
+          }
           AnnotationAction delegate = new AnnotationAction();
           delegate.selectionChanged(this, changePathsViewer.getSelection());
           delegate.run(this);
         }
       };	    	
     }
-	showAnnotationAction.setEnabled(isFile());
+//	showAnnotationAction.setEnabled(isFile());
 	return showAnnotationAction;
   }  
   
@@ -1383,13 +1390,13 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                             ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
                             client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
                           } catch(Exception e) {
-                            MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                            MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e //$NON-NLS-1$
                                 .getMessage());
                           }
                         }
                       });
                 } catch(Exception e) {
-                  MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                  MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e //$NON-NLS-1$
                       .getMessage());
                 }        		
         	}
@@ -1429,12 +1436,13 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       IStructuredSelection sel = (IStructuredSelection) selection;
       SVNRevision selectedRevision = null;
       if(sel.size() == 1) {
-          ISVNRemoteResource remoteResource = null;
+//        ISVNRemoteResource remoteResource = null;
   		  if (sel.getFirstElement() instanceof LogEntryChangePath && ((LogEntryChangePath)sel.getFirstElement()).getAction() != 'D') {
-			  try {
-				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
-				selectedRevision = remoteResource.getRevision();
-			} catch (SVNException e) {}
+//			  try {
+//				remoteResource = ((LogEntryChangePath)sel.getFirstElement()).getRemoteResource();
+				selectedRevision = ((LogEntryChangePath)sel.getFirstElement()).getRevision();
+//				selectedRevision = remoteResource.getRevision();
+//			} catch (SVNException e) {}
 		  }
 		  else if (sel.getFirstElement() instanceof HistoryFolder) {
 			  HistoryFolder historyFolder = (HistoryFolder)sel.getFirstElement();
@@ -1445,10 +1453,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		  } 
   		createTagFromRevisionChangedPathAction.setEnabled(selectedRevision != null);
   		if (selectedRevision == null) {
-	        createTagFromRevisionChangedPathAction.setText(Policy.bind("HistoryView.createTagFromRevision", ""
+	        createTagFromRevisionChangedPathAction.setText(Policy.bind("HistoryView.createTagFromRevision", "" //$NON-NLS-1$ //$NON-NLS-2$
 		            + ((LogEntryChangePath)sel.getFirstElement()).getRevision()));
   		} else {
-	        createTagFromRevisionChangedPathAction.setText(Policy.bind("HistoryView.createTagFromRevision", ""
+	        createTagFromRevisionChangedPathAction.setText(Policy.bind("HistoryView.createTagFromRevision", "" //$NON-NLS-1$ //$NON-NLS-2$
 	            + selectedRevision));
   		}
       }
@@ -1909,7 +1917,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         IStructuredSelection ss = (IStructuredSelection) selection;
         if(ss.size() == 1) {
           ILogEntry currentSelection = getLogEntry(ss);
-          switchAction.setText(Policy.bind("HistoryView.switchToRevision", ""
+          switchAction.setText(Policy.bind("HistoryView.switchToRevision", "" //$NON-NLS-1$ //$NON-NLS-2$
               + currentSelection.getRevision().getNumber()));
         }
       }	
@@ -1952,7 +1960,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                         ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
                         client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
                       } catch(Exception e) {
-                        MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                        MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e //$NON-NLS-1$
                             .getMessage());
                       }
                     }
@@ -1965,7 +1973,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                 	branchTagOperation.run();
                 }
               } catch(Exception e) {
-                MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e
+                MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e //$NON-NLS-1$
                     .getMessage());
               }    		
     	  }
@@ -2017,7 +2025,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       IStructuredSelection ss = (IStructuredSelection) selection;
       if(ss.size() == 1) {
         ILogEntry currentSelection = getLogEntry(ss);
-        createTagFromRevisionAction.setText(Policy.bind("HistoryView.createTagFromRevision", ""
+        createTagFromRevisionAction.setText(Policy.bind("HistoryView.createTagFromRevision", "" //$NON-NLS-1$ //$NON-NLS-2$
             + currentSelection.getRevision().getNumber()));
       }
     }	
@@ -2028,7 +2036,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction getSetCommitPropertiesAction() {
     // set Action (context menu)
     if(setCommitPropertiesAction == null) {
-      setCommitPropertiesAction = new Action(Policy.bind("HistoryView.setCommitProperties")) {
+      setCommitPropertiesAction = new Action(Policy.bind("HistoryView.setCommitProperties")) { //$NON-NLS-1$
         public void run() {
           try {
             final ISelection selection = getSelection();
@@ -2116,7 +2124,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   
   private IAction getShowRevisionsAction() {
 	  if (showRevisionsAction == null) {
-		  showRevisionsAction = new Action(Policy.bind("HistoryView.showMergedRevisions")) {
+		  showRevisionsAction = new Action(Policy.bind("HistoryView.showMergedRevisions")) { //$NON-NLS-1$
 			  public void run() {
 		          ISelection selection = getSelection();
 		          if( !(selection instanceof IStructuredSelection))
@@ -2144,11 +2152,11 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           final IStructuredSelection ss = (IStructuredSelection) selection;
           if(ss.size() == 1) {
             if( !MessageDialog.openConfirm(getSite().getShell(), getText(), Policy.bind(
-                "HistoryView.confirmRevertRevision", resource.getFullPath().toString())))
+                "HistoryView.confirmRevertRevision", resource.getFullPath().toString()))) //$NON-NLS-1$
               return;
           } else {
             if( !MessageDialog.openConfirm(getSite().getShell(), getText(), Policy.bind(
-                "HistoryView.confirmRevertRevisions", resource.getFullPath().toString())))
+                "HistoryView.confirmRevertRevisions", resource.getFullPath().toString()))) //$NON-NLS-1$
               return;
           }
           BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
@@ -2181,14 +2189,14 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       IStructuredSelection ss = (IStructuredSelection) selection;
       if(ss.size() == 1) {
         ILogEntry currentSelection = getLogEntry(ss);
-        revertChangesAction.setText(Policy.bind("HistoryView.revertChangesFromRevision", ""
+        revertChangesAction.setText(Policy.bind("HistoryView.revertChangesFromRevision", "" //$NON-NLS-1$ //$NON-NLS-2$
             + currentSelection.getRevision().getNumber()));
       }
       if(ss.size() > 1) {
         ILogEntry firstElement = getFirstElement();
         ILogEntry lastElement = getLastElement();
-        revertChangesAction.setText(Policy.bind("HistoryView.revertChangesFromRevisions", ""
-            + lastElement.getRevision().getNumber(), "" + firstElement.getRevision().getNumber()));
+        revertChangesAction.setText(Policy.bind("HistoryView.revertChangesFromRevisions", "" //$NON-NLS-1$ //$NON-NLS-2$
+            + lastElement.getRevision().getNumber(), "" + firstElement.getRevision().getNumber())); //$NON-NLS-1$
       }
     }
     revertChangesAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_MARKMERGED));
@@ -2422,7 +2430,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   
   private final class GetNextAction extends Action implements IPropertyChangeListener {
     GetNextAction() {
-      super(Policy.bind("HistoryView.getNext"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_GET_NEXT));
+      super(Policy.bind("HistoryView.getNext"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_GET_NEXT)); //$NON-NLS-1$
       updateFromProperties();
       SVNUIPlugin.getPlugin().getPreferenceStore().addPropertyChangeListener(this);
     }
@@ -2453,7 +2461,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 
     private void updateFromProperties() {
       int entriesToFetch = SVNUIPlugin.getPlugin().getPreferenceStore().getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
-      setToolTipText(Policy.bind("HistoryView.getNext") + " " + entriesToFetch); //$NON-NLS-1$
+      setToolTipText(Policy.bind("HistoryView.getNext") + " " + entriesToFetch); //$NON-NLS-1$ //$NON-NLS-2$
       if(entriesToFetch <= 0) {
         setEnabled(false);
       }
@@ -2686,7 +2694,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private class SearchHistoryJob extends Job {
 
 	  public SearchHistoryJob() {
-		  super(Policy.bind("HistoryView.searchHistoryJob")); //$NON-NLS-1$
+		  super(""); //$NON-NLS-1$
 	  }
 	  
 	  public IStatus run(IProgressMonitor monitor) {
