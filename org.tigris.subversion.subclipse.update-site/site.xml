@@ -24,7 +24,7 @@
    <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.6.8.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.6.8">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse_1.6.8.jar" id="org.tigris.subversion.subclipse" version="1.6.8">
+   <feature url="features/org.tigris.subversion.subclipse_1.6.9.jar" id="org.tigris.subversion.subclipse" version="1.6.9">
       <category name="Subclipse"/>
    </feature>
    <category-def name="SVNKit Library" label="Core SVNKit Library">
