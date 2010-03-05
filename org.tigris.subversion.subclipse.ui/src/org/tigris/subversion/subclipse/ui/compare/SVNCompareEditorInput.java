@@ -62,13 +62,17 @@ public class SVNCompareEditorInput extends CompareEditorInput {
 		if (left != null) {
 			this.leftImage = left.getImage();
 			if (left.getRemoteResource() instanceof RemoteResource) {
-				((RemoteResource)left.getRemoteResource()).setPegRevision(SVNRevision.HEAD);
+				if (((RemoteResource)left.getRemoteResource()).getPegRevision() == null) {
+					((RemoteResource)left.getRemoteResource()).setPegRevision(SVNRevision.HEAD);
+				}
 			}
 		}
 		if (right != null) {
 			this.rightImage = right.getImage();
 			if (right.getRemoteResource() instanceof RemoteResource) {
-				((RemoteResource)right.getRemoteResource()).setPegRevision(SVNRevision.HEAD);
+				if (((RemoteResource)right.getRemoteResource()).getPegRevision() == null) {
+					((RemoteResource)right.getRemoteResource()).setPegRevision(SVNRevision.HEAD);
+				}
 			}
 		}
 		if (ancestor != null) {

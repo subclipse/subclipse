@@ -34,6 +34,7 @@ import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
+import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -64,6 +65,7 @@ public class DifferencesDialog extends SvnDialog {
 	private boolean success;
 	private String fromRevision;
 	private String toRevision;
+	private boolean usePegRevision;
 
 	public DifferencesDialog(Shell parentShell, String title, ISVNResource[] remoteResources, IWorkbenchPart targetPart) {
 		super(parentShell, "DifferencesDialog"); //$NON-NLS-1$
@@ -432,12 +434,18 @@ public class DifferencesDialog extends SvnDialog {
 			if (fromRevision instanceof SVNRevision.Number) {
 				if (fromResource.isFolder()) resource1 = new RemoteFolder(null, fromResource.getRepository(), fromUrl, fromRevision, (SVNRevision.Number)fromRevision, null, null);
 				else resource1 = new RemoteFile(null, fromResource.getRepository(), fromUrl, fromRevision, (SVNRevision.Number)fromRevision, null, null);		
+				if (usePegRevision && resource1 instanceof RemoteResource) {
+					((RemoteResource)resource1).setPegRevision(fromRevision);
+				}
 			} else {
 				resource1 = (ISVNRemoteResource)fromResource;
 			}
 			if (toRevision instanceof SVNRevision.Number) {
 				if (toResource.isFolder()) resource2 = new RemoteFolder(null, toResource.getRepository(), toUrl, toRevision, (SVNRevision.Number)toRevision, null, null);
 				else resource2 = new RemoteFile(null, toResource.getRepository(), toUrl, toRevision, (SVNRevision.Number)toRevision, null, null);
+				if (usePegRevision && resource2 instanceof RemoteResource) {
+					((RemoteResource)resource2).setPegRevision(toRevision);
+				}
 			} else {
 				resource2 = (ISVNRemoteResource)toResource;;
 			}
@@ -501,4 +509,9 @@ public class DifferencesDialog extends SvnDialog {
 	public void setToRevision(String toRevision) {
 		this.toRevision = toRevision;
 	}
+
+	public void setUsePegRevision(boolean usePegRevision) {
+		this.usePegRevision = usePegRevision;
+	}
+	
 }

@@ -21,6 +21,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.dialogs.DifferencesDialog;
 
 public class ShowDifferencesAsUnifiedDiffAction extends WorkbenchWindowAction {
+	private boolean usePegRevision;
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		String fromRevision = null;
@@ -45,6 +46,7 @@ public class ShowDifferencesAsUnifiedDiffAction extends WorkbenchWindowAction {
 				toRevision = ((ISVNRemoteResource)selectedResources[1]).getRevision().toString();			
 		}
 		DifferencesDialog dialog = new DifferencesDialog(getShell(), null, selectedResources, getTargetPart());
+		dialog.setUsePegRevision(usePegRevision);
 		if (!fromRevision.equals("HEAD")) dialog.setFromRevision(fromRevision); //$NON-NLS-1$
 		if (toRevision != null && !toRevision.equals("HEAD")) dialog.setToRevision(toRevision); //$NON-NLS-1$  
 		dialog.open();
@@ -78,6 +80,10 @@ public class ShowDifferencesAsUnifiedDiffAction extends WorkbenchWindowAction {
 	 */
 	protected String getImageId() {
 		return ISVNUIConstants.IMG_MENU_DIFF;
+	}
+
+	public void setUsePegRevision(boolean usePegRevision) {
+		this.usePegRevision = usePegRevision;
 	}
 
 }

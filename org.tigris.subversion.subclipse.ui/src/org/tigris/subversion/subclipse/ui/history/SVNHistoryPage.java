@@ -1573,6 +1573,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	  
 	  public CompareAction() {
 		 super();
+		 setUsePegRevision(true);
 	  }
 	  
 	  protected ISVNRemoteResource[] getSelectedRemoteResources() {
@@ -1580,7 +1581,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 		  if (fSelection.getFirstElement() instanceof LogEntryChangePath) {
 			  try {
 				remoteResource = ((LogEntryChangePath)fSelection.getFirstElement()).getRemoteResource();
-			} catch (SVNException e) {}
+				if (remoteResource instanceof RemoteResource) {
+					((RemoteResource) remoteResource).setPegRevision(((LogEntryChangePath)fSelection.getFirstElement()).getRevision());
+				}			
+			  } catch (SVNException e) {}
 		  }
 		  else if (fSelection.getFirstElement() instanceof HistoryFolder) {
 			  HistoryFolder historyFolder = (HistoryFolder)fSelection.getFirstElement();
