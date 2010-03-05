@@ -328,20 +328,25 @@ public class SVNLightweightDecorator
 			return;
 		}
 
-		// Get the sync state tester from the context
-		IDecorationContext context = decoration.getDecorationContext();
-		SynchronizationStateTester tester = DEFAULT_TESTER;
-		Object property = context.getProperty(SynchronizationStateTester.PROP_TESTER);
-		if (property instanceof SynchronizationStateTester) {
-			tester = (SynchronizationStateTester) property;
-		}
 		int state = IDiff.NO_CHANGE;
-		try {
-			state = tester.getState(element, 
-					IDiff.ADD | IDiff.REMOVE | IDiff.CHANGE | IThreeWayDiff.OUTGOING, 
-					new NullProgressMonitor());
-		} catch (Exception e) {
-			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+		
+		if (resource.getType() != IResource.FILE) {
+			// Get the sync state tester from the context
+			IDecorationContext context = decoration.getDecorationContext();
+			SynchronizationStateTester tester = DEFAULT_TESTER;
+			Object property = context.getProperty(SynchronizationStateTester.PROP_TESTER);
+			if (property instanceof SynchronizationStateTester) {
+				tester = (SynchronizationStateTester) property;
+			}
+			if (tester.isDecorationEnabled(element)) {
+				try {
+					state = tester.getState(element, 
+							IDiff.ADD | IDiff.REMOVE | IDiff.CHANGE | IThreeWayDiff.OUTGOING, 
+							new NullProgressMonitor());
+				} catch (Exception e) {
+					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				}
+			}
 		}
 		
 		// determine a if resource has outgoing changes (e.g. is dirty).
@@ -349,7 +354,10 @@ public class SVNLightweightDecorator
 		boolean isUnversioned = false;
 		LocalResourceStatus status = null;
 		if (!isIgnored) {
-			if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
+			if (resource.getType() == IResource.FILE) {
+				isDirty = SVNLightweightDecorator.isDirty(svnResource, null);			
+			}
+			else if (computeDeepDirtyCheck) {
 //				ResourceMapping resourceMapping = null;
 //				if (element instanceof ResourceMapping) {
 //					resourceMapping = (ResourceMapping) element;
