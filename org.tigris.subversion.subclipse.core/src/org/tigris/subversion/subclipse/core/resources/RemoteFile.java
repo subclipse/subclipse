@@ -180,7 +180,7 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 			SVNRevision toRevision, boolean includeMergedRevisions, boolean ignoreMimeType) throws TeamException {
 		try {
 			return repository.getSVNClient().annotate(url, fromRevision,
-					toRevision, ignoreMimeType, includeMergedRevisions);
+					toRevision, pegRevision, ignoreMimeType, includeMergedRevisions);
 		} catch (SVNClientException e) {
 			throw new TeamException("Failed in remoteFile.getAnnotations()", e);
 		}
