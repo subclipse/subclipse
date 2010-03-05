@@ -22,36 +22,25 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.mapping.ResourceMapping;
-import org.eclipse.core.resources.mapping.ResourceMappingContext;
-import org.eclipse.core.resources.mapping.ResourceTraversal;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IDecoration;
-import org.eclipse.jface.viewers.IDecorationContext;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.RepositoryProvider;
-import org.eclipse.team.core.diff.IDiff;
-import org.eclipse.team.core.diff.IThreeWayDiff;
-import org.eclipse.team.internal.ui.Utils;
 import org.eclipse.team.ui.ISharedImages;
 import org.eclipse.team.ui.TeamImages;
 import org.eclipse.team.ui.TeamUI;
-import org.eclipse.team.ui.mapping.SynchronizationStateTester;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.themes.ITheme;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
-import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -99,8 +88,6 @@ public class SVNLightweightDecorator
     private static ImageDescriptor treeConflict;
 
 	private static IPropertyChangeListener propertyListener;
-	
-	private static final SynchronizationStateTester DEFAULT_TESTER = new SynchronizationStateTester();
 
 	protected boolean computeDeepDirtyCheck;
 	protected IDecoratorComponent[][] folderDecoratorFormat;
@@ -237,8 +224,8 @@ public class SVNLightweightDecorator
     /**
      * tells if given svn resource is dirty or not 
      */
-	public static boolean isDirty(final ISVNLocalResource svnResource, ResourceMapping resourceMapping) {
-		try {
+	public static boolean isDirty(final ISVNLocalResource svnResource) {
+	    try {
 			if (!svnResource.exists())
 			    return false;
             if (svnResource.getIResource().getType() == IResource.FILE) {
@@ -248,9 +235,6 @@ public class SVNLightweightDecorator
 							&& !status.isIgnored() && !svnResource.isIgnored());
             } else {
                 // a container with an added file, deleted file, conflicted file ... is considered as dirty
-            	if (svnResource instanceof ISVNLocalFolder) {
-            		return ((ISVNLocalFolder)svnResource).isDirty(resourceMapping);
-            	}
                 return svnResource.isDirty();
             }
 		} catch (SVNException e) {
@@ -270,31 +254,12 @@ public class SVNLightweightDecorator
 	 * @return the resource for the given object, or null
 	 */
 	private IResource getResource(Object object) {
-		if (object instanceof ResourceMapping) {
-			ResourceMapping resourceMapping = (ResourceMapping)object;
-			IResource modelObjectResource = Utils.getResource(resourceMapping.getModelObject());
-			if (modelObjectResource != null) return modelObjectResource;
-			try {
-				ResourceTraversal[] traversals = resourceMapping.getTraversals(ResourceMappingContext.LOCAL_CONTEXT, null);			
-				if (traversals != null) {
-					for (int i = 0; i < traversals.length; i++) {
-						IResource[] traversalResources = traversals[i].getResources();
-						if (traversalResources != null && traversalResources.length == 1) {
-							IResource traversalResource = traversalResources[0];
-							return traversalResource;
-						}						
-					}
-				}
-			} catch (CoreException e) {}		
-		}
 		if (object instanceof IResource) {
 			return (IResource) object;
 		}
 		if (object instanceof IAdaptable) {
-			IResource resource = (IResource) ((IAdaptable) object).getAdapter(IResource.class);
-			if (resource != null) {
-				return resource;
-			}
+			return (IResource) ((IAdaptable) object).getAdapter(
+				IResource.class);
 		}
 		return null;
 	}
@@ -304,6 +269,7 @@ public class SVNLightweightDecorator
 	 * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.Object, org.eclipse.jface.viewers.IDecoration)
 	 */
 	public void decorate(Object element, IDecoration decoration) {
+		
 		IResource resource = getResource(element);
 		if (resource == null || resource.getType() == IResource.ROOT)
 			return;
@@ -328,42 +294,13 @@ public class SVNLightweightDecorator
 			return;
 		}
 
-		int state = IDiff.NO_CHANGE;
-		
-		if (resource.getType() != IResource.FILE) {
-			// Get the sync state tester from the context
-			IDecorationContext context = decoration.getDecorationContext();
-			SynchronizationStateTester tester = DEFAULT_TESTER;
-			Object property = context.getProperty(SynchronizationStateTester.PROP_TESTER);
-			if (property instanceof SynchronizationStateTester) {
-				tester = (SynchronizationStateTester) property;
-			}
-			if (tester.isDecorationEnabled(element)) {
-				try {
-					state = tester.getState(element, 
-							IDiff.ADD | IDiff.REMOVE | IDiff.CHANGE | IThreeWayDiff.OUTGOING, 
-							new NullProgressMonitor());
-				} catch (Exception e) {
-					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-				}
-			}
-		}
-		
 		// determine a if resource has outgoing changes (e.g. is dirty).
 		boolean isDirty = false;
 		boolean isUnversioned = false;
 		LocalResourceStatus status = null;
 		if (!isIgnored) {
-			if (resource.getType() == IResource.FILE) {
-				isDirty = SVNLightweightDecorator.isDirty(svnResource, null);			
-			}
-			else if (computeDeepDirtyCheck) {
-//				ResourceMapping resourceMapping = null;
-//				if (element instanceof ResourceMapping) {
-//					resourceMapping = (ResourceMapping) element;
-//				}
-//		        isDirty = SVNLightweightDecorator.isDirty(svnResource, resourceMapping);
-				isDirty = (state & IThreeWayDiff.OUTGOING) != 0;
+			if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
+		        isDirty = SVNLightweightDecorator.isDirty(svnResource);
 			}
 			try {
 				status = svnResource.getStatus();
@@ -373,15 +310,7 @@ public class SVNLightweightDecorator
 					SVNUIPlugin.log(e1.getStatus());
 				}
 			}
-			boolean decorateText = true;
-			if (element instanceof ResourceMapping) {
-				ResourceMapping resourceMapping = (ResourceMapping)element;
-				IResource modelObjectResource = Utils.getResource(resourceMapping.getModelObject());
-				if (modelObjectResource == null) decorateText = false;
-			}
-			if (decorateText) {
-				decorateTextLabel(svnResource, status, decoration, isDirty);
-			}
+			decorateTextLabel(svnResource, status, decoration, isDirty);
 		}
 		computeColorsAndFonts(isIgnored, isDirty || isUnversioned, decoration);
 		if (!isIgnored) {

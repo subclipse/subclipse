@@ -17,9 +17,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.mapping.ResourceMapping;
-import org.eclipse.core.resources.mapping.ResourceMappingContext;
-import org.eclipse.core.resources.mapping.ResourceTraversal;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -134,47 +131,20 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
      * A folder is considered dirty if its status is dirty or if one of its children is dirty
      */
     public boolean isDirty() throws SVNException {
-        return isDirty(null);
-    }
-    
-    /**
-     * A folder is considered dirty if its status is dirty or if one of its children is dirty
-     */
-    public boolean isDirty(ResourceMapping resourceMapping) throws SVNException {
-    	
         if (getStatus().isDirty()) {
             return true;
         }
         
-        boolean recursive = true;
-        if (resourceMapping != null)	 {
-        	try {
-				ResourceTraversal[] traversals = resourceMapping.getTraversals(ResourceMappingContext.LOCAL_CONTEXT, null);
-				for (int i = 0; i < traversals.length; i++) {
-					IResource[] traversalResources = traversals[i].getResources();
-					for (int j = 0; j < traversalResources.length; j++) {
-						if (traversalResources[j].equals(getResource())) {
-							if (traversals[i].getDepth() == 1) {
-								recursive = false;
-							}
-							break;
-						}
-					}
-				}
-        	} catch (CoreException e) {}
-        }
-
+        // ignored resources are not considered dirty
         ISVNLocalResource[] children = (ISVNLocalResource[]) members(
                 new NullProgressMonitor(), ALL_UNIGNORED_MEMBERS);
 
         for (int i = 0; i < children.length; i++) {
-        	if (recursive || !children[i].isFolder()) {
-	            if (children[i].isDirty() || (children[i].exists() && !children[i].isManaged())) {
-	                // if a child resource is dirty consider the parent dirty as
-	                // well, there is no need to continue checking other siblings.
-	                return true;
-	            }
-        	}
+            if (children[i].isDirty() || (children[i].exists() && !children[i].isManaged())) {
+                // if a child resource is dirty consider the parent dirty as
+                // well, there is no need to continue checking other siblings.
+                return true;
+            }
         }
         return false;
     }
