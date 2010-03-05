@@ -118,7 +118,7 @@ public class ShowAnnotationOperation extends SVNOperation {
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.ui.operations.SVNOperation#execute(org.eclipse.core.runtime.IProgressMonitor)
      */
-    protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
+    protected void execute(final IProgressMonitor monitor) throws SVNException, InterruptedException {
         monitor.beginTask(null, 100);
 
         try {
@@ -129,7 +129,7 @@ public class ShowAnnotationOperation extends SVNOperation {
             
             
     		// this is not needed if there is no live annotate
-    		final RevisionInformation information= createRevisionInformation(annotateBlocks, Policy.subMonitorFor(monitor, 20));
+ //   		final RevisionInformation information= createRevisionInformation(annotateBlocks, Policy.subMonitorFor(monitor, 20));
     		
             // We aren't running from a UI thread
     		getShell().getDisplay().asyncExec(new Runnable() {
@@ -138,6 +138,7 @@ public class ShowAnnotationOperation extends SVNOperation {
 //  				is there an open editor for the given input? If yes, use live annotate
     				final AbstractDecoratedTextEditor editor= getEditor();
     				if (editor != null && promptForQuickDiffAnnotate()){
+    					RevisionInformation information= createRevisionInformation(annotateBlocks, Policy.subMonitorFor(monitor, 20));
     					editor.showRevisionInformation(information, "org.tigris.subversion.subclipse.quickdiff.providers.SVNReferenceProvider"); //$NON-NLS-1$
 
     				} else {

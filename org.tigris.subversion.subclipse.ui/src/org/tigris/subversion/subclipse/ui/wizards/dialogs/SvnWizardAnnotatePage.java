@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.HistoryDialog;
@@ -116,8 +117,20 @@ public class SvnWizardAnnotatePage extends SvnWizardDialogPage {
 		toRevisionText.setLayoutData(data);
 		toRevisionText.setEnabled(false);
 		
+		if (toRevision == null) {
+			if (svnResource instanceof RemoteResource) {
+				if (((RemoteResource)svnResource).getPegRevision() != null) {
+					toRevision = ((RemoteResource)svnResource).getPegRevision();
+				}
+			}
+		}
+		
 		if (toRevision == null) toHeadButton.setSelection(true);
-		else toRevisionText.setText(toRevision.toString());
+		else {
+			toRevisionText.setText(toRevision.toString());
+			toRevisionButton.setSelection(true);
+			toRevisionText.setEnabled(true);
+		}
 		
 		selectToRevisionButton = new Button(toGroup, SWT.PUSH);
 		selectToRevisionButton.setText(Policy.bind("AnnotateDialog.showToLog")); //$NON-NLS-1$
