@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.subclipse"
       label="Subclipse (Required)"
-      version="1.6.9"
+      version="1.6.10"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.subclipse.core"
       colocation-affinity="org.tigris.subversion.subclipse">
@@ -39,7 +39,7 @@
       <import plugin="org.eclipse.compare"/>
       <import plugin="org.eclipse.ui.console"/>
       <import plugin="org.eclipse.help"/>
-      <import plugin="org.tigris.subversion.clientadapter" version="1.6.0" match="equivalent"/>
+      <import plugin="org.tigris.subversion.clientadapter" version="1.6.10" match="equivalent"/>
    </requires>
 
    <plugin
