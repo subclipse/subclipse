@@ -113,6 +113,9 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 	 * @see org.eclipse.team.internal.ccvs.ui.actions.WorkspaceAction#isEnabledForCVSResource(org.eclipse.team.internal.ccvs.core.ICVSResource)
 	 */
 	protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) throws SVNException {
+		if (svnResource.getResource() == null || !svnResource.getResource().exists()) {
+			return false;
+		}
 		return super.isEnabledForSVNResource(svnResource) || svnResource.getParent().isManaged();
 	}
 

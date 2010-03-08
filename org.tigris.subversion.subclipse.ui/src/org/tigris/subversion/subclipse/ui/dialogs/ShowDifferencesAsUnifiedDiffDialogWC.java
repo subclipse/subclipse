@@ -116,7 +116,10 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		toUrlText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
 		
 		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-		toUrlText.setText(localResource.getUrl().toString());
+		
+		if (localResource != null && localResource.getUrl() != null) {
+			toUrlText.setText(localResource.getUrl().toString());
+		}
 		
 		Button urlBrowseButton = new Button(toGroup, SWT.PUSH);
 		urlBrowseButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.browse")); //$NON-NLS-1$
@@ -263,6 +266,9 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
         Button button = super.createButton(parent, id, label, defaultButton);
 		if (id == IDialogConstants.OK_ID) {
 			okButton = button; 
+			if (toUrlText != null && toUrlText.getText().trim().length() == 0) {
+				okButton.setEnabled(false);
+			}
 		}
         return button;
     }

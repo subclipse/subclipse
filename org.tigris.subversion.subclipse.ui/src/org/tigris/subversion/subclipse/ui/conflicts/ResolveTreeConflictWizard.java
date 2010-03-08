@@ -37,6 +37,7 @@ import org.tigris.subversion.subclipse.ui.Messages;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.operations.ResolveOperation;
+import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
 import org.tigris.subversion.subclipse.ui.wizards.SizePersistedWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
@@ -144,12 +145,23 @@ public class ResolveTreeConflictWizard extends Wizard {
 				if (svnCompareResource == null) svnCompareResource = svnResource;
 				ISVNRemoteResource remoteResource = mainPage.getRemoteResource();
 				try {
+					
+					File file = File.createTempFile("revision", ".diff");
+					file.deleteOnExit();
+					File path = new File(svnCompareResource.getResource().getLocation().toString());
+					SVNUrl toUrl = remoteResource.getUrl();
+					SVNRevision toRevision = remoteResource.getRevision();
+					
+					ShowDifferencesAsUnifiedDiffOperationWC operation = new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file);						
+					SVNLocalCompareInput compareInput = new SVNLocalCompareInput(svnCompareResource, remoteResource);
+					compareInput.setDiffOperation(operation);
+					
 					CompareUI.openCompareEditorOnPage(
-							new SVNLocalCompareInput(svnCompareResource, remoteResource),
+							compareInput,
 							targetPart.getSite().getPage());
 					CompareCloseListener closeListener = new CompareCloseListener(Messages.ResolveTreeConflictWizard_compare + svnCompareResource.getName() + " <workspace>"); //$NON-NLS-1$
 					targetPart.getSite().getPage().addPartListener(closeListener);										
-				} catch (SVNException e) {
+				} catch (Exception e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 					MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_compareError, e.getMessage());
 					return false;
