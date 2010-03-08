@@ -193,7 +193,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					else if (compareButton == null && mergeFromRepositoryButton != null) title = Messages.ResolveTreeConflictWizardMainPage_selectMergeTarget;
 					else title = Messages.ResolveTreeConflictWizardMainPage_selectCompareMergeTarget;
 					SelectionDialog dialog;
-					if (treeConflict.getResource() instanceof IContainer)
+					boolean container = isContainer();
+					if (container)
 						dialog = new ContainerSelectionDialog(getShell(), treeConflict.getResource().getProject(), false, title);
 					else
 						dialog = new ResourceSelectionDialog(getShell(), treeConflict.getResource().getProject(), title);					
@@ -240,7 +241,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		if (reason == SVNConflictDescriptor.Reason.edited && action == SVNConflictDescriptor.Action.delete) {					
 			compareButton = new Button(resolutionGroup, SWT.CHECK);
 			String name;
-			if (treeConflict.getResource() instanceof IContainer)
+			boolean container = isContainer();
+			if (container)
 				name = treeConflict.getResource().getFullPath().toString();
 			else
 				name = treeConflict.getResource().getName();
@@ -259,7 +261,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				}				
 				mergeFromRepositoryButton = new Button(resolutionGroup, SWT.CHECK);
-				if (treeConflict.getResource() instanceof IContainer)
+				if (container)
 					name = treeConflict.getResource().getFullPath().toString();
 				else
 					name = treeConflict.getResource().getName();
@@ -314,7 +316,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 					else if (compareButton == null && mergeFromRepositoryButton != null) title = Messages.ResolveTreeConflictWizardMainPage_selectMergeTarget;
 					else title = Messages.ResolveTreeConflictWizardMainPage_selectCompareMergeTarget;
 					SelectionDialog dialog;
-					if (treeConflict.getResource() instanceof IContainer)
+					boolean container = isContainer();
+					if (container)
 						dialog = new ContainerSelectionDialog(getShell(), treeConflict.getResource().getProject(), false, title);
 					else
 						dialog = new ResourceSelectionDialog(getShell(), treeConflict.getResource().getProject(), title);
@@ -706,7 +709,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		if ((reason == SVNConflictDescriptor.Reason.added && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._update) || (reason == SVNConflictDescriptor.Reason.obstructed && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._merge)) {
 			compareButton = new Button(resolutionGroup, SWT.CHECK);
 			String name;
-			if (treeConflict.getResource() instanceof IContainer)
+			boolean container = isContainer();
+			if (container)
 				name = treeConflict.getResource().getFullPath().toString();
 			else
 				name = treeConflict.getResource().getName();
@@ -856,6 +860,20 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 		}
 		return remoteCopiedTo;		
+	}
+
+	private boolean isContainer() {
+		boolean container;
+		if (treeConflict.getResource().exists()) {
+			container = treeConflict.getResource() instanceof IContainer;
+		} else {
+			if (svnCompareResource == null || !svnCompareResource.exists()) {
+				container = treeConflict.getResource().getName().indexOf(".") == -1;
+			} else {
+				container = svnCompareResource.isFolder();
+			}
+		}
+		return container;
 	}
 
 }
