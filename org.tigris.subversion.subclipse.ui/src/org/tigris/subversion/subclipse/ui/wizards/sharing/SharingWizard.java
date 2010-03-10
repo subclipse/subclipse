@@ -12,6 +12,8 @@ package org.tigris.subversion.subclipse.ui.wizards.sharing;
 
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.core.resources.IFolder;
@@ -31,6 +33,9 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.ui.IConfigurationWizard;
+import org.eclipse.team.ui.TeamUI;
+import org.eclipse.team.ui.synchronize.ISynchronizeParticipant;
+import org.eclipse.team.ui.synchronize.ISynchronizeParticipantReference;
 import org.eclipse.ui.IWorkbench;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
@@ -46,6 +51,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.actions.SynchronizeAction;
+import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
 import org.tigris.subversion.subclipse.ui.wizards.ConfigurationWizardMainPage;
 
 /**
@@ -337,9 +343,32 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 //			}
 			
 			if (doSync[0]) {
+				final List syncList = new ArrayList();
+				syncList.add(project);
+				try {
+					ISynchronizeParticipantReference[] references = TeamUI.getSynchronizeManager().getSynchronizeParticipants();
+					if (references != null) {
+						for (ISynchronizeParticipantReference reference : references) {
+							ISynchronizeParticipant participant = reference.getParticipant();
+							if (participant instanceof SVNSynchronizeParticipant) {
+								SVNSynchronizeParticipant svnParticipant = (SVNSynchronizeParticipant)participant;
+								IResource[] resources = svnParticipant.getResources();
+								if (resources != null) {
+									for (IResource resource : resources) {
+										if (!resource.equals(project)) {
+											syncList.add(resource);
+										}
+									}
+								}
+								break;
+							}
+						}
+					}
+				} catch (Exception e) {}
 				SynchronizeAction synchronizeAction = new SynchronizeAction() {
 					protected IResource[] getSelectedResources() {
-						IResource[] selection = { project };
+						IResource[] selection = new IResource[syncList.size()];
+						syncList.toArray(selection);
 						return selection;
 					}				
 				};
@@ -469,6 +498,6 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 	
     public IProject getProject() {
         return project;
-    }   
+    }
     
 }

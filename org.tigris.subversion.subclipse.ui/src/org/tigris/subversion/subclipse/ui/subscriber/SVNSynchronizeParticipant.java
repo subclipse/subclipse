@@ -69,6 +69,8 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	 * Contxt menu action group for synchronize view actions
 	 */
 	public static final String CONTEXT_MENU_CONTRIBUTION_GROUP_1 = "context_group_1";
+	
+	public IResource[] resources;
 
 	private ChangeSetCapability capability;
 
@@ -357,6 +359,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	}
 	
 	public IStatus refresh(IResource[] resources, IProgressMonitor monitor) {
+		this.resources = resources;
 		return refreshNow(resources, getLongTaskName(resources), monitor);
 	}
 }
