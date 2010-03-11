@@ -90,18 +90,13 @@ public class ReplaceOperation extends UpdateOperation {
     					}
         			}
                 else if (localResource.isDirty()) {
-               	 localResource.revert();
+               	 	localResource.revert();
+                }
+                if (!this.revision.equals(SVNRevision.BASE)) {
+                	IResource[] updateResources = { resource };
+                	super.execute(provider, updateResources, monitor);
                 }
             }
-
-		    // We are already at the base revision after a revert, no need to update
-		    if (this.revision.equals(SVNRevision.BASE)) {
-		    	return;
-		    }
-		    
-            // then we update to revision
-		    if (resourcesToUpdate == null) resourcesToUpdate = resources;
-		    super.execute(provider, resourcesToUpdate, monitor);
 		} catch (SVNException e) {
 			if (e.operationInterrupted()) {
 				showCancelledMessage();

@@ -42,7 +42,7 @@ public class ReplaceWithRemoteAction extends WorkspaceAction {
 
 		// Peform the replace in the background
 		ReplaceOperation replaceOperation = new ReplaceOperation(getTargetPart(), resources, this.revision);
-		replaceOperation.setResourcesToUpdate(getSelectedResources());
+//		replaceOperation.setResourcesToUpdate(getSelectedResources());
 		replaceOperation.run();
 	}
 	
