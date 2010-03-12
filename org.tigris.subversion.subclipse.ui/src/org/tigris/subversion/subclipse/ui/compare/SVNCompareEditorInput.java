@@ -11,24 +11,16 @@
 package org.tigris.subversion.subclipse.ui.compare;
 
  
-import java.lang.reflect.InvocationTargetException;
-
 import org.eclipse.compare.CompareConfiguration;
-import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -36,7 +28,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
  * when comparing resources in the workspace to remote resources.
  * Used from CompareRemoteResourcesAction
  */
-public class SVNCompareEditorInput extends CompareEditorInput {
+public class SVNCompareEditorInput extends SVNAbstractCompareEditorInput {
 	private ITypedElement left;
 	private ITypedElement right;
 	private ITypedElement ancestor;	
@@ -132,31 +124,6 @@ public class SVNCompareEditorInput extends CompareEditorInput {
 	}
 	
 	/**
-	 * Handles a random exception and sanitizes it into a reasonable
-	 * error message.  
-	 */
-	private void handle(Exception e) {
-		// create a status
-		Throwable t = e;
-		// unwrap the invocation target exception
-		if (t instanceof InvocationTargetException) {
-			t = ((InvocationTargetException)t).getTargetException();
-		}
-		IStatus error;
-		if (t instanceof CoreException) {
-			error = ((CoreException)t).getStatus();
-		} else if (t instanceof TeamException) {
-			error = ((TeamException)t).getStatus();
-		} else {
-			error = new Status(IStatus.ERROR, SVNUIPlugin.ID, 1, Policy.bind("internal"), t); //$NON-NLS-1$
-		}
-		setMessage(error.getMessage());
-		if (!(t instanceof TeamException)) {
-			SVNUIPlugin.log(error);
-		}
-	}
-	
-	/**
 	 * Sets up the title and pane labels for the comparison view.
 	 */
 	private void initLabels() {
@@ -233,8 +200,7 @@ public class SVNCompareEditorInput extends CompareEditorInput {
 		} catch (OperationCanceledException e) {
 			throw new InterruptedException(e.getMessage());
 		} catch (RuntimeException e) {
-			handle(e);
-			return null;
+			return e.getMessage();
 		} finally {
 			monitor.done();
 		}

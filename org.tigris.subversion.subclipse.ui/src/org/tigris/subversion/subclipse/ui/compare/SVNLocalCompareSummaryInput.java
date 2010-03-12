@@ -1,12 +1,10 @@
 package org.tigris.subversion.subclipse.ui.compare;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.compare.CompareConfiguration;
-import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
@@ -17,10 +15,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.team.core.TeamException;
 import org.eclipse.team.ui.ISaveableWorkbenchPart;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -44,7 +40,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary.SVNDiffKind;
 
-public class SVNLocalCompareSummaryInput extends CompareEditorInput implements ISaveableWorkbenchPart {
+public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput implements ISaveableWorkbenchPart {
 	private ISVNLocalResource resource;
 	private ISVNRemoteFolder remoteFolder;
 	private boolean readOnly;
@@ -121,8 +117,7 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 		} catch (OperationCanceledException e) {
 			throw new InterruptedException(e.getMessage());
 		} catch (Exception e) {
-			handle(e);
-			return null;
+			return e.getMessage();
 		} finally {
 			monitor.done();
 		}
@@ -251,27 +246,6 @@ public class SVNLocalCompareSummaryInput extends CompareEditorInput implements I
 		return true;
 	}
 
-	private void handle(Exception e) {
-		// create a status
-		Throwable t = e;
-		// unwrap the invocation target exception
-		if (t instanceof InvocationTargetException) {
-			t = ((InvocationTargetException)t).getTargetException();
-		}
-		IStatus error;
-		if (t instanceof CoreException) {
-			error = ((CoreException)t).getStatus();
-		} else if (t instanceof TeamException) {
-			error = ((TeamException)t).getStatus();
-		} else {
-			error = new Status(IStatus.ERROR, SVNUIPlugin.ID, 1, Policy.bind("internal"), t); //$NON-NLS-1$
-		}
-		setMessage(error.getMessage());
-		if (!(t instanceof TeamException)) {
-			SVNUIPlugin.log(error);
-		}
-	}
-	
 	private SVNDiffSummary[] getDiffSummaryWithSubfolders(SVNDiffSummary[] diffSummary) {
 		ArrayList paths = new ArrayList();
 		ArrayList diffs = new ArrayList();

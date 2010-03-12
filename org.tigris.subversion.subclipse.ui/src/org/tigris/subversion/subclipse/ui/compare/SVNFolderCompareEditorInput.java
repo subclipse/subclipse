@@ -1,23 +1,17 @@
 package org.tigris.subversion.subclipse.ui.compare;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.eclipse.compare.CompareConfiguration;
-import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -25,7 +19,6 @@ import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
@@ -33,7 +26,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary.SVNDiffKind;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
 
-public class SVNFolderCompareEditorInput extends CompareEditorInput {
+public class SVNFolderCompareEditorInput extends SVNAbstractCompareEditorInput {
 	private SummaryEditionNode left;
 	private SummaryEditionNode right;
 	private ISVNRemoteFolder folder1;
@@ -84,27 +77,6 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 			return ancestor.getName();
 		}
 		return ""; //$NON-NLS-1$
-	}
-
-	private void handle(Exception e) {
-		// create a status
-		Throwable t = e;
-		// unwrap the invocation target exception
-		if (t instanceof InvocationTargetException) {
-			t = ((InvocationTargetException)t).getTargetException();
-		}
-		IStatus error;
-		if (t instanceof CoreException) {
-			error = ((CoreException)t).getStatus();
-		} else if (t instanceof TeamException) {
-			error = ((TeamException)t).getStatus();
-		} else {
-			error = new Status(IStatus.ERROR, SVNUIPlugin.ID, 1, Policy.bind("internal"), t); //$NON-NLS-1$
-		}
-		setMessage(error.getMessage());
-		if (!(t instanceof TeamException)) {
-			SVNUIPlugin.log(error);
-		}
 	}
 
 	private void initLabels() {
@@ -159,9 +131,9 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 		}
 		initLabels();
 	
+		final Object[] result = new Object[] { null };
 		try {	
-			// do the diff	
-			final Object[] result = new Object[] { null };
+			// do the diff				
 			monitor.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 30); //$NON-NLS-1$
 			IProgressMonitor sub = new SubProgressMonitor(monitor, 30);
 			sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); //$NON-NLS-1$
@@ -202,13 +174,12 @@ public class SVNFolderCompareEditorInput extends CompareEditorInput {
 		} catch (OperationCanceledException e) {
 			throw new InterruptedException(e.getMessage());
 		} catch (Exception e) {
-			handle(e);
-			return null;
+			return e.getMessage();		
 		} finally {
 			monitor.done();
 		}
 	}
-	
+
 	private SVNDiffSummary[] getDiffSummaryWithSubfolders(SVNDiffSummary[] diffSummary) {
 		ArrayList paths = new ArrayList();
 		ArrayList diffs = new ArrayList();
