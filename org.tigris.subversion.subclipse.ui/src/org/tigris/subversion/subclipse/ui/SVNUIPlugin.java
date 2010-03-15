@@ -851,6 +851,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		reg.put(ISVNUIConstants.IMG_AFFECTED_PATHS_TREE_MODE, getImageDescriptor(ISVNUIConstants.IMG_AFFECTED_PATHS_TREE_MODE));
 		reg.put(ISVNUIConstants.IMG_UPDATE_ALL, getImageDescriptor(ISVNUIConstants.IMG_UPDATE_ALL));
 		reg.put(ISVNUIConstants.IMG_COMMIT_ALL, getImageDescriptor(ISVNUIConstants.IMG_COMMIT_ALL));
+		reg.put(ISVNUIConstants.IMG_PROPERTY_CONFLICTED, getImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CONFLICTED));
 	}
 
 	private void cleanProjects() {

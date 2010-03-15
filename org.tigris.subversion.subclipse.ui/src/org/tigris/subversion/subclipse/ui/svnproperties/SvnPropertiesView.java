@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.svnproperties;
 
+import java.io.IOException;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
@@ -64,6 +66,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.SVNPropertyDeleteAction;
 import org.tigris.subversion.subclipse.ui.actions.SVNPropertyModifyAction;
+import org.tigris.subversion.subclipse.ui.conflicts.PropertyConflict;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardSetPropertyPage;
@@ -89,6 +92,8 @@ public class SvnPropertiesView extends ViewPart {
 	private Label statusLabel;
 	private ISelectionListener pageSelectionListener;
 	private IResourceStateChangeListener resourceStateChangeListener;
+	
+	private PropertyConflict[] conflicts;
 
 	class ResourceStateChangeListener implements IResourceStateChangeListener {
 		/**
@@ -135,6 +140,14 @@ public class SvnPropertiesView extends ViewPart {
 		 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)
 		 */
 		public Image getColumnImage(Object element, int columnIndex) {
+			if (columnIndex == 0 && element != null && conflicts != null) {
+				ISVNProperty svnProperty = (ISVNProperty)element; 
+				for (int i = 0; i < conflicts.length; i++) {
+					if (conflicts[i].getPropertyName().equals(svnProperty.getName())) {
+						return SVNUIPlugin.getImage(ISVNUIConstants.IMG_PROPERTY_CONFLICTED);						
+					}
+				}
+			}
 			return null;
 		}
 
@@ -148,10 +161,10 @@ public class SvnPropertiesView extends ViewPart {
 			
 			String result = null;
 			switch (columnIndex) {
-				case 0 :
+				case 1 :
 					result = svnProperty.getName();
 					break;
-				case 1 : 
+				case 2 : 
 					result = svnProperty.getValue();
 					break;
 			}
@@ -444,6 +457,11 @@ public class SvnPropertiesView extends ViewPart {
 	private void createColumns(Table table, TableLayout layout) {
 
 		TableColumn col;
+		
+		// name
+		col = new TableColumn(table, SWT.NONE);
+		col.setResizable(false);
+		layout.addColumnData(new ColumnWeightData(1, true));
 
 		// name
 		col = new TableColumn(table, SWT.NONE);
@@ -488,6 +506,7 @@ public class SvnPropertiesView extends ViewPart {
 	 *
 	 */
 	private void updateStatus() {
+		conflicts = null;
 		if (resource == null) {
 			statusLabel.setText(""); //$NON-NLS-1$
 			return;
@@ -507,6 +526,11 @@ public class SvnPropertiesView extends ViewPart {
 			if (status.getPropStatus().equals(SVNStatusKind.CONFLICTED))
 			{
 				statusLabel.setText(Policy.bind("SvnPropertiesView.conflictOnProperties")); //$NON-NLS-1$
+				try {
+					conflicts = PropertyConflict.getPropertyConflicts(resource);
+				} catch (Exception e) {}
+			} else {
+				statusLabel.setText(""); //$NON-NLS-1$
 			}
 		} catch (SVNException e) {
 			statusLabel.setText(Policy.bind("SvnPropertiesView.errorGettingStatus")); //$NON-NLS-1$
