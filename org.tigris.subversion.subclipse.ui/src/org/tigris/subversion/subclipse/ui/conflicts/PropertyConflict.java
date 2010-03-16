@@ -59,8 +59,27 @@ public class PropertyConflict {
 		return super.equals(obj);
 	}
 	public static PropertyConflict[] getPropertyConflicts(ISVNLocalResource svnResource) throws Exception {
-		IResource resource = svnResource.getResource();
 		PropertyConflict[] propertyConflicts = null;
+		String conflictFileContents = getConflictSummary(svnResource);
+		if (conflictFileContents != null) {
+			List propertyConflictList = new ArrayList();
+			ISVNProperty[] properties = svnResource.getSvnProperties();
+			for (int i = 0; i < properties.length; i++) {
+				if (conflictFileContents.indexOf("property '" + properties[i].getName() + "'") != -1) {
+					PropertyConflict conflict = new PropertyConflict();
+					conflict.setPropertyName(properties[i].getName());
+					propertyConflictList.add(conflict);
+				}
+			}
+			propertyConflicts = new PropertyConflict[propertyConflictList.size()];
+			propertyConflictList.toArray(propertyConflicts);
+		}
+		return propertyConflicts;
+	}
+	
+	public static String getConflictSummary(ISVNLocalResource svnResource) throws Exception {
+		String conflictSummary = null;
+		IResource resource = svnResource.getResource();
 		IResource conflictFile = null;
 		if (resource instanceof IContainer) {
 			conflictFile = ((IContainer)resource).getFile(new Path("dir_conflicts.prej"));
@@ -69,24 +88,11 @@ public class PropertyConflict {
 			if (parent != null) {
 				conflictFile = parent.getFile(new Path(resource.getName() + ".prej"));
 			}
-		}
+		}	
 		if (conflictFile != null && conflictFile.exists()) {
-			String conflictFileContents = getConflictFileContents(new File(conflictFile.getLocation().toString()));
-			if (conflictFileContents != null) {
-				List propertyConflictList = new ArrayList();
-				ISVNProperty[] properties = svnResource.getSvnProperties();
-				for (int i = 0; i < properties.length; i++) {
-					if (conflictFileContents.indexOf("property '" + properties[i].getName() + "'") != -1) {
-						PropertyConflict conflict = new PropertyConflict();
-						conflict.setPropertyName(properties[i].getName());
-						propertyConflictList.add(conflict);
-					}
-				}
-				propertyConflicts = new PropertyConflict[propertyConflictList.size()];
-				propertyConflictList.toArray(propertyConflicts);
-			}
+			conflictSummary = getConflictFileContents(new File(conflictFile.getLocation().toString()));
 		}
-		return propertyConflicts;
+		return conflictSummary;
 	}
 	
 	private static String getConflictFileContents(File conflictFile) throws IOException {

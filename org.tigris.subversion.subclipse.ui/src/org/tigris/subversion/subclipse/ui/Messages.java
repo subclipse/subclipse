@@ -4,6 +4,15 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.tigris.subversion.subclipse.ui.messages"; //$NON-NLS-1$
+	public static String EditPropertyConflictsWizard_0;
+	public static String EditPropertyConflictsWizardPropertyPage_0;
+	public static String EditPropertyConflictsWizardPropertyPage_1;
+	public static String EditPropertyConflictsWizardPropertyPage_2;
+	public static String EditPropertyConflictsWizardPropertyPage_3;
+	public static String EditPropertyConflictsWizardSummaryPage_1;
+	public static String EditPropertyConflictsWizardSummaryPage_2;
+	public static String EditPropertyConflictsWizardSummaryPage_3;
+	public static String EditPropertyConflictsWizardSummaryPage_4;
 	public static String LoadErrorDialog_0;
 	public static String LoadErrorDialog_1;
 	public static String LoadErrorDialog_2;

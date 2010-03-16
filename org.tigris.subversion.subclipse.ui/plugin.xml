@@ -489,6 +489,12 @@
                id="org.tigris.subversion.subclipse.ui.resolve">
          </action>
          <action
+               label="%EditPropertyConflictsAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.EditPropertyConflictsAction"
+               menubarPath="team.main/group6"
+               id="org.tigris.subversion.subclipse.ui.editPropertyConflicts">
+         </action>         
+         <action
                label="%EditConflictsAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.team_edit_conflicts_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.EditConflictsAction"
