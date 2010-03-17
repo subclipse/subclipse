@@ -4,6 +4,9 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.tigris.subversion.subclipse.ui.messages"; //$NON-NLS-1$
+	public static String CannotSharePage_0;
+	public static String CannotSharePage_1;
+	public static String CannotSharePage_2;
 	public static String EditPropertyConflictsWizard_0;
 	public static String EditPropertyConflictsWizardPropertyPage_0;
 	public static String EditPropertyConflictsWizardPropertyPage_1;

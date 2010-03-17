@@ -104,7 +104,11 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
      */		
 	public void addPages() {
 		ImageDescriptor sharingImage = SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SHARE);
-		if (doesSVNDirectoryExist()) {
+		if (project.getLocation() == null) {
+			CannotSharePage cannotSharePage = new CannotSharePage("cannotSharePage", Policy.bind("SharingWizard.importTitle"), sharingImage, project); //$NON-NLS-1$ //$NON-NLS-2$
+			addPage(cannotSharePage);
+		}
+		else if (doesSVNDirectoryExist()) {
             // if .svn directory exists, we add the autoconnect page
 			autoconnectPage = new ConfigurationWizardAutoconnectPage("autoconnectPage", Policy.bind("SharingWizard.autoConnectTitle"), sharingImage, projectStatus); //$NON-NLS-1$ //$NON-NLS-2$
 			autoconnectPage.setProject(project);
@@ -287,7 +291,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 										getShell().getDisplay().syncExec(new Runnable() {
 											public void run() {
 //											    sync[0] = false;
-											    if (!MessageDialog.openQuestion(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong"))) { 
+											    if (!MessageDialog.openQuestion(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong"))) {  //$NON-NLS-1$ //$NON-NLS-2$
 											    	shareCanceled = true;
 											    	return;
 											    }
