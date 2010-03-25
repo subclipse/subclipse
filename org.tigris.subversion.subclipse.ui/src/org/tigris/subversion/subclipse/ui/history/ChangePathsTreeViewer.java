@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.history;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
@@ -33,8 +32,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -77,14 +74,7 @@ public class ChangePathsTreeViewer extends TreeViewer {
     protected void inputChanged(Object input, Object oldInput) {
         super.inputChanged(input, oldInput);
         this.currentLogEntry = (ILogEntry) input;
-
-        // expand all, select and show first element. is there a better way? 
         expandAll();
-        final TreeItem[] items = ((Tree) getControl()).getItems();
-        if(items!=null && items.length>0) {
-          setSelection(Collections.singletonList(items[0]));
-          ((Tree) getControl()).showSelection();
-        }
     }
     
     /**
