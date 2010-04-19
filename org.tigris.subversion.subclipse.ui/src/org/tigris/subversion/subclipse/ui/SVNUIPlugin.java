@@ -610,7 +610,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 			return false;
 		}		
 		boolean passwordStoresFound = false;
-		boolean passwordStoresEmpty = true;
+		boolean valueIsGnomeKeyring = false;
 		File configFile = getConfigFile();
 		if (!configFile.exists()) {
 			try {
@@ -630,14 +630,14 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 				if (line.startsWith("password-stores =")) {
 					passwordStoresFound = true;
 					if (!line.trim().endsWith("password-stores =")) {
-						passwordStoresEmpty = false;
+						valueIsGnomeKeyring = line.indexOf("gnome-keyring") != -1;
 					}
 					break;
 				}
 				if (line.startsWith("password-stores=")) {
 					passwordStoresFound = true;
 					if (!line.trim().endsWith("password-stores=")) {
-						passwordStoresEmpty = false;
+						valueIsGnomeKeyring = line.indexOf("gnome-keyring") != -1;
 					}
 					break;
 				}
@@ -648,8 +648,8 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 					input.close();
 				} catch (IOException e) {}
 			}
-		}			
-		return !passwordStoresEmpty || !passwordStoresFound;
+		}	
+		return valueIsGnomeKeyring || !passwordStoresFound;
 	}
 	
 	/** Returns all the commit dialog toolbar actions that were found from the extension point. */
