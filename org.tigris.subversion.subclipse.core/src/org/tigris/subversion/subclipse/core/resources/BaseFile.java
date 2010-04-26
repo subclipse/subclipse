@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.svnclientadapter.ISVNAnnotations;
@@ -79,8 +80,13 @@ public class BaseFile extends BaseResource implements ISVNRemoteFile {
 	public ISVNAnnotations getAnnotations(SVNRevision fromRevision,
 			SVNRevision toRevision, boolean includeMergedRevisions, boolean ignoreMimeType) throws TeamException {
 		try {
+			SVNRevision pegRevision = null;
+			ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+			if (localResource != null) {
+				pegRevision = localResource.getRevision();
+			}			
 			return getRepository().getSVNClient().annotate(
-					localResourceStatus.getFile(), fromRevision, toRevision, ignoreMimeType, includeMergedRevisions);
+					localResourceStatus.getFile(), fromRevision, toRevision, pegRevision, ignoreMimeType, includeMergedRevisions);
 		} catch (SVNClientException e) {
 			throw new TeamException("Failed in BaseFile.getAnnotations()", e);
 		}

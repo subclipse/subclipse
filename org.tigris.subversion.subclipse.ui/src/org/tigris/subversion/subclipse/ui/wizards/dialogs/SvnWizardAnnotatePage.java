@@ -106,7 +106,7 @@ public class SvnWizardAnnotatePage extends SvnWizardDialogPage {
 		new GridData(GridData.FILL_BOTH));
 		
 		toHeadButton = new Button(toGroup, SWT.RADIO);
-		toHeadButton.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.head")); //$NON-NLS-1$
+		toHeadButton.setText(Policy.bind("AnnotateDialog.head")); //$NON-NLS-1$
 		
 		toRevisionButton = new Button(toGroup, SWT.RADIO);
 		toRevisionButton.setText(Policy.bind("AnnotateDialog.toRevision")); //$NON-NLS-1$
