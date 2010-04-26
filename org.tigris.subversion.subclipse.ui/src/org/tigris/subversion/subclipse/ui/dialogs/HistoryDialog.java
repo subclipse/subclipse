@@ -87,6 +87,7 @@ public class HistoryDialog extends TrayDialog {
 	private IPreferenceStore store;
 	private SVNRevision revisionStart = SVNRevision.HEAD;
 	private boolean getNextEnabled = true;
+	private ProjectProperties projectProperties;
 	private boolean includeTags = true;
 	private boolean includeBugs = false;
 	
@@ -150,6 +151,7 @@ public class HistoryDialog extends TrayDialog {
 		
 		historyTableProvider = new HistoryTableProvider(SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER, "HistoryDialog"); //$NON-NLS-1$
 		historyTableProvider.setIncludeBugs(includeBugs);
+		historyTableProvider.setProjectProperties(projectProperties);
 		historyTableProvider.setIncludeMergeRevisions(false);
 		historyTableProvider.setIncludeTags(includeTags);
 		historyTableProvider.setRemoteResource(remoteResource);
@@ -255,7 +257,7 @@ public class HistoryDialog extends TrayDialog {
 	
 	private void setIncludeBugsAndTags(IResource res) {
 		try {
-			ProjectProperties projectProperties = ProjectProperties.getProjectProperties(resource);
+			projectProperties = ProjectProperties.getProjectProperties(resource);
 			includeBugs = projectProperties != null;
 			includeTags = tagsPropertySet(res);
 		} catch (SVNException e) {
@@ -291,7 +293,7 @@ public class HistoryDialog extends TrayDialog {
   }   
 
 	private void setIncludeBugsAndTags(ISVNRemoteResource res) {
-	    ProjectProperties projectProperties = null;
+	    projectProperties = null;
 		try {
 			projectProperties = ProjectProperties.getProjectProperties(res);
 		} catch (SVNException e) {
