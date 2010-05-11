@@ -414,6 +414,11 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						name = deleteResource1.getName();
 					deleteButton1.setText(Messages.ResolveTreeConflictWizardMainPage_delete + name);
 					deleteButton1.setSelection(true);
+					markResolvedEnabled = false;
+					if (markResolvedButton != null) {
+						markResolvedButton.setSelection(true);
+						markResolvedButton.setEnabled(false);
+					}
 				}
 				SelectionListener choiceListener = new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent evt) {
@@ -427,13 +432,26 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 						} else {
 							compareLabel.setVisible(false);
 							if (mergeFromRepositoryButton != null) mergeFromRepositoryButton.setEnabled(true);
-							if (deleteButton1 != null) deleteButton1.setEnabled(true);
-							if (markResolvedButton != null) markResolvedButton.setEnabled(true);							
+							if (deleteButton1 != null) {
+								deleteButton1.setEnabled(true);
+								if (deleteButton1.getSelection() && markResolvedButton != null) {
+									markResolvedButton.setSelection(true);
+									markResolvedButton.setEnabled(false);
+								}
+							}
+							if (markResolvedButton != null) {
+								if (deleteButton1 == null || !deleteButton1.getSelection()) {
+									markResolvedButton.setEnabled(true);
+								}
+							}
 						}
 					}				
 				};				
 				compareButton.addSelectionListener(choiceListener);
 				mergeFromRepositoryButton.addSelectionListener(choiceListener);
+				if (deleteButton1 != null) {
+					deleteButton1.addSelectionListener(choiceListener);
+				}
 			}
 		}
 		if (reason == SVNConflictDescriptor.Reason.deleted && action == SVNConflictDescriptor.Action.delete && operation != SVNConflictDescriptor.Operation._merge) {
@@ -739,8 +757,13 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		}
 		markResolvedButton = new Button(resolutionGroup, SWT.CHECK);
 		markResolvedButton.setText(Messages.ResolveTreeConflictWizardMainPage_markResolved);
-		if (markResolvedEnabled) markResolvedButton.setSelection(true);
-		else markResolvedButton.setEnabled(false);
+		markResolvedButton.setSelection(true);
+		if (markResolvedEnabled) {
+			markResolvedButton.setSelection(true);
+		}
+		else {
+			markResolvedButton.setEnabled(false);
+		}
 		
 		setMessage(Messages.ResolveTreeConflictWizardMainPage_message);
 		
