@@ -3,6 +3,7 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -87,19 +88,29 @@ public class DifferencesDialog extends SvnDialog {
 		Composite composite = new Composite(parent, SWT.NULL);
 		composite.setLayout(new GridLayout());
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		
+
 		Group fromGroup = new Group(composite, SWT.NULL);
 		fromGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.compareFrom")); //$NON-NLS-1$
-		fromGroup.setLayout(new GridLayout(2, false));
+		fromGroup.setLayout(new GridLayout(3, false));
 		fromGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		Label fromUrlLabel = new Label(fromGroup, SWT.NONE);
 		fromUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		fromUrlText = new Text(fromGroup, SWT.BORDER);
-		fromUrlText.setEditable(false);
 		fromUrlText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		fromUrlText.setText(remoteResources[0].getUrl().toString());
 
+		Button bb = new Button(fromGroup, SWT.PUSH);
+		bb.setText(Policy.bind("SwitchDialog.browse")); //$NON-NLS-1$
+		bb.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), fromResource.getResource());
+                if ((dialog.open() == ChooseUrlDialog.OK) && (dialog.getUrl() != null)) {
+                	fromUrlText.setText(dialog.getUrl());
+                }
+            }
+		});	
+		
 		Composite fromRevisionGroup = new Composite(fromGroup, SWT.NULL);
 		GridLayout fromRevisionLayout = new GridLayout();
 		fromRevisionLayout.numColumns = 3;
@@ -134,19 +145,33 @@ public class DifferencesDialog extends SvnDialog {
 		
 		Group toGroup = new Group(composite, SWT.NULL);
 		toGroup.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.compareTo")); //$NON-NLS-1$
-		toGroup.setLayout(new GridLayout(2, false));
+		toGroup.setLayout(new GridLayout(3, false));
 		toGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		Label toUrlLabel = new Label(toGroup, SWT.NONE);
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		toUrlText = new Text(toGroup, SWT.BORDER);
-		toUrlText.setEditable(false);
 		toUrlText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		if (remoteResources.length < 2 || remoteResources[1] == null)
 			toUrlText.setText(remoteResources[0].getUrl().toString());
 		else
 			toUrlText.setText(remoteResources[1].getUrl().toString());
 
+		bb = new Button(toGroup, SWT.PUSH);
+		bb.setText(Policy.bind("SwitchDialog.browse")); //$NON-NLS-1$
+		bb.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+            	IResource resouce = null;
+            	if (remoteResources.length < 2 || remoteResources[1] == null)
+            		resouce = remoteResources[0].getResource();
+        		else
+        			resouce = remoteResources[1].getResource();
+                ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), resouce);
+                if ((dialog.open() == ChooseUrlDialog.OK) && (dialog.getUrl() != null)) {
+                	toUrlText.setText(dialog.getUrl());
+                }
+            }
+		});	
 		Composite toRevisionGroup = new Composite(toGroup, SWT.NULL);
 		GridLayout toRevisionLayout = new GridLayout();
 		toRevisionLayout.numColumns = 3;
@@ -386,13 +411,8 @@ public class DifferencesDialog extends SvnDialog {
 						long toRevisionLong = toRevisionInt;
 						toRevision = new SVNRevision.Number(toRevisionLong);
 					}
-					if (fromResource == remoteResources[0]) {
-						fromUrl = remoteResources[0].getUrl();
-						toUrl = remoteResources[1].getUrl();						
-					} else {
-						fromUrl = remoteResources[1].getUrl();
-						toUrl = remoteResources[0].getUrl();								
-					}
+					fromUrl = new SVNUrl(fromUrlText.getText().trim());
+					toUrl = new SVNUrl(toUrlText.getText().trim());
 					ShowDifferencesAsUnifiedDiffOperation operation = new ShowDifferencesAsUnifiedDiffOperation(targetPart, fromUrl, fromRevision, toUrl, toRevision, file);
 					operation.setLocalResource(remoteResources[0]);
 					operation.run();
@@ -422,33 +442,45 @@ public class DifferencesDialog extends SvnDialog {
 				long toRevisionLong = toRevisionInt;
 				toRevision = new SVNRevision.Number(toRevisionLong);
 			}		
-			if (fromResource == remoteResources[0]) {
-				fromUrl = remoteResources[0].getUrl();
-				toUrl = remoteResources[1].getUrl();						
-			} else {
-				fromUrl = remoteResources[1].getUrl();
-				toUrl = remoteResources[0].getUrl();								
+			try {
+				fromUrl = new SVNUrl(fromUrlText.getText().trim());
+				toUrl = new SVNUrl(toUrlText.getText().trim());
+			} catch (Exception e) {
+				MessageDialog.openError(getShell(), Policy.bind("DifferencesDialog.compare"), e.getMessage());
+				success = false;
+				return;
 			}
 			ISVNRemoteResource resource1 = null;
-			ISVNRemoteResource resource2 = null;	
+			SVNRevision.Number lastChangedRevision1 = null;
+			ISVNRemoteResource resource2 = null;
+			SVNRevision.Number lastChangedRevision2 = null;
+			
 			if (fromRevision instanceof SVNRevision.Number) {
-				if (fromResource.isFolder()) resource1 = new RemoteFolder(null, fromResource.getRepository(), fromUrl, fromRevision, (SVNRevision.Number)fromRevision, null, null);
-				else resource1 = new RemoteFile(null, fromResource.getRepository(), fromUrl, fromRevision, (SVNRevision.Number)fromRevision, null, null);		
+				lastChangedRevision1 = (SVNRevision.Number)fromRevision;
+			} else {
+				lastChangedRevision1 = ((ISVNRemoteResource)remoteResources[0]).getLastChangedRevision();
+			}
+			if (fromResource.isFolder()) resource1 = new RemoteFolder(null, fromResource.getRepository(), fromUrl, fromRevision, lastChangedRevision1, null, null);
+			else resource1 = new RemoteFile(null, fromResource.getRepository(), fromUrl, fromRevision, lastChangedRevision1, null, null);		
+			if (fromRevision instanceof SVNRevision.Number) {
 				if (usePegRevision && resource1 instanceof RemoteResource) {
 					((RemoteResource)resource1).setPegRevision(fromRevision);
 				}
-			} else {
-				resource1 = (ISVNRemoteResource)fromResource;
 			}
+
 			if (toRevision instanceof SVNRevision.Number) {
-				if (toResource.isFolder()) resource2 = new RemoteFolder(null, toResource.getRepository(), toUrl, toRevision, (SVNRevision.Number)toRevision, null, null);
-				else resource2 = new RemoteFile(null, toResource.getRepository(), toUrl, toRevision, (SVNRevision.Number)toRevision, null, null);
+				lastChangedRevision2 = (SVNRevision.Number)toRevision;
+			} else {
+				lastChangedRevision2 = ((ISVNRemoteResource)remoteResources[1]).getLastChangedRevision();
+			}
+			if (toResource.isFolder()) resource2 = new RemoteFolder(null, toResource.getRepository(), toUrl, toRevision, lastChangedRevision2, null, null);
+			else resource2 = new RemoteFile(null, toResource.getRepository(), toUrl, toRevision, lastChangedRevision2, null, null);
+			if (toRevision instanceof SVNRevision.Number) {
 				if (usePegRevision && resource2 instanceof RemoteResource) {
 					((RemoteResource)resource2).setPegRevision(toRevision);
 				}
-			} else {
-				resource2 = (ISVNRemoteResource)toResource;;
 			}
+
 			ISVNRemoteResource[] remotes = { resource1, resource2 };
     		CompareRemoteResourcesAction compareAction = new CompareRemoteResourcesAction();
     		compareAction.setRemoteResources(remotes);
@@ -473,6 +505,7 @@ public class DifferencesDialog extends SvnDialog {
     }
     
     private void showLog(Object sourceButton) {
+    	// TODO here calculate the real from and to resources from the urls in the textfields ???
     	HistoryDialog dialog = null;
     	if (sourceButton == fromLogButton) {
     		if (fromResource instanceof ISVNRemoteResource) {
