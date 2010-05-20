@@ -23,8 +23,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
+import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 public final class RevisionAwareDifferencer extends Differencer {
     // comparison constants
@@ -34,6 +38,8 @@ public final class RevisionAwareDifferencer extends Differencer {
     
     private File diffFile;
     private List changedResources;
+    private SVNDiffSummary[] diffSummary;
+    private String projectRelativePath;
     
     /**
      * compare two ResourceEditionNode
@@ -43,6 +49,18 @@ public final class RevisionAwareDifferencer extends Differencer {
     }
     public RevisionAwareDifferencer(SVNLocalResourceNode left,ResourceEditionNode right, File diffFile) {
     	this.diffFile = diffFile;
+    	if (diffFile == null) {
+        	try {
+    			diffSummary = null;
+
+        		ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+           		diffSummary = client.diffSummarize(left.getLocalResource().getUrl(), left.getLocalResource().getRevision(), right.getRemoteResource().getUrl(),
+            			right.getRemoteResource().getRevision(), Depth.infinity, true);
+           		projectRelativePath = left.getLocalResource().getResource().getProjectRelativePath().toString();
+           		if (left.getLocalResource().isFolder() && projectRelativePath.length() > 0) projectRelativePath = projectRelativePath + "/";
+        	} catch (Exception e) {
+        	}    		
+    	}
     }
     
     protected boolean contentsEqual(Object input1, Object input2) {
@@ -125,6 +143,15 @@ public final class RevisionAwareDifferencer extends Differencer {
             	
                 if (changedResources == null && diffFile != null) {
                 	parseDiffs();
+                }
+                
+                if (changedResources == null) {
+               		for (int i = 0; i < diffSummary.length; i++) {
+            			if(localResource.getResource().getProjectRelativePath().toString().equals(projectRelativePath + diffSummary[i].getPath())) {
+            				return NODE_NOT_EQUAL;
+            			}
+            		} 
+               		return NODE_EQUAL;
                 }
                 
                 if (changedResources.contains(localResource.getResource().getLocation().toString())) {
