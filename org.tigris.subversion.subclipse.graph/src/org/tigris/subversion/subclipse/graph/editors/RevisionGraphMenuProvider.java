@@ -35,7 +35,9 @@ public class RevisionGraphMenuProvider extends ContextMenuProvider {
 			menu.add(new SetCommitPropertiesAction(nodeFigure, editor));
 			menu.add(new BranchTagAction("Create Branch/Tag from Revision " + node.getRevision() + "...", editor, node));
 		}
-		menu.add(new RefreshNodeAction(selectedRevisions, editor));		
+		if (selectedRevisions.size() > 0) {
+			menu.add(new RefreshNodeAction(selectedRevisions, editor));	
+		}
 		menu.add(new Separator());
 		if (selectedRevisions.size() == 2) {
 			RevisionEditPart revision1 = (RevisionEditPart)selectedRevisions.get(0);
