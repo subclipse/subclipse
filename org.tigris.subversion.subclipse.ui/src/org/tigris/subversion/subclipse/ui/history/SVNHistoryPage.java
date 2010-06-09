@@ -97,6 +97,7 @@ import org.eclipse.team.ui.history.HistoryPage;
 import org.eclipse.team.ui.history.IHistoryPageSite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.editors.text.EditorsUI;
@@ -145,6 +146,7 @@ import org.tigris.subversion.subclipse.ui.operations.MergeOperation;
 import org.tigris.subversion.subclipse.ui.operations.ReplaceOperation;
 import org.tigris.subversion.subclipse.ui.operations.SwitchOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
+import org.tigris.subversion.subclipse.ui.svnproperties.SvnRevPropertiesView;
 import org.tigris.subversion.subclipse.ui.util.EmptySearchViewerFilter;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.subclipse.ui.wizards.BranchTagWizard;
@@ -215,6 +217,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private IAction updateToRevisionAction;
   private IAction openChangedPathAction;
   private IAction showHistoryAction;
+  private IAction showRevisionPropertiesAction;  
   private IAction compareAction;
   private IAction showAnnotationAction;
   private IAction exportAction;
@@ -729,6 +732,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           manager.add(getCreateTagFromRevisionAction());
           // }
           manager.add(getSetCommitPropertiesAction());
+          
+          manager.add(getShowRevisionPropertiesAction());
+          
           ILogEntry logEntry = (ILogEntry)((IStructuredSelection)sel).getFirstElement();
           if (logEntry.getNumberOfChildren() > 0)
         	  manager.add(getShowRevisionsAction());
@@ -2128,6 +2134,44 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
     }
     return setCommitPropertiesAction;
   }
+  
+  private IAction getShowRevisionPropertiesAction() {
+  if(showRevisionPropertiesAction == null) {
+    showRevisionPropertiesAction = new Action(Policy.bind("HistoryView.showRevisionProperties")) { //$NON-NLS-1$
+      public void run() {
+        try {
+          final ISelection selection = getSelection();
+          if( !(selection instanceof IStructuredSelection))
+            return;
+          final ILogEntry ourSelection = getLogEntry((IStructuredSelection) selection);
+
+          ISVNRemoteResource selectionRemoteResource = ourSelection.getRemoteResource();
+          SvnRevPropertiesView revPropsView = null;     
+
+          try {
+            revPropsView = (SvnRevPropertiesView)getSite().getPage().showView(SvnRevPropertiesView.VIEW_ID);
+          } catch (PartInitException e) {
+            SVNUIPlugin.openError(getSite().getShell(), null, null, e, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
+          }
+
+          if (revPropsView != null) {
+	          revPropsView.showSvnProperties(selectionRemoteResource);
+	          revPropsView.refresh();
+          }
+        } catch(SVNException e) {
+          SVNUIPlugin.openError(getSite().getShell(), null, null, e, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
+        }
+      }
+
+      // we don't allow multiple selection
+      public boolean isEnabled() {
+        ISelection selection = getSelection();
+        return selection instanceof IStructuredSelection && ((IStructuredSelection) selection).size() == 1;
+      }
+    };
+  }
+  return showRevisionPropertiesAction;
+}
   
   private IAction getShowRevisionsAction() {
 	  if (showRevisionsAction == null) {

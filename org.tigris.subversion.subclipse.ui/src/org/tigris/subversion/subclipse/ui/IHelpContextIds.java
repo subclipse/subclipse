@@ -91,6 +91,7 @@ public interface IHelpContextIds {
 	public static final String COMPARE_REVISIONS_VIEW = PREFIX + "compare_revision_view_context"; //$NON-NLS-1$
 	public static final String ANNOTATIONS_VIEW = PREFIX + "annotations_view_context"; //$NON-NLS-1$
 	public static final String PROPERTIES_VIEW = PREFIX + "properties_view_context"; //$NON-NLS-1$
+    public static final String REV_PROPERTIES_VIEW = PREFIX + "rev_properties_view_context"; //$NON-NLS-1$	
 	public static final String PENDING_OPERATIONS_VIEW = PREFIX + "pending_operations_view_context"; //$NON-NLS-1$
 
 	// Actions

@@ -35,7 +35,7 @@ abstract public class SVNPropertyAction extends SVNAction {
 	 */
 	protected ISVNLocalResource getSVNLocalResource(ISVNProperty svnProperty) {
 		File file = svnProperty.getFile();
-		if (!file.exists()) {
+		if (file == null || !file.exists()) {
 			return null;
 		}
 

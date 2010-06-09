@@ -44,6 +44,13 @@
             id="org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView">
       </view>
       <view
+            name="%SvnRevPropertiesView.name"
+            icon="icons/full/cview16/props_view.gif"
+            category="org.tigris.subversion.subclipse"
+            class="org.tigris.subversion.subclipse.ui.svnproperties.SvnRevPropertiesView"
+            id="org.tigris.subversion.subclipse.ui.svnproperties.SvnRevPropertiesView">
+      </view>
+      <view
             name="%AnnotateView.name"
             icon="icons/full/cview16/annotate_view.gif"
             category="org.tigris.subversion.subclipse"
@@ -520,6 +527,16 @@
 			   definitionId="org.tigris.subversion.subclipse.ui.setsvnproperty"
                id="org.tigris.subversion.subclipse.ui.SetSvnProperty">
          </action>
+         
+        <action
+               label="%ShowRevisionPropertiesAction.label"
+               helpContextId="org.tigris.subversion.subclipse.team_show_svn_properties_action_context"
+               class="org.tigris.subversion.subclipse.ui.actions.ShowSvnRevPropertiesAction"
+               tooltip="%ShowRevisionPropertiesAction.tooltip"
+               menubarPath="team.main/group4"
+               id="org.tigris.subversion.subclipse.ui.showRevisionProperties">
+         </action>         
+       
          <action
                label="%ShowSvnPropertiesAction.label"
                helpContextId="org.tigris.subversion.subclipse.team_show_svn_properties_action_context"
