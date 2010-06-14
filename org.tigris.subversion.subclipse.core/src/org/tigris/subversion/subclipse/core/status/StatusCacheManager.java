@@ -17,9 +17,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -332,6 +334,26 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      *
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
+
+    	IResourceDelta[] children = event.getDelta().getAffectedChildren();
+    	if (children != null && children.length > 0) {
+    		IProject project = null;
+    		IResource resource = children[0].getResource();
+    		if (resource.getType() == IResource.PROJECT) {
+    			project = (IProject)resource;
+    		} else {
+    			project = resource.getProject();
+    		}
+    		if (project != null) {
+				if (!project.isAccessible()) {
+					return;
+				}
+				if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+					return; // not a svn handled project
+				}        			
+    		}
+    	}
+		
 		statusCache.flushPendingStatuses();
 	}
 
