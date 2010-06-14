@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -91,10 +92,45 @@ public class RevertResourceManager implements IResourceChangeListener {
         final List addedFileResources = new ArrayList();
 
         try {
+        	IResourceDelta[] children = event.getDelta().getAffectedChildren();
+        	if (children != null && children.length > 0) {
+        		IProject project = null;
+        		IResource resource = children[0].getResource();
+        		if (resource.getType() == IResource.PROJECT) {
+        			project = (IProject)resource;
+        		} else {
+        			project = resource.getProject();
+        		}
+        		if (project != null) {
+					if (!project.isAccessible()) {
+						return;
+					}
+					if ((event.getDelta().getFlags() & IResourceDelta.OPEN) != 0) {
+						return;
+					} 
+					if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+						return; // not a svn handled project
+					}        			
+        		}
+        	}
+        	
             event.getDelta().accept(new IResourceDeltaVisitor() {
 
                 public boolean visit(IResourceDelta delta) throws CoreException {
-                	if (delta.getResource().getType() == IResource.FILE) {
+                	IResource resource = delta.getResource();
+                	if (resource.getType()==IResource.PROJECT) {
+                		IProject project = (IProject)resource;
+						if (!project.isAccessible()) {
+							return false;
+						}
+						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
+							return false;
+						} 
+						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+							return false; // not a svn handled project
+						}
+                	}
+                	else if (resource.getType() == IResource.FILE) {
                         if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
                         	addedFileResources.add(delta);
                         }  
