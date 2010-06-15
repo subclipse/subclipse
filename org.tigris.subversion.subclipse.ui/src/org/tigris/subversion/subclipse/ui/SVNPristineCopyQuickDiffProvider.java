@@ -191,7 +191,7 @@ public class SVNPristineCopyQuickDiffProvider implements IQuickDiffReferenceProv
 		if(documentProvider != null) {
 			documentProvider.removeElementStateListener(documentListener);
 		}
-//		SVNProviderPlugin.getPlugin().getSVNWorkspaceSubscriber().removeListener(teamChangeListener);				
+		SVNWorkspaceSubscriber.getInstance().removeListener(teamChangeListener);				
 	}
 
 	/*
