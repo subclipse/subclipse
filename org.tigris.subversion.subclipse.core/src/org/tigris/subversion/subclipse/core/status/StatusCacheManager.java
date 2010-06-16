@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -60,6 +61,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 
     private IStatusCache statusCache;
     private StatusUpdateStrategy statusUpdateStrategy;
+    private boolean flushCache;
     
     public StatusCacheManager() {
     	chooseUpdateStrategy();
@@ -334,27 +336,30 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      *
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
-
-    	IResourceDelta[] children = event.getDelta().getAffectedChildren();
-    	if (children != null && children.length > 0) {
-    		IProject project = null;
-    		IResource resource = children[0].getResource();
-    		if (resource.getType() == IResource.PROJECT) {
-    			project = (IProject)resource;
-    		} else {
-    			project = resource.getProject();
-    		}
-    		if (project != null) {
-				if (!project.isAccessible()) {
-					return;
-				}
-				if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
-					return; // not a svn handled project
-				}        			
-    		}
-    	}
-		
-		statusCache.flushPendingStatuses();
+		flushCache = false;
+		try {
+            event.getDelta().accept(new IResourceDeltaVisitor() {
+                public boolean visit(IResourceDelta delta) throws CoreException {
+                	IResource resource = delta.getResource();
+                	if (resource.getType()==IResource.PROJECT) {
+                		IProject project = (IProject)resource;
+						if (!project.isAccessible()) {
+							return false; // i.e., closed project
+						}
+						if (SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+							flushCache = true;
+							return false; // not a svn handled project
+						}
+                	}
+                    return true;
+                }
+            });			
+	    } catch (CoreException e) {
+	      SVNProviderPlugin.log(e.getStatus());
+	    }
+		if (flushCache) {
+			statusCache.flushPendingStatuses();
+		}
 	}
 
     // getStatuses returns null URL for svn:externals folder.  This will

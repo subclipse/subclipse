@@ -92,39 +92,18 @@ public class RevertResourceManager implements IResourceChangeListener {
         final List addedFileResources = new ArrayList();
 
         try {
-        	IResourceDelta[] children = event.getDelta().getAffectedChildren();
-        	if (children != null && children.length > 0) {
-        		IProject project = null;
-        		IResource resource = children[0].getResource();
-        		if (resource.getType() == IResource.PROJECT) {
-        			project = (IProject)resource;
-        		} else {
-        			project = resource.getProject();
-        		}
-        		if (project != null) {
-					if (!project.isAccessible()) {
-						return;
-					}
-					if ((event.getDelta().getFlags() & IResourceDelta.OPEN) != 0) {
-						return;
-					} 
-					if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
-						return; // not a svn handled project
-					}        			
-        		}
-        	}
-        	
             event.getDelta().accept(new IResourceDeltaVisitor() {
 
                 public boolean visit(IResourceDelta delta) throws CoreException {
                 	IResource resource = delta.getResource();
+ 
                 	if (resource.getType()==IResource.PROJECT) {
                 		IProject project = (IProject)resource;
 						if (!project.isAccessible()) {
-							return false;
+							return false; // i.e., closed project
 						}
 						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
-							return false;
+							return false; // ignore project open
 						} 
 						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
 							return false; // not a svn handled project
