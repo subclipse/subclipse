@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.settings;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -49,17 +50,22 @@ public class UnversionedCustomProperty {
     SVNUrl url= remoteResource.getUrl(); 
  
     ISVNProperty[] props = getSvnRevisionProperties(url, revision, peg);
-    List<UnversionedCustomProperty> temp = new ArrayList<UnversionedCustomProperty>();
-    for (ISVNProperty prop : props) {
-      final String name = prop.getName();
-      final String value = prop.getValue();
+    List temp = new ArrayList();
+    for (int i = 0; i < props.length; i++) {
+      final String name = props[i].getName();
+      final String value = props[i].getValue();
       // TODO: pull these from svnPropertyTypes prefixes rather than hardcoding
       if (customOnly && (name.startsWith("svn:") || name.startsWith("bugtraq:") || name.startsWith("tsvn:"))) 
         continue;
       UnversionedCustomProperty ucp = new UnversionedCustomProperty(name, value);
-      temp.add(ucp);
+      temp.add(ucp);    	
     }
-    UnversionedCustomProperty ret[] = temp.toArray(new UnversionedCustomProperty[0]);
+    UnversionedCustomProperty[] ret = new UnversionedCustomProperty[temp.size()];
+    int i = 0;
+    Iterator iter = temp.iterator();
+    while (iter.hasNext()) {
+    	ret[i++] = (UnversionedCustomProperty)iter.next();
+    }
     return ret;
   }
   
@@ -83,27 +89,31 @@ public class UnversionedCustomProperty {
   }  
   
   private static ISVNProperty[] stripNonCustom(final ISVNProperty[] propsIn) {
-    List<ISVNProperty> temp = new ArrayList<ISVNProperty>();
-    for (ISVNProperty property : propsIn) {
-      String name = property.getName();
-      if (name.startsWith("svn:") || name.startsWith("bugtraq:") || name.startsWith("tsvn:")) 
-        continue;
-      temp.add(property);
-    }
-    
-    ISVNProperty[] ret = temp.toArray(new ISVNProperty[0]);
-    return ret;
+	  List temp = new ArrayList();
+	  for (int i = 0; i < propsIn.length; i++) {
+	      String name = propsIn[i].getName();
+	      if (name.startsWith("svn:") || name.startsWith("bugtraq:") || name.startsWith("tsvn:")) 
+	        continue;
+	      temp.add(propsIn[i]);		  
+	  }
+	  ISVNProperty[] ret = new ISVNProperty[temp.size()];
+	  int i = 0;
+	  Iterator iter = temp.iterator();
+	  while (iter.hasNext()) {
+	    ret[i++] = (ISVNProperty)iter.next();
+	  }
+	  return ret;
   }
   
   private static final String NL = System.getProperty("line.separator");
   
-  public static String asMultilineString(UnversionedCustomProperty[] props) {
-    StringBuilder sb = new StringBuilder(props.length * 64); // wag for reasonable size;
-    for (UnversionedCustomProperty prop : props) {
-      if (prop == null) break;
-      sb.append(prop.getName() + ": " + prop.getValue() + NL);
-    }
-    return sb.toString();
+  public static String asMultilineString(UnversionedCustomProperty[] props) {	  
+	StringBuffer sb = new StringBuffer();
+	for (int i = 0; i < props.length; i++) {
+		if (props[i] == null) break;
+		sb.append(props[i].getName() + ": " + props[i].getValue() + NL);
+	}
+	return sb.toString();
   }
   
 }
