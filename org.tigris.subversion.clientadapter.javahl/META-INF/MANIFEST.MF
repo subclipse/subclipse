@@ -6,7 +6,7 @@ Bundle-Version: 1.6.12
 Bundle-Activator: org.tigris.subversion.clientadapter.javahl.Activator
 Bundle-Vendor: tigris.org
 Require-Bundle: org.eclipse.core.runtime,
- org.tigris.subversion.clientadapter;bundle-version="[1.6.10,1.7.0)"
+ org.tigris.subversion.clientadapter;bundle-version="[1.6.12,1.7.0)"
 Eclipse-LazyStart: true
 Export-Package: org.tigris.subversion.javahl,
  org.tigris.subversion.svnclientadapter.javahl
