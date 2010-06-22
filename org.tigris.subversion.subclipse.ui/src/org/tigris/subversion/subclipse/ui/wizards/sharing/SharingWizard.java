@@ -352,13 +352,15 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 				try {
 					ISynchronizeParticipantReference[] references = TeamUI.getSynchronizeManager().getSynchronizeParticipants();
 					if (references != null) {
-						for (ISynchronizeParticipantReference reference : references) {
+						for (int i = 0; i < references.length; i++) {
+							ISynchronizeParticipantReference reference = references[i];
 							ISynchronizeParticipant participant = reference.getParticipant();
 							if (participant instanceof SVNSynchronizeParticipant) {
 								SVNSynchronizeParticipant svnParticipant = (SVNSynchronizeParticipant)participant;
 								IResource[] resources = svnParticipant.getResources();
 								if (resources != null) {
-									for (IResource resource : resources) {
+									for (int j = 0; j < resources.length; j++) {
+										IResource resource = resources[j];
 										if (!resource.equals(project)) {
 											syncList.add(resource);
 										}
