@@ -110,7 +110,13 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 		
 		String leftLabel = Policy.bind("SVNCompareRevisionsInput.workspace", new Object[] {resourceName}); //$NON-NLS-1$
 		cc.setLeftLabel(leftLabel);
-		String rightLabel = Policy.bind("SVNCompareRevisionsInput.repository", new Object[] {resourceName}); //$NON-NLS-1$
+		String remoteResourceName = null;
+		if (remoteResource != null) {
+			remoteResourceName = remoteResource.getName();
+		} else {
+			remoteResourceName = resourceName;
+		}
+		String rightLabel = Policy.bind("SVNCompareRevisionsInput.repository", new Object[] {remoteResourceName}); //$NON-NLS-1$
 		cc.setRightLabel(rightLabel);
 	}
 	

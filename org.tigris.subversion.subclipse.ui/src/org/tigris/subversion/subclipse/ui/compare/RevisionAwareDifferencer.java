@@ -147,7 +147,7 @@ public final class RevisionAwareDifferencer extends Differencer {
                 
                 if (changedResources == null) {
                		for (int i = 0; i < diffSummary.length; i++) {
-            			if(localResource.getResource().getProjectRelativePath().toString().equals(projectRelativePath + diffSummary[i].getPath())) {
+            			if(localResource.getResource().getProjectRelativePath().toString().equals(projectRelativePath) || localResource.getResource().getProjectRelativePath().toString().equals(projectRelativePath + diffSummary[i].getPath())) {
             				return NODE_NOT_EQUAL;
             			}
             		} 
