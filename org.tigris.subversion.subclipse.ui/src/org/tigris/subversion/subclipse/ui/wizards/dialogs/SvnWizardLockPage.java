@@ -134,7 +134,7 @@ public class SvnWizardLockPage extends SvnWizardDialogPage {
 
 	public boolean performFinish() {
         stealLock = stealButton.getSelection();
-        comment = commitCommentArea.getComment();
+        comment = commitCommentArea.getComment(true);
         return true;
 	}
 

@@ -73,6 +73,7 @@ public class ReleaseCommentDialog extends Dialog {
 	 * @return String
 	 */
 	public String getComment() {
+		commitCommentArea.addComment(commitCommentArea.getComment());
 		return commitCommentArea.getComment();
 	}
 

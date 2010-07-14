@@ -361,7 +361,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
         	switchAfterBranchTag = switchAfterBranchTagCheckBox.getSelection();
         }
         
-        comment = commitCommentArea.getComment();
+        comment = commitCommentArea.getComment(true);
         if (serverButton.getSelection()) revision = SVNRevision.HEAD;
         try {
             toUrl = new SVNUrl(toUrlCombo.getText());

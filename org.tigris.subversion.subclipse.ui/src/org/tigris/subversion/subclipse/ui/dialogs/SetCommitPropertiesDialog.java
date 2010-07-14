@@ -270,13 +270,16 @@ public class SetCommitPropertiesDialog extends TrayDialog {
 	 * @return String
 	 */
 	public String getComment() {
+		String comment;
 	    if ((projectProperties != null) && (issue != null) && (issue.length() > 0)) {
 	        if (projectProperties.isAppend()) 
-	            return commitCommentArea.getComment() + "\n" + projectProperties.getResolvedMessage(issue) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+	            comment = commitCommentArea.getComment() + "\n" + projectProperties.getResolvedMessage(issue) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 	        else
-	            return projectProperties.getResolvedMessage(issue) + "\n" + commitCommentArea.getComment(); //$NON-NLS-1$
+	            comment = projectProperties.getResolvedMessage(issue) + "\n" + commitCommentArea.getComment(); //$NON-NLS-1$
 	    }
-		return commitCommentArea.getComment();
+	    else comment = commitCommentArea.getComment();
+	    commitCommentArea.addComment(commitCommentArea.getComment());
+		return comment;
 	}
 	
 	protected Button createButton(

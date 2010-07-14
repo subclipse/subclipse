@@ -72,6 +72,7 @@ public class CommentCommitWizardPage extends SVNWizardPage {
 	 * @return String
 	 */
 	public String getComment() {
+		commitCommentArea.addComment(commitCommentArea.getComment());
 		return commitCommentArea.getComment();
 	}
 }

@@ -145,13 +145,16 @@ public class BranchTagWizardCommentPage extends SVNWizardPage {
 	}
 	
     public String getComment() {
+    	String comment = null;
 	    if ((projectProperties != null) && (getIssue() != null) && (getIssue().length() > 0)) {
 	        if (projectProperties.isAppend()) 
-	            return commitCommentArea.getComment() + "\n" + projectProperties.getResolvedMessage(getIssue()) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+	            comment = commitCommentArea.getComment() + "\n" + projectProperties.getResolvedMessage(getIssue()) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 	        else
-	            return projectProperties.getResolvedMessage(getIssue()) + "\n" + commitCommentArea; //$NON-NLS-1$
+	            comment = projectProperties.getResolvedMessage(getIssue()) + "\n" + commitCommentArea.getComment(); //$NON-NLS-1$
 	    }        
-        return commitCommentArea.getComment();
+	    else comment = commitCommentArea.getComment();
+	    commitCommentArea.addComment(commitCommentArea.getComment());
+	    return comment;
     }	
 
 }

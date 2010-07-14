@@ -156,6 +156,7 @@ public class ImportFolderDialog extends TrayDialog {
 		boolean success = true;
 		try {
 			File directory = new File(directoryText.getText().trim());
+			commitCommentArea.addComment(commitCommentArea.getComment());
 			new ImportOperation(targetPart, remoteFolder, directory, commitCommentArea.getComment(), recurseButton.getSelection()).run();
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), Policy.bind("ImportFolderDialog.title"), e.getMessage()); //$NON-NLS-1$

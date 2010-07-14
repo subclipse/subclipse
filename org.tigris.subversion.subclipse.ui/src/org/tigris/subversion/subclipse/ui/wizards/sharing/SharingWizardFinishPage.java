@@ -71,6 +71,7 @@ public class SharingWizardFinishPage extends SVNWizardPage {
 	}
 	
 	public String getComment() {
+		commitCommentArea.addComment(commitCommentArea.getComment());
 		return commitCommentArea.getComment();
 	}
 }
