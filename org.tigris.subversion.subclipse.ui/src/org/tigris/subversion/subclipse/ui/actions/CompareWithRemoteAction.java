@@ -31,6 +31,7 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareSummaryInput;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalBaseCompareInput;
 import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
@@ -51,24 +52,38 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 	public void execute(IAction action) {
 		refresh = false;
 		final IResource[] resources = getSelectedResources();
-		if (resources.length != 1) return;
+		if (resources.length != 1 && !SVNRevision.BASE.equals(revision)) return;
 		
-		if (resources[0] instanceof IFile && !resources[0].isSynchronized(Depth.immediates)) {
-			refresh = MessageDialog.openQuestion(getShell(), Policy.bind("DifferencesDialog.compare"), Policy.bind("CompareWithRemoteAction.fileChanged"));
+		for (int i = 0; i < resources.length; i++) {
+			if (resources[i] instanceof IFile && !resources[i].isSynchronized(Depth.immediates)) {
+				refresh = MessageDialog.openQuestion(getShell(), Policy.bind("DifferencesDialog.compare"), Policy.bind("CompareWithRemoteAction.fileChanged"));
+				break;
+			}
 		}
 		
 		try {
-			final ISVNLocalResource localResource= SVNWorkspaceRoot.getSVNResourceFor(resources[0]);
+			final ISVNLocalResource[] localResources = new ISVNLocalResource[resources.length];
+			for (int i = 0; i < resources.length; i++) {
+				localResources[i] = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
+			}
+			
+			final ISVNLocalResource localResource = localResources[0];
 			
 			run(new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) {
 					try {
-						if (refresh) localResource.getResource().refreshLocal(Depth.immediates, monitor);				
+						if (refresh) {
+							for (int i = 0; i < localResources.length; i++) {
+								if (resources[i] instanceof IFile) {
+									localResources[i].getResource().refreshLocal(Depth.immediates, monitor);
+								}
+							}				
+						}
 						if (SVNRevision.BASE.equals(revision)) {
-							SVNLocalCompareInput compareInput = new SVNLocalCompareInput(localResource, revision);
+							SVNLocalBaseCompareInput compareInput = new SVNLocalBaseCompareInput(localResources, revision);
 							CompareUI.openCompareEditorOnPage(
 									compareInput,
-									getTargetPage());
+									getTargetPage());							
 						} else {					
 							if (resources[0] instanceof IContainer) {
 								ISVNRemoteFolder remoteFolder = new RemoteFolder(localResource.getRepository(), localResource.getUrl(), revision);
@@ -140,7 +155,8 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForMultipleResources()
 	 */
 	protected boolean isEnabledForMultipleResources() {
-		return false;
+//		return false;
+		return SVNRevision.BASE.equals(revision);
 	}
 	
 	protected String getImageId()
