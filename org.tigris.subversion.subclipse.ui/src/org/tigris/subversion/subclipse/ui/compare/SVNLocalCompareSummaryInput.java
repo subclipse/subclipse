@@ -40,15 +40,20 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary.SVNDiffKind;
 
-public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput implements ISaveableWorkbenchPart {
-	private ISVNLocalResource resource;
-	private ISVNRemoteFolder remoteFolder;
+public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput implements ISaveableWorkbenchPart {	
+	private ISVNLocalResource[] resources;
+	private final SVNRevision remoteRevision;
+	private ISVNRemoteFolder[] remoteFolders;
 	private boolean readOnly;
 	
-	public SVNLocalCompareSummaryInput(ISVNLocalResource resource, ISVNRemoteFolder remoteFolder) throws SVNException {
+	public SVNLocalCompareSummaryInput(ISVNLocalResource[] resources, SVNRevision remoteRevision) throws SVNException {
 		super(new CompareConfiguration());
-		this.resource = resource;
-		this.remoteFolder = remoteFolder;
+		this.resources = resources;
+		this.remoteRevision = remoteRevision;
+		remoteFolders = new RemoteFolder[resources.length];
+		for (int i = 0; i < resources.length; i++) {
+			remoteFolders[i] = new RemoteFolder(resources[i].getRepository(), resources[i].getUrl(), remoteRevision);
+		}
 	}
 	
 	/**
@@ -56,14 +61,22 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 	 */
 	private void initLabels() {
 		CompareConfiguration cc = getCompareConfiguration();
-		String resourceName = resource.getName();	
-		setTitle(Policy.bind("SVNCompareRevisionsInput.compareResourceAndVersions", new Object[] {resourceName})); //$NON-NLS-1$
 		cc.setLeftEditable(! readOnly);
 		cc.setRightEditable(false);
-		
-		String leftLabel = Policy.bind("SVNCompareRevisionsInput.workspace", new Object[] {resourceName}); //$NON-NLS-1$
+		String title;
+		String leftLabel;
+		String rightLabel;
+		if (resources.length > 1) {
+			title = Policy.bind("SVNLocalBaseCompareInput.0") + remoteRevision; //$NON-NLS-1$
+			leftLabel = Policy.bind("SVNLocalBaseCompareInput.1"); //$NON-NLS-1$
+			rightLabel = remoteRevision.toString();			
+		} else {
+			title = Policy.bind("SVNCompareRevisionsInput.compareResourceAndVersions", new Object[] {resources[0].getName()}); //$NON-NLS-1$
+			leftLabel = Policy.bind("SVNCompareRevisionsInput.workspace", new Object[] {resources[0].getName()}); //$NON-NLS-1$
+			rightLabel = Policy.bind("SVNCompareRevisionsInput.repository", new Object[] {resources[0].getName()}); //$NON-NLS-1$
+		}
+		setTitle(title);		
 		cc.setLeftLabel(leftLabel);
-		String rightLabel = Policy.bind("SVNCompareRevisionsInput.repository", new Object[] {resourceName}); //$NON-NLS-1$
 		cc.setRightLabel(rightLabel);
 	}
 	
@@ -79,30 +92,40 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 			IProgressMonitor sub = new SubProgressMonitor(monitor, 30);
 			sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); //$NON-NLS-1$
 			Object[] result = new Object[] { null };
+			SVNLocalResourceSummaryNode[] resourceSummaryNodes = new SVNLocalResourceSummaryNode[resources.length];
+			SummaryEditionNode[] summaryEditionNodes = new SummaryEditionNode[resources.length];
 			try {
-				SVNDiffSummary[] diffSummary = null;
-				if (remoteFolder.getRevision().equals(SVNRevision.HEAD) && remoteFolder.getUrl().equals(resource.getUrl())) {
-			        StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource.getResource() ), true, false, true );
-			        cmd.run(monitor);
-			        RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
-			        diffSummary = getDiffSymmary(statuses);
-				} else {
-					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
-					diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
+				for (int i = 0; i < resources.length; i++) {
+					ISVNLocalResource resource = resources[i];
+					ISVNRemoteFolder remoteFolder = remoteFolders[i];
+					SVNDiffSummary[] diffSummary = null;
+					if (remoteFolder.getRevision().equals(SVNRevision.HEAD) && remoteFolder.getUrl().equals(resource.getUrl())) {
+				        StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource.getResource() ), true, false, true );
+				        cmd.run(monitor);
+				        RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
+				        diffSummary = getDiffSummary(statuses, resource);
+					} else {
+						ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+						diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
+					}
+					diffSummary = getDiffSummaryWithSubfolders(diffSummary);
+					ITypedElement left = new SVNLocalResourceSummaryNode(resource, diffSummary, resource.getResource().getLocation().toString());
+					SummaryEditionNode right = new SummaryEditionNode(remoteFolder);
+					right.setRootFolder((RemoteFolder)remoteFolder);
+					right.setNodeType(SummaryEditionNode.RIGHT);
+					right.setRoot(true);		
+					right.setDiffSummary(diffSummary);	
+					String localCharset = Utilities.getCharset(resource.getIResource());
+					try {
+						right.setCharset(localCharset);
+					} catch (CoreException e) {
+						SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+					}	
+					resourceSummaryNodes[i] = (SVNLocalResourceSummaryNode) left;
+					summaryEditionNodes[i] = right;
 				}
-				diffSummary = getDiffSummaryWithSubfolders(diffSummary);
-				ITypedElement left = new SVNLocalResourceSummaryNode(resource, diffSummary, resource.getResource().getLocation().toString());
-				SummaryEditionNode right = new SummaryEditionNode(remoteFolder);
-				right.setRootFolder((RemoteFolder)remoteFolder);
-				right.setNodeType(SummaryEditionNode.RIGHT);
-				right.setRoot(true);		
-				right.setDiffSummary(diffSummary);	
-				String localCharset = Utilities.getCharset(resource.getIResource());
-				try {
-					right.setCharset(localCharset);
-				} catch (CoreException e) {
-					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-				}		        
+				MultipleSelectionNode left = new MultipleSelectionNode(resourceSummaryNodes);
+				MultipleSelectionNode right = new MultipleSelectionNode(summaryEditionNodes);
 		        result[0] = new SummaryDifferencer().findDifferences(false, monitor, null, null, left, right);
 				if (result[0] instanceof DiffNode) {
 					IDiffElement[] diffs = ((DiffNode)result[0]).getChildren();
@@ -123,7 +146,7 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 		}
 	}
 	
-	private SVNDiffSummary[] getDiffSymmary(RemoteResourceStatus[] statuses) {
+	private SVNDiffSummary[] getDiffSummary(RemoteResourceStatus[] statuses, ISVNLocalResource resource) {
 		List diffSummaryList = new ArrayList();
 		int rootPathLength = resource.getResource().getLocation().toString().length() + 1;
 		for (int i = 0; i < statuses.length; i++) {
@@ -148,7 +171,7 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 					if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) diffKind = SVNDiffKind.ADDED;
 					else if (statuses[i].getTextStatus().equals(SVNStatusKind.DELETED)) diffKind = SVNDiffKind.DELETED;
 					else diffKind = SVNDiffKind.MODIFIED;
-					SVNDiffSummary diffSummary = new SVNDiffSummary(statuses[i].getPath().substring(rootPathLength).replaceAll("\\\\", "/"), diffKind, propertyChanges, statuses[i].getNodeKind().toInt());
+					SVNDiffSummary diffSummary = new SVNDiffSummary(statuses[i].getPath().substring(rootPathLength).replaceAll("\\\\", "/"), diffKind, propertyChanges, statuses[i].getNodeKind().toInt()); //$NON-NLS-1$ //$NON-NLS-2$
 					diffSummaryList.add(diffSummary);
 				}
 			}
@@ -258,7 +281,7 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 			while (file.getParentFile() != null) {
 				file = file.getParentFile();
 				String path = file.getPath();
-				path = path.replaceAll("\\\\", "/");
+				path = path.replaceAll("\\\\", "/"); //$NON-NLS-1$ //$NON-NLS-2$
 				if (!paths.contains(path)) {
 					paths.add(path);
 					SVNDiffSummary folder = new SVNDiffSummary(path, SVNDiffKind.NORMAL, false, SVNNodeKind.DIR.toInt());
