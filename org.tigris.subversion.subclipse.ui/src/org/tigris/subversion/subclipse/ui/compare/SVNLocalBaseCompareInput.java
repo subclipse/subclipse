@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
+import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
@@ -88,7 +89,14 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
 		initLabels();
 		MultipleSelectionNode left = new MultipleSelectionNode(localResourceNodes);
 		MultipleSelectionNode right = new MultipleSelectionNode(remoteResourceNodes);
-        return new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
+        Object differences = new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
+        if (differences instanceof DiffNode) {
+        	DiffNode diffNode = (DiffNode)differences;
+        	if (!diffNode.hasChildren()) {
+        		return null;
+        	}
+        }
+        return differences;
 	}
 	
 	/* (non-Javadoc)

@@ -136,6 +136,12 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 			} finally {
 				sub.done();
 			}
+			if (result[0] instanceof DiffNode) {
+		       	DiffNode diffNode = (DiffNode)result[0];
+	        	if (!diffNode.hasChildren()) {
+	        		return null;
+	        	}				
+			}
 	        return result[0];
 		} catch (OperationCanceledException e) {
 			throw new InterruptedException(e.getMessage());
