@@ -76,7 +76,7 @@ public class LockAction extends WorkbenchWindowAction {
         try {
         	boolean enabled = super.isEnabledForSVNResource(svnResource);
         	if (enabled)
-        		return !svnResource.getStatus().isLocked();
+        		return !svnResource.getStatusFromCache().isLocked();
         	else
         		return enabled;
         } catch (SVNException e) {

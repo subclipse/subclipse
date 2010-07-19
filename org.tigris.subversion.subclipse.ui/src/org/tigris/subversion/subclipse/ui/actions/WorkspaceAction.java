@@ -149,7 +149,7 @@ public abstract class WorkspaceAction extends SVNAction {
 		} else {
             managed = svnResource.isManaged();
 			if (managed) {
-				LocalResourceStatus status = svnResource.getStatus();
+				LocalResourceStatus status = svnResource.getStatusFromCache();
 				copied = status.isCopied();
                 added = status.isAdded();
             }

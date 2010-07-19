@@ -230,7 +230,7 @@ public class SVNLightweightDecorator
 			    return false;
             if (svnResource.getIResource().getType() == IResource.FILE) {
                 // for files, we want that only modified files to be considered as dirty
-            	LocalResourceStatus status = svnResource.getStatus();
+            	LocalResourceStatus status = svnResource.getStatusFromCache();
                 return ((status.isTextModified() || status.isPropModified() || status.isReplaced() || status.isAdded())
 							&& !status.isIgnored() && !svnResource.isIgnored());
             } else {
@@ -303,7 +303,7 @@ public class SVNLightweightDecorator
 		        isDirty = SVNLightweightDecorator.isDirty(svnResource);
 			}
 			try {
-				status = svnResource.getStatus();
+				status = svnResource.getStatusFromCache();
 				isUnversioned = status.isUnversioned();
 			} catch (SVNException e1) {
 				if (!e1.operationInterrupted()) {

@@ -113,7 +113,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			return true;
 		}
 		
-		LocalResourceStatus status = getStatus();
+		LocalResourceStatus status = getStatusFromCache();
 		
 		// a managed resource is never ignored
 		if (status.isManaged()) {
@@ -155,7 +155,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     	}
     	//Check if the first parent with status has status IGNORED
     	if (parent != null) {
-    		LocalResourceStatus status = cacheMgr.getStatus(parent);
+    		LocalResourceStatus status = cacheMgr.getStatusFromCache(parent);
     		if ((status != null) && (SVNStatusKind.IGNORED.equals(status.getTextStatus()))) {
     			return true;
     		}
@@ -176,21 +176,21 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see ISVNLocalResource#isManaged()
 	 */
 	public boolean isManaged() throws SVNException {
-		return !this.resource.isDerived() && getStatus().isManaged();
+		return !this.resource.isDerived() && getStatusFromCache().isManaged();
 	}
     
 	/*
 	 * @see ISVNLocalResource#isAdded()
 	 */
 	public boolean isAdded() throws SVNException {
-		return getStatus().isAdded();
+		return getStatusFromCache().isAdded();
 	}
     
     /* (non-Javadoc)
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#hasRemote()
      */
     public boolean hasRemote() throws SVNException {
-        return !isLinked() && getStatus().hasRemote();
+        return !isLinked() && getStatusFromCache().hasRemote();
     }
 
 	/* (non-Javadoc)
@@ -206,6 +206,12 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     public LocalResourceStatus getStatus() throws SVNException {
     	if (isLinked()) { return LocalResourceStatus.NONE; }
     	LocalResourceStatus aStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatus(resource);
+        return (aStatus != null) ? aStatus : LocalResourceStatus.NONE;
+    }
+    
+    public LocalResourceStatus getStatusFromCache() throws SVNException {
+    	if (isLinked()) { return LocalResourceStatus.NONE; }
+    	LocalResourceStatus aStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatusFromCache(resource);
         return (aStatus != null) ? aStatus : LocalResourceStatus.NONE;
     }
 
@@ -279,7 +285,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     	try {
     		if (isManaged()) {
     			// if the resource is managed, get the url directly
-    			return getStatus().getUrl();
+    			return getStatusFromCache().getUrl();
     		} else {
     			// otherwise, get the url of the parent
     			ISVNLocalResource parent = getParent();

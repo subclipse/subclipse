@@ -137,7 +137,11 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @throws SVNException
      */
     public LocalResourceStatus getStatus(IResource resource) throws SVNException {
-        return getStatus(resource, statusUpdateStrategy);
+        return getStatus(resource, statusUpdateStrategy, true);
+    }
+    
+    public LocalResourceStatus getStatusFromCache(IResource resource) throws SVNException {
+        return getStatus(resource, statusUpdateStrategy, false);
     }
 
     /**
@@ -154,7 +158,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
         return getStatus(resource,
 				useRecursiveStartegy ? 
 						(StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(statusCache)
-						: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(statusCache));
+						: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(statusCache), true);
     }
 
     /**
@@ -178,7 +182,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * get the status of the given resource
      * @throws SVNException
      */
-    private LocalResourceStatus getStatus(IResource resource, StatusUpdateStrategy strategy) throws SVNException {
+    private LocalResourceStatus getStatus(IResource resource, StatusUpdateStrategy strategy, boolean getStatusFromSvn) throws SVNException {
     	if (!resource.exists() && !resource.isPhantom())
     	{
     		return null;
@@ -187,7 +191,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
         status = statusCache.getStatus(resource);
         
         // we get it using svn 
-        if (status == null)
+        if (status == null && getStatusFromSvn)
         {
         	status = basicGetStatus(resource, strategy);
         }

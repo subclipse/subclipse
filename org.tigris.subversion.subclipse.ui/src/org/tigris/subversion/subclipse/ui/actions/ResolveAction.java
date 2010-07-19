@@ -41,7 +41,10 @@ public class ResolveAction extends WorkbenchWindowAction {
      */
     protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
         try {
-            return svnResource.getStatus().isTextConflicted() || svnResource.getStatus().isPropConflicted() || svnResource.getStatus().hasTreeConflict();
+        	if (!super.isEnabledForSVNResource(svnResource)) {
+        		return false;
+        	}
+            return svnResource.getStatusFromCache().isTextConflicted() || svnResource.getStatusFromCache().isPropConflicted() || svnResource.getStatusFromCache().hasTreeConflict();
         } catch (SVNException e) {
             return false;
         }

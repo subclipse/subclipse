@@ -57,7 +57,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         if (!isManaged()) {// no base if no remote
             return null;
         }
-        return new BaseFolder(resource, getStatus());
+        return new BaseFolder(resource, getStatusFromCache());
     }
 
     /* (non-Javadoc)
@@ -131,7 +131,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
      * A folder is considered dirty if its status is dirty or if one of its children is dirty
      */
     public boolean isDirty() throws SVNException {
-        if (getStatus().isDirty()) {
+        if (getStatusFromCache().isDirty()) {
             return true;
         }
         
@@ -286,6 +286,18 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
     		return LocalResourceStatus.NONE;
     	}
     	return super.getStatus();
+    }
+    
+    public LocalResourceStatus getStatusFromCache() throws SVNException {
+    	if (getIResource().isTeamPrivateMember() && (SVNProviderPlugin.getPlugin().isAdminDirectory(getIResource().getName())))
+    	{
+    		return LocalResourceStatus.NONE;
+    	}
+    	if (getIResource() instanceof IWorkspaceRoot)
+    	{
+    		return LocalResourceStatus.NONE;
+    	}
+    	return super.getStatusFromCache();
     }
 
 }

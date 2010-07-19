@@ -193,7 +193,10 @@ public class EditConflictsAction extends WorkbenchWindowAction {
      */
     protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
         try {
-            return svnResource.getStatus().isTextConflicted();
+        	if (!super.isEnabledForSVNResource(svnResource)) {
+        		return false;
+        	}
+            return svnResource.getStatusFromCache().isTextConflicted();
         } catch (SVNException e) {
             return false;
         }

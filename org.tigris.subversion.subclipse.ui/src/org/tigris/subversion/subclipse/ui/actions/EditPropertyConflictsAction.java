@@ -54,7 +54,10 @@ public class EditPropertyConflictsAction extends WorkbenchWindowAction {
 	
     protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
         try {
-            return svnResource.getStatus().isPropConflicted();
+        	if (!super.isEnabledForSVNResource(svnResource)) {
+        		return false;
+        	}
+            return svnResource.getStatusFromCache().isPropConflicted();
         } catch (SVNException e) {
             return false;
         }

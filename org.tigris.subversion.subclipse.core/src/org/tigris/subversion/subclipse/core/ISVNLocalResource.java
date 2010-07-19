@@ -37,6 +37,8 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 	 * @throws SVNException
 	 */
 	public LocalResourceStatus getStatus() throws SVNException;
+	
+	public LocalResourceStatus getStatusFromCache() throws SVNException;
 
 	/**
 	 * Answers the revision number for this resource.

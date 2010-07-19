@@ -38,7 +38,7 @@ public class MarkDeletedAction extends WorkspaceAction {
 			IResource resource = resources[i];
 			if (resource.exists()) return false;
 			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-			if (!svnResource.getStatus().isMissing()) return false;
+			if (!svnResource.getStatusFromCache().isMissing()) return false;
 		}
 		return true;
 	}

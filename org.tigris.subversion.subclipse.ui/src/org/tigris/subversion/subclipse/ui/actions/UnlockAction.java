@@ -64,7 +64,10 @@ public class UnlockAction extends WorkbenchWindowAction {
      */
     protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
         try {
-            return svnResource.getStatus().isLocked();
+        	if (!super.isEnabledForSVNResource(svnResource)) {
+        		return false;
+        	}
+            return svnResource.getStatusFromCache().isLocked();
         } catch (SVNException e) {
             return false;
         }

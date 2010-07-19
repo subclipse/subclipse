@@ -40,7 +40,7 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
 		if (!hasRemote()) {// no base if no remote
 			return null;
 		}
-		return new BaseFile(resource, getStatus());
+		return new BaseFile(resource, getStatusFromCache());
     }	
 	
     /* (non-Javadoc)
@@ -61,7 +61,7 @@ public class LocalFile extends LocalResource implements ISVNLocalFile {
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#isDirty()
      */
     public boolean isDirty() throws SVNException {
-        return getStatus().isDirty();
+        return getStatusFromCache().isDirty();
     }
     
     /* (non-Javadoc)
