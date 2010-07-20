@@ -7,7 +7,6 @@ import java.util.List;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
-import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -92,8 +91,8 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 			IProgressMonitor sub = new SubProgressMonitor(monitor, 30);
 			sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); //$NON-NLS-1$
 			Object[] result = new Object[] { null };
-			SVNLocalResourceSummaryNode[] resourceSummaryNodes = new SVNLocalResourceSummaryNode[resources.length];
-			SummaryEditionNode[] summaryEditionNodes = new SummaryEditionNode[resources.length];
+			ArrayList resourceSummaryNodeList = new ArrayList();
+			ArrayList summaryEditionNodeList = new ArrayList();
 			try {
 				for (int i = 0; i < resources.length; i++) {
 					ISVNLocalResource resource = resources[i];
@@ -108,31 +107,35 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 						ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 						diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
 					}
-					diffSummary = getDiffSummaryWithSubfolders(diffSummary);
-					ITypedElement left = new SVNLocalResourceSummaryNode(resource, diffSummary, resource.getResource().getLocation().toString());
-					SummaryEditionNode right = new SummaryEditionNode(remoteFolder);
-					right.setRootFolder((RemoteFolder)remoteFolder);
-					right.setNodeType(SummaryEditionNode.RIGHT);
-					right.setRoot(true);		
-					right.setDiffSummary(diffSummary);	
-					String localCharset = Utilities.getCharset(resource.getIResource());
-					try {
-						right.setCharset(localCharset);
-					} catch (CoreException e) {
-						SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-					}	
-					resourceSummaryNodes[i] = (SVNLocalResourceSummaryNode) left;
-					summaryEditionNodes[i] = right;
-				}
-				MultipleSelectionNode left = new MultipleSelectionNode(resourceSummaryNodes);
-				MultipleSelectionNode right = new MultipleSelectionNode(summaryEditionNodes);
-		        result[0] = new SummaryDifferencer().findDifferences(false, monitor, null, null, left, right);
-				if (result[0] instanceof DiffNode) {
-					IDiffElement[] diffs = ((DiffNode)result[0]).getChildren();
-					if (diffs == null || diffs.length == 0) {
-						result[0] = null;
+					if (diffSummary != null && diffSummary.length > 0) {
+						diffSummary = getDiffSummaryWithSubfolders(diffSummary);
+						ITypedElement left = new SVNLocalResourceSummaryNode(resource, diffSummary, resource.getResource().getLocation().toString());
+						SummaryEditionNode right = new SummaryEditionNode(remoteFolder);
+						right.setRootFolder((RemoteFolder)remoteFolder);
+						right.setNodeType(SummaryEditionNode.RIGHT);
+						right.setRoot(true);		
+						right.setDiffSummary(diffSummary);	
+						String localCharset = Utilities.getCharset(resource.getIResource());
+						try {
+							right.setCharset(localCharset);
+						} catch (CoreException e) {
+							SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+						}	
+						resourceSummaryNodeList.add(left);
+						summaryEditionNodeList.add(right);
 					}
-				}    
+				}
+				if (resourceSummaryNodeList.size() == 0) {
+					result[0] = null;
+				} else {
+					Object[] resourceSummaryNodes = new Object[resourceSummaryNodeList.size()];
+					resourceSummaryNodeList.toArray(resourceSummaryNodes);
+					Object[] summaryEditionNodes = new Object[summaryEditionNodeList.size()];
+					summaryEditionNodeList.toArray(summaryEditionNodes);
+					MultipleSelectionNode left = new MultipleSelectionNode(resourceSummaryNodes);
+					MultipleSelectionNode right = new MultipleSelectionNode(summaryEditionNodes);
+			        result[0] = new SummaryDifferencer().findDifferences(false, monitor, null, null, left, right);
+				}
 			} finally {
 				sub.done();
 			}
