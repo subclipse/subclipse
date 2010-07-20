@@ -21,7 +21,6 @@ import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-@SuppressWarnings("deprecation")
 public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISaveableWorkbenchPart {
 	private final SVNRevision remoteRevision;
 	private boolean readOnly;
@@ -84,7 +83,6 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
 		cc.setRightLabel(rightLabel);
 	}
 
-	@Override
 	protected Object prepareInput(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 		initLabels();
 		MultipleSelectionNode left = new MultipleSelectionNode(localResourceNodes);
