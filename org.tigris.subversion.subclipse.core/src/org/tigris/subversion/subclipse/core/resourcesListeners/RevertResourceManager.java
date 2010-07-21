@@ -89,6 +89,8 @@ public class RevertResourceManager implements IResourceChangeListener {
 	}
 
 	public void resourceChanged(final IResourceChangeEvent event) {
+//		System.out.println("************NOTIFICATION Build Kind: " + event.getBuildKind() + " Type: " + event.getType());
+		
         final List addedFileResources = new ArrayList();
 
         try {
@@ -96,7 +98,8 @@ public class RevertResourceManager implements IResourceChangeListener {
 
                 public boolean visit(IResourceDelta delta) throws CoreException {
                 	IResource resource = delta.getResource();
- 
+//                	System.out.println(resource.getFullPath() + " added: " + (delta.getKind() == IResourceDelta.ADDED));
+                	
                 	if (resource.getType()==IResource.PROJECT) {
                 		IProject project = (IProject)resource;
 						if (!project.isAccessible()) {
@@ -105,6 +108,9 @@ public class RevertResourceManager implements IResourceChangeListener {
 						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
 							return false; // ignore project open
 						} 
+						if (delta.getKind() == IResourceDelta.ADDED) {
+							return false; // ignore added project
+						}
 						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
 							return false; // not a svn handled project
 						}

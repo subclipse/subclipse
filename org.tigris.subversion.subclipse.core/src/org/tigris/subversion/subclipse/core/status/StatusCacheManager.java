@@ -352,8 +352,8 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 						}
 						if (SVNWorkspaceRoot.isManagedBySubclipse(project)) {
 							flushCache = true;
-							return false; // not a svn handled project
 						}
+						return false; // No need to check deeper than project.
                 	}
                     return true;
                 }
