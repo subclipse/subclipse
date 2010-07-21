@@ -21,15 +21,23 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalBranchTagCompareInput;
 import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
 import org.tigris.subversion.subclipse.ui.dialogs.ShowDifferencesAsUnifiedDiffDialogWC;
+import org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardCompareMultipleResourcesWithBranchTagPage;
+import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction {
@@ -40,15 +48,43 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		IResource[] resources = getSelectedResources();
-		if (resources.length > 0 && resources[0] instanceof IFile && !resources[0].isSynchronized(Depth.immediates)) {
-			if (MessageDialog.openQuestion(getShell(), Policy.bind("DifferencesDialog.compare"), Policy.bind("CompareWithRemoteAction.fileChanged"))) {
-				try {
-					resources[0].refreshLocal(Depth.immediates, new NullProgressMonitor());
-				} catch (CoreException e) {
-					throw new InvocationTargetException(e);
+		boolean refreshFile = false;
+		for (int i = 0; i < resources.length; i++) {
+			if (resources[i] instanceof IFile && !resources[i].isSynchronized(Depth.immediates)) {
+				if (refreshFile || MessageDialog.openQuestion(getShell(), Policy.bind("DifferencesDialog.compare"), Policy.bind("CompareWithRemoteAction.fileChanged"))) {
+					refreshFile = true;
+					try {
+						resources[i].refreshLocal(Depth.immediates, new NullProgressMonitor());
+					} catch (CoreException e) {
+						throw new InvocationTargetException(e);
+					}
+				} else {
+					break;
 				}
-			}			
+			}
 		}
+
+		if (resources.length > 1) {
+			SvnWizardCompareMultipleResourcesWithBranchTagPage comparePage = new SvnWizardCompareMultipleResourcesWithBranchTagPage(resources);
+			SvnWizard wizard = new SvnWizard(comparePage);
+			SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
+			if (dialog.open() == SvnWizardDialog.OK) {
+				ISVNLocalResource[] localResources = new ISVNLocalResource[resources.length];
+				for (int i = 0; i < resources.length; i++) {
+					localResources[i] = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
+				}
+				try {
+					SVNLocalBranchTagCompareInput compareInput = new SVNLocalBranchTagCompareInput(localResources, comparePage.getUrls(), comparePage.getRevision(), getTargetPart());
+					CompareUI.openCompareEditorOnPage(
+							compareInput,
+							getTargetPage());					
+				} catch (SVNException e) {
+					MessageDialog.openError(getShell(), Policy.bind("ShowDifferencesAsUnifiedDiffDialog.branchTag"), e.getMessage());
+				}
+			}
+			return;
+		}
+		
 		ShowDifferencesAsUnifiedDiffDialogWC dialog = new ShowDifferencesAsUnifiedDiffDialogWC(getShell(), resources[0], getTargetPart());
 		if (dialog.open() == ShowDifferencesAsUnifiedDiffDialogWC.OK) {
 			try {
@@ -78,7 +114,8 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 	}
 
 	protected boolean isEnabled() throws TeamException {
-		return getSelectedResources().length == 1;
+//		return getSelectedResources().length == 1;
+		return true;
 	}
 	
 	protected String getImageId()

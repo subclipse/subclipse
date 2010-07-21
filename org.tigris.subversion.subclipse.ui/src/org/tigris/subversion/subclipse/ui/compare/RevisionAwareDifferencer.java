@@ -36,7 +36,7 @@ public final class RevisionAwareDifferencer extends Differencer {
     private static final int NODE_NOT_EQUAL = 1;
     private static final int NODE_UNKNOWN = 2;
     
-    private File diffFile;
+    private File[] diffFiles;
     private List changedResources;
     private SVNDiffSummary[] diffSummary;
     private String projectRelativePath;
@@ -47,8 +47,10 @@ public final class RevisionAwareDifferencer extends Differencer {
     public RevisionAwareDifferencer() {
     	
     }
+    public RevisionAwareDifferencer(File[] diffFiles) {
+    	this.diffFiles = diffFiles;
+    }
     public RevisionAwareDifferencer(SVNLocalResourceNode left,ResourceEditionNode right, File diffFile) {
-    	this.diffFile = diffFile;
     	if (diffFile == null) {
         	try {
     			diffSummary = null;
@@ -60,12 +62,17 @@ public final class RevisionAwareDifferencer extends Differencer {
            		if (left.getLocalResource().isFolder() && projectRelativePath.length() > 0) projectRelativePath = projectRelativePath + "/";
         	} catch (Exception e) {
         	}    		
+    	} else {
+    		diffFiles = new File[1];
+    		diffFiles[0] = diffFile;
     	}
     }
     
     protected boolean contentsEqual(Object input1, Object input2) {
         int compare;
-        
+        if (input1 instanceof MultipleSelectionNode) {
+        	return true;
+        }
         if (input1 instanceof SVNLocalResourceNode) {
             compare = compareStatusAndRevisions(input1, input2);
         } else {
@@ -141,7 +148,7 @@ public final class RevisionAwareDifferencer extends Differencer {
             
             if(!localResource.isDirty() && !localResource.isFolder()) {
             	
-                if (changedResources == null && diffFile != null) {
+                if (changedResources == null && diffFiles != null) {
                 	parseDiffs();
                 }
                 
@@ -218,6 +225,13 @@ public final class RevisionAwareDifferencer extends Differencer {
     
     private void parseDiffs() {
     	changedResources = new ArrayList();
+    	for (int i = 0; i < diffFiles.length; i++) {
+    		parseFile(diffFiles[i]);
+    	}
+    }
+    
+    private void parseFile(File diffFile) {
+//    	changedResources = new ArrayList();
     	BufferedReader input = null;
     	try {
 			input = new BufferedReader(new FileReader(diffFile));
