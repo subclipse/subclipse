@@ -25,6 +25,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.SVNMoveDeleteHook;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.JobUtility;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 /**
@@ -88,57 +89,53 @@ public class RevertResourceManager implements IResourceChangeListener {
 
 	}
 
-	public void resourceChanged(final IResourceChangeEvent event) {
-//		System.out.println("************NOTIFICATION Build Kind: " + event.getBuildKind() + " Type: " + event.getType());
-		
-        final List addedFileResources = new ArrayList();
+	public void resourceChanged(final IResourceChangeEvent event) {		
+		JobUtility.scheduleJob("RevertResourcesOperation", new Runnable() {
+			public void run() {
+		        final List addedFileResources = new ArrayList();
 
-        try {
-            event.getDelta().accept(new IResourceDeltaVisitor() {
+		        try {
+		            event.getDelta().accept(new IResourceDeltaVisitor() {
 
-                public boolean visit(IResourceDelta delta) throws CoreException {
-                	IResource resource = delta.getResource();
-//                	System.out.println(resource.getFullPath() + " added: " + (delta.getKind() == IResourceDelta.ADDED));
-                	
-                	if (resource.getType()==IResource.PROJECT) {
-                		IProject project = (IProject)resource;
-						if (!project.isAccessible()) {
-							return false; // i.e., closed project
-						}
-						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
-							return false; // ignore project open
-						} 
-						if (delta.getKind() == IResourceDelta.ADDED) {
-							return false; // ignore added project
-						}
-						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
-							return false; // not a svn handled project
-						}
-                	}
-                	else if (resource.getType() == IResource.FILE) {
-                        if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
-                        	addedFileResources.add(delta);
-                        }  
-                        else if (delta.getKind() == IResourceDelta.REMOVED) {
-                        	SVNMoveDeleteHook.removeFromDeletedFileList((IFile)delta.getResource());
-                        }
-                	}
-                    return true;
-                }
+		                public boolean visit(IResourceDelta delta) throws CoreException {
+		                	IResource resource = delta.getResource();
+		                	if (resource.getType()==IResource.PROJECT) {
+		                		IProject project = (IProject)resource;
+								if (!project.isAccessible()) {
+									return false; // i.e., closed project
+								}
+								if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
+									return false; // ignore project open
+								} 
+								if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+									return false; // not a svn handled project
+								}
+		                	}
+		                	else if (resource.getType() == IResource.FILE) {
+		                		if (delta.getKind() == IResourceDelta.ADDED) {
+		                        	addedFileResources.add(delta);
+		                        }  
+		                        else if (delta.getKind() == IResourceDelta.REMOVED) {
+		                        	SVNMoveDeleteHook.removeFromDeletedFileList((IFile)delta.getResource());
+		                        }
+		                	}
+		                    return true;
+		                }
 
-            });
-            if (!addedFileResources.isEmpty()) {
-                final IResourceDelta[] resources = (IResourceDelta[]) addedFileResources.toArray(new IResourceDelta[addedFileResources
-                                                                                                     .size()]);                
-                ISVNLocalResource[] revertResources = processResources(resources);
-                if (revertResources.length > 0) {
-                	new RevertWorkspaceJob(revertResources).schedule(500);
-                }
-            }
-        } catch (CoreException e) {
-            SVNProviderPlugin.log(e.getStatus());
-        }
-
+		            });
+		            if (!addedFileResources.isEmpty()) {
+		                final IResourceDelta[] resources = (IResourceDelta[]) addedFileResources.toArray(new IResourceDelta[addedFileResources
+		                                                                                                     .size()]);                
+		                ISVNLocalResource[] revertResources = processResources(resources);
+		                if (revertResources.length > 0) {
+		                  	new RevertWorkspaceJob(revertResources).schedule(500);
+		                }
+		            }
+		        } catch (CoreException e) {
+		            SVNProviderPlugin.log(e.getStatus());
+		        }
+			}			
+		}, null, true);
     }
 
     /**
@@ -159,7 +156,7 @@ public class RevertResourceManager implements IResourceChangeListener {
                 if (res.getFile().exists()) {
                 	boolean deleted;
                 	if (resources[i].getKind() == IResourceDelta.ADDED)
-                		deleted = res.getStatus().isDeleted();
+                		deleted = res.getStatusFromCache().isDeleted();
                 	else {
                 		deleted = SVNMoveDeleteHook.isDeleted((IFile)resource);
                 		if (deleted) SVNMoveDeleteHook.removeFromDeletedFileList((IFile)resource);
@@ -169,7 +166,7 @@ public class RevertResourceManager implements IResourceChangeListener {
                     }
                     ISVNLocalFolder parentFolder = res.getParent();
                     while (parentFolder != null) {
-                        if (parentFolder.getStatus().isDeleted() && !revertedResources.contains(parentFolder)) {
+                        if (parentFolder.getStatusFromCache().isDeleted() && !revertedResources.contains(parentFolder)) {
                             revertedResources.add(parentFolder);
                         } else {
                             break;

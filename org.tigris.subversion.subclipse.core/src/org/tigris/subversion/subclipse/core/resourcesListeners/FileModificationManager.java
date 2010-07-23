@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.JobUtility;
 
 /**
  * This class performs several functions related to determining the modified
@@ -56,93 +57,96 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	 * 
 	 * @see org.eclipse.core.resources.IResourceChangeListener#resourceChanged(org.eclipse.core.resources.IResourceChangeEvent)
 	 */
-	public void resourceChanged(IResourceChangeEvent event) {
-		try {
-			final List modifiedResources = new ArrayList();
-			final List modifiedInfiniteDepthResources = new ArrayList();
+	public void resourceChanged(final IResourceChangeEvent event) {
+		JobUtility.scheduleJob("ResourcesChangedOperation", new Runnable() {
+			public void run() {
+				try {
+					final List modifiedResources = new ArrayList();
+					final List modifiedInfiniteDepthResources = new ArrayList();
 
-			event.getDelta().accept(new IResourceDeltaVisitor() {
-				public boolean visit(IResourceDelta delta) {
-					IResource resource = delta.getResource();
-
-					if (resource.getType()==IResource.FILE) {
-						if (delta.getKind() == IResourceDelta.CHANGED && resource.exists()) {
-							if((delta.getFlags() & INTERESTING_CHANGES) != 0) {
-								modifiedResources.add(resource);
+					event.getDelta().accept(new IResourceDeltaVisitor() {
+						public boolean visit(IResourceDelta delta) {
+							IResource resource = delta.getResource();
+							if (resource.getType()==IResource.FILE) {
+								if (delta.getKind() == IResourceDelta.CHANGED && resource.exists()) {
+									if((delta.getFlags() & INTERESTING_CHANGES) != 0) {
+										modifiedResources.add(resource);
+										return true;
+									}
+								} else if (delta.getKind() == IResourceDelta.ADDED) {
+									modifiedResources.add(resource);                        
+									return true;
+								} else if (delta.getKind() == IResourceDelta.REMOVED) {
+									// provide notifications for deletions since they may not have been managed
+									// The move/delete hook would have updated the parent counts properly
+									modifiedResources.add(resource);
+									return true;
+								}
+							}				
+							else if(resource.getType()==IResource.FOLDER) {
+								if (delta.getKind() == IResourceDelta.ADDED) {
+									modifiedInfiniteDepthResources.add(resource);
+									return false;
+								}
+								else if (delta.getKind() == IResourceDelta.REMOVED) {
+									modifiedInfiniteDepthResources.add(resource);
+									return false;
+								}
 								return true;
-							}
-						} else if (delta.getKind() == IResourceDelta.ADDED) {
-							modifiedResources.add(resource);                        
-							return true;
-						} else if (delta.getKind() == IResourceDelta.REMOVED) {
-							// provide notifications for deletions since they may not have been managed
-							// The move/delete hook would have updated the parent counts properly
-							modifiedResources.add(resource);
-							return true;
-						}
-					}				
-					else if(resource.getType()==IResource.FOLDER) {
-						if (delta.getKind() == IResourceDelta.ADDED) {
-							modifiedInfiniteDepthResources.add(resource);
-							return false;
-						}
-						else if (delta.getKind() == IResourceDelta.REMOVED) {
-							modifiedInfiniteDepthResources.add(resource);
-							return false;
-						}
-						return true;
-					}				
-					else if (resource.getType()==IResource.PROJECT) {
-						IProject project = (IProject)resource;
-						
-						if ((delta.getKind() & IResourceDelta.REMOVED) != 0) {
-							SVNWorkspaceRoot.unsetManagedBySubclipse(project);
-							return false;
-						}
+							}				
+							else if (resource.getType()==IResource.PROJECT) {
+								IProject project = (IProject)resource;
+								
+								if ((delta.getKind() & IResourceDelta.REMOVED) != 0) {
+									SVNWorkspaceRoot.unsetManagedBySubclipse(project);
+									return false;
+								}
 
-						if (!project.isAccessible()) {
-							return false;
+								if (!project.isAccessible()) {
+									return false;
+								}
+								if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
+									return false;
+								} 
+								if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+									return false; // not a svn handled project
+								}
+								if (delta.getKind() == IResourceDelta.ADDED) {
+									modifiedInfiniteDepthResources.add(resource);
+									return false;
+								}
+								else if (delta.getKind() == IResourceDelta.REMOVED) {
+									modifiedInfiniteDepthResources.add(resource);
+									return false;
+								}
+							}
+							return true;
 						}
-						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
-							return false;
-						} 
-						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
-							return false; // not a svn handled project
-						}
-						if (delta.getKind() == IResourceDelta.ADDED) {
-							modifiedInfiniteDepthResources.add(resource);
-							return false;
-						}
-						else if (delta.getKind() == IResourceDelta.REMOVED) {
-							modifiedInfiniteDepthResources.add(resource);
-							return false;
-						}
+					});
+		            
+		            // we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightweightDecorator)
+					if (!modifiedResources.isEmpty()) {
+		                IResource[] resources = (IResource[])modifiedResources.toArray(new IResource[modifiedResources.size()]);
+						refreshStatus(resources);
+		                SVNProviderPlugin.broadcastModificationStateChanges(resources);
 					}
-					return true;
+					if (!modifiedInfiniteDepthResources.isEmpty()) {
+		                IResource[] resources = (IResource[])modifiedInfiniteDepthResources.toArray(new IResource[modifiedInfiniteDepthResources.size()]);
+		                refreshStatusInfitite(resources);
+		                SVNProviderPlugin.broadcastModificationStateChanges(resources);
+					}
+				} catch (CoreException e) {
+					SVNProviderPlugin.log(e.getStatus());
 				}
-			});
-            
-            // we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightweightDecorator)
-			if (!modifiedResources.isEmpty()) {
-                IResource[] resources = (IResource[])modifiedResources.toArray(new IResource[modifiedResources.size()]);
-				refreshStatus(resources);
-                SVNProviderPlugin.broadcastModificationStateChanges(resources);
-			}
-			if (!modifiedInfiniteDepthResources.isEmpty()) {
-                IResource[] resources = (IResource[])modifiedInfiniteDepthResources.toArray(new IResource[modifiedInfiniteDepthResources.size()]);
-                refreshStatusInfitite(resources);
-                SVNProviderPlugin.broadcastModificationStateChanges(resources);
-			}
-		} catch (CoreException e) {
-			SVNProviderPlugin.log(e.getStatus());
-		}
+			}			
+		}, null, true);
 	}
 
 	/**
 	 * Refresh (reset/reload) the status of all the given resources.
 	 * @param resources Array of IResources to refresh
      */
-    private void refreshStatusInfitite(IResource[] resources) 
+    private synchronized void refreshStatusInfitite(IResource[] resources) 
     {
     	for (int i = 0; i < resources.length; i++) {
     		try {
@@ -157,7 +161,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	 * Refresh (reset/reload) the status of all the given resources.
 	 * @param resources Array of IResources to refresh
      */
-    private void refreshStatus(IResource[] resources) {
+    private synchronized void refreshStatus(IResource[] resources) {
         //We are not able to get the status for a single file anyway,
         //so from the performance reasons we collect the parent folders of the files
         //and we refresh only those folders then. 
