@@ -84,10 +84,17 @@ public abstract class CompareWithRemoteAction extends WorkbenchWindowAction {
 							}				
 						}
 						if (SVNRevision.BASE.equals(revision)) {
-							SVNLocalBaseCompareInput compareInput = new SVNLocalBaseCompareInput(localResources, revision);
-							CompareUI.openCompareEditorOnPage(
-									compareInput,
-									getTargetPage());							
+							if (localResources.length == 1 && localResource.getResource() instanceof IFile) {
+								SVNLocalCompareInput compareInput = new SVNLocalCompareInput(localResource, revision);
+								CompareUI.openCompareEditorOnPage(
+										compareInput,
+										getTargetPage());								
+							} else {
+								SVNLocalBaseCompareInput compareInput = new SVNLocalBaseCompareInput(localResources, revision);
+								CompareUI.openCompareEditorOnPage(
+										compareInput,
+										getTargetPage());	
+							}
 						} else {					
 							if (!fileSelected) {
 								SVNLocalCompareSummaryInput compareInput = new SVNLocalCompareSummaryInput(localResources, revision);
