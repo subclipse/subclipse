@@ -7,6 +7,8 @@ public class Messages extends NLS {
 	public static String CannotSharePage_0;
 	public static String CannotSharePage_1;
 	public static String CannotSharePage_2;
+	public static String ConfigureTagsAction_1;
+	public static String ConfigureTagsAction_2;
 	public static String EditPropertyConflictsWizard_0;
 	public static String EditPropertyConflictsWizardPropertyPage_0;
 	public static String EditPropertyConflictsWizardPropertyPage_1;

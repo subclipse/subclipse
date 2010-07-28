@@ -52,7 +52,6 @@ import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.Branches;
 import org.tigris.subversion.subclipse.core.history.Tags;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -64,8 +63,7 @@ import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
-	private IResource resource;
-	private ISVNLocalResource svnResource;
+	private ISVNLocalResource[] svnResources;
 	private ISVNClientAdapter svnClient;
 	private Branches branches;
 	private Tags tags;
@@ -91,9 +89,9 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
     private static final int LIST_HEIGHT_HINT = 250;
     private static final int LIST_WIDTH_HINT = 450;	
 
-	public SvnWizardConfigureTagsPage(IResource resource) {
+	public SvnWizardConfigureTagsPage(ISVNLocalResource[] svnResources) {
 		super("ConfigureTagsDialog", Policy.bind("ConfigureTagsDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$		
-		this.resource = resource;
+		this.svnResources = svnResources;
 		deleteAction = new DeleteAction();
 		deleteAction.setText(Policy.bind("ConfigureTagsDialog.delete")); //$NON-NLS-1$
 		addBranchAction = new AddBranchAction();
@@ -136,18 +134,21 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
 		urlText.setLayoutData(data);
 		urlText.setEditable(false);
-		svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);		
 		try {
-			urlText.setText(svnResource.getStatus().getUrlString());
-			svnClient = svnResource.getRepository().getSVNClient();
+			if (svnResources.length == 1) {
+				urlText.setText(svnResources[0].getStatus().getUrlString());
+			} else {
+				urlText.setText(Policy.bind("SvnWizardConfigureTagsPage.0")); //$NON-NLS-1$
+			}
+			svnClient = svnResources[0].getRepository().getSVNClient();
 		} catch (SVNException e) {}
 		
 		getBranchesAndTags();
 
 		treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);		
-		treeViewer.setContentProvider(new TagsContentProvider(resource));
+		treeViewer.setContentProvider(new TagsContentProvider(svnResources[0].getResource()));
 		treeViewer.setLabelProvider(new TagsLabelProvider());
-		treeViewer.setInput(svnResource);
+		treeViewer.setInput(svnResources[0]);
 		
 		data = new GridData(GridData.FILL_BOTH | GridData.GRAB_VERTICAL);
 		data.heightHint = LIST_HEIGHT_HINT;
@@ -186,7 +187,7 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 		browseButton.setText(Policy.bind("ConfigureTagsDialog.browse")); //$NON-NLS-1$
 		browseButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), resource);
+				ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), svnResources[0].getResource());
 				dialog.setIncludeBranchesAndTags(false);
 				dialog.setFoldersOnly(true);
 				if (dialog.open() == ChooseUrlDialog.CANCEL) return;
@@ -199,7 +200,7 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 								SVNUrl svnUrl = new SVNUrl(url);
 								ISVNInfo svnInfo = svnClient.getInfo(svnUrl);
 								revisionText.setText(svnInfo.getLastChangedRevision().toString());
-								String repositoryUrl = svnResource.getRepository().getUrl().toString();
+								String repositoryUrl = svnResources[0].getRepository().getUrl().toString();
 								pathText.setText(url.substring(repositoryUrl.length()));
 							} catch (Exception e1) {
 								MessageDialog.openError(getShell(), Policy.bind("ConfigureTagsDialog.title"), e1.getMessage()); //$NON-NLS-1$
@@ -343,7 +344,10 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 	public boolean performFinish() {
 		if (updates) {
 			try {
-				svnResource.setSvnProperty("subclipse:tags", getPropertyValue(), false); //$NON-NLS-1$
+				String propertyValue = getPropertyValue();
+				for (int i = 0; i < svnResources.length; i++) {
+					svnResources[i].setSvnProperty("subclipse:tags", propertyValue, false); //$NON-NLS-1$					
+				}
 			} catch (SVNException e) {
 				if (!e.operationInterrupted()) {
 					MessageDialog.openError(getShell(), Policy.bind("ConfigureTagsDialog.title"), e.getMessage()); //$NON-NLS-1$
@@ -383,7 +387,7 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 	}
 	
 	private void getBranchesAndTags() {
-		AliasManager aliasManager = new AliasManager(resource, false);
+		AliasManager aliasManager = new AliasManager(svnResources[0].getResource(), false);
 		Alias[] branchAliases = aliasManager.getBranches();
 		branches = new Branches(branchAliases);
 		Alias[] tagAliases = aliasManager.getTags();
