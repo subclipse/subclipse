@@ -41,6 +41,8 @@ import org.tigris.subversion.svnclientadapter.utils.Command;
 public class EditConflictsAction extends WorkbenchWindowAction {
     private IFile selectedResource;
     
+    private Exception exception;
+    
     public EditConflictsAction() {
         super();
     }
@@ -93,7 +95,7 @@ public class EditConflictsAction extends WorkbenchWindowAction {
             }
 
             Command command = new Command(mergeProgramLocation);
-            String[] parameters = mergeProgramParameters.split(" ");
+            String[] parameters = mergeProgramParameters.split(" "); //$NON-NLS-1$
             for (int i = 0; i < parameters.length; i++) {
                 parameters[i] = replaceParameter(parameters[i], "${theirs}", //$NON-NLS-1$
                         conflictNewFile.getLocation().toFile()
@@ -113,7 +115,7 @@ public class EditConflictsAction extends WorkbenchWindowAction {
             command.waitFor();
             resource.refreshLocal(IResource.DEPTH_ZERO, null);
         } catch (IOException e) {
-            throw new InvocationTargetException(e);
+        	throw new SVNException(Policy.bind("EditConflictsAction.1") + e.getMessage(), e); //$NON-NLS-1$
         }
     }
 
@@ -124,7 +126,7 @@ public class EditConflictsAction extends WorkbenchWindowAction {
      */
     protected void execute(final IAction action)
             throws InvocationTargetException, InterruptedException {
-
+    	exception = null;
         run(new WorkspaceModifyOperation() {
             public void execute(IProgressMonitor monitor)
                     throws CoreException, InvocationTargetException, InterruptedException {
@@ -172,11 +174,14 @@ public class EditConflictsAction extends WorkbenchWindowAction {
                                 conflictWorkingFile, conflictNewFile, mergeFileAssociation.getMergeProgram(), mergeFileAssociation.getParameters());												
 					}
                 } catch (SVNException e) {
-                    throw new InvocationTargetException(e);
+                	exception = e;
                 }
             }
 
         }, false /* cancelable */, PROGRESS_BUSYCURSOR);
+        if (exception != null) {
+        	throw new InvocationTargetException(exception);
+        }
     }
 
     /*
