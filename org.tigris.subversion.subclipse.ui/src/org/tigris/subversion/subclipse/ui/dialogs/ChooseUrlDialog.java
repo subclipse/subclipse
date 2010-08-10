@@ -53,12 +53,14 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.Branches;
 import org.tigris.subversion.subclipse.core.history.Tags;
 import org.tigris.subversion.subclipse.core.repo.ISVNListener;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RepositoryRootFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
@@ -178,8 +180,17 @@ public class ChooseUrlDialog extends TrayDialog {
         if (repositoryLocation == null) {
 	        if (resource == null) treeViewer.setInput(new AllRootsElement());
 	        else {
+	        	ISVNRepositoryLocation repository = null;
 	            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-	            ISVNRepositoryLocation repository = svnResource.getRepository();
+	            try {
+	            	LocalResourceStatus status = svnResource.getStatus();
+	            	if (status != null) {
+	            		repository = svnResource.getStatus().getRepository();
+	            	}
+				} catch (SVNException e1) {}
+				if (repository == null) {
+					repository = svnResource.getRepository();
+				}
 
 	            if (!repository.getUrl().toString().equals(repository.getRepositoryRoot().toString())) {
 	            	RepositoryRootFolder rootFolder = new RepositoryRootFolder(repository, repository.getRepositoryRoot(), repository.getRootFolder().getRevision());
@@ -187,7 +198,7 @@ public class ChooseUrlDialog extends TrayDialog {
 	            }
 	            
 	            if (repository == null) treeViewer.setInput(new AllRootsElement());
-	            else treeViewer.setInput(svnResource.getRepository());
+	            else treeViewer.setInput(repository);
 	        }
         } else treeViewer.setInput(repositoryLocation);
 
