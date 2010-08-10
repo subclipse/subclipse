@@ -2940,7 +2940,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   private void resourceChanged() {
       getSite().getShell().getDisplay().asyncExec(new Runnable() {
       	public void run() {
-      		revisionStart = SVNRevision.HEAD;
+      		// Preserve the original starting revision so that when Next is pressed
+      		// the correct log entries will be fetched.
+      		SVNRevision holdRevisionStart = revisionStart;
+        	revisionStart = SVNRevision.HEAD;
       		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
       		try {
                   if (localResource != null && !localResource.getStatus().isAdded()) {
@@ -2954,6 +2957,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             		  SVNUIPlugin.openError(getHistoryPageSite().getShell(), null, null, e);
             	  }
               }
+              revisionStart = holdRevisionStart;
       	}
       });
   }
