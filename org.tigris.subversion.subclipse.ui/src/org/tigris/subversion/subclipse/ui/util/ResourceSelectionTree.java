@@ -91,6 +91,7 @@ public class ResourceSelectionTree extends Composite {
 	private boolean resourceRemoved = false;
 	private boolean includeUnversioned = true;
 	private ResourceSelectionContentProvider resourceSelectionContentProvider = new ResourceSelectionContentProvider();
+	private Action[] customOptions;
 	
 	public final static String MODE_SETTING = "ResourceSelectionTree.mode"; //$NON-NLS-1$
 	public final static int MODE_COMPRESSED_FOLDERS = 0;
@@ -154,6 +155,10 @@ public class ResourceSelectionTree extends Composite {
 		IResource[] selectedResources = new IResource[selected.size()];
 		selected.toArray(selectedResources);
 		return selectedResources;
+	}
+
+	public void setCustomOptions(Action[] customOptions) {
+		this.customOptions = customOptions;
 	}
 
 	private void createControls() {
@@ -413,6 +418,12 @@ public class ResourceSelectionTree extends Composite {
 				}
 			};
 			menuMgr.add(removeAction);			
+		}
+		if (customOptions != null) {
+			menuMgr.add(new Separator());
+			for (int i = 0; i < customOptions.length; i++) {
+				menuMgr.add(customOptions[i]);
+			}
 		}
 	}
 

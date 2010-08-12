@@ -12,6 +12,7 @@ import org.eclipse.compare.CompareViewerSwitchingPane;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ControlContribution;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
@@ -97,6 +98,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	private SyncInfoSet syncInfoSet;
 	private String removalError;
 	private boolean fromSyncView;
+	private Action includeUnversionedAction;
+	private Action keepLocksAction;
 
 //	private boolean sharing;
 	
@@ -280,17 +283,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
             		new SelectionListener(){
             			public void widgetSelected(SelectionEvent e) {
             				includeUnversioned = includeUnversionedButton.getSelection();
-            				if( !includeUnversioned )
-            				{
-            					resourceSelectionTree.removeUnversioned();
-            				}
-            				else
-            				{
-            					resourceSelectionTree.addUnversioned();
-            				}
-            				selectedResources = resourceSelectionTree.getSelectedResources();
-            				setPageComplete(canFinish());
-            				if (!fromSyncView) updatePreference(includeUnversioned);
+            				includeUnversionedAction.setChecked(includeUnversioned);
+            				toggleIncludeUnversioned();
             			}
             			public void widgetDefaultSelected(SelectionEvent e) {
             			}
@@ -303,6 +297,13 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
           protected Control createControl(Composite parent) {
             keepLocksButton = new Button(parent, SWT.CHECK);
             keepLocksButton.setText(Policy.bind("CommitDialog.keepLocks")); //$NON-NLS-1$
+            keepLocksButton.addSelectionListener(new SelectionListener() {			
+				public void widgetSelected(SelectionEvent e) {
+					keepLocks = keepLocksButton.getSelection();
+					keepLocksAction.setChecked(keepLocksButton.getSelection());
+				}
+				public void widgetDefaultSelected(SelectionEvent e) {}
+			});
             return keepLocksButton;
           }
         });
@@ -341,6 +342,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
     };
     	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, true, toolbarControlCreator, syncInfoSet); //$NON-NLS-1$    	
     	if (!resourceSelectionTree.showIncludeUnversionedButton()) includeUnversionedButton.setVisible(false);
+
+		resourceSelectionTree.setCustomOptions(getCustomOptions());
     	
     	resourceSelectionTree.setRemoveFromViewValidator(new ResourceSelectionTree.IRemoveFromViewValidator() {
 			public boolean canRemove(ArrayList resourceList, IStructuredSelection selection) {
@@ -403,6 +406,49 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 		selectedResources = resourceSelectionTree.getSelectedResources();
 		setPageComplete(canFinish());
     }
+    
+    private void toggleIncludeUnversioned() {
+		if( !includeUnversioned )
+		{
+			resourceSelectionTree.removeUnversioned();
+		}
+		else
+		{
+			resourceSelectionTree.addUnversioned();
+		}
+		selectedResources = resourceSelectionTree.getSelectedResources();
+		setPageComplete(canFinish());
+		if (!fromSyncView) updatePreference(includeUnversioned);
+    }
+    
+    private Action[] getCustomOptions() {
+    	List customOptions = new ArrayList();
+    	if (resourceSelectionTree.showIncludeUnversionedButton()) {
+        	includeUnversionedAction = new Action(Policy.bind("CommitDialog.includeUnversioned"), SWT.TOGGLE) {
+    			public void run() {
+    				includeUnversioned = !includeUnversioned;
+    				if (includeUnversionedButton.isVisible()) {
+    					includeUnversionedButton.setSelection(includeUnversioned);
+    				}
+    				toggleIncludeUnversioned();
+    			}   		    		
+        	};  
+    		includeUnversionedAction.setChecked(includeUnversioned);
+    		customOptions.add(includeUnversionedAction);
+    	}
+    	keepLocksAction = new Action(Policy.bind("CommitDialog.keepLocks"), SWT.TOGGLE) {
+			public void run() {
+				keepLocks = !keepLocks;
+				if (keepLocksButton.isVisible()) {
+					keepLocksButton.setSelection(keepLocks);
+				}
+			}   		
+		};
+		customOptions.add(keepLocksAction);
+		Action[] customOptionArray = new Action[customOptions.size()];
+		customOptions.toArray(customOptionArray);
+    	return customOptionArray;
+    }
  
 	private void addBugtrackingArea(Composite composite) {
 		Composite bugtrackingComposite = new Composite(composite, SWT.NULL);
@@ -427,8 +473,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
         if (confirmUserData() == false) {
         	return false;
         }
-        
-        keepLocks = keepLocksButton.getSelection();
+
         selectedResources = resourceSelectionTree.getSelectedResources();
         int[] hWeights = horizontalSash.getWeights();
 		int[] vWeights = verticalSash.getWeights();
