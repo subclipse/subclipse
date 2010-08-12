@@ -8,6 +8,8 @@ Bundle-Vendor: tigris.org
 Require-Bundle: org.eclipse.core.runtime,
  org.tigris.subversion.clientadapter;bundle-version="[1.6.12,1.7.0)"
 Eclipse-LazyStart: true
-Export-Package: org.tigris.subversion.javahl,
+Export-Package: org.apache.subversion.javahl,
+ org.apache.subversion.javahl.callback,
+ org.tigris.subversion.clientadapter.javahl,
  org.tigris.subversion.svnclientadapter.javahl
-Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
