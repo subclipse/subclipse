@@ -306,7 +306,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	     } catch (InterruptedException e) {
 	         // operation canceled
 	     } catch (InvocationTargetException e) {
-	         SVNUIPlugin.openError(getContainer().getShell(), Policy.bind("exception"), null, e.getCause(), SVNUIPlugin.PERFORM_SYNC_EXEC); //$NON-NLS-1$
+	         SVNUIPlugin.openError(getShell(), Policy.bind("exception"), null, e.getCause()); //$NON-NLS-1$	    
 	     }
 		}
 	}
