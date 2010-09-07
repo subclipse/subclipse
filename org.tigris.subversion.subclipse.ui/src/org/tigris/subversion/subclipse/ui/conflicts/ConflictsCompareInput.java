@@ -138,15 +138,22 @@ public class ConflictsCompareInput extends CompareEditorInput {
             pm
                     .beginTask(
                             Utilities.getString("ResourceCompare.taskName"), IProgressMonitor.UNKNOWN); //$NON-NLS-1$
-
-            fMineResource.refreshLocal(IResource.DEPTH_ZERO, Policy
-                    .subMonitorFor(pm, IProgressMonitor.UNKNOWN));
-            fTheirsResource.refreshLocal(IResource.DEPTH_ZERO, Policy
-                    .subMonitorFor(pm, IProgressMonitor.UNKNOWN));
-            fAncestorResource.refreshLocal(IResource.DEPTH_ZERO, Policy
-                    .subMonitorFor(pm, IProgressMonitor.UNKNOWN));
-            fDestinationResource.refreshLocal(IResource.DEPTH_ZERO, Policy
-                    .subMonitorFor(pm, IProgressMonitor.UNKNOWN));
+            if (fMineResource != null) {
+	            fMineResource.refreshLocal(IResource.DEPTH_ZERO, Policy
+	                    .subMonitorFor(pm, IProgressMonitor.UNKNOWN));
+            }
+            if (fTheirsResource != null) {
+	            fTheirsResource.refreshLocal(IResource.DEPTH_ZERO, Policy
+	                    .subMonitorFor(pm, IProgressMonitor.UNKNOWN));
+            }
+            if (fAncestorResource != null) {
+	            fAncestorResource.refreshLocal(IResource.DEPTH_ZERO, Policy
+	                    .subMonitorFor(pm, IProgressMonitor.UNKNOWN));
+            }
+            if (fDestinationResource != null) {
+	            fDestinationResource.refreshLocal(IResource.DEPTH_ZERO, Policy
+	                    .subMonitorFor(pm, IProgressMonitor.UNKNOWN));
+            }
 
             fAncestor = new BufferedResourceNode(fAncestorResource) {
                 public String getType() {
