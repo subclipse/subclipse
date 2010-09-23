@@ -44,6 +44,16 @@ public class SVNLocalResourceNode extends ResourceNode {
     public void setRemoteResource(ResourceEditionNode remote) {
     	remoteResource = remote;
     }
+    
+	//	@Override
+	public String getName() {
+		String name = svnResource.getUrl().getLastPathSegment();
+		if (name != null) {
+			return name;
+		}
+		return super.getName();
+	}
+    
 	// used by getContentsAction
 	public void setContent(byte[] contents) {
 		if (contents == null) contents = new byte[0];
