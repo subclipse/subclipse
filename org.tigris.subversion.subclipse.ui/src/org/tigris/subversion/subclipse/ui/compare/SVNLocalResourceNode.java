@@ -18,6 +18,8 @@ import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.ISVNFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
@@ -47,7 +49,14 @@ public class SVNLocalResourceNode extends ResourceNode {
     
 	//	@Override
 	public String getName() {
-		String name = svnResource.getUrl().getLastPathSegment();
+		String name = null;
+		try {
+			ISVNRemoteResource baseResource = svnResource.getBaseResource();
+			if (baseResource != null) {
+				name = baseResource.getName();
+			}
+		} catch (SVNException e) {}
+		
 		if (name != null) {
 			return name;
 		}
