@@ -20,6 +20,11 @@ public class UsageReportEnablementDialog extends Dialog {
 	private Button checkBox;
 	private boolean reportEnabled;
 
+	public UsageReportEnablementDialog(boolean reportEnabled, Shell parentShell) {
+		super(parentShell);
+		this.reportEnabled = reportEnabled;
+	}
+
 	public UsageReportEnablementDialog(boolean reportEnabled, IShellProvider parentShell) {
 		super(parentShell);
 		this.reportEnabled = reportEnabled;

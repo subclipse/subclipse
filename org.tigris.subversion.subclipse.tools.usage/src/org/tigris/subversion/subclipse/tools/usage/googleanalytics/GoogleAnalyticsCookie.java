@@ -16,7 +16,7 @@ public class GoogleAnalyticsCookie {
 		this(identifier, value, new char[] {(char)-1});
 	}
 
-	public void appendTo(StringBuilder builder) {
+	public void appendTo(StringBuffer builder) {
 		if (identifier != null && identifier.length() > 0 && value != null && value.length() > 0) {
 			builder.append(identifier)
 					.append(IGoogleAnalyticsParameters.EQUALS_SIGN)

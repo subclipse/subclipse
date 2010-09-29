@@ -31,7 +31,7 @@ public class PluginLogger implements ILoggingAdapter {
 		}
 
 		if (plugin != null) {
-			IStatus status = new Status(severity, plugin.getBundle().getSymbolicName(), message);
+			IStatus status = new Status(severity, plugin.getBundle().getSymbolicName(), IStatus.OK, message, null);
 			plugin.getLog().log(status);
 		}
 	}

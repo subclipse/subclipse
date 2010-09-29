@@ -12,7 +12,7 @@
       <page
             class="org.tigris.subversion.subclipse.tools.usage.preferences.UsageReportPreferencePage"
             id="org.tigris.subversion.subclipse.tools.usage.analytics.preferences.UsageAnalyticsPreferencePage"
-            name="%preferencepage.name"
+            name="Usage Reporting"
             category="org.tigris.subversion.subclipse.ui.SVNPreferences">
       </page>
    </extension>

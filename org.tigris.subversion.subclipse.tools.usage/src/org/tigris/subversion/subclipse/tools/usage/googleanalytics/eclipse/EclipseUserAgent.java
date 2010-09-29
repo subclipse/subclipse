@@ -34,7 +34,7 @@ public class EclipseUserAgent implements IUserAgent {
 			return nl;
 		}
 
-		StringBuilder builder = new StringBuilder();
+		StringBuffer builder = new StringBuffer();
 		builder.append(nl.substring(0, indexOf));
 		builder.append(BROWSER_LOCALE_DELIMITER);
 		builder.append(nl.substring(indexOf + 1));
@@ -96,7 +96,8 @@ public class EclipseUserAgent implements IUserAgent {
 	}
 
 	protected String getApplicationVersion() {
-		String fullVersion = getApplicationBundle().getVersion().toString();
+//		String fullVersion = getApplicationBundle().getVersion().toString();
+		String fullVersion = getApplicationBundle().getHeaders().get("Bundle-Version").toString();
 		int productVersionStart = fullVersion.lastIndexOf(VERSION_DELIMITER);
 		if (productVersionStart > 0) {
 			return fullVersion.substring(0, productVersionStart);

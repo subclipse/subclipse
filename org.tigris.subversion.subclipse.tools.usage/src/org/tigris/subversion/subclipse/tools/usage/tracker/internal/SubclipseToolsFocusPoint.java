@@ -1,6 +1,5 @@
 package org.tigris.subversion.subclipse.tools.usage.tracker.internal;
 
-import org.tigris.subversion.subclipse.tools.usage.internal.SubclipseToolsUsageActivator;
 import org.tigris.subversion.subclipse.tools.usage.util.HttpEncodingUtils;
 
 /**
@@ -14,25 +13,26 @@ public class SubclipseToolsFocusPoint extends FocusPoint {
 	}
 
 	public String getURI() {
-		StringBuilder builder = new StringBuilder();
+		StringBuffer builder = new StringBuffer();
 		appendContentURI(builder, this);
-		appendSubclipseVersion(builder, URI_SEPARATOR);
+//		appendSubclipseVersion(builder, URI_SEPARATOR);
 		return HttpEncodingUtils.checkedEncodeUtf8(builder.toString());
 	}
 
-	protected void appendSubclipseVersion(StringBuilder builder, String separator) {
+	protected void appendSubclipseVersion(StringBuffer builder, String separator) {
 		builder.append(separator);
-		builder.append(getSubclipseVersion());
+//		builder.append(getSubclipseVersion());
 	}
 
 	public String getTitle() {
-		StringBuilder builder = new StringBuilder();
+		StringBuffer builder = new StringBuffer();
 		appendContentTitle(builder, this);
 		appendSubclipseVersion(builder, TITLE_SEPARATOR);
 		return HttpEncodingUtils.checkedEncodeUtf8(builder.toString());
 	}
-	
-	protected String getSubclipseVersion() {
-		return SubclipseToolsUsageActivator.getDefault().getBundle().getVersion().toString();
-	}
+
+//	protected String getSubclipseVersion() {
+//		return SubclipseToolsUsageActivator.getDefault().getBundle().getVersion().toString();
+//		return SubclipseToolsUsageActivator.getDefault().getBundle().getHeaders().get("Bundle-Version").toString();
+//	}
 }

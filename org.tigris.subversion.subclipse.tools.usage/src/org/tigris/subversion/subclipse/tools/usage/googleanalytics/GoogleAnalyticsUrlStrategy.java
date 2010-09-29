@@ -18,7 +18,7 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 	}
 
 	public String build(IFocusPoint focusPoint) throws UnsupportedEncodingException {
-		StringBuilder builder = new StringBuilder(TRACKING_URL)
+		StringBuffer builder = new StringBuffer(TRACKING_URL)
 				.append(IGoogleAnalyticsParameters.URL_PARAM_DELIMITER);
 		appendParameter(IGoogleAnalyticsParameters.PARAM_TRACKING_CODE_VERSION,
 				IGoogleAnalyticsParameters.VALUE_TRACKING_CODE_VERSION, builder);
@@ -35,7 +35,7 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 		String cookies = getCookies();
 		String page = "Subclipse";
 		if (SubclipseComponents.getSubclipseVersion() != null) {
-			page = page + " " + SubclipseComponents.getSubclipseVersion();
+			page = page + "_" + SubclipseComponents.getSubclipseVersion();
 		}
 		
 		appendParameter(IGoogleAnalyticsParameters.PARAM_PAGE_TITLE, page, builder);
@@ -47,7 +47,7 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 
 		appendParameter(IGoogleAnalyticsParameters.PARAM_ACCOUNT_NAME, googleParameters.getAccountName(), builder);
 		appendParameter(IGoogleAnalyticsParameters.PARAM_COOKIES, cookies, builder);
-		appendParameter(IGoogleAnalyticsParameters.PARAM_AD_CONTENT, googleParameters.getAdContent(), builder);
+//		appendParameter(IGoogleAnalyticsParameters.PARAM_AD_CONTENT, googleParameters.getAdContent(), builder);
 		appendParameter(IGoogleAnalyticsParameters.PARAM_GAQ, "1", false, builder);
 		
 		googleParameters.visit(); // update visit timestamps and count
@@ -56,14 +56,14 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 	}
 
 	private String getCookies() {
-		StringBuilder builder = new StringBuilder();
+		StringBuffer builder = new StringBuffer();
 
 		/**
 		 * unique visitor id cookie has to be unique per eclipse installation
 		 */
 		char[] plusDelimiter = { IGoogleAnalyticsParameters.PLUS_SIGN };
 		new GoogleAnalyticsCookie(IGoogleAnalyticsParameters.PARAM_COOKIES_UNIQUE_VISITOR_ID,
-				new StringBuilder().append("999.")
+				new StringBuffer().append("999.")
 						.append(googleParameters.getUserId()).append(IGoogleAnalyticsParameters.DOT)
 						.append(googleParameters.getFirstVisit()).append(IGoogleAnalyticsParameters.DOT)
 						.append(googleParameters.getLastVisit()).append(IGoogleAnalyticsParameters.DOT)
@@ -74,7 +74,7 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 				.appendTo(builder);		
 
 		new GoogleAnalyticsCookie(IGoogleAnalyticsParameters.PARAM_COOKIES_REFERRAL_TYPE,
-						new StringBuilder()
+						new StringBuffer()
 								.append("999.")
 								.append(googleParameters.getFirstVisit())
 								.append(IGoogleAnalyticsParameters.DOT)
@@ -110,11 +110,11 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 		return Integer.toString((int) (Math.random() * 0x7fffffff));
 	}
 
-	private void appendParameter(String name, String value, StringBuilder builder) {
+	private void appendParameter(String name, String value, StringBuffer builder) {
 		appendParameter(name, value, true, builder);
 	}
 
-	private void appendParameter(String name, String value, boolean appendAmpersand, StringBuilder builder) {
+	private void appendParameter(String name, String value, boolean appendAmpersand, StringBuffer builder) {
 		builder.append(name)
 				.append(IGoogleAnalyticsParameters.EQUALS_SIGN)
 				.append(value);

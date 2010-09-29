@@ -28,7 +28,7 @@ public class ReportingEclipseEnvironment extends AbstractEclipseEnvironment {
 
 	private String bundleGroupsToKeywordString(Collection subclipseComponentNames) {
 		char delimiter = SUBCLIPSE_COMPONENTS_DELIMITER;
-		StringBuilder builder = new StringBuilder();
+		StringBuffer builder = new StringBuffer();
 		Iterator iter = subclipseComponentNames.iterator();
 		while (iter.hasNext()) {
 			String componentName = (String)iter.next();
@@ -45,6 +45,7 @@ public class ReportingEclipseEnvironment extends AbstractEclipseEnvironment {
 	}
 
 	private String getBundleVersion() {
-		return SubclipseToolsUsageActivator.getDefault().getBundle().getVersion().toString();
+//		return SubclipseToolsUsageActivator.getDefault().getBundle().getVersion().toString();
+		return SubclipseToolsUsageActivator.getDefault().getBundle().getHeaders().get("Bundle-Version").toString();
 	}
 }

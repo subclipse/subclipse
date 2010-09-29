@@ -51,7 +51,7 @@ public class UsageReport {
 	private void askUser() {
 		UsageReportEnablementDialog dialog = new UsageReportEnablementDialog(
 				true,
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
 		if (dialog.open() == Window.OK) {
 			UsageReportPreferences.setEnabled(dialog.isReportEnabled());
 			UsageReportPreferences.setAskUser(false);

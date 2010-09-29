@@ -47,12 +47,12 @@ public class FocusPoint implements IFocusPoint {
 	 * @see org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint#getURI()
 	 */
 	public String getURI() {
-		StringBuilder builder = new StringBuilder();
+		StringBuffer builder = new StringBuffer();
 		appendContentURI(builder, this);
 		return HttpEncodingUtils.checkedEncodeUtf8(builder.toString());
 	}
 
-	protected void appendContentURI(StringBuilder builder, IFocusPoint focusPoint) {
+	protected void appendContentURI(StringBuffer builder, IFocusPoint focusPoint) {
 		IFocusPoint parentFocuPoint = focusPoint.getChild();
 		builder.append(URI_SEPARATOR);
 		builder.append(focusPoint.getName());
@@ -65,12 +65,12 @@ public class FocusPoint implements IFocusPoint {
 	 * @see org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint#getTitle()
 	 */
 	public String getTitle() {
-		StringBuilder builder = new StringBuilder();
+		StringBuffer builder = new StringBuffer();
 		appendContentTitle(builder, this);
 		return HttpEncodingUtils.checkedEncodeUtf8(builder.toString());
 	}
 
-	protected void appendContentTitle(StringBuilder builder, IFocusPoint focusPoint) {
+	protected void appendContentTitle(StringBuffer builder, IFocusPoint focusPoint) {
 		IFocusPoint childFocusPoint = focusPoint.getChild();
 		builder.append(focusPoint.getName());
 		if (childFocusPoint != null) {

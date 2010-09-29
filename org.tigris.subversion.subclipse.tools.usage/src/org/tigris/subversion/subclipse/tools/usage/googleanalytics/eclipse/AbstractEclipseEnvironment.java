@@ -116,7 +116,7 @@ public abstract class AbstractEclipseEnvironment extends AbstractGoogleAnalytics
 	 * @return the identifier
 	 */
 	private String createIdentifier() {
-		StringBuilder builder = new StringBuilder();
+		StringBuffer builder = new StringBuffer();
 		builder.append(Math.abs(random.nextLong()));
 		builder.append(System.currentTimeMillis());
 		return builder.toString();
