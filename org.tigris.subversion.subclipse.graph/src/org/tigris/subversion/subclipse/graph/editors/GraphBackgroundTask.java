@@ -100,9 +100,9 @@ public class GraphBackgroundTask extends SVNOperation {
 
 			if(refreshRevision != null || refreshRevisions != null || latestRevisionInRepository > latestRevisionStored) {
 				if (refreshRevision == null) {
-//					if(latestRevisionStored == 0)
-//						latest = SVNRevision.START;
-//					else
+					if(latestRevisionStored >= latestRevisionInRepository)
+						latest = new SVNRevision.Number(latestRevisionInRepository);
+					else
 						latest = new SVNRevision.Number(latestRevisionStored+1);
 				} else {
 					latest = refreshRevision;
