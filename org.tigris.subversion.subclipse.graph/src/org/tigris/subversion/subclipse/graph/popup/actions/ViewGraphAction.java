@@ -5,7 +5,12 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Display;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.graph.Activator;
 import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditorInput;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -24,10 +29,19 @@ public class ViewGraphAction extends WorkbenchWindowAction {
 					IResource[] resources = getSelectedResources();
 					try {
 						if (resources.length > 0) {
+							ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[0]);
+							ISVNRemoteResource remoteResource = svnResource.getBaseResource();
+							if (remoteResource != null) {
+								String repoPath = remoteResource.getRepositoryRelativePath();
+								if (repoPath == null || repoPath.length() == 0) {
+									MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("ViewGraphAction.0"), Policy.bind("ViewGraphAction.1")); //$NON-NLS-1$ //$NON-NLS-2$
+									return;
+								}
+							}
 	//						IEditorPart part =
 							getTargetPage().openEditor(
 									new RevisionGraphEditorInput(resources[0]),
-									"org.tigris.subversion.subclipse.graph.editors.revisionGraphEditor");
+									"org.tigris.subversion.subclipse.graph.editors.revisionGraphEditor"); //$NON-NLS-1$
 						}
 					} catch (Exception e) {
 						Activator.handleError(e);
