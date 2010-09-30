@@ -6,6 +6,8 @@ import org.tigris.subversion.subclipse.tools.usage.reporting.SubclipseComponents
 import org.tigris.subversion.subclipse.tools.usage.tracker.IURLBuildingStrategy;
 import org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint;
 import org.tigris.subversion.subclipse.tools.usage.util.HttpEncodingUtils;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 
@@ -33,17 +35,32 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 		appendParameter(IGoogleAnalyticsParameters.PARAM_BROWSER_LANGUAGE, googleParameters.getBrowserLanguage(),
 				builder);
 		String cookies = getCookies();
-		String page = "Subclipse";
+		StringBuffer page = new StringBuffer("Subclipse");
 		if (SubclipseComponents.getSubclipseVersion() != null) {
-			page = page + "_" + SubclipseComponents.getSubclipseVersion();
+			page.append("_" + SubclipseComponents.getSubclipseVersion());
 		}
 		
-		appendParameter(IGoogleAnalyticsParameters.PARAM_PAGE_TITLE, page, builder);
+		String keyword = googleParameters.getKeyword();
+		if (keyword != null && keyword.contains("MERGE")) {
+			page.append("_MergeClientInstalled");
+		}
+		
+		appendParameter(IGoogleAnalyticsParameters.PARAM_PAGE_TITLE, page.toString(), builder);
 //		appendParameter(IGoogleAnalyticsParameters.PARAM_PAGE_TITLE, focusPoint.getTitle(), builder);
 		
 		appendParameter(IGoogleAnalyticsParameters.PARAM_FLASH_VERSION, googleParameters.getFlashVersion(), builder);
 		appendParameter(IGoogleAnalyticsParameters.PARAM_REFERRAL, googleParameters.getReferral(), builder);
-		appendParameter(IGoogleAnalyticsParameters.PARAM_PAGE_REQUEST, focusPoint.getURI(), builder);
+		
+		StringBuffer pageRequest = new StringBuffer("/Subclipse");
+		if (SubclipseComponents.getSubclipseVersion() != null) {
+			pageRequest.append("/" + SubclipseComponents.getSubclipseVersion());
+		}
+		String svnInterface = SVNUIPlugin.getPlugin().getPreferenceStore().getString(ISVNUIConstants.PREF_SVNINTERFACE);
+		if (svnInterface != null) {
+			pageRequest.append("/" + svnInterface);
+		}
+//		appendParameter(IGoogleAnalyticsParameters.PARAM_PAGE_REQUEST, focusPoint.getURI(), builder);
+		appendParameter(IGoogleAnalyticsParameters.PARAM_PAGE_REQUEST, pageRequest.toString(), builder);
 
 		appendParameter(IGoogleAnalyticsParameters.PARAM_ACCOUNT_NAME, googleParameters.getAccountName(), builder);
 		appendParameter(IGoogleAnalyticsParameters.PARAM_COOKIES, cookies, builder);
@@ -65,10 +82,11 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 		new GoogleAnalyticsCookie(IGoogleAnalyticsParameters.PARAM_COOKIES_UNIQUE_VISITOR_ID,
 				new StringBuffer().append("999.")
 						.append(googleParameters.getUserId()).append(IGoogleAnalyticsParameters.DOT)
-						.append(googleParameters.getFirstVisit()).append(IGoogleAnalyticsParameters.DOT)
-						.append(googleParameters.getLastVisit()).append(IGoogleAnalyticsParameters.DOT)
-						.append(googleParameters.getCurrentVisit()).append(IGoogleAnalyticsParameters.DOT)
-						.append(googleParameters.getVisitCount())
+//						.append(googleParameters.getFirstVisit()).append(IGoogleAnalyticsParameters.DOT)
+						.append(googleParameters.getFirstVisit())
+//						.append(googleParameters.getLastVisit()).append(IGoogleAnalyticsParameters.DOT)
+//						.append(googleParameters.getCurrentVisit()).append(IGoogleAnalyticsParameters.DOT)
+//						.append(googleParameters.getVisitCount())
 						.append(IGoogleAnalyticsParameters.SEMICOLON),
 				plusDelimiter)
 				.appendTo(builder);		
