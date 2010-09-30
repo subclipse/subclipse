@@ -41,7 +41,7 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 		}
 		
 		String keyword = googleParameters.getKeyword();
-		if (keyword != null && keyword.contains("MERGE")) {
+		if (keyword != null && keyword.indexOf("MERGE") != -1) {
 			page.append("_MergeClientInstalled");
 		}
 		
