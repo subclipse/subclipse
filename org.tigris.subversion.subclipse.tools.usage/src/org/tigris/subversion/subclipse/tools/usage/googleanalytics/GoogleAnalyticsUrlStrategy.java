@@ -80,22 +80,22 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 		/**
 		 * unique visitor id cookie has to be unique per eclipse installation
 		 */
-//		char[] plusDelimiter = { IGoogleAnalyticsParameters.PLUS_SIGN };
-//		new GoogleAnalyticsCookie(IGoogleAnalyticsParameters.PARAM_COOKIES_UNIQUE_VISITOR_ID,
-//				new StringBuffer().append("999.")
-//						.append(googleParameters.getUserId()).append(IGoogleAnalyticsParameters.DOT)
-//						.append(googleParameters.getFirstVisit()).append(IGoogleAnalyticsParameters.DOT)
-//						.append(googleParameters.getLastVisit()).append(IGoogleAnalyticsParameters.DOT)
-//						.append(googleParameters.getCurrentVisit()).append(IGoogleAnalyticsParameters.DOT)
-//						.append(googleParameters.getVisitCount())
-//						.append(IGoogleAnalyticsParameters.SEMICOLON),
-//				plusDelimiter)
-//				.appendTo(builder);		
 		char[] plusDelimiter = { IGoogleAnalyticsParameters.PLUS_SIGN };
 		new GoogleAnalyticsCookie(IGoogleAnalyticsParameters.PARAM_COOKIES_UNIQUE_VISITOR_ID,
-				googleParameters.getVisitorIdCookie(),
+				new StringBuffer().append("999.")
+						.append(googleParameters.getUserId()).append(IGoogleAnalyticsParameters.DOT)
+						.append(googleParameters.getFirstVisit()).append(IGoogleAnalyticsParameters.DOT)
+						.append(googleParameters.getLastVisit()).append(IGoogleAnalyticsParameters.DOT)
+						.append(googleParameters.getCurrentVisit()).append(IGoogleAnalyticsParameters.DOT)
+						.append(googleParameters.getVisitCount())
+						.append(IGoogleAnalyticsParameters.SEMICOLON),
 				plusDelimiter)
-			.appendTo(builder);
+				.appendTo(builder);		
+//		char[] plusDelimiter = { IGoogleAnalyticsParameters.PLUS_SIGN };
+//		new GoogleAnalyticsCookie(IGoogleAnalyticsParameters.PARAM_COOKIES_UNIQUE_VISITOR_ID,
+//				googleParameters.getVisitorIdCookie(),
+//				plusDelimiter)
+//			.appendTo(builder);
 
 		new GoogleAnalyticsCookie(IGoogleAnalyticsParameters.PARAM_COOKIES_REFERRAL_TYPE,
 						new StringBuffer()
