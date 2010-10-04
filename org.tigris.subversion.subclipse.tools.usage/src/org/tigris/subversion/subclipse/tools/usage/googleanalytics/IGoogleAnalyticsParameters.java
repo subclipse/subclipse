@@ -37,6 +37,7 @@ public interface IGoogleAnalyticsParameters {
 	public static final String PARAM_COOKIES_UTMCCN = "utmccn";
 	public static final String PARAM_COOKIES_UTMCMD = "utmcmd";
 	public static final String PARAM_COOKIES_KEYWORD = "utmctr";
+
 	public static final String PARAM_AD_CONTENT = "utm_content";
 	
 	public static final String VALUE_TRACKING_CODE_VERSION = "4.7.2";
@@ -61,6 +62,8 @@ public interface IGoogleAnalyticsParameters {
 	public String getUserAgent();
 
 	public String getUserId();
+	
+	public String getVisitorIdCookie();
 
 	public String getKeyword();
 

@@ -98,6 +98,23 @@ public abstract class AbstractEclipseEnvironment extends AbstractGoogleAnalytics
 	public String getUserAgent() {
 		return eclipseUserAgent.toString();
 	}
+	
+	public String getVisitorIdCookie() {
+		String visitorIdCookie = preferences.get(IUsageReportPreferenceConstants.ECLIPSE_VISITOR_ID, null);
+		if (visitorIdCookie == null) {
+			visitorIdCookie = new StringBuffer().append("999.")
+			.append(getUserId()).append(IGoogleAnalyticsParameters.DOT)
+			.append(getFirstVisit()).append(IGoogleAnalyticsParameters.DOT)
+			.append(getLastVisit()).append(IGoogleAnalyticsParameters.DOT)
+			.append(getCurrentVisit()).append(IGoogleAnalyticsParameters.DOT)
+			.append(getVisitCount())
+			.append(IGoogleAnalyticsParameters.SEMICOLON).toString();
+			preferences.put(IUsageReportPreferenceConstants.ECLIPSE_VISITOR_ID, visitorIdCookie);
+			UsageReportPreferencesUtils.checkedSavePreferences(preferences, SubclipseToolsUsageActivator.getDefault(),
+					GoogleAnalyticsEclipseMessages.EclipseEnvironment_Error_SavePreferences);
+		}
+		return visitorIdCookie;
+	}
 
 	public String getUserId() {
 		String userId = preferences.get(IUsageReportPreferenceConstants.ECLIPSE_INSTANCE_ID, null);
