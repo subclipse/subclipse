@@ -34,7 +34,6 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
-import org.tigris.subversion.subclipse.core.util.JobUtility;
 import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 /**
@@ -69,91 +68,87 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 	 * 
 	 * @see IResourceChangeListener#resourceChanged(IResourceChangeEvent)
 	 */
-	public void resourceChanged(final IResourceChangeEvent event) {		
-		JobUtility.scheduleJob("SyncFileChangeOperation", new Runnable() {
-			public void run() {
-				try {
-					final StatusCacheManager cacheManager = SVNProviderPlugin.getPlugin().getStatusCacheManager();
-					final ChangesCollector changesCollector = new ChangesCollector();
+	public void resourceChanged(IResourceChangeEvent event) {
+		try {
+			final StatusCacheManager cacheManager = SVNProviderPlugin.getPlugin().getStatusCacheManager();
+			final ChangesCollector changesCollector = new ChangesCollector();
+			
+			event.getDelta().accept(new IResourceDeltaVisitor() {
+				public boolean visit(IResourceDelta delta) {
+					IResource resource = delta.getResource();
 					
-					event.getDelta().accept(new IResourceDeltaVisitor() {
-						public boolean visit(IResourceDelta delta) {
-							IResource resource = delta.getResource();
-							
-							if(resource.getType()==IResource.ROOT) {
-								// continue with the delta
-								return true;
-							}
-							
-							if (resource.getType() == IResource.PROJECT) {
-								// If the project is not accessible, don't process it
-								if (!resource.isAccessible()) return false;
+					if(resource.getType()==IResource.ROOT) {
+						// continue with the delta
+						return true;
+					}
+					
+					if (resource.getType() == IResource.PROJECT) {
+						// If the project is not accessible, don't process it
+						if (!resource.isAccessible()) return false;
 
-								// If the Project is not managed by subclipse, don't process it
-								if (!SVNWorkspaceRoot.isManagedBySubclipse((IProject)resource))
-									return false;
-							}
-																	
-							String name = resource.getName();
-							int kind = delta.getKind();
-							
-							//FileModificationManager may already have processed the folder.
-							//Since we do not want to refresh the statuses again, we finish the visitor if we already have the statuses
-							try {
-								if ((resource.getType() == IResource.FOLDER) && (kind == IResourceDelta.ADDED) 
-										&& (cacheManager.hasCachedStatus(resource)) && (cacheManager.getStatus(resource).isManaged())) {
-									if(Policy.DEBUG_METAFILE_CHANGES) {
-										System.out.println("[svn] duplicte ADD change event registered in SyncFileChangeListener: " + resource); //$NON-NLS-1$
-									}
-									return false;
-								}
-							} catch (SVNException e) {
-								//The get status failed, so just proceed deeper as normal.
-								return true;
-							}
-							
-							// if the file has changed but not in a way that we care
-							// then ignore the change (e.g. marker changes to files).
-							if(kind == IResourceDelta.CHANGED && 
-								(delta.getFlags() & INTERESTING_CHANGES) == 0) {
-									return true;
-							}
-							
-							IContainer toBeNotified = null;
-												
-							if(SVNProviderPlugin.getPlugin().isAdminDirectory(name)) {
-								handleSVNDir((IContainer)resource, kind);
-							}
-												
-							if(isEntries(resource)) {
-								toBeNotified = handleChangedEntries(resource, kind);
-							} else
-							if(isDirProps(resource)) {
-								toBeNotified = handleChangedDirProps(resource, kind);
-							} else
-							if(isPropFile(resource)) {
-								toBeNotified = handleChangedPropFile(resource, kind);
-							}
-							
-		                    if(toBeNotified != null) {    
-		                    	changesCollector.collectChange(toBeNotified);							
-								if(Policy.DEBUG_METAFILE_CHANGES) {
-									System.out.println("[svn] metafile changed : " + resource.getFullPath()); //$NON-NLS-1$
-								}
-								return false; /*don't visit any children we have all the information we need*/
-							} else {					
-								return true;
-							}
-						}
-					}, IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS);
-						
-					changesCollector.refreshChangedResources();
+						// If the Project is not managed by subclipse, don't process it
+						if (!SVNWorkspaceRoot.isManagedBySubclipse((IProject)resource))
+							return false;
+					}
+															
+					String name = resource.getName();
+					int kind = delta.getKind();
 					
-				} catch(CoreException e) {
-					SVNProviderPlugin.log(e.getStatus());
-		        }
-			}			
-		}, null, true);
+					//FileModificationManager may already have processed the folder.
+					//Since we do not want to refresh the statuses again, we finish the visitor if we already have the statuses
+					try {
+						if ((resource.getType() == IResource.FOLDER) && (kind == IResourceDelta.ADDED) 
+								&& (cacheManager.hasCachedStatus(resource)) && (cacheManager.getStatus(resource).isManaged())) {
+							if(Policy.DEBUG_METAFILE_CHANGES) {
+								System.out.println("[svn] duplicte ADD change event registered in SyncFileChangeListener: " + resource); //$NON-NLS-1$
+							}
+							return false;
+						}
+					} catch (SVNException e) {
+						//The get status failed, so just proceed deeper as normal.
+						return true;
+					}
+					
+					// if the file has changed but not in a way that we care
+					// then ignore the change (e.g. marker changes to files).
+					if(kind == IResourceDelta.CHANGED && 
+						(delta.getFlags() & INTERESTING_CHANGES) == 0) {
+							return true;
+					}
+					
+					IContainer toBeNotified = null;
+										
+					if(SVNProviderPlugin.getPlugin().isAdminDirectory(name)) {
+						handleSVNDir((IContainer)resource, kind);
+					}
+										
+					if(isEntries(resource)) {
+						toBeNotified = handleChangedEntries(resource, kind);
+					} else
+					if(isDirProps(resource)) {
+						toBeNotified = handleChangedDirProps(resource, kind);
+					} else
+					if(isPropFile(resource)) {
+						toBeNotified = handleChangedPropFile(resource, kind);
+					}
+					
+                    if(toBeNotified != null) {    
+                    	changesCollector.collectChange(toBeNotified);							
+						if(Policy.DEBUG_METAFILE_CHANGES) {
+							System.out.println("[svn] metafile changed : " + resource.getFullPath()); //$NON-NLS-1$
+						}
+						return false; /*don't visit any children we have all the information we need*/
+					} else {					
+						return true;
+					}
+				}
+			}, IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS);
+				
+			changesCollector.refreshChangedResources();
+			
+		} catch(CoreException e) {
+			SVNProviderPlugin.log(e.getStatus());
+        }
 	}
 	
 	/*
