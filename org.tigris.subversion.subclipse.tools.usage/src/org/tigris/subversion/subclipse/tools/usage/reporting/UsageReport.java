@@ -55,8 +55,11 @@ public class UsageReport {
 		if (dialog.open() == Window.OK) {
 			UsageReportPreferences.setEnabled(dialog.isReportEnabled());
 			UsageReportPreferences.setAskUser(false);
-			flushPreferences();
+		} else {
+			UsageReportPreferences.setEnabled(false);
+			UsageReportPreferences.setAskUser(true);
 		}
+		flushPreferences();
 	}
 
 	private void flushPreferences() {

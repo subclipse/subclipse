@@ -1,12 +1,12 @@
 package org.tigris.subversion.subclipse.tools.usage.internal;
 
-import org.eclipse.core.runtime.Plugin;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SubclipseToolsUsageActivator extends Plugin {
+public class SubclipseToolsUsageActivator extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.tigris.subversion.subclipse.tools.usage";
