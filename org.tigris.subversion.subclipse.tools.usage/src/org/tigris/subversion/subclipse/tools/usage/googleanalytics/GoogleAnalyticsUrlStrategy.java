@@ -2,12 +2,13 @@ package org.tigris.subversion.subclipse.tools.usage.googleanalytics;
 
 import java.io.UnsupportedEncodingException;
 
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
+import org.eclipse.jface.preference.IPersistentPreferenceStore;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.tigris.subversion.subclipse.tools.usage.reporting.SubclipseComponents;
 import org.tigris.subversion.subclipse.tools.usage.tracker.IURLBuildingStrategy;
 import org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint;
 import org.tigris.subversion.subclipse.tools.usage.util.HttpEncodingUtils;
-import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 
@@ -55,7 +56,10 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 		if (SubclipseComponents.getSubclipseVersion() != null) {
 			pageRequest.append("/" + SubclipseComponents.getSubclipseVersion());
 		}
-		String svnInterface = SVNUIPlugin.getPlugin().getPreferenceStore().getString(ISVNUIConstants.PREF_SVNINTERFACE);
+		
+		IPersistentPreferenceStore svnPrefStore = new ScopedPreferenceStore(new ConfigurationScope(), "org.tigris.subversion.subclipse.ui");
+		String svnInterface = svnPrefStore.getString("pref_svninterface");
+//		String svnInterface = SVNUIPlugin.getPlugin().getPreferenceStore().getString(ISVNUIConstants.PREF_SVNINTERFACE);
 		if (svnInterface != null) {
 			pageRequest.append("/" + svnInterface);
 		}
