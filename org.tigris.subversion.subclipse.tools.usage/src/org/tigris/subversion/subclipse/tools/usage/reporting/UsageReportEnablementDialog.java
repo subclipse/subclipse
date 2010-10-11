@@ -2,7 +2,6 @@ package org.tigris.subversion.subclipse.tools.usage.reporting;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -14,6 +13,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
+import org.tigris.subversion.subclipse.tools.usage.internal.SubclipseToolsUsageActivator;
+import org.tigris.subversion.subclipse.tools.usage.util.BrowserUtil;
 
 public class UsageReportEnablementDialog extends Dialog {
 
@@ -64,13 +65,13 @@ public class UsageReportEnablementDialog extends Dialog {
 		Link link = new Link(composite, SWT.WRAP);
 		link.setFont(parent.getFont());
 		link.setText(ReportingMessages.UsageReport_DialogMessage);
+		link.setToolTipText(ReportingMessages.UsageReport_ExplanationPage);
 		link.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-//				BrowserUtil.checkedCreateExternalBrowser(
-//						ReportingMessages.UsageReport_ExplanationPage,
-//						SubclipseToolsUsageActivator.PLUGIN_ID,
-//						SubclipseToolsUsageActivator.getDefault().getLog());
-				MessageDialog.openInformation(getShell(), ReportingMessages.UsageReport_DialogTitle, ReportingMessages.UsageReportEnablementDialog_notYetImplemented);
+				BrowserUtil.checkedCreateExternalBrowser(
+						ReportingMessages.UsageReport_ExplanationPage,
+						SubclipseToolsUsageActivator.PLUGIN_ID,
+						SubclipseToolsUsageActivator.getDefault().getLog());
 			}
 		});
 
