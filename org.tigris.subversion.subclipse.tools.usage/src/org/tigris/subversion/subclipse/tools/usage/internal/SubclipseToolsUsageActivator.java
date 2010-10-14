@@ -2,6 +2,10 @@ package org.tigris.subversion.subclipse.tools.usage.internal;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.tigris.subversion.subclipse.tools.usage.googleanalytics.ISubclipseEclipseEnvironment;
+import org.tigris.subversion.subclipse.tools.usage.preferences.UsageReportPreferencesUtils;
+import org.tigris.subversion.subclipse.tools.usage.reporting.ReportingMessages;
+import org.tigris.subversion.subclipse.tools.usage.reporting.SubclipseEclipseEnvironment;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -13,6 +17,8 @@ public class SubclipseToolsUsageActivator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static SubclipseToolsUsageActivator plugin;
+	
+	private ISubclipseEclipseEnvironment eclipseEnvironment;
 
 	public SubclipseToolsUsageActivator() {
 		plugin = this;
@@ -42,6 +48,19 @@ public class SubclipseToolsUsageActivator extends AbstractUIPlugin {
 	 */
 	public static SubclipseToolsUsageActivator getDefault() {
 		return plugin;
+	}
+	
+	public ISubclipseEclipseEnvironment getSubclipseEclipseEnvironment() {
+		if (eclipseEnvironment == null) {
+			eclipseEnvironment = createEclipseEnvironment();
+		}
+		return eclipseEnvironment;
+	}
+
+	private ISubclipseEclipseEnvironment createEclipseEnvironment() {
+		return new SubclipseEclipseEnvironment(
+				ReportingMessages.UsageReport_GoogleAnalytics_Account, ReportingMessages.UsageReport_HostName,
+				UsageReportPreferencesUtils.getPreferences());
 	}
 
 }

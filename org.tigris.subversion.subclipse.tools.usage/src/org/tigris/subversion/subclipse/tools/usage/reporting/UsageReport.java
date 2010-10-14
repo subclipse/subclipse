@@ -9,22 +9,21 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.window.Window;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.prefs.BackingStoreException;
 import org.tigris.subversion.subclipse.tools.usage.googleanalytics.GoogleAnalyticsUrlStrategy;
-import org.tigris.subversion.subclipse.tools.usage.googleanalytics.IGoogleAnalyticsParameters;
+import org.tigris.subversion.subclipse.tools.usage.googleanalytics.ISubclipseEclipseEnvironment;
 import org.tigris.subversion.subclipse.tools.usage.http.HttpGetRequest;
-import org.tigris.subversion.subclipse.tools.usage.http.IHttpGetRequest;
 import org.tigris.subversion.subclipse.tools.usage.internal.SubclipseToolsUsageActivator;
 import org.tigris.subversion.subclipse.tools.usage.preferences.GlobalUsageSettings;
 import org.tigris.subversion.subclipse.tools.usage.preferences.UsageReportPreferences;
-import org.tigris.subversion.subclipse.tools.usage.preferences.UsageReportPreferencesUtils;
 import org.tigris.subversion.subclipse.tools.usage.tracker.ILoggingAdapter;
 import org.tigris.subversion.subclipse.tools.usage.tracker.ITracker;
 import org.tigris.subversion.subclipse.tools.usage.tracker.IURLBuildingStrategy;
 import org.tigris.subversion.subclipse.tools.usage.tracker.internal.FocusPoint;
 import org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint;
 import org.tigris.subversion.subclipse.tools.usage.tracker.internal.PluginLogger;
-import org.tigris.subversion.subclipse.tools.usage.tracker.internal.SubclipseToolsFocusPoint;
+import org.tigris.subversion.subclipse.tools.usage.tracker.internal.SuffixFocusPoint;
 import org.tigris.subversion.subclipse.tools.usage.tracker.internal.Tracker;
 import org.tigris.subversion.subclipse.tools.usage.util.StatusUtils;
 
@@ -34,8 +33,11 @@ public class UsageReport {
 
 	private GlobalUsageSettings globalSettings;
 
-	public UsageReport() {
-		focusPoint = new SubclipseToolsFocusPoint("tools") //$NON-NLS-1$ 
+	private ISubclipseEclipseEnvironment eclipseEnvironment;
+
+	public UsageReport() throws InvalidSyntaxException {
+		eclipseEnvironment = SubclipseToolsUsageActivator.getDefault().getSubclipseEclipseEnvironment();
+		focusPoint = new SuffixFocusPoint("tools", eclipseEnvironment.getSubclipseVersion()) //$NON-NLS-1$ 
 				.setChild(new FocusPoint("usage") //$NON-NLS-1$ 
 						.setChild(new FocusPoint("action") //$NON-NLS-1$ 
 								.setChild(new FocusPoint("wsstartup")))); //$NON-NLS-1$
@@ -55,11 +57,8 @@ public class UsageReport {
 		if (dialog.open() == Window.OK) {
 			UsageReportPreferences.setEnabled(dialog.isReportEnabled());
 			UsageReportPreferences.setAskUser(false);
-		} else {
-			UsageReportPreferences.setEnabled(false);
-			UsageReportPreferences.setAskUser(true);
+			flushPreferences();
 		}
-		flushPreferences();
 	}
 
 	private void flushPreferences() {
@@ -72,30 +71,22 @@ public class UsageReport {
 		}
 	}
 
+	/**
+	 * Reports the usage of the current JBoss Tools / JBoss Developer Studio
+	 * installation.
+	 */
 	private void doReport() {
 		if (UsageReportPreferences.isEnabled()) {
-			getTracker().trackAsynchronously(focusPoint);
+			IURLBuildingStrategy urlBuildingStrategy = new GoogleAnalyticsUrlStrategy(eclipseEnvironment);
+			ILoggingAdapter loggingAdapter = new PluginLogger(SubclipseToolsUsageActivator.getDefault());
+			ITracker tracker = new Tracker(
+					urlBuildingStrategy
+					, new HttpGetRequest(eclipseEnvironment.getUserAgent(), loggingAdapter)
+					, loggingAdapter);
+			tracker.trackAsynchronously(focusPoint);
 		}
 	}
 
-	private ITracker getTracker() {
-		IGoogleAnalyticsParameters eclipseEnvironment = new ReportingEclipseEnvironment(
-				getGoogleAnalyticsAccount()
-				, getGoogleAnalyticsHostname()
-				, UsageReportPreferencesUtils.getPreferences());
-		ILoggingAdapter loggingAdapter = new PluginLogger(SubclipseToolsUsageActivator.getDefault());
-		IURLBuildingStrategy urlStrategy = new GoogleAnalyticsUrlStrategy(eclipseEnvironment);
-		IHttpGetRequest httpGetRequest = new HttpGetRequest(eclipseEnvironment.getUserAgent(), loggingAdapter);
-		return new Tracker(urlStrategy, httpGetRequest, loggingAdapter);
-	}
-
-	private String getGoogleAnalyticsAccount() {
-		return ReportingMessages.UsageReport_GoogleAnalytics_Account;
-	}
-
-	private String getGoogleAnalyticsHostname() {
-		return ReportingMessages.UsageReport_HostName;
-	}
 	private class ReportingJob extends Job {
 		private ReportingJob() {
 			super(ReportingMessages.UsageReport_Reporting_Usage);

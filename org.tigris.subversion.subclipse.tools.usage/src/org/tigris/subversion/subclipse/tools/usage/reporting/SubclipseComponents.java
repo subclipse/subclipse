@@ -74,7 +74,7 @@ public class SubclipseComponents {
 				for (int i = 0; i < subclipseFeatureIdentifiers.length; i++) {
 					if (subclipseFeatureIdentifiers[i].equals(bundleGroup.getIdentifier())) {
 						
-						if (subclipseFeatureNames[i] == "SUBCLIPSE") {
+						if (subclipseFeatureNames[i].equalsIgnoreCase("SUBCLIPSE")) {
 							subclipseVersion = bundleGroup.getVersion();
 						}
 

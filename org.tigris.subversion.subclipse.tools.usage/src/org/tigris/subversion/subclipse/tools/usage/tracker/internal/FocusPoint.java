@@ -21,31 +21,19 @@ public class FocusPoint implements IFocusPoint {
 		this.name = name;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint#getName()
-	 */
 	public String getName() {
 		return name;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint#setChild(org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint)
-	 */
 	public IFocusPoint setChild(IFocusPoint childFocusPoint) {
 		this.childFocusPoint = childFocusPoint;
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint#getChild()
-	 */
 	public IFocusPoint getChild() {
 		return childFocusPoint;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint#getURI()
-	 */
 	public String getURI() {
 		StringBuffer builder = new StringBuffer();
 		appendContentURI(builder, this);
@@ -54,16 +42,22 @@ public class FocusPoint implements IFocusPoint {
 
 	protected void appendContentURI(StringBuffer builder, IFocusPoint focusPoint) {
 		IFocusPoint parentFocuPoint = focusPoint.getChild();
-		builder.append(URI_SEPARATOR);
-		builder.append(focusPoint.getName());
+		appendToURI(focusPoint.getName(), builder);
 		if (parentFocuPoint != null) {
 			appendContentURI(builder, parentFocuPoint);
 		}
 	}
+	
+	protected void appendToURI(String toAppend, StringBuffer builder) {
+		builder.append(URI_SEPARATOR);
+		builder.append(toAppend);
+	}
 
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.tools.usage.tracker.internal.IFocusPoint#getTitle()
-	 */
+	protected void appendToTitle(String toAppend, StringBuffer builder) {
+		builder.append(TITLE_SEPARATOR);
+		builder.append(toAppend);
+	}
+
 	public String getTitle() {
 		StringBuffer builder = new StringBuffer();
 		appendContentTitle(builder, this);

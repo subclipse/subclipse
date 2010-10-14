@@ -8,13 +8,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.tools.usage.googleanalytics.AbstractGoogleAnalyticsParameters;
 import org.tigris.subversion.subclipse.tools.usage.googleanalytics.IGoogleAnalyticsParameters;
-import org.tigris.subversion.subclipse.tools.usage.googleanalytics.IUserAgent;
 import org.tigris.subversion.subclipse.tools.usage.internal.SubclipseToolsUsageActivator;
 import org.tigris.subversion.subclipse.tools.usage.preferences.IUsageReportPreferenceConstants;
 import org.tigris.subversion.subclipse.tools.usage.preferences.UsageReportPreferencesUtils;
 
 public abstract class AbstractEclipseEnvironment extends AbstractGoogleAnalyticsParameters implements
-		IGoogleAnalyticsParameters {
+		IEclipseEnvironment {
 
 	private static final String SYSPROP_JAVA_VERSION = "java.version";
 
@@ -26,7 +25,7 @@ public abstract class AbstractEclipseEnvironment extends AbstractGoogleAnalytics
 	private String lastVisit;
 	private String currentVisit;
 	private long visitCount;
-	private IUserAgent eclipseUserAgent;
+	protected IEclipseUserAgent eclipseUserAgent;
 
 	public AbstractEclipseEnvironment(String accountName, String hostName, IEclipsePreferences preferences) {
 		this(accountName, hostName, IGoogleAnalyticsParameters.VALUE_NO_REFERRAL, preferences);
@@ -67,7 +66,7 @@ public abstract class AbstractEclipseEnvironment extends AbstractGoogleAnalytics
 		visitCount = preferences.getLong(IUsageReportPreferenceConstants.VISIT_COUNT, 1);
 	}
 
-	protected IUserAgent createEclipseUserAgent() {
+	protected IEclipseUserAgent createEclipseUserAgent() {
 		return new EclipseUserAgent();
 	}
 
@@ -98,23 +97,6 @@ public abstract class AbstractEclipseEnvironment extends AbstractGoogleAnalytics
 	public String getUserAgent() {
 		return eclipseUserAgent.toString();
 	}
-	
-	public String getVisitorIdCookie() {
-		String visitorIdCookie = preferences.get(IUsageReportPreferenceConstants.ECLIPSE_VISITOR_ID, null);
-		if (visitorIdCookie == null) {
-			visitorIdCookie = new StringBuffer().append("999.")
-			.append(getUserId()).append(IGoogleAnalyticsParameters.DOT)
-			.append(getFirstVisit()).append(IGoogleAnalyticsParameters.DOT)
-			.append(getLastVisit()).append(IGoogleAnalyticsParameters.DOT)
-			.append(getCurrentVisit()).append(IGoogleAnalyticsParameters.DOT)
-			.append(getVisitCount())
-			.append(IGoogleAnalyticsParameters.SEMICOLON).toString();
-			preferences.put(IUsageReportPreferenceConstants.ECLIPSE_VISITOR_ID, visitorIdCookie);
-			UsageReportPreferencesUtils.checkedSavePreferences(preferences, SubclipseToolsUsageActivator.getDefault(),
-					GoogleAnalyticsEclipseMessages.EclipseEnvironment_Error_SavePreferences);
-		}
-		return visitorIdCookie;
-	}
 
 	public String getUserId() {
 		String userId = preferences.get(IUsageReportPreferenceConstants.ECLIPSE_INSTANCE_ID, null);
@@ -133,7 +115,7 @@ public abstract class AbstractEclipseEnvironment extends AbstractGoogleAnalytics
 	 * @return the identifier
 	 */
 	private String createIdentifier() {
-		StringBuffer builder = new StringBuffer();
+		StringBuilder builder = new StringBuilder();
 		builder.append(Math.abs(random.nextLong()));
 		builder.append(System.currentTimeMillis());
 		return builder.toString();
@@ -174,4 +156,17 @@ public abstract class AbstractEclipseEnvironment extends AbstractGoogleAnalytics
 	private String getJavaVersion() {
 		return System.getProperty(SYSPROP_JAVA_VERSION);
 	}
+
+	public IEclipseUserAgent getEclipseUserAgent() {
+		return eclipseUserAgent;
+	}
+
+	public String getUserDefined() {
+		return getLinuxDistroNameAndVersion();
+	}
+
+	protected String getLinuxDistroNameAndVersion() {
+		return LinuxSystem.INSTANCE.getDistroNameAndVersion();
+	}
+
 }

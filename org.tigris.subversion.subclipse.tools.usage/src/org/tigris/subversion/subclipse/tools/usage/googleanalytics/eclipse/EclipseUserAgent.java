@@ -5,9 +5,10 @@ import java.text.MessageFormat;
 import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
-import org.tigris.subversion.subclipse.tools.usage.googleanalytics.IUserAgent;
 
-public class EclipseUserAgent implements IUserAgent {
+public class EclipseUserAgent implements IEclipseUserAgent {
+
+	public static final char BROWSER_LOCALE_DELIMITER = '-';
 
 	public static final char JAVA_LOCALE_DELIMITER = '_';
 
@@ -15,7 +16,7 @@ public class EclipseUserAgent implements IUserAgent {
 
 	private static final String USERAGENT_WIN = "{0}/{1} (Windows; U; Windows NT {2}; {3})"; //$NON-NLS-1$
 	private static final String USERAGENT_MAC = "{0}/{1} (Macintosh; U; Intel Mac OS X {2}; {3})"; //$NON-NLS-1$
-	private static final String USERAGENT_LINUX = "{0}/{1} (X11; U; Linux i686; {2})"; //$NON-NLS-1$
+	private static final String USERAGENT_LINUX = "{0}/{1} (X11; U; Linux i686; {3})"; //$NON-NLS-1$
 
 	public static final char VERSION_DELIMITER = '.'; //$NON-NLS-1$
 
@@ -34,7 +35,7 @@ public class EclipseUserAgent implements IUserAgent {
 			return nl;
 		}
 
-		StringBuffer builder = new StringBuffer();
+		StringBuilder builder = new StringBuilder();
 		builder.append(nl.substring(0, indexOf));
 		builder.append(BROWSER_LOCALE_DELIMITER);
 		builder.append(nl.substring(indexOf + 1));
@@ -59,28 +60,16 @@ public class EclipseUserAgent implements IUserAgent {
 		return MessageFormat.format(getUserAgentPattern(getOS()), parameters);
 	}
 
-	protected String getOS() {
+	public String getOS() {
 		return Platform.getOS();
 	}
 
-	/**
-	 * Returns the version of the operating system this jre is currently running
-	 * on.
-	 * 
-	 * @return the os version
-	 * 
-	 * @see <a href="http://lopica.sourceforge.net/os.html">list of os versions
-	 *      and os names</a> return by the j
-	 */
-	protected Object getOSVersion() {
+	public String getOSVersion() {
 		return System.getProperty(PROP_OS_VERSION);
 	}
 
 	private String getUserAgentPattern(String os) {
 		String userAgentPattern = ""; //$NON-NLS-1$
-		/*
-		 * TODO: implement architecture (i686, x86_64 etc.), Windows version, MacOS version etc. 
-		 */
 		if (Platform.OS_LINUX.equals(os)) {
 			return USERAGENT_LINUX; //$NON-NLS-1$
 		} else if (Platform.OS_MACOSX.equals(os)) {
@@ -91,11 +80,11 @@ public class EclipseUserAgent implements IUserAgent {
 		return userAgentPattern;
 	}
 
-	protected String getApplicationName() {
+	public String getApplicationName() {
 		return getApplicationBundle().getSymbolicName();
 	}
 
-	protected String getApplicationVersion() {
+	public String getApplicationVersion() {
 //		String fullVersion = getApplicationBundle().getVersion().toString();
 		String fullVersion = getApplicationBundle().getHeaders().get("Bundle-Version").toString();
 		int productVersionStart = fullVersion.lastIndexOf(VERSION_DELIMITER);
@@ -119,4 +108,5 @@ public class EclipseUserAgent implements IUserAgent {
 			return Platform.getBundle(ECLIPSE_RUNTIME_BULDEID);
 		}
 	}
+
 }

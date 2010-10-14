@@ -19,6 +19,11 @@ public interface IGoogleAnalyticsParameters {
 	public static final String PARAM_COOKIES_SESSION = "__utmb";
 	public static final String PARAM_COOKIES_BROWSERSESSION = "__utmc";
 	public static final String PARAM_COOKIES_REFERRAL_TYPE = "__utmz";
+	public static final String PARAM_COOKIES_UTMCSR = "utmcsr";
+	public static final String PARAM_COOKIES_UTMCCN = "utmccn";
+	public static final String PARAM_COOKIES_UTMCMD = "utmcmd";
+	public static final String PARAM_COOKIES_KEYWORD = "utmctr";
+	public static final String PARAM_COOKIES_USERDEFINED = "__utmv";
 
 	public static final String PARAM_REFERRAL = "utmr";
 	public static final String PARAM_TRACKING_CODE_VERSION = "utmwv";
@@ -33,11 +38,6 @@ public interface IGoogleAnalyticsParameters {
 	public static final String PARAM_REPEAT_CAMPAIGN_VISIT = "utmcr";
 	public static final String PARAM_PAGE_TITLE = "utmdt";
 	public static final String PARAM_GAQ = "gaq";
-	public static final String PARAM_COOKIES_UTMCSR = "utmcsr";
-	public static final String PARAM_COOKIES_UTMCCN = "utmccn";
-	public static final String PARAM_COOKIES_UTMCMD = "utmcmd";
-	public static final String PARAM_COOKIES_KEYWORD = "utmctr";
-
 	public static final String PARAM_AD_CONTENT = "utm_content";
 	
 	public static final String VALUE_TRACKING_CODE_VERSION = "4.7.2";
@@ -62,8 +62,6 @@ public interface IGoogleAnalyticsParameters {
 	public String getUserAgent();
 
 	public String getUserId();
-	
-	public String getVisitorIdCookie();
 
 	public String getKeyword();
 
@@ -76,7 +74,7 @@ public interface IGoogleAnalyticsParameters {
 	public long getVisitCount();
 
 	/**
-	 * Tells that a visit was triggered. The
+	 * Signals that a visit was executed. The
 	 * consequence is that visit timestamps and visit counters get updated
 	 * 
 	 * @see #getLastVisit()
@@ -87,5 +85,10 @@ public interface IGoogleAnalyticsParameters {
 	
 	public String getFlashVersion();
 
-	public String getAdContent();
+	/**
+	 * Returns a user defined value that may be queried in Google Analytics.
+	 *
+	 * @return a user defined value
+	 */
+	public String getUserDefined();
 }

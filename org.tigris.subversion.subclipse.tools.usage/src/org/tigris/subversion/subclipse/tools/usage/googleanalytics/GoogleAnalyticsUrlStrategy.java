@@ -128,6 +128,14 @@ public class GoogleAnalyticsUrlStrategy implements IURLBuildingStrategy {
 					googleParameters.getKeyword(),
 					pipeDelimiter)
 				.appendTo(builder);
+		
+		char[] blankDelimiter = { ' ' };
+		new GoogleAnalyticsCookie(IGoogleAnalyticsParameters.PARAM_COOKIES_USERDEFINED,
+				getRandomNumber()
+						+ IGoogleAnalyticsParameters.DOT
+						+ googleParameters.getUserDefined(),
+						blankDelimiter)
+				.appendTo(builder);
 
 		builder.append(IGoogleAnalyticsParameters.SEMICOLON);
 
