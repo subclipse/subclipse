@@ -31,6 +31,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 
 public class CopyAction extends WorkbenchWindowAction {
@@ -87,6 +88,7 @@ public class CopyAction extends WorkbenchWindowAction {
 							client.copy(srcPath, newDestPath);
 						else
 							client.doExport(srcPath, newDestPath, true);
+						SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);
 					}
 					targetProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 				} catch (Exception e) {

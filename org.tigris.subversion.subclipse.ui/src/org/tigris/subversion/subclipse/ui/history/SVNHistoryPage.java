@@ -1293,7 +1293,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 									}
 									ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
 									client.copy(changePath.getUrl(), destPath, revision, revision, true, false);
-									targetProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());								
+									targetProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+									SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);
 								}
 							} catch (Exception e) {
 								MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("HistoryView.copyError"), e.getMessage()); //$NON-NLS-1$
@@ -1395,6 +1396,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                           try {
                             ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
                             client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+                            SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);                         
                           } catch(Exception e) {
                             MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e //$NON-NLS-1$
                                 .getMessage());
@@ -1972,6 +1974,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                       try {
                         ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
                         client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
+                        SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);
                       } catch(Exception e) {
                         MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e //$NON-NLS-1$
                             .getMessage());
