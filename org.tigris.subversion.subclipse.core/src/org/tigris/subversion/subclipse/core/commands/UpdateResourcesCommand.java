@@ -61,7 +61,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
             monitor.beginTask(null, 100 * resources.length);                    
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
 
-            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
+            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
     		if (resources.length == 1)
     		{
                 monitor.subTask(resources[0].getName());

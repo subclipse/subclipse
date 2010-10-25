@@ -48,7 +48,7 @@ public class ImportCommand implements ISVNCommand {
         try {
     		subPm.beginTask(null, Policy.INFINITE_PM_GUESS_FOR_SWITCH);
             ISVNClientAdapter svnClient = folder.getRepository().getSVNClient();
-            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm));
+            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm, svnClient));
 			svnClient.doImport(dir, folder.getUrl(), comment, recurse);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
