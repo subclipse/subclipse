@@ -21,10 +21,10 @@
    <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.13.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.13">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse_1.6.14.jar" id="org.tigris.subversion.subclipse" version="1.6.14">
+   <feature url="features/org.tigris.subversion.subclipse.graph.feature_1.0.9.jar" id="org.tigris.subversion.subclipse.graph.feature" version="1.0.9">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse.graph.feature_1.0.9.jar" id="org.tigris.subversion.subclipse.graph.feature" version="1.0.9">
+   <feature url="features/org.tigris.subversion.subclipse_1.6.15.jar" id="org.tigris.subversion.subclipse" version="1.6.15">
       <category name="Subclipse"/>
    </feature>
    <category-def name="SVNKit Library" label="Core SVNKit Library">
