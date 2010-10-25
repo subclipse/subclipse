@@ -153,7 +153,7 @@ public class LinuxSystem {
 		}
 
 		public String getNameAndVersion() {
-			return new StringBuilder().append(getName()).append(" ").append(getVersion()).toString();
+			return new StringBuffer().append(getName()).append(" ").append(getVersion()).toString();
 		}
 
 		public String getReleaseFilePath() {
@@ -167,7 +167,7 @@ public class LinuxSystem {
 
 	protected String getDistroFileContent(String filePath) throws IOException {
 		int charachtersToRead = 1024;
-		StringBuilder builder = new StringBuilder(charachtersToRead);
+		StringBuffer builder = new StringBuffer(charachtersToRead);
 		BufferedReader reader = new BufferedReader(new FileReader(filePath));
 		char[] buf = new char[charachtersToRead];
 		int charRead = 0;

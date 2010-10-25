@@ -47,7 +47,7 @@ public class EclipseUserAgent implements IEclipseUserAgent {
 			return nl;
 		}
 
-		StringBuilder builder = new StringBuilder();
+		StringBuffer builder = new StringBuffer();
 		builder.append(nl.substring(0, indexOf));
 		builder.append(BROWSER_LOCALE_DELIMITER);
 		builder.append(nl.substring(indexOf + 1));
