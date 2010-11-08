@@ -12,12 +12,15 @@ package org.tigris.subversion.subclipse.ui.authentication;
 
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -54,24 +57,52 @@ public class QuestionDialog extends TrayDialog {
 		rtnGroup.setLayoutData(
 		new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING));
 		
-		Label realmLabel = new Label(rtnGroup, SWT.NONE);
-		realmLabel.setText(Policy.bind("PasswordPromptDialog.repository")); //$NON-NLS-1$
-		Text realmText = new Text(rtnGroup, SWT.BORDER);
+		Group realmGroup = new Group(rtnGroup, SWT.NONE);
+		if (question.contains("certificate passphrase")) { //$NON-NLS-1$
+			realmGroup.setText(Policy.bind("QuestionDialog.clientCertificateFile")); //$NON-NLS-1$
+		} else {
+			realmGroup.setText(Policy.bind("PasswordPromptDialog.repository")); //$NON-NLS-1$
+		}
+		GridLayout realmLayout = new GridLayout();
+		realmLayout.numColumns = 1;
+		realmGroup.setLayout(realmLayout);
+		realmGroup.setLayoutData(
+		new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING));
+
+		Text realmText = new Text(realmGroup, SWT.BORDER);
 		GridData gd = new GridData();
 		gd.widthHint = WIDTH;
 		realmText.setLayoutData(gd);
 		realmText.setEditable(false);
 		realmText.setText(realm);
 		
-		Label questionLabel = new Label(rtnGroup, SWT.NONE);
-		questionLabel.setText(question);
-		
-		answerText = new Text(rtnGroup, SWT.NONE);
+		Group questionGroup = new Group(rtnGroup, SWT.NONE);
+		questionGroup.setText(question);
+		GridLayout questionLayout = new GridLayout();
+		questionLayout.numColumns = 2;
+		questionGroup.setLayout(questionLayout);
+		questionGroup.setLayoutData(
+		new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING));
+
+		answerText = new Text(questionGroup, SWT.BORDER);
 		gd = new GridData();
 		gd.widthHint = WIDTH;
 		answerText.setLayoutData(gd);
 
 		if (!showAnswer) answerText.setEchoChar('*'); //$NON-NLS-1$
+		
+		if (question.contains("certificate file")) { //$NON-NLS-1$
+			Button browseButton = new Button(questionGroup, SWT.PUSH);
+			browseButton.setText(Policy.bind("QuestionDialog.browse")); //$NON-NLS-1$
+			browseButton.addSelectionListener(new SelectionAdapter() {	
+				public void widgetSelected(SelectionEvent e) {
+					FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
+					fileDialog.setText("Select Client Certificate File");
+					String returnFile = fileDialog.open();
+					if (returnFile != null) answerText.setText(returnFile);
+				}
+			});
+		}
 		
 		if (maySave) {
 		    saveButton = new Button(rtnGroup, SWT.CHECK);
