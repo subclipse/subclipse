@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.authentication;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -26,6 +27,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class QuestionDialog extends TrayDialog {
     private String realm;
@@ -36,6 +38,8 @@ public class QuestionDialog extends TrayDialog {
     private String answer;
     private boolean save;
     private Button saveButton;
+    
+    private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
     
     private static final int WIDTH = 300;
 
@@ -92,6 +96,16 @@ public class QuestionDialog extends TrayDialog {
 		if (!showAnswer) answerText.setEchoChar('*'); //$NON-NLS-1$
 		
 		if (question.contains("certificate file")) { //$NON-NLS-1$
+			String previousCertificateFile = null;
+			try {
+				previousCertificateFile = settings.get("QuestionDialog.certificateFile." + realm);
+				if (previousCertificateFile != null) {
+					answerText.setText(previousCertificateFile);
+				}
+			} catch (Exception e) {}
+		}
+		
+		if (question.contains("certificate file")) { //$NON-NLS-1$
 			Button browseButton = new Button(questionGroup, SWT.PUSH);
 			browseButton.setText(Policy.bind("QuestionDialog.browse")); //$NON-NLS-1$
 			browseButton.addSelectionListener(new SelectionAdapter() {	
@@ -123,6 +137,9 @@ public class QuestionDialog extends TrayDialog {
     protected void okPressed() {
     	answer = answerText.getText().trim();
         if (maySave) save = saveButton.getSelection();
+        if (question.contains("certificate file")) { //$NON-NLS-1$
+        	settings.put("QuestionDialog.certificateFile." + realm, answer); //$NON-NLS-1$
+        }
         super.okPressed();
     }	
 
