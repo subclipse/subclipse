@@ -107,7 +107,7 @@ public class QuestionDialog extends TrayDialog {
 		
 		if (question.contains("certificate file")) { //$NON-NLS-1$
 			Button browseButton = new Button(questionGroup, SWT.PUSH);
-			browseButton.setText(Policy.bind("QuestionDialog.browse")); //$NON-NLS-1$
+			browseButton.setText(Policy.bind("browse")); //$NON-NLS-1$
 			browseButton.addSelectionListener(new SelectionAdapter() {	
 				public void widgetSelected(SelectionEvent e) {
 					FileDialog fileDialog = new FileDialog(getShell(), SWT.OPEN);
