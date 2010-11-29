@@ -39,6 +39,9 @@ public class QuestionDialog extends TrayDialog {
     private boolean save;
     private Button saveButton;
     
+    private boolean isPassphrasePrompt;
+    private boolean isFilePrompt;
+    
     private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
     
     private static final int WIDTH = 300;
@@ -50,6 +53,12 @@ public class QuestionDialog extends TrayDialog {
         this.question = question;
         this.showAnswer = showAnswer;
         this.maySave = maySave;
+        if (question != null) {
+        	isPassphrasePrompt = question.indexOf("certificate passphrase") != -1; //$NON-NLS-1$
+        	if (!isPassphrasePrompt) {
+        		isFilePrompt = question.indexOf("certificate file") != -1; //$NON-NLS-1$
+        	}
+        }
     }
     
 	protected Control createDialogArea(Composite parent) {
@@ -62,7 +71,7 @@ public class QuestionDialog extends TrayDialog {
 		new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING));
 		
 		Group realmGroup = new Group(rtnGroup, SWT.NONE);
-		if (question.contains("certificate passphrase")) { //$NON-NLS-1$
+		if (isPassphrasePrompt) { 
 			realmGroup.setText(Policy.bind("QuestionDialog.clientCertificateFile")); //$NON-NLS-1$
 		} else {
 			realmGroup.setText(Policy.bind("PasswordPromptDialog.repository")); //$NON-NLS-1$
@@ -95,7 +104,7 @@ public class QuestionDialog extends TrayDialog {
 
 		if (!showAnswer) answerText.setEchoChar('*'); //$NON-NLS-1$
 		
-		if (question.contains("certificate file")) { //$NON-NLS-1$
+		if (isFilePrompt) { 
 			String previousCertificateFile = null;
 			try {
 				previousCertificateFile = settings.get("QuestionDialog.certificateFile." + realm);
@@ -105,7 +114,7 @@ public class QuestionDialog extends TrayDialog {
 			} catch (Exception e) {}
 		}
 		
-		if (question.contains("certificate file")) { //$NON-NLS-1$
+		if (isFilePrompt) { 
 			Button browseButton = new Button(questionGroup, SWT.PUSH);
 			browseButton.setText(Policy.bind("browse")); //$NON-NLS-1$
 			browseButton.addSelectionListener(new SelectionAdapter() {	
@@ -137,7 +146,7 @@ public class QuestionDialog extends TrayDialog {
     protected void okPressed() {
     	answer = answerText.getText().trim();
         if (maySave) save = saveButton.getSelection();
-        if (question.contains("certificate file")) { //$NON-NLS-1$
+        if (isFilePrompt) { //$NON-NLS-1$
         	settings.put("QuestionDialog.certificateFile." + realm, answer); //$NON-NLS-1$
         }
         super.okPressed();
