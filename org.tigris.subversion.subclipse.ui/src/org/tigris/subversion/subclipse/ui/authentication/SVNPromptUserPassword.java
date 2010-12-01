@@ -35,6 +35,7 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
     private int sshPort;
     private String keyFile;
     private String passPhrase;
+    private boolean useMSCapi;
 
     public SVNPromptUserPassword() {
         super();
@@ -54,9 +55,9 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
 		                MessageDialog.QUESTION,
 		                new String[] {IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL},
 		                defaultButton);
-		        yesNoAnswer = (dialog.open() == 0);				
+		        yesNoAnswer = (dialog.open() == 0);
 			}
-		});        
+		});
 		return yesNoAnswer;
     }
 
@@ -87,9 +88,9 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
 		        	break;
 		        default:
 		            trust = TrustSSLServerDialog.REJECT;
-		        }				
+		        }
 			}
-		});        
+		});
         return trust;
     }
 
@@ -107,9 +108,9 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
 		            password = dialog.getPassword();
 		            allowedSave = dialog.isSave();
 		            rtnCode = true;
-		        }				
+		        }
 			}
-		});      
+		});
         return rtnCode;
     }
 
@@ -126,9 +127,9 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
 		            username = dialog.getUsername();
 		            allowedSave = dialog.isSave();
 		            rtnCode = true;
-		        }				
+		        }
 			}
-		});      
+		});
         return rtnCode;
     }
 
@@ -148,9 +149,9 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
 		        if (dialog.open() == QuestionDialog.OK) {
 		            allowedSave = dialog.isSave();
 		            answer = dialog.getAnswer();
-		        }				
+		        }
 			}
-		});        
+		});
         return answer;
     }
 
@@ -185,9 +186,9 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
 		            passPhrase = dialog.getPassphrase();
 		            allowedSave = dialog.isSave();
 		            rtnCode = true;
-		        }				
+		        }
 			}
-		});      
+		});
         return rtnCode;
     }
     public String getSSLClientCertPassword() {
@@ -195,6 +196,9 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
     }
     public String getSSLClientCertPath() {
         return keyFile;
+    }
+    public boolean useMSCapi() {
+        return useMSCapi;
     }
     public boolean promptSSL(String promptRealm, boolean promptMaySave) {
         rtnCode = false;
@@ -206,12 +210,14 @@ public class SVNPromptUserPassword implements ISVNPromptUserPassword {
 		                realm, maySave);
 		        if (dialog.open() == PasswordPromptDialog.OK) {
 		            keyFile = dialog.getKeyFile();
-		            passPhrase = dialog.getPassphrase();
+		            useMSCapi = dialog.isMSCapi();
+	            	passPhrase = dialog.getPassphrase();
 		            allowedSave = dialog.isSave();
 		            rtnCode = true;
-		        }				
+
+		        }
 			}
-		});      
+		});
         return rtnCode;
     }
 }
