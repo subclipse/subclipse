@@ -132,9 +132,9 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
         		});
         	    if (commit) {
         	        resourcesToCommit = commitPage.getSelectedResources();
-        	        commitComment = commitPage.getComment();
         	        keepLocks = commitPage.isKeepLocks();        	    	
         	    }
+        	    commitComment = commitPage.getComment();
 	        } catch (SVNException e) {
 	        	if (!e.operationInterrupted()) {
 	        		SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
