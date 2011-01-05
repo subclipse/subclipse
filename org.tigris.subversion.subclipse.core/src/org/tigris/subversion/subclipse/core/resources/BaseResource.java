@@ -42,6 +42,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	private String charset = null;
 	protected LocalResourceStatus localResourceStatus;
 	protected IResource resource;
+	private ISVNRemoteFolder parent;
 
 	/**
 	 * Constructor for BaseResource.
@@ -229,7 +230,11 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#getParent()
 	 */
 	public ISVNRemoteFolder getParent() {
-		return null;
+		return parent;
+	}
+	
+	public void setParent(ISVNRemoteFolder parent) {
+		this.parent = parent;
 	}
 	
 	/**

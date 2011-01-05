@@ -11,8 +11,11 @@ import org.eclipse.compare.IEncodedStreamContentAccessor;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.IStructureComparator;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
@@ -148,6 +151,13 @@ public class SummaryEditionNode
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder((RemoteFolder)resource);
 						node.setNodeType(nodeType);
+
+//						System.out.println(resource.getResource().getFullPath() + "/" + diffSummary[i].getPath());
+//						IFile localFile = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(resource.getResource().getFullPath() + "/" + diffSummary[i].getPath()));
+//						if (localFile != null) {
+//							System.out.println(localFile.getProjectRelativePath());
+//						}
+						
 						roots.add(node);				
 					}				
 				} else {

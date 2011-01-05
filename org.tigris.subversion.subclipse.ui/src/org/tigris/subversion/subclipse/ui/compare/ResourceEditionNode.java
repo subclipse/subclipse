@@ -222,13 +222,15 @@ public class ResourceEditionNode
 	private SVNLocalResourceNode matchLocalResource(ISVNRemoteResource remoteNode){
 	    if (localResource == null) return null;
 	    ISVNRemoteResource baseFolder = remoteNode;
-	    while(baseFolder.getParent() != null) {baseFolder = baseFolder.getParent(); }
+	    if (baseFolder.getParent() != null) {
+	    	baseFolder = baseFolder.getParent();
+	    }
 		Object[] lrn = localResource.getChildren();
 		String remotePath=remoteNode.getRepositoryRelativePath();
 		remotePath = remotePath.replaceAll(baseFolder.getRepositoryRelativePath(),"");
 		for(int i=0;i<lrn.length;i++){
 			String localPath=((SVNLocalResourceNode)lrn[i]).getResource().getFullPath().toString();
-			localPath = localPath.substring(localPath.indexOf("/",1));
+			localPath = localPath.substring(localResource.getResource().getFullPath().toString().length());
 			if(localPath.equals(remotePath)){
 				return (SVNLocalResourceNode)lrn[i];
 			}
