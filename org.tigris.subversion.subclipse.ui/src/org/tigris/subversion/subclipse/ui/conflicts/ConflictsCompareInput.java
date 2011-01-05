@@ -77,6 +77,7 @@ public class ConflictsCompareInput extends CompareEditorInput {
     private IFile fTheirsResource;
 
     private IFile fDestinationResource;
+    
 
     // we use this trick because we can't use setDirty which does not work as I
     // expected
@@ -163,11 +164,28 @@ public class ConflictsCompareInput extends CompareEditorInput {
                 public boolean isEditable() {
                     return false;
                 }
+
+				public String getCharset() {
+					try {
+						return fDestinationResource.getCharset();
+					} catch (CoreException e) {
+						return null;
+					}
+				}
+                
+                
             };
             fLeft = new BufferedResourceNode(fDestinationResource) {
                 public String getType() {
                     return ConflictsCompareInput.this.getType();
                 }
+				public String getCharset() {
+					try {
+						return fDestinationResource.getCharset();
+					} catch (CoreException e) {
+						return null;
+					}
+				}
             };
             
             InputStream mineContents = fMineResource.getContents();
@@ -204,6 +222,14 @@ public class ConflictsCompareInput extends CompareEditorInput {
                 public boolean isEditable() {
                     return false;
                 }
+                
+				public String getCharset() {
+					try {
+						return fDestinationResource.getCharset();
+					} catch (CoreException e) {
+						return null;
+					}
+				}
             };
 
             String title = "Conflicts on " + fDestinationResource.getName(); //$NON-NLS-1$
