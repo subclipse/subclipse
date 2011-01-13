@@ -39,6 +39,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.File2Resource;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.operations.CommitOperation;
@@ -114,6 +115,19 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 	    }
 	    if (modified.length > 0) {
 	        try {
+	        	
+	    	    if (onTagPath(modified)) {
+	    	    	commit = true;
+	           		getShell().getDisplay().syncExec(new Runnable() {
+	        			public void run() {
+	        				commit = MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.tag"));
+	        			}
+	        		});
+	           		if (!commit) {
+	           			return false;
+	           		}
+	    	    }
+	        	
                 ProjectProperties projectProperties = ProjectProperties.getProjectProperties(modified[0]);
                 
                 SvnWizardCommitPage commitPage = new SvnWizardCommitPage(modified, url, projectProperties, new HashMap(), changeSet, true);                
@@ -321,5 +335,19 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 	public void setChangeSet(ChangeSet changeSet) {
 		this.changeSet = changeSet;
 	}
+	
+	private boolean onTagPath(IResource[] modifiedResources) throws SVNException {
+	    // Multiple resources selected.
+	    if (url == null) {
+			 IResource resource = modifiedResources[0];
+			 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);	        
+             String firstUrl = svnResource.getStatus().getUrlString();
+             if ((firstUrl == null) || (resource.getType() == IResource.FILE)) firstUrl = Util.getParentUrl(svnResource);
+             if (firstUrl.indexOf("/tags/") != -1) return true; //$NON-NLS-1$
+	    }
+	    // One resource selected.
+        else if (url.indexOf("/tags/") != -1) return true; //$NON-NLS-1$
+        return false;
+    }
 
 }
