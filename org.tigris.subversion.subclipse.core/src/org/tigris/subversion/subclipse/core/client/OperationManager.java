@@ -93,13 +93,17 @@ public class OperationManager implements ISVNNotifyListener {
 	public void beginOperation(ISVNClientAdapter aSvnClient, OperationProgressNotifyListener anOperationNotifyListener) {
 		this.operationNotifyListener = anOperationNotifyListener;
 		beginOperation(aSvnClient);
-	}	
+	}
+	
+	public void endOperation() throws SVNException {
+		endOperation(true);
+	}
 	
 	/**
 	 * Ends a batch of operations. Pending changes are committed only when the
 	 * number of calls to endOperation() balances those to beginOperation().
 	 */
-	public void endOperation() throws SVNException {
+	public void endOperation(boolean refresh) throws SVNException {
 		try {
 			if (lock.getNestingCount() == 1) {
 				svnClient.removeNotifyListener(this);
@@ -110,20 +114,23 @@ public class OperationManager implements ISVNNotifyListener {
 				for (Iterator it = changedResources.iterator(); it.hasNext();) {
 					IResource resource = (IResource) it.next();
 					//Ensure the .svn has the team private flag set before refresh. 
-					if (resource instanceof IContainer)
+					if (refresh && resource instanceof IContainer)
 						handleSVNDir((IContainer) resource);
                     try {
                         // .svn directory will be refreshed so all files in the
                         // directory including resource will
                         // be refreshed later (@see SyncFileChangeListener)
-                        resource.refreshLocal(IResource.DEPTH_INFINITE,new NullProgressMonitor());
+                    	if (refresh) {
+                    		resource.refreshLocal(IResource.DEPTH_INFINITE,new NullProgressMonitor());
+                    	}
                         if(Policy.DEBUG_METAFILE_CHANGES) {
                             System.out.println("[svn]" + SVNProviderPlugin.getPlugin().getAdminDirectoryName() + " dir refreshed : " + resource.getFullPath()); //$NON-NLS-1$
                         }
                         // Refreshing the root directory at this point will
                         // avoid problems with linked source folders.
-                        if (resource.getParent().getType() == IResource.PROJECT)
+                        if (refresh && resource.getParent().getType() == IResource.PROJECT) {
                             resource.getParent().refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+                        }
                     } catch (CoreException e) {
                         throw SVNException.wrapException(e);
                     }                    

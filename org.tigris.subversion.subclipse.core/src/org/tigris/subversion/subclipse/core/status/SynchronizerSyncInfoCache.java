@@ -128,9 +128,15 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 				if (oldBytes != null) {
 					boolean canModifyWorkspace = !ResourcesPlugin.getWorkspace().isTreeLocked();
 					if (canModifyWorkspace) {
-						accessor.removeFromPendingCache(resource);
-						if (resource.exists() || resource.isPhantom()) {
-							accessor.internalSetCachedSyncBytes(resource, null);
+						try {
+							accessor.removeFromPendingCache(resource);
+							if (resource.exists() || resource.isPhantom()) {
+								accessor.internalSetCachedSyncBytes(resource, null);
+							}
+						} catch (Exception e) {
+							if (resource.exists() || resource.isPhantom()) {
+								accessor.writeToPendingCache(resource, BYTES_REMOVED);
+							}							
 						}
 					} else {
 						if (resource.exists() || resource.isPhantom()) {
@@ -145,8 +151,13 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 				if (oldBytes == null || !SyncInfoSynchronizedAccessor.equals(syncBytes, oldBytes)) {
 					boolean canModifyWorkspace = !ResourcesPlugin.getWorkspace().isTreeLocked();
 					if (canModifyWorkspace) {
-						accessor.removeFromPendingCache(resource);
-						accessor.internalSetCachedSyncBytes(resource, syncBytes);
+						try {
+							accessor.removeFromPendingCache(resource);
+							accessor.internalSetCachedSyncBytes(resource, syncBytes);
+						} catch (Exception e) {
+							LocalResourceStatus.fromBytes(oldBytes);
+							accessor.writeToPendingCache(resource, syncBytes);							
+						}
 					} else {
 						LocalResourceStatus.fromBytes(oldBytes);
 						accessor.writeToPendingCache(resource, syncBytes);
