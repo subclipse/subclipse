@@ -6,26 +6,26 @@
    <feature url="features/org.tigris.subversion.subclipse.mylyn_3.0.0.jar" id="org.tigris.subversion.subclipse.mylyn" version="3.0.0">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tmatesoft.svnkit_1.3.4.6888.jar" id="org.tmatesoft.svnkit" version="1.3.4.6888">
-      <category name="SVNKit Library"/>
-   </feature>
    <feature url="features/com.sun.jna_3.2.7.jar" id="com.sun.jna" version="3.2.7">
       <category name="JNA Library"/>
    </feature>
    <feature url="features/org.tigris.subversion.clientadapter.feature_1.6.12.jar" id="org.tigris.subversion.clientadapter.feature" version="1.6.12">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.6.12.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.6.12">
-      <category name="Subclipse"/>
-   </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.13.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.13">
-      <category name="Subclipse"/>
-   </feature>
    <feature url="features/org.tigris.subversion.subclipse.graph.feature_1.0.9.jar" id="org.tigris.subversion.subclipse.graph.feature" version="1.0.9">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse_1.6.15.jar" id="org.tigris.subversion.subclipse" version="1.6.15">
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.6.15.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.6.15">
       <category name="Subclipse"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.6.15.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.6.15">
+      <category name="Subclipse"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.subclipse_1.6.17.jar" id="org.tigris.subversion.subclipse" version="1.6.17">
+      <category name="Subclipse"/>
+   </feature>
+   <feature url="features/org.tmatesoft.svnkit_1.3.5.7406.jar" id="org.tmatesoft.svnkit" version="1.3.5.7406">
+      <category name="SVNKit Library"/>
    </feature>
    <category-def name="SVNKit Library" label="Core SVNKit Library">
       <description>
