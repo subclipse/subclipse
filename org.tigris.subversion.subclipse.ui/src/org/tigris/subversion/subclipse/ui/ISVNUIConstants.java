@@ -266,6 +266,7 @@ public interface ISVNUIConstants {
   public final String PREF_ALLOW_EMPTY_COMMIT_COMMENTS = "pref_allow_empty_commit_comment"; //$NON-NLS-1$
   public final String PREF_ALLOW_COMMIT_WITH_WARNINGS = "pref_commit_with_warning"; //$NON-NLS-1$
   public final String PREF_ALLOW_COMMIT_WITH_ERRORS = "pref_commit_with_errors"; //$NON-NLS-1$
+  public final String PREF_COMMIT_TO_TAGS_PATH_WITHOUT_WARNING = "pref_commit_to_tags_path_without_warning"; //$NON-NLS-1$
 
   // depth
   public final String DEPTH_EMPTY = "Only this item"; //$NON-NLS-1$

@@ -46,6 +46,7 @@ import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.dialogs.CommitToTagsWarningDialog;
 import org.tigris.subversion.subclipse.ui.operations.CommitOperation;
 import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
@@ -286,14 +287,17 @@ public class CommitAction extends WorkbenchWindowAction {
 	 * @throws SVNException
 	 */		
 	protected boolean confirmCommit(IResource[] modifiedResources, ProjectProperties projectProperties) throws SVNException {
-	   if (onTagPath(modifiedResources)) {
-	       // Warning - working copy appears to be on a tag path.
-	       if (!MessageDialog.openQuestion(getShell(), Policy.bind("CommitDialog.title"), Policy.bind("CommitDialog.tag"))) //$NON-NLS-1$ //$NON-NLS-2$
-	           return false;	       
+	  IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin().getPreferenceStore();
+	  boolean commitToTagsPathWithoutWarning = preferenceStore.getBoolean(ISVNUIConstants.PREF_COMMIT_TO_TAGS_PATH_WITHOUT_WARNING);
+	  if (!commitToTagsPathWithoutWarning && onTagPath(modifiedResources)) {
+	       // Warning - working copy appears to be on a tag path.		  
+		  CommitToTagsWarningDialog dialog = new CommitToTagsWarningDialog(getShell());
+		  if (dialog.open() != CommitToTagsWarningDialog.OK) {
+			  return false;
+		  }   
 	   }
 	   
-	   int highestProblemSeverity = getHighestProblemSeverity(modifiedResources);
-	   IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin().getPreferenceStore();
+	   int highestProblemSeverity = getHighestProblemSeverity(modifiedResources);	   
 	   switch (highestProblemSeverity) {
 	   case IMarker.SEVERITY_WARNING:
 		   String allowCommitsWithWarnings = preferenceStore.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS);
