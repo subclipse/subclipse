@@ -22,22 +22,29 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IDecoration;
+import org.eclipse.jface.viewers.IDecorationContext;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.RepositoryProvider;
+import org.eclipse.team.core.diff.IDiff;
+import org.eclipse.team.core.diff.IThreeWayDiff;
 import org.eclipse.team.ui.ISharedImages;
 import org.eclipse.team.ui.TeamImages;
 import org.eclipse.team.ui.TeamUI;
+import org.eclipse.team.ui.mapping.SynchronizationStateTester;
+import org.eclipse.ui.IContributorResourceAdapter;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.themes.ITheme;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
@@ -102,6 +109,8 @@ public class SVNLightweightDecorator
 	protected boolean showExternal;
 	protected boolean showHasRemote;
 	protected DateFormat dateFormat;
+	
+	private static final SynchronizationStateTester DEFAULT_TESTER = new SynchronizationStateTester();
 
 	/*
 	 * Define a cached image descriptor which only creates the image data once
@@ -254,6 +263,10 @@ public class SVNLightweightDecorator
 	 * @return the resource for the given object, or null
 	 */
 	private IResource getResource(Object object) {
+		if (object instanceof ResourceMapping) {
+			object = ((ResourceMapping) object).getModelObject();
+			return getModelObjectResource(object);
+		}
 		if (object instanceof IResource) {
 			return (IResource) object;
 		}
@@ -263,6 +276,23 @@ public class SVNLightweightDecorator
 		}
 		return null;
 	}
+	
+	public static IResource getModelObjectResource(Object o) {
+		IResource resource = null;
+		if (o instanceof IResource) {
+			resource = (IResource) o;
+		} else if (o instanceof IAdaptable) {
+			IAdaptable adaptable = (IAdaptable) o;
+			resource = (IResource)adaptable.getAdapter(IResource.class);
+			if (resource == null) {
+				IContributorResourceAdapter adapter = (IContributorResourceAdapter)adaptable.getAdapter(IContributorResourceAdapter.class);
+				if (adapter != null)
+					resource = adapter.getAdaptedResource(adaptable);
+			}
+		}
+		return resource;
+	}
+	
 	/**
 	 * This method should only be called by the decorator thread.
 	 * 
@@ -271,52 +301,74 @@ public class SVNLightweightDecorator
 	public void decorate(Object element, IDecoration decoration) {
 		
 		IResource resource = getResource(element);
-		if (resource == null || resource.getType() == IResource.ROOT)
-			return;
-
-        // get the team provider
-        SVNTeamProvider svnProvider = (SVNTeamProvider)RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
-		if (svnProvider == null)
+		if (resource != null && resource.getType() == IResource.ROOT)
 			return;
 
 		boolean isIgnored = false;
-		// if the resource is ignored return an empty decoration. This will
-		// force a decoration update event and clear the existing SVN decoration.
-		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-		try {
-			if (svnResource.isIgnored()) {
-				isIgnored = true;
-//				return;
+		SVNTeamProvider svnProvider = null;
+		ISVNLocalResource svnResource = null;
+		
+		if (resource != null) {
+	        // get the team provider
+	        svnProvider = (SVNTeamProvider)RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
+			if (svnProvider == null)
+				return;
+			
+			// if the resource is ignored return an empty decoration. This will
+			// force a decoration update event and clear the existing SVN decoration.
+			svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+			try {
+				if (svnResource.isIgnored()) {
+					isIgnored = true;
+	//				return;
+				}
+			} catch (SVNException e) {
+				// The was an exception in isIgnored. Don't decorate
+				//todo should log this error
+				return;
 			}
-		} catch (SVNException e) {
-			// The was an exception in isIgnored. Don't decorate
-			//todo should log this error
-			return;
 		}
 
 		// determine a if resource has outgoing changes (e.g. is dirty).
 		boolean isDirty = false;
 		boolean isUnversioned = false;
-		LocalResourceStatus status = null;
-		if (!isIgnored) {
-			if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
-		        isDirty = SVNLightweightDecorator.isDirty(svnResource);
+		
+		if (resource == null) {
+			IDecorationContext context = decoration.getDecorationContext();
+			SynchronizationStateTester tester = SVNLightweightDecorator.DEFAULT_TESTER;
+			Object property = context.getProperty(SynchronizationStateTester.PROP_TESTER);
+			if (property instanceof SynchronizationStateTester) {
+				tester = (SynchronizationStateTester) property;
 			}
+			int stateFlags;
 			try {
-				status = svnResource.getStatusFromCache();
-				isUnversioned = status.isUnversioned();
-			} catch (SVNException e1) {
-				if (!e1.operationInterrupted()) {
-					SVNUIPlugin.log(e1.getStatus());
+				stateFlags = tester.getState(element, IDiff.ADD | IDiff.REMOVE | IDiff.CHANGE | IThreeWayDiff.OUTGOING, new NullProgressMonitor());
+				if ((stateFlags & IThreeWayDiff.CHANGE) != 0 || (stateFlags & IThreeWayDiff.ADD) != 0 || (stateFlags & IThreeWayDiff.REMOVE) != 0) {
+					decoration.addOverlay(dirty);
 				}
-			}
-			decorateTextLabel(svnResource, status, decoration, isDirty);
-		}
-		computeColorsAndFonts(isIgnored, isDirty || isUnversioned, decoration);
-		if (!isIgnored) {
-			ImageDescriptor overlay = getOverlay(svnResource, status, isDirty, svnProvider);
-			if(overlay != null) { //actually sending null arg would work but this makes logic clearer
-				decoration.addOverlay(overlay);
+			} catch (CoreException e) {}
+		} else {		
+			LocalResourceStatus status = null;
+			if (!isIgnored) {
+				if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
+			        isDirty = SVNLightweightDecorator.isDirty(svnResource);
+				}
+				try {
+					status = svnResource.getStatusFromCache();
+					isUnversioned = status.isUnversioned();
+				} catch (SVNException e1) {
+					if (!e1.operationInterrupted()) {
+						SVNUIPlugin.log(e1.getStatus());
+					}
+				}
+				decorateTextLabel(svnResource, status, decoration, isDirty);
+			}		
+			computeColorsAndFonts(isIgnored, isDirty || isUnversioned, decoration);
+			if (!isIgnored) {
+				ImageDescriptor overlay = getOverlay(svnResource, status, isDirty, svnProvider);
+				if(overlay != null) { //actually sending null arg would work but this makes logic clearer
+					decoration.addOverlay(overlay);
+				}
 			}
 		}
 	}

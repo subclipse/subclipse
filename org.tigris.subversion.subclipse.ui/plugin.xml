@@ -741,7 +741,7 @@
             %DecoratorStandard.desc
          </description>
          <enablement>
-            <objectClass name="org.eclipse.core.resources.IResource"/>
+             <objectClass name="org.eclipse.core.resources.mapping.ResourceMapping"/> 
          </enablement>
       </decorator>
    </extension>
