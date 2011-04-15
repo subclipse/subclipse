@@ -11,11 +11,8 @@
 package org.tigris.subversion.subclipse.ui.operations;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +38,6 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class CommitOperation extends SVNOperation {
-//    private IResource[] selectedResources;
     private IResource[] resourcesToAdd;
     private IResource[] resourcesToDelete;
     private IResource[] resourcesToCommit;
@@ -49,12 +45,11 @@ public class CommitOperation extends SVNOperation {
     private boolean keepLocks;
     private ISVNClientAdapter svnClient;
     private ISynchronizePageConfiguration configuration;
-    private boolean useJavaHLHack = true;
+    private boolean atomicCommit = true;
     private boolean canRunAsJob = true;
 
     public CommitOperation(IWorkbenchPart part, IResource[] selectedResources, IResource[] resourcesToAdd, IResource[] resourcesToDelete, IResource[] resourcesToCommit, String commitComment, boolean keepLocks) {
         super(part);
-//        this.selectedResources = selectedResources;
         this.resourcesToAdd = resourcesToAdd;
         this.resourcesToDelete = resourcesToDelete;
         this.resourcesToCommit = resourcesToCommit;
@@ -64,42 +59,37 @@ public class CommitOperation extends SVNOperation {
 
     protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
     	monitor.beginTask(null, resourcesToAdd.length + resourcesToDelete.length + resourcesToCommit.length);
-    	String adminFolderName = SVNProviderPlugin.getPlugin().getAdminDirectoryName();
-		File cleanUpPathList = null;
         try {
         	svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
         	if (resourcesToAdd.length > 0) {
-			    Map table = getProviderMapping(resourcesToAdd);
+			    Map<SVNTeamProvider, List<IResource>> table = getProviderMapping(resourcesToAdd);
 				if (table.get(null) != null) {
 					throw new SVNException(Policy.bind("RepositoryManager.addErrorNotAssociated"));  //$NON-NLS-1$
 				}
-				Set keySet = table.keySet();
-				Iterator iterator = keySet.iterator();
-				while (iterator.hasNext()) {
-					SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
-					List list = (List)table.get(provider);
-					IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
+				Set<SVNTeamProvider> keySet = table.keySet();
+				for (SVNTeamProvider provider : keySet) {
+					List<IResource> list = table.get(provider);
+					IResource[] providerResources = list.toArray(new IResource[list.size()]);
 					provider.add(providerResources, IResource.DEPTH_ZERO, Policy.subMonitorFor(monitor, resourcesToAdd.length));
 				}						
 			}
         	if (resourcesToDelete.length > 0) {
 				ISVNClientAdapter svnDeleteClient = null; // use an adapter that will log to console
-			    Map table = getProviderMapping(resourcesToDelete);
+				Map<SVNTeamProvider, List<IResource>> table = getProviderMapping(resourcesToDelete);
 				if (table.get(null) != null) {
 					throw new SVNException(Policy.bind("RepositoryManager.addErrorNotAssociated"));  //$NON-NLS-1$
 				}
-				Set keySet = table.keySet();
-				Iterator iterator = keySet.iterator();
-				while (iterator.hasNext()) {
-					SVNTeamProvider provider = (SVNTeamProvider)iterator.next();
-					List list = (List)table.get(provider);
-					IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
-					File[] files = new File[providerResources.length];
-					for (int i = 0; i < providerResources.length; i++) {
-						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(providerResources[i]);
+				Set<SVNTeamProvider> keySet = table.keySet();
+				for (SVNTeamProvider provider : keySet) {
+					List<IResource> list = table.get(provider);
+					File[] files = new File[list.size()];
+					int i=0;
+					for (IResource resource : list) {
+						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 						if (svnDeleteClient == null)
 						    svnDeleteClient = svnResource.getRepository().getSVNClient();
 						files[i] = svnResource.getFile();
+						i++;
 					}
 					try {
 						svnDeleteClient.remove(files, true);
@@ -108,33 +98,20 @@ public class CommitOperation extends SVNOperation {
 					}
 				}						
 			}
-        	setJavaHLHackMode(resourcesToCommit);
-			Map table = getCommitProviderMapping(resourcesToCommit);
-			Set keySet = table.keySet();
-			Iterator iterator = keySet.iterator();
-//	        monitor.beginTask(null, 100 * keySet.size());
-			while (iterator.hasNext()) {
-				ProjectAndRepository mapKey = (ProjectAndRepository)iterator.next();
+        	setAtomicCommitMode();
+        	Map<ProjectAndRepository, List<IResource>> table = getCommitProviderMapping(resourcesToCommit);
+			Set<ProjectAndRepository> keySet = table.keySet();
+			for (ProjectAndRepository mapKey : keySet) {
 				SVNTeamProvider provider = mapKey.getTeamProvider();
-				List list = (List)table.get(mapKey);
-				IResource[] providerResources = (IResource[])list.toArray(new IResource[list.size()]);
-				if(createAdminFolder(mapKey.getParent(), adminFolderName, providerResources))
-					cleanUpPathList = mapKey.getParent();
-//				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, 100));
+				List<IResource> list = table.get(mapKey);
+				IResource[] providerResources = new IResource[list.size()];
+				list.toArray(providerResources);
 				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, providerResources.length));
-				deleteAdminFolders(cleanUpPathList, adminFolderName);
 			}			
-//			for (int i = 0; i < selectedResources.length; i++) {
-//				IResource projectHandle = selectedResources[i].getProject();
-//				projectHandle.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-//			}		
         } catch (TeamException e) {
 			throw SVNException.wrapException(e);
-//		} catch (CoreException e) {
-//			throw SVNException.wrapException(e);
 		} finally {
 			monitor.done();
-			deleteAdminFolders(cleanUpPathList, adminFolderName);
 			// refresh the Synch view
 			if (configuration != null) {
 				SVNSynchronizeParticipant sync = (SVNSynchronizeParticipant) configuration.getParticipant();
@@ -147,103 +124,7 @@ public class CommitOperation extends SVNOperation {
 			}
 		}
     }
-
-    /**
-     * This method deletes any metadata folder that was produced during the commit
-     * process.  They were tracked in a List that is passed in to the method
-     * @param pathList
-     * @param adminFolderName
-     */
-    private void deleteAdminFolders(File pathList, String adminFolderName) {
-    	if (pathList == null) return;
-		File path = new File(pathList, adminFolderName);
-		deleteFolder(path);
-	}
-    
-    // Deletes all files and subdirectories under dir.
-    // Returns true if all delete was successful.
-    private static boolean deleteFolder(File folder) {
-        if (folder.isDirectory()) {
-            String[] children = folder.list();
-            for (int i=0; i< children.length; i++) {
-                if (!deleteFolder(new File(folder, children[i]))) {
-                    return false;
-                }
-            }
-        }
-    
-        // The folder should be empty so delete it
-        return folder.delete();
-    }
-    
-	/**
-	 * This method generate a Subversion metadata folder with an entries and format
-	 * file and a tmp folder.  It is used as a hack to trick commit into committing files from
-	 * two disjointed working copies from the same repository.
-	 * 
-	 * If the resource array contains any IProjects then it needs to create a more
-	 * detailed entries file because apparently Subversion will look more closely
-	 * at its contents in that scenario
-	 * UPDATE: prior to SVN 1.5 GA the above changed so that it appears we now always
-	 *         need to create the slightly more detailed entries file.
-	 * 
-	 * @param path             Folder to create admin folder beneath
-	 * @param adminFolderName  .svn or _svn
-	 * @param resources        Resources that will be committed
-	 * @return
-	 */
-	private boolean createAdminFolder(File path, String adminFolderName, IResource[] resources) {
-		if (!useJavaHLHack)
-			return false;
-		String url = null;
-		String uuid = null;
-		String time = null;
-		ISVNInfo info = null;
-		if (resources.length > 0) {
-			if (resources[0].getType() == IResource.PROJECT)
-				info = getSVNInfo(SVNWorkspaceRoot.getSVNResourceFor(resources[0]));
-			else
-				info = getSVNInfo(SVNWorkspaceRoot.getSVNResourceFor(resources[0].getProject()));
-			if (info != null) {
-				url = info.getRepository().toString();
-				uuid = info.getUuid();
-				time = "2008-01-01T21:03:13.980237Z"; // made up value
-			}
-		}
-		File admin = new File(path, adminFolderName);
-		if (admin.mkdir()) {
-			File tmp = new File(admin, "tmp");
-			tmp.mkdir();
-			File entries = new File(admin, "entries");
-			File format = new File(admin, "format");
-			try {
-				entries.createNewFile();
-				format.createNewFile();
-				FileWriter ew = new FileWriter(entries);
-				if (url == null)
-					ew.write("9\n");
-				else
-					ew.write("9\n\ndir\n0\n"
-								+ url
-								+ "\n"
-								+ url
-								+ "\n\n\n\n"
-								+ time
-								+ "\n0\n\n\n\nsvn:special svn:externals svn:needs-lock\n\n\n\n\n\n\n\n\n\n\n\n"
-								+ uuid + "\n\f\n");
-				ew.flush();
-				ew.close();
-				FileWriter fw = new FileWriter(format);
-				fw.write("9\n");
-				fw.flush();
-				fw.close();
-			} catch (IOException e) {
-			}
-				
-		} else
-			return false;
-		return true;
-	}
+   
 
 	/**
 	 * This method figures out of if we should commit with DEPTH_ZERO or DEPTH_INFINITE
@@ -275,33 +156,33 @@ public class CommitOperation extends SVNOperation {
         return Policy.bind("CommitOperation.taskName"); //$NON-NLS-1$;
     }
     
-	private Map getCommitProviderMapping(IResource[] resources) {
+	private Map<ProjectAndRepository, List<IResource>> getCommitProviderMapping(IResource[] resources) {
 		ProjectAndRepository mapKey = null;
-		Map result = new HashMap();
-		for (int i = 0; i < resources.length; i++) {
+		Map<ProjectAndRepository, List<IResource>> result = new HashMap<ProjectAndRepository, List<IResource>>();
+		for (IResource resource : resources) {
 			if (mapKey == null || !svnClient.canCommitAcrossWC()) {
-				SVNTeamProvider provider = (SVNTeamProvider) RepositoryProvider.getProvider(resources[i].getProject(), SVNProviderPlugin.getTypeId());
-				mapKey = new ProjectAndRepository(provider, getRootURL(SVNWorkspaceRoot.getSVNResourceFor(resources[i])));
+				SVNTeamProvider provider = (SVNTeamProvider) RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
+				mapKey = new ProjectAndRepository(provider, getRootURL(SVNWorkspaceRoot.getSVNResourceFor(resource)));
 			}
-			List list = (List)result.get(mapKey);
+			List<IResource> list = result.get(mapKey);
 			if (list == null) {
-				list = new ArrayList();
+				list = new ArrayList<IResource>();
 				result.put(mapKey, list);
 			}
-			list.add(resources[i]);
+			list.add(resource);
 		}
 		return result;
 	}
     
-	private Map getProviderMapping(IResource[] resources) {
-		RepositoryProvider provider = null;
-		Map result = new HashMap();
+	private Map<SVNTeamProvider, List<IResource>> getProviderMapping(IResource[] resources) {
+		SVNTeamProvider provider = null;
+		Map<SVNTeamProvider, List<IResource>> result = new HashMap<SVNTeamProvider, List<IResource>>();
 		for (int i = 0; i < resources.length; i++) {
 			if (provider == null || !svnClient.canCommitAcrossWC())
-				provider = RepositoryProvider.getProvider(resources[i].getProject(), SVNProviderPlugin.getTypeId());
-			List list = (List)result.get(provider);
+				provider = (SVNTeamProvider) RepositoryProvider.getProvider(resources[i].getProject(), SVNProviderPlugin.getTypeId());
+			List<IResource> list = result.get(provider);
 			if (list == null) {
-				list = new ArrayList();
+				list = new ArrayList<IResource>();
 				result.put(provider, list);
 			}
 			list.add(resources[i]);
@@ -310,7 +191,7 @@ public class CommitOperation extends SVNOperation {
 	}
 
 	private String getRootURL(ISVNLocalResource localResource) {
-		if (!useJavaHLHack)
+		if (!atomicCommit)
 			return null;
 		ISVNInfo info = getSVNInfo(localResource);
 		if (info == null)
@@ -322,7 +203,7 @@ public class CommitOperation extends SVNOperation {
 	}
 
 	private ISVNInfo getSVNInfo(ISVNLocalResource localResource) {
-		if (!useJavaHLHack)
+		if (!atomicCommit)
 			return null;
 		if (localResource == null)
 			return null;
@@ -355,7 +236,7 @@ public class CommitOperation extends SVNOperation {
 	}
 
 	private IResource[] reduceRoots(IResource[] roots) {
-		List rootArray = new ArrayList();
+		List<IResource> rootArray = new ArrayList<IResource>();
 		for (int i = 0; i < roots.length; i++) {
 			for (int j = 0; j < resourcesToCommit.length; j++) {
 				if (resourcesToCommit[j].getFullPath().toString().startsWith(roots[i].getFullPath().toString())) {
@@ -364,48 +245,31 @@ public class CommitOperation extends SVNOperation {
 				}
 			}		
 		}
-		roots = new IResource[rootArray.size()];
-		rootArray.toArray(roots);
-		return roots;
+		IResource[] reduced = new IResource[rootArray.size()];
+		rootArray.toArray(reduced);
+		return reduced;
 	}
 	
 	/**
-	 * This method performs an optmization to see if we need to implement
-	 * the commit hack of creating a metadata folder.  If all of the resources
-	 * belong to the same project we do not need to worry about the hack.
-	 * @param resources
+	 * This method sets the atomicCommit mode based on the user preference
+	 * and capabilities of the client adapter
 	 */
-	private void setJavaHLHackMode(IResource[] resources) {
+	private void setAtomicCommitMode() {
 		if (!SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK)) {
-			useJavaHLHack = false;
+			atomicCommit = false;
 			return;
 		}
 		
 		if (svnClient.canCommitAcrossWC()) {
-			useJavaHLHack = false;
+			atomicCommit = false;
 			return;
 	    }
-//
-// This was an optimization to turn this feature off when committing from
-// a single project.  The problem is that if the project uses svn:externals
-// from a different repository then you cannot commit everything together.
-// Removing this optimization makes it work since we group the commits by
-// repository.
-//
-//		Set projects = new HashSet();
-//		for (int i = 0; i < resources.length; i++) {
-//			projects.add(resources[i].getProject());
-//		}
-//		if (projects.size() < 2)
-//			useJavaHLHack = false;
 	}
 	
-	private class ProjectAndRepository {
+	protected class ProjectAndRepository {
 		
 		private SVNTeamProvider provider;
 		private String rootURL;
-		private String key;
-		private File parent;
 
 		public ProjectAndRepository(SVNTeamProvider provider, String rootURL) {
 			super();
@@ -424,69 +288,9 @@ public class CommitOperation extends SVNOperation {
 			return rootURL;
 		}
 		
-		private File getParent() {
-			if (parent == null) {
-				if (useJavaHLHack) {
-					parent = provider.getSVNWorkspaceRoot().getLocalRoot().getFile().getParentFile();
-					if (isWorkingCopy(parent)) {
-						// If the parent folder is part of a working copy
-						// return the top-most folder of that working copy
-						// this allows commits from folders with different
-						// parents in the same working copy to be committed
-						// as a single transaction.
-						parent = getWorkingCopyRoot(parent);
-					}
-				} else
-					parent = provider.getProject().getFullPath().toFile();
-				if (parent == null)
-					parent = provider.getSVNWorkspaceRoot().getLocalRoot().getFile();
-			}
-			return parent;
-		}
-		
-		/**
-		 * Given a folder that is currently managed by SVN, it returns
-		 * the top-most parent folder that is also managed by SVN.  This
-		 * could be the same folder passed to the function.
-		 * 
-		 * @param folder - a folder currently managed by SVN
-		 * @return - topmost folder in same working copy
-		 */
-		private File getWorkingCopyRoot(File folder) {
-			File parentFolder = folder.getParentFile();
-			if (isWorkingCopy(parentFolder)) {
-				return getWorkingCopyRoot(parentFolder);
-			} else {
-				return folder;
-			}
-		}
-
-		/**
-		 * Method requires a folder name.  It then checks if that folder
-		 * is part of a working copy, by returning whether it contains a
-		 * child folder named ".svn" or "_svn" as appropriate.
-		 * 
-		 * It does not verify that it is truly an SVN working copy.  The
-		 * goal here is to run as fast as possible.
-		 * 
-		 * @param folder - the folder to check
-		 * @return - whether that folder is part of a working copy
-		 */
-		private boolean isWorkingCopy(File folder) {
-			if (folder != null && folder.isDirectory()) {
-				return new File(folder, SVNProviderPlugin.getPlugin().getAdminDirectoryName()).exists();
-			}
-			return false;
-		}
 
 		private String getKey() {
-			if (key == null)
-				try {
-					key = getParent().getCanonicalPath() + rootURL;
-				} catch (IOException e) {
-					key = getParent().getAbsolutePath() + rootURL;
-				}
-			return key;
+			return rootURL;
 		}
 
 		public String toString() {
