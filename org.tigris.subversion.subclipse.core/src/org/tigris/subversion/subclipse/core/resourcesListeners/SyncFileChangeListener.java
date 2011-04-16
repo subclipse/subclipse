@@ -241,7 +241,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 				// we update the members. Refresh can be useful in case of revert etc ...
 				try {
 //					container.refreshLocal(IResource.DEPTH_ONE, Policy.subMonitorFor(monitor, 100, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK));
-					container.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+					container.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 				} catch (CoreException e) {
 					throw SVNException.wrapException(e);
 				}
