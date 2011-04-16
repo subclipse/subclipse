@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.core;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
@@ -31,7 +30,7 @@ public class SVNClientManager {
     private String svnAdminDir = ".svn";
     private File configDir = null;
     private boolean fetchChangePathOnDemand = true;
-    private HashMap clients = new HashMap();
+    private HashMap<String, ISVNClientAdapter> clients = new HashMap<String, ISVNClientAdapter>();
     
     public static final String UNABLE_TO_LOAD_DEFAULT_CLIENT = "Unable to load default SVN Client";
     
@@ -70,10 +69,9 @@ public class SVNClientManager {
 		this.configDir = configDir;
 //		if (configDir == null) return;
 		// Update configDir in stored clients
-		Set keys = clients.keySet();
-		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
-	    	ISVNClientAdapter svnClient = (ISVNClientAdapter) clients.get(key);
+		Set<String> keys = clients.keySet();
+		for (String key : keys) {
+	    	ISVNClientAdapter svnClient = clients.get(key);
 	    	if (svnClient != null) {
 	    		try {
 					svnClient.setConfigDirectory(configDir);
