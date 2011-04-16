@@ -96,25 +96,6 @@ public class SVNClientManager {
     	return svnClient;
     }
 
-    
-    /**
-     * @return a new ISVNClientAdapter for the client interface
-     *         Caller must call {@link ISVNClientAdapter#dispose()}
-     *         when they are done with it.
-     * @throws SVNClientException
-     */
-    public ISVNClientAdapter createSVNClient() throws SVNException {
-    	ISVNClientAdapter svnClient = this.getAdapter(svnClientInterface);
-  		svnClient = Activator.getDefault().getClientAdapter(svnClientInterface);
-   		if (svnClient == null) {
-   			svnClient = Activator.getDefault().getAnyClientAdapter();
-	    	if (svnClient == null)
-	    		throw new SVNException("No client adapters available.");
-   		}
-   		setupClientAdapter(svnClient);
-    	return svnClient;
-    }
-
 	private void setupClientAdapter(ISVNClientAdapter svnClient)
 			throws SVNException {
 		if (configDir != null) {
@@ -165,6 +146,14 @@ public class SVNClientManager {
 	public void setFetchChangePathOnDemand(
 			boolean fetchChangePathOnDemand) {
 		this.fetchChangePathOnDemand = fetchChangePathOnDemand;
+	}
+	
+	public void returnSVNClient(ISVNClientAdapter client) {
+		if (client.isThreadsafe())
+			return;
+		// For non-threadsafe clients we are done with the object so 
+		// let it clean up any resources it has allocated.
+		client.dispose();
 	}
 	
 }
