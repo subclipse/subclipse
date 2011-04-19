@@ -148,6 +148,13 @@ public class SummaryEditionNode
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder((RemoteFolder)resource);
 						node.setNodeType(nodeType);
+
+//						System.out.println(resource.getResource().getFullPath() + "/" + diffSummary[i].getPath());
+//						IFile localFile = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(resource.getResource().getFullPath() + "/" + diffSummary[i].getPath()));
+//						if (localFile != null) {
+//							System.out.println(localFile.getProjectRelativePath());
+//						}
+						
 						roots.add(node);				
 					}				
 				} else {

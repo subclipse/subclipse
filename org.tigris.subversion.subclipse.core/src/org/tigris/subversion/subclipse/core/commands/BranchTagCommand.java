@@ -68,7 +68,7 @@ public class BranchTagCommand implements ISVNCommand {
         try {
             monitor.beginTask(null, 100);
             if (svnClient == null) svnClient = root.getRepository().getSVNClient();
-            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
+            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
 //            monitor.subTask("Branch Tag");
             if (createOnServer) {
             	boolean copyAsChild = sourceUrls.length > 1;

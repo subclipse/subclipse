@@ -50,6 +50,7 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
             }
             if (remoteResource == null) remoteResource = resources[i].getRemoteResource(revision);
             remoteResourceNodes[i] = new ResourceEditionNode(remoteResource);
+            remoteResourceNodes[i].setLocalResource(localResourceNodes[i]);
         }
 	}
 

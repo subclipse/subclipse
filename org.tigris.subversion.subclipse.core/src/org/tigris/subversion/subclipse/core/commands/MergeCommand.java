@@ -55,7 +55,7 @@ public class MergeCommand implements ISVNCommand {
         try {
             monitor.beginTask(null, 100);
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
-            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
+            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
             monitor.subTask(resource.getName());
             File file = resource.getLocation().toFile();
             svnClient.merge(svnUrl1, svnRevision1, svnUrl2, svnRevision2, file, force, recurse, false, ignoreAncestry);

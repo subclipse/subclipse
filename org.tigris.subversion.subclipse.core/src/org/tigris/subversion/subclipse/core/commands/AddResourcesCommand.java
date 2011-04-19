@@ -122,7 +122,7 @@ public class AddResourcesCommand implements ISVNCommand {
         ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
         monitor.beginTask(null, files.size() + folders.size());
         monitor.setTaskName("Adding...");
-        OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor));
+        OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
         try {
             for(Iterator it=folders.iterator(); it.hasNext();) {
                 final ISVNLocalResource localResource = (ISVNLocalResource)it.next();

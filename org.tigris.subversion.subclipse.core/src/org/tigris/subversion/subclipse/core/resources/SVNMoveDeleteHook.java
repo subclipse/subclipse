@@ -162,7 +162,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             } catch (CoreException e) {
                 throw SVNException.wrapException(e);
             } finally {
-                OperationManager.getInstance().endOperation();
+                OperationManager.getInstance().endOperation(false);
             }
 
         } catch (SVNException e) {
@@ -219,7 +219,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             } catch (CoreException e) {
                 throw SVNException.wrapException(e);
             } finally {
-                OperationManager.getInstance().endOperation();
+                OperationManager.getInstance().endOperation(false);
             }
 
         } catch (SVNException e) {

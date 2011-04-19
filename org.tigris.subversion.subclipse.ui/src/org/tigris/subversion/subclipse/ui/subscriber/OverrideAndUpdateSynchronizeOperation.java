@@ -24,18 +24,14 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
-import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.RevertResourcesCommand;
 import org.tigris.subversion.subclipse.core.commands.UpdateResourcesCommand;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperation {
@@ -82,6 +78,9 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 	            monitor.done();
 			}
 		}
+		if (monitor.isCanceled()) {
+			return;
+		}
 		SVNRevision revision = SVNRevision.HEAD;
 		monitor.beginTask(null, 100);
 		try {	
@@ -98,6 +97,14 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 		}
 	}
 	
+	protected boolean canRunAsJob() {
+		return true;
+	}
+
+	protected String getJobName() {
+		return Policy.bind("SyncAction.override.title");
+	}
+
 	private IResource[] getIncoming(IResource[] resources) throws TeamException {
 		List incomingResources = new ArrayList();
 		for (int i = 0; i < resources.length; i++) {

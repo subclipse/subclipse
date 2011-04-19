@@ -75,6 +75,9 @@ public class EditConflictsSynchronizeOperation extends SVNSynchronizeOperation {
 	                    IFile conflictWorkingFile = (IFile) File2Resource
 	                            .getResource(svnResource.getStatus()
 	                                    .getConflictWorking());
+	                    if (conflictWorkingFile == null) {
+	                    	conflictWorkingFile = resource;
+	                    }
 	
 	                    IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin()
 	                            .getPreferenceStore();

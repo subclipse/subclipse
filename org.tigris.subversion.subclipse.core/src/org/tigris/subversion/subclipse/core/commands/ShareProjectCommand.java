@@ -99,7 +99,7 @@ public class ShareProjectCommand implements ISVNCommand {
 									svnClient.mkdir(url, true, message);
 
 								try {
-									OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm));
+									OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm, svnClient));
 									// checkout it so that we have .svn
 									// If directory already existed in repository, do recursive checkout.
 									svnClient.checkout(url, project.getLocation()

@@ -51,10 +51,10 @@ public class MarkMergedSynchronizeOperation extends SVNSynchronizeOperation {
         return true;
     }
 
-    protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+    protected void run(SVNTeamProvider provider, SyncInfoSet set, final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         final IResource[] resources = set.getResources();
         run(new WorkspaceModifyOperation() {
-            protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException {
+            protected void execute(IProgressMonitor mon) throws CoreException, InvocationTargetException, InterruptedException {
                for (int i = 0; i < resources.length; i++) {
                    File tempFile = null;
                    try {
@@ -64,10 +64,18 @@ public class MarkMergedSynchronizeOperation extends SVNSynchronizeOperation {
 	                    showErrorMessage(e);
 	                    return;
 	                }
+	                if (monitor.isCanceled()) {
+	                	if (tempFile != null) tempFile.delete();
+	                	return;
+	                }
                     ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
 					if (svnResource instanceof LocalResource) ((LocalResource)svnResource).revert(false);
 					else svnResource.revert();
 					new UpdateOperation(getPart(), resources[i], SVNRevision.HEAD).run(monitor);
+					if (monitor.isCanceled()) {
+						if (tempFile != null) tempFile.delete();
+						return;
+					}
 					File file = new File(resources[i].getLocation().toString());
 					try {
                         copy(tempFile, file);
@@ -78,10 +86,18 @@ public class MarkMergedSynchronizeOperation extends SVNSynchronizeOperation {
                     if (tempFile != null) tempFile.delete();
                }
             }          
-        }, false /* cancelable */, PROGRESS_BUSYCURSOR);
+        }, true /* cancelable */, PROGRESS_BUSYCURSOR);
     }
     
-    private void showErrorMessage(final Exception e) {
+    protected boolean canRunAsJob() {
+		return true;
+	}
+
+	protected String getJobName() {
+		return Policy.bind("SyncAction.markMerged");
+	}
+
+	private void showErrorMessage(final Exception e) {
     	Display.getDefault().syncExec(new Runnable() {
 			public void run() {
 				MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("SyncAction.markMerged"), e.getMessage()); //$NON-NLS-1$

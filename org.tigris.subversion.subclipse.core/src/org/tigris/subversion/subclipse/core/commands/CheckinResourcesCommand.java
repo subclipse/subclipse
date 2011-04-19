@@ -109,7 +109,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
                 	
                     pm.beginTask(null, resourceFiles.length);
                     pm.setTaskName("Checking in...");
-                    OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm));
+                    OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm, svnClient));
                     
                     svnClient.addNotifyListener(notifyListener);
                     

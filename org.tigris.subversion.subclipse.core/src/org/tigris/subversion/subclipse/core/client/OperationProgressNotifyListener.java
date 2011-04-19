@@ -14,7 +14,11 @@ import java.io.File;
 import java.text.DecimalFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProgressListener;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNProgressEvent;
 
@@ -27,6 +31,7 @@ import org.tigris.subversion.svnclientadapter.SVNProgressEvent;
 public class OperationProgressNotifyListener extends ISVNNotifyAdapter implements ISVNProgressListener {
 
 	private IProgressMonitor monitor = null;
+	private ISVNClientAdapter svnClient;
 	private File path;
 	private SVNProgressEvent progressEvent;
 	
@@ -39,6 +44,12 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter implement
 	{
 		super();
 		this.monitor = monitor;
+	}
+	
+	public OperationProgressNotifyListener(final IProgressMonitor monitor, ISVNClientAdapter svnClient)
+	{
+		this(monitor);
+		this.svnClient = svnClient;
 	}
 	
 	/**
@@ -80,6 +91,18 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter implement
 	}
 
 	public void onProgress(SVNProgressEvent progressEvent) {
+		
+		if (monitor != null && monitor.isCanceled()) {
+			if (svnClient != null) {
+				try {
+					svnClient.cancelOperation();
+				} catch (SVNClientException e) {
+					SVNProviderPlugin.log(SVNException.wrapException(e));
+				}
+			}
+			return;
+		}
+		
 		this.progressEvent = progressEvent;
 		
 		delta = progressEvent.getProgress();

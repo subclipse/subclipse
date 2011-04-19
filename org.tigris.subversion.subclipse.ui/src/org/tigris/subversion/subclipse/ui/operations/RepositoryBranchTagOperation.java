@@ -5,6 +5,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.BranchTagCommand;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -35,6 +36,7 @@ public class RepositoryBranchTagOperation extends SVNOperation {
 	        command.setMakeParents(makeParents);
 	        command.setMultipleTransactions(multipleTransactions);
 	    	command.run(Policy.subMonitorFor(monitor,1000));
+	    	SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);
 		} catch (SVNException e) {
 			if (e.operationInterrupted()) {
 				showCancelledMessage();

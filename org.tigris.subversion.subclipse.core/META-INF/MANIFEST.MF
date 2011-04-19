@@ -1,7 +1,8 @@
+Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.tigris.subversion.subclipse.core; singleton:=true
-Bundle-Version: 1.6.13
+Bundle-Version: 1.6.17
 Bundle-Activator: org.tigris.subversion.subclipse.core.SVNProviderPlugin
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -24,4 +25,4 @@ Export-Package: org.tigris.subversion.subclipse.core,
  org.tigris.subversion.subclipse.core.status,
  org.tigris.subversion.subclipse.core.sync,
  org.tigris.subversion.subclipse.core.util
-Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -64,6 +64,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button showOutOfDateFolders;
     private Button useJavaHLCommitHack;
     private Button shareNestedProjects;
+    private Button warnOnCommitToTagPath;
 //    private Button showUnadded;
 //    private Button selectUnadded;
     private Button removeOnReplace;
@@ -183,6 +184,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
 		shareNestedProjects = createCheckBox(composite, Policy.bind("SVNPreferencePage.shareNestedProjects")); //$NON-NLS-1$
 
+		warnOnCommitToTagPath = createCheckBox(composite, Policy.bind("SVNPreferencePage.warnOnCommitToTagPath")); //$NON-NLS-1$
+		
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
 		createLabel(composite, Policy.bind("SVNPreferencePage.logEntriesToFetch"), 1); //$NON-NLS-1$
@@ -320,6 +323,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 
 		shareNestedProjects.setSelection(SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHARE_NESTED_PROJECTS));
 
+		warnOnCommitToTagPath.setSelection(!SVNUIPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNUIConstants.PREF_COMMIT_TO_TAGS_PATH_WITHOUT_WARNING));
+
 //		showUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT));
 //		
 //		selectUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT));
@@ -392,6 +397,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		}
 
 		SVNProviderPlugin.getPlugin().getPluginPreferences().setValue(ISVNCoreConstants.PREF_SHARE_NESTED_PROJECTS, shareNestedProjects.getSelection());
+		
+		SVNUIPlugin.getPlugin().getPluginPreferences().setValue(ISVNUIConstants.PREF_COMMIT_TO_TAGS_PATH_WITHOUT_WARNING, !warnOnCommitToTagPath.getSelection());
 		
 //		store.setValue(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT, showUnadded.getSelection());
 

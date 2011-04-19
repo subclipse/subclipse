@@ -29,6 +29,7 @@ import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -70,6 +71,7 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 	        command.setMakeParents(makeParents);
 	        command.setMultipleTransactions(multipleTransactions);
 	    	command.run(Policy.subMonitorFor(monitor,1000));
+	    	SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);
 	        if (newAlias != null) updateBranchTagProperty(resources[0]);
 	        if(switchAfterTagBranch) {
 	        	for (int i = 0; i < sourceUrls.length; i++) {
