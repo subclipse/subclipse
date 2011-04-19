@@ -377,8 +377,9 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 		String url = status.getUrlString();
 		if (url == null && !(status.getTextStatus() == SVNStatusKind.UNVERSIONED) 
 				&& !(status.getTextStatus() == SVNStatusKind.IGNORED)) {
+			ISVNClientAdapter svnClient = null;
 		    try { 
-		    	ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
+		    	svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
 		        SVNProviderPlugin.disableConsoleLogging(); 
 		    	ISVNInfo info = svnClient.getInfoFromWorkingCopy(status.getFile());
 		    	SVNUrl svnurl = info.getUrl();
@@ -386,7 +387,8 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 		    } catch (SVNException e) {
 			} catch (SVNClientException e) {
 			} finally {
-		        SVNProviderPlugin.enableConsoleLogging(); 
+		        SVNProviderPlugin.enableConsoleLogging();
+		        SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
 			}
 		}
 		return url;

@@ -176,7 +176,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
         for (Iterator it = foldersToRefresh.iterator(); it.hasNext();) {
             IResource folder = (IResource) it.next();
     		try {
-                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)folder, false);
+                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)folder, true);
     		} catch (SVNException e) {
     			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
     		}

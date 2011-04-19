@@ -613,13 +613,17 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		boolean valueIsGnomeKeyring = false;
 		File configFile = getConfigFile();
 		if (!configFile.exists()) {
+			ISVNClientAdapter client = null;
 			try {
 				// This is ja hack to cause the config file to be created so that we
 				// can offer to fix it.  We are using a non-existant path so that it will
 				// just end quickly.
-				ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+				client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 				client.cleanup(new File("/This/is/just/a/dummy/file"));
 			} catch (Exception e) {}
+			finally {
+				SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+			}
 		}
 		if (!configFile.exists()) return false;
 	   	BufferedReader input = null;

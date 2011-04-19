@@ -158,6 +158,7 @@ public class AddResourcesCommand implements ISVNCommand {
         } finally {
             OperationManager.getInstance().endOperation();
             monitor.done();
+            root.getRepository().returnSVNClient(svnClient);
         }
     }
     

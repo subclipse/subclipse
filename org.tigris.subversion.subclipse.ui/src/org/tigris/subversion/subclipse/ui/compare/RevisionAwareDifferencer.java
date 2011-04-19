@@ -52,16 +52,19 @@ public final class RevisionAwareDifferencer extends Differencer {
     }
     public RevisionAwareDifferencer(SVNLocalResourceNode left,ResourceEditionNode right, File diffFile) {
     	if (diffFile == null) {
+    		ISVNClientAdapter client = null;
         	try {
     			diffSummary = null;
 
-        		ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+        		client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
            		diffSummary = client.diffSummarize(left.getLocalResource().getUrl(), left.getLocalResource().getRevision(), right.getRemoteResource().getUrl(),
             			right.getRemoteResource().getRevision(), Depth.infinity, true);
            		projectRelativePath = left.getLocalResource().getResource().getProjectRelativePath().toString();
            		if (left.getLocalResource().isFolder() && projectRelativePath.length() > 0) projectRelativePath = projectRelativePath + "/";
         	} catch (Exception e) {
-        	}    		
+            } finally {
+              SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+            }
     	} else {
     		diffFiles = new File[1];
     		diffFiles[0] = diffFile;

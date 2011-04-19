@@ -124,12 +124,6 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 										
 					if(isEntries(resource)) {
 						toBeNotified = handleChangedEntries(resource, kind);
-					} else
-					if(isDirProps(resource)) {
-						toBeNotified = handleChangedDirProps(resource, kind);
-					} else
-					if(isPropFile(resource)) {
-						toBeNotified = handleChangedPropFile(resource, kind);
 					}
 					
                     if(toBeNotified != null) {    
@@ -194,78 +188,9 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 		
 		return false;
 	}
-
-	/*
-	 * Tells if this resource is a subversion "dir-props" file 
-	 */	
-	protected boolean isDirProps(IResource resource) {
-		if (resource.getType() != IResource.FILE ||
-				!resource.getName().equals(SVNConstants.SVN_DIRPROPS)) {     
-				return false;
-			}
-
-		IContainer parent = resource.getParent();		
-		
-		if ((parent != null) && 
-			(SVNProviderPlugin.getPlugin().isAdminDirectory(parent.getName())) && 
-			(parent.isTeamPrivateMember() || !parent.exists()) ) {
-			return true;
-		}
-		
-		return false;		
-	}
-
-	/*
-	 * Tells if this resource is a subversion prop file 
-	 */	
-	protected boolean isPropFile(IResource resource) {
-		
-		// first we verify this is a file
-		if (resource.getType() != IResource.FILE) {
-			return false;
-		}
-		
-		// we then verify that parent is props
-		IContainer parent = resource.getParent();		
-		if ((parent == null)  || 
-		    (!parent.getName().equals(SVNConstants.SVN_PROPS)) ) {
-			return false;
-		}
-		
-		// we then verify that grand-father is svn
-		parent = parent.getParent();
-		if ((parent != null) && 
-			(SVNProviderPlugin.getPlugin().isAdminDirectory(parent.getName())) && 
-			(parent.isTeamPrivateMember() || !parent.exists()) ) {
-			return true;
-		}
-		
-		return false;		
-	}
-
 	
 	protected IContainer handleChangedEntries(IResource resource, int kind) {		
 		IContainer changedContainer = resource.getParent();
-		IContainer parent           = changedContainer.getParent();
-		if((parent != null) && parent.exists()) {
-			return changedContainer;
-		} else {
-			return null;
-		}
-	}
-
-	protected IContainer handleChangedDirProps(IResource resource, int kind) {		
-		IContainer changedContainer = resource.getParent();
-		IContainer parent           = changedContainer.getParent();
-		if((parent != null) && parent.exists()) {
-			return changedContainer;
-		} else {
-			return null;
-		}
-	}
-
-	protected IContainer handleChangedPropFile(IResource resource, int kind) {		
-		IContainer changedContainer = resource.getParent().getParent();
 		IContainer parent           = changedContainer.getParent();
 		if((parent != null) && parent.exists()) {
 			return changedContainer;
@@ -311,7 +236,7 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 				// we update the members. Refresh can be useful in case of revert etc ...
 				try {
 //					container.refreshLocal(IResource.DEPTH_ONE, Policy.subMonitorFor(monitor, 100, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK));
-					container.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+					container.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 				} catch (CoreException e) {
 					throw SVNException.wrapException(e);
 				}

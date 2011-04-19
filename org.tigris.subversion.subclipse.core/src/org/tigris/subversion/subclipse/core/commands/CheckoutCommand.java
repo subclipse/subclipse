@@ -263,8 +263,8 @@ public class CheckoutCommand implements ISVNCommand {
 					{
 						subMonitor.beginTask(null, children.length * 100);
 					}
+					ISVNClientAdapter clientSilent = null;
 					try {
-						ISVNClientAdapter clientSilent = null;
 						for (int j = 0; j < children.length; j++) {
 							if (!children[j].getName().equals(".project")) {//$NON-NLS-1$
 								if (clientSilent == null)
@@ -291,6 +291,7 @@ public class CheckoutCommand implements ISVNCommand {
 						{
 							subMonitor.done();
 						}
+						SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(clientSilent);
 					}
 				} else if (project != null) {
 					// Make sure there is no directory in the local file system.

@@ -73,8 +73,9 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 	protected Control createDialogArea(Composite parent) {
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
+				ISVNClientAdapter client = null;
 				try {
-					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+					client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 			        SVNProviderPlugin.disableConsoleLogging(); 
 				    svnInfo = client.getInfo(remoteResource.getUrl());
 				    properties = client.getProperties(remoteResource.getUrl());
@@ -82,6 +83,8 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 				} catch (Exception e) { 
 					errorMessage = e.getMessage();
 			        SVNProviderPlugin.enableConsoleLogging(); 
+				} finally {
+					SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 				}
 			}			
 		});

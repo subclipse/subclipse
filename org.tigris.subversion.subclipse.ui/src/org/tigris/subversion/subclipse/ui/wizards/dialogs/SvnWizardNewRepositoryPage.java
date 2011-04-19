@@ -103,6 +103,7 @@ public class SvnWizardNewRepositoryPage extends SvnWizardDialogPage {
 		success = true;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
+				ISVNClientAdapter svnClient = null;
 				try {
 					SVNProviderPlugin provider = SVNProviderPlugin.getPlugin();
 					String url = getUrl();
@@ -111,7 +112,7 @@ public class SvnWizardNewRepositoryPage extends SvnWizardDialogPage {
 						success = false;
 						return;
 					}
-					ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
+					svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
 					File path = new File(folderText.getText().trim());
 					if (!path.exists()) path.mkdirs();
 					svnClient.createRepository(path, ISVNClientAdapter.REPOSITORY_FSTYPE_FSFS);
@@ -124,6 +125,8 @@ public class SvnWizardNewRepositoryPage extends SvnWizardDialogPage {
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("NewRepositoryDialog.title"), e.getLocalizedMessage()); //$NON-NLS-1$
 					success = false;
+				} finally {
+					SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
 				}
 			}			
 		});

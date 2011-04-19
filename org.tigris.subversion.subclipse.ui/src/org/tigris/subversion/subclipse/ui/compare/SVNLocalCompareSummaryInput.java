@@ -93,6 +93,7 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 			Object[] result = new Object[] { null };
 			ArrayList resourceSummaryNodeList = new ArrayList();
 			ArrayList summaryEditionNodeList = new ArrayList();
+			ISVNClientAdapter client = null;
 			try {
 				for (int i = 0; i < resources.length; i++) {
 					ISVNLocalResource resource = resources[i];
@@ -104,7 +105,7 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 				        RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
 				        diffSummary = getDiffSummary(statuses, resource);
 					} else {
-						ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+						client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 						diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
 					}
 					if (diffSummary != null && diffSummary.length > 0) {
@@ -138,6 +139,7 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 				}
 			} finally {
 				sub.done();
+				SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 			}
 			if (result[0] instanceof DiffNode) {
 		       	DiffNode diffNode = (DiffNode)result[0];

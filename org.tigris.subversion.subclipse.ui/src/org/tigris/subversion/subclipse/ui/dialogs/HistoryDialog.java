@@ -279,8 +279,9 @@ public class HistoryDialog extends TrayDialog {
     }
     
     private boolean tagsPropertySet(ISVNRemoteResource res) {
+    	ISVNClientAdapter client = null;
 		try {
-			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
+			client = SVNProviderPlugin.getPlugin().getSVNClient();
 			ISVNProperty property = null;
 	        SVNProviderPlugin.disableConsoleLogging(); 
 			property = client.propertyGet(res.getUrl(), "subclipse:tags"); //$NON-NLS-1$
@@ -288,6 +289,8 @@ public class HistoryDialog extends TrayDialog {
 			if (property != null && property.getValue() != null) return true;
 		} catch (Exception e) {        
 			SVNProviderPlugin.enableConsoleLogging(); 
+		} finally {
+			SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 		}
 		return false;
   }   

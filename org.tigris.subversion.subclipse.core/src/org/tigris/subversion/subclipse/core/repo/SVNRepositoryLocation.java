@@ -281,6 +281,10 @@ public class SVNRepositoryLocation
     		svnClient.setPassword(password);
     	return svnClient;
     }
+    
+    public void returnSVNClient(ISVNClientAdapter client) {
+    	SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+    }
 
     /*
      * Implementation of inherited toString()
@@ -545,7 +549,9 @@ public class SVNRepositoryLocation
     		throw SVNException.wrapException(e);
     	} catch (SVNClientException e) {
     		throw SVNException.wrapException(e);
-        }        	  	
+        } finally {
+	        SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
+        }
     }
 
 //	public static IUserAuthenticator getAuthenticator() {

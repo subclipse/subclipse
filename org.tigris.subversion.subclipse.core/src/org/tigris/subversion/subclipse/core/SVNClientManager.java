@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.core;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
@@ -31,7 +30,7 @@ public class SVNClientManager {
     private String svnAdminDir = ".svn";
     private File configDir = null;
     private boolean fetchChangePathOnDemand = true;
-    private HashMap clients = new HashMap();
+    private HashMap<String, ISVNClientAdapter> clients = new HashMap<String, ISVNClientAdapter>();
     
     public static final String UNABLE_TO_LOAD_DEFAULT_CLIENT = "Unable to load default SVN Client";
     
@@ -70,10 +69,9 @@ public class SVNClientManager {
 		this.configDir = configDir;
 //		if (configDir == null) return;
 		// Update configDir in stored clients
-		Set keys = clients.keySet();
-		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
-	    	ISVNClientAdapter svnClient = (ISVNClientAdapter) clients.get(key);
+		Set<String> keys = clients.keySet();
+		for (String key : keys) {
+	    	ISVNClientAdapter svnClient = clients.get(key);
 	    	if (svnClient != null) {
 	    		try {
 					svnClient.setConfigDirectory(configDir);
@@ -95,25 +93,6 @@ public class SVNClientManager {
     	}
     	if (svnClient == null)
     		throw new SVNException("No client adapters available.");
-    	return svnClient;
-    }
-
-    
-    /**
-     * @return a new ISVNClientAdapter for the client interface
-     *         Caller must call {@link ISVNClientAdapter#dispose()}
-     *         when they are done with it.
-     * @throws SVNClientException
-     */
-    public ISVNClientAdapter createSVNClient() throws SVNException {
-    	ISVNClientAdapter svnClient = this.getAdapter(svnClientInterface);
-  		svnClient = Activator.getDefault().getClientAdapter(svnClientInterface);
-   		if (svnClient == null) {
-   			svnClient = Activator.getDefault().getAnyClientAdapter();
-	    	if (svnClient == null)
-	    		throw new SVNException("No client adapters available.");
-   		}
-   		setupClientAdapter(svnClient);
     	return svnClient;
     }
 
@@ -167,6 +146,15 @@ public class SVNClientManager {
 	public void setFetchChangePathOnDemand(
 			boolean fetchChangePathOnDemand) {
 		this.fetchChangePathOnDemand = fetchChangePathOnDemand;
+	}
+	
+	public void returnSVNClient(ISVNClientAdapter client) {
+		if (client == null || client.isThreadsafe())
+			return;
+		// For non-threadsafe clients we are done with the object so 
+		// let it clean up any resources it has allocated.
+		// client.dispose();
+		client = null;
 	}
 	
 }

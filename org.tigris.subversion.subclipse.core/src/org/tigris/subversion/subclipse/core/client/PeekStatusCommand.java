@@ -15,6 +15,7 @@ import java.io.File;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
@@ -49,7 +50,8 @@ public class PeekStatusCommand {
         this.path     = path;
     }
 
-    public void execute(ISVNClientAdapter client) throws SVNException {
+    public void execute() throws SVNException {
+    	ISVNClientAdapter client = null;
         ISVNNotifyListener revisionListener = new ISVNNotifyListener() {
             public void setCommand(int command) {}
             public void logCommandLine(String commandLine) {}
@@ -63,6 +65,7 @@ public class PeekStatusCommand {
         };
 
         try{
+            client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
             client.addNotifyListener( revisionListener );
             File file;
             if (resource != null)
@@ -86,6 +89,7 @@ public class PeekStatusCommand {
         }
         finally {
             client.removeNotifyListener( revisionListener );
+            SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
         }
     }
 

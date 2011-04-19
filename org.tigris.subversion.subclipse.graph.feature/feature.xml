@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.subclipse.graph.feature"
       label="Subversion Revision Graph"
-      version="1.0.9"
+      version="1.1.0"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.subclipse.graph"
       colocation-affinity="org.tigris.subversion.subclipse">
@@ -20,14 +20,14 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.6.x"/>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.8.x"/>
    </url>
 
    <requires>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.tigris.subversion.subclipse.core"/>
+      <import plugin="org.tigris.subversion.subclipse.core" version="1.7.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.team.core"/>
       <import plugin="org.eclipse.team.ui"/>
       <import plugin="org.eclipse.jface.text"/>

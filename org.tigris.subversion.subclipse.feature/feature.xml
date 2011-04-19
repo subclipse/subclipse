@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.subclipse"
       label="Subclipse (Required)"
-      version="1.6.17"
+      version="1.7.0"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.subclipse.core"
       colocation-affinity="org.tigris.subversion.subclipse">
@@ -21,25 +21,26 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.6.x"/>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.8.x"/>
    </url>
 
    <requires>
       <import plugin="org.eclipse.core.resources" version="3.2.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.team.core" version="3.2.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime" version="3.2.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.osgi"/>
+      <import plugin="org.tigris.subversion.clientadapter" version="1.7.0" match="equivalent"/>
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.team.ui"/>
       <import plugin="org.eclipse.compare"/>
       <import plugin="org.eclipse.ui.console"/>
       <import plugin="org.eclipse.help"/>
-      <import plugin="org.tigris.subversion.clientadapter" version="1.6.12" match="equivalent"/>
+      <import plugin="org.eclipse.ui.forms"/>
+      <import plugin="org.eclipse.osgi" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui" version="3.2.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

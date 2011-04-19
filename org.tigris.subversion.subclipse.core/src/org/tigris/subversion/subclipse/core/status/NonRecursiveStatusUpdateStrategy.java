@@ -49,8 +49,9 @@ public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
         // that is not associated with a known repository
         // we don't need login & password so this is not a problem
         ISVNStatus[] statuses = null;
+        ISVNClientAdapter svnClientAdapterStatus = null;
         try {
-            ISVNClientAdapter svnClientAdapterStatus = SVNProviderPlugin.getPlugin().getSVNClient();
+            svnClientAdapterStatus = SVNProviderPlugin.getPlugin().getSVNClient();
             SVNProviderPlugin.disableConsoleLogging(); 
             statuses = svnClientAdapterStatus.getStatus(
                     resourceToUpdate.getLocation().toFile(),
@@ -59,7 +60,8 @@ public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
         } catch (SVNClientException e1) {
             throw SVNException.wrapException(e1);
         } finally {
-            SVNProviderPlugin.enableConsoleLogging(); 
+            SVNProviderPlugin.enableConsoleLogging();
+            SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClientAdapterStatus);
         }
         return statuses;
 	}
