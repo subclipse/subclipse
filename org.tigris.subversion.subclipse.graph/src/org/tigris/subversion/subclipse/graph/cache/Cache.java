@@ -89,8 +89,9 @@ public class Cache {
 		
 		startTempUpdate();
 		RandomAccessFile file = null;
+		ISVNClientAdapter client = null;
 		try {
-			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
+			client = SVNProviderPlugin.getPlugin().getSVNClient();
 			file = new RandomAccessFile(logMessagesFile, "r");
 			int revInt = new Long(getLatestRevision()).intValue();
 			while(file.getFilePointer() < file.length()) {
@@ -127,6 +128,7 @@ public class Cache {
 			
 		} finally {
 			closeFile(file);
+			SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 		}
 		finishTempUpdate();
 		if (monitor.isCanceled()) {

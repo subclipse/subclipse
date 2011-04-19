@@ -25,11 +25,14 @@ public class DeleteCacheAction extends SVNAction {
 		error = null;
 		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 			public void run() {
+				ISVNClientAdapter client = null;
 				try {
-					ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
+					client = SVNProviderPlugin.getPlugin().getSVNClient();
 					info = client.getInfo(selectedFolders[0].getUrl());
 				} catch (Exception e) {
 					error = e;
+				} finally {
+					SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 				}
 			}				
 		});

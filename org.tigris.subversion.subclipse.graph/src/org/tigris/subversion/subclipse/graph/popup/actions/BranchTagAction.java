@@ -56,9 +56,10 @@ public class BranchTagAction extends Action {
             try {
                 BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
                     public void run() {
+                      ISVNClientAdapter client = null;
                       try {
                     	if (resource == null) {
-	                        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+	                        client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 	                        client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
                     	} else {
                     		IResource[] resources = { resource };
@@ -71,6 +72,8 @@ public class BranchTagAction extends Action {
                       } catch(Exception e) {
                         MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("HistoryView.createTagFromRevision"), e
                             .getMessage());
+                      } finally {
+                    	  SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
                       }
                     }
                   });

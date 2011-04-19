@@ -68,8 +68,9 @@ public class GraphBackgroundTask extends SVNOperation {
 		Cache cache = null;
 		monitor.beginTask("Calculating graph information", TOTAL_STEPS);
 		monitor.worked(SHORT_TASK_STEPS);
+		ISVNClientAdapter client = null;
 		try {
-			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
+			client = SVNProviderPlugin.getPlugin().getSVNClient();
 			ISVNInfo info;
 			if (resource == null) info = client.getInfo(remoteResource.getUrl());
 			else {
@@ -180,7 +181,7 @@ public class GraphBackgroundTask extends SVNOperation {
 		} finally {
 			if(cache != null)
 				cache.close();
-			// TODO: clean up ISVNClientAdapter ?
+			SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 		}
 	}
 	
