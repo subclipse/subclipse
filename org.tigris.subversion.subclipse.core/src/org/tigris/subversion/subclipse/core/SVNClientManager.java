@@ -149,11 +149,12 @@ public class SVNClientManager {
 	}
 	
 	public void returnSVNClient(ISVNClientAdapter client) {
-		if (client.isThreadsafe())
+		if (client == null || client.isThreadsafe())
 			return;
 		// For non-threadsafe clients we are done with the object so 
 		// let it clean up any resources it has allocated.
-		client.dispose();
+		// client.dispose();
+		client = null;
 	}
 	
 }

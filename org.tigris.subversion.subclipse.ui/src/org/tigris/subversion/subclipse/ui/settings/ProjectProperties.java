@@ -269,15 +269,17 @@ public class ProjectProperties {
     }
     
     private static ISVNProperty getSvnProperty(File file, String name) throws SVNException {
+    	ISVNClientAdapter svnClient = null;
 		try {
-			ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
+			svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
 	        SVNProviderPlugin.disableConsoleLogging(); 
 			ISVNProperty prop = svnClient.propertyGet(file, name);
 	        return prop;
 		} catch (SVNClientException e) {
 	        throw SVNException.wrapException(e); 
 		} finally {
-	        SVNProviderPlugin.enableConsoleLogging(); 
+	        SVNProviderPlugin.enableConsoleLogging();
+	        SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
 		}
     }
     

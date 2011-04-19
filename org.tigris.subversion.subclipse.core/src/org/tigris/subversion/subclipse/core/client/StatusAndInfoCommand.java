@@ -53,11 +53,14 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
      * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void run(IProgressMonitor monitor) throws SVNException {
+    	ISVNClientAdapter svnClient = null;
         try { 
-            ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
+            svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
             execute(svnClient, monitor);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
+        } finally {
+        	SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
         }
     }
 

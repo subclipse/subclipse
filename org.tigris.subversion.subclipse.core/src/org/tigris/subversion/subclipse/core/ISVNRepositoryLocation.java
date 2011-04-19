@@ -99,7 +99,9 @@ public interface ISVNRepositoryLocation  extends IAdaptable {
     public void updateCache() throws SVNException;
     
     
-	public ISVNClientAdapter getSVNClient() throws SVNException;	
+	public ISVNClientAdapter getSVNClient() throws SVNException;
+	
+	public void returnSVNClient(ISVNClientAdapter client);
 	
     public ISVNRemoteFolder getRootFolder();
     

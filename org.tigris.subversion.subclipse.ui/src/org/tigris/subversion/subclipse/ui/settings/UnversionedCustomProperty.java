@@ -74,8 +74,9 @@ public class UnversionedCustomProperty {
   }
   
   public static ISVNProperty[] getSvnRevisionProperties(final SVNUrl url, final SVNRevision revision, final SVNRevision peg, final boolean customOnly) throws SVNException {
-    try {
-        ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
+    ISVNClientAdapter svnClient = null;
+	try {
+        svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
         SVNProviderPlugin.disableConsoleLogging(); 
         ISVNProperty[] props = svnClient.getRevProperties(url, (SVNRevision.Number)revision);
         if (customOnly) 
@@ -84,7 +85,8 @@ public class UnversionedCustomProperty {
     } catch (SVNClientException e) {
         throw SVNException.wrapException(e); 
     } finally {
-        SVNProviderPlugin.enableConsoleLogging(); 
+        SVNProviderPlugin.enableConsoleLogging();
+        SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
     }
   }  
   

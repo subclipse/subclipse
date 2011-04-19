@@ -474,8 +474,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
   
   private boolean tagsPropertySet(ISVNRemoteResource resource) {
+	    ISVNClientAdapter client = null;
 		try {
-			ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
+			client = SVNProviderPlugin.getPlugin().getSVNClient();
 			ISVNProperty property = null;
 	        SVNProviderPlugin.disableConsoleLogging(); 
 			property = client.propertyGet(resource.getUrl(), "subclipse:tags"); //$NON-NLS-1$
@@ -494,6 +495,8 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 			}
 		} catch (Exception e) {        
 			SVNProviderPlugin.enableConsoleLogging(); 
+		} finally {
+			SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 		}
 		return false;
   }
@@ -1286,6 +1289,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 					final File destPath = target;
 					BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 						public void run() {
+							ISVNClientAdapter client = null;
 							try {		
 								IStructuredSelection sel = (IStructuredSelection)changePathsViewer.getSelection();
 								if (sel.getFirstElement() instanceof LogEntryChangePath) {
@@ -1296,13 +1300,15 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 							    		rev--;
 							    		revision = new SVNRevision.Number(rev);
 									}
-									ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
+									client = SVNProviderPlugin.getPlugin().getSVNClient();
 									client.copy(changePath.getUrl(), destPath, revision, revision, true, false);
 									targetProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 									SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);
 								}
 							} catch (Exception e) {
 								MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("HistoryView.copyError"), e.getMessage()); //$NON-NLS-1$
+							} finally {
+								SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 							}
 						}						
 					});
@@ -1398,13 +1404,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                 try {
                     BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
                         public void run() {
+                          ISVNClientAdapter client = null;
                           try {
-                            ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+                            client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
                             client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
                             SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);                         
                           } catch(Exception e) {
                             MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e //$NON-NLS-1$
                                 .getMessage());
+                          } finally {
+                        	SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client); 
                           }
                         }
                       });
@@ -1789,13 +1798,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
                 if(resource == null) {
                   BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
                     public void run() {
+                      ISVNClientAdapter client = null;
                       try {
-                        ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+                        client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
                         client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
                         SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);
                       } catch(Exception e) {
                         MessageDialog.openError(getSite().getShell(), Policy.bind("HistoryView.createTagFromRevision"), e //$NON-NLS-1$
                             .getMessage());
+                      } finally {
+                    	  SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
                       }
                     }
                   });

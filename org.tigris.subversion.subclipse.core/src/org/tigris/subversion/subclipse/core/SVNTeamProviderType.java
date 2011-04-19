@@ -180,8 +180,10 @@ public class SVNTeamProviderType extends RepositoryProviderType {
          */
         protected IStatus run(IProgressMonitor monitor) {
 			monitor.beginTask(null, IProgressMonitor.UNKNOWN);
+			SVNProviderPlugin plugin = SVNProviderPlugin.getPlugin();
+			SVNClientManager svnClientManager = plugin.getSVNClientManager();
+			ISVNClientAdapter client = null;
 			try{
-				SVNProviderPlugin plugin = SVNProviderPlugin.getPlugin();
 				
 				if (plugin == null || plugin.getSimpleDialogsHelper() == null){
 					if (++reschedCount > MAX_RETRIES){
@@ -202,8 +204,7 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 					return Status.OK_STATUS;
 				}
 						
-				SVNClientManager svnClientManager = plugin.getSVNClientManager();
-				ISVNClientAdapter client = svnClientManager.getSVNClient();
+				client = svnClientManager.getSVNClient();
 
 				File file = project.getLocation().toFile();
 				client.addDirectory(file, false);
@@ -217,6 +218,7 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 				return Status.CANCEL_STATUS;
 			}finally{
 				monitor.done();
+				svnClientManager.returnSVNClient(client);
 			}
 			return Status.OK_STATUS;
         }

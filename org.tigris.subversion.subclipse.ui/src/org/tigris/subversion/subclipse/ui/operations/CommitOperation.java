@@ -60,7 +60,8 @@ public class CommitOperation extends SVNOperation {
     protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
     	monitor.beginTask(null, resourcesToAdd.length + resourcesToDelete.length + resourcesToCommit.length);
         try {
-        	svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+        	if (svnClient == null)
+        		svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
         	if (resourcesToAdd.length > 0) {
 			    Map<SVNTeamProvider, List<IResource>> table = getProviderMapping(resourcesToAdd);
 				if (table.get(null) != null) {
@@ -95,6 +96,8 @@ public class CommitOperation extends SVNOperation {
 						svnDeleteClient.remove(files, true);
 					} catch (SVNClientException e) {
 						throw new TeamException(e.getMessage());
+					} finally {
+						SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnDeleteClient);
 					}
 				}						
 			}
@@ -112,6 +115,7 @@ public class CommitOperation extends SVNOperation {
 			throw SVNException.wrapException(e);
 		} finally {
 			monitor.done();
+			SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
 			// refresh the Synch view
 			if (configuration != null) {
 				SVNSynchronizeParticipant sync = (SVNSynchronizeParticipant) configuration.getParticipant();
@@ -210,10 +214,12 @@ public class CommitOperation extends SVNOperation {
 		File file = localResource.getFile();
 		if (file == null)
 			return null;
-    	try {
-			svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
-		} catch (SVNException e) {
-			return null;
+		if (svnClient == null) {
+	    	try {
+				svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+			} catch (SVNException e) {
+				return null;
+			}
 		}
     	ISVNInfo info;
 		try {

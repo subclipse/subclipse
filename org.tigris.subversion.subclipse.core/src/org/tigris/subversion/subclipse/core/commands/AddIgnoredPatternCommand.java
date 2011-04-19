@@ -75,6 +75,7 @@ public class AddIgnoredPatternCommand implements ISVNCommand {
         } finally {
             OperationManager.getInstance().endOperation();
             monitor.done();
+            folder.getRepository().returnSVNClient(svnClient);
         }
 	}
 

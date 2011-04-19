@@ -41,8 +41,8 @@ public class RepositoryBranchTagAction extends SVNAction {
           String message = wizard.getComment();
           SVNRevision revision = wizard.getRevision();
           boolean makeParents = wizard.isMakeParents();
+		  ISVNClientAdapter client = null;
 		  try {
-			  ISVNClientAdapter client = null;
 			  ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrls[0].toString());
 			  if (repository != null)
 			  	client = repository.getSVNClient();
@@ -53,7 +53,9 @@ public class RepositoryBranchTagAction extends SVNAction {
 			  branchTagOperation.run();
 		  } catch (Exception e) {
 			  MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
-		  }  		
+		  } finally {
+              SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+		  }
     	}
 //		SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[0]);
 //    	SvnWizard wizard = new SvnWizard(branchTagPage);

@@ -425,15 +425,17 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#getSvnProperty(java.lang.String)
 	 */
 	public ISVNProperty getSvnProperty(String name) throws SVNException {
+		ISVNClientAdapter svnClient = null;
 		try {
-			ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
+			svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
 	        SVNProviderPlugin.disableConsoleLogging(); 
 			ISVNProperty prop = svnClient.propertyGet(getFile(),name);
 	        return prop;
 		} catch (SVNClientException e) {
 	        throw SVNException.wrapException(e); 
 		} finally {
-	        SVNProviderPlugin.enableConsoleLogging(); 
+	        SVNProviderPlugin.enableConsoleLogging();
+	        SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
 		}
 	}
 

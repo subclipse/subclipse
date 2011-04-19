@@ -213,6 +213,7 @@ public class SVNWorkspaceRoot {
 		} catch (SVNClientException e) {
 		} finally {
 	        SVNProviderPlugin.enableConsoleLogging();
+            SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 		}
 		if (repositoryURL == null)
 			repositoryURL = status.getUrlString();
@@ -292,14 +293,14 @@ public class SVNWorkspaceRoot {
     public static LocalResourceStatus peekResourceStatusFor(IResource resource) throws SVNException
     {
 		PeekStatusCommand command = new PeekStatusCommand(resource);
-		command.execute(SVNProviderPlugin.getPlugin().getSVNClient());
+		command.execute();
 		return command.getLocalResourceStatus();
     }
 
     public static LocalResourceStatus peekResourceStatusFor(IPath path) throws SVNException
     {
 		PeekStatusCommand command = new PeekStatusCommand(path);
-		command.execute(SVNProviderPlugin.getPlugin().getSVNClient());
+		command.execute();
 		return command.getLocalResourceStatus();
     }
 

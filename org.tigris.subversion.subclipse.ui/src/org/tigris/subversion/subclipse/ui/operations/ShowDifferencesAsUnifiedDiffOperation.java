@@ -67,6 +67,7 @@ public class ShowDifferencesAsUnifiedDiffOperation extends SVNOperation {
 			throw SVNException.wrapException(e);
 		} finally {
 			monitor.done();
+			SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 		}      
 	}
 
