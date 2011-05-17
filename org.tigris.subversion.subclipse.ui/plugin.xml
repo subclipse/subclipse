@@ -415,7 +415,16 @@
               <test property="org.eclipse.core.resources.projectPersistentProperty" args="org.eclipse.team.core.repository,org.tigris.subversion.subclipse.core.svnnature" />
            </adapt>
          </enablement>  
-         
+
+         <action
+               label="%UpgradeAction.label"
+               helpContextId="org.tigris.subversion.subclipse.ui.team_upgrade_action_context"
+               class="org.tigris.subversion.subclipse.ui.actions.UpgradeAction"
+               tooltip="%UpgradeAction.tooltip"
+               definitionId="org.tigris.subversion.subclipse.ui.upgrade"
+               menubarPath="team.main/projectGroup"
+               id="org.tigris.subversion.subclipse.ui.upgrade">
+         </action>                
          <action
                label="%CleanupAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.team_cleanup_action_context"
@@ -1381,6 +1390,16 @@ For example:
 				id="org.tigris.subversion.subclipse.ui.copy">
 			</action>
 	    <action
+	      label="%UpgradeAction.label"
+	      icon="icons/full/empty/empty.gif"
+	      helpContextId="org.tigris.subversion.subclipse.ui.team_upgrade_action_context"
+	      class="org.tigris.subversion.subclipse.ui.actions.UpgradeAction"
+	      tooltip="%UpgradeAction.tooltip"
+			  definitionId="org.tigris.subversion.subclipse.ui.upgrade"
+				menubarPath="org.tigris.subversion.subclipse.svnmenu/SVNGroupMenu6"
+	      id="org.tigris.subversion.subclipse.ui.upgrade">
+	    </action>			
+	    <action
 	      label="%CleanupAction.label"
 	      icon="icons/full/empty/empty.gif"
 	      helpContextId="org.tigris.subversion.subclipse.ui.team_cleanup_action_context"
@@ -1565,6 +1584,10 @@ For example:
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
 			name="%CleanupAction.label"
 			id="org.tigris.subversion.subclipse.ui.cleanup" />
+		<command
+			categoryId="org.tigris.subversion.subclipse.commandCategory"
+			name="%UpgradeAction.label"
+			id="org.tigris.subversion.subclipse.ui.upgrade" />			
 
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
