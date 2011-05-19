@@ -30,6 +30,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -103,7 +104,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 						if (!project.isAccessible()) {
 							return false;
 						}
-						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
+						if (delta.getKind() != IResourceDelta.ADDED && (delta.getFlags() & IResourceDelta.OPEN) != 0) {
 							return false;
 						} 
 						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
@@ -145,8 +146,13 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
     private void refreshStatusInfitite(IResource[] resources) 
     {
     	for (int i = 0; i < resources.length; i++) {
-    		try {
-                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resources[i], true);
+    		try {  			
+                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resources[i], true);              
+                try {
+					((IContainer)resources[i]).refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
     		} catch (SVNException e) {
     			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
     		}			
@@ -176,7 +182,12 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
         for (Iterator it = foldersToRefresh.iterator(); it.hasNext();) {
             IResource folder = (IResource) it.next();
     		try {
-                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)folder, true);
+                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)folder, true);               
+                try {
+					folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
     		} catch (SVNException e) {
     			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
     		}

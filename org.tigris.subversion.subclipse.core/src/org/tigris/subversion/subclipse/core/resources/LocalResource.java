@@ -30,6 +30,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
 import org.tigris.subversion.subclipse.core.commands.AddIgnoredPatternCommand;
 import org.tigris.subversion.subclipse.core.commands.GetRemoteResourceCommand;
 import org.tigris.subversion.subclipse.core.status.StatusCacheManager;
@@ -378,14 +379,16 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#setSvnProperty(java.lang.String, java.lang.String, boolean)
 	 */
 	public void setSvnProperty(String name, String value, boolean recurse) throws SVNException {
+		OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 		try {
 			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+			svnClient.addNotifyListener(operationResourceCollector);
 			OperationManager.getInstance().beginOperation(svnClient);
 			svnClient.propertySet(getFile(),name,value,recurse);
 		} catch (SVNClientException e) {
 			throw SVNException.wrapException(e); 
 		} finally {
-			OperationManager.getInstance().endOperation();
+			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
 		}
 	}
 
@@ -393,8 +396,10 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#setSvnProperty(java.lang.String, java.io.File, boolean)
 	 */
 	public void setSvnProperty(String name, File value, boolean recurse) throws SVNException {
+		OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 		try {
 			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+			svnClient.addNotifyListener(operationResourceCollector);
 			OperationManager.getInstance().beginOperation(svnClient);
 			svnClient.propertySet(getFile(),name,value,recurse);
 		} catch (IOException e) {
@@ -402,7 +407,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		} catch (SVNClientException e) {
 			throw SVNException.wrapException(e); 
 		} finally {
-			OperationManager.getInstance().endOperation();
+			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
 		}
 	}
 
@@ -410,14 +415,16 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#deleteSvnProperty(java.lang.String, boolean)
 	 */
 	public void deleteSvnProperty(String name,boolean recurse) throws SVNException {
+		OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 		try {
 			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+			svnClient.addNotifyListener(operationResourceCollector);
 			OperationManager.getInstance().beginOperation(svnClient);
 			svnClient.propertyDel(getFile(),name,recurse);
 		} catch (SVNClientException e) {
 			throw SVNException.wrapException(e); 
 		} finally {
-			OperationManager.getInstance().endOperation();
+			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
 		}
 	}
 

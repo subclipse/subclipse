@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.core.commands;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -30,6 +31,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
+import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -50,6 +52,8 @@ public class AddResourcesCommand implements ISVNCommand {
     private int depth;
     
     private SVNWorkspaceRoot root;
+    
+    private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
     
     public AddResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int depth) {
         this.resources = resources;
@@ -122,6 +126,9 @@ public class AddResourcesCommand implements ISVNCommand {
         ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
         monitor.beginTask(null, files.size() + folders.size());
         monitor.setTaskName("Adding...");
+        
+        svnClient.addNotifyListener(operationResourceCollector);
+        
         OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
         try {
             for(Iterator it=folders.iterator(); it.hasNext();) {
@@ -156,7 +163,8 @@ public class AddResourcesCommand implements ISVNCommand {
                 
 
         } finally {
-            OperationManager.getInstance().endOperation();
+        	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
+            OperationManager.getInstance().endOperation(true, operationResources);
             monitor.done();
             root.getRepository().returnSVNClient(svnClient);
         }

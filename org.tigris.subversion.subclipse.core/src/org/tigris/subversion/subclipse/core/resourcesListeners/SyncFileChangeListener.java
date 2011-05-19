@@ -71,12 +71,11 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 	public void resourceChanged(IResourceChangeEvent event) {
 		try {
 			final StatusCacheManager cacheManager = SVNProviderPlugin.getPlugin().getStatusCacheManager();
-			final ChangesCollector changesCollector = new ChangesCollector();
+//			final ChangesCollector changesCollector = new ChangesCollector();
 			
 			event.getDelta().accept(new IResourceDeltaVisitor() {
 				public boolean visit(IResourceDelta delta) {
-					IResource resource = delta.getResource();
-					
+					IResource resource = delta.getResource();	
 					if(resource.getType()==IResource.ROOT) {
 						// continue with the delta
 						return true;
@@ -116,29 +115,31 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 							return true;
 					}
 					
-					IContainer toBeNotified = null;
+//					IContainer toBeNotified = null;
 										
 					if(SVNProviderPlugin.getPlugin().isAdminDirectory(name)) {
 						handleSVNDir((IContainer)resource, kind);
 					}
 										
-					if(isEntries(resource)) {
-						toBeNotified = handleChangedEntries(resource, kind);
-					}
+//					if(isEntries(resource)) {
+//						toBeNotified = handleChangedEntries(resource, kind);
+//					}
+//					
+//                    if(toBeNotified != null) {    
+//                    	changesCollector.collectChange(toBeNotified);							
+//						if(Policy.DEBUG_METAFILE_CHANGES) {
+//							System.out.println("[svn] metafile changed : " + resource.getFullPath()); //$NON-NLS-1$
+//						}
+//						return false; /*don't visit any children we have all the information we need*/
+//					} else {					
+//						return true;
+//					}
 					
-                    if(toBeNotified != null) {    
-                    	changesCollector.collectChange(toBeNotified);							
-						if(Policy.DEBUG_METAFILE_CHANGES) {
-							System.out.println("[svn] metafile changed : " + resource.getFullPath()); //$NON-NLS-1$
-						}
-						return false; /*don't visit any children we have all the information we need*/
-					} else {					
-						return true;
-					}
+					return true;
 				}
 			}, IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS);
 				
-			changesCollector.refreshChangedResources();
+//			changesCollector.refreshChangedResources();
 			
 		} catch(CoreException e) {
 			SVNProviderPlugin.log(e.getStatus());
@@ -199,55 +200,55 @@ public class SyncFileChangeListener implements IResourceChangeListener {
 		}
 	}
 
-	protected final static class ChangesCollector
-	{
-		private Map map = new HashMap();
-		
-		protected void collectChange(IContainer svnFolder)
-		{
-			IProject project = svnFolder.getProject();
-			Set changes = (Set) map.get(project);
-			if (changes == null) {
-				changes = new HashSet();
-				map.put(project, changes);
-			}
-			changes.add(svnFolder);
-		}
-		
-		protected void refreshChangedResources() throws CoreException
-		{
-			for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
-				final Map.Entry element = (Map.Entry) iter.next();
-				SVNProviderPlugin.run(new ISVNRunnable() {
-					public void run(IProgressMonitor monitor) throws SVNException {
-						refreshProjectFolders((Set) element.getValue(), monitor);
-					}}, 
-					(IProject) element.getKey(), null);				
-			}
-		}
-		
-		protected void refreshProjectFolders(Set folders, IProgressMonitor monitor) throws SVNException
-		{
-			boolean initializeListeners = true;
-			for (Iterator it = folders.iterator(); it.hasNext();) {
-				IContainer dotSvnContainer = (IContainer)it.next();
-				IContainer container = dotSvnContainer.getParent();
-
-				// we update the members. Refresh can be useful in case of revert etc ...
-				try {
-//					container.refreshLocal(IResource.DEPTH_ONE, Policy.subMonitorFor(monitor, 100, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK));
-					container.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-				} catch (CoreException e) {
-					throw SVNException.wrapException(e);
-				}
-				//ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
-				//svnContainer.refreshStatus(IResource.DEPTH_ONE);
-				IResource[] refreshed = SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(container, false);
-
-				SVNProviderPlugin.broadcastSyncInfoChanges(refreshed, initializeListeners);
-				initializeListeners = false;
-			}                			
-		}					
-	}
+//	protected final static class ChangesCollector
+//	{
+//		private Map map = new HashMap();
+//		
+//		protected void collectChange(IContainer svnFolder)
+//		{
+//			IProject project = svnFolder.getProject();
+//			Set changes = (Set) map.get(project);
+//			if (changes == null) {
+//				changes = new HashSet();
+//				map.put(project, changes);
+//			}
+//			changes.add(svnFolder);
+//		}
+//		
+//		protected void refreshChangedResources() throws CoreException
+//		{
+//			for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
+//				final Map.Entry element = (Map.Entry) iter.next();
+//				SVNProviderPlugin.run(new ISVNRunnable() {
+//					public void run(IProgressMonitor monitor) throws SVNException {
+//						refreshProjectFolders((Set) element.getValue(), monitor);
+//					}}, 
+//					(IProject) element.getKey(), null);				
+//			}
+//		}
+//		
+//		protected void refreshProjectFolders(Set folders, IProgressMonitor monitor) throws SVNException
+//		{
+//			boolean initializeListeners = true;
+//			for (Iterator it = folders.iterator(); it.hasNext();) {
+//				IContainer dotSvnContainer = (IContainer)it.next();
+//				IContainer container = dotSvnContainer.getParent();
+//
+//				// we update the members. Refresh can be useful in case of revert etc ...
+//				try {
+////					container.refreshLocal(IResource.DEPTH_ONE, Policy.subMonitorFor(monitor, 100, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK));
+//					container.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+//				} catch (CoreException e) {
+//					throw SVNException.wrapException(e);
+//				}
+//				//ISVNLocalFolder svnContainer = (ISVNLocalFolder)SVNWorkspaceRoot.getSVNResourceFor(container);
+//				//svnContainer.refreshStatus(IResource.DEPTH_ONE);
+//				IResource[] refreshed = SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(container, false);
+//
+//				SVNProviderPlugin.broadcastSyncInfoChanges(refreshed, initializeListeners);
+//				initializeListeners = false;
+//			}                			
+//		}					
+//	}
 
 }

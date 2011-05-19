@@ -171,8 +171,12 @@ public class SVNProviderPlugin extends Plugin {
 				IResourceChangeEvent.PRE_BUILD);
 		workspace.addResourceChangeListener(metaFileSyncListener,
 				IResourceChangeEvent.PRE_BUILD);
+//		workspace.addResourceChangeListener(fileModificationManager,
+//				IResourceChangeEvent.POST_CHANGE);
+// Changing to PRE_BUILD so that the resource tree will not be locked for changes and we can
+// do a local refresh, as in the case of a revert.
 		workspace.addResourceChangeListener(fileModificationManager,
-				IResourceChangeEvent.POST_CHANGE);
+				IResourceChangeEvent.PRE_BUILD);
 		workspace.addResourceChangeListener(revertManager, IResourceChangeEvent.PRE_BUILD);
 		
 		teamPrivateListener.registerSaveParticipant();

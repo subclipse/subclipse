@@ -233,13 +233,13 @@ public class SVNLightweightDecorator
     /**
      * tells if given svn resource is dirty or not 
      */
-	public static boolean isDirty(final ISVNLocalResource svnResource) {
+	public static boolean isDirty(final ISVNLocalResource svnResource, LocalResourceStatus status) {
 	    try {
 			if (!svnResource.exists())
 			    return false;
             if (svnResource.getIResource().getType() == IResource.FILE) {
                 // for files, we want that only modified files to be considered as dirty
-            	LocalResourceStatus status = svnResource.getStatusFromCache();
+//            	LocalResourceStatus status = svnResource.getStatusFromCache();
                 return ((status.isTextModified() || status.isPropModified() || status.isReplaced() || status.isAdded())
 							&& !status.isIgnored() && !svnResource.isIgnored());
             } else {
@@ -350,17 +350,30 @@ public class SVNLightweightDecorator
 		} else {		
 			LocalResourceStatus status = null;
 			if (!isIgnored) {
-				if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
-			        isDirty = SVNLightweightDecorator.isDirty(svnResource);
-				}
 				try {
 					status = svnResource.getStatusFromCache();
-					isUnversioned = status.isUnversioned();
-				} catch (SVNException e1) {
-					if (!e1.operationInterrupted()) {
-						SVNUIPlugin.log(e1.getStatus());
+					isDirty = SVNLightweightDecorator.isDirty(svnResource, status);
+				} catch (SVNException e) {
+					if (!e.operationInterrupted()) {
+						SVNUIPlugin.log(e.getStatus());
+						isDirty = true;
 					}
 				}
+				if (status != null) {
+					isUnversioned = status.isUnversioned();
+				}
+//				if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
+////			        isDirty = SVNLightweightDecorator.isDirty(svnResource);
+//					isDirty = SVNLightweightDecorator.isDirty(svnResource, status);
+//				}
+//				try {
+//					status = svnResource.getStatusFromCache();
+//					isUnversioned = status.isUnversioned();
+//				} catch (SVNException e1) {
+//					if (!e1.operationInterrupted()) {
+//						SVNUIPlugin.log(e1.getStatus());
+//					}
+//				}
 				decorateTextLabel(svnResource, status, decoration, isDirty);
 			}		
 			computeColorsAndFonts(isIgnored, isDirty || isUnversioned, decoration);

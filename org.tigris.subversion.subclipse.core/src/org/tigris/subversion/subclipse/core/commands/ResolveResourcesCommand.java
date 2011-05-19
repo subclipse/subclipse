@@ -10,10 +10,13 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.commands;
 
+import java.util.Set;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -26,6 +29,8 @@ public class ResolveResourcesCommand implements ISVNCommand {
     private final SVNWorkspaceRoot root;
     private final IResource[] resources;
     private final int resolution;
+    
+    private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 
     public ResolveResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int resolution) {
         this.root = root;
@@ -40,6 +45,9 @@ public class ResolveResourcesCommand implements ISVNCommand {
     public void run(IProgressMonitor monitor) throws SVNException {
         try {
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+            
+            svnClient.addNotifyListener(operationResourceCollector);
+            
             OperationManager.getInstance().beginOperation(svnClient);
             
             for (int i = 0; i < resources.length; i++) {
@@ -49,7 +57,8 @@ public class ResolveResourcesCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
-            OperationManager.getInstance().endOperation();
+        	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
+            OperationManager.getInstance().endOperation(true, operationResources);
             monitor.done();
         }
     }

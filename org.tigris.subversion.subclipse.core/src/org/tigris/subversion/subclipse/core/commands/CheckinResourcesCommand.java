@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.core.commands;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -24,6 +25,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
+import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
@@ -48,6 +50,8 @@ public class CheckinResourcesCommand implements ISVNCommand {
     protected SVNWorkspaceRoot root;
     
     private ISVNNotifyListener notifyListener;
+    
+    private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 
     public CheckinResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int depth, String message, boolean keepLocks) {
     	this.resources = resources;
@@ -109,6 +113,9 @@ public class CheckinResourcesCommand implements ISVNCommand {
                 	
                     pm.beginTask(null, resourceFiles.length);
                     pm.setTaskName("Checking in...");
+                    
+                    svnClient.addNotifyListener(operationResourceCollector);
+                    
                     OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm, svnClient));
                     
                     svnClient.addNotifyListener(notifyListener);
@@ -118,8 +125,10 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     else svnClient.commit(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks);
                 } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
-                } finally {
-                    OperationManager.getInstance().endOperation();
+                } finally {             	
+                	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
+                    OperationManager.getInstance().endOperation(true, operationResources);
+                    svnClient.removeNotifyListener(operationResourceCollector);
                     pm.done();
                     svnClient.removeNotifyListener(notifyListener);
                 }
