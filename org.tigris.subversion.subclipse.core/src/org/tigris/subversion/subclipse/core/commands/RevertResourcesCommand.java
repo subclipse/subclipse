@@ -14,6 +14,8 @@ import java.io.File;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -73,6 +75,7 @@ public class RevertResourcesCommand implements ISVNCommand {
      * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void run(IProgressMonitor monitor) throws SVNException {
+    	Set<IResource> propertiesOnlyFolders = new LinkedHashSet<IResource>();
         // sort first, so that all children of a folder directly follow it in the array
         Arrays.sort( resources, resourceComparator );        
         try {
@@ -154,8 +157,10 @@ public class RevertResourcesCommand implements ISVNCommand {
 	                    svnClient.revert(path, recurse);
 	                    // If only properties were changed, svn 1.4.0 does not 
 	                    // notify the change. As workaround, do it manually.
-	                    if (resources[i].getType() != IResource.FILE)
+	                    if (resources[i].getType() != IResource.FILE) {
 	                    	operationManager.onNotify(path, SVNNodeKind.UNKNOWN);
+	                    	propertiesOnlyFolders.add(resources[i]);
+	                    }
 	                    monitor.worked(100);
                 	}
                 }
@@ -164,7 +169,12 @@ public class RevertResourcesCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
-            OperationManager.getInstance().endOperation();
+        	if (propertiesOnlyFolders.size() > 0) {
+        		OperationManager.getInstance().endOperation(true, propertiesOnlyFolders);
+        	}
+        	else {
+        		OperationManager.getInstance().endOperation();
+        	}
             monitor.done();
         }
     }

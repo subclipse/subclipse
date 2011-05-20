@@ -43,13 +43,10 @@ public class ResolveResourcesCommand implements ISVNCommand {
      * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void run(IProgressMonitor monitor) throws SVNException {
-        try {
-            ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
-            
-            svnClient.addNotifyListener(operationResourceCollector);
-            
-            OperationManager.getInstance().beginOperation(svnClient);
-            
+    	ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+        try {            
+            svnClient.addNotifyListener(operationResourceCollector);           
+            OperationManager.getInstance().beginOperation(svnClient);           
             for (int i = 0; i < resources.length; i++) {
                 svnClient.resolve(resources[i].getLocation().toFile(), resolution);
                 monitor.worked(100);
@@ -59,6 +56,7 @@ public class ResolveResourcesCommand implements ISVNCommand {
         } finally {
         	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
             OperationManager.getInstance().endOperation(true, operationResources);
+            svnClient.removeNotifyListener(operationResourceCollector);
             monitor.done();
         }
     }

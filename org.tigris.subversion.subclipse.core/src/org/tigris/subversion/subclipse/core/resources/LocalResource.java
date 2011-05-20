@@ -380,8 +380,8 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 */
 	public void setSvnProperty(String name, String value, boolean recurse) throws SVNException {
 		OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
-		try {
-			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+		ISVNClientAdapter svnClient = getRepository().getSVNClient();
+		try {			
 			svnClient.addNotifyListener(operationResourceCollector);
 			OperationManager.getInstance().beginOperation(svnClient);
 			svnClient.propertySet(getFile(),name,value,recurse);
@@ -389,6 +389,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			throw SVNException.wrapException(e); 
 		} finally {
 			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
+			svnClient.removeNotifyListener(operationResourceCollector);
 		}
 	}
 
@@ -397,8 +398,8 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 */
 	public void setSvnProperty(String name, File value, boolean recurse) throws SVNException {
 		OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
-		try {
-			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+		ISVNClientAdapter svnClient = getRepository().getSVNClient();
+		try {		
 			svnClient.addNotifyListener(operationResourceCollector);
 			OperationManager.getInstance().beginOperation(svnClient);
 			svnClient.propertySet(getFile(),name,value,recurse);
@@ -408,6 +409,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			throw SVNException.wrapException(e); 
 		} finally {
 			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
+			svnClient.removeNotifyListener(operationResourceCollector);
 		}
 	}
 
@@ -416,8 +418,8 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 */
 	public void deleteSvnProperty(String name,boolean recurse) throws SVNException {
 		OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
-		try {
-			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+		ISVNClientAdapter svnClient = getRepository().getSVNClient();
+		try {			
 			svnClient.addNotifyListener(operationResourceCollector);
 			OperationManager.getInstance().beginOperation(svnClient);
 			svnClient.propertyDel(getFile(),name,recurse);
@@ -425,6 +427,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			throw SVNException.wrapException(e); 
 		} finally {
 			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
+			svnClient.removeNotifyListener(operationResourceCollector);
 		}
 	}
 
