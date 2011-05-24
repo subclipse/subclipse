@@ -124,61 +124,53 @@ public class EditConflictsAction extends WorkbenchWindowAction {
      * 
      * @see org.tigris.subversion.subclipse.ui.actions.SVNAction#execute(org.eclipse.jface.action.IAction)
      */
-    protected void execute(final IAction action)
-            throws InvocationTargetException, InterruptedException {
-    	exception = null;
-        run(new WorkspaceModifyOperation() {
-            public void execute(IProgressMonitor monitor)
-                    throws CoreException, InvocationTargetException, InterruptedException {
-                IFile resource;
-                if (selectedResource == null)
-                    resource = (IFile) getSelectedResources()[0];
-                else
-                    resource = selectedResource;
-                ISVNLocalResource svnResource = SVNWorkspaceRoot
-                        .getSVNResourceFor(resource);
-                try {
-                    IFile conflictNewFile = (IFile) File2Resource
-                            .getResource(svnResource.getStatus()
-                                    .getConflictNew());
-                    IFile conflictOldFile = (IFile) File2Resource
-                            .getResource(svnResource.getStatus()
-                                    .getConflictOld());
-                    IFile conflictWorkingFile = (IFile) File2Resource
-                            .getResource(svnResource.getStatus()
-                                    .getConflictWorking());
-                    
-                    if (conflictWorkingFile == null) {
-                    	conflictWorkingFile = resource;
-                    }
-
-                    MergeFileAssociation mergeFileAssociation = null;
-                    try {
-						mergeFileAssociation = SVNUIPlugin.getPlugin().getMergeFileAssociation(resource.getName());
-					} catch (BackingStoreException e) {
-						mergeFileAssociation = new MergeFileAssociation();
-					}
-					
-					if (mergeFileAssociation.getType() == MergeFileAssociation.BUILT_IN) {
-                        editConflictsInternal(resource, conflictOldFile,
-                                conflictWorkingFile, conflictNewFile);						
-					}
-					else if (mergeFileAssociation.getType() == MergeFileAssociation.DEFAULT_EXTERNAL) {
-			            IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin().getPreferenceStore();
-			            String mergeProgramLocation = preferenceStore.getString(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION);
-			            String mergeProgramParameters = preferenceStore.getString(ISVNUIConstants.PREF_MERGE_PROGRAM_PARAMETERS);						
-                        editConflictsExternal(resource, conflictOldFile,
-                                conflictWorkingFile, conflictNewFile, mergeProgramLocation, mergeProgramParameters);						
-					} else {
-                        editConflictsExternal(resource, conflictOldFile,
-                                conflictWorkingFile, conflictNewFile, mergeFileAssociation.getMergeProgram(), mergeFileAssociation.getParameters());												
-					}
-                } catch (SVNException e) {
-                	exception = e;
-                }
+    protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
+        IFile resource;
+        if (selectedResource == null)
+            resource = (IFile) getSelectedResources()[0];
+        else
+            resource = selectedResource;
+        ISVNLocalResource svnResource = SVNWorkspaceRoot
+                .getSVNResourceFor(resource);
+        try {
+            IFile conflictNewFile = (IFile) File2Resource
+                    .getResource(svnResource.getStatus()
+                            .getConflictNew());
+            IFile conflictOldFile = (IFile) File2Resource
+                    .getResource(svnResource.getStatus()
+                            .getConflictOld());
+            IFile conflictWorkingFile = (IFile) File2Resource
+                    .getResource(svnResource.getStatus()
+                            .getConflictWorking());
+            
+            if (conflictWorkingFile == null) {
+            	conflictWorkingFile = resource;
             }
 
-        }, false /* cancelable */, PROGRESS_BUSYCURSOR);
+            MergeFileAssociation mergeFileAssociation = null;
+            try {
+				mergeFileAssociation = SVNUIPlugin.getPlugin().getMergeFileAssociation(resource.getName());
+			} catch (BackingStoreException e) {
+				mergeFileAssociation = new MergeFileAssociation();
+			}
+			
+			if (mergeFileAssociation.getType() == MergeFileAssociation.BUILT_IN) {
+                editConflictsInternal(resource, conflictOldFile,
+                        conflictWorkingFile, conflictNewFile);						
+			}
+			else if (mergeFileAssociation.getType() == MergeFileAssociation.DEFAULT_EXTERNAL) {
+	            IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin().getPreferenceStore();
+	            String mergeProgramLocation = preferenceStore.getString(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION);
+	            String mergeProgramParameters = preferenceStore.getString(ISVNUIConstants.PREF_MERGE_PROGRAM_PARAMETERS);						
+                editConflictsExternal(resource, conflictOldFile,
+                        conflictWorkingFile, conflictNewFile, mergeProgramLocation, mergeProgramParameters);						
+			} else {
+                editConflictsExternal(resource, conflictOldFile,
+                        conflictWorkingFile, conflictNewFile, mergeFileAssociation.getMergeProgram(), mergeFileAssociation.getParameters());												
+			}
+        } catch (Exception e) {
+        	exception = e;
+        } 
         if (exception != null) {
         	throw new InvocationTargetException(exception);
         }
