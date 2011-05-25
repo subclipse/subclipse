@@ -11,19 +11,20 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
+import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -44,6 +45,8 @@ public class SwitchToUrlCommand implements ISVNCommand {
     private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true;
+    
+    private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 
     public SwitchToUrlCommand(SVNWorkspaceRoot root, IResource resource, SVNUrl svnUrl, SVNRevision svnRevision) {
         super();
@@ -61,6 +64,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
         try {
     		subPm.beginTask(null, Policy.INFINITE_PM_GUESS_FOR_SWITCH);
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+            svnClient.addNotifyListener(operationResourceCollector);
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm, svnClient));
             File file = resource.getLocation().toFile();
             SVNRevision pegRevision = null;
@@ -69,15 +73,12 @@ public class SwitchToUrlCommand implements ISVNCommand {
 //            else pegRevision = svnRevision;
             pegRevision = SVNRevision.HEAD;
             svnClient.switchToUrl(file, svnUrl, svnRevision, pegRevision, depth, setDepth, ignoreExternals, force);
-            try {
-                // Refresh the resource after merge
-                resource.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-            } catch (CoreException e1) {
-            }
+            OperationManager.getInstance().onNotify(resource.getLocation().toFile(), SVNNodeKind.UNKNOWN);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
-            OperationManager.getInstance().endOperation();
+        	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
+            OperationManager.getInstance().endOperation(true, operationResources);
             subPm.done();
         }
 	}
