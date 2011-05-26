@@ -92,7 +92,6 @@ public abstract class RepositoryProviderOperation extends SVNOperation {
 	 */
 	protected ISchedulingRule getSchedulingRule(SVNTeamProvider provider) {
 		IResourceRuleFactory ruleFactory = provider.getRuleFactory();
-		IResource[] resources = SVNWorkspaceRoot.getResourcesFor(provider.getProject().getLocation());
 		HashSet rules = new HashSet();
 		for (int i = 0; i < resources.length; i++) {
 			rules.add(ruleFactory.modifyRule(resources[i].getProject()));
