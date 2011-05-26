@@ -12,15 +12,13 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Date;
 
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
-import org.tigris.subversion.svnclientadapter.SVNStatusKind;
-import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 /**
  * This class has an interface which is very similar to ISVNStatus but we make
@@ -38,7 +36,7 @@ public class LocalResourceStatus extends ResourceStatus {
 	/** Singleton instance of the status "None" */
 	public static final LocalResourceStatus NONE = new LocalResourceStatusNone();
 	
-    protected String urlCopiedFrom;
+    protected String urlCopiedFrom = "";
     protected String pathConflictOld;
     protected String pathConflictWorking;
     protected String pathConflictNew;
@@ -80,12 +78,12 @@ public class LocalResourceStatus extends ResourceStatus {
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;
     	
-        aValue = status.getUrlCopiedFrom();
-        if (aValue == null) {
-            this.urlCopiedFrom = null;
-        } else {
-            this.urlCopiedFrom = ((SVNUrl) aValue).toString();
-        }
+//        aValue = status.getUrlCopiedFrom();
+//        if (aValue == null) {
+//            this.urlCopiedFrom = null;
+//        } else {
+//            this.urlCopiedFrom = ((SVNUrl) aValue).toString();
+//        }
 
         this.readOnly = !getFile().canWrite();
 
@@ -395,18 +393,6 @@ public class LocalResourceStatus extends ResourceStatus {
     
     public boolean isLocked() {
         return lockOwner != null;
-    }
-
-    public SVNUrl getUrlCopiedFrom() {
-        if (urlCopiedFrom == null) {
-            return null;
-        } else {
-            try {
-                return new SVNUrl(urlCopiedFrom);
-            } catch (MalformedURLException e) {
-                return null;
-            }
-        }
     }
 
     /**

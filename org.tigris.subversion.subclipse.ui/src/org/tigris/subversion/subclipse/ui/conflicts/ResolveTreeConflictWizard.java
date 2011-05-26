@@ -41,9 +41,11 @@ import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDif
 import org.tigris.subversion.subclipse.ui.wizards.SizePersistedWizardDialog;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -273,7 +275,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 		return added;
 	}
 	
-	public ISVNStatus getLocalCopiedTo(boolean getAll) throws SVNException {
+	public ISVNStatus getLocalCopiedTo(boolean getAll) throws SVNException, SVNClientException {
 		String endsWithCheck = treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos();
 		IProject project = svnResource.getResource().getProject();
 		if (project != null) {
@@ -282,10 +284,12 @@ public class ResolveTreeConflictWizard extends Wizard {
 		}
 		if (copiedTo == null && !copiedToRetrieved) {
 			statuses = getStatuses(getAll);
+			ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
 			for (int i = 0; i < statuses.length; i++) {
-				if (statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) {
-					if (statuses[i].getUrlCopiedFrom() != null) {	
-						if ((svnResource.getUrl() != null && statuses[i].getUrlCopiedFrom().toString().equals(svnResource.getUrl().toString())) || (statuses[i].getUrlCopiedFrom().toString().endsWith(endsWithCheck))) {
+				if (statuses[i].isCopied() && statuses[i].getTextStatus().equals(SVNStatusKind.ADDED)) {
+					ISVNInfo info = svnClient.getInfoFromWorkingCopy(statuses[i].getFile());
+					if (info.getCopyUrl() != null) {	
+						if ((svnResource.getUrl() != null && info.getCopyUrl().toString().equals(svnResource.getUrl().toString())) || (info.getCopyUrl().toString().endsWith(endsWithCheck))) {
 							copiedTo = statuses[i];
 							break;
 						}

@@ -270,11 +270,6 @@ public class RemoteResourceStatus extends ResourceStatus {
 		throw new UnsupportedOperationException("Locks are not suported for RemoteResourceStatus");
 	}
 
-	public SVNUrl getUrlCopiedFrom() {
-		// TODO UrlCopied from is not yet suported for RemoteResourceStatus
-		throw new UnsupportedOperationException("UrlCopied from is not yet suported for RemoteResourceStatus");
-	}
-
     /**
      * Special RemoteResourceStatus subclass representing status "None".
      */

@@ -33,6 +33,9 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDiffOperationWC;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -54,7 +57,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	 * @throws SVNException
 	 * creates a SVNLocalCompareInput, allows setting whether the current local resource is read only or not.
 	 */
-	public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision, boolean readOnly) throws SVNException {
+	public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision, boolean readOnly) throws SVNException, SVNClientException {
 		super(new CompareConfiguration());
         this.remoteRevision = revision;
         this.readOnly = readOnly;
@@ -62,7 +65,9 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
         
         LocalResourceStatus status = resource.getStatus();
         if (status != null && status.isCopied()) {
-        	SVNUrl copiedFromUrl = status.getUrlCopiedFrom();
+        	ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+        	ISVNInfo info = svnClient.getInfoFromWorkingCopy(resource.getFile());
+        	SVNUrl copiedFromUrl = info.getCopyUrl();
         	if (copiedFromUrl != null) {
         		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(resource.getRepository(), copiedFromUrl, SVNRevision.HEAD);
         		getRemoteResourceCommand.run(null);
@@ -82,7 +87,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	 * @throws SVNException
 	 * creates a SVNLocalCompareInput, defaultin to read/write.  
 	 */
-	public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision) throws SVNException {
+	public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision) throws SVNException, SVNClientException {
 		this(resource, revision, false);
 	}
 

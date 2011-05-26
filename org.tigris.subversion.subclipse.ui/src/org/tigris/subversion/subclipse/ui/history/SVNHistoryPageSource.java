@@ -32,7 +32,10 @@ public class SVNHistoryPageSource extends HistoryPageSource {
 		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		if (localResource != null) {
 			try {
-				if (!localResource.isManaged() || localResource.isAdded()) {
+				if (!localResource.isManaged()) {
+					return false;
+				}
+				if (localResource.isAdded() && !localResource.getStatus().isCopied()) {
 					return false;
 				}
 			} catch (Exception e) {

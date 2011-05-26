@@ -394,7 +394,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 							showComparePane(true);
 							showCompareButton.setSelection(true);
 						}
-					} catch (SVNException e1) {
+					} catch (Exception e1) {
 					}
 				}
 			}

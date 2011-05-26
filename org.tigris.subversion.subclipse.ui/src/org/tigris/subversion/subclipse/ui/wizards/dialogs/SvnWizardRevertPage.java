@@ -152,7 +152,7 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
               try {
                 new CompareDialog(getShell(), new SVNLocalCompareInput(
                     localResource, SVNRevision.BASE, true)).open();
-              } catch (SVNException e1) {
+              } catch (Exception e1) {
               }
             }
           }

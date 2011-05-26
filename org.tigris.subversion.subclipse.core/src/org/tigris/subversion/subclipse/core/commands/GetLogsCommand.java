@@ -26,6 +26,7 @@ import org.tigris.subversion.subclipse.core.resources.BaseResource;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
 import org.tigris.subversion.svnclientadapter.SVNLogMessageCallback;
@@ -100,7 +101,8 @@ public class GetLogsCommand implements ISVNCommand {
         			if (svnResource != null) {
         				LocalResourceStatus status = svnResource.getStatus();
         				if (status != null && status.isCopied()) {
-        					SVNUrl copiedFromUrl = status.getUrlCopiedFrom();
+        					ISVNInfo info = svnClient.getInfoFromWorkingCopy(svnResource.getFile());
+        					SVNUrl copiedFromUrl = info.getCopyUrl();
         					if (copiedFromUrl != null) {
         						svnClient.getLogMessages(copiedFromUrl, SVNRevision.HEAD, revisionStart, revisionEnd, stopOnCopy, !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(), limit, includeMergedRevisions, ISVNClientAdapter.DEFAULT_LOG_PROPERTIES, callback);
         						logMessagesRetrieved = true;

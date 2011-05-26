@@ -41,6 +41,7 @@ import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
 import org.tigris.subversion.svnclientadapter.SVNConflictVersion;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class SVNPropertyPage extends PropertyPage {
 	private Text urlValue;
@@ -60,6 +61,7 @@ public class SVNPropertyPage extends PropertyPage {
 	
 	private ISVNLocalResource svnResource;
 	private LocalResourceStatus status;
+	private SVNUrl urlCopiedFrom;
 	private SVNRevision revision;
 	private ISVNInfo info;
 	private String lockOwnerText;
@@ -165,7 +167,7 @@ public class SVNPropertyPage extends PropertyPage {
         propertiesValue = new Text(composite, SWT.READ_ONLY);
         propertiesValue.setBackground(composite.getBackground());
         
-        if (status.getUrlCopiedFrom() != null) {
+        if (urlCopiedFrom != null) {
             label = new Label(composite, SWT.NONE);
             label.setText(Policy.bind("SVNPropertyPage.copiedFrom")); //$NON-NLS-1$
             copiedFromValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
@@ -274,6 +276,9 @@ public class SVNPropertyPage extends PropertyPage {
             svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
             if (svnResource == null) return;
             status = svnResource.getStatus();    
+            ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+            ISVNInfo info = svnClient.getInfoFromWorkingCopy(svnResource.getFile());
+            urlCopiedFrom = info.getCopyUrl();
             revision = svnResource.getRevision(); 
             lockOwnerText = status.getLockOwner();
             lockCommentText = status.getLockComment();
@@ -312,8 +317,8 @@ public class SVNPropertyPage extends PropertyPage {
         statusValue.setText(sb.toString());
         propertiesValue.setText(status.getPropStatus().toString());
         
-        if (status.getUrlCopiedFrom() != null) {
-        	copiedFromValue.setText(status.getUrlCopiedFrom().toString());
+        if (urlCopiedFrom != null) {
+        	copiedFromValue.setText(urlCopiedFrom.toString());
         }
         
         if (status.getLastChangedRevision() != null) {

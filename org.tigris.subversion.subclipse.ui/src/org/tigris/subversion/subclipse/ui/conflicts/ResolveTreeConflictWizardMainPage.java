@@ -849,7 +849,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				ResolveTreeConflictWizard wizard = (ResolveTreeConflictWizard)getWizard();
 				try {
 					copiedTo = wizard.getLocalCopiedTo(getAll);
-				} catch (SVNException e) {
+				} catch (Exception e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				}
 				monitor.done();

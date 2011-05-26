@@ -18,6 +18,9 @@ import org.tigris.subversion.subclipse.core.commands.GetRemoteResourceCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -28,7 +31,7 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
 	private SVNLocalResourceNode[] localResourceNodes;
 	private ResourceEditionNode[] remoteResourceNodes;
 	
-	public SVNLocalBaseCompareInput(ISVNLocalResource[] resources, SVNRevision revision, boolean readOnly) throws SVNException {
+	public SVNLocalBaseCompareInput(ISVNLocalResource[] resources, SVNRevision revision, boolean readOnly) throws SVNException, SVNClientException {
 		super(new CompareConfiguration());
         this.remoteRevision = revision;
         this.readOnly = readOnly;
@@ -41,7 +44,9 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
         	ISVNRemoteResource remoteResource = null;
         	LocalResourceStatus status = resources[i].getStatus();
             if (status != null && status.isCopied()) {
-            	SVNUrl copiedFromUrl = status.getUrlCopiedFrom();
+            	ISVNClientAdapter svnClient = resources[i].getRepository().getSVNClient();
+            	ISVNInfo info = svnClient.getInfoFromWorkingCopy(resources[i].getFile());
+            	SVNUrl copiedFromUrl = info.getCopyUrl();
             	if (copiedFromUrl != null) {
             		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(resources[i].getRepository(), copiedFromUrl, SVNRevision.HEAD);
             		getRemoteResourceCommand.run(null);
@@ -59,7 +64,7 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
 	 * @throws SVNException
 	 * creates a SVNLocalCompareInput, defaultin to read/write.  
 	 */
-	public SVNLocalBaseCompareInput(ISVNLocalResource[] resources, SVNRevision revision) throws SVNException {
+	public SVNLocalBaseCompareInput(ISVNLocalResource[] resources, SVNRevision revision) throws SVNException, SVNClientException {
 		this(resources, revision, false);
 	}
 	
