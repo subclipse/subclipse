@@ -11,16 +11,22 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -36,6 +42,8 @@ public class UpdateResourcesCommand implements ISVNCommand {
     private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true;
+    private boolean treeConflicts = false;
+    private Set<IResource> updatedResources = new LinkedHashSet<IResource>();
     
     /**
      * Update the given resources.
@@ -60,6 +68,26 @@ public class UpdateResourcesCommand implements ISVNCommand {
         try {
             monitor.beginTask(null, 100 * resources.length);                    
             ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+            
+            svnClient.addNotifyListener(new ISVNNotifyListener() {				
+				public void setCommand(int command) {}				
+				public void onNotify(File path, SVNNodeKind kind) {
+					IPath pathEclipse = new Path(path.getAbsolutePath());
+					IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse, false);
+					for (IResource resource : resources) {
+						updatedResources.add(resource);
+					}					
+				}				
+				public void logRevision(long revision, String path) {}				
+				public void logMessage(String message) {
+					if (message.contains("Tree conflicts")) {
+						treeConflicts = true;
+					}
+				}				
+				public void logError(String message) {}				
+				public void logCompleted(String message) {}			
+				public void logCommandLine(String commandLine) {}
+			});
 
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
     		if (resources.length == 1)
@@ -80,7 +108,17 @@ public class UpdateResourcesCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
-            OperationManager.getInstance().endOperation();
+        	if (treeConflicts) {
+        		Set<IResource> refreshResources = new LinkedHashSet<IResource>();
+        		for (IResource resource : updatedResources) {
+        			refreshResources.add(resource);
+        			OperationManager.getInstance().onNotify(resource.getLocation().toFile(), null);
+        		}
+        		OperationManager.getInstance().endOperation(true, refreshResources);
+        	}
+        	else {
+        		OperationManager.getInstance().endOperation();
+        	}
             monitor.done();
         }        
 	}

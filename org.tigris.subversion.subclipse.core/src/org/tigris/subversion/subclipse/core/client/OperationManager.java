@@ -85,11 +85,9 @@ public class OperationManager implements ISVNNotifyListener {
 		lock.acquire();
 		this.svnClient = aSvnClient;
 		aSvnClient.addNotifyListener(this);
-		if (operationNotifyListener != null)
+		if (operationNotifyListener != null) {
 			aSvnClient.setProgressListener(operationNotifyListener);
-//		if (lock.getNestingCount() == 1) {
-//			changedResources.clear();
-//		}
+		}
 	}
 
 	/**
@@ -154,99 +152,16 @@ public class OperationManager implements ISVNNotifyListener {
 				for (IResource folder : foldersToRefresh) {
 	                try {
 						folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-					} catch (CoreException e) {
-						e.printStackTrace();
-					}
+					} catch (CoreException e) {}
 				}
-				
-//				for (Iterator it = changedResources.iterator(); it.hasNext();) {
-//					IResource resource = (IResource) it.next();
-//					//Ensure the .svn has the team private flag set before refresh. 
-//					if (refresh && resource instanceof IContainer)
-//						handleSVNDir((IContainer) resource);
-//                    try {
-//                        // .svn directory will be refreshed so all files in the
-//                        // directory including resource will
-//                        // be refreshed later (@see SyncFileChangeListener)
-//                    	if (refresh) {
-//                    		resource.refreshLocal(IResource.DEPTH_INFINITE,new NullProgressMonitor());
-//                    	}
-//                        if(Policy.DEBUG_METAFILE_CHANGES) {
-//                            System.out.println("[svn]" + SVNProviderPlugin.getPlugin().getAdminDirectoryName() + " dir refreshed : " + resource.getFullPath()); //$NON-NLS-1$
-//                        }
-//                        // Refreshing the root directory at this point will
-//                        // avoid problems with linked source folders.
-//                        if (refresh && resource.getParent().getType() == IResource.PROJECT) {
-//                            resource.getParent().refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
-//                        }
-//                    } catch (CoreException e) {
-//                        throw SVNException.wrapException(e);
-//                    }                    
-//				}
 			}
 		} finally {
-			if (lock.getNestingCount() == 1)
-//				changedResources.clear();
 			lock.release();
 			operationNotifyListener = null;
 		}
 	}
 
 	public void onNotify(File path, SVNNodeKind kind) {
-//		IPath pathEclipse = new Path(path.getAbsolutePath());
-//
-//        if (kind == SVNNodeKind.UNKNOWN)  { // delete, revert 
-//            IPath pathEntries = pathEclipse.removeLastSegments(1).append(
-//            		SVNProviderPlugin.getPlugin().getAdminDirectoryName());
-//            changedResources.addAll(Arrays.asList(SVNWorkspaceRoot.getResourcesFor(pathEntries, false)));
-//            
-//            if (path.isDirectory()) {
-//            	IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse, false);
-//            	for (int i = 0; i < resources.length; i++) {
-//            		IResource resource = resources[i];
-//					if (resource.getType() != IResource.ROOT) {
-//						IResource svnDir = ((IContainer) resource).getFolder(new Path(
-//	                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
-//	                    changedResources.add(svnDir);
-//					}
-//            	}
-//            }
-//        }
-//        else
-//        {
-//			IResource svnDir = null;
-//			if (kind == SVNNodeKind.DIR) {
-//				// when the resource is a directory, two .svn directories can
-//				// potentially
-//				// be modified
-//				IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse, false);
-//				for (int i = 0; i < resources.length; i++) {
-//					IResource resource = resources[i];
-//					if (resource.getType() != IResource.ROOT) {
-//						if (resource.getProject() != resource) {
-//							// if resource is a project. We can't refresh ../.svn
-//							svnDir = resource.getParent().getFolder(
-//									new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
-//							changedResources.add(svnDir);
-//						}
-//						if (resource instanceof IContainer) {
-//		                    svnDir = ((IContainer) resource).getFolder(new Path(
-//		                    		SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
-//		                    changedResources.add(svnDir);
-//						}
-//					}
-//				}
-//			} else if (kind == SVNNodeKind.FILE) {
-//				IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse, false);
-//
-//				for (int i = 0; i < resources.length; i++) {
-//					svnDir = resources[i].getParent().getFolder(
-//							new Path(SVNProviderPlugin.getPlugin().getAdminDirectoryName()));
-//					changedResources.add(svnDir);
-//				}
-//			}
-//		}
-		
 		IPath pathEclipse = new Path(path.getAbsolutePath());
 		IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse, false);
 		for (IResource resource : resources) {			
