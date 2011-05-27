@@ -68,6 +68,8 @@ public class CheckoutCommand implements ISVNCommand {
     private boolean force = true;
 	
 	private boolean refreshProjects = true;
+	
+	private ISVNClientAdapter svnClient;
 
 	public CheckoutCommand(ISVNRemoteFolder[] resources, IProject[] projects) {
 		this(resources, projects, null);
@@ -78,6 +80,15 @@ public class CheckoutCommand implements ISVNCommand {
 		this.projects = projects;
 		this.projectRoot = root;
 	}
+	
+	private ISVNClientAdapter getSvnClient(ISVNRemoteFolder resource, IProgressMonitor pm) throws SVNException {
+		if (svnClient == null) {
+			svnClient = resource.getRepository()
+			.getSVNClient();
+			OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm, svnClient));
+		}
+		return svnClient;
+	}
 
 	protected void basicRun(final IProject project, ISVNRemoteFolder resource, final IProgressMonitor pm) throws SVNException {
 		if (pm != null)
@@ -87,8 +98,7 @@ public class CheckoutCommand implements ISVNCommand {
 
 		try {
 			// Perform the checkout
-			ISVNClientAdapter svnClient = resource.getRepository()
-					.getSVNClient();
+			svnClient = getSvnClient(resource, pm);
 
 			// Prepare the target projects to receive resources
 			scrubProject(resource, project, (pm != null) ? Policy.subMonitorFor(pm, 100)
@@ -198,12 +208,10 @@ public class CheckoutCommand implements ISVNCommand {
 		try {
 			subPm.beginTask("", Policy.INFINITE_PM_GUESS_FOR_CHECKOUT);
 //			subPm.setTaskName("");
-			OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm, svnClient));
 			svnClient.checkout(resource.getUrl(), destPath, svnRevision, depth, ignoreExternals, force);
 		} catch (SVNClientException e) {
 			throw new SVNException("cannot checkout", e.operationInterrupted());
 		} finally {
-			OperationManager.getInstance().endOperation();
 			subPm.done();
 		}
 	}
@@ -222,7 +230,8 @@ public class CheckoutCommand implements ISVNCommand {
 					basicRun(project, resource, pm);
 				} // run
 			}, projects[i], Policy.monitorFor(monitor));
-		}		
+		}	
+		OperationManager.getInstance().endOperation();
 	}
 
 	/*

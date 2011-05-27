@@ -11,14 +11,16 @@
 package org.tigris.subversion.subclipse.ui.operations;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
@@ -26,6 +28,7 @@ import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.CheckoutCommand;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -53,6 +56,15 @@ public class CheckoutAsProjectOperation extends SVNOperation {
     protected String getTaskName() {
         return Policy.bind("CheckoutAsProjectOperation.taskName"); //$NON-NLS-1$;
     }
+    
+	protected ISchedulingRule getSchedulingRule(SVNTeamProvider provider) {
+		IResourceRuleFactory ruleFactory = provider.getRuleFactory();
+		HashSet rules = new HashSet();
+		for (int i = 0; i < localFolders.length; i++) {
+			rules.add(ruleFactory.modifyRule(localFolders[i].getProject()));
+		}
+		return MultiRule.combine((ISchedulingRule[]) rules.toArray(new ISchedulingRule[rules.size()]));
+	}
 
     public void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
     	// First checkout all projects, then bring them into workspace.
@@ -60,9 +72,7 @@ public class CheckoutAsProjectOperation extends SVNOperation {
         monitor.beginTask(null, remoteFolders.length * 1000);
         for (int i = 0; i < remoteFolders.length; i++) {
             IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
-            ISchedulingRule rule = localFolders[i].getWorkspace().getRuleFactory().modifyRule(localFolders[i]);
 			try {
-				Job.getJobManager().beginRule(rule, monitor);
 				monitor.setTaskName(Policy.bind("CheckoutAsProjectOperation.0", remoteFolders[i].getName())); //$NON-NLS-1$
 				IProject[] local = new IProject[1];
 				local[0] = localFolders[i];
@@ -71,21 +81,15 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 				if (!execute(remote, local, subMonitor)) {
 					failedProjects.add(remoteFolders[i]);
 				}
-			} finally {
-				Job.getJobManager().endRule(rule);
-			}            
+			} finally {}
         }
         for (int i = 0; i < remoteFolders.length; i++) {
         	if (!failedProjects.contains(remoteFolders[i])) {
 	        	IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
-	        	ISchedulingRule rule = localFolders[i].getWorkspace().getRuleFactory().modifyRule(localFolders[i]);
 				try {
-					Job.getJobManager().beginRule(rule, monitor);
 					monitor.setTaskName(Policy.bind("SVNProvider.Creating_project_1", remoteFolders[i].getName())); //$NON-NLS-1$
 					refreshProject(localFolders[i], subMonitor);
-				} finally {
-					Job.getJobManager().endRule(rule);
-				}   
+				} finally {}
         	}
         }
     }
