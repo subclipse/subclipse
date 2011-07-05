@@ -158,6 +158,7 @@ public class OperationManager implements ISVNNotifyListener {
 		} finally {
 			lock.release();
 			operationNotifyListener = null;
+			localRefreshList = new LinkedHashSet<IResource>();
 		}
 	}
 
