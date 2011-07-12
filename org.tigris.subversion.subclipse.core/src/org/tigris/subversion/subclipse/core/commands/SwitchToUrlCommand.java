@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
@@ -59,7 +60,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void run(IProgressMonitor monitor) throws SVNException {       
+	public void run(IProgressMonitor monitor) throws SVNException {    
 		final IProgressMonitor subPm = Policy.infiniteSubMonitorFor(monitor, 100);
         try {
     		subPm.beginTask(null, Policy.INFINITE_PM_GUESS_FOR_SWITCH);
@@ -78,6 +79,9 @@ public class SwitchToUrlCommand implements ISVNCommand {
             throw SVNException.wrapException(e);
         } finally {
         	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
+        	if (operationResources.size() == 0) {
+        		operationResources.add(resource);
+        	}
             OperationManager.getInstance().endOperation(true, operationResources);
             subPm.done();
         }
