@@ -11,7 +11,6 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
