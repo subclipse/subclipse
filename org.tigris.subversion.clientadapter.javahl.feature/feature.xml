@@ -25,7 +25,7 @@
 
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.tigris.subversion.clientadapter" version="1.6.12" match="equivalent"/>
+      <import plugin="org.tigris.subversion.clientadapter" version="1.7.0" match="equivalent"/>
    </requires>
 
    <plugin
