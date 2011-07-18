@@ -33,7 +33,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.SVNTeamProviderType;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 
 /**
  * This class performs several functions related to determining the modified
@@ -108,6 +111,9 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 							return false;
 						} 
 						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+							if (delta.getKind() == IResourceDelta.ADDED) {
+								autoShareProjectIfSVNWorkingCopy(resource, project);
+							}
 							return false; // not a svn handled project
 						}
 						if (delta.getKind() == IResourceDelta.ADDED) {
@@ -228,6 +234,25 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	 * @see org.eclipse.core.resources.ISaveParticipant#saving(org.eclipse.core.resources.ISaveContext)
 	 */
 	public void saving(ISaveContext context) {
+	}
+
+	private void autoShareProjectIfSVNWorkingCopy(IResource resource,
+			IProject project) {
+		ISVNClientAdapter client = null;
+		try {
+			client = SVNProviderPlugin.getPlugin().getSVNClient();
+			SVNProviderPlugin.disableConsoleLogging();
+			ISVNInfo info = client.getInfoFromWorkingCopy(project.getLocation().toFile());
+			if (info != null) {
+				SVNTeamProviderType.getAutoShareJob().share((IProject)resource);
+			}
+		} catch (Exception e) {}
+		finally {
+		    SVNProviderPlugin.enableConsoleLogging();
+		    if (client != null) {
+		    	SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+		    }
+		}
 	}
 
 }

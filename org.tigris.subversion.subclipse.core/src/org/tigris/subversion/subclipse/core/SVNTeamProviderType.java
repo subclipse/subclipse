@@ -130,7 +130,7 @@ public class SVNTeamProviderType extends RepositoryProviderType {
         }
     }
     
-    private synchronized static AutoShareJob getAutoShareJob() {
+    public synchronized static AutoShareJob getAutoShareJob() {
         if (autoShareJob == null) {
             autoShareJob = new AutoShareJob();
             autoShareJob.addJobChangeListener(new JobChangeAdapter() {
