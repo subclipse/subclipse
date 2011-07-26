@@ -112,7 +112,7 @@ public class RevertResourceManager implements IResourceChangeListener {
 								}
 		                	}
 		                	else if (resource.getType() == IResource.FILE) {
-		                		if (delta.getKind() == IResourceDelta.ADDED) {
+		                		if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
 		                        	addedFileResources.add(delta);
 		                        }  
 		                        else if (delta.getKind() == IResourceDelta.REMOVED) {
