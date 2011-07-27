@@ -724,7 +724,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 				if (revertButton != null) revertButton.addSelectionListener(choiceListener);
 			}
 		}
-		if ((reason == SVNConflictDescriptor.Reason.added && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._update) || (reason == SVNConflictDescriptor.Reason.obstructed && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._merge)) {
+		if ((reason == SVNConflictDescriptor.Reason.added && action == SVNConflictDescriptor.Action.add && (operation == SVNConflictDescriptor.Operation._update || operation == SVNConflictDescriptor.Operation._merge)) || (reason == SVNConflictDescriptor.Reason.obstructed && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._merge)) {
 			compareButton = new Button(resolutionGroup, SWT.CHECK);
 			String name;
 			boolean container = isContainer();
