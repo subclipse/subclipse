@@ -50,6 +50,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
+import org.eclipse.ui.texteditor.ITextEditorExtension4;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
@@ -136,7 +137,7 @@ public class ShowAnnotationOperation extends SVNOperation {
     			public void run() {
 
 //  				is there an open editor for the given input? If yes, use live annotate
-    				final AbstractDecoratedTextEditor editor= getEditor();
+    				final ITextEditorExtension4 editor= getEditor();
     				if (editor != null && promptForQuickDiffAnnotate()){
     					RevisionInformation information= createRevisionInformation(annotateBlocks, Policy.subMonitorFor(monitor, 20));
     					editor.showRevisionInformation(information, "org.tigris.subversion.subclipse.quickdiff.providers.SVNReferenceProvider"); //$NON-NLS-1$
@@ -179,7 +180,7 @@ public class ShowAnnotationOperation extends SVNOperation {
         return super.getGotoAction();
     }
     
-	private AbstractDecoratedTextEditor getEditor() {
+	private ITextEditorExtension4 getEditor() {
         final IWorkbench workbench= PlatformUI.getWorkbench();
         final IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
         IEditorReference[] references= window.getActivePage().getEditorReferences();
@@ -192,8 +193,8 @@ public class ShowAnnotationOperation extends SVNOperation {
 			try {
 				if (resource != null && resource.equals(reference.getEditorInput().getAdapter(IFile.class))) {
 					IEditorPart editor= reference.getEditor(false);
-					if (editor instanceof AbstractDecoratedTextEditor)
-						return (AbstractDecoratedTextEditor) editor;
+					if (editor instanceof ITextEditorExtension4)
+						return (ITextEditorExtension4) editor;
 					else {
 						//editor opened is not a text editor - reopen file using the defualt text editor
 						IEditorPart part = getPart().getSite().getPage().openEditor(new FileEditorInput((IFile) resource), IDEWorkbenchPlugin.DEFAULT_TEXT_EDITOR_ID, true, IWorkbenchPage.MATCH_NONE);
