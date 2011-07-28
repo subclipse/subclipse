@@ -71,6 +71,9 @@ public class DiffMergePreferencePage extends PreferencePage implements
     private Button browseMergeProgramButton;
     
     private Combo mergeImplementationCombo;
+    
+    private Button suggestMergeSourcesButton;
+    
     private WorkspaceAction[] mergeProviders;
 
     class StringPair {
@@ -159,11 +162,23 @@ public class DiffMergePreferencePage extends PreferencePage implements
         gridData.grabExcessHorizontalSpace = true;
         mergeImplementationCombo.setLayoutData(gridData);
         
+        mergeImplementationCombo.addSelectionListener(new SelectionAdapter() {			
+			public void widgetSelected(SelectionEvent e) {
+				suggestMergeSourcesButton.setVisible(mergeImplementationCombo.getText().equals("CollabNet Desktop")); //$NON-NLS-1$
+			}
+		});
+        
         try {
 			mergeProviders = SVNUIPlugin.getMergeProviders();
 			for (int i = 0; i < mergeProviders.length; i++) 
 				mergeImplementationCombo.add(mergeProviders[i].getName());
 		} catch (Exception e) {}
+        
+        suggestMergeSourcesButton = new Button(composite, SWT.CHECK);
+        suggestMergeSourcesButton.setText(Policy.bind("DiffMergePreferencePage.1")); //$NON-NLS-1$
+        gridData = new GridData();
+        gridData.horizontalSpan = 2;
+        suggestMergeSourcesButton.setLayoutData(gridData);
 
         // Group "Merge program"
         Group group = new Group(composite, SWT.NULL);
@@ -360,6 +375,9 @@ public class DiffMergePreferencePage extends PreferencePage implements
         }
         if (mergeImplementationCombo.getText().length() == 0) mergeImplementationCombo.setText(mergeProviders[0].getName());
         
+        suggestMergeSourcesButton.setSelection(store.getBoolean(ISVNUIConstants.PREF_SUGGEST_MERGE_SOURCES));
+        suggestMergeSourcesButton.setVisible(mergeImplementationCombo.getText().equals("CollabNet Desktop")); //$NON-NLS-1$
+        
         mergeProgramLocationText.setText(store
                 .getString(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION));
         mergeProgramParametersText.setText(store
@@ -407,6 +425,9 @@ public class DiffMergePreferencePage extends PreferencePage implements
         
         store.setValue(ISVNUIConstants.PREF_MERGE_PROVIDER, 
         		mergeImplementationCombo.getText());
+        
+        store.setValue(ISVNUIConstants.PREF_SUGGEST_MERGE_SOURCES,
+        		suggestMergeSourcesButton.getSelection());
         
 
         store.setValue(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION,

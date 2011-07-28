@@ -77,6 +77,7 @@ public class SVNUIPreferenceInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(ISVNUIConstants.PREF_STOP_ON_COPY, false);
 
         node.putBoolean(ISVNUIConstants.PREF_MERGE_USE_EXTERNAL, false);
+        node.putBoolean(ISVNUIConstants.PREF_SUGGEST_MERGE_SOURCES, true);
         node.put(ISVNUIConstants.PREF_MERGE_PROGRAM_LOCATION,""); //$NON-NLS-1$
         node.put(ISVNUIConstants.PREF_MERGE_PROGRAM_PARAMETERS,""); //$NON-NLS-1$
         
