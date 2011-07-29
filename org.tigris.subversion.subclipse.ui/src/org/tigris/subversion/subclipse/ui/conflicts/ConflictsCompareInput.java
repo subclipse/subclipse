@@ -188,7 +188,8 @@ public class ConflictsCompareInput extends CompareEditorInput {
 				}
             };
             
-            InputStream mineContents = fMineResource.getContents();
+            final IFile resource = fMineResource != null ? fMineResource : fDestinationResource;
+            InputStream mineContents = resource.getContents();
             byte[] contents;
             try {
                 contents = new byte[mineContents.available()];
