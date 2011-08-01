@@ -14,7 +14,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -36,10 +35,8 @@ import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.ISVNDirEntry;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -98,23 +95,14 @@ public class CheckoutCommand implements ISVNCommand {
 
 		try {
 			// Perform the checkout
+			
+			boolean createProject = false;
+			
 			svnClient = getSvnClient(resource, pm);
 
 			// Prepare the target projects to receive resources
 			scrubProject(resource, project, (pm != null) ? Policy.subMonitorFor(pm, 100)
 					: null);
-
-			boolean deleteDotProject = false;
-
-			// check if the remote project has a .project file
-			ISVNDirEntry[] rootFiles = svnClient.getList(resource.getUrl(),
-					SVNRevision.HEAD, false);
-			for (int j = 0; j < rootFiles.length; j++) {
-				if ((rootFiles[j].getNodeKind() == SVNNodeKind.FILE)
-						&& (".project".equals(rootFiles[j].getPath()))) {
-					deleteDotProject = true;
-				}
-			}
 
 			File destPath;
 			if (project.getLocation() == null) {
@@ -128,20 +116,10 @@ public class CheckoutCommand implements ISVNCommand {
 				} else {
 					destPath = new File(projectRoot.toFile(), project.getName());					
 				}
-				try {
-					// we create the directory corresponding to the
-					// project and we open it
-					
-					project.create(null);
-					project.open(null);
-					if (projectRoot!=null) {
-						setProjectToRoot(project, destPath);
-					}
-				} catch (CoreException e1) {
-					throw new SVNException(
-							"Cannot create project to checkout to", e1);
+				if (!destPath.exists()) {
+					destPath.mkdirs();
 				}
-
+				createProject = true;
 			} else {
 				if (projectRoot!=null) {
 					try {
@@ -157,36 +135,32 @@ public class CheckoutCommand implements ISVNCommand {
 				}
 			}
 
-			//delete the project file if the flag gets set.
-			//fix for 54
-			if (deleteDotProject) {
-
-				IFile projectFile = project.getFile(".project");
-				if (projectFile != null) {
-					try {
-						// delete the project file, force, no history,
-						// without progress monitor
-						projectFile.delete(true, false, null);
-					} catch (CoreException e1) {
-						throw new SVNException(
-								"Cannot delete .project before checkout", e1);
-					}
-				}
-			}
-
-			SVNWorkspaceRoot.setManagedBySubclipse(project);
-
 			checkoutProject(pm, resource, svnClient, destPath);
 
 			// Bring the project into the workspace
+			if (createProject) {
+				createProject(project);
+			}
+			SVNWorkspaceRoot.setManagedBySubclipse(project);
 			if (refreshProjects) refreshProject(project, (pm != null) ? Policy
 					.subMonitorFor(pm, 100) : null);
-		} catch (SVNClientException ce) {
-			throw new SVNException("Error Getting Dir list", ce);
+		} catch (Exception e) {
+			throw new SVNException("Error Getting Dir list", e);
 		} finally {
 			if (pm != null) {
 				pm.done();
 			}
+		}
+	}
+
+	private void createProject(final IProject project)
+			throws SVNException {
+		try {
+			project.create(null);
+			project.open(null);
+		} catch (CoreException e1) {
+			throw new SVNException(
+					"Cannot create project to checkout to", e1);
 		}
 	}
 
