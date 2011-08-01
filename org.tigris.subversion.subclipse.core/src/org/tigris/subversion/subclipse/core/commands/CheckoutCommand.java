@@ -12,6 +12,8 @@ package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
@@ -67,6 +69,9 @@ public class CheckoutCommand implements ISVNCommand {
 	private boolean refreshProjects = true;
 	
 	private ISVNClientAdapter svnClient;
+	
+	private List<IProject> createProjectList = new ArrayList<IProject>();
+	private List<IProject> manageProjectList = new ArrayList<IProject>();
 
 	public CheckoutCommand(ISVNRemoteFolder[] resources, IProject[] projects) {
 		this(resources, projects, null);
@@ -77,7 +82,7 @@ public class CheckoutCommand implements ISVNCommand {
 		this.projects = projects;
 		this.projectRoot = root;
 	}
-	
+
 	private ISVNClientAdapter getSvnClient(ISVNRemoteFolder resource, IProgressMonitor pm) throws SVNException {
 		if (svnClient == null) {
 			svnClient = resource.getRepository()
@@ -134,34 +139,36 @@ public class CheckoutCommand implements ISVNCommand {
 					destPath = project.getLocation().toFile();
 				}
 			}
+			
+			if (createProject) {
+				createProjectList.add(project);
+			}
 
 			checkoutProject(pm, resource, svnClient, destPath);
 
-			// Bring the project into the workspace
-			if (createProject) {
-				createProject(project);
-			}
 			SVNWorkspaceRoot.setManagedBySubclipse(project);
-			if (refreshProjects) refreshProject(project, (pm != null) ? Policy
-					.subMonitorFor(pm, 100) : null);
-		} catch (Exception e) {
-			throw new SVNException("Error Getting Dir list", e);
-		} finally {
+			if (refreshProjects) {
+				refreshProject(project, (pm != null) ? Policy.subMonitorFor(pm, 100) : null);
+			}
+			else {
+				manageProjectList.add(project);
+			}
+		}finally {
 			if (pm != null) {
 				pm.done();
 			}
 		}
 	}
 
-	private void createProject(final IProject project)
-			throws SVNException {
-		try {
-			project.create(null);
-			project.open(null);
-		} catch (CoreException e1) {
-			throw new SVNException(
-					"Cannot create project to checkout to", e1);
-		}
+	public List<IProject> getCreateProjectList() {
+		return createProjectList;
+	}
+
+	/**
+	 * @return Returns the manageProjectList.
+	 */
+	public List<IProject> getManageProjectList() {
+		return manageProjectList;
 	}
 
 	private void setProjectToRoot(final IProject project, File destPath) throws CoreException {
@@ -181,7 +188,6 @@ public class CheckoutCommand implements ISVNCommand {
 		final IProgressMonitor subPm = Policy.infiniteSubMonitorFor(pm, 800);
 		try {
 			subPm.beginTask("", Policy.INFINITE_PM_GUESS_FOR_CHECKOUT);
-//			subPm.setTaskName("");
 			svnClient.checkout(resource.getUrl(), destPath, svnRevision, depth, ignoreExternals, force);
 		} catch (SVNClientException e) {
 			throw new SVNException("cannot checkout", e.operationInterrupted());

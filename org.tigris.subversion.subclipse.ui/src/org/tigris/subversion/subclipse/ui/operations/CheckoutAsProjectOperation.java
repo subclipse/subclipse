@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceRuleFactory;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -41,6 +42,8 @@ public class CheckoutAsProjectOperation extends SVNOperation {
     private int depth = ISVNCoreConstants.DEPTH_INFINITY;
     private boolean ignoreExternals = false;
     private boolean force = true;
+    private List<IProject> createProjectList = new ArrayList<IProject>();
+    private List<IProject> manageProjectList = new ArrayList<IProject>();
 
     public CheckoutAsProjectOperation(IWorkbenchPart part, ISVNRemoteFolder[] remoteFolders, IProject[] localFolders) {
     	this(part, remoteFolders, localFolders, null);
@@ -65,10 +68,20 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 		}
 		return MultiRule.combine((ISchedulingRule[]) rules.toArray(new ISchedulingRule[rules.size()]));
 	}
+	
+	private void createProject(final IProject project) throws SVNException {
+		try {
+			project.create(null);
+			project.open(null);
+		} catch (CoreException e1) {
+			throw new SVNException(
+					"Cannot create project to checkout to", e1);
+		}
+	}
 
     public void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
     	// First checkout all projects, then bring them into workspace.
-    	List failedProjects = new ArrayList();
+//    	List failedProjects = new ArrayList();
         monitor.beginTask(null, remoteFolders.length * 1000);
         for (int i = 0; i < remoteFolders.length; i++) {
             IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
@@ -78,19 +91,21 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 				local[0] = localFolders[i];
 				ISVNRemoteFolder[] remote = new ISVNRemoteFolder[1];
 				remote[0] = remoteFolders[i];
-				if (!execute(remote, local, subMonitor)) {
-					failedProjects.add(remoteFolders[i]);
+				execute(remote, local, subMonitor);
+				if (monitor.isCanceled()) {
+					break;
 				}
 			} finally {}
         }
-        for (int i = 0; i < remoteFolders.length; i++) {
-        	if (!failedProjects.contains(remoteFolders[i])) {
-	        	IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
-				try {
-					monitor.setTaskName(Policy.bind("SVNProvider.Creating_project_1", remoteFolders[i].getName())); //$NON-NLS-1$
-					refreshProject(localFolders[i], subMonitor);
-				} finally {}
-        	}
+        for (IProject project : createProjectList) {
+        	createProject(project);
+        }
+        for (IProject project : manageProjectList) {
+        	IProgressMonitor subMonitor = new SubProgressMonitor(monitor, 1000);
+			try {
+				monitor.setTaskName(Policy.bind("SVNProvider.Creating_project_1", project.getName())); //$NON-NLS-1$
+				refreshProject(project, subMonitor);
+			} finally {}
         }
     }
     
@@ -108,6 +123,14 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 			command.setForce(force);
 			command.setRefreshProjects(false);
 	    	command.run(monitor);
+	    	List<IProject> commandCreateProjectList = command.getCreateProjectList();
+	    	for (IProject project : commandCreateProjectList) {
+	    		createProjectList.add(project);
+	    	}
+	    	List<IProject> commandManageProjectList = command.getManageProjectList();
+	    	for (IProject project : commandManageProjectList) {
+	    		manageProjectList.add(project);
+	    	}
 		} catch (SVNException e) {
 			if (e.operationInterrupted()) {
 				showCancelledMessage();
