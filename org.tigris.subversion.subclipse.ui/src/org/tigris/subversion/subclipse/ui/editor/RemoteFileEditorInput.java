@@ -42,6 +42,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorInput, IPathEditorInput {
 	private ISVNRemoteFile file;
 	protected IStorage storage;
+	private File tempFile;
 
 	/**
 	 * Creates FileEditionEditorInput on the given file.
@@ -155,7 +156,7 @@ public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorI
 	public String getName() {
 		String name = file.getName();
 		SVNRevision.Number revision = file.getLastChangedRevision();
-		return Policy.bind("nameAndRevision", name, (revision != null) ? revision.toString() : ""); //$NON-NLS-1$
+		return Policy.bind("nameAndRevision", name, (revision != null) ? revision.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	/**
 	 * Returns the logical parent of the given object in its tree.
@@ -221,26 +222,37 @@ public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorI
 		return null;
 	}
 	
-	private File writeToTempFile() throws IOException, CoreException {
-
-		// Save InputStream to the file.
-		InputStream in = this.getStorage().getContents();
-		File temp = File.createTempFile("svn", "." + this.getContentType());
-		temp.deleteOnExit();
-		BufferedOutputStream fOut = null;
-		try {
-			fOut = new BufferedOutputStream(new FileOutputStream(temp));
-			byte[] buffer = new byte[32 * 1024];
-			int bytesRead = 0;
-			while ((bytesRead = in.read(buffer)) != -1) {
-				fOut.write(buffer, 0, bytesRead);
+	public File writeToTempFile() throws IOException, CoreException {
+		if (tempFile == null) {
+			InputStream in = null;
+			BufferedOutputStream fOut = null;
+			tempFile = null;
+			// Save InputStream to the file.
+			in = this.getStorage().getContents();
+			try {
+				tempFile = File.createTempFile("svn", "." + this.getContentType()); //$NON-NLS-1$ //$NON-NLS-2$
+			} catch (Exception e) {
+				throw new IOException (Policy.bind("RemoteFileEditorInput.3") + e.toString()); //$NON-NLS-1$
 			}
-		} catch (Exception e) {
-			throw new IOException("Failed to get file contents: " + e.toString());
-		} finally {
-			in.close();
-			fOut.close();
+			try {
+				tempFile.deleteOnExit();			
+				fOut = new BufferedOutputStream(new FileOutputStream(tempFile));
+				byte[] buffer = new byte[32 * 1024];
+				int bytesRead = 0;
+				while ((bytesRead = in.read(buffer)) != -1) {
+					fOut.write(buffer, 0, bytesRead);
+				}
+			} catch (Exception e) {
+				throw new IOException(Policy.bind("RemoteFileEditorInput.4") + e.toString()); //$NON-NLS-1$
+			} finally {
+				if (in != null) {
+					in.close();
+				}
+				if (fOut != null) {
+					fOut.close();
+				}
+			}
 		}
-		return temp;
+		return tempFile;
 	}
 }

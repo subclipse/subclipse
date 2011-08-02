@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorRegistry;
@@ -22,6 +23,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteResource;
+import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -63,16 +65,21 @@ public class OpenRemoteFileAction extends SVNAction {
 								((RemoteResource)files[i]).setPegRevision(files[i].getRevision());
 							else
 								((RemoteResource)files[i]).setPegRevision(SVNRevision.HEAD);
-							page.openEditor(new RemoteFileEditorInput(files[i],monitor), id);
+							RemoteFileEditorInput input = new RemoteFileEditorInput(files[i],monitor);
+							if (descriptor != null && descriptor.isOpenExternal()) {
+								input.writeToTempFile();
+							}
+							page.openEditor(input, id);
 						} catch (PartInitException e) {
 							if (id.equals("org.eclipse.ui.DefaultTextEditor")) { //$NON-NLS-1$
 								throw e;
 							} else {
-								page.openEditor(new RemoteFileEditorInput(files[i],monitor), "org.eclipse.ui.DefaultTextEditor"); //$NON-NLS-1$
+								RemoteFileEditorInput input = new RemoteFileEditorInput(files[i],monitor);
+								page.openEditor(input, "org.eclipse.ui.DefaultTextEditor"); //$NON-NLS-1$
 							}
 						}
-					} catch (PartInitException e) {
-						throw new InvocationTargetException(e);
+					} catch (Exception e) {
+						 MessageDialog.openError(getShell(), Policy.bind("OpenRemoteFileAction.0"), e.getMessage());  //$NON-NLS-1$
 					}
 				}
 			}
