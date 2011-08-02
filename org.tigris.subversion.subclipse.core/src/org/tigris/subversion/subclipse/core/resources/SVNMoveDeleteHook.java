@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -235,52 +234,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
      * @see org.eclipse.core.resources.team.IMoveDeleteHook#deleteProject(org.eclipse.core.resources.team.IResourceTree, org.eclipse.core.resources.IProject, int, org.eclipse.core.runtime.IProgressMonitor)
      */
     public boolean deleteProject(IResourceTree tree, IProject project, int updateFlags, IProgressMonitor monitor) {
-        ISVNLocalFolder resource = new LocalFolder(project);
-        try {
-        	// If not managed, let Eclipse handle.
-			if (!resource.isManaged())
-			    return false;
-			
-			File projectDirectory = new File(project.getLocationURI());
-			
-			// If meta directory does not exist, let Eclipse handle.
-			File metaFolder = new File(projectDirectory, ".svn");
-			if (!metaFolder.exists()) {
-				return false;
-			}
-			
-			// If database file does not exist, let Eclipse handle.
-			File databaseFile = new File(metaFolder, "wc.db");
-			if (!databaseFile.exists()) {
-				return false;
-			}
-			
-			// If we can delete database file, let Eclipse handle project deletion.
-			if (databaseFile.delete()) {
-				return false;
-			}
-			
-			// Will not be able to delete project because of lock on database file.
-			// Schedule for deletion on JVM exit instead.
-			deleteOnExit(projectDirectory);
-			
-			tree.deletedProject(project);			
-			resource.unmanage(monitor);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-        return true;
-    }
-    
-    private void deleteOnExit(File file) {
-    	file.deleteOnExit();
-    	if (file.isDirectory()) {
-    		File[] children = file.listFiles();
-    		for (File child : children) {
-    			deleteOnExit(child);
-    		}
-    	}
+        return false;
     }
 
     /* (non-Javadoc)
