@@ -3,6 +3,8 @@
 <plugin>
 
    <extension-point id="svnPropertyTypes" name="SVN Property Type Definitions" schema="schema/svnPropertyTypes.exsd"/>
+   
+   <extension-point id="messageHandlers" name="Message Handlers" schema="schema/messageHandlers.exsd"/>
 
    <extension
          point="org.eclipse.team.core.repository">

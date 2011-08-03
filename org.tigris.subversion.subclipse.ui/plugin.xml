@@ -7,6 +7,14 @@
    <extension-point id="commitDialogCompareActions" name="Commit Dialog Compare Actions" schema="schema/commitDialogExtensions.exsd"/>
 
    <extension
+         point="org.tigris.subversion.subclipse.core.messageHandlers">
+      <messageHandler
+            class="org.tigris.subversion.subclipse.ui.MessageHandler"
+            id="org.tigris.subversion.subclipse.ui.MessageHandler">
+      </messageHandler>                   
+   </extension>
+
+   <extension
          point="org.tigris.subversion.clientadapter.loadErrorHandlers">
       <loadErrorHandler
             class="org.tigris.subversion.subclipse.ui.LoadErrorHandler"

@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.resources;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,11 +26,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.IMessageHandler;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -118,7 +121,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             .getProvider(destination.getProject());
         	
             if (repositoryProvider == null || !(repositoryProvider instanceof SVNTeamProvider)) //target is not SVN project
-                throw new SVNException(Policy.bind("SVNMoveHook.moveFileException"));
+                throw new SVNException(Policy.bind("SVNMoveHook.moveFileException")); //$NON-NLS-1$
         	
             ISVNLocalFile resource = new LocalFile(source);
 
@@ -188,7 +191,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             .getProvider(destination.getProject());
 
         	if (repositoryProvider == null || !(repositoryProvider instanceof SVNTeamProvider)) //target is not SVN project
-        		 throw new SVNException(Policy.bind("SVNMoveHook.moveFolderException"));
+        		 throw new SVNException(Policy.bind("SVNMoveHook.moveFolderException")); //$NON-NLS-1$
 
             monitor.beginTask(null, 1000);
 
@@ -234,7 +237,44 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
      * @see org.eclipse.core.resources.team.IMoveDeleteHook#deleteProject(org.eclipse.core.resources.team.IResourceTree, org.eclipse.core.resources.IProject, int, org.eclipse.core.runtime.IProgressMonitor)
      */
     public boolean deleteProject(IResourceTree tree, IProject project, int updateFlags, IProgressMonitor monitor) {
-        return false;
+        ISVNLocalFolder resource = new LocalFolder(project);
+        try {
+        	// If contents are not being deleted, let Eclipse handle.
+        	if ((updateFlags & IResource.NEVER_DELETE_PROJECT_CONTENT) == IResource.NEVER_DELETE_PROJECT_CONTENT) {
+        		return false;
+        	}
+        	
+        	// If not managed, let Eclipse handle.
+			if (!resource.isManaged())
+			    return false;
+			
+			File projectDirectory = new File(project.getLocationURI());
+			
+			// If meta directory does not exist, let Eclipse handle.
+			File metaFolder = new File(projectDirectory, ".svn"); //$NON-NLS-1$
+			if (!metaFolder.exists()) {
+				return false;
+			}
+			
+			// If database file does not exist, let Eclipse handle.
+			File databaseFile = new File(metaFolder, "wc.db"); //$NON-NLS-1$
+			if (!databaseFile.exists()) {
+				return false;
+			}
+			
+			// If we can delete database file, let Eclipse handle project deletion.
+			if (databaseFile.delete()) {
+				return false;
+			}
+			
+			// Show message dialog in UI thread and cancel deletion.
+			SVNProviderPlugin.handleMessage(Policy.bind("SVNMoveDeleteHook.4"), Policy.bind("SVNMoveDeleteHook.5") + project.getName() + Policy.bind("SVNMoveDeleteHook.6"), IMessageHandler.ERROR); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return true;
+			
+		} catch (Exception e) {
+			// Let Eclipse try to handle it.
+			return false;
+		}
     }
 
     /* (non-Javadoc)
@@ -257,7 +297,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
         } catch (SVNException e) {
         }
         if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
-            return property.getValue().equalsIgnoreCase("true");           
+            return property.getValue().equalsIgnoreCase("true");            //$NON-NLS-1$
         }
         IResource checkResource = resource;
         while (checkResource.getParent() != null) {
@@ -270,7 +310,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             } catch (SVNException e1) {
             }
             if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
-                return property.getValue().equalsIgnoreCase("true");           
+                return property.getValue().equalsIgnoreCase("true");            //$NON-NLS-1$
             }
         }
         return false;

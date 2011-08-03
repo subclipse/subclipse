@@ -22,10 +22,13 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
@@ -70,6 +73,9 @@ public class SVNProviderPlugin extends Plugin {
 
 	// the plugin instance. @see getPlugin()
 	private static volatile SVNProviderPlugin instance;
+	
+	public static final String MESSAGE_HANDLERS = "org.tigris.subversion.subclipse.core.messageHandlers"; //$NON-NLS-1$
+	private static IMessageHandler[] messageHandlers;
 
 	// the console listener
 	private IConsoleListener consoleListener;
@@ -129,6 +135,12 @@ public class SVNProviderPlugin extends Plugin {
 		// For now, we'll log the status. However we should do more
 		getPlugin().getLog().log(status);
 	}
+	
+	public static void handleMessage(String title, String message, int severity) {
+		for (IMessageHandler messageHandler : messageHandlers) {
+			messageHandler.handleMessage(title, message, severity);
+		}
+	}
 
 	/**
 	 * Returns the singleton plug-in instance.
@@ -142,6 +154,8 @@ public class SVNProviderPlugin extends Plugin {
 
 	public void start(BundleContext ctxt) throws Exception {
 		super.start(ctxt);
+		
+		messageHandlers = getMessageHandlers();
 		
 		// register all the adapter factories
 		adapterFactories = new SVNAdapterFactories();
@@ -226,6 +240,22 @@ public class SVNProviderPlugin extends Plugin {
 	}
 
 	private static List listeners = new ArrayList();
+	
+	public static IMessageHandler[] getMessageHandlers() throws Exception {
+		if (messageHandlers == null) {
+			ArrayList<IMessageHandler> messageHandlerList = new ArrayList<IMessageHandler>();
+			IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+			IConfigurationElement[] configurationElements = extensionRegistry.getConfigurationElementsFor(MESSAGE_HANDLERS);
+			for (int i = 0; i < configurationElements.length; i++) {
+				IConfigurationElement configurationElement = configurationElements[i];
+				IMessageHandler messageHandler = (IMessageHandler)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
+				messageHandlerList.add(messageHandler);
+			}
+			messageHandlers = new IMessageHandler[messageHandlerList.size()];
+			messageHandlerList.toArray(messageHandlers);	
+		}
+		return messageHandlers;
+	}
 
 	/*
 	 * @see ITeamManager#addResourceStateChangeListener(IResourceStateChangeListener)
