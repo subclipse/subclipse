@@ -148,6 +148,13 @@ public class CheckoutCommand implements ISVNCommand {
 
 			SVNWorkspaceRoot.setManagedBySubclipse(project);
 			if (refreshProjects) {
+				try {
+					project.create(null);
+					project.open(null);
+				} catch (CoreException e1) {
+					throw new SVNException(
+							"Cannot create project to checkout to", e1);
+				}
 				refreshProject(project, (pm != null) ? Policy.subMonitorFor(pm, 100) : null);
 			}
 			else {
