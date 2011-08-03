@@ -25,7 +25,6 @@ import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -318,6 +317,30 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
                 		new SelectionListener(){
                 			public void widgetSelected(SelectionEvent e) {
                 				showComparePane(!showCompare);
+                				if (showCompare) {
+                					IStructuredSelection selection = (IStructuredSelection)resourceSelectionTree.getTreeViewer().getSelection();
+                					if (!selection.isEmpty()) {
+	                					Object sel0 = selection.getFirstElement();
+	                					if (sel0 instanceof IFile) {
+	                						final ISVNLocalResource localResource= SVNWorkspaceRoot.getSVNResourceFor((IFile)sel0);
+	                						try {
+	                							// if any alternate compare actions are defined from the extension point
+	                							// then call those actions instead of showing the default compare dialog
+	                							if (alternateCompareActions.length > 0) {
+	                								StructuredSelection localResourceSelection = new StructuredSelection(localResource);
+	                								for (int i = 0; i < alternateCompareActions.length; i++) {
+	                									// make sure the selection is up to date
+	                									alternateCompareActions[i].selectionChanged(localResourceSelection);
+	                									alternateCompareActions[i].run();
+	                								}
+	                							} else {
+	                								setCompareInput(new SVNLocalCompareInput(localResource, SVNRevision.BASE, true));
+	                							}
+	                						} catch (Exception e1) {
+	                						}
+	                					}
+                					}
+                				}
                 			}
                 			public void widgetDefaultSelected(SelectionEvent e) {
                 			}
@@ -359,12 +382,34 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 				selectedResources = resourceSelectionTree.getSelectedResources();
 				
 				// need to update the toolbar actions too - but we use the tree viewer's selection
-				if (toolbarActions.length > 0) {
-					ISelection selection = resourceSelectionTree.getTreeViewer().getSelection();
+				IStructuredSelection selection = (IStructuredSelection)resourceSelectionTree.getTreeViewer().getSelection();
+				if (toolbarActions.length > 0) {			
 					for (int i = 0; i < toolbarActions.length; i++) {
 						SVNPluginAction action = toolbarActions[i];
 						action.selectionChanged(selection);
 					}
+				}
+				
+				if (showCompare) {
+					Object sel0 = selection.getFirstElement();
+					if (sel0 instanceof IFile) {
+						final ISVNLocalResource localResource= SVNWorkspaceRoot.getSVNResourceFor((IFile)sel0);
+						try {
+							// if any alternate compare actions are defined from the extension point
+							// then call those actions instead of showing the default compare dialog
+							if (alternateCompareActions.length > 0) {
+								StructuredSelection localResourceSelection = new StructuredSelection(localResource);
+								for (int i = 0; i < alternateCompareActions.length; i++) {
+									// make sure the selection is up to date
+									alternateCompareActions[i].selectionChanged(localResourceSelection);
+									alternateCompareActions[i].run();
+								}
+							} else {
+								setCompareInput(new SVNLocalCompareInput(localResource, SVNRevision.BASE, true));
+							}
+						} catch (Exception e1) {
+						}
+					}					
 				}
 			}
 		});
