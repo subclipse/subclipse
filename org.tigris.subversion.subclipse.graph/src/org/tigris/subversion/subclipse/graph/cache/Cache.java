@@ -280,7 +280,11 @@ public class Cache {
 		logRaf.writeLong(revision);
 		logRaf.writeLong(logMessage.getDate().getTime());
 		logRaf.writeUTF(notNull(logMessage.getAuthor()));
-		logRaf.writeUTF(notNull(logMessage.getMessage()));
+		String message = notNull(logMessage.getMessage());
+		if (message.length() > 64000) {
+			message = message.substring(0, 64397) + "...";
+		}
+		logRaf.writeUTF(message);
 		
 		ISVNLogMessageChangePath[] changePaths = logMessage.getChangedPaths();
 		logRaf.writeInt(changePaths.length);
