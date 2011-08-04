@@ -57,32 +57,6 @@ public class RepositoryBranchTagAction extends SVNAction {
               SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 		  }
     	}
-//		SvnWizardBranchTagPage branchTagPage = new SvnWizardBranchTagPage(resources[0]);
-//    	SvnWizard wizard = new SvnWizard(branchTagPage);
-//        SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
-//        wizard.setParentDialog(dialog);    	
-//		if (dialog.open() == SvnWizardDialog.OK) {
-//            final SVNUrl sourceUrl = branchTagPage.getUrl();
-//            final SVNUrl destinationUrl = branchTagPage.getToUrl();
-//            final String message = branchTagPage.getComment();
-//            final SVNRevision revision = branchTagPage.getRevision();
-//            final boolean makeParents = branchTagPage.isMakeParents();
-//            BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
-//				public void run() {
-//					try {
-//						ISVNClientAdapter client = null;
-//						ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrl.toString());
-//						if (repository != null)
-//							client = repository.getSVNClient();
-//						if (client == null)
-//							client = SVNProviderPlugin.getPlugin().getSVNClientManager().createSVNClient();
-//						client.copy(sourceUrl, destinationUrl, message, revision, makeParents);
-//					} catch (Exception e) {
-//						MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
-//					}
-//				}           	
-//            });
-//		}
 	}
 
 	protected boolean isEnabled() throws TeamException {

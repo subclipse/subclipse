@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -106,6 +107,8 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 	 * @see IRunnableWithProgress#run(IProgressMonitor)
 	 */
 	public void run(IProgressMonitor monitor) throws InvocationTargetException {
+		ISVNClientAdapter svnClient = null;
+		ISVNRepositoryLocation repository = null;
 		try {
 			monitor.beginTask("", 500); //$NON-NLS-1$
 			monitor.setTaskName(
@@ -156,8 +159,8 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 						} 
 					}
 			 }
-
-         ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+			repository = svnResource.getRepository();
+            svnClient = repository.getSVNClient();
 			try {
 					monitor.worked(100);
 				File[] files = getVersionedFiles();
@@ -241,10 +244,13 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 			}
       } catch (Exception e) {    
          throw new InvocationTargetException(e);
-		}				
-			finally {
-			monitor.done();
-		}
+	  }				
+      finally {
+    	if (repository != null) {
+    		repository.returnSVNClient(svnClient);
+    	}
+		monitor.done();
+	  }
 	}
 	
 	private File getRelativeToPath() {
@@ -299,6 +305,8 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 	private void createEclipsePatch(IResource[] paths, File outputFile, boolean recurse) throws SVNClientException {
 		FileOutputStream os = null;
 		InputStream is = null;
+		ISVNClientAdapter client = null;
+		ISVNRepositoryLocation repository = null;
 		try {
 			byte[] buffer = new byte[4096];
 			
@@ -320,14 +328,14 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 				}
 				files.add(resource.getLocation().toFile());
 			}
-			
 			for (Iterator iEntry = projectToResources.entrySet().iterator(); iEntry.hasNext();) {
 				Entry entry = (Entry) iEntry.next();
 				
 				IResource project = (IResource) entry.getKey();
 				List files = (List) entry.getValue();
 				
-				ISVNClientAdapter client = SVNWorkspaceRoot.getSVNResourceFor(project).getRepository().getSVNClient();
+				repository = SVNWorkspaceRoot.getSVNResourceFor(project).getRepository();
+				client = repository.getSVNClient();
 
 				os.write(ECLIPSE_PROJECT_MARKER.getBytes());
 				os.write(project.getName().getBytes());
@@ -336,6 +344,10 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 				File tempFile = File.createTempFile("tempDiff", ".txt");
 				tempFile.deleteOnExit();
 				client.createPatch((File[]) files.toArray(new File[files.size()]), project.getLocation().toFile(), tempFile, recurse);
+				
+				SVNWorkspaceRoot.getSVNResourceFor(project).getRepository().returnSVNClient(client);
+				client = null;
+				repository = null;
 				
 				try {
 					is = new FileInputStream(tempFile);
@@ -351,6 +363,9 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
 			throw new SVNClientException(e);
 		} finally {
 			if (os != null) try {os.close();} catch (IOException e) {}
+			if (repository != null) {
+				repository.returnSVNClient(client);
+			}
 		}
 	}
 }

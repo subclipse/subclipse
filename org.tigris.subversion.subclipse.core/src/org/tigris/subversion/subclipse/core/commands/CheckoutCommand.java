@@ -68,8 +68,6 @@ public class CheckoutCommand implements ISVNCommand {
 	
 	private boolean refreshProjects = true;
 	
-	private ISVNClientAdapter svnClient;
-	
 	private List<IProject> createProjectList = new ArrayList<IProject>();
 	private List<IProject> manageProjectList = new ArrayList<IProject>();
 
@@ -83,16 +81,8 @@ public class CheckoutCommand implements ISVNCommand {
 		this.projectRoot = root;
 	}
 
-	private ISVNClientAdapter getSvnClient(ISVNRemoteFolder resource, IProgressMonitor pm) throws SVNException {
-		if (svnClient == null) {
-			svnClient = resource.getRepository()
-			.getSVNClient();
-			OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm, svnClient));
-		}
-		return svnClient;
-	}
-
 	protected void basicRun(final IProject project, ISVNRemoteFolder resource, final IProgressMonitor pm) throws SVNException {
+		ISVNClientAdapter svnClient = null;
 		if (pm != null)
 		{
 			pm.beginTask(null, 1000);
@@ -102,8 +92,9 @@ public class CheckoutCommand implements ISVNCommand {
 			// Perform the checkout
 			
 			boolean createProject = false;
-			
-			svnClient = getSvnClient(resource, pm);
+
+			svnClient = resource.getRepository().getSVNClient();
+			OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm, svnClient));
 
 			// Prepare the target projects to receive resources
 			scrubProject(resource, project, (pm != null) ? Policy.subMonitorFor(pm, 100)
@@ -161,6 +152,7 @@ public class CheckoutCommand implements ISVNCommand {
 				manageProjectList.add(project);
 			}
 		}finally {
+			resource.getRepository().returnSVNClient(svnClient);
 			if (pm != null) {
 				pm.done();
 			}

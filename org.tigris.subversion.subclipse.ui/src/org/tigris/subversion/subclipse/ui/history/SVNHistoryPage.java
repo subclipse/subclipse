@@ -2513,11 +2513,16 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 	        	}
 	        }		
 	        ISVNClientAdapter svnClient = remoteResource.getRepository().getSVNClient();
-	        CancelableSVNLogMessageCallback callback = new CancelableSVNLogMessageCallback(monitor, svnClient);
-			GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, start, end, stopOnCopy, fetchLimit, tagManager, includeMergedRevisions);
-			logCmd.setCallback(callback);
-			logCmd.run(monitor);
-			return logCmd.getLogEntries(); 		
+	        try {
+		        CancelableSVNLogMessageCallback callback = new CancelableSVNLogMessageCallback(monitor, svnClient);
+				GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, start, end, stopOnCopy, fetchLimit, tagManager, includeMergedRevisions);
+				logCmd.setCallback(callback);
+				logCmd.run(monitor);
+				return logCmd.getLogEntries(); 	
+	        }
+	        finally {
+	        	remoteResource.getRepository().returnSVNClient(svnClient);
+	        }
 		}
   }
 

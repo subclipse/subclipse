@@ -134,6 +134,7 @@ public class SVNWorkspaceRoot {
             throw e;
         } finally {
             client.getNotificationHandler().enableLog();
+            folder.getRepository().returnSVNClient(client);
         }
     }
 

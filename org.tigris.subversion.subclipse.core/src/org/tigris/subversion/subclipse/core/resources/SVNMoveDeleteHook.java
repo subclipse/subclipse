@@ -165,6 +165,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             } catch (CoreException e) {
                 throw SVNException.wrapException(e);
             } finally {
+            	resource.getRepository().returnSVNClient(svnClient);
                 OperationManager.getInstance().endOperation(false);
             }
 
@@ -222,6 +223,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             } catch (CoreException e) {
                 throw SVNException.wrapException(e);
             } finally {
+            	resource.getRepository().returnSVNClient(svnClient);
                 OperationManager.getInstance().endOperation(false);
             }
 

@@ -56,6 +56,7 @@ public class UnlockResourcesCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	root.getRepository().returnSVNClient(svnClient);
             OperationManager.getInstance().endOperation();
             monitor.done();
         }

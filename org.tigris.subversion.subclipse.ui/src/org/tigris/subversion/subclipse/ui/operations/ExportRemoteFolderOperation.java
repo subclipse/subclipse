@@ -43,8 +43,9 @@ public class ExportRemoteFolderOperation extends SVNOperation {
 	}
 
 	protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
+		ISVNClientAdapter client = null;
 		try {
-			ISVNClientAdapter client = folder.getRepository().getSVNClient();
+			client = folder.getRepository().getSVNClient();
 			try {
 				client.doExport(folder.getUrl(), directory, revision, true);
 			} catch (SVNClientException e) {
@@ -57,6 +58,7 @@ public class ExportRemoteFolderOperation extends SVNOperation {
 				collectStatus(e.getStatus());
 			}
 		} finally {
+			folder.getRepository().returnSVNClient(client);
 			monitor.done();
 		}         
 	}

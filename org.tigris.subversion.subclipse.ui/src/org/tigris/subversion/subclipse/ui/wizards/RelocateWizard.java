@@ -56,12 +56,13 @@ public class RelocateWizard extends Wizard {
 	}
 
 	public boolean performFinish() {
+		ISVNClientAdapter client = null;
 		try {
 			SVNRepositoryLocation newRepository = SVNRepositoryLocation.fromString(urlPage.getNewUrl());
 			newRepository.setUsername(repository.getUsername());
 			newRepository.setLabel(repository.getLabel());
 			newRepository.validateConnection(new NullProgressMonitor());
-			ISVNClientAdapter client = repository.getSVNClient();
+			client = repository.getSVNClient();
 			for (int i = 0; i < sharedProjects.length; i++) {
 				client.relocate(repository.getUrl().toString(), newRepository.getUrl().toString(), sharedProjects[i].getLocation().toString(), true);
 			}
@@ -77,6 +78,9 @@ public class RelocateWizard extends Wizard {
 		} catch (Exception e) {
 			MessageDialog.openError(getShell(), Policy.bind("RelocateWizard.heading"), e.getMessage()); //$NON-NLS-1$
 			return false;
+		}
+		finally {
+			repository.returnSVNClient(client);
 		}
 		return true;
 	}

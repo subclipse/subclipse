@@ -57,7 +57,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 
 	private ResolveTreeConflictWizardMainPage mainPage;
 	
-	private ISVNClientAdapter svnClient;
+//	private ISVNClientAdapter svnClient;
 	private ISVNStatus[] statuses;
 	private boolean copiedToRetrieved;
 	private boolean remoteCopiedToRetrieved;
@@ -110,7 +110,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 				final IResource mergeTarget = mainPage.getMergeTarget();
 				final SVNRevision rev1 = revision1;
 
-				svnClient = getSvnClient();
+				final ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
 				mergeException = null;
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 					public void run() {
@@ -129,6 +129,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 						}						
 					}				
 				});			
+				svnResource.getRepository().returnSVNClient(svnClient);
 				if (mergeException != null) {
 					SVNUIPlugin.log(IStatus.ERROR, mergeException.getMessage(), mergeException);
 					MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_mergeError, mergeException.getMessage());
@@ -296,6 +297,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 					}
 				}
 			}
+			svnResource.getRepository().returnSVNClient(svnClient);
 		}
 		copiedToRetrieved = true;
 		return copiedTo;
@@ -357,21 +359,15 @@ public class ResolveTreeConflictWizard extends Wizard {
 	
 	private ISVNLogMessage[] getLogMessages() throws Exception {
 		if (logMessages == null) {
-			svnClient = getSvnClient();
+			ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
 			IProject project = treeConflict.getResource().getProject();
 			ISVNLocalResource svnProject =  SVNWorkspaceRoot.getSVNResourceFor(project);
 			SVNRevision revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision());
 			SVNRevision revision2 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
 			logMessages = svnClient.getLogMessages(svnProject.getUrl(), revision1, revision2, true); 
+			svnResource.getRepository().returnSVNClient(svnClient);
 		}
 		return logMessages;
-	}
-	
-	private ISVNClientAdapter getSvnClient() throws SVNException {
-		if (svnClient == null) {
-			svnClient = svnResource.getRepository().getSVNClient();
-		}
-		return svnClient;
 	}
 	
 	class CompareCloseListener implements IPartListener2 {

@@ -60,8 +60,7 @@ public class CommitOperation extends SVNOperation {
     protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
     	monitor.beginTask(null, resourcesToAdd.length + resourcesToDelete.length + resourcesToCommit.length);
         try {
-        	if (svnClient == null)
-        		svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+        	svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
         	if (resourcesToAdd.length > 0) {
 			    Map<SVNTeamProvider, List<IResource>> table = getProviderMapping(resourcesToAdd);
 				if (table.get(null) != null) {
@@ -214,6 +213,7 @@ public class CommitOperation extends SVNOperation {
 		File file = localResource.getFile();
 		if (file == null)
 			return null;
+		boolean returnSVNClient = svnClient == null;
 		if (svnClient == null) {
 	    	try {
 				svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
@@ -229,6 +229,11 @@ public class CommitOperation extends SVNOperation {
 		} catch (SVNClientException e) {
 	        SVNProviderPlugin.enableConsoleLogging(); 
 			return null;
+		}
+		finally {
+			if (returnSVNClient) {
+				SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
+			}
 		}
     	return info;
 	}

@@ -37,11 +37,10 @@ public class CleanupResourcesCommand implements ISVNCommand {
      * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void run(IProgressMonitor monitor) throws SVNException {
+    	ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
         try {
-            monitor.beginTask(null, 100 * resources.length);
-            ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
-            OperationManager.getInstance().beginOperation(svnClient);
-            
+            monitor.beginTask(null, 100 * resources.length);            
+            OperationManager.getInstance().beginOperation(svnClient);           
             for (int i = 0; i < resources.length; i++) {
                 svnClient.cleanup(resources[i].getLocation().toFile());
                 monitor.worked(100);
@@ -50,6 +49,7 @@ public class CleanupResourcesCommand implements ISVNCommand {
             throw SVNException.wrapException(e);
         } finally {
             OperationManager.getInstance().endOperation();
+            root.getRepository().returnSVNClient(svnClient);
             monitor.done();
         }
     } 

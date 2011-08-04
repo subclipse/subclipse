@@ -47,6 +47,9 @@ public class BaseResourceStorage extends PlatformObject implements IStorage ,IEn
 		} catch (SVNClientException e) {
 			throw new CoreException(new Status(IStatus.ERROR, SVNProviderPlugin.ID, 0, "Failed in BaseFile.getContents()", e)); //$NON-NLS-1$);
 		}
+		finally {
+			baseResource.getRepository().returnSVNClient(svnClient);
+		}
 	}
 
 	/* (non-Javadoc)

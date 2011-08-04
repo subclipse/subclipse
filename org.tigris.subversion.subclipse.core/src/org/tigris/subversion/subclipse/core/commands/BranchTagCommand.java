@@ -65,9 +65,12 @@ public class BranchTagCommand implements ISVNCommand {
     }
 
     public void run(IProgressMonitor monitor) throws SVNException {
+    	 boolean clientPassed = svnClient != null;
         try {
-            monitor.beginTask(null, 100);
-            if (svnClient == null) svnClient = root.getRepository().getSVNClient();
+            monitor.beginTask(null, 100);       
+            if (!clientPassed) {
+            	svnClient = root.getRepository().getSVNClient();
+            }
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
 //            monitor.subTask("Branch Tag");
             if (createOnServer) {
@@ -129,6 +132,9 @@ public class BranchTagCommand implements ISVNCommand {
         } catch (Exception e) {
             throw SVNException.wrapException(e);
         } finally {
+        	if (!clientPassed) {
+        		root.getRepository().returnSVNClient(svnClient);
+        	}
             OperationManager.getInstance().endOperation();
             monitor.done();
         }                

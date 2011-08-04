@@ -33,14 +33,18 @@ public class EditPropertyConflictsAction extends WorkbenchWindowAction {
 			public void run() {
 		    	IResource resource = getSelectedResources()[0];
 		        svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+		        ISVNClientAdapter client = null;
 		    	try {
 		    		conflictSummary = PropertyConflict.getConflictSummary(svnResource);
 					propertyConflicts = PropertyConflict.getPropertyConflicts(svnResource);
-					ISVNClientAdapter client = svnResource.getRepository().getSVNClient();
+					client = svnResource.getRepository().getSVNClient();
 					remoteProperties = client.getProperties(svnResource.getUrl(), svnResource.getRevision(), svnResource.getRevision());
 				} catch (Exception e) {
 					error = e;
 				}
+		    	finally {
+		    		svnResource.getRepository().returnSVNClient(client);
+		    	}
 			}   		
     	});
     	if (error != null) {

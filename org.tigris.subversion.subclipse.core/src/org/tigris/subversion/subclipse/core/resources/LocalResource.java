@@ -329,13 +329,15 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#delete()
      */
     public void delete() throws SVNException {
+    	ISVNClientAdapter svnClient = null;
         try {
-            ISVNClientAdapter svnClient = getRepository().getSVNClient();
+            svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
             svnClient.remove(new File[] { getFile() }, true);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e); 
         } finally {
+        	getRepository().returnSVNClient(svnClient);
             OperationManager.getInstance().endOperation();
         }
     }
@@ -344,18 +346,20 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
      * Restore pristine working copy file (undo all local edits) 
      */
     public void revert(boolean recurse) throws SVNException {
+    	ISVNClientAdapter svnClient = null;
         try {
     		try {
 				Util.saveLocalHistory(resource);
 			} catch (CoreException e) {
 				SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
 			}        	
-            ISVNClientAdapter svnClient = getRepository().getSVNClient();
+            svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
             svnClient.revert(getFile(), recurse);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e); 
         } finally {
+        	getRepository().returnSVNClient(svnClient);
             OperationManager.getInstance().endOperation();
         }
     }
@@ -364,13 +368,15 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
      * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#resolve()
      */
     public void resolve() throws SVNException {
+    	ISVNClientAdapter svnClient = null;
         try {
-            ISVNClientAdapter svnClient = getRepository().getSVNClient();
+            svnClient = getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
             svnClient.resolved(getFile());
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e); 
         } finally {
+        	getRepository().returnSVNClient(svnClient);
             OperationManager.getInstance().endOperation();
         }
     }
@@ -390,6 +396,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		} finally {
 			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
 			svnClient.removeNotifyListener(operationResourceCollector);
+			getRepository().returnSVNClient(svnClient);
 		}
 	}
 
@@ -410,6 +417,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		} finally {
 			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
 			svnClient.removeNotifyListener(operationResourceCollector);
+			getRepository().returnSVNClient(svnClient);
 		}
 	}
 
@@ -428,6 +436,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		} finally {
 			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
 			svnClient.removeNotifyListener(operationResourceCollector);
+			getRepository().returnSVNClient(svnClient);
 		}
 	}
 
@@ -453,13 +462,17 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#getSvnProperties()
 	 */
 	public ISVNProperty[] getSvnProperties() throws SVNException {
+		ISVNClientAdapter svnClient = null;
 		try {
-			ISVNClientAdapter svnClient = getRepository().getSVNClient();
+			svnClient = getRepository().getSVNClient();
 			ISVNProperty[] properties = svnClient.getProperties(getFile());
 			return properties;
 		} catch (SVNClientException e) {
 			throw SVNException.wrapException(e); 
 		}		
+		finally {
+			getRepository().returnSVNClient(svnClient);
+		}
 	}
 
     /* (non-Javadoc)

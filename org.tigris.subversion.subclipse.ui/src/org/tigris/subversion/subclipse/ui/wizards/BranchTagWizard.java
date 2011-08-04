@@ -89,13 +89,20 @@ public class BranchTagWizard extends Wizard implements IClosableWizard {
 				public void run() {
 					ISVNInfo svnInfo = null;
 					SVNUrl[] sourceUrls = getUrls();
+					ISVNClientAdapter svnClient = null;
+					ISVNRepositoryLocation repository = null;
 					try {
 						SVNProviderPlugin.disableConsoleLogging();
-						ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrls[0].toString());
-						ISVNClientAdapter svnClient = repository.getSVNClient();
+						repository = SVNProviderPlugin.getPlugin().getRepository(sourceUrls[0].toString());
+						svnClient = repository.getSVNClient();
 						svnInfo = svnClient.getInfo(toUrl);
 					} catch (Exception e) {}
-					finally { SVNProviderPlugin.enableConsoleLogging(); }
+					finally { 
+						SVNProviderPlugin.enableConsoleLogging(); 
+						if (repository != null) {
+							repository.returnSVNClient(svnClient);
+						}
+					}
 					alreadyExists = svnInfo != null;
 				}     		
         	});
@@ -165,6 +172,7 @@ public class BranchTagWizard extends Wizard implements IClosableWizard {
 	
 	
     private void updateTagsProperty(SVNUrl toUrl) {
+    	ISVNClientAdapter svnClient = null;
     	try {
     		if (resources.length > 1) return;
 			ISVNProperty property = null;
@@ -177,7 +185,7 @@ public class BranchTagWizard extends Wizard implements IClosableWizard {
 			SVNRevision revision = null;
 			if (copyPage.revisionButton.getSelection()) revision = SVNRevision.getRevision(copyPage.getRevision());
 			else {
-				ISVNClientAdapter svnClient = repositoryPage.getSvnResource().getRepository().getSVNClient();
+				svnClient = repositoryPage.getSvnResource().getRepository().getSVNClient();
 				ISVNInfo svnInfo = svnClient.getInfo(repositoryPage.getUrl());
 				revision = SVNRevision.getRevision(svnInfo.getRevision().toString());
 			}
@@ -189,6 +197,9 @@ public class BranchTagWizard extends Wizard implements IClosableWizard {
 			else
 				newAlias = null;
     	} catch (Exception e) {}
+    	finally {
+    		repositoryPage.getSvnResource().getRepository().returnSVNClient(svnClient);
+    	}
     }
     
     public boolean multipleSelections() {

@@ -15,6 +15,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -79,6 +80,8 @@ public class GetLogsCommand implements ISVNCommand {
      * @throws SVNException
      */
     public void run(IProgressMonitor aMonitor) throws SVNException {
+    	ISVNRepositoryLocation repository = null;
+    	ISVNClientAdapter svnClient = null;
         logEntries = null;
         IProgressMonitor monitor = Policy.monitorFor(aMonitor);
         monitor.beginTask(Policy.bind("RemoteFile.getLogEntries"), 100); //$NON-NLS-1$
@@ -94,7 +97,8 @@ public class GetLogsCommand implements ISVNCommand {
 	                    !SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand(),
 	                    limit, includeMergedRevisions);
         	} else {
-        		ISVNClientAdapter svnClient = remoteResource.getRepository().getSVNClient();
+        		repository = remoteResource.getRepository();
+        		svnClient = repository.getSVNClient();
         		if (remoteResource instanceof BaseResource) {
         			boolean logMessagesRetrieved = false;
         			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(remoteResource.getResource());
@@ -127,6 +131,9 @@ public class GetLogsCommand implements ISVNCommand {
         } catch (Exception e) {
             throw SVNException.wrapException(e);
         } finally {
+        	if (repository != null) {
+        		repository.returnSVNClient(svnClient);
+        	}
         	monitor.done();
         }
     }    

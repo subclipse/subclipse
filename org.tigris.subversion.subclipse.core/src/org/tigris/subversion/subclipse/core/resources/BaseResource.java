@@ -23,6 +23,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
@@ -205,14 +206,17 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 			SVNRevision revisionStart, SVNRevision revisionEnd,
 			boolean stopOnCopy, boolean fetchChangePath, long limit, boolean includeMergedRevisions)
 			throws TeamException {
-
+    	ISVNClientAdapter svnClient = getRepository().getSVNClient();
 		try {
-			return getRepository().getSVNClient().getLogMessages(getFile(), pegRevision,
+			return svnClient.getLogMessages(getFile(), pegRevision,
 					revisionStart, revisionEnd, stopOnCopy, fetchChangePath,
 					limit, includeMergedRevisions);
 		} catch (SVNClientException e) {
 			throw new TeamException("Failed in BaseResource.getLogMessages()",
 					e);
+		}
+		finally {
+			getRepository().returnSVNClient(svnClient);
 		}
 	}
 

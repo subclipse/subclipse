@@ -78,10 +78,8 @@ public class ShareProjectCommand implements ISVNCommand {
 		// Determine if the repository is known
 		boolean alreadyExists = SVNProviderPlugin.getPlugin().getRepositories()
 				.isKnownRepository(location.getLocation(), false);
-
+		final ISVNClientAdapter svnClient = location.getSVNClient();
 		try {
-			final ISVNClientAdapter svnClient = location.getSVNClient();
-
 			// perform the workspace modifications in a runnable
             SVNProviderPlugin.run(new ISVNRunnable() {
     				public void run(IProgressMonitor pm) throws SVNException {
@@ -139,6 +137,9 @@ public class ShareProjectCommand implements ISVNCommand {
 				SVNProviderPlugin.getPlugin().getRepositories()
 						.disposeRepository(location);
 			throw e;
+		}
+		finally {
+			location.returnSVNClient(svnClient);
 		}
 		// Add the repository if it didn't exist already
 		if (!alreadyExists)

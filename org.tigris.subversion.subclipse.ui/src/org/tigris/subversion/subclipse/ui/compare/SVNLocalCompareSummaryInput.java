@@ -107,6 +107,8 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 					} else {
 						client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 						diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
+						SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+						client = null;
 					}
 					if (diffSummary != null && diffSummary.length > 0) {
 						diffSummary = getDiffSummaryWithSubfolders(diffSummary);
@@ -139,7 +141,9 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 				}
 			} finally {
 				sub.done();
-				SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+				if (client != null) {
+					SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+				}
 			}
 			if (result[0] instanceof DiffNode) {
 		       	DiffNode diffNode = (DiffNode)result[0];

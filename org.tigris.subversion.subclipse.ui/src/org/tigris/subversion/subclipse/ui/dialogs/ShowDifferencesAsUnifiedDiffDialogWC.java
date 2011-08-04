@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -277,6 +278,8 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
     	success = true;
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
+				ISVNRepositoryLocation repository = null;
+				ISVNClientAdapter svnClient = null;
 				try {
 					if (toHeadButton.getSelection()) toRevision = SVNRevision.HEAD;
 					else {
@@ -287,7 +290,8 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 					toUrl = new SVNUrl(toUrlText.getText().trim());	
 					File path = new File(resource.getLocation().toString());
 					svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-					ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+					repository = svnResource.getRepository();
+					svnClient = repository.getSVNClient();
 					ISVNInfo svnInfo = svnClient.getInfo(toUrl, toRevision, toRevision);
 					SVNNodeKind nodeKind = svnInfo.getNodeKind();
 					if (resource instanceof IContainer) {
@@ -322,6 +326,11 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage());
 					success = false;
+				}
+				finally {
+					if (repository != null) {
+						repository.returnSVNClient(svnClient);
+					}
 				}
 			}			
 		});

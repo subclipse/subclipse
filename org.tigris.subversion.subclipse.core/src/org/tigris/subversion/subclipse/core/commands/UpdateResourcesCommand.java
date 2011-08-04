@@ -60,9 +60,10 @@ public class UpdateResourcesCommand implements ISVNCommand {
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void run(final IProgressMonitor monitor) throws SVNException {
+		ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
         try {
             monitor.beginTask(null, 100 * resources.length);                    
-            ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+           
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
     		if (resources.length == 1)
     		{
@@ -90,6 +91,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     			OperationManager.getInstance().onNotify(resource.getLocation().toFile(), null);
     		}
     		OperationManager.getInstance().endOperation(true, refreshResources);
+    		root.getRepository().returnSVNClient(svnClient);
             monitor.done();
         }        
 	}

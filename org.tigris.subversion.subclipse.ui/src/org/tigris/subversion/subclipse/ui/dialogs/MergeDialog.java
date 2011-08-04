@@ -397,6 +397,9 @@ public class MergeDialog extends SvnDialog {
         } catch (Exception e) {
             MessageDialog.openError(getShell(), Policy.bind("MergeDialog.dryRun"), e.toString()); //$NON-NLS-1$            
         }
+        finally {
+        	svnResource.getRepository().returnSVNClient(svnClient);
+        }
     }
     
     private void diff() {
@@ -424,6 +427,9 @@ public class MergeDialog extends SvnDialog {
             });
         } catch (Exception e) {
             MessageDialog.openError(getShell(), Policy.bind("MergeDialog.diff"), e.toString()); //$NON-NLS-1$
+        }
+        finally {
+        	svnResource.getRepository().returnSVNClient(svnClient);
         }
     }
     

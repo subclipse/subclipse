@@ -396,6 +396,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
     }
     
     private void updateTagsProperty(SVNUrl toUrl) {
+    	ISVNClientAdapter svnClient = null;
     	try {
 			ISVNProperty property = null;
 			property = svnResource.getSvnProperty("subclipse:tags"); //$NON-NLS-1$
@@ -407,7 +408,7 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 			SVNRevision revision = null;
 			if (revisionButton.getSelection()) revision = SVNRevision.getRevision(revisionText.getText().trim());
 			else {
-				ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+				svnClient = svnResource.getRepository().getSVNClient();
 				ISVNInfo svnInfo = svnClient.getInfo(url);
 				revision = SVNRevision.getRevision(svnInfo.getRevision().toString());
 			}
@@ -419,6 +420,9 @@ public class SvnWizardBranchTagPage extends SvnWizardDialogPage {
 			else
 				newAlias = null;
     	} catch (Exception e) {}
+    	finally {
+    		svnResource.getRepository().returnSVNClient(svnClient);
+    	}
     }
     
     public String getComment() {

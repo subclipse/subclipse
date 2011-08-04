@@ -77,10 +77,10 @@ public class RevertResourcesCommand implements ISVNCommand {
     public void run(IProgressMonitor monitor) throws SVNException {
     	Set<IResource> propertiesOnlyFolders = new LinkedHashSet<IResource>();
         // sort first, so that all children of a folder directly follow it in the array
-        Arrays.sort( resources, resourceComparator );        
+        Arrays.sort( resources, resourceComparator );   
+        ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
         try {
-        	final OperationManager operationManager = OperationManager.getInstance();
-            ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+        	final OperationManager operationManager = OperationManager.getInstance();          
             operationManager.beginOperation(svnClient);
             // If we are doing a recursive revert, take snapshot of resources for
             // local history first.  Also remove unversioned resources.
@@ -169,6 +169,7 @@ public class RevertResourcesCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	root.getRepository().returnSVNClient(svnClient);
         	if (propertiesOnlyFolders.size() > 0) {
         		OperationManager.getInstance().endOperation(true, propertiesOnlyFolders);
         	}

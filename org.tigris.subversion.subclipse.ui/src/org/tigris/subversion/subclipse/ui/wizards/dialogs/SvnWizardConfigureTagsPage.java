@@ -334,6 +334,7 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 	}
 
 	public boolean performCancel() {
+		returnSVNClient();
 		if (updates) {
 			if (!MessageDialog.openQuestion(getShell(), Policy.bind("ConfigureTagsDialog.title"), //$NON-NLS-1$
 					Policy.bind("ConfigureTagsDialog.confirmExit"))) return false; //$NON-NLS-1$			
@@ -342,6 +343,7 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 	}
 
 	public boolean performFinish() {
+		returnSVNClient();
 		if (updates) {
 			try {
 				String propertyValue = getPropertyValue();
@@ -356,6 +358,12 @@ public class SvnWizardConfigureTagsPage extends SvnWizardDialogPage {
 			}
 		}		
 		return true;
+	}
+	
+	private void returnSVNClient() {
+		if (svnClient != null) {
+			svnResources[0].getRepository().returnSVNClient(svnClient);
+		}
 	}
 
 	public void saveSettings() {

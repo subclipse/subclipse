@@ -61,9 +61,10 @@ public class SwitchToUrlCommand implements ISVNCommand {
 	 */
 	public void run(IProgressMonitor monitor) throws SVNException {    
 		final IProgressMonitor subPm = Policy.infiniteSubMonitorFor(monitor, 100);
+		ISVNClientAdapter svnClient = null;
         try {
     		subPm.beginTask(null, Policy.INFINITE_PM_GUESS_FOR_SWITCH);
-            ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+            svnClient = root.getRepository().getSVNClient();
             svnClient.addNotifyListener(operationResourceCollector);
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm, svnClient));
             File file = resource.getLocation().toFile();
@@ -77,6 +78,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	root.getRepository().returnSVNClient(svnClient);
         	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
         	if (operationResources.size() == 0) {
         		operationResources.add(resource);

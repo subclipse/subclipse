@@ -27,6 +27,7 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
@@ -268,6 +269,8 @@ public class SVNPropertyPage extends PropertyPage {
     }
     
     private void getStatus() {
+    	ISVNRepositoryLocation repository = null;
+    	ISVNClientAdapter svnClient = null;
     	try {
             IResource resource = (IResource) getElement();
             SVNTeamProvider svnProvider = (SVNTeamProvider) RepositoryProvider.getProvider(resource
@@ -276,7 +279,8 @@ public class SVNPropertyPage extends PropertyPage {
             svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
             if (svnResource == null) return;
             status = svnResource.getStatus();    
-            ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+            repository = svnResource.getRepository();
+            svnClient = repository.getSVNClient();
             ISVNInfo info = svnClient.getInfoFromWorkingCopy(svnResource.getFile());
             urlCopiedFrom = info.getCopyUrl();
             revision = svnResource.getRevision(); 
@@ -285,8 +289,7 @@ public class SVNPropertyPage extends PropertyPage {
             if (status.getLockCreationDate() != null) lockDateText = status.getLockCreationDate().toString();
             if (!status.isAdded()) {
 	            try {
-	            	ISVNClientAdapter client = svnResource.getRepository().getSVNClient();
-	            	info = client.getInfo(status.getUrl());
+	            	info = svnClient.getInfo(status.getUrl());
 	            } catch (Exception e) {}
             }
             // Get lock information from server if svn:needs-lock property is set
@@ -302,6 +305,11 @@ public class SVNPropertyPage extends PropertyPage {
             SVNUIPlugin.log(new Status(IStatus.ERROR, SVNUIPlugin.ID, TeamException.UNABLE,
                     "Property Exception", e)); //$NON-NLS-1$
         }
+    	finally {
+    		if (repository != null) {
+    			repository.returnSVNClient(svnClient);
+    		}
+    	}
     }
     
     private void setValues() {         

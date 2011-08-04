@@ -18,6 +18,7 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.svnclientadapter.ISVNAnnotations;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
@@ -79,16 +80,20 @@ public class BaseFile extends BaseResource implements ISVNRemoteFile {
 	 */
 	public ISVNAnnotations getAnnotations(SVNRevision fromRevision,
 			SVNRevision toRevision, boolean includeMergedRevisions, boolean ignoreMimeType) throws TeamException {
+		ISVNClientAdapter svnClient = getRepository().getSVNClient();
 		try {
 			SVNRevision pegRevision = null;
 			ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 			if (localResource != null) {
 				pegRevision = localResource.getRevision();
 			}			
-			return getRepository().getSVNClient().annotate(
+			return svnClient.annotate(
 					localResourceStatus.getFile(), fromRevision, toRevision, pegRevision, ignoreMimeType, includeMergedRevisions);
 		} catch (SVNClientException e) {
 			throw new TeamException("Failed in BaseFile.getAnnotations()", e);
+		}
+		finally {
+			getRepository().returnSVNClient(svnClient);
 		}
 	}
 }

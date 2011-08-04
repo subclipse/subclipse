@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -58,13 +59,16 @@ public class CopyAction extends WorkbenchWindowAction {
 		final File destPath = target;
 		BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
 			public void run() {
+				ISVNClientAdapter client = null;
+				ISVNRepositoryLocation repository = null;
 				try {
-					ISVNLocalResource svnTargetResource = SVNWorkspaceRoot.getSVNResourceFor(targetProject);
-					ISVNClientAdapter client = null;
+					ISVNLocalResource svnTargetResource = SVNWorkspaceRoot.getSVNResourceFor(targetProject);					
 					for (int i = 0; i < resources.length; i++) {
 						final IResource resource = resources[i];
-						if (client == null)
-						    client = SVNWorkspaceRoot.getSVNResourceFor(resources[i]).getRepository().getSVNClient();
+						if (client == null) {
+							repository = SVNWorkspaceRoot.getSVNResourceFor(resources[i]).getRepository();
+						    client = repository.getSVNClient();
+						}
 						File checkFile = new File(destPath.getPath() + File.separator + resource.getName());
 						File srcPath = new File(resource.getLocation().toString());
 						File newDestPath = new File(destPath.getPath() + File.separator + resource.getName());
@@ -93,6 +97,11 @@ public class CopyAction extends WorkbenchWindowAction {
 					targetProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("CopyAction.copy"), e.getMessage()); //$NON-NLS-1$
+				}
+				finally {
+					if (repository != null) {
+						repository.returnSVNClient(client);
+					}
 				}
 			}			
 		});

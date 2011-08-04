@@ -38,19 +38,24 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
         
         localResourceNodes = new SVNLocalResourceNode[resources.length];
         remoteResourceNodes = new ResourceEditionNode[resources.length];
-        
         for (int i = 0; i < resources.length; i++) {
         	localResourceNodes[i] = new SVNLocalResourceNode(resources[i]);
         	ISVNRemoteResource remoteResource = null;
         	LocalResourceStatus status = resources[i].getStatus();
             if (status != null && status.isCopied()) {
-            	ISVNClientAdapter svnClient = resources[i].getRepository().getSVNClient();
-            	ISVNInfo info = svnClient.getInfoFromWorkingCopy(resources[i].getFile());
-            	SVNUrl copiedFromUrl = info.getCopyUrl();
-            	if (copiedFromUrl != null) {
-            		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(resources[i].getRepository(), copiedFromUrl, SVNRevision.HEAD);
-            		getRemoteResourceCommand.run(null);
-            		remoteResource = getRemoteResourceCommand.getRemoteResource();
+            	ISVNClientAdapter svnClient = null;
+            	try {
+	            	svnClient = resources[i].getRepository().getSVNClient();
+	            	ISVNInfo info = svnClient.getInfoFromWorkingCopy(resources[i].getFile());
+	            	SVNUrl copiedFromUrl = info.getCopyUrl();
+	            	if (copiedFromUrl != null) {
+	            		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(resources[i].getRepository(), copiedFromUrl, SVNRevision.HEAD);
+	            		getRemoteResourceCommand.run(null);
+	            		remoteResource = getRemoteResourceCommand.getRemoteResource();
+	            	}
+            	}
+            	finally {
+            		resources[i].getRepository().returnSVNClient(svnClient);
             	}
             }
             if (remoteResource == null) remoteResource = resources[i].getRemoteResource(revision);

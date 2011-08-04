@@ -198,8 +198,9 @@ public class TreeConflictsView extends ViewPart {
 			public void run() {
 				folderList = new ArrayList();				
 				treeConflicts = new ArrayList();
+				ISVNClientAdapter client = null;
 				try {
-					ISVNClientAdapter client = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getSVNClient();
+					client = SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().getSVNClient();
 					ISVNStatus[] statuses = client.getStatus(resource.getLocation().toFile(), true, false, true);
 					for (int i = 0; i < statuses.length; i++) {
 						if (statuses[i].hasTreeConflict()) {
@@ -223,7 +224,10 @@ public class TreeConflictsView extends ViewPart {
 					treeViewer.expandAll();
 				} catch (Exception e) {
 					SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-				}		
+				}	
+				finally {
+					SVNWorkspaceRoot.getSVNResourceFor(resource).getRepository().returnSVNClient(client);
+				}
 			}		
 		});
 	}

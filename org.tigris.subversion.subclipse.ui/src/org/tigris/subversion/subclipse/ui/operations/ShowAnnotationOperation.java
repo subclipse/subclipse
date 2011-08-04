@@ -363,8 +363,9 @@ public class ShowAnnotationOperation extends SVNOperation {
 	}
 	
 	private String getSingleEntry(ISVNRemoteFile file, Long revLong) {
+		ISVNClientAdapter client = null;
 		try {
-			ISVNClientAdapter client = file.getRepository().getSVNClient();
+			client = file.getRepository().getSVNClient();
 			SVNRevision revision = SVNRevision.getRevision(revLong.toString());
 			ISVNLogMessage [] messages = client.getLogMessages(file.getRepository().getRepositoryRoot(), revision, revision, false);
 			if (messages.length == 1)
@@ -373,6 +374,9 @@ public class ShowAnnotationOperation extends SVNOperation {
 				return null;
 		} catch (Exception e) {
 			return null;
+		}
+		finally {
+			file.getRepository().returnSVNClient(client);
 		}
 	}
 }

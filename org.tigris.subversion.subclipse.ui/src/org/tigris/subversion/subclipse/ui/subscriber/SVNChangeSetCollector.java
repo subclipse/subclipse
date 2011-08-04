@@ -175,8 +175,9 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 	    	IResourceVariant remoteResource = info.getRemote();
 	    	if (remoteResource instanceof ISVNRemoteResource) {
 	    		ISVNRemoteResource svnRemoteResource = (ISVNRemoteResource)remoteResource;
+	    		ISVNClientAdapter client = null;
 	    		try {
-					ISVNClientAdapter client = svnRemoteResource.getRepository().getSVNClient();
+					client = svnRemoteResource.getRepository().getSVNClient();
 		    		SVNUrl url = svnRemoteResource.getRepository().getRepositoryRoot();
 		    		SVNRevision rev = svnRemoteResource.getLastChangedRevision();
 		    		ISVNLogMessage[] logMessages = client.getLogMessages(url, rev, rev, false);
@@ -195,6 +196,9 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
 				} catch (SVNClientException e) {
 					SVNUIPlugin.log(SVNException.wrapException(e));
 				}
+	    		finally {
+	    			svnRemoteResource.getRepository().returnSVNClient(client);
+	    		}
     		}
 	    	return fetchedComment;
 	    }

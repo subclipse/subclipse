@@ -131,6 +131,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     svnClient.removeNotifyListener(operationResourceCollector);
                     pm.done();
                     svnClient.removeNotifyListener(notifyListener);
+                    root.getRepository().returnSVNClient(svnClient);
                 }
             }
         }, Policy.monitorFor(monitor));

@@ -65,13 +65,19 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
         
         LocalResourceStatus status = resource.getStatus();
         if (status != null && status.isCopied()) {
-        	ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
-        	ISVNInfo info = svnClient.getInfoFromWorkingCopy(resource.getFile());
-        	SVNUrl copiedFromUrl = info.getCopyUrl();
-        	if (copiedFromUrl != null) {
-        		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(resource.getRepository(), copiedFromUrl, SVNRevision.HEAD);
-        		getRemoteResourceCommand.run(null);
-        		this.remoteResource = getRemoteResourceCommand.getRemoteResource();
+        	ISVNClientAdapter svnClient = null;
+        	try {
+	        	svnClient = resource.getRepository().getSVNClient();
+	        	ISVNInfo info = svnClient.getInfoFromWorkingCopy(resource.getFile());
+	        	SVNUrl copiedFromUrl = info.getCopyUrl();
+	        	if (copiedFromUrl != null) {
+	        		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(resource.getRepository(), copiedFromUrl, SVNRevision.HEAD);
+	        		getRemoteResourceCommand.run(null);
+	        		this.remoteResource = getRemoteResourceCommand.getRemoteResource();
+	        	}
+        	}
+        	finally {
+        		resource.getRepository().returnSVNClient(svnClient);
         	}
         }
         

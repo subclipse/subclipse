@@ -30,6 +30,7 @@ import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
@@ -118,12 +119,17 @@ public class ResolveSynchronizeOperation extends SVNSynchronizeOperation {
 		if (canceled) return;
 		run(new WorkspaceModifyOperation() {
 			public void execute(IProgressMonitor monitor) throws InvocationTargetException {
-				
+				ISVNRepositoryLocation repository = null;
+				ISVNClientAdapter svnClient = null;
 				try {
 					for (int i = 0; i < resources.length; i++) {						
                         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
-                        ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+                        repository = svnResource.getRepository();
+                        svnClient = repository.getSVNClient();
                         svnClient.resolve(resources[i].getLocation().toFile(), selectedResolution);
+                        repository.returnSVNClient(svnClient);
+                        repository = null;
+                        svnClient = null;
                         //for some reason, just refreshing the file won't cut it.
                         resources[i].getParent().refreshLocal(IResource.DEPTH_INFINITE, monitor);
 					}
@@ -133,6 +139,11 @@ public class ResolveSynchronizeOperation extends SVNSynchronizeOperation {
 					throw new InvocationTargetException(e);
 				} catch (SVNClientException e) {
 					throw new InvocationTargetException(e);
+				}
+				finally {
+					if (repository != null) {
+						repository.returnSVNClient(svnClient);
+					}
 				}
 			}
 		}, false /* cancelable */, PROGRESS_BUSYCURSOR);        

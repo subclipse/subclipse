@@ -15,6 +15,7 @@ import java.io.File;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IWorkbenchPart;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -39,11 +40,14 @@ public class ExportOperation extends RepositoryProviderOperation {
 	}
 
 	protected void execute(SVNTeamProvider provider, IResource[] resources, IProgressMonitor monitor) throws SVNException, InterruptedException {
+		ISVNClientAdapter client = null;
+		ISVNRepositoryLocation repository = null;
 		try {
-			ISVNClientAdapter client = null;
 			for (int i = 0; i < resources.length; i++) {	
-				if (client == null) 
-				    client = SVNWorkspaceRoot.getSVNResourceFor(resources[i]).getRepository().getSVNClient();
+				if (client == null)  {
+					repository = SVNWorkspaceRoot.getSVNResourceFor(resources[i]).getRepository();
+				    client = repository.getSVNClient();
+				}
 				File srcPath = new File(resources[i].getLocation().toString());
 				File destPath= new File(directory + File.separator + resources[i].getName());
 				try {
@@ -59,6 +63,9 @@ public class ExportOperation extends RepositoryProviderOperation {
 				collectStatus(e.getStatus());
 			}
 		} finally {
+			if (repository != null) {
+				repository.returnSVNClient(client);
+			}
 			monitor.done();
 		}         
 	}

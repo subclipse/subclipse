@@ -157,11 +157,13 @@ public class RepositoryResourcesManager {
             }
             resources.add(remoteResource);
         }
-
+        ISVNClientAdapter svnClient = null;
+        ISVNRepositoryLocation repository = null;
         try {        
             for (Iterator it = mapRepositories.values().iterator(); it.hasNext();) {
                 List resources = (List)it.next();
-                ISVNClientAdapter svnClient = ((ISVNRemoteResource)resources.get(0)).getRepository().getSVNClient();
+                repository = ((ISVNRemoteResource)resources.get(0)).getRepository();
+                svnClient = repository.getSVNClient();
                 SVNUrl urls[] = new SVNUrl[resources.size()];
                 for (int i = 0; i < resources.size();i++) {
                     ISVNRemoteResource resource = (ISVNRemoteResource)resources.get(i); 
@@ -172,6 +174,9 @@ public class RepositoryResourcesManager {
                     resource.getParent().refresh();
                 }
                 svnClient.remove(urls,message);
+                repository.returnSVNClient(svnClient);
+                svnClient = null;
+                repository = null;
                 
                 for (int i = 0; i < resources.size();i++) {
                     ISVNRemoteResource resource = (ISVNRemoteResource)resources.get(i);
@@ -183,6 +188,9 @@ public class RepositoryResourcesManager {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	if (repository != null) {
+        		repository.returnSVNClient(svnClient);
+        	}
             progress.done();
         }
     }
@@ -194,15 +202,16 @@ public class RepositoryResourcesManager {
     public void copyRemoteResource(ISVNRemoteResource resource, ISVNRemoteFolder destinationFolder, String message,IProgressMonitor monitor) throws SVNException {
         IProgressMonitor progress = Policy.monitorFor(monitor);
         progress.beginTask(Policy.bind("RepositoryResourcesManager.copyRemoteResources"), 100); //$NON-NLS-1$
-
+        ISVNClientAdapter svnClient = null;
         try {        
-            ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+            svnClient = resource.getRepository().getSVNClient();
             svnClient.copy(resource.getUrl(),destinationFolder.getUrl(),message,SVNRevision.HEAD);
             destinationFolder.refresh();
             remoteResourceCopied(resource, destinationFolder);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	resource.getRepository().returnSVNClient(svnClient);
             progress.done();
         }
     } 
@@ -212,9 +221,9 @@ public class RepositoryResourcesManager {
         
         IProgressMonitor progress = Policy.monitorFor(monitor);
         progress.beginTask(Policy.bind("RepositoryResourcesManager.moveRemoteResources"), 100); //$NON-NLS-1$
-        
+        ISVNClientAdapter svnClient = null;
         try {        
-            ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+            svnClient = resource.getRepository().getSVNClient();
             SVNUrl destUrl = destinationFolder.getUrl().appendPath(destinationResourceName);
             
             svnClient.move(resource.getUrl(),destUrl,message,SVNRevision.HEAD);
@@ -224,6 +233,7 @@ public class RepositoryResourcesManager {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	resource.getRepository().returnSVNClient(svnClient);
             progress.done();
         }        
     }

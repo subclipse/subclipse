@@ -104,18 +104,11 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 	public void fetchContents(IProgressMonitor aMonitor) throws TeamException {
 		IProgressMonitor monitor = Policy.monitorFor(aMonitor);
 		monitor.beginTask(Policy.bind("RemoteFile.getContents"), 100);//$NON-NLS-1$
+		ISVNClientAdapter svnClient = null;
 		try {
-			ISVNClientAdapter svnClient = repository.getSVNClient();
+			svnClient = repository.getSVNClient();
 			InputStream inputStream;
 			try {
-//				try {
-//					inputStream = svnClient.getContent(url, getRevision());
-//				} catch (SVNClientException e1) {
-//					inputStream = svnClient.getContent(url, getRevision(), getRevision());
-//				}
-				
-//				if (pegRevision == null) inputStream = svnClient.getContent(url, getRevision());
-//				else inputStream = svnClient.getContent(url, revision, pegRevision);
 				if (pegRevision == null) inputStream = svnClient.getContent(url, getRevision(), getRevision());
 				else inputStream = svnClient.getContent(url, revision, pegRevision);
 				
@@ -124,6 +117,7 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 				throw new TeamException("Failed in RemoteFile.getContents()", e);
 			}
 		} finally {
+			repository.returnSVNClient(svnClient);
 			monitor.done();
 		}
 	}
@@ -178,11 +172,15 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 	 */
 	public ISVNAnnotations getAnnotations(SVNRevision fromRevision,
 			SVNRevision toRevision, boolean includeMergedRevisions, boolean ignoreMimeType) throws TeamException {
+		ISVNClientAdapter svnClient = repository.getSVNClient();
 		try {
-			return repository.getSVNClient().annotate(url, fromRevision,
+			return svnClient.annotate(url, fromRevision,
 					toRevision, pegRevision, ignoreMimeType, includeMergedRevisions);
 		} catch (SVNClientException e) {
 			throw new TeamException("Failed in remoteFile.getAnnotations()", e);
+		}
+		finally {
+			repository.returnSVNClient(svnClient);
 		}
 	}
 }

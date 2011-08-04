@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -37,11 +38,14 @@ public class RemoveOperation extends SVNOperation {
 
 	protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
 		ISVNClientAdapter client = null; 
+		ISVNRepositoryLocation repository = null;
 		ArrayList files = new ArrayList();
 		for (int i = 0; i < resources.length; i++) {
 			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
-			if (client == null)
-			    client = svnResource.getRepository().getSVNClient();			
+			if (client == null) {
+				repository = svnResource.getRepository();
+			    client = repository.getSVNClient();	
+			}
 			files.add(svnResource.getFile());
 		}
 		File[] fileArray = new File[files.size()];
@@ -53,6 +57,9 @@ public class RemoveOperation extends SVNOperation {
 			throw SVNException.wrapException(e);
 		}
 		finally {
+			if (repository != null) {
+				repository.returnSVNClient(client);
+			}
 			monitor.done();
 		}
 	}

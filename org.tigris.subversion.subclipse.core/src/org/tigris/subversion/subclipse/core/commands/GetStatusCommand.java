@@ -57,6 +57,9 @@ public class GetStatusCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         }
+        finally {
+        	repository.returnSVNClient(svnClient);
+        }
     }
 
     private LocalResourceStatus[] convert(ISVNStatus[] statuses) {
@@ -70,16 +73,20 @@ public class GetStatusCommand implements ISVNCommand {
     // getStatuses returns null URL for svn:externals folder.  This will
     // get the URL using svn info command on the local resource
 	private String getURL(ISVNStatus status) {
+		ISVNClientAdapter svnClient = null;
 		String url = status.getUrlString();
 		if (url == null && !(status.getTextStatus() == SVNStatusKind.UNVERSIONED)) {
 		    try { 
-		    	ISVNClientAdapter svnClient = repository.getSVNClient();
+		    	svnClient = repository.getSVNClient();
 		    	ISVNInfo info = svnClient.getInfoFromWorkingCopy(status.getFile());
 		    	SVNUrl svnurl = info.getUrl();
 		    	url = (svnurl != null) ? svnurl.toString() : null;
 		    } catch (SVNException e) {
 			} catch (SVNClientException e) {
 			}
+		    finally {
+		    	repository.returnSVNClient(svnClient);
+		    }
 		}
 		return url;
 	}

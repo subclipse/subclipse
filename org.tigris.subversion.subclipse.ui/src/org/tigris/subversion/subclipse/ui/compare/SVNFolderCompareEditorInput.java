@@ -132,13 +132,14 @@ public class SVNFolderCompareEditorInput extends SVNAbstractCompareEditorInput {
 		initLabels();
 	
 		final Object[] result = new Object[] { null };
+		ISVNClientAdapter svnClient = null;
 		try {	
 			// do the diff				
 			monitor.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 30); //$NON-NLS-1$
 			IProgressMonitor sub = new SubProgressMonitor(monitor, 30);
-			sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); //$NON-NLS-1$
+			sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); //$NON-NLS-1$			
 			try {
-				ISVNClientAdapter svnClient = folder1.getRepository().getSVNClient();
+				svnClient = folder1.getRepository().getSVNClient();
 				SVNDiffSummary[] diffSummary = null;
 				if (folder1.getRepositoryRelativePath().equals(folder2.getRepositoryRelativePath()) && localResource1 != null) {
 					IResource resource1 = localResource1.getResource();
@@ -176,6 +177,7 @@ public class SVNFolderCompareEditorInput extends SVNAbstractCompareEditorInput {
 		} catch (Exception e) {
 			return e.getMessage();		
 		} finally {
+			folder1.getRepository().returnSVNClient(svnClient);
 			monitor.done();
 		}
 	}

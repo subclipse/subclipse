@@ -21,6 +21,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -263,14 +264,17 @@ public abstract class RemoteResource
 			SVNRevision revisionStart, SVNRevision revisionEnd,
 			boolean stopOnCopy, boolean fetchChangePath, long limit, boolean includeMergedRevisions)
 			throws TeamException {
-
+    	ISVNClientAdapter svnClient = repository.getSVNClient();
 		try {
-			return repository.getSVNClient().getLogMessages(getUrl(),
+			return svnClient.getLogMessages(getUrl(),
 					pegRevision, revisionStart, revisionEnd, stopOnCopy, fetchChangePath,
 					limit, includeMergedRevisions);
 		} catch (SVNClientException e) {
 			throw new TeamException("Failed in RemoteResource.getLogMessages()",
 					e);
+		}
+		finally {
+			repository.returnSVNClient(svnClient);
 		}
 	}
 

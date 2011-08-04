@@ -153,7 +153,7 @@ public class SVNClientManager {
 			return;
 		// For non-threadsafe clients we are done with the object so 
 		// let it clean up any resources it has allocated.
-		// client.dispose();
+		client.dispose();
 		client = null;
 	}
 	

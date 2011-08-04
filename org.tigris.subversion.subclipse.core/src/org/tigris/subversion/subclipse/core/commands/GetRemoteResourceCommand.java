@@ -61,6 +61,9 @@ public class GetRemoteResourceCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw new SVNException("Can't get remote resource "+url+" at revision "+revision,e);   
         }
+        finally {
+        	repository.returnSVNClient(svnClient);
+        }
         
         if (info == null) {
             remoteResource = null; // no remote file

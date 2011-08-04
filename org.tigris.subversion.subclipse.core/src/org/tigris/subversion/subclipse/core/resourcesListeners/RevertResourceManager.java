@@ -191,13 +191,15 @@ public class RevertResourceManager implements IResourceChangeListener {
      * @throws SVNException
      */
     private void revert(ISVNLocalResource resource) throws SVNException {
+    	ISVNClientAdapter svnClient = null;
         try {
-            ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+            svnClient = resource.getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient);
             svnClient.revert(resource.getFile(), false);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	resource.getRepository().returnSVNClient(svnClient);
             OperationManager.getInstance().endOperation();
         }
     }

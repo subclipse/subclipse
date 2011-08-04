@@ -52,9 +52,10 @@ public class MergeCommand implements ISVNCommand {
     }
 
     public void run(IProgressMonitor monitor) throws SVNException {
+    	ISVNClientAdapter svnClient = null;
         try {
             monitor.beginTask(null, 100);
-            ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+            svnClient = root.getRepository().getSVNClient();
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
             monitor.subTask(resource.getName());
             File file = resource.getLocation().toFile();
@@ -68,6 +69,7 @@ public class MergeCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	root.getRepository().returnSVNClient(svnClient);
             OperationManager.getInstance().endOperation();
             monitor.done();
         }        

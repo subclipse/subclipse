@@ -13,6 +13,7 @@ package org.tigris.subversion.subclipse.core.commands;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
@@ -35,13 +36,15 @@ public class GetInfoCommand implements ISVNCommand {
      * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void run(IProgressMonitor monitor) throws SVNException {
+    	ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
         try {
             if (monitor != null) { monitor.beginTask(null, 100); }
-            info = resource.getRepository().getSVNClient().getInfoFromWorkingCopy(resource.getFile());
+            info = svnClient.getInfoFromWorkingCopy(resource.getFile());
             if (monitor != null) { monitor.worked(100); }
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	resource.getRepository().returnSVNClient(svnClient);
         	if (monitor != null) { monitor.done(); }
         }
     }

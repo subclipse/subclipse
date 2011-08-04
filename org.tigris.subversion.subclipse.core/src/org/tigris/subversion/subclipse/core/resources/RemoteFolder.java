@@ -159,9 +159,9 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
             progress.done();
             return children;
         }
-		
+		ISVNClientAdapter client = null;
 		try {
-            ISVNClientAdapter client = getRepository().getSVNClient();
+            client = getRepository().getSVNClient();
 
             ISVNDirEntryWithLock[] list = client.getListWithLocks(url, getRevision(), SVNRevision.HEAD, false);
 			List result = new ArrayList(list.length);
@@ -207,6 +207,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 		{
             throw new SVNException(new SVNStatus(IStatus.ERROR, SVNStatus.DOES_NOT_EXIST, Policy.bind("RemoteFolder.doesNotExist", getRepositoryRelativePath()))); //$NON-NLS-1$
         } finally {
+        	getRepository().returnSVNClient(client);
 			progress.done();
 		}	 	
 	}
@@ -266,15 +267,16 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
     public void createRemoteFolder(String folderName, String message, IProgressMonitor monitor) throws SVNException {
         IProgressMonitor progress = Policy.monitorFor(monitor);
         progress.beginTask(Policy.bind("RemoteFolder.createRemoteFolder"), 100); //$NON-NLS-1$
-        
+        ISVNClientAdapter svnClient = null;
         try {
-            ISVNClientAdapter svnClient = getRepository().getSVNClient();
+            svnClient = getRepository().getSVNClient();
             svnClient.mkdir( getUrl().appendPath(folderName), message);
             refresh();
             SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().remoteResourceCreated(this, folderName);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
+        	getRepository().returnSVNClient(svnClient);
             progress.done();
         }
     }    

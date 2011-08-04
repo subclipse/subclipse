@@ -63,6 +63,7 @@ public class ChangeCommitPropertiesCommand implements ISVNCommand {
             }
 
         } finally {
+        	repositoryLocation.returnSVNClient(svnClient);
             OperationManager.getInstance().endOperation();
             monitor.done();
         }
