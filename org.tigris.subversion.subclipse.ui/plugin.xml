@@ -311,7 +311,14 @@
                class="org.tigris.subversion.subclipse.ui.actions.AnnotateAction"
                menubarPath="historyGroup"
                id="org.tigris.subversion.subclipse.ui.annotate">
-         </action>            
+         </action>
+         <action
+               label="Import Team Project Set..."
+               class="org.tigris.subversion.subclipse.ui.actions.ImportSvnProjectSetAction"
+               enablesFor="1"
+               menubarPath="group.file"
+               id="org.tigris.subversion.subclipse.ui.actions.ImportSvnProjectSetAction">
+         </action>                     
          <action
                label="%OpenRemoteFileAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.open_remote_file_action_context"
