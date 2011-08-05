@@ -18,12 +18,18 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -48,7 +54,41 @@ public abstract class WorkspaceAction extends SVNAction {
 	 * @see org.tigris.subversion.subclipse.ui.actions.SVNAction#needsToSaveDirtyEditors()
 	 */
 	protected boolean needsToSaveDirtyEditors() {
-		return true;
+	
+		IResource[] selectedResources = getSelectedResources();
+		if (selectedResources != null && selectedResources.length > 0) {
+			IEditorReference[] editorReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
+			for (IEditorReference editorReference : editorReferences) {
+				if (editorReference.isDirty()) {
+					try {
+						IEditorInput editorInput = editorReference.getEditorInput();
+						if (editorInput instanceof IFileEditorInput) {
+							IFile file = ((IFileEditorInput)editorInput).getFile();
+							if (needsToSave(file, selectedResources)) {
+								return true;
+							}
+						}
+					} catch (PartInitException e) {}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean needsToSave(IFile file, IResource[] selectedResources) {
+		if (file != null) {
+			IResource parent = file;
+			while (parent != null) {
+				for (IResource selectedResource : selectedResources) {
+					if (selectedResource.equals(parent)) {
+						return true;
+					}
+				}
+				parent = parent.getParent();
+			}
+		}
+		return false;
 	}
 
 	/**

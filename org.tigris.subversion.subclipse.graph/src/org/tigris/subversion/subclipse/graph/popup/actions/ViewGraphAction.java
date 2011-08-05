@@ -89,4 +89,8 @@ public class ViewGraphAction extends WorkbenchWindowAction {
 		this.selectedResource = selectedResource;
 	}
 
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
+
 }

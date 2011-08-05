@@ -54,6 +54,13 @@ public class OpenBugUrlAction extends WorkbenchWindowAction {
 		return;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
 	
 	protected boolean isEnabled() throws TeamException {
 		Object[] selectedObjects = selection.toArray();

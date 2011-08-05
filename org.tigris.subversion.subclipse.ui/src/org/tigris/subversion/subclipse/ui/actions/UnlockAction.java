@@ -79,5 +79,13 @@ public class UnlockAction extends WorkbenchWindowAction {
 	protected String getImageId() {
 		return ISVNUIConstants.IMG_MENU_LOCK;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
 
 }

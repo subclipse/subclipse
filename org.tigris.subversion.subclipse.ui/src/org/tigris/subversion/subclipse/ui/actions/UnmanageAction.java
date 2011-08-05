@@ -216,6 +216,14 @@ public class UnmanageAction extends WorkspaceAction {
 	protected String getErrorTitle() {
 		return Policy.bind("Unmanage.unmanagingError");//$NON-NLS-1$
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
 
 	/**
 	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForSVNResource(org.tigris.subversion.subclipse.core.ISVNResource)

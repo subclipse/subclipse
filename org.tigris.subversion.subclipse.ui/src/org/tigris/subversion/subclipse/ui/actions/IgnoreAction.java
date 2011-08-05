@@ -73,6 +73,14 @@ public class IgnoreAction extends WorkbenchWindowAction {
 	protected boolean isEnabledForUnmanagedResources() {
 		return true;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
 
 	protected String getImageId()
 	{

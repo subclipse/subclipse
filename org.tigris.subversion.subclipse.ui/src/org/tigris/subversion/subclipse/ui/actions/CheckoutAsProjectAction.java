@@ -163,6 +163,14 @@ public class CheckoutAsProjectAction extends WorkspaceAction {
 	    }
 	}
 
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
+
 	/*
 	 * @see TeamAction#isEnabled()
 	 */

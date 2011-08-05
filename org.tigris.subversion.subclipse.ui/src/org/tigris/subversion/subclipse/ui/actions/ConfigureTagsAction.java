@@ -52,6 +52,14 @@ public class ConfigureTagsAction extends WorkspaceAction {
 		dialog.open();
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
+	
 	private boolean propertiesEqual(ISVNProperty property1, ISVNProperty property2) {
 		String value1 = null;
 		String value2 = null;

@@ -48,5 +48,13 @@ public class CheckoutWizardAction extends WorkbenchWindowAction {
 	public boolean isEnabled() {
 		return true;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
 
 }

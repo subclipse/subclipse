@@ -79,5 +79,12 @@ public class ShowSvnRevPropertiesAction extends WorkbenchWindowAction {
     protected String getImageId() {
         return ISVNUIConstants.IMG_MENU_SHOWPROPERTY; // just re-use regular properties icon
     }
-
+    
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
 }

@@ -130,6 +130,14 @@ public class AddAction extends WorkbenchWindowAction {
 		if (resource.isLinked()) return false;
 		return super.isEnabledForSVNResource(svnResource);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
 
 	protected String getImageId()
 	{

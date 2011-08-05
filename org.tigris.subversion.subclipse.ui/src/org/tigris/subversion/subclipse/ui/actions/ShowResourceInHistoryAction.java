@@ -79,5 +79,12 @@ public class ShowResourceInHistoryAction extends WorkbenchWindowAction {
 	protected String getImageId() {
 		return ISVNUIConstants.IMG_MENU_SHOWHISTORY;
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#needsToSaveDirtyEditors()
+	 */
+	@Override
+	protected boolean needsToSaveDirtyEditors() {
+		return false;
+	}
 }
