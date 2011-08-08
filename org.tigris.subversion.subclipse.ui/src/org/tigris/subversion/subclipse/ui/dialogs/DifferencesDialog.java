@@ -67,6 +67,8 @@ public class DifferencesDialog extends SvnDialog {
 	private String fromRevision;
 	private String toRevision;
 	private boolean usePegRevision;
+	private SVNUrl fromUrl;
+	private SVNUrl toUrl;
 
 	public DifferencesDialog(Shell parentShell, String title, ISVNResource[] remoteResources, IWorkbenchPart targetPart) {
 		super(parentShell, "DifferencesDialog"); //$NON-NLS-1$
@@ -98,7 +100,12 @@ public class DifferencesDialog extends SvnDialog {
 		fromUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		fromUrlText = new Text(fromGroup, SWT.BORDER);
 		fromUrlText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		fromUrlText.setText(remoteResources[0].getUrl().toString());
+		if (fromUrl == null) {
+			fromUrlText.setText(remoteResources[0].getUrl().toString());
+		}
+		else {
+			fromUrlText.setText(fromUrl.toString());
+		}
 
 		Button bb = new Button(fromGroup, SWT.PUSH);
 		bb.setText(Policy.bind("SwitchDialog.browse")); //$NON-NLS-1$
@@ -152,10 +159,15 @@ public class DifferencesDialog extends SvnDialog {
 		toUrlLabel.setText(Policy.bind("ShowDifferencesAsUnifiedDiffDialog.url")); //$NON-NLS-1$
 		toUrlText = new Text(toGroup, SWT.BORDER);
 		toUrlText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		if (remoteResources.length < 2 || remoteResources[1] == null)
-			toUrlText.setText(remoteResources[0].getUrl().toString());
-		else
-			toUrlText.setText(remoteResources[1].getUrl().toString());
+		if (toUrl == null) {
+			if (remoteResources.length < 2 || remoteResources[1] == null)
+				toUrlText.setText(remoteResources[0].getUrl().toString());
+			else
+				toUrlText.setText(remoteResources[1].getUrl().toString());
+		}
+		else {
+			toUrlText.setText(toUrl.toString());
+		}
 
 		bb = new Button(toGroup, SWT.PUSH);
 		bb.setText(Policy.bind("SwitchDialog.browse")); //$NON-NLS-1$
@@ -545,6 +557,20 @@ public class DifferencesDialog extends SvnDialog {
 
 	public void setUsePegRevision(boolean usePegRevision) {
 		this.usePegRevision = usePegRevision;
+	}
+
+	/**
+	 * @param fromUrl The fromUrl to set.
+	 */
+	public void setFromUrl(SVNUrl fromUrl) {
+		this.fromUrl = fromUrl;
+	}
+
+	/**
+	 * @param toUrl The toUrl to set.
+	 */
+	public void setToUrl(SVNUrl toUrl) {
+		this.toUrl = toUrl;
 	}
 	
 }

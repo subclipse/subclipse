@@ -12,13 +12,21 @@ package org.tigris.subversion.subclipse.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.resources.RemoteFile;
+import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
+import org.tigris.subversion.subclipse.core.resources.RemoteResource;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.dialogs.DifferencesDialog;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class ShowDifferencesAsUnifiedDiffAction extends WorkbenchWindowAction {
 	private boolean usePegRevision;
@@ -27,16 +35,41 @@ public class ShowDifferencesAsUnifiedDiffAction extends WorkbenchWindowAction {
 		String fromRevision = null;
 		String toRevision = null;
 		ISVNResource[] selectedResources = getSelectedRemoteResources();
+		SVNUrl fromUrl = null;
+		SVNUrl toUrl = null;
 		if (selectedResources == null || (selectedResources.length == 0)) {
 			Object[] selectedObjects = selection.toArray();
 			if (selectedObjects[0] instanceof ILogEntry) {
 				selectedResources = new ISVNResource[2];
 				selectedResources[0] = ((ILogEntry)selectedObjects[0]).getResource();
 				fromRevision = ((ILogEntry)selectedObjects[0]).getRevision().toString();
+
+				ILogEntry logEntry1 = (ILogEntry)selectedObjects[0];			
+				RemoteResource remoteResource;
+				if (logEntry1.getResource().getResource() instanceof IContainer) {
+					remoteResource = new RemoteFolder(logEntry1.getResource().getRepository(), logEntry1.getResource().getUrl(), logEntry1.getRevision());
+				}
+				else {
+					remoteResource = new RemoteFile(logEntry1.getResource().getRepository(), logEntry1.getResource().getUrl(), logEntry1.getRevision());
+				}
+				try {
+					fromUrl = Util.getUrlForRevision(remoteResource, logEntry1.getRevision(), new NullProgressMonitor());
+				} catch (SVNException e) {}
 				
 				if (selectedObjects.length > 1) {
 					selectedResources[1] = ((ILogEntry)selectedObjects[1]).getResource();
-					toRevision = ((ILogEntry)selectedObjects[1]).getRevision().toString();					
+					toRevision = ((ILogEntry)selectedObjects[1]).getRevision().toString();	
+					
+					ILogEntry logEntry2 = (ILogEntry)selectedObjects[1];
+					if (logEntry2.getResource().getResource() instanceof IContainer) {
+						remoteResource = new RemoteFolder(logEntry2.getResource().getRepository(), logEntry2.getResource().getUrl(), logEntry2.getRevision());
+					}
+					else {
+						remoteResource = new RemoteFile(logEntry2.getResource().getRepository(), logEntry2.getResource().getUrl(), logEntry2.getRevision());
+					}
+					try {
+						toUrl = Util.getUrlForRevision(remoteResource, logEntry2.getRevision(), new NullProgressMonitor());
+					} catch (SVNException e) {}
 				}
 			}
 		} else {
@@ -47,6 +80,8 @@ public class ShowDifferencesAsUnifiedDiffAction extends WorkbenchWindowAction {
 		}
 		DifferencesDialog dialog = new DifferencesDialog(getShell(), null, selectedResources, getTargetPart());
 		dialog.setUsePegRevision(usePegRevision);
+		dialog.setFromUrl(fromUrl);
+		dialog.setToUrl(toUrl);
 		if (!fromRevision.equals("HEAD")) dialog.setFromRevision(fromRevision); //$NON-NLS-1$
 		if (toRevision != null && !toRevision.equals("HEAD")) dialog.setToRevision(toRevision); //$NON-NLS-1$  
 		dialog.open();
