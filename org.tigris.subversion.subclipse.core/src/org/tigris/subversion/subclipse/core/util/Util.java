@@ -149,20 +149,22 @@ public class Util {
 	
 	public static SVNUrl getUrlForRevision(ISVNRemoteResource resource, SVNRevision.Number revision, IProgressMonitor pm) throws SVNException {
 		SVNUrl url = resource.getUrl();
-		SVNRevision revisionStart = new SVNRevision.Number(revision.getNumber() + 1);
+		SVNRevision revisionStart = new SVNRevision.Number(revision.getNumber());
 		GetLogsCommand getLogsCommand = new GetLogsCommand(resource, SVNRevision.HEAD, revisionStart, SVNRevision.HEAD, false, 0, null, true);
 		getLogsCommand.run(pm);
 		ILogEntry[] logEntries = getLogsCommand.getLogEntries();
 		String path = resource.getRepositoryRelativePath();
 		for (int i = logEntries.length - 1; i > -1 ; i--) {
 			ILogEntry logEntry = logEntries[i];
-			LogEntryChangePath[] changePaths = logEntry.getLogEntryChangePaths();
-			for (LogEntryChangePath changePath : changePaths) {	
-				if (changePath.getPath().equals(path) && changePath.getCopySrcPath() != null) {
-					try {
-						path = changePath.getCopySrcPath();
-						url = new SVNUrl(resource.getRepository().getRepositoryRoot().toString() + changePath.getCopySrcPath());
-					} catch (MalformedURLException e) {}
+			if (!logEntry.getRevision().equals(revision)) {
+				LogEntryChangePath[] changePaths = logEntry.getLogEntryChangePaths();
+				for (LogEntryChangePath changePath : changePaths) {	
+					if (changePath.getPath().equals(path) && changePath.getCopySrcPath() != null) {
+						try {
+							path = changePath.getCopySrcPath();
+							url = new SVNUrl(resource.getRepository().getRepositoryRoot().toString() + changePath.getCopySrcPath());
+						} catch (MalformedURLException e) {}
+					}
 				}
 			}
 		}
