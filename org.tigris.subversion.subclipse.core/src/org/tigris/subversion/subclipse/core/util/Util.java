@@ -12,17 +12,24 @@ package org.tigris.subversion.subclipse.core.util;
 
 
 import java.io.ByteArrayInputStream;
+import java.net.MalformedURLException;
 import java.net.URLDecoder;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
+import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -138,5 +145,27 @@ public class Util {
 	
 	public static boolean isSpecialEclipseFile(IResource resource) {
 		return resource.getName().equals(".project") || resource.getName().equals(".classpath");
+	}
+	
+	public static SVNUrl getUrlForRevision(ISVNRemoteResource resource, SVNRevision.Number revision, IProgressMonitor pm) throws SVNException {
+		SVNUrl url = resource.getUrl();
+		SVNRevision revisionStart = new SVNRevision.Number(revision.getNumber() + 1);
+		GetLogsCommand getLogsCommand = new GetLogsCommand(resource, SVNRevision.HEAD, revisionStart, SVNRevision.HEAD, false, 0, null, true);
+		getLogsCommand.run(pm);
+		ILogEntry[] logEntries = getLogsCommand.getLogEntries();
+		String path = resource.getRepositoryRelativePath();
+		for (int i = logEntries.length - 1; i > -1 ; i--) {
+			ILogEntry logEntry = logEntries[i];
+			LogEntryChangePath[] changePaths = logEntry.getLogEntryChangePaths();
+			for (LogEntryChangePath changePath : changePaths) {	
+				if (changePath.getPath().equals(path) && changePath.getCopySrcPath() != null) {
+					try {
+						path = changePath.getCopySrcPath();
+						url = new SVNUrl(resource.getRepository().getRepositoryRoot().toString() + changePath.getCopySrcPath());
+					} catch (MalformedURLException e) {}
+				}
+			}
+		}
+		return url;
 	}
 }

@@ -36,6 +36,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -187,7 +188,18 @@ public class CheckoutCommand implements ISVNCommand {
 		final IProgressMonitor subPm = Policy.infiniteSubMonitorFor(pm, 800);
 		try {
 			subPm.beginTask("", Policy.INFINITE_PM_GUESS_FOR_CHECKOUT);
-			svnClient.checkout(resource.getUrl(), destPath, svnRevision, depth, ignoreExternals, force);
+			
+			// If checking out a specific revision, check to see if the location has changed in the
+			// repository and adjust the URL if it has.
+			SVNUrl url;
+			if (svnRevision instanceof SVNRevision.Number) {
+				url = Util.getUrlForRevision(resource, (SVNRevision.Number)svnRevision, subPm);
+			}
+			else {
+				url = resource.getUrl();
+			}
+			
+			svnClient.checkout(url, destPath, svnRevision, depth, ignoreExternals, force);
 		} catch (SVNClientException e) {
 			throw new SVNException("cannot checkout", e.operationInterrupted());
 		} finally {
