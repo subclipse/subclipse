@@ -68,12 +68,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
             svnClient.addNotifyListener(operationResourceCollector);
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm, svnClient));
             File file = resource.getLocation().toFile();
-            SVNRevision pegRevision = null;
-//            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-//            if (svnResource != null && svnResource.getRevision() != null) pegRevision = svnResource.getRevision();
-//            else pegRevision = svnRevision;
-            pegRevision = SVNRevision.HEAD;
-            svnClient.switchToUrl(file, svnUrl, svnRevision, pegRevision, depth, setDepth, ignoreExternals, force);
+            svnClient.switchToUrl(file, svnUrl, svnRevision, svnRevision, depth, setDepth, ignoreExternals, force);
             OperationManager.getInstance().onNotify(resource.getLocation().toFile(), SVNNodeKind.UNKNOWN);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
