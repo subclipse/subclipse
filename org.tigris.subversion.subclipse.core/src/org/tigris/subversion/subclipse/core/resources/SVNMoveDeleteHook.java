@@ -23,6 +23,7 @@ import org.eclipse.core.resources.team.IMoveDeleteHook;
 import org.eclipse.core.resources.team.IResourceTree;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
@@ -41,6 +42,18 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class SVNMoveDeleteHook implements IMoveDeleteHook {
 	private static Set deletedFiles = new HashSet();
+	
+	private void deleteResource(ISVNLocalResource resource) throws SVNException {
+		ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+		 try {
+			svnClient.remove(new File[] { resource.getResource().getLocation().toFile() }, true);
+		} catch (SVNClientException e) {
+			throw new SVNException(IStatus.ERROR, TeamException.UNABLE, e.getMessage(), e);
+		}
+		finally {
+			resource.getRepository().returnSVNClient(svnClient);
+		}
+	}
 
     public boolean deleteFile(IResourceTree tree, IFile file, int updateFlags,
             IProgressMonitor monitor) {
@@ -59,7 +72,9 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             
             monitor.beginTask(null, 1000);
             deletedFiles.add(file);
-            resource.delete();
+            
+            deleteResource(resource);
+            
             tree.deletedFile(file);           
 
         } catch (SVNException e) {
@@ -92,7 +107,7 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                 return false;
             }
             monitor.beginTask(null, 1000);
-            resource.delete();
+            deleteResource(resource);
         } catch (SVNException e) {
             tree.failed(e.getStatus());
         } finally {
