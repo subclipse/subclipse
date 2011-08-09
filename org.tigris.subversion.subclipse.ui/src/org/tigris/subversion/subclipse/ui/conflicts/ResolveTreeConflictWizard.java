@@ -69,6 +69,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 	private Exception revertException;
 	
 	private boolean compare;
+	
+	private File mergePath;
 
 	public ResolveTreeConflictWizard(SVNTreeConflict treeConflict, IWorkbenchPart targetPart) {
 		super();
@@ -115,8 +117,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 					public void run() {
 						try {
-							File localPath = mergeTarget.getLocation().toFile();
-							svnClient.merge(url, rev1, url, revision2, localPath, true, false, false, true);
+							mergePath = mergeTarget.getLocation().toFile();
+							svnClient.merge(url, rev1, url, revision2, mergePath, true, false, false, true);
 				            try {
 				                // Refresh the resource after merge
 				            	if (mergeTarget.getParent() != null)
@@ -357,6 +359,13 @@ public class ResolveTreeConflictWizard extends Wizard {
 		return statuses;
 	}
 	
+	/**
+	 * @return Returns the mergePath.
+	 */
+	public File getMergePath() {
+		return mergePath;
+	}
+
 	private ISVNLogMessage[] getLogMessages() throws Exception {
 		if (logMessages == null) {
 			ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
