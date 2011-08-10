@@ -95,7 +95,6 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SHARE, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SYNCH, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_DIFF, baseURL);
-        createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_IMPORT_PROJECT_SET, baseURL);
 //        createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_KEYWORD, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_NEW_LOCATION, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_WIZBAN_NEW_FOLDER, baseURL);
