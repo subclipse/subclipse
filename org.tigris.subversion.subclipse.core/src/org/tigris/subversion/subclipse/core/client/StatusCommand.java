@@ -13,7 +13,6 @@ package org.tigris.subversion.subclipse.core.client;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -38,7 +37,7 @@ public class StatusCommand {
     /** List storing RevisionsCache objects as reported by logRevision() 
      *  They have to be sorted in descending order, so more specific (deeper in the tree)
      *  is looked up first */
-    protected List revisions = new ArrayList();
+    protected List<RevisionsCache> revisions = new ArrayList<StatusCommand.RevisionsCache>();
 
     public StatusCommand(File file, boolean descend, boolean getAll, boolean contactServer) {
         this.file = file;
@@ -80,12 +79,11 @@ public class StatusCommand {
     protected SVNRevision.Number getRevisionFor(ISVNStatus status) {
     	if (revisions.size() == 1)
     	{
-    		return ((RevisionsCache) revisions.get(0)).getRevision();
+    		return (revisions.get(0)).getRevision();
     	}
     	else
     	{
-    		for (Iterator it = revisions.iterator(); it.hasNext();) {
-				RevisionsCache element = (RevisionsCache) it.next();
+    		for (RevisionsCache element : revisions) {
 				if (element.appliesFor(status.getPath()))
 				{
 					return element.getRevision();
@@ -95,7 +93,7 @@ public class StatusCommand {
     	}
     }
     
-    private static class RevisionsCache implements Comparable {
+    private static class RevisionsCache implements Comparable<RevisionsCache> {
     	private final long revision;
     	private final String path;
     	
@@ -118,8 +116,8 @@ public class StatusCommand {
 			return statusPath.startsWith(this.path);
 		}
     
-		public int compareTo(Object o2) {
-			return ((RevisionsCache) o2).getPath().compareTo(this.getPath());
+		public int compareTo(RevisionsCache o2) {
+			return o2.getPath().compareTo(this.getPath());
 		}
     }
     

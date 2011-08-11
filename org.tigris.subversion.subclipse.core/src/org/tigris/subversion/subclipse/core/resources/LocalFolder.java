@@ -65,7 +65,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
      */
     public ISVNResource[] members(IProgressMonitor monitor, int flags) throws SVNException {
         if (!resource.exists()) return new ISVNLocalResource[0];
-        final List result = new ArrayList();
+        final List<ISVNLocalResource> result = new ArrayList<ISVNLocalResource>();
         IResource[] resources;
         try {
             resources = ((IContainer) resource).members(true);
@@ -175,28 +175,26 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
     }
     
     public IFolder[] getSVNFolders(IProgressMonitor monitor, final boolean unmanage) throws SVNException {
-    	final ArrayList svnFolders = new ArrayList();
+    	final ArrayList<IFolder> svnFolders = new ArrayList<IFolder>();
         SVNProviderPlugin.run(new ISVNRunnable() {
             public void run(IProgressMonitor pm) throws SVNException {
                 pm = Policy.monitorFor(pm);
                 pm.beginTask(null, 100);
 
-                ISVNResource[] members = members(Policy.subMonitorFor(pm,
-                        20), FOLDER_MEMBERS | MANAGED_MEMBERS);
-                ArrayList dirs = new ArrayList();
-                for (int i = 0; i < members.length; i++) {
-                    dirs.add(((ISVNLocalResource) members[i]).getIResource());
+                ISVNResource[] members = members(Policy.subMonitorFor(pm, 20), FOLDER_MEMBERS | MANAGED_MEMBERS);
+                ArrayList<IContainer> dirs = new ArrayList<IContainer>();
+                for (ISVNResource member : members) {
+                    dirs.add((IContainer)((ISVNLocalResource)member).getIResource());
                 }
-                dirs.add(getIResource()); // we add the current folder to the
+                dirs.add((IContainer)getIResource()); // we add the current folder to the
                 // list : we want to add .svn dir
                 // for it too
 
                 IProgressMonitor monitorDel = Policy.subMonitorFor(pm, 80);
                 monitorDel.beginTask(null, dirs.size());
 
-                for (int i = 0; i < dirs.size(); i++) {
+                for (IContainer container : dirs) {
                     monitorDel.worked(1);
-                    IContainer container = (IContainer) dirs.get(i);
                     recursiveGetSVNFolders(container, monitorDel, unmanage);
 
                 }
@@ -215,10 +213,10 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                     pm.subTask(container.getFullPath().toOSString());
 
                     IResource[] members = container.members(true);
-                    for (int i = 0; i < members.length; i++) {
+                    for (IResource member : members) {
                         pm.worked(1);
-                        if (members[i].getType() != IResource.FILE) {
-                            recursiveGetSVNFolders((IContainer) members[i], pm, unmanage);
+                        if (member.getType() != IResource.FILE) {
+                            recursiveGetSVNFolders((IContainer) member, pm, unmanage);
                         }
                     }
                     // Post order traversal

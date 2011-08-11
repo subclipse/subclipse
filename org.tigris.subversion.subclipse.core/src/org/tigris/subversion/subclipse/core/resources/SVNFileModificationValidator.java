@@ -11,8 +11,8 @@
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFileModificationValidator;
@@ -110,8 +110,7 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
      */
     private ReadOnlyFiles processFileArray(IFile[] files) {
     	ReadOnlyFiles result = new ReadOnlyFiles();
-    	for (int i = 0; i < files.length; i++) {
-			IFile file = files[i];
+    	for (IFile file : files) {
 			if (isReadOnly(file)) {
 	    	    try {
 	    	    	ISVNLocalResource resource = SVNWorkspaceRoot.getSVNResourceFor(file);
@@ -203,12 +202,12 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
     }
     
     private class ReadOnlyFiles {
-    	private List managed;
-    	private List unManaged;
+    	private List<IFile> managed;
+    	private List<IFile> unManaged;
 		public ReadOnlyFiles() {
 			super();
-			managed = new ArrayList();
-			unManaged = new ArrayList();
+			managed = new ArrayList<IFile>();
+			unManaged = new ArrayList<IFile>();
 		}
 		public void addManaged(IFile file) {
 			managed.add(file);
@@ -217,10 +216,10 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
 			unManaged.add(file);
 		}
 		public IFile[] getManaged() {
-			return (IFile[]) managed.toArray(new IFile[managed.size()]);
+			return managed.toArray(new IFile[managed.size()]);
 		}
 		public IFile[] getUnManaged() {
-			return (IFile[]) unManaged.toArray(new IFile[unManaged.size()]);
+			return unManaged.toArray(new IFile[unManaged.size()]);
 		}
 		public int size() {
 			return managed.size() + unManaged.size();

@@ -245,7 +245,7 @@ public class StringMatcher {
 			}
 		}
 
-		Vector temp = new Vector();
+		Vector<String> temp = new Vector<String>();
 
 		int pos = 0;
 		StringBuffer buf = new StringBuffer();

@@ -89,24 +89,12 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @param statuses
  	 * @param rule the scheduling rule to use when running this operation
      */
-    protected List updateCache(IResource parent, final ISVNStatus[] statuses) throws CoreException {
-    	final List result = new ArrayList(statuses.length);
-//    	if (ResourcesPlugin.getWorkspace().isTreeLocked())
-//    	{
-            for (int i = 0; i < statuses.length;i++) {
-            	IResource resource = SVNWorkspaceRoot.getResourceFor(parent, statuses[i]);
-            	result.add(updateCache(resource, statuses[i]));
-            }
-//    	}
-//    	else
-//    	{
-//    		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-//			public void run(IProgressMonitor monitor) throws CoreException {
-//		        for (int i = 0; i < statuses.length;i++) {        	
-//		        	result.add(updateCache(statuses[i]));
-//		        }
-//			}}, rule, IWorkspace.AVOID_UPDATE, null);    		
-//    	}
+    protected List<IResource> updateCache(IResource parent, final ISVNStatus[] statuses) throws CoreException {
+    	final List<IResource> result = new ArrayList<IResource>(statuses.length);
+        for (ISVNStatus status : statuses) {
+        	IResource resource = SVNWorkspaceRoot.getResourceFor(parent, status);
+        	result.add(updateCache(resource, status));
+        }
         return result;
     }
 
@@ -270,20 +258,18 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 							? (StatusUpdateStrategy) new RecursiveStatusUpdateStrategy(statusCache)
 							: (StatusUpdateStrategy) new NonRecursiveStatusUpdateStrategy(statusCache);
 		try {
-			List refreshedResources = updateCache(resource, strategy.statusesToUpdate(resource));
-			Set resourcesToRefresh = resourcesToRefresh(resource, depth, IContainer.INCLUDE_PHANTOMS, refreshedResources.size());
-			for (Iterator iter = refreshedResources.iterator(); iter.hasNext();) {
+			List<IResource> refreshedResources = updateCache(resource, strategy.statusesToUpdate(resource));
+			Set<IResource> resourcesToRefresh = resourcesToRefresh(resource, depth, IContainer.INCLUDE_PHANTOMS, refreshedResources.size());
+			for (Iterator<IResource> iter = refreshedResources.iterator(); iter.hasNext();) {
 				resourcesToRefresh.remove(iter.next());
 			}
 			//Resources which were not refreshed above (e.g. deleted resources)
 			//We do it with depth = infinite, so the whole deleted trees are refreshed.
-			for (Iterator it = resourcesToRefresh.iterator(); it.hasNext();) {
-				IResource res = (IResource) it.next();
+			for (IResource res : resourcesToRefresh) {
 				if ((res.getType() != IResource.FILE) && res.isPhantom())
 				{
-					Set children = resourcesToRefresh(res, IResource.DEPTH_INFINITE, IContainer.INCLUDE_PHANTOMS | IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS, 0);
-					for (Iterator iter = children.iterator(); iter.hasNext();) {
-						IResource child = (IResource) iter.next();
+					Set<IResource> children = resourcesToRefresh(res, IResource.DEPTH_INFINITE, IContainer.INCLUDE_PHANTOMS | IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS, 0);
+					for (IResource child : children) {
 						statusCache.removeStatus(child);
 						refreshedResources.add(child);
 					}
@@ -299,13 +285,13 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 		}
     }
 
-    private Set resourcesToRefresh(IResource resource, int depth, int flags, int expectedSize) throws CoreException
+    private Set<IResource> resourcesToRefresh(IResource resource, int depth, int flags, int expectedSize) throws CoreException
     {
         if (!resource.exists() && !resource.isPhantom())
         {
-            return new HashSet(0);
+            return new HashSet<IResource>(0);
         }
-    	final Set resultSet = (expectedSize != 0) ? new HashSet(expectedSize) : new HashSet();
+    	final Set<IResource> resultSet = (expectedSize != 0) ? new HashSet<IResource>(expectedSize) : new HashSet<IResource>();
 		resource.accept(new IResourceVisitor() {
 			public boolean visit(IResource aResource) throws CoreException {
 				resultSet.add(aResource);

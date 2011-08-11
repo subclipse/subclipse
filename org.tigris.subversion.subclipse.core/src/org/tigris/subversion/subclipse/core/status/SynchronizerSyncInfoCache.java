@@ -105,16 +105,6 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 			} else {
 				bytes = accessor.internalGetCachedSyncBytes(resource);
 			}
-//			if (bytes != null && resource.getType() == IResource.FILE) {
-//				if (LocalResourceStatus.isAddition(bytes)) {
-//					// The local file has been deleted but was an addition
-//					// Therefore, ignoe the sync bytes
-//					bytes = null;
-//				} else if (!LocalResourceStatus.isDeletion(bytes)) {
-//					// Ensure the bytes indicate an outgoing deletion
-//					bytes = LocalResourceStatus.convertToDeletion(bytes);
-//				}
-//			}
 			return bytes;
 		} catch (CoreException e) {
 			throw SVNException.wrapException(e);
@@ -214,7 +204,7 @@ public class SynchronizerSyncInfoCache implements IStatusCache {
 	protected final static class SyncInfoSynchronizedAccessor
 	{
 		// Map of sync bytes that were set without a scheduling rule
-		private Map pendingCacheWrites = new HashMap();
+		private Map<IResource, byte[]> pendingCacheWrites = new HashMap<IResource, byte[]>();
 
 		/*
 		 * Retieve the cached sync bytes from the synchronizer. A null

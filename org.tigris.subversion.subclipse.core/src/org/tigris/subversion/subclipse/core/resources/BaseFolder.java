@@ -13,7 +13,6 @@ package org.tigris.subversion.subclipse.core.resources;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
@@ -77,7 +76,7 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
 	 * @see org.tigris.subversion.subclipse.core.ISVNFolder#members(org.eclipse.core.runtime.IProgressMonitor, int)
 	 */
 	public ISVNResource[] members(IProgressMonitor monitor, int flags) throws SVNException {		
-		final List result = new ArrayList();
+		final List<ISVNResource> result = new ArrayList<ISVNResource>();
 		ISVNRemoteResource[] resources = getMembers(monitor);
 
 		// RemoteFolders never have phantom members
@@ -88,8 +87,7 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
 		boolean includeFolders = (((flags & FOLDER_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
 		boolean includeManaged = (((flags & MANAGED_MEMBERS) != 0) || ((flags & (MANAGED_MEMBERS | UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
 	
-		for (int i = 0; i < resources.length; i++) {
-			ISVNResource svnResource = resources[i];
+		for (ISVNResource svnResource : resources) {
 			if ((includeFiles && ( ! svnResource.isFolder())) 
 					|| (includeFolders && (svnResource.isFolder()))) {
 				if (includeManaged) {
@@ -104,8 +102,7 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
      * TODO This should use the synchronization information instead of hitting the WC
 	 * @see org.tigris.subversion.subclipse.core.resources.RemoteFolder#getMembers(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	protected ISVNRemoteResource[] getMembers(IProgressMonitor monitor)
-			throws SVNException {
+	protected ISVNRemoteResource[] getMembers(IProgressMonitor monitor) throws SVNException {
 		final IProgressMonitor progress = Policy.monitorFor(monitor);
 		progress.beginTask(Policy.bind("RemoteFolder.getMembers"), 100); //$NON-NLS-1$
         
@@ -113,27 +110,22 @@ public class BaseFolder extends BaseResource implements ISVNRemoteFolder {
             GetStatusCommand c = new GetStatusCommand(localResourceStatus.getRepository(), resource, false, true);
             c.run(monitor);
             LocalResourceStatus[] statuses = c.getLocalResourceStatuses();
-            List baseChildren = new ArrayList(statuses.length);
+            List<BaseResource> baseChildren = new ArrayList<BaseResource>(statuses.length);
 
-            for (int i = 0; i < statuses.length; i++) {
-                if (localResourceStatus.getFile().equals(statuses[i].getFile())) {
+            for (LocalResourceStatus status : statuses) {
+                if (localResourceStatus.getFile().equals(status.getFile())) {
                     continue;
                 }
 
                 // Don't create base entries for files that aren't managed yet
-                if (!statuses[i].hasRemote()) {
+                if (!status.hasRemote()) {
                     continue;
                 }
-                
-//                // External entries don't have base information either
-//                if (statuses[i].getTextStatus() == SVNStatusKind.EXTERNAL) {
-//                    continue;
-//                }
-                
+ 
                 // The folders itself is not its own child, all direct children are
-                if (statuses[i].getUrlString() != null && !statuses[i].getUrlString().equals(localResourceStatus.getUrlString()))
+                if (status.getUrlString() != null && !status.getUrlString().equals(localResourceStatus.getUrlString()))
                 {
-                	BaseResource member = BaseResource.from(SVNWorkspaceRoot.getResourceFor(resource, statuses[i]), statuses[i]);
+                	BaseResource member = BaseResource.from(SVNWorkspaceRoot.getResourceFor(resource, status), status);
                 	member.setParent(this);
                 	baseChildren.add(member);
                 }

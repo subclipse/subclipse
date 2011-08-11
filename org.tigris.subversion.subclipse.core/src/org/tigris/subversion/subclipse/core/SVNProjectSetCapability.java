@@ -60,8 +60,9 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
             ProjectSetSerializationContext context, IProgressMonitor monitor)
             throws TeamException {
         String[] result = new String[projects.length];
-        for (int i = 0; i < projects.length; i++)
+        for (int i = 0; i < projects.length; i++) {
             result[i] = asReference(projects[i]);
+        }
         return result;
     }
 
@@ -102,7 +103,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
         Policy.checkCanceled(monitor);
 
         // Confirm the projects to be loaded
-        Map infoMap = new HashMap(referenceStrings.length);
+        Map<IProject, LoadInfo> infoMap = new HashMap<IProject, SVNProjectSetCapability.LoadInfo>(referenceStrings.length);
         IProject[] projects = asProjects(context, referenceStrings, infoMap);
         projects = confirmOverwrite(context, projects);
         if (projects == null) {
@@ -129,11 +130,11 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
      * @return the projects to be loaded
      */
     private IProject[] asProjects(ProjectSetSerializationContext context,
-            String[] referenceStrings, Map infoMap) throws SVNException {
-        Collection result = new ArrayList();
-        for (int i = 0; i < referenceStrings.length; i++) {
+            String[] referenceStrings, Map<IProject, LoadInfo> infoMap) throws SVNException {
+        Collection<IProject> result = new ArrayList<IProject>();
+        for (String referenceString : referenceStrings) {
             StringTokenizer tokenizer = new StringTokenizer(
-                    referenceStrings[i], ","); //$NON-NLS-1$
+                    referenceString, ","); //$NON-NLS-1$
             String version = tokenizer.nextToken();
             // If this is a newer version, then ignore it
             if (!version.equals("0.9.3")) { //$NON-NLS-1$
@@ -157,7 +158,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
      * @param monitor
      *            the progress monitor (not <code>null</code>)
      */
-    private IProject[] checkout(IProject[] projects, Map infoMap,
+    private IProject[] checkout(IProject[] projects, Map<IProject, LoadInfo> infoMap,
             IProgressMonitor monitor) throws TeamException, MalformedURLException {
         if(projects==null || projects.length==0) {
           return new IProject[0];
@@ -169,14 +170,13 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
         ISchedulingRule rule= MultiRule.combine(ruleArray);
 		Job.getJobManager().beginRule(rule, monitor);
         monitor.beginTask("", 1000 * projects.length); //$NON-NLS-1$
-        List result = new ArrayList();
+        List<IProject> result = new ArrayList<IProject>();
         try {
-            for (int i = 0; i < projects.length; i++) {
+            for (IProject project : projects) {
                 if (monitor.isCanceled()) {
                     break;
                 }
-                IProject project = projects[i];
-                LoadInfo info = (LoadInfo) infoMap.get(project);
+                LoadInfo info = infoMap.get(project);
                 if (info != null
                         && info.checkout(new SubProgressMonitor(monitor, 1000))) {
                     result.add(project);
@@ -186,7 +186,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
     		Job.getJobManager().endRule(rule);
             monitor.done();
         }
-        return (IProject[]) result.toArray(new IProject[result.size()]);
+        return result.toArray(new IProject[result.size()]);
     }
 
     /**
@@ -280,9 +280,7 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
                 }
                 RemoteFolder remoteFolder = new RemoteFolder(repositoryLocation, new SVNUrl(repo), repositoryLocation.getRootFolder().getRevision());
                 CheckoutCommand command = new CheckoutCommand(
-                        new ISVNRemoteFolder[] { remoteFolder }, new IProject[] { project });                
-//              CheckoutCommand command = new CheckoutCommand(
-//                      new ISVNRemoteFolder[] { repositoryLocation.getRootFolder() }, new IProject[] { project });                
+                        new ISVNRemoteFolder[] { remoteFolder }, new IProject[] { project });                             
                 command.run(monitor);
                 return true;
             }

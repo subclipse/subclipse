@@ -14,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -28,46 +27,50 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class AliasManager {
-	private ArrayList aliases = new ArrayList();
+	private ArrayList<Alias> aliases = new ArrayList<Alias>();
 	
 	public AliasManager(IResource resource) {
 		Alias[] aliasArray = getAliases(resource);
 		Arrays.sort(aliasArray);
-		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
+		for (Alias alias : aliasArray) {
+			aliases.add(alias);
+		}
 	}
 	
 	public AliasManager(IResource resource, boolean checkParents) {
 		Alias[] aliasArray = getAliases(resource, checkParents);
 		Arrays.sort(aliasArray);
-		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
+		for (Alias alias : aliasArray) {
+			aliases.add(alias);
+		}
 	}
 	
 	public AliasManager(SVNUrl url) {
 		Alias[] aliasArray = getAliases(url);
 		Arrays.sort(aliasArray);
-		for (int i = 0; i < aliasArray.length; i++) aliases.add(aliasArray[i]);
+		for (Alias alias : aliasArray) {
+			aliases.add(alias);
+		}
 	}
 	
 	public Alias[] getTags(int revision) {
-		ArrayList revisionAliases = new ArrayList();
-		Iterator iter = aliases.iterator();
-		while (iter.hasNext()) {
-			Alias alias = (Alias)iter.next();
+		ArrayList<Alias> revisionAliases = new ArrayList<Alias>();
+		for (Alias alias : aliases) {
 			if (alias.getRevision() >= revision && !alias.isBranch()) {
 				revisionAliases.add(alias);
 			}
 		}
 		Alias[] aliasArray = new Alias[revisionAliases.size()];
 		revisionAliases.toArray(aliasArray);
-		for (int i = 0; i < aliasArray.length; i++) aliases.remove(aliasArray[i]);
+		for (Alias alias : aliasArray) {
+			aliases.remove(alias);
+		}
 		return aliasArray;
 	}
 	
 	public Alias[] getTags() {
-		ArrayList tags = new ArrayList();
-		Iterator iter = aliases.iterator();
-		while (iter.hasNext()) {
-			Alias tag = (Alias)iter.next();
+		ArrayList<Alias> tags = new ArrayList<Alias>();
+		for (Alias tag : aliases) {
 			if (!tag.isBranch()) {
 				tags.add(tag);
 			}
@@ -78,10 +81,8 @@ public class AliasManager {
 	}
 	
 	public Alias[] getBranches() {
-		ArrayList branches = new ArrayList();
-		Iterator iter = aliases.iterator();
-		while (iter.hasNext()) {
-			Alias branch = (Alias)iter.next();
+		ArrayList<Alias> branches = new ArrayList<Alias>();
+		for (Alias branch : aliases) {
 			if (branch.isBranch()) {
 				branches.add(branch);
 			}
@@ -150,7 +151,7 @@ public class AliasManager {
 	}
 	
 	private Alias[] getAliases(IResource resource, boolean checkParents)  {
-		ArrayList aliases = new ArrayList();
+		ArrayList<Alias> aliases = new ArrayList<Alias>();
 		if (resource != null) {
 			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 			try {
@@ -163,14 +164,14 @@ public class AliasManager {
 						while (checkResource.getParent() != null) {
 							checkResource = checkResource.getParent();
 							Alias[] parentAliases = getAliases(checkResource, false);
-							for (int i = 0; i < parentAliases.length; i++) {
-								if (aliases.contains(parentAliases[i])) {
-									Alias checkAlias = (Alias)aliases.get(aliases.indexOf(parentAliases[i]));
-									if (parentAliases[i].getRevision() < checkAlias.getRevision()) {
+							for (Alias parentAlias : parentAliases) {
+								if (aliases.contains(parentAlias)) {
+									Alias checkAlias = (Alias)aliases.get(aliases.indexOf(parentAlias));
+									if (parentAlias.getRevision() < checkAlias.getRevision()) {
 										aliases.remove(checkAlias);
-										aliases.add(parentAliases[i]);
+										aliases.add(parentAlias);
 									}
-								} else aliases.add(parentAliases[i]);
+								} else aliases.add(parentAlias);
 							}
 						}
 					}
@@ -190,7 +191,7 @@ public class AliasManager {
 	}
 	
 	private Alias[] getAliases(SVNUrl url, boolean checkParents)  {
-		ArrayList aliases = new ArrayList();
+		ArrayList<Alias> aliases = new ArrayList<Alias>();
 		ISVNClientAdapter client = null;
 		try {
 			client = SVNProviderPlugin.getPlugin().getSVNClient();
@@ -215,7 +216,7 @@ public class AliasManager {
 		return aliasArray;
 	}
 	
-	private void getAliases(ArrayList aliases, String propertyValue, String url) {
+	private void getAliases(ArrayList<Alias> aliases, String propertyValue, String url) {
 		StringReader reader = new StringReader(propertyValue);
 		BufferedReader bReader = new BufferedReader(reader);
 		try {
@@ -223,7 +224,7 @@ public class AliasManager {
 			while (line != null) {
 				Alias alias = getAlias(line, url);
 				if (aliases.contains(alias)) {
-					Alias checkAlias = (Alias)aliases.get(aliases.indexOf(alias));
+					Alias checkAlias = aliases.get(aliases.indexOf(alias));
 					if (alias.getRevision() < checkAlias.getRevision()) {
 						aliases.remove(checkAlias);
 						aliases.add(alias);

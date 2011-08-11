@@ -48,7 +48,7 @@ public class SVNTeamProviderType extends RepositoryProviderType {
     
     public static class AutoShareJob extends Job {
 
-        List projectsToShare = new ArrayList();
+        List<IProject> projectsToShare = new ArrayList<IProject>();
         
         AutoShareJob() {
             super("Auto-sharing imported subversion projects");
@@ -70,8 +70,8 @@ public class SVNTeamProviderType extends RepositoryProviderType {
          */
         public boolean shouldRun() {
             synchronized (projectsToShare) {
-                for (Iterator iter = projectsToShare.iterator(); iter.hasNext();) {
-                    IProject project = (IProject) iter.next();
+                for (Iterator<IProject> iter = projectsToShare.iterator(); iter.hasNext();) {
+                    IProject project = iter.next();
                     if (RepositoryProvider.isShared(project)) {
                         iter.remove();
                     }

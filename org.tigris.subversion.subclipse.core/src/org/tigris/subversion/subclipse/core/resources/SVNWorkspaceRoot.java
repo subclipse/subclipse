@@ -72,8 +72,7 @@ public class SVNWorkspaceRoot {
 
 	private ISVNLocalFolder localRoot;
     private String url;
-    private static boolean nullResourceLogged = false;
-    private static Set sharedProjects = new HashSet();
+    private static Set<IProject> sharedProjects = new HashSet<IProject>();
 
 	public SVNWorkspaceRoot(IContainer resource){
 		this.localRoot = getSVNFolderFor(resource);
@@ -336,18 +335,6 @@ public class SVNWorkspaceRoot {
 	 */
 	public static boolean isLinkedResource(IResource resource) {
 		return resource.isLinked(IResource.CHECK_ANCESTORS);
-		// check the resource directly first
-/* Commented out
-		if (resource.isLinked()) return true;
-		// projects and root cannot be links
-		if (resource.getType() == IResource.PROJECT || resource.getType() == IResource.ROOT) {
-			return false;
-		}
-		// look one level under the project to see if the resource is part of a link
-		String linkedParentName = resource.getProjectRelativePath().segment(0);
-		IFolder linkedParent = resource.getProject().getFolder(linkedParentName);
-		return linkedParent.isLinked();
-*/
 	}
 
 	/**
@@ -462,16 +449,16 @@ public class SVNWorkspaceRoot {
      * @throws SVNException
      */
     public static IResource[] getResourcesFor(IPath location, boolean includeProjects) {
-		Set resources = new LinkedHashSet();
+		Set<IResource> resources = new LinkedHashSet<IResource>();
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject[] projects = root.getProjects();
-		for (int i = 0; i < projects.length; i++) {
-			IResource resource = getResourceFor(projects[i], location);
+		for (IProject project : projects) {
+			IResource resource = getResourceFor(project, location);
 			if (resource != null) {
 				resources.add(resource);
 			}
-			if (includeProjects && isManagedBySubclipse(projects[i]) && location.isPrefixOf(projects[i].getLocation())) {
-				resources.add(projects[i]);
+			if (includeProjects && isManagedBySubclipse(project) && location.isPrefixOf(project.getLocation())) {
+				resources.add(project);
 			}
 		}
 		return (IResource[]) resources.toArray(new IResource[resources.size()]);
@@ -483,8 +470,7 @@ public class SVNWorkspaceRoot {
     public static ISVNRepositoryLocation getRepositoryFor(IPath location) {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject[] projects = root.getProjects();
-		for (int i = 0; i < projects.length; i++) {
-			IProject project = projects[i];
+		for (IProject project : projects) {
 			if (project.getLocation().isPrefixOf(location) && SVNWorkspaceRoot.isManagedBySubclipse(project)) {
 				try {
 					SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());

@@ -40,7 +40,7 @@ public class BranchTagCommand implements ISVNCommand {
     private SVNWorkspaceRoot root;
     
     private boolean multipleTransactions = true;
-    private Map urlMap = new HashMap();
+    private Map<String, SVNUrl> urlMap = new HashMap<String, SVNUrl>();
 
 	public BranchTagCommand(SVNWorkspaceRoot root, IResource[] resources, SVNUrl[] sourceUrls, SVNUrl destinationUrl, String message, boolean createOnServer, SVNRevision revision) {
         super();
@@ -72,7 +72,6 @@ public class BranchTagCommand implements ISVNCommand {
             	svnClient = root.getRepository().getSVNClient();
             }
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
-//            monitor.subTask("Branch Tag");
             if (createOnServer) {
             	boolean copyAsChild = sourceUrls.length > 1;
             	String commonRoot = null;
@@ -83,12 +82,12 @@ public class BranchTagCommand implements ISVNCommand {
             		svnClient.copy(sourceUrls, destinationUrl, message, revision, copyAsChild, makeParents);
             		multipleTransactions = false;
             	} else {
-            		for (int i = 0; i < sourceUrls.length; i++) {
-            			String fromUrl = sourceUrls[i].toString();
+            		for (SVNUrl sourceUrl : sourceUrls) {
+            			String fromUrl = sourceUrl.toString();
             			String uncommonPortion = fromUrl.substring(commonRoot.length());
             			String toUrl = destinationUrl.toString() + uncommonPortion;
             			SVNUrl destination = new SVNUrl(toUrl);
-            			SVNUrl[] source = { sourceUrls[i] };
+            			SVNUrl[] source = { sourceUrl };
             			urlMap.put(fromUrl, destination);
             			svnClient.copy(source, destination, message, revision, copyAsChild, makeParents);
             		}
@@ -96,10 +95,9 @@ public class BranchTagCommand implements ISVNCommand {
             }
             else {
             	File[] files = new File[resources.length];
-            	for (int i = 0; i < resources.length; i++)
+            	for (int i = 0; i < resources.length; i++) {
             		files[i] = resources[i].getLocation().toFile();
-//                File file = resource.getLocation().toFile();
-//                svnClient.copy(file, destinationUrl, message);
+            	}
             	boolean copyAsChild = files.length > 1;
             	String commonRoot = null;
             	if (copyAsChild) {

@@ -27,7 +27,7 @@ public class ReentrantLock {
 	private Thread thread;
 	private int nestingCount;
 	
-	private Set readOnlyThreads = new HashSet();
+	private Set<Thread> readOnlyThreads = new HashSet<Thread>();
 	
 	public ReentrantLock() {
 		this.thread = null;

@@ -69,9 +69,8 @@ public class CheckinResourcesCommand implements ISVNCommand {
         
         // Prepare the parents list
         // we will Auto-commit parents if they are not already commited
-        List parentsList = new ArrayList();
-        for (int i=0; i<resources.length; i++) {
-            IResource currentResource = resources[i];
+        List<IContainer> parentsList = new ArrayList<IContainer>();
+        for (IResource currentResource : resources) {
             IContainer parent = currentResource.getParent();
             ISVNLocalResource svnParentResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
             while (parent.getType() != IResource.ROOT && 
@@ -90,10 +89,12 @@ public class CheckinResourcesCommand implements ISVNCommand {
         	depth = IResource.DEPTH_ZERO; // change commit to non-recursive!!
            
         final File[] resourceFiles = new File[parents + resources.length];
-        for (int i = 0; i < parents;i++)
+        for (int i = 0; i < parents; i++) {
         	resourceFiles[i] = ((IResource)parentsList.get(i)).getLocation().toFile();
-        for (int i = 0, j = parents; i < resources.length;i++, j++)
-            resourceFiles[j] = resources[i].getLocation().toFile();      
+        }
+        for (int i = 0, j = parents; i < resources.length; i++, j++) {
+            resourceFiles[j] = resources[i].getLocation().toFile();  
+        }
         
         SVNProviderPlugin.run(new ISVNRunnable() {
             public void run(final IProgressMonitor pm) throws SVNException {
@@ -138,8 +139,8 @@ public class CheckinResourcesCommand implements ISVNCommand {
 	}
     
 	private boolean inCommitList(IResource resource) {
-		for (int i = 0; i < resources.length; i++) {
-			if (resources[i].equals(resource))
+		for (IResource checkResource : resources) {
+			if (checkResource.equals(resource))
 				return true;
 		}
 		return false;

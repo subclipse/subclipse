@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,7 +32,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  */
 public class RepositoryResourcesManager {
     
-    private List repositoryListeners = new ArrayList();
+    private List<ISVNListener> repositoryListeners = new ArrayList<ISVNListener>();
 
 
     /**
@@ -54,9 +53,7 @@ public class RepositoryResourcesManager {
      * signals all listener that we have removed a repository 
      */
     public void repositoryRemoved(ISVNRepositoryLocation repository) {
-        Iterator it = repositoryListeners.iterator();
-        while (it.hasNext()) {
-            ISVNListener listener = (ISVNListener)it.next();
+        for (ISVNListener listener : repositoryListeners) {
             listener.repositoryRemoved(repository);
         }    
     }
@@ -65,9 +62,7 @@ public class RepositoryResourcesManager {
      * signals all listener that we have removed a repository 
      */
     public void repositoryAdded(ISVNRepositoryLocation repository) {
-        Iterator it = repositoryListeners.iterator();
-        while (it.hasNext()) {
-            ISVNListener listener = (ISVNListener)it.next();
+    	 for (ISVNListener listener : repositoryListeners) {
             listener.repositoryAdded(repository);
         }    
     }
@@ -76,9 +71,7 @@ public class RepositoryResourcesManager {
      * signals all listener that we have removed a repository 
      */
     public void repositoryModified(ISVNRepositoryLocation repository) {
-        Iterator it = repositoryListeners.iterator();
-        while (it.hasNext()) {
-            ISVNListener listener = (ISVNListener)it.next();
+    	 for (ISVNListener listener : repositoryListeners) {
             listener.repositoryModified(repository);
         }    
     }    
@@ -87,9 +80,7 @@ public class RepositoryResourcesManager {
      * signals all listener that a remote resource has been created 
      */
     public void remoteResourceCreated(ISVNRemoteFolder parent, String resourceName) {
-        Iterator it = repositoryListeners.iterator();
-        while (it.hasNext()) {
-            ISVNListener listener = (ISVNListener)it.next();
+    	 for (ISVNListener listener : repositoryListeners) {
             listener.remoteResourceCreated(parent,resourceName);
         }    
     }    
@@ -98,9 +89,7 @@ public class RepositoryResourcesManager {
      * signals all listener that a remote resource has been created 
      */
     public void remoteResourceDeleted(ISVNRemoteResource resource) {
-        Iterator it = repositoryListeners.iterator();
-        while (it.hasNext()) {
-            ISVNListener listener = (ISVNListener)it.next();
+    	for (ISVNListener listener : repositoryListeners) {
             listener.remoteResourceDeleted(resource);
         }    
     } 
@@ -109,9 +98,7 @@ public class RepositoryResourcesManager {
      * signals all listener that a remote resource has been copied 
      */
     public void remoteResourceCopied(ISVNRemoteResource source, ISVNRemoteFolder destination) {
-        Iterator it = repositoryListeners.iterator();
-        while (it.hasNext()) {
-            ISVNListener listener = (ISVNListener)it.next();
+    	for (ISVNListener listener : repositoryListeners) {
             listener.remoteResourceCopied(source, destination);
         }    
     } 
@@ -120,9 +107,7 @@ public class RepositoryResourcesManager {
      * signals all listener that a remote resource has been moved 
      */
     public void remoteResourceMoved(ISVNRemoteResource resource, ISVNRemoteFolder destinationFolder, String destinationResourceName) {
-        Iterator it = repositoryListeners.iterator();
-        while (it.hasNext()) {
-            ISVNListener listener = (ISVNListener)it.next();
+    	for (ISVNListener listener : repositoryListeners) {
             listener.remoteResourceMoved(resource, destinationFolder, destinationResourceName);
         }    
     } 
@@ -146,13 +131,12 @@ public class RepositoryResourcesManager {
         // the given remote resources can come from more than a repository and so needs
         // more than one svnClient
         // we associate each repository with the corresponding resources to delete
-        HashMap mapRepositories = new HashMap();
-        for (int i = 0;i < remoteResources.length;i++) {
-            ISVNRemoteResource remoteResource = remoteResources[i];
+        HashMap<ISVNRepositoryLocation, List<ISVNRemoteResource>> mapRepositories = new HashMap<ISVNRepositoryLocation, List<ISVNRemoteResource>>();
+        for (ISVNRemoteResource remoteResource : remoteResources) {
             ISVNRepositoryLocation repositoryLocation = remoteResource.getRepository();
-            List resources = (List)mapRepositories.get(repositoryLocation);
+            List<ISVNRemoteResource> resources = (List<ISVNRemoteResource>)mapRepositories.get(repositoryLocation);
             if (resources == null) {
-                resources = new ArrayList();
+                resources = new ArrayList<ISVNRemoteResource>();
                 mapRepositories.put(repositoryLocation, resources);
             }
             resources.add(remoteResource);
@@ -160,13 +144,12 @@ public class RepositoryResourcesManager {
         ISVNClientAdapter svnClient = null;
         ISVNRepositoryLocation repository = null;
         try {        
-            for (Iterator it = mapRepositories.values().iterator(); it.hasNext();) {
-                List resources = (List)it.next();
-                repository = ((ISVNRemoteResource)resources.get(0)).getRepository();
+        	for (List<ISVNRemoteResource> resources : mapRepositories.values()) {
+                repository = (resources.get(0)).getRepository();
                 svnClient = repository.getSVNClient();
                 SVNUrl urls[] = new SVNUrl[resources.size()];
                 for (int i = 0; i < resources.size();i++) {
-                    ISVNRemoteResource resource = (ISVNRemoteResource)resources.get(i); 
+                    ISVNRemoteResource resource = resources.get(i); 
                     urls[i] = resource.getUrl();
                     
                     // refresh just says that resource needs to be updated
@@ -178,8 +161,7 @@ public class RepositoryResourcesManager {
                 svnClient = null;
                 repository = null;
                 
-                for (int i = 0; i < resources.size();i++) {
-                    ISVNRemoteResource resource = (ISVNRemoteResource)resources.get(i);
+                for (ISVNRemoteResource resource : resources) {
                     remoteResourceDeleted(resource);
                 }
                 

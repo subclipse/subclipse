@@ -96,11 +96,11 @@ public class TeamPrivateListener implements IResourceChangeListener, ISavePartic
 	 */
 	public void registerSaveParticipant() throws CoreException {
 		IWorkspace ws = ResourcesPlugin.getWorkspace();
-		ISavedState ss = ws.addSaveParticipant(SVNProviderPlugin.getPlugin(), this);
+		ISavedState ss = ws.addSaveParticipant(SVNProviderPlugin.ID, this);
 		if (ss != null) {
 			ss.processResourceChangeEvents(this);
 		}
-		ws.removeSaveParticipant(SVNProviderPlugin.getPlugin());
+		ws.removeSaveParticipant(SVNProviderPlugin.ID);
 	}
 	
 	/**

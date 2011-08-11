@@ -164,12 +164,12 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
             client = getRepository().getSVNClient();
 
             ISVNDirEntryWithLock[] list = client.getListWithLocks(url, getRevision(), SVNRevision.HEAD, false);
-			List result = new ArrayList(list.length);
+			List<RemoteResource> result = new ArrayList<RemoteResource>(list.length);
 
 			// directories first				
-			for (int i=0;i<list.length;i++)
+			for (ISVNDirEntryWithLock entryWithLock : list)
 			{
-				ISVNDirEntry entry = list[i].getDirEntry();
+				ISVNDirEntry entry = entryWithLock.getDirEntry();
                 if (entry.getNodeKind() == SVNNodeKind.DIR)
 				{
 				    result.add(new RemoteFolder(this, getRepository(),
@@ -182,10 +182,10 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 			}
 
 			// files then				
-			for (int i=0;i<list.length;i++)
+			for (ISVNDirEntryWithLock entryWithLock : list)
 			{
-				ISVNDirEntry entry = list[i].getDirEntry();
-				ISVNLock lock = list[i].getLock();
+				ISVNDirEntry entry = entryWithLock.getDirEntry();
+				ISVNLock lock = entryWithLock.getLock();
 				if (entry.getNodeKind() == SVNNodeKind.FILE)
 				{
 					RemoteFile remoteFile = new RemoteFile(this, getRepository(),
@@ -217,7 +217,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 	 * @see org.tigris.subversion.subclipse.core.ISVNFolder#members(org.eclipse.core.runtime.IProgressMonitor, int)
 	 */
 	public ISVNResource[] members(IProgressMonitor monitor, int flags) throws SVNException {		
-		final List result = new ArrayList();
+		final List<ISVNResource> result = new ArrayList<ISVNResource>();
 		ISVNRemoteResource[] resources = getMembers(monitor);
 
 		// RemoteFolders never have phantom members
@@ -228,8 +228,7 @@ public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, IS
 		boolean includeFolders = (((flags & FOLDER_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
 		boolean includeManaged = (((flags & MANAGED_MEMBERS) != 0) || ((flags & (MANAGED_MEMBERS | UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
 	
-		for (int i = 0; i < resources.length; i++) {
-			ISVNResource svnResource = resources[i];
+		for (ISVNResource svnResource : resources) {
 			if ((includeFiles && ( ! svnResource.isFolder())) 
 					|| (includeFolders && (svnResource.isFolder()))) {
 				if (includeManaged) {

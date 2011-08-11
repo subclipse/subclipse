@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.core.resourcesListeners;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -62,8 +61,8 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
 		try {
-			final List modifiedResources = new ArrayList();
-			final List modifiedInfiniteDepthResources = new ArrayList();
+			final List<IResource> modifiedResources = new ArrayList<IResource>();
+			final List<IResource> modifiedInfiniteDepthResources = new ArrayList<IResource>();
 
 			event.getDelta().accept(new IResourceDeltaVisitor() {
 				public boolean visit(IResourceDelta delta) {
@@ -174,26 +173,23 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
         //so from the performance reasons we collect the parent folders of the files
         //and we refresh only those folders then. 
         //All immediate child resources (files) are refreshed automatically
-        Set foldersToRefresh = new HashSet(resources.length);
-        for (int i = 0; i < resources.length;i++) {
-            if (resources[i].getType()==IResource.FILE)
+        Set<IContainer> foldersToRefresh = new HashSet<IContainer>(resources.length);
+        for (IResource resource : resources) {
+            if (resource.getType()==IResource.FILE)
             {
-                foldersToRefresh.add(resources[i].getParent());
+                foldersToRefresh.add(resource.getParent());
             }
             else
             {
-                foldersToRefresh.add(resources[i]);
+                foldersToRefresh.add((IContainer)resource);
             }
         }
-        for (Iterator it = foldersToRefresh.iterator(); it.hasNext();) {
-            IResource folder = (IResource) it.next();
+        for (IResource folder : foldersToRefresh) {
     		try {
                 SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)folder, true);               
                 try {
 					folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
+				} catch (CoreException e) {}
     		} catch (SVNException e) {
     			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
     		}
@@ -208,11 +204,11 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	 */
 	public void registerSaveParticipant() throws CoreException {
 		IWorkspace ws = ResourcesPlugin.getWorkspace();
-		ISavedState ss = ws.addSaveParticipant(SVNProviderPlugin.getPlugin(), this);
+		ISavedState ss = ws.addSaveParticipant(SVNProviderPlugin.ID, this);
 		if (ss != null) {
 			ss.processResourceChangeEvents(this);
 		}
-		ws.removeSaveParticipant(SVNProviderPlugin.getPlugin());
+		ws.removeSaveParticipant(SVNProviderPlugin.ID);
 	}
 	
 	/**

@@ -36,11 +36,9 @@ import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
 	
 	private RemoteResourceStatus[] remoteStatuses;
-	private ISVNLocalResource svnResource;
 
     public StatusAndInfoCommand(ISVNLocalResource svnResource, boolean descend, boolean getAll, boolean contactServer) {
         super(svnResource.getFile(), descend, getAll, contactServer);
-        this.svnResource = svnResource;
     }
 
     protected void execute(final ISVNClientAdapter client, final IProgressMonitor monitor) throws SVNClientException {

@@ -53,7 +53,7 @@ import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener {
 
 	private static SVNWorkspaceSubscriber instance; 
-	private HashMap changesMap = new HashMap();
+	private HashMap<IResource, IResource[]> changesMap = new HashMap<IResource, IResource[]>();
 	
 	/** We need to store unchanged parents in remoteSyncStateStore.
 	 * To distinguish them from real changed resources we store this dummy data instead for them */
@@ -96,10 +96,9 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
      * @see org.eclipse.team.core.subscribers.Subscriber#roots()
      */
     public IResource[] roots() {
-		List result = new ArrayList();
+		List<IProject> result = new ArrayList<IProject>();
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i = 0; i < projects.length; i++) {
-			IProject project = projects[i];
+		for (IProject project : projects) {
 			if(project.isAccessible()) {
 				RepositoryProvider provider = RepositoryProvider.getProvider(project, SVNProviderPlugin.PROVIDER_ID);
 				if(provider != null) {
@@ -145,7 +144,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			return new IResource[0];
 		}	
 		try {
-			Set allMembers = new HashSet();
+			Set<IResource> allMembers = new HashSet<IResource>();
 			try {
 				allMembers.addAll(Arrays.asList(((IContainer)resource).members(true)));
 			} catch (CoreException e) {
@@ -158,7 +157,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 			//add remote changed resources (they may not exist locally)
 			allMembers.addAll(Arrays.asList( remoteSyncStateStore.members( resource ) ) );
 
-			return (IResource[]) allMembers.toArray(new IResource[allMembers.size()]);
+			return allMembers.toArray(new IResource[allMembers.size()]);
 		} catch (CoreException e) {
 			throw TeamException.asTeamException(e);
 		}
@@ -193,11 +192,10 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
      */
     public void refresh(IResource[] resources, int depth, IProgressMonitor monitor) throws TeamException {
 		monitor = Policy.monitorFor(monitor);
-		List errors = new ArrayList();
+		List<IStatus> errors = new ArrayList<IStatus>();
 		try {
 			monitor.beginTask("", 1000 * resources.length);
-			for (int i = 0; i < resources.length; i++) {
-				IResource resource = resources[i];
+			for (IResource resource : resources) {
 				// Make certain that resource is still connected with SVN.  When
 				// Synch is on a schedule it is possible for the project to become disconnected
 				SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
@@ -256,9 +254,8 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
             RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
 
-            List result = new ArrayList(statuses.length);
-            for (int i = 0; i < statuses.length; i++) {
-            	RemoteResourceStatus status = statuses[i];
+            List<IResource> result = new ArrayList<IResource>(statuses.length);
+            for (RemoteResourceStatus status : statuses) {
             	IResource changedResource = SVNWorkspaceRoot.getResourceFor(resource, status);
 
                 if (changedResource == null)
@@ -267,7 +264,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
                 if (isSupervised(changedResource) || (status.getTextStatus() != SVNStatusKind.NONE))
                 {
                 	result.add(changedResource);
-                	remoteSyncStateStore.setBytes( changedResource, statuses[i].getBytes() );
+                	remoteSyncStateStore.setBytes( changedResource, status.getBytes() );
                 	registerChangedResourceParent(changedResource);
                 }
 			}

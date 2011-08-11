@@ -41,7 +41,7 @@ import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class SVNMoveDeleteHook implements IMoveDeleteHook {
-	private static Set deletedFiles = new HashSet();
+	private static Set<IFile> deletedFiles = new HashSet<IFile>();
 	
 	private void deleteResource(ISVNLocalResource resource) throws SVNException {
 		ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();

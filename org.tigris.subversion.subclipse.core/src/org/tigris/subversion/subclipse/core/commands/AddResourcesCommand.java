@@ -11,7 +11,6 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -71,10 +70,10 @@ public class AddResourcesCommand implements ISVNCommand {
         // Visit the children of the resources using the depth in order to
         // determine which folders, text files and binary files need to be added
         // A TreeSet is needed for the folders so they are in the right order (i.e. parents created before children)
-        final SortedSet folders = new TreeSet();
+        final SortedSet<ISVNLocalResource> folders = new TreeSet<ISVNLocalResource>();
         // Sets are required for the files to ensure that files will not appear twice if there parent was added as well
         // and the depth isn't zero
-        final HashSet files = new HashSet();
+        final HashSet<ISVNLocalResource> files = new HashSet<ISVNLocalResource>();
         
         for (int i=0; i<resources.length; i++) {
             
@@ -131,9 +130,7 @@ public class AddResourcesCommand implements ISVNCommand {
         
         OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
         try {
-            for(Iterator it=folders.iterator(); it.hasNext();) {
-                final ISVNLocalResource localResource = (ISVNLocalResource)it.next();
-  
+            for(ISVNLocalResource localResource : folders) {
                 try {
                     svnClient.addDirectory(localResource.getIResource().getLocation().toFile(),false);
                     localResource.refreshStatus();
@@ -142,9 +139,7 @@ public class AddResourcesCommand implements ISVNCommand {
                 }
             }
 
-            for(Iterator it=files.iterator(); it.hasNext();) {
-                final ISVNLocalResource localResource = (ISVNLocalResource)it.next();
-  
+            for(ISVNLocalResource localResource : files) {
                 try {
                     svnClient.addFile(localResource.getIResource().getLocation().toFile());
                     // If file has read-only attribute set, remove it

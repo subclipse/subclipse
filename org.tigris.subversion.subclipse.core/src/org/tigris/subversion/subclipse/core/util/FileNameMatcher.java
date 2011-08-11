@@ -19,8 +19,8 @@ import java.util.List;
  */
 public class FileNameMatcher {
 	
-	private List matchers = new ArrayList();
-	private List results = new ArrayList();
+	private List<StringMatcher> matchers = new ArrayList<StringMatcher>();
+	private List<String> results = new ArrayList<String>();
 	private static final String TRUE = "true"; //$NON-NLS-1$
 	
 	public FileNameMatcher() {
@@ -34,8 +34,8 @@ public class FileNameMatcher {
      * register a set of pattern (all associated with "true" 
      */		
 	void register(String[] patterns) {
-		for (int i = 0; i < patterns.length; i++) {
-			register(patterns[i],TRUE);
+		for (String pattern : patterns) {
+			register(pattern,TRUE);
 		}
 	}
 	
@@ -67,9 +67,9 @@ public class FileNameMatcher {
 		StringMatcher stringMatcher;
 		
 		for (int i = 0; i < matchers.size(); i++) {
-			stringMatcher = (StringMatcher) matchers.get(i);
+			stringMatcher = matchers.get(i);
 			if (stringMatcher.match(name)) {
-				return (String)results.get(i);
+				return results.get(i);
 			}
 		}
 		

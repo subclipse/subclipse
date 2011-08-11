@@ -20,7 +20,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -46,7 +45,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  */
 public class SVNRepositories 
 {
-    private Map repositories = new HashMap();
+    private Map<String, ISVNRepositoryLocation> repositories = new HashMap<String, ISVNRepositoryLocation>();
     private static final String REPOSITORIES_STATE_FILE = ".svnProviderState"; //$NON-NLS-1$
     
     // version numbers for the state file 
@@ -108,9 +107,8 @@ public class SVNRepositories
 		try {
 			String[] keys = prefs.childrenNames();
 	        progress.beginTask(Policy.bind("SVNRepositories.refresh"), keys.length); //$NON-NLS-1$
-			for (int i = 0; i < keys.length; i++) {
+			for (String key : keys) {
 				progress.worked(1);
-				String key = keys[i];
 				try {
 					IEclipsePreferences node = (IEclipsePreferences) prefs.node(key);
 					String location = node.get(SVNRepositoryLocation.PREF_LOCATION, null);
@@ -139,8 +137,8 @@ public class SVNRepositories
 
     public void refreshRepositoriesFolders(IProgressMonitor monitor) {
         ISVNRepositoryLocation[] repositories = getKnownRepositories(monitor);
-        for (int i = 0; i < repositories.length;i++) {
-            repositories[i].refreshRootFolder();
+        for (ISVNRepositoryLocation repository : repositories) {
+            repository.refreshRootFolder();
         }
     }
 
@@ -183,9 +181,8 @@ public class SVNRepositories
 	 */
 	public ISVNRepositoryLocation getRepository(String location, boolean useRootUrl) throws SVNException {
 		
-		Set keys = repositories.keySet();
-		for(Iterator iter = keys.iterator();iter.hasNext();){
-			String url = (String)iter.next();
+		Set<String> keys = repositories.keySet();
+		for(String url : keys){
 			if (url.equals(location) || location.indexOf(url + "/") != -1){
 			    return (ISVNRepositoryLocation) repositories.get(url);
 			}    	
@@ -197,8 +194,7 @@ public class SVNRepositories
 		// default port stripped out (normalizedLocation).
 		String normalizedLocation = getNormalizedLocation(location);
 		if (!normalizedLocation.equals(location)) {
-			for(Iterator iter = keys.iterator();iter.hasNext();){
-				String url = (String)iter.next();
+			for(String url : keys){
 				if (url.equals(normalizedLocation) || normalizedLocation.indexOf(url + "/") != -1){
 				    return (ISVNRepositoryLocation) repositories.get(url);
 				}    	
@@ -242,22 +238,7 @@ public class SVNRepositories
                 } catch (IOException e) {
                     throw new TeamException(new Status(Status.ERROR, SVNProviderPlugin.ID, TeamException.UNABLE, Policy.bind("SVNProvider.ioException"), e));  //$NON-NLS-1$
                 }
-            } /* else {
-                // If the file did not exist, then prime the list of repositories with
-                // the providers with which the projects in the workspace are shared.
-                IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-                for (int i = 0; i < projects.length; i++) {
-                    RepositoryProvider provider = RepositoryProvider.getProvider(projects[i], CVSProviderPlugin.getTypeId());
-                    if (provider!=null) {
-                        ICVSFolder folder = (ICVSFolder)CVSWorkspaceRoot.getCVSResourceFor(projects[i]);
-                        FolderSyncInfo info = folder.getFolderSyncInfo();
-                        if (info != null) {
-                            ICVSRepositoryLocation result = getRepository(info.getRoot());
-                        }
-                    }
-                }
-                saveState();
-            }*/
+            }
         } catch (TeamException e) {
             Util.logError(Policy.bind("SVNProvider.errorLoading"), e);//$NON-NLS-1$
         }
@@ -334,11 +315,10 @@ public class SVNRepositories
         // Write the repositories
         dos.writeInt(REPOSITORIES_STATE_FILE_VERSION_3);
         // Write out the repos
-        Collection repos = repositories.values();
+        Collection<ISVNRepositoryLocation> repos = repositories.values();
         dos.writeInt(repos.size());
-        Iterator it = repos.iterator();
-        while (it.hasNext()) {
-            SVNRepositoryLocation root = (SVNRepositoryLocation)it.next();
+        for (ISVNRepositoryLocation reposLocation : repos) {
+            SVNRepositoryLocation root = (SVNRepositoryLocation)reposLocation;
             dos.writeUTF(root.getLocation());
             if (root.getLabel() == null) {
             	dos.writeUTF("");
@@ -368,9 +348,8 @@ public class SVNRepositories
 	 * The location string corresponds to the Strin returned by ISVNRepositoryLocation#getLocation()
 	 */
 	public boolean isKnownRepository(String location, boolean requireExactMatch) {
-		Set keys = repositories.keySet();
-		for(Iterator iter = keys.iterator();iter.hasNext();){
-			String checkLocation = (String)iter.next();
+		Set<String> keys = repositories.keySet();
+		for(String checkLocation : keys){
 			if(!requireExactMatch && location.indexOf(checkLocation)!=-1){
 				return true;
 			}
@@ -384,9 +363,8 @@ public class SVNRepositories
 	 * The location string corresponds to the Strin returned by ISVNRepositoryLocation#getLocation()
 	 */
 	public boolean exactMatchExists(String location) {
-		Set keys = repositories.keySet();
-		for(Iterator iter = keys.iterator();iter.hasNext();){
-			String url = (String)iter.next();
+		Set<String> keys = repositories.keySet();
+		for(String url : keys){
 			if (url.equals(location)){
 				return true;
 			}

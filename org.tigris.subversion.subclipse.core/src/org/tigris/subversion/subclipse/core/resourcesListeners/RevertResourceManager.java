@@ -92,7 +92,7 @@ public class RevertResourceManager implements IResourceChangeListener {
 	public void resourceChanged(final IResourceChangeEvent event) {		
 		JobUtility.scheduleJob("RevertResourcesOperation", new Runnable() {
 			public void run() {
-		        final List addedFileResources = new ArrayList();
+		        final List<IResourceDelta> addedFileResources = new ArrayList<IResourceDelta>();
 
 		        try {
 		            event.getDelta().accept(new IResourceDeltaVisitor() {
@@ -148,14 +148,14 @@ public class RevertResourceManager implements IResourceChangeListener {
      */
 
 	private ISVNLocalResource[] processResources(IResourceDelta[] resources) throws CoreException {
-    	List revertedResources = new ArrayList();
-        for (int i = 0; i < resources.length; i++) {
-        	IResource resource = resources[i].getResource();
+    	List<ISVNLocalResource> revertedResources = new ArrayList<ISVNLocalResource>();
+        for (IResourceDelta resourceDelta : resources) {
+        	IResource resource = resourceDelta.getResource();
             if (resource.getType() == IResource.FILE) {
                 ISVNLocalFile res = SVNWorkspaceRoot.getSVNFileFor((IFile) resource);
                 if (res.getFile().exists()) {
                 	boolean deleted;
-                	if (resources[i].getKind() == IResourceDelta.ADDED)
+                	if (resourceDelta.getKind() == IResourceDelta.ADDED)
                 		deleted = res.getStatusFromCache().isDeleted();
                 	else {
                 		deleted = SVNMoveDeleteHook.isDeleted((IFile)resource);

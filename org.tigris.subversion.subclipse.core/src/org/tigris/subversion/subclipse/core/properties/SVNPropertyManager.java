@@ -41,20 +41,20 @@ public class SVNPropertyManager {
     }
 
     private void loadPropertiesFromExtensions() {
-        ArrayList propertyTypes = new ArrayList();
-        IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(SVNProviderPlugin.ID, SVNProviderPlugin.SVN_PROPERTY_TYPES_EXTENSION);
-        IExtension[] extensions =  extension.getExtensions();
+        ArrayList<SVNPropertyDefinition> propertyTypes = new ArrayList<SVNPropertyDefinition>();
+        IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(SVNProviderPlugin.ID, SVNProviderPlugin.SVN_PROPERTY_TYPES_EXTENSION);
+        IExtension[] extensions =  extensionPoint.getExtensions();
         
-        for (int i = 0; i < extensions.length; i++) {
-            IConfigurationElement[] configElements = extensions[i].getConfigurationElements();
-            for (int j = 0; j < configElements.length; j++) {
-                String name = configElements[j].getAttribute("name"); //$NON-NLS-1$
-                String type = configElements[j].getAttribute("type"); //$NON-NLS-1$
-                String fileOrFolder = configElements[j].getAttribute("fileOrFolder"); //$NON-NLS-1$
-                String allowRecurse = configElements[j].getAttribute("allowRecurse"); //$NON-NLS-1$
+        for (IExtension extension : extensions) {
+            IConfigurationElement[] configElements = extension.getConfigurationElements();
+            for (IConfigurationElement configElement : configElements) {
+                String name = configElement.getAttribute("name"); //$NON-NLS-1$
+                String type = configElement.getAttribute("type"); //$NON-NLS-1$
+                String fileOrFolder = configElement.getAttribute("fileOrFolder"); //$NON-NLS-1$
+                String allowRecurse = configElement.getAttribute("allowRecurse"); //$NON-NLS-1$
                 String description = "";
                 
-                IConfigurationElement[] descriptionElements = configElements[j].getChildren("description");
+                IConfigurationElement[] descriptionElements = configElement.getChildren("description");
                 if (descriptionElements.length == 1) {
                     description = descriptionElements[0].getValue();
                 }
@@ -71,11 +71,11 @@ public class SVNPropertyManager {
 	    definitions = new SVNPropertyDefinition[propertyTypes.size()];
 	    propertyTypes.toArray(definitions);
 	    Arrays.sort(definitions);
-	    ArrayList fileProperties = new ArrayList();
-	    ArrayList folderProperties = new ArrayList();
-	    for (int i = 0; i < definitions.length; i++) {
-	        if (definitions[i].showForFile()) fileProperties.add(definitions[i]);
-	        if (definitions[i].showForFolder()) folderProperties.add(definitions[i]);
+	    ArrayList<SVNPropertyDefinition> fileProperties = new ArrayList<SVNPropertyDefinition>();
+	    ArrayList<SVNPropertyDefinition> folderProperties = new ArrayList<SVNPropertyDefinition>();
+	    for (SVNPropertyDefinition definition : definitions) {
+	        if (definition.showForFile()) fileProperties.add(definition);
+	        if (definition.showForFolder()) folderProperties.add(definition);
 	    }
 	    fileDefinitions = new SVNPropertyDefinition[fileProperties.size()];
 	    fileProperties.toArray(fileDefinitions);
