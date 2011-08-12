@@ -54,7 +54,8 @@ public class RepositoryBranchTagAction extends SVNAction {
 		  } catch (Exception e) {
 			  MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage());
 		  } finally {
-              SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+			  // BranchTagCommand will dispose.
+//            SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 		  }
     	}
 	}

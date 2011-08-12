@@ -198,7 +198,9 @@ public class BranchTagWizard extends Wizard implements IClosableWizard {
 				newAlias = null;
     	} catch (Exception e) {}
     	finally {
-    		repositoryPage.getSvnResource().getRepository().returnSVNClient(svnClient);
+    		if (svnClient != null) {
+    			repositoryPage.getSvnResource().getRepository().returnSVNClient(svnClient);
+    		}
     	}
     }
     
