@@ -7,18 +7,19 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNExternal;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.history.Alias;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.BranchTagPropertyUpdateDialog;
+import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 
 public class BranchTagWizard extends Wizard implements IClosableWizard {
     private IResource[] resources;
@@ -38,6 +39,7 @@ public class BranchTagWizard extends Wizard implements IClosableWizard {
     private boolean alreadyExists;
     private boolean sameStructure;
     private ClosableWizardDialog parentDialog;
+    private SVNExternal[] svnExternals;
 
 	public BranchTagWizard(IResource[] resources) {
 		super();
@@ -67,6 +69,7 @@ public class BranchTagWizard extends Wizard implements IClosableWizard {
         	return false;
         }
         
+        svnExternals = copyPage.getSvnExternals();
         comment = commentPage.getComment();
         repositoryPage.saveUrl();
         createOnServer = !copyPage.workingCopyButton.getSelection();
@@ -277,7 +280,11 @@ public class BranchTagWizard extends Wizard implements IClosableWizard {
 	public void setRevisionNumber(long revisionNumber) {
 		this.revisionNumber = revisionNumber;
 	}
-	
+
+	public SVNExternal[] getSvnExternals() {
+		return svnExternals;
+	}
+
 	protected void handle(Exception exception, String title, String message) {
 		SVNUIPlugin.openError(getShell(), title, message, exception, SVNUIPlugin.LOG_NONTEAM_EXCEPTIONS);
 	}

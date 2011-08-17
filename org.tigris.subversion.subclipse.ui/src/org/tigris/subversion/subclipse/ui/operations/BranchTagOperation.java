@@ -21,6 +21,7 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNExternal;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.BranchTagCommand;
 import org.tigris.subversion.subclipse.core.commands.GetRemoteResourceCommand;
@@ -30,6 +31,9 @@ import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
+import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -44,6 +48,7 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 	private boolean switchAfterTagBranch;
 	private boolean branchCreated = false;
 	private boolean multipleTransactions = true;
+	private SVNExternal[] svnExternals;
 
     public BranchTagOperation(IWorkbenchPart part, IResource[] resources, SVNUrl[] sourceUrls, SVNUrl destinationUrl, boolean createOnServer, SVNRevision revision, String message) {
         super(part, resources);
@@ -71,12 +76,41 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 	        command.setMakeParents(makeParents);
 	        command.setMultipleTransactions(multipleTransactions);
 	    	command.run(Policy.subMonitorFor(monitor,1000));
+	    	
+	    	if (svnExternals != null) {
+	    		try {
+		    		ISVNClientAdapter svnClient = provider.getSVNWorkspaceRoot().getRepository().getSVNClient();
+		        	for (int i = 0; i < sourceUrls.length; i++) {
+		        		SVNUrl copyToUrl = command.getDestinationUrl(sourceUrls[i].toString());
+			        	GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(provider.getSVNWorkspaceRoot().getRepository(), copyToUrl, SVNRevision.HEAD);
+			        	try {
+			        		getRemoteResourceCommand.run(null);
+			        	} catch(SVNException e) {
+			        		if(e.getStatus().getCode() == TeamException.UNABLE) {
+			        			copyToUrl = destinationUrl;
+			        		} else {
+			        			throw e;
+			        		}
+			        	}
+			        	ISVNProperty[] copyToProperties = svnClient.getProperties(copyToUrl);
+			        	for (ISVNProperty copyToProperty : copyToProperties) {
+			        		if (copyToProperty.getName().equals("svn:externals")) { //$NON-NLS-1$
+			        			ISVNInfo info = svnClient.getInfo(copyToUrl);
+			        			svnClient.propertySet(copyToProperty.getUrl(), info.getRevision(), "svn:externals", getUpdatedSvnExternalsProperty(copyToProperty), Policy.bind("BranchTagOperation.3")); //$NON-NLS-1$ //$NON-NLS-2$
+			        		}
+			        	}
+		        	}		    		
+		    		
+		    		provider.getSVNWorkspaceRoot().getRepository().returnSVNClient(svnClient);
+	    		} catch (Exception e) {
+	    			e.printStackTrace();
+	    		}
+	    	}
+	    	
 	    	SVNUIPlugin.getPlugin().getRepositoryManager().resourceCreated(null, null);
 	        if (newAlias != null) updateBranchTagProperty(resources[0]);
 	        if(switchAfterTagBranch) {
 	        	for (int i = 0; i < sourceUrls.length; i++) {
-//		        	String lastPathSegment = sourceUrls[i].getLastPathSegment();
-//		        	SVNUrl switchDestinationUrl = destinationUrl.appendPath(lastPathSegment);
 	        		SVNUrl switchDestinationUrl = command.getDestinationUrl(sourceUrls[i].toString());
 		        	
 		        	// the copy command's destination URL can either be a path to an existing directory
@@ -112,11 +146,34 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 		IResource[] resources = getResources();
 		if (resources == null) return super.getSchedulingRule(provider);
 		IResourceRuleFactory ruleFactory = provider.getRuleFactory();
-		HashSet rules = new HashSet();
+		HashSet<ISchedulingRule> rules = new HashSet<ISchedulingRule>();
 		for (int i = 0; i < resources.length; i++) {
 			rules.add(ruleFactory.modifyRule(resources[i].getProject()));
 		}
 		return MultiRule.combine((ISchedulingRule[]) rules.toArray(new ISchedulingRule[rules.size()]));
+	}
+	
+	private String getUpdatedSvnExternalsProperty(ISVNProperty svnExternalsProperty) {
+		StringBuffer updatedProperty = new StringBuffer();
+		String[] propertyLines = svnExternalsProperty.getValue().split("\\n"); //$NON-NLS-1$
+		for (String propertyLine : propertyLines) {
+			SVNExternal svnExternal = new SVNExternal(null, propertyLine);
+			String newPropertyLine = null;
+			for (SVNExternal checkExternal : svnExternals) {
+				if (checkExternal.getUrl().equals(svnExternal.getUrl()) && checkExternal.getFolder().equals(svnExternal.getFolder()) && checkExternal.getPropertyLine().equals(svnExternal.getPropertyLine())) {
+					newPropertyLine = checkExternal.toString();
+					break;
+				}
+			}
+			if (newPropertyLine == null) {
+				newPropertyLine = propertyLine;
+			}
+			if (updatedProperty.length() > 0) {
+				updatedProperty.append("\n"); //$NON-NLS-1$
+			}
+			updatedProperty.append(newPropertyLine);
+		}
+		return updatedProperty.toString();
 	}
     
     private void updateBranchTagProperty(IResource resource) {
@@ -145,7 +202,7 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 			}
 		}
 		if (propertyValue.length() > 0) propertyValue.append("\n"); //$NON-NLS-1$
-		propertyValue.append(newAlias.getRevision() + "," + newAlias.getName() + "," + newAlias.getRelativePath());
+		propertyValue.append(newAlias.getRevision() + "," + newAlias.getName() + "," + newAlias.getRelativePath()); //$NON-NLS-1$ //$NON-NLS-2$
 		if (newAlias.isBranch()) propertyValue.append(",branch"); //$NON-NLS-1$
 		else propertyValue.append(",tag"); //$NON-NLS-1$	
 		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);		
@@ -168,6 +225,10 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 	
 	public void setMultipleTransactions(boolean multipleTransactions) {
 		this.multipleTransactions = multipleTransactions;
+	}
+
+	public void setSvnExternals(SVNExternal[] svnExternals) {
+		this.svnExternals = svnExternals;
 	}
 
 }

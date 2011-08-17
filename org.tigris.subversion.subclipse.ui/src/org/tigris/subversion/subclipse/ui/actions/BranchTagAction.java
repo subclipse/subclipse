@@ -46,6 +46,7 @@ public class BranchTagAction extends WorkbenchWindowAction {
 	            branchTagOperation.setMultipleTransactions(wizard.isSameStructure());
 	            branchTagOperation.setNewAlias(wizard.getNewAlias());
 	            branchTagOperation.switchAfterTagBranchOperation(wizard.isSwitchAfterBranchTag());
+	            branchTagOperation.setSvnExternals(wizard.getSvnExternals());
 	            branchTagOperation.run();        		
         	}
         }
