@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -171,7 +172,8 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 			// Register the project with Team
 			RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
 			RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());
-		} catch (TeamException e) {
+			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+		} catch (Exception e) {
 			throw new SVNException("Cannot map the project with svn provider",e);
 		} finally {
 			if (monitor != null)
