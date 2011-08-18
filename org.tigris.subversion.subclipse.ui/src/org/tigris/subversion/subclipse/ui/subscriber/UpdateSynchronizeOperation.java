@@ -39,6 +39,7 @@ import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.conflicts.SVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
@@ -46,8 +47,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	private IResource[] resources;
 	private boolean confirm;
 	private boolean confirmNeeded;
-	private int statusCount;
-	private List errors;
+	private List<IStatus> errors;
 	
 	public UpdateSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, IResource[] resources) {
 		super(configuration, elements);
@@ -63,24 +63,22 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 			final SyncInfoSet syncSet = getSyncInfoSet();
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
-					confirm = MessageDialog.openConfirm(getShell(), Policy.bind("SyncAction.updateAll"), Policy.bind("SyncAction.updateConfirm", Integer.toString(syncSet.getSyncInfos().length))); //$NON-NLS-1$ //$NON-NLS-1$				
+					confirm = MessageDialog.openConfirm(getShell(), Policy.bind("SyncAction.updateAll"), Policy.bind("SyncAction.updateConfirm", Integer.toString(syncSet.getSyncInfos().length))); //$NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$				
 				}			
 			});
 			if (!confirm) return;			
 		}
-		errors = new ArrayList();
-		statusCount = 0;
+		errors = new ArrayList<IStatus>();
 		super.run(monitor);
 	}
 
 	protected void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 		IResource[] resourceArray = extractResources(resources, set);
-		Map items = groupByRepository(resourceArray, set);
-		Set keys = items.keySet();
-		
-		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-			ISVNRepositoryLocation repos = (ISVNRepositoryLocation) iterator.next();
-			List resourceList = (List) items.get(repos);
+		Map<ISVNRepositoryLocation, List<IResource>> items = groupByRepository(resourceArray, set);
+		Set<ISVNRepositoryLocation> keys = items.keySet();
+		for (Iterator<ISVNRepositoryLocation> iterator = keys.iterator(); iterator.hasNext();) {
+			ISVNRepositoryLocation repos = iterator.next();
+			List<IResource> resourceList = items.get(repos);
 			resourceArray = new IResource[resourceList.size()];
 			resourceList.toArray(resourceArray);
 			SVNRevision revision = getRevisionForUpdate(resourceArray, set);
@@ -93,6 +91,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 		try {	
 			SVNWorkspaceSubscriber.getInstance().updateRemote(resourceArray);
 	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resourceArray, revision);
+	    	command.setConflictResolver(new SVNConflictResolver());
 	        command.run(Policy.subMonitorFor(monitor,100));		
 		} catch (SVNException e) {
 			if (!e.operationInterrupted()) {
@@ -116,9 +115,9 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	 * @param set - The set of selected items in the synch view
 	 * @return Map - the resources grouped by ISVNRepositoryLocation
 	 */
-	private Map groupByRepository(IResource[] resourceArray,
+	private Map<ISVNRepositoryLocation, List<IResource>> groupByRepository(IResource[] resourceArray,
 			SyncInfoSet set) {
-		Map resourceMap = new HashMap();
+		Map<ISVNRepositoryLocation, List<IResource>> resourceMap = new HashMap<ISVNRepositoryLocation, List<IResource>>();
 		final SyncInfo[] syncInfos = set.getSyncInfos();
 		for (int i = 0; i < syncInfos.length; i++) {
 			SVNStatusSyncInfo syncInfo = (SVNStatusSyncInfo)syncInfos[i];
@@ -130,9 +129,9 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 					if (remote != null && remote instanceof ISVNRemoteResource) {
 						if (syncInfo.getRemoteResourceStatus() != null) {
 							ISVNRepositoryLocation repos = syncInfo.getRemoteResourceStatus().getRepository();
-							List resList = (List) resourceMap.get(repos);
+							List<IResource> resList = (List<IResource>) resourceMap.get(repos);
 							if (resList == null)
-								resList = new ArrayList(resourceArray.length);
+								resList = new ArrayList<IResource>(resourceArray.length);
 							resList.add(resourceArray[j]);
 							resourceMap.put(repos, resList);
 						}
@@ -199,13 +198,13 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	 */
     private IResource[] trimResources(IResource[] resourceArray) {
     	// Get a list of just the folders.
-        List folders = new ArrayList();
+        List<IResource> folders = new ArrayList<IResource>();
         for (int i = 0; i < resourceArray.length; i++) {
             if (resourceArray[i].getType() == IResource.FOLDER || resourceArray[i].getType() == IResource.PROJECT) 
                 folders.add(resourceArray[i]);
         }
         
-        List trimmedList = new ArrayList();
+        List<IResource> trimmedList = new ArrayList<IResource>();
         for (int i = 0; i < resourceArray.length; i++) {
             if (!parentIncluded(resourceArray[i], folders))
                 trimmedList.add(resourceArray[i]);
@@ -216,7 +215,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 		return trimmedArray;
     }
     
-    private boolean parentIncluded(IResource resource, List folders) {
+    private boolean parentIncluded(IResource resource, List<IResource> folders) {
         IResource parent = resource.getParent();
         if (parent == null) return false;
         if (folders.contains(parent)) return true;
@@ -229,7 +228,6 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	
 	private void collectStatus(IStatus status)  {
 		if (isLastError(status)) return;
-		statusCount++;
 		if (!status.isOK()) addError(status);
 	}
 	

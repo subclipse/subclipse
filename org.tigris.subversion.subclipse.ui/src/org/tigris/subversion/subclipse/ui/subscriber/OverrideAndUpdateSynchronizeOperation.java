@@ -32,6 +32,7 @@ import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.conflicts.SVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperation {
@@ -39,8 +40,7 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 	private IResource[] resources;
 	private boolean revertAndUpdate = true;
 	private boolean prompted;
-	private int statusCount;
-	private List errors = new ArrayList(); // of IStatus
+	private List<IStatus> errors = new ArrayList<IStatus>(); // of IStatus
 	
 	public final static int PROGRESS_DIALOG = 1;
 	public final static int PROGRESS_BUSYCURSOR = 2;
@@ -60,7 +60,7 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 		if (!prompted) {
 			getShell().getDisplay().syncExec(new Runnable() {
 				public void run() {
-					revertAndUpdate = MessageDialog.openQuestion(getShell(), Policy.bind("SyncAction.override.title"), Policy.bind("SyncAction.override.confirm"));
+					revertAndUpdate = MessageDialog.openQuestion(getShell(), Policy.bind("SyncAction.override.title"), Policy.bind("SyncAction.override.confirm")); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			});
 			prompted = true;
@@ -87,7 +87,8 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 			IResource[] incomingResources = getIncoming(resourceArray);
 		    SVNWorkspaceSubscriber.getInstance().updateRemote(incomingResources);
 	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),incomingResources, revision);
-	        command.run(Policy.subMonitorFor(monitor,100));
+	    	command.setConflictResolver(new SVNConflictResolver());
+	    	command.run(Policy.subMonitorFor(monitor,100));
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		} catch (TeamException e) {
@@ -102,11 +103,11 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 	}
 
 	protected String getJobName() {
-		return Policy.bind("SyncAction.override.title");
+		return Policy.bind("SyncAction.override.title"); //$NON-NLS-1$
 	}
 
 	private IResource[] getIncoming(IResource[] resources) throws TeamException {
-		List incomingResources = new ArrayList();
+		List<IResource> incomingResources = new ArrayList<IResource>();
 		for (int i = 0; i < resources.length; i++) {
 			IResource resource = resources[i];
 			SVNStatusSyncInfo info = (SVNStatusSyncInfo) SVNWorkspaceSubscriber.getInstance().getSyncInfo(resource);	
@@ -122,7 +123,6 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 	
 	private void collectStatus(IStatus status)  {
 		if (isLastError(status)) return;
-		statusCount++;
 		if (!status.isOK()) addError(status);
 	}
 	

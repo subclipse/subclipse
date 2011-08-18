@@ -31,7 +31,9 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.DepthComboHelper;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.conflicts.SVNConflictResolver;
 import org.tigris.subversion.subclipse.ui.dialogs.HistoryDialog;
+import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -48,6 +50,19 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 	private Button ignoreExternalsButton;
 	private Button forceButton;
 	
+	private Button textConflictPromptButton;
+	private Button textConflictMarkButton;
+	
+	private Button propertyConflictPromptButton;
+	private Button propertyConflictMarkButton;
+
+	private Button binaryConflictPromptButton;
+	private Button binaryConflictMarkButton;
+	private Button binaryConflictUserButton;
+	private Button binaryConflictIncomingButton;
+	
+	private SVNConflictResolver conflictResolver;
+	
     private SVNRevision revision;
     private int depth;
     private boolean setDepth;
@@ -60,7 +75,7 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
     private long defaultRevision;
 
 	public SvnWizardUpdatePage(IResource[] resources) {
-		super("UpdateDialog", Policy.bind("UpdateDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$
+		super("UpdateDialogWithConflictHandling", Policy.bind("UpdateDialog.title")); //$NON-NLS-1$ //$NON-NLS-2$
 		this.resources = resources;
 	}
 	
@@ -223,6 +238,61 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
 		forceButton.setLayoutData(data);
 		forceButton.setSelection(true);
 		
+		Group conflictGroup = new Group(composite, SWT.NONE);
+		conflictGroup.setText(Policy.bind("SvnWizardUpdatePage.0")); //$NON-NLS-1$
+		GridLayout conflictLayout = new GridLayout();
+		conflictLayout.numColumns = 1;
+		conflictGroup.setLayout(conflictLayout);
+		conflictGroup.setLayoutData(
+		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		
+		Group textGroup = new Group(conflictGroup, SWT.NONE);
+		textGroup.setText(Policy.bind("SvnWizardUpdatePage.1")); //$NON-NLS-1$
+		GridLayout textLayout = new GridLayout();
+		textLayout.numColumns = 1;
+		textGroup.setLayout(textLayout);
+		textGroup.setLayoutData(
+		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));	
+		
+		textConflictPromptButton = new Button(textGroup, SWT.RADIO);
+		textConflictPromptButton.setText(Policy.bind("SvnWizardUpdatePage.2")); //$NON-NLS-1$
+		textConflictMarkButton = new Button(textGroup, SWT.RADIO);
+		textConflictMarkButton.setText(Policy.bind("SvnWizardUpdatePage.3")); //$NON-NLS-1$
+		
+		Group binaryGroup = new Group(conflictGroup, SWT.NONE);
+		binaryGroup.setText(Policy.bind("SvnWizardUpdatePage.4")); //$NON-NLS-1$
+		GridLayout binaryLayout = new GridLayout();
+		binaryLayout.numColumns = 1;
+		binaryGroup.setLayout(binaryLayout);
+		binaryGroup.setLayoutData(
+		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));	
+		
+		binaryConflictPromptButton = new Button(binaryGroup, SWT.RADIO);
+		binaryConflictPromptButton.setText(Policy.bind("SvnWizardUpdatePage.5")); //$NON-NLS-1$
+		binaryConflictMarkButton = new Button(binaryGroup, SWT.RADIO);
+		binaryConflictMarkButton.setText(Policy.bind("SvnWizardUpdatePage.6")); //$NON-NLS-1$
+		binaryConflictUserButton = new Button(binaryGroup, SWT.RADIO);
+		binaryConflictUserButton.setText(Policy.bind("SvnWizardUpdatePage.7")); //$NON-NLS-1$
+		binaryConflictIncomingButton = new Button(binaryGroup, SWT.RADIO);
+		binaryConflictIncomingButton.setText(Policy.bind("SvnWizardUpdatePage.8")); //$NON-NLS-1$
+
+		Group propertyGroup = new Group(conflictGroup, SWT.NONE);
+		propertyGroup.setText(Policy.bind("SvnWizardUpdatePage.9")); //$NON-NLS-1$
+		GridLayout propertyLayout = new GridLayout();
+		propertyLayout.numColumns = 1;
+		propertyGroup.setLayout(propertyLayout);
+		propertyGroup.setLayoutData(
+		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));			
+
+		propertyConflictPromptButton = new Button(propertyGroup, SWT.RADIO);
+		propertyConflictPromptButton.setText(Policy.bind("SvnWizardUpdatePage.10")); //$NON-NLS-1$
+		propertyConflictMarkButton = new Button(propertyGroup, SWT.RADIO);
+		propertyConflictMarkButton.setText(Policy.bind("SvnWizardUpdatePage.11")); //$NON-NLS-1$
+		
+		textConflictMarkButton.setSelection(true);
+		binaryConflictMarkButton.setSelection(true);
+		propertyConflictMarkButton.setSelection(true);
+		
 		setPageComplete(canFinish());		
 	}
 
@@ -248,10 +318,32 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
         ignoreExternals = ignoreExternalsButton.getSelection();
         force = forceButton.getSelection();
         depth = DepthComboHelper.getDepth(depthCombo);
+        conflictResolver = new SVNConflictResolver(resources[0], getTextConflictHandling(), getBinaryConflictHandling(), getPropertyConflictHandling());
 		return true;
 	}
 
 	public void saveSettings() {}
+
+	public SVNConflictResolver getConflictResolver() {
+		return conflictResolver;
+	}
+
+	public int getTextConflictHandling() {
+		if (textConflictMarkButton.getSelection()) return ISVNConflictResolver.Choice.postpone;
+		else return ISVNConflictResolver.Choice.chooseMerged;
+	}
+	
+	public int getBinaryConflictHandling() {
+		if (binaryConflictIncomingButton.getSelection()) return ISVNConflictResolver.Choice.chooseTheirsFull;
+		else if (binaryConflictUserButton.getSelection()) return ISVNConflictResolver.Choice.chooseMineFull;
+		else if (binaryConflictMarkButton.getSelection()) return ISVNConflictResolver.Choice.postpone;
+		else return ISVNConflictResolver.Choice.chooseMerged;
+	}
+	
+	public int getPropertyConflictHandling() {
+		if (propertyConflictMarkButton.getSelection()) return ISVNConflictResolver.Choice.postpone;
+		else return ISVNConflictResolver.Choice.chooseMerged;
+	}
 
 	public void setMessage() {
 		setMessage(Policy.bind("UpdateDialog.message")); //$NON-NLS-1$
@@ -294,7 +386,7 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
     }	
 	
     private String getCommonRoot() {
-    	ArrayList urlList = new ArrayList();
+    	ArrayList<String> urlList = new ArrayList<String>();
     	for (int i = 0; i < resources.length; i++) {
     		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
     		try {
@@ -311,7 +403,7 @@ public class SvnWizardUpdatePage extends SvnWizardDialogPage {
     	tag1:
     	for (int i = 0; i < urlString.length(); i++) {
     		String partialPath = urlString.substring(0, i+1);
-    		if (partialPath.endsWith("/")) {
+    		if (partialPath.endsWith("/")) { //$NON-NLS-1$
 	    		for (int j = 1; j < urlStrings.length; j++) {
 	    			if (!urlStrings[j].startsWith(partialPath)) break tag1;
 	    		}

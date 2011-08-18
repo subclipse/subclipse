@@ -22,6 +22,7 @@ import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
@@ -39,6 +40,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     private boolean ignoreExternals = false;
     private boolean force = true;
     private Set<IResource> updatedResources = new LinkedHashSet<IResource>();
+    private ISVNConflictResolver conflictResolver;
     
     /**
      * Update the given resources.
@@ -61,6 +63,9 @@ public class UpdateResourcesCommand implements ISVNCommand {
 	 */
 	public void run(final IProgressMonitor monitor) throws SVNException {
 		ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+		if (conflictResolver != null) {
+			svnClient.addConflictResolutionCallback(conflictResolver);
+		}
         try {
             monitor.beginTask(null, 100 * resources.length);                    
            
@@ -91,9 +96,16 @@ public class UpdateResourcesCommand implements ISVNCommand {
     			OperationManager.getInstance().onNotify(resource.getLocation().toFile(), null);
     		}
     		OperationManager.getInstance().endOperation(true, refreshResources);
+    		if (conflictResolver != null) {
+    			svnClient.addConflictResolutionCallback(null);
+    		}
     		root.getRepository().returnSVNClient(svnClient);
             monitor.done();
         }        
+	}
+
+	public void setConflictResolver(ISVNConflictResolver conflictResolver) {
+		this.conflictResolver = conflictResolver;
 	}
 
 	public void setDepth(int depth) {

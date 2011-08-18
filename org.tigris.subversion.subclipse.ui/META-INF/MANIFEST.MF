@@ -23,7 +23,8 @@ Require-Bundle: org.tigris.subversion.subclipse.core;bundle-version="1.7.0",
  org.eclipse.help,
  org.eclipse.jdt.ui;resolution:=optional,
  org.eclipse.jdt.core;resolution:=optional,
- org.eclipse.ui.forms
+ org.eclipse.ui.forms,
+ org.eclipse.core.filesystem
 Eclipse-LazyStart: true
 Export-Package: org.tigris.subversion.subclipse.ui,
  org.tigris.subversion.subclipse.ui.actions,

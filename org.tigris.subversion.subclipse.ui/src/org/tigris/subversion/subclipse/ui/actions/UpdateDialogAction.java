@@ -23,8 +23,8 @@ public class UpdateDialogAction extends UpdateAction {
         else {
 	        IResource[] resources = getSelectedResources();         
 	        String pageName;
-	        if (resources.length > 1) pageName = "UpdateDialog.multiple"; //$NON-NLS-1$	
-	        else pageName = "UpdateDialog"; //$NON-NLS-1$	        
+	        if (resources.length > 1) pageName = "UpdateDialogWithConflictHandling.multiple"; //$NON-NLS-1$	
+	        else pageName = "UpdateDialogWithConflictHandling"; //$NON-NLS-1$	        
 	        SvnWizardUpdatePage updatePage = new SvnWizardUpdatePage(pageName, resources);
 	        updatePage.setDefaultRevision(revision);
 	        updatePage.setDepth(depth);
@@ -40,6 +40,7 @@ public class UpdateDialogAction extends UpdateAction {
 		    	updateOperation.setForce(updatePage.isForce());
 		    	updateOperation.setIgnoreExternals(updatePage.isIgnoreExternals());
 		    	updateOperation.setCanRunAsJob(canRunAsJob);
+		    	updateOperation.setConflictResolver(updatePage.getConflictResolver());
 	        	updateOperation.run();
 	        }
         } 		

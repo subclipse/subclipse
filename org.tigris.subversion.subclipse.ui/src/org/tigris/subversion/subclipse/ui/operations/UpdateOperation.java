@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.operations;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
@@ -20,6 +21,8 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.UpdateResourcesCommand;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.conflicts.SVNConflictResolver;
+import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -32,6 +35,7 @@ public class UpdateOperation extends RepositoryProviderOperation {
     private boolean ignoreExternals = false;
     private boolean force = true;
     private boolean canRunAsJob = true;
+    private ISVNConflictResolver conflictResolver;
 
     public UpdateOperation(IWorkbenchPart part, IResource resource, SVNRevision revision) {
         super(part, new IResource[] {resource});
@@ -63,13 +67,17 @@ public class UpdateOperation extends RepositoryProviderOperation {
      */
     protected void execute(SVNTeamProvider provider, IResource[] resources, IProgressMonitor monitor) throws SVNException, InterruptedException {
         monitor.beginTask(null, 100);
-		try {			
+		try {		
+			if (conflictResolver != null && conflictResolver instanceof SVNConflictResolver) {
+				((SVNConflictResolver)conflictResolver).setPart(getPart());
+			}
 		    SVNWorkspaceSubscriber.getInstance().updateRemote(resources);
 	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resources, revision);
 	        command.setDepth(depth);
 	        command.setSetDepth(setDepth);
 	        command.setIgnoreExternals(ignoreExternals);
 	        command.setForce(force);
+	        command.setConflictResolver(conflictResolver);
 	    	command.run(Policy.subMonitorFor(monitor,100));
 			//updateWorkspaceSubscriber(provider, resources, Policy.subMonitorFor(monitor, 5));
 		} catch (SVNException e) {
@@ -107,6 +115,14 @@ public class UpdateOperation extends RepositoryProviderOperation {
 
 	protected boolean canRunAsJob() {
 		return canRunAsJob;
+	}
+
+	public void setConflictResolver(ISVNConflictResolver conflictResolver) {
+		this.conflictResolver = conflictResolver;
+	}
+
+	protected ISchedulingRule getSchedulingRule(SVNTeamProvider provider) {
+		return null;
 	}
 
 }
