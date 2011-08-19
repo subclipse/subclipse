@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.commands;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -26,6 +29,7 @@ public class CleanupResourcesCommand implements ISVNCommand {
 
     private final SVNWorkspaceRoot root;
     private final IResource[] resources;
+    private Set<IResource> cleanedUpResources = new LinkedHashSet<IResource>();
 
     public CleanupResourcesCommand(SVNWorkspaceRoot root, IResource[] resources) {
         this.root = root;
@@ -43,12 +47,18 @@ public class CleanupResourcesCommand implements ISVNCommand {
             OperationManager.getInstance().beginOperation(svnClient);           
             for (int i = 0; i < resources.length; i++) {
                 svnClient.cleanup(resources[i].getLocation().toFile());
+                cleanedUpResources.add(resources[i]);
                 monitor.worked(100);
             }
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
-            OperationManager.getInstance().endOperation();
+    		Set<IResource> refreshResources = new LinkedHashSet<IResource>();
+    		for (IResource resource : cleanedUpResources) {
+    			refreshResources.add(resource);
+    			OperationManager.getInstance().onNotify(resource.getLocation().toFile(), null);
+    		}
+    		OperationManager.getInstance().endOperation(true, refreshResources);
             root.getRepository().returnSVNClient(svnClient);
             monitor.done();
         }
