@@ -7,6 +7,7 @@ import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.graphics.RGB;
 import org.tigris.subversion.subclipse.ui.decorator.SVNDecoratorConfiguration;
+import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 
 /**
  * This class initializes the default values for various SVN preferences
@@ -66,6 +67,12 @@ public class SVNUIPreferenceInitializer extends AbstractPreferenceInitializer {
         
         node.put(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS, MessageDialogWithToggle.ALWAYS);
         node.put(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS, MessageDialogWithToggle.PROMPT);
+        
+        node.putBoolean(ISVNUIConstants.PREF_UPDATE_TO_HEAD_IGNORE_EXTERNALS, false);
+        node.putBoolean(ISVNUIConstants.PREF_UPDATE_TO_HEAD_ALLOW_UNVERSIONED_OBSTRUCTIONS, true);
+        node.putInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TEXT_FILES, ISVNConflictResolver.Choice.postpone);
+        node.putInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_BINARY_FILES, ISVNConflictResolver.Choice.postpone);
+        node.putInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_PROPERTIES, ISVNConflictResolver.Choice.postpone);
         
         node.putBoolean(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK, true);
         

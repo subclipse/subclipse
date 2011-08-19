@@ -268,7 +268,13 @@ public interface ISVNUIConstants {
   public final String PREF_ALLOW_COMMIT_WITH_WARNINGS = "pref_commit_with_warning"; //$NON-NLS-1$
   public final String PREF_ALLOW_COMMIT_WITH_ERRORS = "pref_commit_with_errors"; //$NON-NLS-1$
   public final String PREF_COMMIT_TO_TAGS_PATH_WITHOUT_WARNING = "pref_commit_to_tags_path_without_warning"; //$NON-NLS-1$
-
+  
+  public final String PREF_UPDATE_TO_HEAD_IGNORE_EXTERNALS = "pref_update_to_head_ignore_externals"; //$NON-NLS-1$
+  public final String PREF_UPDATE_TO_HEAD_ALLOW_UNVERSIONED_OBSTRUCTIONS = "pref_update_to_head_allow_unversioned_obstructions"; //$NON-NLS-1$
+  public final String PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TEXT_FILES = "pref_update_to_head_conflict_handling_text_files"; //$NON-NLS-1$
+  public final String PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_BINARY_FILES = "pref_update_to_head_conflict_handling_binary_files"; //$NON-NLS-1$
+  public final String PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_PROPERTIES = "pref_update_to_head_conflict_handling_properties"; //$NON-NLS-1$
+  
   // depth
   public final String DEPTH_EMPTY = "Only this item"; //$NON-NLS-1$
   public final String DEPTH_FILES = "Only file children"; //$NON-NLS-1$

@@ -841,6 +841,18 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
+            name="%UpdateToHeadPreferencePage.name"
+            category="org.tigris.subversion.subclipse.ui.SVNPreferences"
+            class="org.tigris.subversion.subclipse.ui.preferences.UpdateToHeadPreferencePage"
+            id="org.tigris.subversion.subclipse.ui.preferences.UpdateToHeadPreferencePage">
+         <keywordReference
+               id="org.tigris.subversion.subclipse.ui.svn">
+         </keywordReference>
+      </page>
+   </extension>   
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
             name="%DiffMergePreferencePage.name"
             category="org.tigris.subversion.subclipse.ui.SVNPreferences"
             class="org.tigris.subversion.subclipse.ui.conflicts.DiffMergePreferencePage"
