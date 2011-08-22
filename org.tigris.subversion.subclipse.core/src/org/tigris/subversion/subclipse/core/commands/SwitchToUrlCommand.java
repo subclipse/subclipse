@@ -23,6 +23,7 @@ import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListen
 import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -45,6 +46,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
     private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true;
+    private ISVNConflictResolver conflictResolver;
     
     private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 
@@ -65,6 +67,9 @@ public class SwitchToUrlCommand implements ISVNCommand {
         try {
     		subPm.beginTask(null, Policy.INFINITE_PM_GUESS_FOR_SWITCH);
             svnClient = root.getRepository().getSVNClient();
+    		if (conflictResolver != null) {
+    			svnClient.addConflictResolutionCallback(conflictResolver);
+    		}
             svnClient.addNotifyListener(operationResourceCollector);
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm, svnClient));
             File file = resource.getLocation().toFile();
@@ -79,8 +84,15 @@ public class SwitchToUrlCommand implements ISVNCommand {
         		operationResources.add(resource);
         	}
             OperationManager.getInstance().endOperation(true, operationResources);
+    		if (conflictResolver != null) {
+    			svnClient.addConflictResolutionCallback(null);
+    		}
             subPm.done();
         }
+	}
+	
+	public void setConflictResolver(ISVNConflictResolver conflictResolver) {
+		this.conflictResolver = conflictResolver;
 	}
 
 	public void setDepth(int depth) {

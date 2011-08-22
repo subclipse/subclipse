@@ -44,8 +44,8 @@ public class SwitchAction extends WorkbenchWindowAction {
 	        // page size and location will be saved and restored separately for
 	        // single selection switch and multiple selection switch.
 	        String pageName;
-	        if (resources.length > 1) pageName = "SwitchDialog.multiple";
-	        else pageName = "SwitchDialog"; //$NON-NLS-1$
+	        if (resources.length > 1) pageName = "SwitchDialogWithConflictHandling.multiple";
+	        else pageName = "SwitchDialogWithConflictHandling"; //$NON-NLS-1$
 	        
 	        SvnWizardSwitchPage switchPage = new SvnWizardSwitchPage(pageName, resources);
 	        SvnWizard wizard = new SvnWizard(switchPage);
@@ -60,6 +60,7 @@ public class SwitchAction extends WorkbenchWindowAction {
 	            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
 	            switchOperation.setForce(switchPage.isForce());
 	            switchOperation.setCanRunAsJob(canRunAsJob);
+	            switchOperation.setConflictResolver(switchPage.getConflictResolver());
 	            switchOperation.run();	        
 	        }
         }

@@ -1742,6 +1742,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 					            switchOperation.setSetDepth(switchPage.isSetDepth());
 					            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
 					            switchOperation.setForce(switchPage.isForce());
+					            switchOperation.setConflictResolver(switchPage.getConflictResolver());
 					            try {
 									switchOperation.run();
 								} catch (Exception e) {
