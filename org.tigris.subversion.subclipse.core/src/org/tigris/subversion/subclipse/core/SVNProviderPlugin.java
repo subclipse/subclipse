@@ -231,7 +231,7 @@ public class SVNProviderPlugin extends Plugin {
 		// having
 		// each class that added itself as a participant to have to listen to
 		// shutdown.
-		workspace.removeSaveParticipant(ID);
+		workspace.removeSaveParticipant(this);
         
         if (svnClientManager != null)
         	svnClientManager.shutdown(null);
@@ -620,7 +620,7 @@ public class SVNProviderPlugin extends Plugin {
 	 * Return the SVN preferences node in the instance scope
 	 */
 	public org.osgi.service.prefs.Preferences getInstancePreferences() {
-		return InstanceScope.INSTANCE.getNode(getBundle().getSymbolicName());
+		return new InstanceScope().getNode(getBundle().getSymbolicName());
 	}
 	
     public boolean isAdminDirectory(String name) {
