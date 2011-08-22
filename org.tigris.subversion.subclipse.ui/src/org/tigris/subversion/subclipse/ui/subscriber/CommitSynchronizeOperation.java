@@ -33,7 +33,6 @@ import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
 import org.eclipse.team.internal.core.subscribers.ChangeSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
-import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -326,8 +325,7 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 		    toBeDeletedList.toArray(resourcesToBeDeleted[0]);
 		    try {
                 CommitOperation commit = new CommitOperation(getPart(), resourcesToCommit, resourcesToBeAdded[0], resourcesToBeDeleted[0], resourcesToCommit, commitComment, keepLocks);
-                if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS))
-                	commit.setConfiguration(configuration);
+                commit.setConfiguration(configuration);
                 commit.run();
             } catch (InvocationTargetException e) {
             	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
