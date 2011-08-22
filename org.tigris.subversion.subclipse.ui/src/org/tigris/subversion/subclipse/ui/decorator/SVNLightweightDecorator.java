@@ -637,12 +637,11 @@ public class SVNLightweightDecorator
 			    			resourcesToUpdate.add(resource);
 			    		}
 			    	} else {
-			    		// If deleting an unversioned resource, force a decorator refresh of the parent folders.
-			    		// This does not have to happen when managed resources are deleted because in that
-			    		// scenario the .svn folder is updated which already forces the refresh.
+			    		// If deleting a resource, force a decorator refresh of the parent folders.
+			    		// (We can no longer count on .svn folder updates forcing refresh)
 			    		try {
 			    			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-							if (!svnResource.isManaged() && !svnResource.isIgnored()) {
+							if (!svnResource.isIgnored()) {
 				    			IResource current = resource.getParent();
 				    			while (current.getType() != IResource.ROOT) {
 				    				if (current.exists() && SVNWorkspaceRoot.getSVNResourceFor(current).isManaged()) {
