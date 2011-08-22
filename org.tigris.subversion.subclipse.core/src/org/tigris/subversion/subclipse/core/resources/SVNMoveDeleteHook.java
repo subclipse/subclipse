@@ -74,12 +74,15 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             deletedFiles.add(file);
             
             deleteResource(resource);
+            
+            tree.deletedFile(file);           
+
         } catch (SVNException e) {
             tree.failed(e.getStatus());
         } finally {
             monitor.done();
         }
-        return false;
+        return true;
 
     }
 
@@ -105,12 +108,16 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             }
             monitor.beginTask(null, 1000);
             deleteResource(resource);
+            
+            tree.deletedFolder(folder);
+            
         } catch (SVNException e) {
             tree.failed(e.getStatus());
         } finally {
             monitor.done();
         }
-        return false;
+        return true;
+
     }
 
     /*
