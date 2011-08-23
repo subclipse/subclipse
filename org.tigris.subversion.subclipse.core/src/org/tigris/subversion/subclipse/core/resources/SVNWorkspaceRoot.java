@@ -402,7 +402,7 @@ public class SVNWorkspaceRoot {
 
     	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
-    	IResource resource = root.findMember(fullPath);
+    	IResource resource = root.findMember(fullPath,true);
 
     	if (resource != null) {
     		return resource;
