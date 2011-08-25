@@ -21,7 +21,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
-import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -31,7 +30,6 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
-import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -44,7 +42,6 @@ public class CommitOperation extends SVNOperation {
     private String commitComment;
     private boolean keepLocks;
     private ISVNClientAdapter svnClient;
-    private ISynchronizePageConfiguration configuration;
     private boolean atomicCommit = true;
     private boolean canRunAsJob = true;
 
@@ -109,6 +106,11 @@ public class CommitOperation extends SVNOperation {
 				IResource[] providerResources = new IResource[list.size()];
 				list.toArray(providerResources);
 				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, providerResources.length));
+				for (IResource providerResource : providerResources) {
+					if (!providerResource.exists()) {
+						SVNProviderPlugin.getPlugin().getStatusCacheManager().removeStatus(providerResource);
+					}
+				}
 			}			
         } catch (TeamException e) {
 			throw SVNException.wrapException(e);
@@ -116,15 +118,7 @@ public class CommitOperation extends SVNOperation {
 			monitor.done();
 			SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
 			// refresh the Synch view
-			if (configuration != null) {
-				SVNSynchronizeParticipant sync = (SVNSynchronizeParticipant) configuration.getParticipant();
-				IResource[] roots = sync.getResources();
-				// Reduce the array to just the roots that were affected by this
-				// commit
-				if (roots.length > 1)
-					roots = reduceRoots(roots);
-				sync.refresh(roots, monitor);
-			}
+			SVNProviderPlugin.broadcastModificationStateChanges(resourcesToCommit);
 		}
     }
    
@@ -238,27 +232,8 @@ public class CommitOperation extends SVNOperation {
     	return info;
 	}
 
-	public void setConfiguration(ISynchronizePageConfiguration configuration) {
-		this.configuration = configuration;
-	}
-
 	protected boolean canRunAsJob() {
 		return canRunAsJob;
-	}
-
-	private IResource[] reduceRoots(IResource[] roots) {
-		List<IResource> rootArray = new ArrayList<IResource>();
-		for (int i = 0; i < roots.length; i++) {
-			for (int j = 0; j < resourcesToCommit.length; j++) {
-				if (resourcesToCommit[j].getFullPath().toString().startsWith(roots[i].getFullPath().toString())) {
-					rootArray.add(roots[i]);
-					break;
-				}
-			}		
-		}
-		IResource[] reduced = new IResource[rootArray.size()];
-		rootArray.toArray(reduced);
-		return reduced;
 	}
 	
 	/**

@@ -325,7 +325,6 @@ public class CommitSynchronizeOperation extends SVNSynchronizeOperation {
 		    toBeDeletedList.toArray(resourcesToBeDeleted[0]);
 		    try {
                 CommitOperation commit = new CommitOperation(getPart(), resourcesToCommit, resourcesToBeAdded[0], resourcesToBeDeleted[0], resourcesToCommit, commitComment, keepLocks);
-                commit.setConfiguration(configuration);
                 commit.run();
             } catch (InvocationTargetException e) {
             	SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);

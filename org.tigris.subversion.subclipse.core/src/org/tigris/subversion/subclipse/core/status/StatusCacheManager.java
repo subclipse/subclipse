@@ -27,8 +27,8 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.core.runtime.QualifiedName;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -113,7 +113,15 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @param workspaceRoot
      */
     protected IResource updateCache(IResource resource, ISVNStatus status) {
+    	if (resource != null && status != null && status.getTextStatus() != null && !resource.exists() && status.getTextStatus().equals(SVNStatusKind.MISSING)) {
+    		statusCache.removeStatus(resource);
+    		return resource;
+    	}
    		return statusCache.addStatus(resource, new LocalResourceStatus(status, getURL(status)));
+    }
+    
+    public void removeStatus(IResource resource) {
+    	statusCache.removeStatus(resource);
     }
 
     /**
