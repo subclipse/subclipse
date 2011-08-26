@@ -86,7 +86,12 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 					}				
 					else if(resource.getType()==IResource.FOLDER) {
 						if (delta.getKind() == IResourceDelta.ADDED) {
-							modifiedInfiniteDepthResources.add(resource);
+							if (resource.getParent() != null && !modifiedInfiniteDepthResources.contains(resource.getParent())) {
+								modifiedInfiniteDepthResources.add(resource.getParent());
+							}
+							else {
+								modifiedInfiniteDepthResources.add(resource);
+							}
 							return false;
 						}
 						else if (delta.getKind() == IResourceDelta.REMOVED) {
