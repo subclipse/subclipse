@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.tigris.subversion.subclipse.core; singleton:=true
-Bundle-Version: 1.7.2
+Bundle-Version: 1.7.3
 Bundle-Activator: org.tigris.subversion.subclipse.core.SVNProviderPlugin
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="3.2.0",
  org.eclipse.team.core;bundle-version="3.2.0",
  org.eclipse.core.runtime;bundle-version="3.2.0",
  org.eclipse.osgi,
- org.tigris.subversion.clientadapter;bundle-version="[1.7.0,1.8.0)";visibility:=reexport
+ org.tigris.subversion.clientadapter;bundle-version="[1.7.3,1.8.0)";visibility:=reexport
 Eclipse-LazyStart: true
 Export-Package: org.tigris.subversion.subclipse.core,
  org.tigris.subversion.subclipse.core.client,
