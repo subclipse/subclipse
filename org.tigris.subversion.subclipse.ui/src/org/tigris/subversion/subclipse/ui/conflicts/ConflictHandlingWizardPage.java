@@ -39,7 +39,9 @@ public class ConflictHandlingWizardPage extends WizardPage {
 	private IResource resource;
 	private Button markConflictedButton;
 	private Button chooseUserVersionButton;
+	private Button chooseUserVersionForConflictsButton;
 	private Button chooseIncomingVersionButton;
+	private Button chooseIncomingVersionForConflictsButton;
 	private Button chooseBaseVersionButton;
 	private Button fileEditorButton;
 	private Button conflictEditorButton;
@@ -101,17 +103,27 @@ public class ConflictHandlingWizardPage extends WizardPage {
 		markConflictedButton.setText(Messages.ConflictHandlingWizardPage_4);
 		if (conflictDescriptor.getMyPath() != null) {
 			chooseUserVersionButton = new Button(conflictGroup, SWT.RADIO);
-			if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property)
+			if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property) {
 				chooseUserVersionButton.setText(Messages.ConflictHandlingWizardPage_5);
-			else
+			} else {
 				chooseUserVersionButton.setText(Messages.ConflictHandlingWizardPage_6);
+				if (!conflictDescriptor.isBinary()) {
+					chooseUserVersionForConflictsButton = new Button(conflictGroup, SWT.RADIO);
+					chooseUserVersionForConflictsButton.setText(Messages.ConflictHandlingWizardPage_16);
+				}
+			}
 		}
 		if (conflictDescriptor.getTheirPath() != null) {
 			chooseIncomingVersionButton = new Button(conflictGroup, SWT.RADIO);
-			if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property)
+			if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property) {
 				chooseIncomingVersionButton.setText(Messages.ConflictHandlingWizardPage_7);		
-			else
-				chooseIncomingVersionButton.setText(Messages.ConflictHandlingWizardPage_8);		
+			} else {
+				chooseIncomingVersionButton.setText(Messages.ConflictHandlingWizardPage_8);
+				if (!conflictDescriptor.isBinary()) {
+					chooseIncomingVersionForConflictsButton = new Button(conflictGroup, SWT.RADIO);
+					chooseIncomingVersionForConflictsButton.setText(Messages.ConflictHandlingWizardPage_17);
+				}
+			}
 		}
 		if (!conflictDescriptor.isBinary()) {
 			if (conflictDescriptor.getConflictKind() != SVNConflictDescriptor.Kind.property && fileExists(conflictDescriptor.getMergedPath())) {
@@ -133,7 +145,9 @@ public class ConflictHandlingWizardPage extends WizardPage {
 			else lastChoice = settings.getInt(LAST_TEXT_CHOICE);
 		} catch (Exception e) {}
 		if (lastChoice == ISVNConflictResolver.Choice.postpone) markConflictedButton.setSelection(true);
+		else if (lastChoice == ISVNConflictResolver.Choice.chooseMine && chooseUserVersionForConflictsButton != null) chooseUserVersionForConflictsButton.setSelection(true);
 		else if (lastChoice == ISVNConflictResolver.Choice.chooseMineFull && chooseUserVersionButton != null) chooseUserVersionButton.setSelection(true);
+		else if (lastChoice == ISVNConflictResolver.Choice.chooseTheirs && chooseIncomingVersionForConflictsButton != null) chooseIncomingVersionForConflictsButton.setSelection(true);
 		else if (lastChoice == ISVNConflictResolver.Choice.chooseTheirsFull && chooseIncomingVersionButton != null) chooseIncomingVersionButton.setSelection(true);
 		else if (lastChoice == ISVNConflictResolver.Choice.chooseBase && chooseBaseVersionButton != null) chooseBaseVersionButton.setSelection(true);
 		if (lastChoice == ConflictResolution.CONFLICT_EDITOR && conflictEditorButton != null) conflictEditorButton.setSelection(true);
@@ -151,7 +165,9 @@ public class ConflictHandlingWizardPage extends WizardPage {
 				} else {
 					if (markConflictedButton.getSelection()) settings.put(LAST_TEXT_CHOICE, ISVNConflictResolver.Choice.postpone);
 					else if (chooseUserVersionButton != null && chooseUserVersionButton.getSelection()) settings.put(LAST_TEXT_CHOICE, ISVNConflictResolver.Choice.chooseMineFull);
+					else if (chooseUserVersionForConflictsButton != null && chooseUserVersionForConflictsButton.getSelection()) settings.put(LAST_TEXT_CHOICE, ISVNConflictResolver.Choice.chooseMine);
 					else if (chooseIncomingVersionButton != null && chooseIncomingVersionButton.getSelection()) settings.put(LAST_TEXT_CHOICE, ISVNConflictResolver.Choice.chooseTheirsFull);
+					else if (chooseIncomingVersionForConflictsButton != null && chooseIncomingVersionForConflictsButton.getSelection()) settings.put(LAST_TEXT_CHOICE, ISVNConflictResolver.Choice.chooseTheirs);
 					else if (chooseBaseVersionButton != null && chooseBaseVersionButton.getSelection()) settings.put(LAST_TEXT_CHOICE, ISVNConflictResolver.Choice.chooseBase);
 					else if (fileEditorButton != null && fileEditorButton.getSelection()) settings.put(LAST_TEXT_CHOICE, ConflictResolution.FILE_EDITOR);
 				}
@@ -161,7 +177,9 @@ public class ConflictHandlingWizardPage extends WizardPage {
 		
 		markConflictedButton.addSelectionListener(selectionListener);
 		if (chooseIncomingVersionButton != null) chooseIncomingVersionButton.addSelectionListener(selectionListener);
+		if (chooseIncomingVersionForConflictsButton != null) chooseIncomingVersionForConflictsButton.addSelectionListener(selectionListener);
 		if (chooseUserVersionButton != null) chooseUserVersionButton.addSelectionListener(selectionListener);
+		if (chooseUserVersionForConflictsButton != null) chooseUserVersionForConflictsButton.addSelectionListener(selectionListener);
 		if (chooseBaseVersionButton != null) chooseBaseVersionButton.addSelectionListener(selectionListener);
 		if (!conflictDescriptor.isBinary()) {
 			if (fileEditorButton != null) fileEditorButton.addSelectionListener(selectionListener);
@@ -193,7 +211,9 @@ public class ConflictHandlingWizardPage extends WizardPage {
 		int resolution = ISVNConflictResolver.Choice.postpone;
 		if (markConflictedButton.getSelection()) resolution = ISVNConflictResolver.Choice.postpone;
 		else if (chooseIncomingVersionButton != null && chooseIncomingVersionButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseTheirsFull;
+		else if (chooseIncomingVersionForConflictsButton != null && chooseIncomingVersionForConflictsButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseTheirs;
 		else if (chooseUserVersionButton != null && chooseUserVersionButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseMineFull;
+		else if (chooseUserVersionForConflictsButton != null && chooseUserVersionForConflictsButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseMine;
 		else if (chooseBaseVersionButton != null && chooseBaseVersionButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseBase;
 	    if (!conflictDescriptor.isBinary()) {
 	    	if (fileEditorButton != null && fileEditorButton.getSelection()) resolution = ConflictResolution.FILE_EDITOR;

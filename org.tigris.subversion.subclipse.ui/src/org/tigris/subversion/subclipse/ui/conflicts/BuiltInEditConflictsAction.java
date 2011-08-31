@@ -27,6 +27,7 @@ import org.tigris.subversion.subclipse.ui.Messages;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
 import org.tigris.subversion.subclipse.ui.conflicts.MergeFileAssociation;
+import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
 import org.tigris.subversion.svnclientadapter.utils.Command;
 
 public class BuiltInEditConflictsAction extends WorkspaceAction {
@@ -36,21 +37,23 @@ public class BuiltInEditConflictsAction extends WorkspaceAction {
 	private File mergedFile;
 	private BuiltInConflictsCompareInput builtInConflictsCompareInput;
 	private String fileName;
+	private SVNConflictDescriptor conflictDescriptor;
 
-	public BuiltInEditConflictsAction(File conflictNewFile, File conflictOldFile, File conflictWorkingFile, File mergedFile, String fileName) {
+	public BuiltInEditConflictsAction(File conflictNewFile, File conflictOldFile, File conflictWorkingFile, File mergedFile, String fileName, SVNConflictDescriptor conflictDescriptor) {
 		super();
 		this.conflictNewFile = conflictNewFile;
 		this.conflictOldFile = conflictOldFile;
 		this.conflictWorkingFile = conflictWorkingFile;
 		this.mergedFile = mergedFile;
 		this.fileName = fileName;
+		this.conflictDescriptor = conflictDescriptor;
 	}
 	
     private void editConflictsInternal()
             throws InvocationTargetException, InterruptedException {
         CompareConfiguration cc = new CompareConfiguration();
         cc.setLeftEditable(true);
-        builtInConflictsCompareInput = new BuiltInConflictsCompareInput(cc);
+        builtInConflictsCompareInput = new BuiltInConflictsCompareInput(cc, conflictDescriptor);
         builtInConflictsCompareInput.setResources(conflictOldFile, conflictWorkingFile,
                 conflictNewFile, mergedFile, fileName);
         CompareUI.openCompareEditorOnPage(builtInConflictsCompareInput, getTargetPage());
@@ -58,7 +61,7 @@ public class BuiltInEditConflictsAction extends WorkspaceAction {
     
     private void editConflictsExternal(String mergeProgramLocation, String mergeProgramParameters) throws CoreException, InvocationTargetException, InterruptedException {
         try {
-        	builtInConflictsCompareInput = new BuiltInConflictsCompareInput(new CompareConfiguration());
+        	builtInConflictsCompareInput = new BuiltInConflictsCompareInput(new CompareConfiguration(), conflictDescriptor);
         	
             if (mergeProgramLocation.equals("")) { //$NON-NLS-1$
                 throw new SVNException(Messages.BuiltInEditConflictsAction_0);
@@ -113,7 +116,7 @@ public class BuiltInEditConflictsAction extends WorkspaceAction {
 			}        	
 
         } catch (Exception e) {
-        	if (builtInConflictsCompareInput == null) builtInConflictsCompareInput = new BuiltInConflictsCompareInput(new CompareConfiguration());
+        	if (builtInConflictsCompareInput == null) builtInConflictsCompareInput = new BuiltInConflictsCompareInput(new CompareConfiguration(), conflictDescriptor);
         	builtInConflictsCompareInput.setFinished(true);
             throw new InvocationTargetException(e);
         }

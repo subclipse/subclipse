@@ -169,7 +169,7 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 									
 									public void partClosed(IWorkbenchPartReference partRef) {
 										if (partRef.getPart(false) == editorPart) {
-											finishEditing();
+											finishEditing(descrip);
 										}
 									}							
 									
@@ -261,7 +261,7 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 					e.printStackTrace();
 				}
 				File conflictOldFile = new File(descrip.getBasePath());		
-				final BuiltInEditConflictsAction editConflictsAction = new BuiltInEditConflictsAction(conflictNewFile, conflictOldFile, workingTempFile, mergedFile, pathFile.getName());
+				final BuiltInEditConflictsAction editConflictsAction = new BuiltInEditConflictsAction(conflictNewFile, conflictOldFile, workingTempFile, mergedFile, pathFile.getName(), descrip);
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						editConflictsAction.run(null);
@@ -354,8 +354,9 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 		}
 	}	
 	
-	private void finishEditing() {
+	private void finishEditing(SVNConflictDescriptor descrip) {
 		DialogWizard dialogWizard = new DialogWizard(DialogWizard.FINISHED_EDITING);
+		dialogWizard.setConflictDescriptor(descrip);
 		ConflictWizardDialog dialog = new ConflictWizardDialog(Display.getDefault().getActiveShell(), dialogWizard);
 		dialog.open();
 		try {
@@ -449,11 +450,11 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 		case ISVNConflictResolver.Choice.chooseMineFull:
 			return "Local version used"; //$NON-NLS-1$
 		case ISVNConflictResolver.Choice.chooseTheirs:
-			return "Incoming version used";	 //$NON-NLS-1$
+			return "Incoming version used for conflicted hunks"; //$NON-NLS-1$
 		case ISVNConflictResolver.Choice.chooseMine:
-			return "Local version used"; //$NON-NLS-1$
+			return "Local version used for conflicted hunks"; //$NON-NLS-1$
 		case ISVNConflictResolver.Choice.chooseMerged:
-			return "Merged version used";				 //$NON-NLS-1$
+			return "Merged version used"; //$NON-NLS-1$
 		default:
 			return "Unresolved"; //$NON-NLS-1$
 		}

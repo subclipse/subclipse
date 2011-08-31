@@ -26,16 +26,20 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 
 public class FinishedEditingWizardPage extends WizardPage {
+	private boolean propertyConflict;
 	protected Button yesButton;
 	protected Button noButton;
 	private Group optionGroup;
 	private Button markConflictedButton;
 	private Button chooseUserVersionButton;
+	private Button chooseUserVersionForConflictsButton;
 	private Button chooseIncomingVersionButton;
+	private Button chooseIncomingVersionForConflictsButton;
 	private Button chooseBaseVersionButton;
 
-	public FinishedEditingWizardPage(String pageName) {
+	public FinishedEditingWizardPage(String pageName, boolean propertyConflict) {
 		super(pageName, Messages.FinishedEditingWizardPage_0, SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_SVN));
+		this.propertyConflict = propertyConflict;
 	}
 
 	public void createControl(Composite parent) {
@@ -71,8 +75,16 @@ public class FinishedEditingWizardPage extends WizardPage {
 		markConflictedButton.setText(Messages.FinishedEditingWizardPage_4);
 		chooseUserVersionButton = new Button(optionGroup, SWT.RADIO);
 		chooseUserVersionButton.setText(Messages.FinishedEditingWizardPage_5);
+		if (!propertyConflict) {
+			chooseUserVersionForConflictsButton = new Button(optionGroup, SWT.RADIO);
+			chooseUserVersionForConflictsButton.setText(Messages.FinishedEditingWizardPage_9);
+		}
 		chooseIncomingVersionButton = new Button(optionGroup, SWT.RADIO);
-		chooseIncomingVersionButton.setText(Messages.FinishedEditingWizardPage_6);				
+		chooseIncomingVersionButton.setText(Messages.FinishedEditingWizardPage_6);	
+		if (!propertyConflict) {
+			chooseIncomingVersionForConflictsButton = new Button(optionGroup, SWT.RADIO);
+			chooseIncomingVersionForConflictsButton.setText(Messages.FinishedEditingWizardPage_10);			
+		}
 		chooseBaseVersionButton = new Button(optionGroup, SWT.RADIO);
 		chooseBaseVersionButton.setText(Messages.FinishedEditingWizardPage_7);
 		markConflictedButton.setSelection(true);
@@ -96,6 +108,8 @@ public class FinishedEditingWizardPage extends WizardPage {
 			if (chooseUserVersionButton.getSelection()) return ISVNConflictResolver.Choice.chooseMineFull;
 			else if (chooseIncomingVersionButton.getSelection()) return ISVNConflictResolver.Choice.chooseTheirsFull;
 			else if (chooseBaseVersionButton.getSelection()) return ISVNConflictResolver.Choice.chooseBase;
+			else if (chooseUserVersionForConflictsButton != null && chooseUserVersionForConflictsButton.getSelection()) return ISVNConflictResolver.Choice.chooseMine;
+			else if (chooseIncomingVersionForConflictsButton != null && chooseIncomingVersionForConflictsButton.getSelection()) return ISVNConflictResolver.Choice.chooseTheirs;
 			else return ISVNConflictResolver.Choice.postpone;
 		}
 	}

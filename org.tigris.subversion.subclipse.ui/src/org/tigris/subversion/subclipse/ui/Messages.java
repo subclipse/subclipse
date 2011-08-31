@@ -21,6 +21,8 @@ public class Messages extends NLS {
 	public static String ConflictHandlingWizardPage_13;
 	public static String ConflictHandlingWizardPage_14;
 	public static String ConflictHandlingWizardPage_15;
+	public static String ConflictHandlingWizardPage_16;
+	public static String ConflictHandlingWizardPage_17;
 	public static String ConflictHandlingWizardPage_2;
 	public static String ConflictHandlingWizardPage_3;
 	public static String ConflictHandlingWizardPage_4;
@@ -46,6 +48,7 @@ public class Messages extends NLS {
 	public static String EditPropertyConflictsWizardSummaryPage_4;
 	public static String FinishedEditingWizardPage_0;
 	public static String FinishedEditingWizardPage_1;
+	public static String FinishedEditingWizardPage_10;
 	public static String FinishedEditingWizardPage_2;
 	public static String FinishedEditingWizardPage_3;
 	public static String FinishedEditingWizardPage_4;
@@ -53,6 +56,7 @@ public class Messages extends NLS {
 	public static String FinishedEditingWizardPage_6;
 	public static String FinishedEditingWizardPage_7;
 	public static String FinishedEditingWizardPage_8;
+	public static String FinishedEditingWizardPage_9;
 	public static String LoadErrorDialog_0;
 	public static String LoadErrorDialog_1;
 	public static String LoadErrorDialog_2;

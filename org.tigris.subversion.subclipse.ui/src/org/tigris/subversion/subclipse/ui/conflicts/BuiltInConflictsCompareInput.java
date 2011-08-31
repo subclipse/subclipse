@@ -37,6 +37,7 @@ import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
+import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
 
 public class BuiltInConflictsCompareInput extends CompareEditorInput {
 	
@@ -66,9 +67,11 @@ public class BuiltInConflictsCompareInput extends CompareEditorInput {
     private boolean finished;
     private boolean resolved;
     private int resolution;
+    private SVNConflictDescriptor conflictDescriptor;
 
-	public BuiltInConflictsCompareInput(CompareConfiguration configuration) {
+	public BuiltInConflictsCompareInput(CompareConfiguration configuration, SVNConflictDescriptor conflictDescriptor) {
 		super(configuration);
+		this.conflictDescriptor = conflictDescriptor;
 	}
 
 	public void setResources(File ancestor, File mine, File theirs, File destination, String fileName) {
@@ -240,6 +243,7 @@ public class BuiltInConflictsCompareInput extends CompareEditorInput {
 
 	protected void handleInternalDispose() {
 		DialogWizard dialogWizard = new DialogWizard(DialogWizard.FINISHED_EDITING);
+		dialogWizard.setConflictDescriptor(conflictDescriptor);
 		ConflictWizardDialog dialog = new ConflictWizardDialog(Display.getDefault().getActiveShell(), dialogWizard);
 		dialog.open();		
 		resolution = dialogWizard.getResolution();
@@ -249,6 +253,7 @@ public class BuiltInConflictsCompareInput extends CompareEditorInput {
 	
 	public void handleExternalDispose() {
 		DialogWizard dialogWizard = new DialogWizard(DialogWizard.FINISHED_EDITING);
+		dialogWizard.setConflictDescriptor(conflictDescriptor);
 		ConflictWizardDialog dialog = new ConflictWizardDialog(Display.getDefault().getActiveShell(), dialogWizard);
 		dialog.open();			
 		resolution = dialogWizard.getResolution();

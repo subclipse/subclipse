@@ -34,7 +34,8 @@ public class DialogWizard extends Wizard {
 		super.addPages();
 		if (type == FINISHED_EDITING) {
 			setWindowTitle(Messages.DialogWizard_0);
-			finishedEditingWizardPage = new FinishedEditingWizardPage("finishedEditing"); //$NON-NLS-1$
+			boolean propertyConflict = conflictDescriptor != null && conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property;
+			finishedEditingWizardPage = new FinishedEditingWizardPage("finishedEditing", propertyConflict); //$NON-NLS-1$
 			addPage(finishedEditingWizardPage);
 		}
 		if (type == CONFLICT_HANDLING) {
