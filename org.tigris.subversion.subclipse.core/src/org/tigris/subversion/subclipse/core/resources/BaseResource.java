@@ -92,8 +92,7 @@ public abstract class BaseResource extends PlatformObject implements ISVNRemoteR
 	 * @see org.eclipse.team.core.variants.IResourceVariant#getName()
 	 */
 	public String getName() {
-		SVNUrl url = localResourceStatus.getUrl();
-		return (url != null) ? Util.unescape(url.getLastPathSegment()) : "";
+		return localResourceStatus.getFile().getName();
 	}
 
     /* (non-Javadoc)
