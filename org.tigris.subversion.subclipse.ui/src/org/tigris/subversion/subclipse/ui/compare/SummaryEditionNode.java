@@ -35,7 +35,7 @@ public class SummaryEditionNode
 			Comparable {
 	private ISVNRemoteResource resource;
 	private SummaryEditionNode[] children;
-	private String charset = null;
+	private String charset = "UTF8";
 	private SVNDiffSummary[] diffSummary;
 	private boolean root;
 	private RemoteFolder rootFolder;

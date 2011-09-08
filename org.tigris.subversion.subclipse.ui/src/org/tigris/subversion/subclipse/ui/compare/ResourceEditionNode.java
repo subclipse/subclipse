@@ -49,7 +49,7 @@ public class ResourceEditionNode
 	private ISVNRemoteResource resource;
 	private ResourceEditionNode[] children;
 	private SVNLocalResourceNode localResource = null;
-	private String charset = null;
+	private String charset = "UTF8";
 	/**
 	 * Creates a new ResourceEditionNode on the given resource edition.
 	 */
