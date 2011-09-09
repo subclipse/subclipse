@@ -16,11 +16,13 @@ import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -97,6 +99,7 @@ public class ChooseUrlDialog extends TrayDialog {
     private RemoteContentProvider contentProvider;
     
     private static boolean needsRefresh = true;
+    private boolean saveLocation = true;
     
     static {
     	ISVNListener repositoryListener = new ISVNListener() {
@@ -177,10 +180,10 @@ public class ChooseUrlDialog extends TrayDialog {
 
         //        treeViewer.setLabelProvider(new WorkbenchLabelProvider());
         treeViewer.setLabelProvider(new RemoteLabelProvider());
+        ISVNRepositoryLocation repository = null;
         if (repositoryLocation == null) {
 	        if (resource == null) treeViewer.setInput(new AllRootsElement());
 	        else {
-	        	ISVNRepositoryLocation repository = null;
 	            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 	            try {
 	            	LocalResourceStatus status = svnResource.getStatus();
@@ -196,11 +199,23 @@ public class ChooseUrlDialog extends TrayDialog {
 	            	RepositoryRootFolder rootFolder = new RepositoryRootFolder(repository, repository.getRepositoryRoot(), repository.getRootFolder().getRevision());
 	            	contentProvider.setRootFolder(rootFolder);
 	            }
-	            
-	            if (repository == null) treeViewer.setInput(new AllRootsElement());
-	            else treeViewer.setInput(repository);
 	        }
-        } else treeViewer.setInput(repositoryLocation);
+        } else {
+        	repository = repositoryLocation;
+        }
+        
+        if (repository == null) treeViewer.setInput(new AllRootsElement());
+        else {
+        	try {
+				repository.validateConnection(new NullProgressMonitor());
+				treeViewer.setInput(repository);
+			} catch (SVNException e) {
+				MessageDialog.openError(getShell(), Policy.bind("ChooseUrlDialog.title"), e.getMessage());
+				saveLocation = false;
+				cancelPressed();
+				return null;
+			}
+        }
 
 		GridData data = new GridData(GridData.FILL_BOTH | GridData.GRAB_VERTICAL);
 		data.heightHint = LIST_HEIGHT_HINT;
@@ -300,7 +315,9 @@ public class ChooseUrlDialog extends TrayDialog {
     }
     
     protected void cancelPressed() {
-        saveLocation();
+    	if (saveLocation) {
+    		saveLocation();
+    	}
         super.cancelPressed();
     }
     
