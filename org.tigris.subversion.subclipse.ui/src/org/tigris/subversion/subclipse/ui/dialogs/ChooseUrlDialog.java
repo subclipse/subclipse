@@ -213,7 +213,7 @@ public class ChooseUrlDialog extends TrayDialog {
 				MessageDialog.openError(getShell(), Policy.bind("ChooseUrlDialog.title"), e.getMessage());
 				saveLocation = false;
 				cancelPressed();
-				return null;
+				return composite;
 			}
         }
 
@@ -258,7 +258,17 @@ public class ChooseUrlDialog extends TrayDialog {
 		return composite;
 	}
 
-    protected void refreshViewer(boolean refreshRepositoriesFolders) {
+	@Override
+	public int open() {
+		try {
+			return super.open();
+		}
+		catch (Exception e) {
+			return CANCEL;
+		}
+	}
+
+	protected void refreshViewer(boolean refreshRepositoriesFolders) {
         if (treeViewer == null) return;
         contentProvider.setUseDeferredContentManager(false);
         Object[] expandedObjects = treeViewer.getExpandedElements();
