@@ -26,11 +26,12 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  * @author Cedric Chabanois (cchab at tigris.org) 
  */
 public class SVNClientManager {
+	private static String DEFAULT_ADMIN_DIR = ".svn";
     private String svnClientInterface;
-    private String svnAdminDir = ".svn";
+    private String svnAdminDir = null;
     private File configDir = null;
     private boolean fetchChangePathOnDemand = true;
-    private HashMap<String, ISVNClientAdapter> clients = new HashMap<String, ISVNClientAdapter>();
+    private HashMap<String, ISVNClientAdapter> cachedClients = null;
     
     public static final String UNABLE_TO_LOAD_DEFAULT_CLIENT = "Unable to load default SVN Client";
     
@@ -59,6 +60,8 @@ public class SVNClientManager {
     }    
     
     public String getSvnAdminDirectory() {
+    	if (svnAdminDir == null)
+    		return DEFAULT_ADMIN_DIR;
     	return svnAdminDir;
     }
     
@@ -67,18 +70,19 @@ public class SVNClientManager {
 	 */
 	public void setConfigDir(File configDir) {
 		this.configDir = configDir;
-//		if (configDir == null) return;
+		if (cachedClients == null) return;
+		
 		// Update configDir in stored clients
-		Set<String> keys = clients.keySet();
+		Set<String> keys = cachedClients.keySet();
 		for (String key : keys) {
-	    	ISVNClientAdapter svnClient = clients.get(key);
-	    	if (svnClient != null) {
-	    		try {
+			ISVNClientAdapter svnClient = cachedClients.get(key);
+			if (svnClient != null) {
+				try {
 					svnClient.setConfigDirectory(configDir);
 				} catch (SVNClientException e) {
 					break;
 				}
-	    	}
+			}
 		}
 	}
     
@@ -107,7 +111,8 @@ public class SVNClientManager {
     	} 
     	if (SVNProviderPlugin.getPlugin().getSvnPromptUserPassword() != null)
     	    svnClient.addPasswordCallback(SVNProviderPlugin.getPlugin().getSvnPromptUserPassword());
-    	svnAdminDir = svnClient.getAdminDirectoryName();
+    	if (svnAdminDir == null)
+    		svnAdminDir = svnClient.getAdminDirectoryName();
 	}
     
     private ISVNClientAdapter getAdapter(String key) throws SVNException {
@@ -115,7 +120,8 @@ public class SVNClientManager {
     	if (key == null) {
     		key = "default";
      	}
-    	client = (ISVNClientAdapter) clients.get(key);
+    	if (cachedClients != null) // See if we have cached a client
+    		client = (ISVNClientAdapter) cachedClients.get(key);
     	if (client == null) {
     		if (!key.equals("default"))
     			client = Activator.getDefault().getClientAdapter(svnClientInterface);
@@ -128,7 +134,7 @@ public class SVNClientManager {
     		
     		setupClientAdapter(client);
     		if (client.isThreadsafe())
-    			clients.put(key, client);
+    			cacheClient(key, client);
     	}
     	return client;
     }
@@ -155,6 +161,12 @@ public class SVNClientManager {
 		// let it clean up any resources it has allocated.
 		client.dispose();
 		client = null;
+	}
+	
+	private void cacheClient(String key, ISVNClientAdapter client){
+		if (cachedClients == null)
+			cachedClients = new HashMap<String, ISVNClientAdapter>();
+		cachedClients.put(key, client);
 	}
 	
 }
