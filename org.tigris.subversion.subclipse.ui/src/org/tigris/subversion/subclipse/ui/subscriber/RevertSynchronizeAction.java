@@ -97,8 +97,18 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 		}
 		IResource[] resources = new IResource[selectedResources.size()];
 		selectedResources.toArray(resources);
+		
+		List<IResource> topSelection = new ArrayList<IResource>();
+		Iterator iter = selection.iterator();
+		while (iter.hasNext()) {
+			ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
+			topSelection.add(element.getResource());
+		}
+		IResource[] topSelectionArray = new IResource[topSelection.size()];
+		topSelection.toArray(topSelectionArray);
+		
 		RevertSynchronizeOperation revertOperation = new RevertSynchronizeOperation(configuration, elements, url, resources, statusMap);
-		revertOperation.setSelectedResources(resources);
+		revertOperation.setSelectedResources(topSelectionArray);
 		return revertOperation;
     }
 	
