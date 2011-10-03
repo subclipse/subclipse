@@ -129,7 +129,18 @@ public class SVNUIPlugin extends AbstractUIPlugin {
     private SVNMarkerListener markerListener;
     
     private ShowOutOfDateFoldersAction showOutOfDateFoldersAction;
-	
+    
+	public static final boolean TEST_MODE;
+
+	  static {
+	    String application = System.getProperty("eclipse.application", "");
+	    if (application.length() > 0) {
+	      TEST_MODE = application.endsWith("testapplication") || application.endsWith("uitest");
+	    } else {
+	       String commands = System.getProperty("eclipse.commands", "");
+	       TEST_MODE = commands.contains("testapplication\n");
+	    }
+	  }
 	
     public static void log(CoreException e) {
 		log(e.getStatus().getSeverity(), Policy.bind("simpleInternal"), e); //$NON-NLS-1$

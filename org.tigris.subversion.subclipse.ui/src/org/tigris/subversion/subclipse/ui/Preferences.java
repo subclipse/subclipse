@@ -56,20 +56,22 @@ private IPreferenceStore store;
      * @param configDir
      */
     private void setSvnClientConfigDir(String configDir) {
-    	if (SVNUIPlugin.getPlugin().passwordStoresConfiguredOnLinux()) {   		
-    		Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-			   		UnsupportedPasswordStoresDialog dialog = new UnsupportedPasswordStoresDialog(Display.getDefault().getActiveShell());
-		    		if (dialog.open() == UnsupportedPasswordStoresDialog.OK) {
-		    			try {
-							SVNUIPlugin.getPlugin().clearPasswordStoresFromConfiguration(false);
-						} catch (Exception e) {
-							SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-							MessageDialog.openError(Display.getDefault().getActiveShell(), Messages.Preferences_0, e.getMessage());
-						}
-		    		}
-				}   			
-    		});
+    	if (SVNUIPlugin.getPlugin().passwordStoresConfiguredOnLinux()) {   
+    		if (!SVNUIPlugin.TEST_MODE) {
+	    		Display.getDefault().syncExec(new Runnable() {
+					public void run() {
+				   		UnsupportedPasswordStoresDialog dialog = new UnsupportedPasswordStoresDialog(Display.getDefault().getActiveShell());
+			    		if (dialog.open() == UnsupportedPasswordStoresDialog.OK) {
+			    			try {
+								SVNUIPlugin.getPlugin().clearPasswordStoresFromConfiguration(false);
+							} catch (Exception e) {
+								SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+								MessageDialog.openError(Display.getDefault().getActiveShell(), Messages.Preferences_0, e.getMessage());
+							}
+			    		}
+					}   			
+	    		});
+    		}
     	}
     	
         SVNProviderPlugin plugin = SVNProviderPlugin.getPlugin();
