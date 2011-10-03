@@ -25,15 +25,9 @@ public class UsageReportDispatcher implements IStartup {
 	  static {
 	    String application = System.getProperty("eclipse.application", "");
 	    if (application.length() > 0) {
-	    	
-	      System.out.println("application: " + application);
-	    	
 	      TEST_MODE = application.endsWith("testapplication") || application.endsWith("uitest");
 	    } else {
 	       String commands = System.getProperty("eclipse.commands", "");
-	       
-	       System.out.println("commands: " + commands);
-	       
 	       TEST_MODE = commands.contains("testapplication\n");
 	    }
 	  }
