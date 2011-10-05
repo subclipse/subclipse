@@ -17,10 +17,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -29,9 +35,9 @@ import org.tigris.subversion.svnclientadapter.SVNConflictDescriptor;
 import org.tigris.subversion.svnclientadapter.SVNConflictVersion;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
-import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 /**
  * This class has an interface which is very similar to ISVNStatus but we make
@@ -90,6 +96,34 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
         		this.url = url;
         } else {
             this.url = (String) aValue;
+        }
+        
+        if (this.url == null) {
+        	File file = status.getFile();
+        	if (file != null) {
+        		List<String> segments = new ArrayList<String>();
+        		segments.add(file.getName());
+        		File parentFile = file.getParentFile();
+        		while (parentFile != null) {
+        			if (parentFile.exists()) {
+        				IContainer container = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(new Path(parentFile.getPath()));
+        				if (container != null) {
+							ISVNLocalFolder localFolder = SVNWorkspaceRoot.getSVNFolderFor(container);
+							SVNUrl parentUrl = localFolder.getUrl();
+							if (parentUrl != null) {
+								StringBuffer sb = new StringBuffer(parentUrl.toString());
+								for (int i = segments.size() - 1; i >= 0; i--) {
+									sb.append("/" + segments.get(i));
+								}
+								this.url = sb.toString();
+								break;
+							}
+        				}
+        			}
+        			segments.add(parentFile.getName());
+        			parentFile = parentFile.getParentFile();
+        		}
+        	}
         }
 
         aValue = status.getLastChangedRevision();
