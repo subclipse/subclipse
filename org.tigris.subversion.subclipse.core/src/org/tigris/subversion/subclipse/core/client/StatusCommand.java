@@ -16,9 +16,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.subclipse.core.CancelableSVNStatusCallback;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.ISVNStatusCallback;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
@@ -31,6 +33,7 @@ public class StatusCommand {
     private final boolean descend;
     private final boolean getAll;
     private final boolean contactServer;
+    private ISVNStatusCallback callback;
 
     private ISVNStatus[] statuses;
     
@@ -65,14 +68,21 @@ public class StatusCommand {
 
         try{
             client.addNotifyListener( revisionListener );
-            statuses = client.getStatus( file, descend, getAll, contactServer );
+            if (callback != null && callback instanceof CancelableSVNStatusCallback) {
+            	((CancelableSVNStatusCallback)callback).setSvnClient(client);
+            }
+            statuses = client.getStatus(file, descend, getAll, contactServer, false, callback);
         }
         finally {
             client.removeNotifyListener( revisionListener );
         }
     }
+    
+	public void setCallback(ISVNStatusCallback callback) {
+		this.callback = callback;
+	}
 
-    public ISVNStatus[] getStatuses() {
+	public ISVNStatus[] getStatuses() {
         return statuses;
     }
 

@@ -37,6 +37,7 @@ import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariantComparator;
 import org.eclipse.team.core.variants.ResourceVariantByteStore;
 import org.eclipse.team.core.variants.SessionResourceVariantByteStore;
+import org.tigris.subversion.subclipse.core.CancelableSVNStatusCallback;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -245,11 +246,17 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
         	remoteSyncStateStore.flushBytes(resource, depth);
 
 //            ISVNClientAdapter client = SVNProviderPlugin.getPlugin().createSVNClient();
-
+        	
             boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
             boolean showOutOfDate = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS);
             StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, showOutOfDate, true );
+            cmd.setCallback(new CancelableSVNStatusCallback(monitor));
             cmd.run(monitor);
+            
+            if (monitor.isCanceled()) {
+            	return new IResource[0];
+            }
+            
             monitor.worked(70);
 
             RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
@@ -275,7 +282,12 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
             monitor.worked(30);            
             return (IResource[]) result.toArray(new IResource[result.size()]);
         } catch (SVNException e) {
-            throw new TeamException("Error getting status for resource " + resource + " " + e.getMessage(), e);
+        	if (e.getMessage().contains("Operation cancelled")) {
+        		return new IResource[0];
+        	}
+        	else {
+        		throw new TeamException("Error getting status for resource " + resource + " " + e.getMessage(), e);
+        	}
         } finally {
         	monitor.done();
 		}
