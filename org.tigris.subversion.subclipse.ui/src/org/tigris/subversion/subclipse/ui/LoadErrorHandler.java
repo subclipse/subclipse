@@ -14,13 +14,15 @@ public class LoadErrorHandler implements ILoadErrorHandler {
 			return;
 		}		
 		final String loadErrors = clientWrapper.getLoadErrors();
-		Display.getDefault().syncExec(new Runnable() {
-			public void run() {
-				loadErrorHandled = true;
-				LoadErrorDialog dialog = new LoadErrorDialog(Display.getDefault().getActiveShell(), loadErrors);
-				dialog.open();
-			}			
-		});
+		loadErrorHandled = true;
+		if (!SVNUIPlugin.TEST_MODE) {
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					LoadErrorDialog dialog = new LoadErrorDialog(Display.getDefault().getActiveShell(), loadErrors);
+					dialog.open();
+				}			
+			});
+		}
 	}
 	
 	public static boolean loadErrorHandled() {
