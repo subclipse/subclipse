@@ -346,7 +346,7 @@ public class SVNLightweightDecorator
 				if ((stateFlags & IThreeWayDiff.CHANGE) != 0 || (stateFlags & IThreeWayDiff.ADD) != 0 || (stateFlags & IThreeWayDiff.REMOVE) != 0) {
 					decoration.addOverlay(dirty);
 				}
-			} catch (CoreException e) {}
+			} catch (Exception e) {}
 		} else {		
 			LocalResourceStatus status = null;
 			if (!isIgnored) {
