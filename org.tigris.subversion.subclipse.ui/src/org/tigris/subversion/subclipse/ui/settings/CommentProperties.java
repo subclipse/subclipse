@@ -53,42 +53,66 @@ public class CommentProperties {
     }
     
     public static CommentProperties getCommentProperties(IResource resource) throws SVNException {
-        IProject project = null;
-        if (resource instanceof IProject) project = (IProject)resource;
-        else project = resource.getProject();
-        if (project != null) {
-            ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(project);
-            if (svnResource.isManaged()) {
-                CommentProperties properties = new CommentProperties();
-                ISVNProperty sizeProperty = svnResource.getSvnProperty("tsvn:logminsize"); //$NON-NLS-1$
-                if (sizeProperty != null) {
-                    int minSize = 0;
-                    try {
-                        minSize = Integer.parseInt(sizeProperty.getValue());
-                    } catch (Exception e) {}
-                    properties.setMinimumLogMessageSize(minSize);
-                }
-                ISVNProperty lockSizeProperty = svnResource.getSvnProperty("tsvn:lockmsgminsize"); //$NON-NLS-1$
-                if (lockSizeProperty != null) {
-                    int minSize = 0;
-                    try {
-                        minSize = Integer.parseInt(lockSizeProperty.getValue());
-                    } catch (Exception e) {}
-                    properties.setMinimumLockMessageSize(minSize);
-                }                
-                ISVNProperty widthProperty = svnResource.getSvnProperty("tsvn:logwidthmarker"); //$NON-NLS-1$
-                if (widthProperty != null) {
-                    int width = 0;
-                    try {
-                        width = Integer.parseInt(widthProperty.getValue());
-                    } catch (Exception e) {}
-                    properties.setLogWidthMarker(width);
-                }  
-                ISVNProperty templateProperty = svnResource.getSvnProperty("tsvn:logtemplate"); //$NON-NLS-1$
-                if (templateProperty != null) properties.setLogTemplate(templateProperty.getValue());
-                return properties;
+    	CommentProperties properties = null;
+    	ISVNProperty sizeProperty = null;
+    	ISVNProperty lockSizeProperty = null;
+    	ISVNProperty widthProperty = null;
+    	ISVNProperty templateProperty = null;
+    	IResource parent = resource;
+    	while (parent != null) {
+    		ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
+    		if (svnResource.isManaged()) {
+    			if (properties == null) {
+    				properties = new CommentProperties();
+    			}
+    			if (sizeProperty == null) {
+    				sizeProperty = svnResource.getSvnProperty("tsvn:logminsize"); //$NON-NLS-1$
+    			}
+    			if (lockSizeProperty == null) {
+    				lockSizeProperty = svnResource.getSvnProperty("tsvn:lockmsgminsize"); //$NON-NLS-1$
+    			}
+    			if (widthProperty == null) {
+    				widthProperty = svnResource.getSvnProperty("tsvn:logwidthmarker"); //$NON-NLS-1$
+    			}
+    			if (templateProperty == null) {
+    				templateProperty = svnResource.getSvnProperty("tsvn:logtemplate"); //$NON-NLS-1$
+    			}
+    		}
+    		if (parent instanceof IProject) {
+    			break;
+    		}
+    		if (sizeProperty != null && lockSizeProperty != null && widthProperty != null && templateProperty != null) {
+    			break;
+    		}
+    		parent = parent.getParent();
+    	}
+    	if (properties != null) {
+            if (sizeProperty != null) {
+                int minSize = 0;
+                try {
+                    minSize = Integer.parseInt(sizeProperty.getValue());
+                } catch (Exception e) {}
+                properties.setMinimumLogMessageSize(minSize);
             }
-        }
-        return null;
+            if (lockSizeProperty != null) {
+                int minSize = 0;
+                try {
+                    minSize = Integer.parseInt(lockSizeProperty.getValue());
+                } catch (Exception e) {}
+                properties.setMinimumLockMessageSize(minSize);
+            }                
+            if (widthProperty != null) {
+                int width = 0;
+                try {
+                    width = Integer.parseInt(widthProperty.getValue());
+                } catch (Exception e) {}
+                properties.setLogWidthMarker(width);
+            }  
+            if (templateProperty != null) {
+            	properties.setLogTemplate(templateProperty.getValue());    		
+            }
+    	}
+    	return properties;
     }
+ 
 }
