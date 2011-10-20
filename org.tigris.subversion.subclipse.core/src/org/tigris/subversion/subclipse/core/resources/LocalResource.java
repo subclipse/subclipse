@@ -290,7 +290,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     		} else {
     			// otherwise, get the url of the parent
     			ISVNLocalResource parent = getParent();
-    			if (parent == null) {
+    			if (parent == null || parent.getUrl() == null) {
     				return null; // we cannot find the url
     			}
    				return parent.getUrl().appendPath(resource.getName());	
