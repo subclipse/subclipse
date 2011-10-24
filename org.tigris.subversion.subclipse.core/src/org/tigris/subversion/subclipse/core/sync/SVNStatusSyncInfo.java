@@ -140,9 +140,8 @@ public class SVNStatusSyncInfo extends SyncInfo {
         // If resource is ignored through Eclipse project's resource filters property, IResource.exists() returns false,
         // even if the file/folder exists in the file system.  So we need to check for the existence in the file system
         // so that these items aren't incorrectly shown as outgoing deletions.
-        boolean localExists = local.getLocation() == null || local.getLocation().toFile().exists();
 
-        if (!local.exists() && !localExists) {
+        if (!local.exists() && !(local.getLocation() == null || local.getLocation().toFile().exists())) {
         	if (isAddition(repositoryKind)) return SyncInfo.INCOMING | SyncInfo.ADDITION;
             if (localKind == SVNStatusKind.UNVERSIONED) return SyncInfo.IN_SYNC;
             if (isDeletion(repositoryKind)) return SyncInfo.IN_SYNC;
