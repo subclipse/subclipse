@@ -21,13 +21,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -63,7 +58,6 @@ import org.tigris.subversion.subclipse.core.SVNClientManager;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNStatus;
 import org.tigris.subversion.subclipse.core.resources.BaseResourceStorageFactory;
-import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.actions.SVNPluginAction;
 import org.tigris.subversion.subclipse.ui.actions.ShowOutOfDateFoldersAction;
 import org.tigris.subversion.subclipse.ui.actions.WorkspaceAction;
@@ -469,8 +463,6 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		SVNProviderPlugin.getPlugin().setSvnFileModificationValidatorPrompt(new SVNFileModificationValidatorPrompt());
 		
 		showOutOfDateFoldersAction = new ShowOutOfDateFoldersAction();
-		
-		cleanProjects();
 	}
 	
 	/**
@@ -867,27 +859,6 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 		reg.put(ISVNUIConstants.IMG_UPDATE_ALL, getImageDescriptor(ISVNUIConstants.IMG_UPDATE_ALL));
 		reg.put(ISVNUIConstants.IMG_COMMIT_ALL, getImageDescriptor(ISVNUIConstants.IMG_COMMIT_ALL));
 		reg.put(ISVNUIConstants.IMG_PROPERTY_CONFLICTED, getImageDescriptor(ISVNUIConstants.IMG_PROPERTY_CONFLICTED));
-	}
-
-	private void cleanProjects() {
-		String adminFolderName = SVNProviderPlugin.getPlugin().getAdminDirectoryName();
-		List locations = new ArrayList();
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i = 0; i < projects.length; i++) {
-			if(SVNWorkspaceRoot.isManagedBySubclipse(projects[i])) {
-				IContainer parent = projects[i].getParent();
-				if (!locations.contains(parent)) locations.add(parent);
-			}
-		}
-		Iterator iter = locations.iterator();
-		while(iter.hasNext()) {
-			IContainer location = (IContainer)iter.next();
-			File adminFolder = new File(location.getLocation().toString() + System.getProperty("file.separator") + adminFolderName); //$NON-NLS-1$
-			if (adminFolder.exists() && adminFolder.isDirectory()) {
-				File textBase = new File(adminFolder, "text-base"); //$NON-NLS-1$
-				if (!textBase.exists() || !textBase.isDirectory()) deleteFolder(adminFolder);
-			}
-		}
 	}
 	
     // Deletes all files and subdirectories under dir.
