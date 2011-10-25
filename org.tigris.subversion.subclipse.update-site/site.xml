@@ -12,7 +12,7 @@
    <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.7.1.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.7.1">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse_1.8.1.jar" id="org.tigris.subversion.subclipse" version="1.8.1">
+   <feature url="features/org.tigris.subversion.subclipse_1.8.2.jar" id="org.tigris.subversion.subclipse" version="1.8.2">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse">
