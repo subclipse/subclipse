@@ -126,7 +126,7 @@ public class ResourceSelectionTree extends Composite {
 		  		{
 		  	        IResource resource = resources[i];
 			        ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-			        if( !svnResource.getStatus().isManaged() )
+			        if(resource.exists() && !svnResource.getStatus().isManaged() )
 			        {
 			        	unversionedResourceList.add(resource);
 			        }
