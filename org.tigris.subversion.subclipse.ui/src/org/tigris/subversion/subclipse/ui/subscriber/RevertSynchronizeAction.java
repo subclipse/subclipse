@@ -98,14 +98,28 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 		IResource[] resources = new IResource[selectedResources.size()];
 		selectedResources.toArray(resources);
 		
+		boolean nonResourceSelected = false;
 		List<IResource> topSelection = new ArrayList<IResource>();
 		Iterator iter = selection.iterator();
 		while (iter.hasNext()) {
 			ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
-			topSelection.add(element.getResource());
+			// If Change Sets are selected, don't try to do recursive revert
+			if (element.getResource() == null) {
+				nonResourceSelected = true;
+				break;
+			}
+			else {
+				topSelection.add(element.getResource());
+			}
 		}
-		IResource[] topSelectionArray = new IResource[topSelection.size()];
-		topSelection.toArray(topSelectionArray);
+		IResource[] topSelectionArray;
+		if (nonResourceSelected) {
+			topSelectionArray = resources;
+		}
+		else {
+			topSelectionArray = new IResource[topSelection.size()];
+			topSelection.toArray(topSelectionArray);
+		}
 		
 		RevertSynchronizeOperation revertOperation = new RevertSynchronizeOperation(configuration, elements, url, resources, statusMap);
 		revertOperation.setSelectedResources(topSelectionArray);
