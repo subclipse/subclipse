@@ -13,7 +13,9 @@ package org.tigris.subversion.subclipse.core.commands;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
@@ -55,12 +57,26 @@ public class CleanupResourcesCommand implements ISVNCommand {
         } finally {
     		Set<IResource> refreshResources = new LinkedHashSet<IResource>();
     		for (IResource resource : cleanedUpResources) {
-    			refreshResources.add(resource);
-    			OperationManager.getInstance().onNotify(resource.getLocation().toFile(), null);
+    			addToRefreshList(refreshResources, resource);
     		}
     		OperationManager.getInstance().endOperation(true, refreshResources);
             root.getRepository().returnSVNClient(svnClient);
             monitor.done();
         }
-    } 
+    }
+
+	private void addToRefreshList(Set<IResource> refreshResources, IResource resource) {
+		refreshResources.add(resource);
+		OperationManager.getInstance().onNotify(resource.getLocation().toFile(), null);
+		if (resource instanceof IContainer) {
+			try {
+				IResource[] children = ((IContainer)resource).members();
+				for (IResource child : children) {
+					if (child instanceof IContainer) {
+						addToRefreshList(refreshResources, child);
+					}
+				}
+			} catch (CoreException e) {}
+		}
+	} 
 }
