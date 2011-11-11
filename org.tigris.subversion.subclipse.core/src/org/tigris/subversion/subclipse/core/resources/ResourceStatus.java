@@ -480,15 +480,31 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
             	dos.writeInt(conflictDescriptor.getReason());
             	dos.writeInt(conflictDescriptor.getOperation());
             	
-            	dos.writeString(conflictDescriptor.getSrcLeftVersion().getReposURL());
-            	dos.writeLong(conflictDescriptor.getSrcLeftVersion().getPegRevision());
-            	dos.writeString(conflictDescriptor.getSrcLeftVersion().getPathInRepos());
-            	dos.writeInt(conflictDescriptor.getSrcLeftVersion().getNodeKind());
+            	if (conflictDescriptor.getSrcLeftVersion() != null) {
+	            	dos.writeString(conflictDescriptor.getSrcLeftVersion().getReposURL());
+	            	dos.writeLong(conflictDescriptor.getSrcLeftVersion().getPegRevision());
+	            	dos.writeString(conflictDescriptor.getSrcLeftVersion().getPathInRepos());
+	            	dos.writeInt(conflictDescriptor.getSrcLeftVersion().getNodeKind());
+            	}
+            	else {
+	            	dos.writeString("");
+	            	dos.writeLong(-1);
+	            	dos.writeString("");
+	            	dos.writeInt(-1);            		
+            	}
             	
-            	dos.writeString(conflictDescriptor.getSrcRightVersion().getReposURL());
-            	dos.writeLong(conflictDescriptor.getSrcRightVersion().getPegRevision());
-            	dos.writeString(conflictDescriptor.getSrcRightVersion().getPathInRepos());
-            	dos.writeInt(conflictDescriptor.getSrcRightVersion().getNodeKind());            	
+            	if (conflictDescriptor.getSrcRightVersion() != null) {
+	            	dos.writeString(conflictDescriptor.getSrcRightVersion().getReposURL());
+	            	dos.writeLong(conflictDescriptor.getSrcRightVersion().getPegRevision());
+	            	dos.writeString(conflictDescriptor.getSrcRightVersion().getPathInRepos());
+	            	dos.writeInt(conflictDescriptor.getSrcRightVersion().getNodeKind());      
+            	}
+            	else {
+	            	dos.writeString("");
+	            	dos.writeLong(-1);
+	            	dos.writeString("");
+	            	dos.writeInt(-1);            		            		
+            	}
             }
 
         } catch (IOException e) {

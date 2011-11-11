@@ -119,7 +119,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		label = new Label(detailsGroup, SWT.NONE);
 		label.setText(Messages.ResolveTreeConflictWizardMainPage_sourceLeft);
 		label = new Label(detailsGroup, SWT.WRAP);
-		label.setText(treeConflict.getConflictDescriptor().getSrcLeftVersion().toString());
+		if (treeConflict.getConflictDescriptor().getSrcLeftVersion() != null) {
+			label.setText(treeConflict.getConflictDescriptor().getSrcLeftVersion().toString());
+		}
 		gd = new GridData();
 		gd.widthHint = 500;
 		label.setLayoutData(gd);
@@ -132,7 +134,9 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 		label = new Label(detailsGroup, SWT.NONE);
 		label.setText(Messages.ResolveTreeConflictWizardMainPage_sourceRight);
 		label = new Label(detailsGroup, SWT.WRAP);
-		label.setText(treeConflict.getConflictDescriptor().getSrcRightVersion().toString());
+		if (treeConflict.getConflictDescriptor().getSrcRightVersion() != null) {
+			label.setText(treeConflict.getConflictDescriptor().getSrcRightVersion().toString());
+		}
 		gd = new GridData();
 		gd.widthHint = 500;
 		label.setLayoutData(gd);

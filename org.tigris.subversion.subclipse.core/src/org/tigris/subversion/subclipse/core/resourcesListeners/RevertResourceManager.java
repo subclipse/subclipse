@@ -166,7 +166,7 @@ public class RevertResourceManager implements IResourceChangeListener {
                     }
                     ISVNLocalFolder parentFolder = res.getParent();
                     while (parentFolder != null) {
-                        if (parentFolder.getStatusFromCache().isDeleted() && !revertedResources.contains(parentFolder)) {
+                        if (parentFolder.getStatusFromCache().isDeleted() && !parentFolder.getResource().exists() && !revertedResources.contains(parentFolder)) {
                             revertedResources.add(parentFolder);
                         } else {
                             break;
