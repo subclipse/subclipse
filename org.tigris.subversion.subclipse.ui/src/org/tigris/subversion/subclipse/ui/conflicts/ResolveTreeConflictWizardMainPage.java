@@ -759,6 +759,24 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			compareButton.addSelectionListener(choiceListener);			
 			
 		}
+		
+		if (conflictDescriptor.getSrcLeftVersion() == null) {
+			revertButton = new Button(resolutionGroup, SWT.CHECK);
+			revertResource = treeConflict.getResource();
+			String name;
+			if (revertResource instanceof IContainer) name = revertResource.getFullPath().toString();
+			else name = revertResource.getName();
+			revertButton.setText(Messages.ResolveTreeConflictWizardMainPage_revert + name + Messages.ResolveTreeConflictWizardMainPage_conflictWillBeResolved);			
+			revertButton.addSelectionListener(new SelectionAdapter() {				
+				public void widgetSelected(SelectionEvent e) {
+					if (revertButton.getSelection()) {
+						markResolvedButton.setSelection(false);
+					}
+					markResolvedButton.setEnabled(!revertButton.getSelection());
+				}
+			});
+		}		
+		
 		markResolvedButton = new Button(resolutionGroup, SWT.CHECK);
 		markResolvedButton.setText(Messages.ResolveTreeConflictWizardMainPage_markResolved);
 		markResolvedButton.setSelection(true);
