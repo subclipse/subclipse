@@ -176,6 +176,8 @@ public interface ISVNUIConstants {
   public final String PREF_FILETEXT_DECORATION = "pref_filetext_decoration"; //$NON-NLS-1$
   public final String PREF_FOLDERTEXT_DECORATION = "pref_foldertext_decoration"; //$NON-NLS-1$
   public final String PREF_PROJECTTEXT_DECORATION = "pref_projecttext_decoration"; //$NON-NLS-1$
+  
+  public final String PREF_DATEFORMAT_DECORATION = "pref_dateformat_decoration"; //$NON-NLS-1$
 
   public final String PREF_SHOW_DIRTY_DECORATION = "pref_show_overlaydirty"; //$NON-NLS-1$
   public final String PREF_SHOW_ADDED_DECORATION = "pref_show_added"; //$NON-NLS-1$

@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.decorator;
 
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -146,8 +147,6 @@ public class SVNLightweightDecorator
 	}
 
 	public SVNLightweightDecorator() {
-		dateFormat = DateFormat.getInstance();
-
 		IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
 		computeDeepDirtyCheck = store.getBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY);
 		folderDecoratorFormat = SVNDecoratorConfiguration.compileFormatString(store.getString(ISVNUIConstants.PREF_FOLDERTEXT_DECORATION));
@@ -161,6 +160,8 @@ public class SVNLightweightDecorator
 		showAdded = store.getBoolean(ISVNUIConstants.PREF_SHOW_ADDED_DECORATION);
         showExternal = store.getBoolean(ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION);
 		showHasRemote = store.getBoolean(ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION);
+		String dateFormatPattern = store.getString(ISVNUIConstants.PREF_DATEFORMAT_DECORATION);
+		setDateFormat(dateFormatPattern);
 
 		propertyListener = new IPropertyChangeListener() {
 						public void propertyChange(PropertyChangeEvent event) {
@@ -188,6 +189,9 @@ public class SVNLightweightDecorator
                                 showExternal = getBoolean(event);
                             } else if (ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION.equals(event.getProperty())) {
 								showHasRemote = getBoolean(event);
+							} else if (ISVNUIConstants.PREF_DATEFORMAT_DECORATION.equals(event.getProperty())) {
+								String dateFormatPattern = (String)event.getNewValue();
+								setDateFormat(dateFormatPattern);
 							}
 						}
 					};
@@ -721,5 +725,18 @@ public class SVNLightweightDecorator
 		SVNUIPlugin.getPlugin().getPreferenceStore().removePropertyChangeListener(propertyListener);
         SVNProviderPlugin.removeResourceStateChangeListener(this);        
 //		SVNProviderPlugin.broadcastDecoratorEnablementChanged(false /* disabled */);
+	}
+
+	private void setDateFormat(String dateFormatPattern) {
+		if (dateFormatPattern == null || dateFormatPattern.length() == 0) {
+			dateFormat = DateFormat.getInstance();			
+		}
+		else {
+			try {
+				dateFormat = new SimpleDateFormat(dateFormatPattern);
+			} catch (Exception e) {
+				dateFormat = DateFormat.getInstance();
+			}
+		}
 	}
 }

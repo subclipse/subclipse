@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.ui.preferences;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -98,6 +99,8 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	private Text folderTextFormat;
 	
 	private Text projectTextFormat;
+	
+	private Text dateFormatText;
 	
 	private Text dirtyFlag;
 	private Text addedFlag;
@@ -194,10 +197,10 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		GridData data = new GridData();
 		data.horizontalAlignment = GridData.FILL;
 		composite.setLayoutData(data);
-		SWTUtils.createPreferenceLink((IWorkbenchPreferenceContainer) getContainer(), composite, "org.eclipse.ui.preferencePages.Decorators", Policy.bind("SVNDecoratorPreferencesPage.labelDecorationsLink")); //$NON-NLS-1$		 		
+		SWTUtils.createPreferenceLink((IWorkbenchPreferenceContainer) getContainer(), composite, "org.eclipse.ui.preferencePages.Decorators", Policy.bind("SVNDecoratorPreferencesPage.labelDecorationsLink")); //$NON-NLS-1$ //$NON-NLS-2$		 		
 		showDirty = createCheckBox(composite, Policy.bind("SVNDecoratorPreferencesPage.computeDeep")); //$NON-NLS-1$
 		enableFontDecorators = createCheckBox(composite, Policy.bind("SVNDecoratorPreferencesPage.useFontDecorators")); //$NON-NLS-1$			
-		SWTUtils.createPreferenceLink((IWorkbenchPreferenceContainer) getContainer(), composite, "org.eclipse.ui.preferencePages.ColorsAndFonts", Policy.bind("SVNDecoratorPreferencesPage.colorsAndFontsLink")); //$NON-NLS-1$		 				
+		SWTUtils.createPreferenceLink((IWorkbenchPreferenceContainer) getContainer(), composite, "org.eclipse.ui.preferencePages.ColorsAndFonts", Policy.bind("SVNDecoratorPreferencesPage.colorsAndFontsLink")); //$NON-NLS-1$ //$NON-NLS-2$		 				
 		return composite;
 	}
 
@@ -310,6 +313,17 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
             Policy.bind("SVNDecoratorPreferencesPage.projectFormat"),  //$NON-NLS-1$
             Policy.bind("SVNDecoratorPreferencesPage.addVariables"), getProjectBindingDescriptions()); //$NON-NLS-1$ //$NON-NLS-2$
 		projectTextFormat = format.t1;
+		
+		createLabel(fileTextGroup, Policy.bind("SVNDecoratorPreferencesPage.0"), 1); //$NON-NLS-1$
+		dateFormatText = new Text(fileTextGroup, SWT.BORDER);
+		data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
+		dateFormatText.setLayoutData(data);
+		dateFormatText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {				
+				updateExamples();
+			}
+		});
+		new Label(fileTextGroup, SWT.NONE);
 
 		createLabel(fileTextGroup, Policy.bind("SVNDecoratorPreferencesPage.labelDecorationOutgoing"), 1); //$NON-NLS-1$
 		dirtyFlag = new Text(fileTextGroup, SWT.BORDER);
@@ -383,6 +397,11 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		folderTextFormat.setText(store.getString(ISVNUIConstants.PREF_FOLDERTEXT_DECORATION));
 		projectTextFormat.setText(store.getString(ISVNUIConstants.PREF_PROJECTTEXT_DECORATION));
 		
+		String dateFormatPattern = store.getString(ISVNUIConstants.PREF_DATEFORMAT_DECORATION);
+		if (dateFormatPattern != null) {
+			dateFormatText.setText(dateFormatPattern);
+		}
+		
 		addedFlag.setText(store.getString(ISVNUIConstants.PREF_ADDED_FLAG));
 		dirtyFlag.setText(store.getString(ISVNUIConstants.PREF_DIRTY_FLAG));
         externalFlag.setText(store.getString(ISVNUIConstants.PREF_EXTERNAL_FLAG));
@@ -428,6 +447,8 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		store.setValue(ISVNUIConstants.PREF_FOLDERTEXT_DECORATION, folderTextFormat.getText());
 		store.setValue(ISVNUIConstants.PREF_PROJECTTEXT_DECORATION, projectTextFormat.getText());
 		
+		store.setValue(ISVNUIConstants.PREF_DATEFORMAT_DECORATION, dateFormatText.getText());
+		
 		store.setValue(ISVNUIConstants.PREF_ADDED_FLAG, addedFlag.getText());
 		store.setValue(ISVNUIConstants.PREF_DIRTY_FLAG, dirtyFlag.getText());
         store.setValue(ISVNUIConstants.PREF_EXTERNAL_FLAG, externalFlag.getText());
@@ -463,6 +484,8 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		folderTextFormat.setText(store.getDefaultString(ISVNUIConstants.PREF_FOLDERTEXT_DECORATION));
 		projectTextFormat.setText(store.getDefaultString(ISVNUIConstants.PREF_PROJECTTEXT_DECORATION));
 		
+		dateFormatText.setText(""); //$NON-NLS-1$
+		
 		addedFlag.setText(store.getDefaultString(ISVNUIConstants.PREF_ADDED_FLAG));
 		dirtyFlag.setText(store.getDefaultString(ISVNUIConstants.PREF_DIRTY_FLAG));
         externalFlag.setText(store.getDefaultString(ISVNUIConstants.PREF_EXTERNAL_FLAG));
@@ -475,6 +498,8 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		
 		showDirty.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
 		enableFontDecorators.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_USE_FONT_DECORATORS));
+		
+		setValid(true);
     }
 
 	/**
@@ -717,7 +742,23 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 			  
 			bindings.put(SVNDecoratorConfiguration.RESOURCE_REVISION, "74"); //$NON-NLS-1$
 	        bindings.put(SVNDecoratorConfiguration.RESOURCE_AUTHOR, "cchab"); //$NON-NLS-1$
-	        bindings.put(SVNDecoratorConfiguration.RESOURCE_DATE, DateFormat.getInstance().format(new Date())); //$NON-NLS-1$
+	        
+	        DateFormat dateFormat;
+	        if (dateFormatText.getText().trim().length() == 0) {
+	        	dateFormat = SimpleDateFormat.getInstance();
+	        }
+	        else {
+	        	try {
+	        		dateFormat = new SimpleDateFormat(dateFormatText.getText());
+	        		setValid(true);
+	        		setMessage(null);
+	        	} catch (Exception e) {
+	        		dateFormat = SimpleDateFormat.getInstance();
+	        		setValid(false);
+	        	}
+	        }
+	        
+	        bindings.put(SVNDecoratorConfiguration.RESOURCE_DATE, dateFormat.format(new Date())); //$NON-NLS-1$
 	        bindings.put(SVNDecoratorConfiguration.RESOURCE_URL, "http://localhost:8080/svn/repos/trunk/project1"); //$NON-NLS-1$
 	        bindings.put(SVNDecoratorConfiguration.RESOURCE_URL_SHORT, "trunk/project1"); //$NON-NLS-1$
 	        bindings.put(SVNDecoratorConfiguration.RESOURCE_LABEL, "label"); //$NON-NLS-1$
