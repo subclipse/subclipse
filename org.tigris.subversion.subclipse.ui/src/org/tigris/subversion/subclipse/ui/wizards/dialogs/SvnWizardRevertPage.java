@@ -70,23 +70,6 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 		layout.marginWidth = 0;
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		
-//		Composite labelComposite = new Composite(composite, SWT.NONE);
-//		labelComposite.setLayout(new GridLayout(2, false));
-//		labelComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-//		
-//		Label label = new Label(labelComposite, SWT.NONE);
-//		label.setText(Policy.bind("RevertDialog.url")); //$NON-NLS-1$
-//		
-//		Text text = new Text(labelComposite, SWT.READ_ONLY);
-//		text.setEditable(false);
-//		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-//		
-//		if (url == null) {
-//		  text.setText(Policy.bind("RevertDialog.multiple")); //$NON-NLS-1$
-//		} else {
-//		  text.setText(url);
-//		}
 
 		ResourceSelectionTree.IToolbarControlCreator toolbarControlCreator = new ResourceSelectionTree.IToolbarControlCreator() {
 			public void createToolbarControls(ToolBarManager toolbarManager) {

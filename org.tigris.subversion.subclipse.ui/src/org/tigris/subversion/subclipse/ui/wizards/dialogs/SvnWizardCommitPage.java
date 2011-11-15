@@ -81,8 +81,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
 	
 	private CommitCommentArea commitCommentArea;
 	private IResource[] resourcesToCommit;
-//	private String url;
-//	private ChangeSet changeSet;
+
 	private ProjectProperties projectProperties;
 	private Object[] selectedResources;
 	private Text issueText;
