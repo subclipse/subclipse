@@ -49,6 +49,7 @@ import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener {
@@ -249,6 +250,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
         	
             boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
             boolean showOutOfDate = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS);
+            boolean ignoreHiddenChanges = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES);
             StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, showOutOfDate, true );
             cmd.setCallback(new CancelableSVNStatusCallback(monitor));
             cmd.run(monitor);
@@ -270,9 +272,11 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
                 if (isSupervised(changedResource) || (status.getTextStatus() != SVNStatusKind.NONE))
                 {
-                	result.add(changedResource);
-                	remoteSyncStateStore.setBytes( changedResource, status.getBytes() );
-                	registerChangedResourceParent(changedResource);
+                	if (!ignoreHiddenChanges || !Util.isHidden(changedResource)) {
+	                	result.add(changedResource);
+	                	remoteSyncStateStore.setBytes( changedResource, status.getBytes() );
+	                	registerChangedResourceParent(changedResource);
+                	}
                 }
 			}
         	// Ensure that the local sync state is also updated

@@ -147,6 +147,17 @@ public class Util {
 		return resource.getName().equals(".project") || resource.getName().equals(".classpath");
 	}
 	
+	public static boolean isHidden(IResource resource) {
+		IResource parent = resource;
+		while (parent != null) {
+			if (parent.isHidden()) {
+				return true;
+			}
+			parent = parent.getParent();
+		}
+		return false;
+	}
+	
 	public static SVNUrl getUrlForRevision(ISVNRemoteResource resource, SVNRevision.Number revision, IProgressMonitor pm) throws SVNException {
 		SVNUrl url = resource.getUrl();
 		SVNRevision revisionStart = new SVNRevision.Number(revision.getNumber());

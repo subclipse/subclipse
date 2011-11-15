@@ -24,8 +24,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.File2Resource;
@@ -80,6 +82,7 @@ public class RevertAction extends WorkbenchWindowAction {
 	 * get the modified resources in resources parameter
 	 */	
 	protected IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
+		 boolean ignoreHiddenChanges = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES);
 		 // if only one resource selected, get url.  Revert dialog displays this.
 		 if (resources.length == 1) {
 			   ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[0]);
@@ -103,7 +106,7 @@ public class RevertAction extends WorkbenchWindowAction {
 				        	 ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
 				        	 if (!localResource.isIgnored()) {
 					        	 if (isManaged || !Util.isSpecialEclipseFile(currentResource)) {
-					        		 if (isManaged || !currentResource.isHidden()) {
+					        		 if ((!ignoreHiddenChanges && isManaged) || !Util.isHidden(currentResource)) {
 							             modified.add(currentResource);
 				                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
 				                 		 else {

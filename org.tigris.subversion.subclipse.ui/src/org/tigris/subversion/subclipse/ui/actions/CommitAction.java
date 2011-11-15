@@ -36,6 +36,7 @@ import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.internal.core.subscribers.ActiveChangeSet;
 import org.eclipse.team.internal.core.subscribers.ChangeSet;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -149,6 +150,7 @@ public class CommitAction extends WorkbenchWindowAction {
 	 * get the modified and unadded resources in resources parameter
 	 */	
 	protected IResource[] getModifiedResources(IResource[] resources, IProgressMonitor iProgressMonitor) throws SVNException {
+		 boolean ignoreHiddenChanges = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES);
 		IResource[] allResources = getSelectedResources(true);
 		List allSelections = new ArrayList();
 		for (int i = 0; i < allResources.length; i++)
@@ -205,43 +207,47 @@ public class CommitAction extends WorkbenchWindowAction {
 			             ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
 			             if (!localResource.isIgnored()) {
 			                 if (!SVNStatusUtils.isManaged(statuses[j])) {
-			                 	hasUnaddedResources = true;
-			                 	if ((currentResource.getType() != IResource.FILE) && !isSymLink(currentResource))
-			                 		unversionedFolders.add(currentResource);
-			                 	else {
-		                 			if (!modified.contains(currentResource)) {
-		                 				modified.add(currentResource);
-		   	                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
-			                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             
-			                 		}
-			                 	}
+			                	if (!Util.isHidden(currentResource)) {
+				                 	hasUnaddedResources = true;
+				                 	if ((currentResource.getType() != IResource.FILE) && !isSymLink(currentResource))
+				                 		unversionedFolders.add(currentResource);
+				                 	else {
+			                 			if (!modified.contains(currentResource)) {
+			                 				modified.add(currentResource);
+			   	                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+				                 		 else statusMap.put(currentResource, statuses[j].getTextStatus());				             
+				                 		}
+				                 	}
+			                	}
 			                 } else
-			                	 if (!modified.contains(currentResource)) {
-			                		 
-			                		 if (statuses[j].isSwitched()) {
-			                			 switched = true;
-				                		 url = statuses[j].getUrlString();
-			                		 }
-			                		 
-			                		 modified.add(currentResource);
-			                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
-			                 		 else {
-			                 			statusMap.put(currentResource, statuses[j].getTextStatus());				             
-			                 			if (SVNStatusUtils.isTextConflicted(statuses[j])) {
-			                                IFile conflictNewFile = (IFile) File2Resource
-			                                .getResource(statuses[j]
-			                                        .getConflictNew());
-			                                if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
-			                                IFile conflictOldFile = (IFile) File2Resource
-			                                .getResource(statuses[j]
-			                                        .getConflictOld());
-			                                if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
-			                                IFile conflictWorkingFile = (IFile) File2Resource
-			                                .getResource(statuses[j]
-			                                        .getConflictWorking());
-			                                if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                                
-			                 			}			                 		 
-			                 		 }
+			                	 if (!ignoreHiddenChanges || !Util.isHidden(currentResource)) {
+				                	 if (!modified.contains(currentResource)) {
+				                		 
+				                		 if (statuses[j].isSwitched()) {
+				                			 switched = true;
+					                		 url = statuses[j].getUrlString();
+				                		 }
+				                		 
+				                		 modified.add(currentResource);
+				                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+				                 		 else {
+				                 			statusMap.put(currentResource, statuses[j].getTextStatus());				             
+				                 			if (SVNStatusUtils.isTextConflicted(statuses[j])) {
+				                                IFile conflictNewFile = (IFile) File2Resource
+				                                .getResource(statuses[j]
+				                                        .getConflictNew());
+				                                if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
+				                                IFile conflictOldFile = (IFile) File2Resource
+				                                .getResource(statuses[j]
+				                                        .getConflictOld());
+				                                if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
+				                                IFile conflictWorkingFile = (IFile) File2Resource
+				                                .getResource(statuses[j]
+				                                        .getConflictWorking());
+				                                if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                                
+				                 			}			                 		 
+				                 		 }
+				                	 }
 			                	 }
 			             }
 			         }
@@ -305,7 +311,7 @@ public class CommitAction extends WorkbenchWindowAction {
 	   case IMarker.SEVERITY_WARNING:
 		   String allowCommitsWithWarnings = preferenceStore.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS);
 		   if (MessageDialogWithToggle.PROMPT.equals(allowCommitsWithWarnings) || MessageDialogWithToggle.NEVER.equals(allowCommitsWithWarnings)) {
-			   MessageDialogWithToggle warningDialog = MessageDialogWithToggle.openYesNoQuestion(shell, Policy.bind("CommitWizard.commitResources"), Policy.bind("CommitWizard.warningMarkers"), Policy.bind("CommitWizard.warningQuestion"), false, preferenceStore, ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS);
+			   MessageDialogWithToggle warningDialog = MessageDialogWithToggle.openYesNoQuestion(shell, Policy.bind("CommitWizard.commitResources"), Policy.bind("CommitWizard.warningMarkers"), Policy.bind("CommitWizard.warningQuestion"), false, preferenceStore, ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_WARNINGS); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			   if (IDialogConstants.YES_ID != warningDialog.getReturnCode()) {
 				   return false;
 			   }
@@ -314,7 +320,7 @@ public class CommitAction extends WorkbenchWindowAction {
 	   case IMarker.SEVERITY_ERROR:
 		   String allowCommitsWithErrors = preferenceStore.getString(ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS);
 		   if (MessageDialogWithToggle.PROMPT.equals(allowCommitsWithErrors) || MessageDialogWithToggle.NEVER.equals(allowCommitsWithErrors)) {
-			   MessageDialogWithToggle errorDialog = MessageDialogWithToggle.openYesNoQuestion(shell, Policy.bind("CommitWizard.commitResources"), Policy.bind("CommitWizard.errorMarkers"), Policy.bind("CommitWizard.errorQuestion"), false, preferenceStore, ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS);
+			   MessageDialogWithToggle errorDialog = MessageDialogWithToggle.openYesNoQuestion(shell, Policy.bind("CommitWizard.commitResources"), Policy.bind("CommitWizard.errorMarkers"), Policy.bind("CommitWizard.errorQuestion"), false, preferenceStore, ISVNUIConstants.PREF_ALLOW_COMMIT_WITH_ERRORS); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			   if (IDialogConstants.YES_ID != errorDialog.getReturnCode()) {
 				   return false;
 			   }

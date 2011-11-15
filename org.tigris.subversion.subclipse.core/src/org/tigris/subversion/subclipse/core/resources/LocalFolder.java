@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -65,11 +66,16 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
      */
     public ISVNResource[] members(IProgressMonitor monitor, int flags) throws SVNException {
         if (!resource.exists()) return new ISVNLocalResource[0];
+        boolean ignoreHiddenChanges = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES);
         final List<ISVNLocalResource> result = new ArrayList<ISVNLocalResource>();
         IResource[] resources;
         try {
-//          resources = ((IContainer) resource).members(true);
-            resources = ((IContainer) resource).members(IContainer.INCLUDE_HIDDEN | IContainer.INCLUDE_PHANTOMS);
+        	if (ignoreHiddenChanges) {
+        		resources = ((IContainer) resource).members(true);
+        	}
+        	else {
+        		resources = ((IContainer) resource).members(IContainer.INCLUDE_HIDDEN | IContainer.INCLUDE_PHANTOMS);
+        	}
         } catch (CoreException e) {
             throw SVNException.wrapException(e);
         }

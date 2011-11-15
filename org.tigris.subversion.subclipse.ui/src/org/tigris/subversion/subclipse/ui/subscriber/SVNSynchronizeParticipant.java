@@ -13,9 +13,12 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -23,8 +26,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
-import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter.SyncInfoDirectionFilter;
+import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.internal.ui.synchronize.ChangeSetCapability;
 import org.eclipse.team.internal.ui.synchronize.IChangeSetProvider;
 import org.eclipse.team.ui.TeamUI;
@@ -36,8 +39,10 @@ import org.eclipse.team.ui.synchronize.SynchronizePageActionGroup;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.PartInitException;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
@@ -56,7 +61,7 @@ import org.tigris.subversion.subclipse.ui.util.ResourceSelectionTreeDecorator;
  * 
  * @since 3.0
  */
-public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant implements IChangeSetProvider{
+public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant implements IChangeSetProvider, IPropertyChangeListener {
 	
 	/**
 	 * The particpant ID as defined in the plugin manifest
@@ -302,7 +307,10 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	 * No arg contructor used for
 	 * creation of persisted participant after startup
 	 */
-	public SVNSynchronizeParticipant() {}
+	public SVNSynchronizeParticipant() {
+		super();
+		SVNProviderPlugin.getPlugin().getPluginPreferences().addPropertyChangeListener(this);
+	}
 
 	public SVNSynchronizeParticipant(ISynchronizeScope scope) {
 		super(scope);
@@ -361,5 +369,13 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	public IStatus refresh(IResource[] resources, IProgressMonitor monitor) {
 		this.resources = resources;
 		return refreshNow(resources, getLongTaskName(resources), monitor);
+	}
+
+	public void propertyChange(org.eclipse.core.runtime.Preferences.PropertyChangeEvent event) {
+		if (event.getProperty().equals(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES)) {
+			if (getResources() != null) {
+				refresh(getResources(), new NullProgressMonitor());				
+			}
+		}
 	}
 }

@@ -65,8 +65,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button useJavaHLCommitHack;
     private Button shareNestedProjects;
     private Button warnOnCommitToTagPath;
-//    private Button showUnadded;
-//    private Button selectUnadded;
+    private Button ignoreHiddenChanges;
     private Button removeOnReplace;
     private Text logEntriesToFetchText;
     private Button defaultConfigLocationRadio;
@@ -186,6 +185,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 
 		warnOnCommitToTagPath = createCheckBox(composite, Policy.bind("SVNPreferencePage.warnOnCommitToTagPath")); //$NON-NLS-1$
 		
+		ignoreHiddenChanges = createCheckBox(composite, Policy.bind("SVNPreferencesPage.0")); //$NON-NLS-1$
+		
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
 		createLabel(composite, Policy.bind("SVNPreferencePage.logEntriesToFetch"), 1); //$NON-NLS-1$
@@ -201,25 +202,25 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		group.setLayout(new GridLayout(3, true));
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 		
-		quickDiffAnnotateYes = createRadio(group, Policy.bind("yes"), 1);
-		quickDiffAnnotateNo = createRadio(group, Policy.bind("no"), 1);
-		quickDiffAnnotatePrompt = createRadio(group, Policy.bind("prompt"), 1);
+		quickDiffAnnotateYes = createRadio(group, Policy.bind("yes"), 1); //$NON-NLS-1$
+		quickDiffAnnotateNo = createRadio(group, Policy.bind("no"), 1); //$NON-NLS-1$
+		quickDiffAnnotatePrompt = createRadio(group, Policy.bind("prompt"), 1); //$NON-NLS-1$
 		
 		Group groupErrors = new Group(composite, SWT.NONE);
 		groupErrors.setText(Policy.bind("SVNPreferencePage.commitWithErrors")); //$NON-NLS-1$
 		groupErrors.setLayout(new GridLayout(3, true));
 		groupErrors.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
-		resourcesWithErrorsYes = createRadio(groupErrors, Policy.bind("yes"), 1);
-		resourcesWithErrorsNo = createRadio(groupErrors, Policy.bind("no"), 1);
-		resourcesWithErrorsPrompt = createRadio(groupErrors, Policy.bind("prompt"), 1);
+		resourcesWithErrorsYes = createRadio(groupErrors, Policy.bind("yes"), 1); //$NON-NLS-1$
+		resourcesWithErrorsNo = createRadio(groupErrors, Policy.bind("no"), 1); //$NON-NLS-1$
+		resourcesWithErrorsPrompt = createRadio(groupErrors, Policy.bind("prompt"), 1); //$NON-NLS-1$
 		
 		Group groupWarnings = new Group(composite, SWT.NONE);
 		groupWarnings.setText(Policy.bind("SVNPreferencePage.commitWithWarnings")); //$NON-NLS-1$
 		groupWarnings.setLayout(new GridLayout(3, true));
 		groupWarnings.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
-		resourcesWithWarningsYes = createRadio(groupWarnings, Policy.bind("yes"), 1);
-		resourcesWithWarningsNo = createRadio(groupWarnings, Policy.bind("no"), 1);
-		resourcesWithWarningsPrompt = createRadio(groupWarnings, Policy.bind("prompt"), 1);
+		resourcesWithWarningsYes = createRadio(groupWarnings, Policy.bind("yes"), 1); //$NON-NLS-1$
+		resourcesWithWarningsNo = createRadio(groupWarnings, Policy.bind("no"), 1); //$NON-NLS-1$
+		resourcesWithWarningsPrompt = createRadio(groupWarnings, Policy.bind("prompt"), 1); //$NON-NLS-1$
 		
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
@@ -235,8 +236,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		new StringComboBox(
 				group, 
 				ISVNUIConstants.PREF_SVNINTERFACE, 
-				Policy.bind("SVNPreferencePage.client"),  
-				"", 
+				Policy.bind("SVNPreferencePage.client"),   //$NON-NLS-1$
+				"",  //$NON-NLS-1$
 				CLIENT_LABELS, CLIENT_VALUES);
 		
         createLabel(composite, "", 2); //$NON-NLS-1$
@@ -324,19 +325,9 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		shareNestedProjects.setSelection(SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHARE_NESTED_PROJECTS));
 
 		warnOnCommitToTagPath.setSelection(!SVNUIPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNUIConstants.PREF_COMMIT_TO_TAGS_PATH_WITHOUT_WARNING));
-
-//		showUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT));
-//		
-//		selectUnadded.setSelection(store.getBoolean(ISVNUIConstants.PREF_SELECT_UNADDED_RESOURCES_ON_COMMIT));
-//
-//		if (!showUnadded.getSelection()) selectUnadded.setVisible(false);
-//		
-//		showUnadded.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(SelectionEvent se) {
-//				selectUnadded.setVisible(showUnadded.getSelection());
-//			}			
-//		});
 		
+		ignoreHiddenChanges.setSelection(SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES));
+
 		removeOnReplace.setSelection(store.getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE));
 		
 		logEntriesToFetchText.setText(Integer.toString(store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH)));
@@ -399,6 +390,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		SVNProviderPlugin.getPlugin().getPluginPreferences().setValue(ISVNCoreConstants.PREF_SHARE_NESTED_PROJECTS, shareNestedProjects.getSelection());
 		
 		SVNUIPlugin.getPlugin().getPluginPreferences().setValue(ISVNUIConstants.PREF_COMMIT_TO_TAGS_PATH_WITHOUT_WARNING, !warnOnCommitToTagPath.getSelection());
+		
+		SVNProviderPlugin.getPlugin().getPluginPreferences().setValue(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES, ignoreHiddenChanges.getSelection());
 		
 //		store.setValue(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT, showUnadded.getSelection());
 
