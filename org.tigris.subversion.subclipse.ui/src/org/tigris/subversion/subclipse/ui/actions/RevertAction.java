@@ -96,32 +96,34 @@ public class RevertAction extends WorkbenchWindowAction {
 				 command.run(iProgressMonitor);
 				 ISVNStatus[] statuses = command.getStatuses();
 				 for (int j = 0; j < statuses.length; j++) {
-				     if (SVNStatusUtils.isReadyForRevert(statuses[j]) ||
-				   		  !SVNStatusUtils.isManaged(statuses[j])) {
+					 boolean isManaged = SVNStatusUtils.isManaged(statuses[j]);
+				     if (SVNStatusUtils.isReadyForRevert(statuses[j]) || !isManaged) {
 				         IResource currentResource = SVNWorkspaceRoot.getResourceFor(resource, statuses[j]);
 				         if (currentResource != null) {
 				        	 ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
 				        	 if (!localResource.isIgnored()) {
-					        	 if (SVNStatusUtils.isManaged(statuses[j]) || !Util.isSpecialEclipseFile(currentResource)) {
-						             modified.add(currentResource);
-			                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
-			                 		 else {
-			                 			statusMap.put(currentResource, statuses[j].getTextStatus());
-			                 			if (SVNStatusUtils.isTextConflicted(statuses[j])) {
-			                                IFile conflictNewFile = (IFile) File2Resource
-			                                .getResource(statuses[j]
-			                                        .getConflictNew());
-			                                if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
-			                                IFile conflictOldFile = (IFile) File2Resource
-			                                .getResource(statuses[j]
-			                                        .getConflictOld());
-			                                if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
-			                                IFile conflictWorkingFile = (IFile) File2Resource
-			                                .getResource(statuses[j]
-			                                        .getConflictWorking());
-			                                if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                                
-			                 			}
-			                 		 }
+					        	 if (isManaged || !Util.isSpecialEclipseFile(currentResource)) {
+					        		 if (isManaged || !currentResource.isHidden()) {
+							             modified.add(currentResource);
+				                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
+				                 		 else {
+				                 			statusMap.put(currentResource, statuses[j].getTextStatus());
+				                 			if (SVNStatusUtils.isTextConflicted(statuses[j])) {
+				                                IFile conflictNewFile = (IFile) File2Resource
+				                                .getResource(statuses[j]
+				                                        .getConflictNew());
+				                                if (conflictNewFile != null) conflictFiles.add(conflictNewFile);
+				                                IFile conflictOldFile = (IFile) File2Resource
+				                                .getResource(statuses[j]
+				                                        .getConflictOld());
+				                                if (conflictOldFile != null) conflictFiles.add(conflictOldFile);
+				                                IFile conflictWorkingFile = (IFile) File2Resource
+				                                .getResource(statuses[j]
+				                                        .getConflictWorking());
+				                                if (conflictWorkingFile != null) conflictFiles.add(conflictWorkingFile);		                                
+				                 			}
+				                 		 }
+					        		 }
 					        	 }
 				        	 }
 				         }

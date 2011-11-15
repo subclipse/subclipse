@@ -68,7 +68,8 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         final List<ISVNLocalResource> result = new ArrayList<ISVNLocalResource>();
         IResource[] resources;
         try {
-            resources = ((IContainer) resource).members(true);
+//          resources = ((IContainer) resource).members(true);
+            resources = ((IContainer) resource).members(IContainer.INCLUDE_HIDDEN | IContainer.INCLUDE_PHANTOMS);
         } catch (CoreException e) {
             throw SVNException.wrapException(e);
         }
