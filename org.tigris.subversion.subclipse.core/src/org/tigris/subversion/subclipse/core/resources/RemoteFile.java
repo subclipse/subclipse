@@ -34,6 +34,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  */
 public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 	private ISVNLock lock;
+	private boolean cached = false;
 
 	/**
 	 * Constructor (from byte[])
@@ -119,11 +120,8 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 				if (inputStream == null) {
 					inputStream = svnClient.getContent(url, getRevision(), getRevision());
 				}
-				
-//				if (pegRevision == null) inputStream = svnClient.getContent(url, getRevision(), getRevision());
-//				else inputStream = svnClient.getContent(url, revision, pegRevision);
-				
 				super.setContents(inputStream, monitor);
+				cached = true;
 			} catch (SVNClientException e) {
 				throw new TeamException("Failed in RemoteFile.getContents()", e);
 			}
@@ -158,6 +156,21 @@ public class RemoteFile extends RemoteResource implements ISVNRemoteFile {
 	 */
 	public boolean isFolder() {
 		return false;
+	}
+
+	
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.team.core.variants.CachedResourceVariant#isHandleCached()
+	 */
+	@Override
+	protected boolean isHandleCached() {
+		if (revision.equals(SVNRevision.HEAD)) {
+			if (!cached) {
+				return false;
+			}
+		}
+		return super.isHandleCached();
 	}
 
 	/*
