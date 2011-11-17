@@ -374,7 +374,8 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	public void propertyChange(org.eclipse.core.runtime.Preferences.PropertyChangeEvent event) {
 		if (event.getProperty().equals(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES)) {
 			if (getResources() != null) {
-				refresh(getResources(), new NullProgressMonitor());				
+				refresh(getResources(), new NullProgressMonitor());		
+				reset();
 			}
 		}
 	}
