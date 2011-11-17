@@ -20,6 +20,7 @@ import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
+import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
@@ -41,6 +42,8 @@ public class UpdateResourcesCommand implements ISVNCommand {
     private boolean force = true;
     private Set<IResource> updatedResources = new LinkedHashSet<IResource>();
     private ISVNConflictResolver conflictResolver;
+    
+    private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
     
     /**
      * Update the given resources.
@@ -68,7 +71,9 @@ public class UpdateResourcesCommand implements ISVNCommand {
 		}
         try {
             monitor.beginTask(null, 100 * resources.length);                    
-           
+
+            svnClient.addNotifyListener(operationResourceCollector);
+            
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
     		if (resources.length == 1)
     		{
@@ -84,21 +89,19 @@ public class UpdateResourcesCommand implements ISVNCommand {
 					files[i] = resources[i].getLocation().toFile();
 					updatedResources.add(resources[i]);
 				}
+  
    				svnClient.update(files, revision, depth, setDepth, ignoreExternals, force);   				
    				monitor.worked(100);
     		}
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
-    		Set<IResource> refreshResources = new LinkedHashSet<IResource>();
-    		for (IResource resource : updatedResources) {
-    			refreshResources.add(resource);
-    			OperationManager.getInstance().onNotify(resource.getLocation().toFile(), null);
-    		}
-    		OperationManager.getInstance().endOperation(true, refreshResources);
+        	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
+        	OperationManager.getInstance().endOperation(true, operationResources);
     		if (conflictResolver != null) {
     			svnClient.addConflictResolutionCallback(null);
     		}
+    		 svnClient.removeNotifyListener(operationResourceCollector);
     		root.getRepository().returnSVNClient(svnClient);
             monitor.done();
         }        
