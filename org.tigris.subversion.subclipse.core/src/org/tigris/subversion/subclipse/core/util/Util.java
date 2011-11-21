@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.core.util;
 
 
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
 
@@ -38,6 +39,9 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 public class Util {
 	public static final String CURRENT_LOCAL_FOLDER = "."; //$NON-NLS-1$
 	public static final String SERVER_SEPARATOR = "/"; //$NON-NLS-1$
+	
+	public static Method isHiddenMethod;
+	public static boolean isHiddenUnsupported;
 	
 	/**
 	 * Return the last segment of the given path
@@ -148,14 +152,44 @@ public class Util {
 	}
 	
 	public static boolean isHidden(IResource resource) {
+		// If we've previously checked for isHidden method and it is not supported, return false.
+		if (isHiddenUnsupported) {
+			return false;
+		}
+		
+		// If we have not previously checked for isHidden method, check for it.  If it is not supported, return false.
+		if (isHiddenMethod == null) {
+			try {
+				isHiddenSupported();
+			} catch (Exception e) {
+				isHiddenUnsupported = true;
+				return false;
+			}
+		}
+		
 		IResource parent = resource;
-		while (parent != null) {
-			if (parent.isHidden()) {
-				return true;
+		while (parent != null) {			
+			try {
+				Object isHidden = isHiddenMethod.invoke(parent, new Object[] {});
+				if (isHidden instanceof Boolean) {
+					if (((Boolean)isHidden).booleanValue()) {
+						return true;
+					}
+				}
+			} catch (Exception e) {
+				return false;
 			}
 			parent = parent.getParent();
 		}
 		return false;
+	}
+
+	public static boolean isHiddenSupported() throws NoSuchMethodException {
+		if (isHiddenUnsupported) {
+			return false;
+		}
+		isHiddenMethod = IResource.class.getDeclaredMethod("isHidden", new Class[] {});
+		return (isHiddenMethod != null);
 	}
 	
 	public static SVNUrl getUrlForRevision(ISVNRemoteResource resource, SVNRevision.Number revision, IProgressMonitor pm) throws SVNException {

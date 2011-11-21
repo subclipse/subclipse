@@ -32,6 +32,7 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.AddIgnoredPatternCommand;
+import org.tigris.subversion.subclipse.core.util.Util;
 
 /**
  * Implements the ISVNLocalFolder interface on top of an instance of the
@@ -70,11 +71,20 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         final List<ISVNLocalResource> result = new ArrayList<ISVNLocalResource>();
         IResource[] resources;
         try {
-        	if (ignoreHiddenChanges) {
+        	boolean isHiddenSupported = true;;
+        	if (!ignoreHiddenChanges) {
+        		try {
+					isHiddenSupported = Util.isHiddenSupported();
+				} catch (NoSuchMethodException e) {
+					isHiddenSupported = false;
+				}        		
+        	}
+        	if (ignoreHiddenChanges || !isHiddenSupported) {
         		resources = ((IContainer) resource).members(true);
         	}
         	else {
-        		resources = ((IContainer) resource).members(IContainer.INCLUDE_HIDDEN | IContainer.INCLUDE_PHANTOMS);
+        		// 8 = IContainer.INCLUDE_HIDDEN.
+        		resources = ((IContainer) resource).members(8 | IContainer.INCLUDE_PHANTOMS);
         	}
         } catch (CoreException e) {
             throw SVNException.wrapException(e);
