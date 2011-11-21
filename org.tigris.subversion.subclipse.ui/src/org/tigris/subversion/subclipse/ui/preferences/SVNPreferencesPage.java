@@ -44,6 +44,7 @@ import org.tigris.subversion.clientadapter.Activator;
 import org.tigris.subversion.clientadapter.ISVNClientWrapper;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -186,6 +187,14 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		warnOnCommitToTagPath = createCheckBox(composite, Policy.bind("SVNPreferencePage.warnOnCommitToTagPath")); //$NON-NLS-1$
 		
 		ignoreHiddenChanges = createCheckBox(composite, Policy.bind("SVNPreferencesPage.0")); //$NON-NLS-1$
+		
+		boolean isHiddenSupported;
+		try {
+			isHiddenSupported = Util.isHiddenSupported();
+		} catch (NoSuchMethodException e1) {
+			isHiddenSupported = false;
+		}
+		ignoreHiddenChanges.setVisible(isHiddenSupported);
 		
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
