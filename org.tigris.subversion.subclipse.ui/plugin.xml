@@ -434,7 +434,7 @@
                id="org.tigris.subversion.subclipse.ui.upgrade">
          </action>                
          <action
-               label="%CleanupAction.label"
+               label="%RefreshCleanupAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.team_cleanup_action_context"
                class="org.tigris.subversion.subclipse.ui.actions.CleanupAction"
                tooltip="%CleanupAction.tooltip"
