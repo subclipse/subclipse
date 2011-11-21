@@ -6,10 +6,10 @@
    <feature url="features/org.tigris.subversion.subclipse.graph.feature_1.1.1.jar" id="org.tigris.subversion.subclipse.graph.feature" version="1.1.1">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.feature_1.8.0.jar" id="org.tigris.subversion.clientadapter.feature" version="1.8.0">
+   <feature url="features/org.tigris.subversion.subclipse_1.8.3.jar" id="org.tigris.subversion.subclipse" version="1.8.3">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse_1.8.2.jar" id="org.tigris.subversion.subclipse" version="1.8.2">
+   <feature url="features/org.tigris.subversion.clientadapter.feature_1.8.0.jar" id="org.tigris.subversion.clientadapter.feature" version="1.8.0">
       <category name="Subclipse"/>
    </feature>
    <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.7.1.1.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.7.1.1">
@@ -17,7 +17,7 @@
    </feature>
    <category-def name="Subclipse" label="Subclipse">
       <description>
-         Subversion 1.6 plug-in for Eclipse 3.2 and higher.
+         Subversion 1.7 plug-in for Eclipse 3.2 and higher.
       </description>
    </category-def>
 </site>
