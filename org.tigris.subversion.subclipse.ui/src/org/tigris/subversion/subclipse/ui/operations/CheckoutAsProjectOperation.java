@@ -15,11 +15,14 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceRuleFactory;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
@@ -72,8 +75,20 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 	
 	private void createProject(final IProject project) throws SVNException {
 		try {
-			project.create(null);
-			project.open(null);
+			if (projectRoot == null) {
+				project.create(null);
+				project.open(null);
+			}
+			else {
+				String path = projectRoot.toString();
+				if (!path.endsWith("/")) {
+					path = path + "/";
+				}
+				IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(new Path(path + project.getName() + "/.project"));
+				IProject customProject = ResourcesPlugin.getWorkspace().getRoot().getProject(project.getName());
+				customProject.create(description, null);
+				customProject.open(null);
+			}
 		} catch (CoreException e1) {
 			throw new SVNException(
 					"Cannot create project to checkout to", e1);
