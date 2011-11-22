@@ -327,6 +327,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
         if (tableHistoryViewer.getInput() == null) tableHistoryViewer.setInput(remoteResource);
         tableHistoryViewer.refresh();
        	tableHistoryViewer.resetFilters();
+       	Object firstElement = tableHistoryViewer.getElementAt(0);
+       	if (firstElement != null) {
+       		tableHistoryViewer.reveal(firstElement);
+       	}
        	getClearSearchAction().setEnabled(false);
       }
     });

@@ -17,6 +17,7 @@ import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.UpdateResourcesCommand;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
@@ -89,6 +90,7 @@ public class UpdateOperation extends RepositoryProviderOperation {
 		} catch (TeamException e) {
 		    collectStatus(e.getStatus());
         } finally {
+        	SVNProviderPlugin.broadcastSyncInfoChanges(resources, false);
             monitor.done();
 		}
     }
