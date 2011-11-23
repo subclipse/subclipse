@@ -84,7 +84,13 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 				if (!path.endsWith("/")) {
 					path = path + "/";
 				}
-				IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(new Path(path + project.getName() + "/.project"));
+				IProjectDescription description;
+				try {
+					description = ResourcesPlugin.getWorkspace().loadProjectDescription(new Path(path + project.getName() + "/.project"));
+				} catch (CoreException e) {
+					description = ResourcesPlugin.getWorkspace().newProjectDescription(project.getName());
+					description.setLocation(new Path(path + project.getName()));
+				}
 				IProject customProject = ResourcesPlugin.getWorkspace().getRoot().getProject(project.getName());
 				customProject.create(description, null);
 				customProject.open(null);
