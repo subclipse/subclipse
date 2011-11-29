@@ -228,7 +228,7 @@ public class SVNChangeSetCollector extends SyncInfoSetChangeSetCollector {
           
           if (syncInfo instanceof SVNStatusSyncInfo) {
             SVNStatusSyncInfo svnSyncInfo = (SVNStatusSyncInfo)syncInfo;
-            if (SyncInfo.getDirection(svnSyncInfo.getKind()) == SyncInfo.INCOMING) {
+            if (SyncInfo.getDirection(svnSyncInfo.getKind()) == SyncInfo.INCOMING && svnSyncInfo.getRemote() != null) {
               SVNCheckedInChangeSet changeSet = (SVNCheckedInChangeSet) sets.get(svnSyncInfo.getRemote().getContentIdentifier());
               if (changeSet == null) {
                 changeSet = new SVNCheckedInChangeSet(svnSyncInfo);
