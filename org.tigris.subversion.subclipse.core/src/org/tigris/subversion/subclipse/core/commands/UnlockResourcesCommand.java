@@ -11,11 +11,13 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
+import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -31,6 +33,8 @@ public class UnlockResourcesCommand implements ISVNCommand {
     private boolean force;
     
     private SVNWorkspaceRoot root;
+    
+    private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 
     public UnlockResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, boolean force) {
     	this.resources = resources;
@@ -50,14 +54,19 @@ public class UnlockResourcesCommand implements ISVNCommand {
         
         try {
             monitor.beginTask(null, 100);
+            
+            svnClient.addNotifyListener(operationResourceCollector);
+            
             OperationManager.getInstance().beginOperation(svnClient);
 
             svnClient.unlock(resourceFiles, force);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
-        	root.getRepository().returnSVNClient(svnClient);
-            OperationManager.getInstance().endOperation();
+        	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
+            OperationManager.getInstance().endOperation(true, operationResources);
+            svnClient.removeNotifyListener(operationResourceCollector);
+            root.getRepository().returnSVNClient(svnClient);
             monitor.done();
         }
  	}
