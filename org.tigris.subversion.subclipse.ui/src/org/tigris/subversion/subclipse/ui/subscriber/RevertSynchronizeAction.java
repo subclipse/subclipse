@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.compare.structuremergeviewer.IDiffContainer;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IStatus;
@@ -103,8 +104,8 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 		Iterator iter = selection.iterator();
 		while (iter.hasNext()) {
 			ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
-			// If Change Sets are selected, don't try to do recursive revert
-			if (element.getResource() == null) {
+			// If Change Sets, or children of Change Sets, are selected, don't try to do recursive revert
+			if (isNonResourceSelected(element)) {
 				nonResourceSelected = true;
 				break;
 			}
@@ -124,6 +125,19 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 		RevertSynchronizeOperation revertOperation = new RevertSynchronizeOperation(configuration, elements, url, resources, statusMap);
 		revertOperation.setSelectedResources(topSelectionArray);
 		return revertOperation;
+    }
+    
+    private boolean isNonResourceSelected(ISynchronizeModelElement element) {
+    	IDiffContainer parent = element;
+    	while (parent != null) {
+    		if (parent instanceof ISynchronizeModelElement) {
+    			if (((ISynchronizeModelElement)parent).getResource() == null) {
+    				return true;
+    			}
+    			parent = parent.getParent();
+    		}
+    	}
+    	return false;
     }
 	
 }
