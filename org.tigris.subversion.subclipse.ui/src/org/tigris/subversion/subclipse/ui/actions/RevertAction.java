@@ -40,6 +40,7 @@ import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardRevertPage;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
 
 /**
@@ -54,15 +55,17 @@ public class RevertAction extends WorkbenchWindowAction {
 	private IResource[] selectedResources;
 	private boolean canRunAsJob = true;
 	private boolean showNothingToRevertMessage = true;
+	private boolean includesExternals;
     
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
 		statusMap = new HashMap();
+		includesExternals = false;
 		final IResource[] resources = getSelectedResources();
         try {
             IResource[] modifiedResources = getModifiedResources(resources, new NullProgressMonitor());
             if (!confirmRevert(modifiedResources)) return;
             RevertOperation revertOperation = null;
-            if (revertPage != null && !revertPage.isResourceRemoved()) {
+            if (revertPage != null && !revertPage.isResourceRemoved() && !includesExternals) {
             	revertOperation = new RevertOperation(getTargetPart(), resources);
             	revertOperation.setRecurse(true);
             	revertOperation.setResourcesToRevert(resourcesToRevert);
@@ -99,6 +102,9 @@ public class RevertAction extends WorkbenchWindowAction {
 				 command.run(iProgressMonitor);
 				 ISVNStatus[] statuses = command.getStatuses();
 				 for (int j = 0; j < statuses.length; j++) {
+		             if (statuses[j].isFileExternal() || SVNStatusKind.EXTERNAL.equals(statuses[j].getTextStatus())) {
+		            	 includesExternals = true;
+		             }
 					 boolean isManaged = SVNStatusUtils.isManaged(statuses[j]);
 				     if (SVNStatusUtils.isReadyForRevert(statuses[j]) || !isManaged) {
 				         IResource currentResource = SVNWorkspaceRoot.getResourceFor(resource, statuses[j]);
@@ -107,7 +113,7 @@ public class RevertAction extends WorkbenchWindowAction {
 				        	 if (!localResource.isIgnored()) {
 					        	 if (isManaged || !Util.isSpecialEclipseFile(currentResource)) {
 					        		 if ((!ignoreHiddenChanges && isManaged) || !Util.isHidden(currentResource)) {
-							             modified.add(currentResource);
+							             modified.add(currentResource);							             
 				                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
 				                 		 else {
 				                 			statusMap.put(currentResource, statuses[j].getTextStatus());
