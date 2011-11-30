@@ -19,11 +19,16 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.operations.RevertOperation;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardRevertPage;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 	private String url;
@@ -63,8 +68,19 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 			}
 		});
 		if (revert) {
-			RevertOperation revertOperation = null;
+			
+			boolean includesExternals = false;
 			if (revertPage != null && !revertPage.isResourceRemoved()) {
+				for (IResource resource : resourcesToRevert) {
+					if (isExternal(resource)) {
+						includesExternals = true;
+						break;
+					}
+				}
+			}
+			
+			RevertOperation revertOperation = null;
+			if (revertPage != null && !revertPage.isResourceRemoved() && !includesExternals) {
 				revertOperation = new RevertOperation(getPart(), selectedResources);
 				revertOperation.setRecurse(true);
 				revertOperation.setResourcesToRevert(resourcesToRevert);
@@ -77,6 +93,23 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 
 	public void setSelectedResources(IResource[] selectedResources) {
 		this.selectedResources = selectedResources;
+	}
+	
+	private boolean isExternal(IResource resource) {
+		IResource parent = resource;
+		while (parent != null) {
+			 ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
+			 try {
+				 LocalResourceStatus status = svnResource.getStatus();
+	             if (status.isFileExternal() || SVNStatusKind.EXTERNAL.equals(status.getTextStatus())) {
+	            	 return true;
+	             }
+			} catch (SVNException e) {
+				return false;
+			}
+			 parent = parent.getParent();
+		}
+		return true;
 	}
 
 }
