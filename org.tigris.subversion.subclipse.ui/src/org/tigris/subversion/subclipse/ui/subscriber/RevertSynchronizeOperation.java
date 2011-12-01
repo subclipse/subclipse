@@ -109,7 +109,7 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 			}
 			 parent = parent.getParent();
 		}
-		return true;
+		return false;
 	}
 
 }
