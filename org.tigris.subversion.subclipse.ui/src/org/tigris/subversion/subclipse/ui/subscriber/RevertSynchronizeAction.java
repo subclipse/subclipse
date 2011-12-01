@@ -15,13 +15,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.compare.structuremergeviewer.IDiffContainer;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
+import org.eclipse.team.internal.ui.synchronize.ChangeSetDiffNode;
 import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
@@ -35,6 +38,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class RevertSynchronizeAction extends SynchronizeModelAction {
 	private String url;
+	@SuppressWarnings("rawtypes")
 	private HashMap statusMap;
 
     public RevertSynchronizeAction(String text, ISynchronizePageConfiguration configuration) {
@@ -46,6 +50,7 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 	 */
 	protected FastSyncInfoFilter getSyncInfoFilter() {
 		return new FastSyncInfoFilter() {
+			@SuppressWarnings("rawtypes")
 			public boolean select(SyncInfo info) {
 				SyncInfoDirectionFilter outgoingFilter = new SyncInfoDirectionFilter(new int[] {SyncInfo.OUTGOING, SyncInfo.CONFLICTING});
 			    if (!outgoingFilter.select(info)) return false;
@@ -73,7 +78,8 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 		};
 	}    
 
-    protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	protected SynchronizeModelOperation getSubscriberOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements) {
 		statusMap = new HashMap();
     	url = null;
 	    IStructuredSelection selection = getStructuredSelection();
@@ -99,22 +105,17 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 		IResource[] resources = new IResource[selectedResources.size()];
 		selectedResources.toArray(resources);
 		
-		boolean nonResourceSelected = false;
+		boolean changeSetMode = isChangeSetMode();
 		List<IResource> topSelection = new ArrayList<IResource>();
-		Iterator iter = selection.iterator();
-		while (iter.hasNext()) {
-			ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
-			// If Change Sets, or children of Change Sets, are selected, don't try to do recursive revert
-			if (isNonResourceSelected(element)) {
-				nonResourceSelected = true;
-				break;
-			}
-			else {
+		if (!changeSetMode) {
+			Iterator iter = selection.iterator();
+			while (iter.hasNext()) {
+				ISynchronizeModelElement element = (ISynchronizeModelElement)iter.next();
 				topSelection.add(element.getResource());
 			}
 		}
 		IResource[] topSelectionArray;
-		if (nonResourceSelected) {
+		if (changeSetMode) {
 			topSelectionArray = resources;
 		}
 		else {
@@ -127,17 +128,17 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
 		return revertOperation;
     }
     
-    private boolean isNonResourceSelected(ISynchronizeModelElement element) {
-    	IDiffContainer parent = element;
-    	while (parent != null) {
-    		if (parent instanceof ISynchronizeModelElement) {
-    			if (((ISynchronizeModelElement)parent).getResource() == null) {
-    				return true;
-    			}
-    			parent = parent.getParent();
-    		}
-    	}
-    	return false;
+    private boolean isChangeSetMode() {
+        Viewer viewer = getConfiguration().getPage().getViewer();
+        if (viewer instanceof TreeViewer) {
+        	TreeItem[] items = ((TreeViewer)viewer).getTree().getItems();
+        	for (TreeItem item : items) {
+        		if (item.getData() instanceof ChangeSetDiffNode) {
+        			return true;
+        		}
+        	}
+        }
+        return false;
     }
-	
+
 }
