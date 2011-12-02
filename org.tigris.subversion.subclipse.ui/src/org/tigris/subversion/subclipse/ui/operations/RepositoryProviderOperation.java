@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.operations;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
@@ -94,7 +96,11 @@ public abstract class RepositoryProviderOperation extends SVNOperation {
 		IResourceRuleFactory ruleFactory = provider.getRuleFactory();
 		HashSet rules = new HashSet();
 		for (int i = 0; i < resources.length; i++) {
-			rules.add(ruleFactory.modifyRule(resources[i].getProject()));
+			
+			IResource[] pathResources = SVNWorkspaceRoot.getResourcesFor(new Path(resources[i].getLocation().toOSString()), false);
+			for (IResource pathResource : pathResources) {
+				rules.add(ruleFactory.modifyRule(pathResource.getProject()));
+			}
 		}
 		return MultiRule.combine((ISchedulingRule[]) rules.toArray(new ISchedulingRule[rules.size()]));
 	}
