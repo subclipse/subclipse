@@ -11,6 +11,7 @@
 package org.tigris.subversion.subclipse.ui.wizards.generatediff;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
@@ -120,6 +121,16 @@ class PatchFileSelectionPage extends WizardPage {
 		if (parent==null) return false;
 		if (!parent.exists()) return false;
 		if (!parent.isDirectory()) return false;
+		if (!file.exists()) {
+			try {
+				if (!file.createNewFile()) {
+					return false;
+				}
+				file.delete();
+			} catch (IOException e) {
+				return false;
+			}
+		}
 		return true;
 	}
 	/**
@@ -193,7 +204,7 @@ class PatchFileSelectionPage extends WizardPage {
 		filenameCombo.setLayoutData(gd);
 		filenameCombo.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				validatePage();
+				setPageComplete(validatePage());
 			}
 		});
 		
