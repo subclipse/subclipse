@@ -213,16 +213,19 @@ public class CheckoutCommand implements ISVNCommand {
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void run(IProgressMonitor monitor) throws SVNException {
-		for (int i = 0; i < resources.length; i++) {
-			final IProject project = projects[i]; 
-			final ISVNRemoteFolder resource = resources[i]; 
-			SVNProviderPlugin.run(new ISVNRunnable() {
-				public void run(IProgressMonitor pm) throws SVNException {
-					basicRun(project, resource, pm);
-				} // run
-			}, projects[i], Policy.monitorFor(monitor));
-		}	
-		OperationManager.getInstance().endOperation();
+		try {
+			for (int i = 0; i < resources.length; i++) {
+				final IProject project = projects[i]; 
+				final ISVNRemoteFolder resource = resources[i]; 
+				SVNProviderPlugin.run(new ISVNRunnable() {
+					public void run(IProgressMonitor pm) throws SVNException {
+						basicRun(project, resource, pm);
+					} // run
+				}, projects[i], Policy.monitorFor(monitor));
+			}
+		}finally {
+			OperationManager.getInstance().endOperation();
+		}
 	}
 
 	/*
