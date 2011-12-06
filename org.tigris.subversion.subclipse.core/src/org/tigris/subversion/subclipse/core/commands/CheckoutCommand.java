@@ -244,7 +244,16 @@ public class CheckoutCommand implements ISVNCommand {
 			monitor.subTask(Policy.bind("SVNProvider.Scrubbing_local_project_1", project.getName())); //$NON-NLS-1$
 		}
 		try {
-				if (project != null && project.exists()) {
+				File destPath = null;
+				if (projectRoot != null) {
+					destPath = new File(projectRoot.toFile(), project.getName());
+				}	
+				// New location, just delete the project but not the content.
+				if (destPath != null && !destPath.exists() && project != null && project.exists()) {
+					project.delete(IResource.NEVER_DELETE_PROJECT_CONTENT, monitor);
+					project = null;
+				}
+				if (project != null && project.exists() && (destPath == null || destPath.exists())) {
 					if (!project.isOpen()) {
 						project.open((monitor != null) ? Policy.subMonitorFor(monitor, 10) : null);
 					}
