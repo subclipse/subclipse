@@ -27,7 +27,10 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.resources.RemoteFile;
+import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 /**
  * A class for comparing ISVNRemoteResource objects
  * 
@@ -50,11 +53,28 @@ public class ResourceEditionNode
 	private ResourceEditionNode[] children;
 	private SVNLocalResourceNode localResource = null;
 	private String charset = "UTF8";
+	private SVNRevision pegRevision;
+	
+	
+	public ResourceEditionNode(ISVNRemoteResource resourceEdition) {
+		this(resourceEdition, null);
+	}
+	
 	/**
 	 * Creates a new ResourceEditionNode on the given resource edition.
 	 */
-	public ResourceEditionNode(ISVNRemoteResource resourceEdition) {
+	public ResourceEditionNode(ISVNRemoteResource resourceEdition, SVNRevision pegRevision) {
 		this.resource = resourceEdition;
+		this.pegRevision = pegRevision;
+		if (pegRevision == null) {
+			pegRevision = SVNRevision.HEAD;
+		}
+		if (resource instanceof RemoteFolder) {
+			((RemoteFolder)resource).setPegRevision(pegRevision);
+		}
+		else if (resource instanceof RemoteFile) {
+			((RemoteFile)resource).setPegRevision(pegRevision);
+		}		
 	}
 	/*
 	 * get the remote resource for this node
@@ -108,8 +128,7 @@ public class ResourceEditionNode
 												.members(monitor);
 										children = new ResourceEditionNode[members.length];
 										for (int i = 0; i < members.length; i++) {
-											children[i] = new ResourceEditionNode(
-													members[i]);
+											children[i] = new ResourceEditionNode(members[i], pegRevision);
 											SVNLocalResourceNode localNode = matchLocalResource((ISVNRemoteResource) members[i]);
 											if (localNode != null) {
 												children[i]

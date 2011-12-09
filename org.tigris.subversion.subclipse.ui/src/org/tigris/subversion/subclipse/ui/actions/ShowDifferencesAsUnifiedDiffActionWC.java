@@ -38,6 +38,7 @@ import org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardCompareMultipleResourcesWithBranchTagPage;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction {
@@ -90,18 +91,22 @@ public class ShowDifferencesAsUnifiedDiffActionWC extends WorkbenchWindowAction 
 			try {
 				if (dialog.isDiffToOutputFile()) dialog.getOperation().run();
 				if (!dialog.isDiffToOutputFile()) {
+					SVNRevision pegRevision = dialog.getPegRevision();
+					if (pegRevision == null) {
+						pegRevision = SVNRevision.HEAD;
+					}
 					if (resources[0] instanceof IContainer) {
 						ISVNRemoteFolder remoteFolder = new RemoteFolder(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
-						((RemoteFolder)remoteFolder).setPegRevision(dialog.getToRevision());
-						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder);
+						((RemoteFolder)remoteFolder).setPegRevision(pegRevision);
+						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFolder, pegRevision);
 						compareInput.setDiffOperation(dialog.getOperation());
 						CompareUI.openCompareEditorOnPage(
 								compareInput,
 								getTargetPage());						
 					} else {
 						ISVNRemoteFile remoteFile = new RemoteFile(dialog.getSvnResource().getRepository(), dialog.getToUrl(), dialog.getToRevision());
-						((RemoteFile)remoteFile).setPegRevision(dialog.getToRevision());
-						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFile);
+						((RemoteFile)remoteFile).setPegRevision(pegRevision);
+						SVNLocalCompareInput compareInput = new SVNLocalCompareInput(dialog.getSvnResource(), remoteFile, pegRevision);
 						CompareUI.openCompareEditorOnPage(
 								compareInput,
 								getTargetPage());

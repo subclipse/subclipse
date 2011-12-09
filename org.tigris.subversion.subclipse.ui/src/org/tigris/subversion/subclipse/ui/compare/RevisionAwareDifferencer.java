@@ -28,6 +28,7 @@ import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 public final class RevisionAwareDifferencer extends Differencer {
@@ -50,14 +51,17 @@ public final class RevisionAwareDifferencer extends Differencer {
     public RevisionAwareDifferencer(File[] diffFiles) {
     	this.diffFiles = diffFiles;
     }
-    public RevisionAwareDifferencer(SVNLocalResourceNode left,ResourceEditionNode right, File diffFile) {
+    public RevisionAwareDifferencer(SVNLocalResourceNode left,ResourceEditionNode right, File diffFile, SVNRevision pegRevision) {
     	if (diffFile == null) {
     		ISVNClientAdapter client = null;
         	try {
     			diffSummary = null;
 
         		client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
-           		diffSummary = client.diffSummarize(left.getLocalResource().getUrl(), left.getLocalResource().getRevision(), right.getRemoteResource().getUrl(),
+        		if (pegRevision == null) {
+        			pegRevision = SVNRevision.HEAD;
+        		}
+        		diffSummary = client.diffSummarize(left.getLocalResource().getUrl(), left.getLocalResource().getRevision(), right.getRemoteResource().getUrl(),
             			right.getRemoteResource().getRevision(), Depth.infinity, true);
            		projectRelativePath = left.getLocalResource().getResource().getProjectRelativePath().toString();
            		if (left.getLocalResource().isFolder() && projectRelativePath.length() > 0) projectRelativePath = projectRelativePath + "/";

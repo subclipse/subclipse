@@ -49,6 +49,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
     private final SVNRevision remoteRevision;
 	private ISVNLocalResource resource;
 	private ISVNRemoteResource remoteResource; // the remote resource to compare to or null if it does not exist
+	private SVNRevision pegRevision;
 	private boolean readOnly;
 	private File diffFile;
 	private ShowDifferencesAsUnifiedDiffOperationWC diffOperation;
@@ -96,16 +97,21 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision) throws SVNException, SVNClientException {
 		this(resource, revision, false);
 	}
+	
+	public SVNLocalCompareInput(ISVNLocalResource resource, ISVNRemoteResource remoteResource) throws SVNException {
+		this(resource, remoteResource, null);
+	}
 
 	/**
 	 * @throws SVNException
 	 * creates a SVNCompareRevisionsInput  
 	 */
-	public SVNLocalCompareInput(ISVNLocalResource resource, ISVNRemoteResource remoteResource) throws SVNException {
+	public SVNLocalCompareInput(ISVNLocalResource resource, ISVNRemoteResource remoteResource, SVNRevision pegRevision) throws SVNException {
 		super(new CompareConfiguration());
 		this.resource = resource;
 		this.remoteResource = remoteResource;
         this.remoteRevision = remoteResource.getRevision();
+        this.pegRevision = pegRevision;
 	}
 	
 	
@@ -148,7 +154,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 		
 		initLabels();
 		ITypedElement left = new SVNLocalResourceNode(resource);
-		ResourceEditionNode right = new ResourceEditionNode(remoteResource);
+		ResourceEditionNode right = new ResourceEditionNode(remoteResource, pegRevision);
 		if(left.getType()==ITypedElement.FOLDER_TYPE){
 			right.setLocalResource((SVNLocalResourceNode) left);
 		}
@@ -167,7 +173,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
         if (SVNRevision.BASE.equals(remoteRevision)) {
             return new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
         }
-        return new RevisionAwareDifferencer((SVNLocalResourceNode)left,right, diffFile).findDifferences(false, monitor,null,null,left,right);
+        return new RevisionAwareDifferencer((SVNLocalResourceNode)left,right, diffFile, pegRevision).findDifferences(false, monitor,null,null,left,right);
 	}
 	
 	/* (non-Javadoc)

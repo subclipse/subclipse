@@ -69,6 +69,7 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 	
 	private SVNUrl toUrl;
 	private SVNRevision toRevision;
+	private SVNRevision pegRevision;
 	private ISVNLocalResource svnResource;
 	private boolean diffToOutputFile;
 	
@@ -290,9 +291,17 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 					toUrl = new SVNUrl(toUrlText.getText().trim());	
 					File path = new File(resource.getLocation().toString());
 					svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+					pegRevision = null;
+					ISVNRemoteResource baseResource = svnResource.getBaseResource();
+					if (baseResource != null) {
+						pegRevision = baseResource.getLastChangedRevision();
+					}
+					if (pegRevision == null) {
+						pegRevision = SVNRevision.HEAD;
+					}
 					repository = svnResource.getRepository();
 					svnClient = repository.getSVNClient();
-					ISVNInfo svnInfo = svnClient.getInfo(toUrl, toRevision, toRevision);
+					ISVNInfo svnInfo = svnClient.getInfo(toUrl, toRevision, pegRevision);
 					SVNNodeKind nodeKind = svnInfo.getNodeKind();
 					if (resource instanceof IContainer) {
 						if (nodeKind.toInt() == SVNNodeKind.FILE.toInt()) {
@@ -372,6 +381,10 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 
 	public SVNRevision getToRevision() {
 		return toRevision;
+	}
+
+	public SVNRevision getPegRevision() {
+		return pegRevision;
 	}
 
 	public ISVNLocalResource getSvnResource() {
