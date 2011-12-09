@@ -28,7 +28,9 @@ import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 public class SVNFolderCompareEditorInput extends SVNAbstractCompareEditorInput {
 	private SummaryEditionNode left;
+	private SVNRevision leftPegRevision;
 	private SummaryEditionNode right;
+	private SVNRevision rightPegRevision;
 	private ISVNRemoteFolder folder1;
 	private ISVNRemoteFolder folder2;
 	private ITypedElement ancestor;	
@@ -38,14 +40,18 @@ public class SVNFolderCompareEditorInput extends SVNAbstractCompareEditorInput {
 	private ISVNResource localResource1;
 	private ISVNResource localResource2;
 	
-	public SVNFolderCompareEditorInput(ISVNRemoteFolder folder1, ISVNRemoteFolder folder2) {
+//	public SVNFolderCompareEditorInput(ISVNRemoteFolder folder1, ISVNRemoteFolder folder2) {
+//		this(folder1, SVNRevision.HEAD, folder2, SVNRevision.HEAD);
+//	}
+	
+	public SVNFolderCompareEditorInput(ISVNRemoteFolder folder1, SVNRevision pegRevision1, ISVNRemoteFolder folder2, SVNRevision pegRevision2) {
 		super(new CompareConfiguration());
 		this.folder1 = folder1;
 		this.folder2 = folder2;
-		left = new SummaryEditionNode(folder1);
+		left = new SummaryEditionNode(folder1, pegRevision1);
 		left.setRootFolder((RemoteFolder)folder1);
 		left.setNodeType(SummaryEditionNode.LEFT);
-		right = new SummaryEditionNode(folder2);
+		right = new SummaryEditionNode(folder2, pegRevision2);
 		right.setRootFolder((RemoteFolder)folder2);
 		right.setNodeType(SummaryEditionNode.RIGHT);
 	}

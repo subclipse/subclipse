@@ -198,7 +198,7 @@ public class Util {
 		GetLogsCommand getLogsCommand = new GetLogsCommand(resource, SVNRevision.HEAD, revisionStart, SVNRevision.HEAD, false, 0, null, true);
 		getLogsCommand.run(pm);
 		ILogEntry[] logEntries = getLogsCommand.getLogEntries();
-		String path = resource.getRepositoryRelativePath();
+		String path = resource.getRepositoryRelativePath().replaceAll("%20", " ");
 		for (int i = logEntries.length - 1; i > -1 ; i--) {
 			ILogEntry logEntry = logEntries[i];
 			if (!logEntry.getRevision().equals(revision)) {

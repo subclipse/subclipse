@@ -46,6 +46,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class DifferencesDialog extends SvnDialog {
 	private ISVNResource[] remoteResources;
+	private SVNRevision[] pegRevisions;
 	private String title;
 	private IWorkbenchPart targetPart;
 	private ISVNResource fromResource;
@@ -69,11 +70,16 @@ public class DifferencesDialog extends SvnDialog {
 	private boolean usePegRevision;
 	private SVNUrl fromUrl;
 	private SVNUrl toUrl;
-
+	
 	public DifferencesDialog(Shell parentShell, String title, ISVNResource[] remoteResources, IWorkbenchPart targetPart) {
+		this(parentShell, title, remoteResources, new SVNRevision[] { SVNRevision.HEAD, SVNRevision.HEAD }, targetPart);
+	}
+
+	public DifferencesDialog(Shell parentShell, String title, ISVNResource[] remoteResources, SVNRevision[] pegRevisions, IWorkbenchPart targetPart) {
 		super(parentShell, "DifferencesDialog"); //$NON-NLS-1$
 		this.title = title;
 		this.remoteResources = remoteResources;
+		this.pegRevisions = pegRevisions;
 		this.targetPart = targetPart;
 		fromResource = this.remoteResources[0];
 		if (this.remoteResources.length == 1 || this.remoteResources[1] == null) {
@@ -496,6 +502,7 @@ public class DifferencesDialog extends SvnDialog {
 			ISVNRemoteResource[] remotes = { resource1, resource2 };
     		CompareRemoteResourcesAction compareAction = new CompareRemoteResourcesAction();
     		compareAction.setRemoteResources(remotes);
+    		compareAction.setPegRevisions(pegRevisions);
     		compareAction.setLocalResources(remoteResources);
     		try {
 				compareAction.execute(null);

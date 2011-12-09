@@ -34,6 +34,7 @@ public class SummaryEditionNode
 			IEncodedStreamContentAccessor,
 			Comparable {
 	private ISVNRemoteResource resource;
+	private SVNRevision pegRevision;
 	private SummaryEditionNode[] children;
 	private String charset = "UTF8";
 	private SVNDiffSummary[] diffSummary;
@@ -43,9 +44,20 @@ public class SummaryEditionNode
 	
 	public final static int LEFT = 0;
 	public final static int RIGHT = 1;
-
+	
 	public SummaryEditionNode(ISVNRemoteResource resourceEdition) {
+		this(resourceEdition, SVNRevision.HEAD);
+	}
+
+	public SummaryEditionNode(ISVNRemoteResource resourceEdition, SVNRevision pegRevision) {
 		this.resource = resourceEdition;
+		this.pegRevision = pegRevision;
+		if (pegRevision == null) {
+			pegRevision = SVNRevision.HEAD;
+		}
+		if (resource instanceof RemoteFolder) {
+			((RemoteFolder)resource).setPegRevision(pegRevision);
+		}
 	}
 
 	public ISVNRemoteResource getRemoteResource() {
@@ -83,8 +95,9 @@ public class SummaryEditionNode
 						remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
 					else
 						remoteFolder = new RemoteFolder(resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision());
+					remoteFolder.setPegRevision(pegRevision);
 					if (isChild(remoteFolder)) {
-						SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
+						SummaryEditionNode node = new SummaryEditionNode(remoteFolder, pegRevision);
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder(rootFolder);
 						node.setNodeType(nodeType);
@@ -96,8 +109,9 @@ public class SummaryEditionNode
 						remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
 					else 
 						remoteFile = new RemoteFile(resource.getRepository(), new SVNUrl(rootFolder.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision());
+					remoteFile.setPegRevision(pegRevision);
 					if (isChild(remoteFile)) {
-						SummaryEditionNode node = new SummaryEditionNode(remoteFile);	
+						SummaryEditionNode node = new SummaryEditionNode(remoteFile, pegRevision);	
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder(rootFolder);
 						node.setNodeType(nodeType);
@@ -133,7 +147,8 @@ public class SummaryEditionNode
 							remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
 						else 
 							remoteFolder = new RemoteFolder(resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision());
-						SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
+						remoteFolder.setPegRevision(pegRevision);
+						SummaryEditionNode node = new SummaryEditionNode(remoteFolder, pegRevision);
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder((RemoteFolder)resource);
 						node.setNodeType(nodeType);
@@ -144,7 +159,8 @@ public class SummaryEditionNode
 							remoteFile = new RemoteFile(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
 						else 
 							remoteFile = new RemoteFile(resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + diffSummary[i].getPath()), resource.getRevision());
-						SummaryEditionNode node = new SummaryEditionNode(remoteFile);	
+						remoteFile.setPegRevision(pegRevision);
+						SummaryEditionNode node = new SummaryEditionNode(remoteFile, pegRevision);	
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder((RemoteFolder)resource);
 						node.setNodeType(nodeType);
@@ -168,7 +184,7 @@ public class SummaryEditionNode
 							remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + path), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
 						else 
 							remoteFolder = new RemoteFolder(resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + path), resource.getRevision());
-						SummaryEditionNode node = new SummaryEditionNode(remoteFolder);
+						SummaryEditionNode node = new SummaryEditionNode(remoteFolder, pegRevision);
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder((RemoteFolder)resource);
 						node.setNodeType(nodeType);

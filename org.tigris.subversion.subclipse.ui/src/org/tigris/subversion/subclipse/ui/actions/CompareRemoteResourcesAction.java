@@ -27,6 +27,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.ResourceEditionNode;
 import org.tigris.subversion.subclipse.ui.compare.SVNCompareEditorInput;
 import org.tigris.subversion.subclipse.ui.compare.SVNFolderCompareEditorInput;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * This action is used for comparing two arbitrary remote resources. This is
@@ -35,6 +36,7 @@ import org.tigris.subversion.subclipse.ui.compare.SVNFolderCompareEditorInput;
 public class CompareRemoteResourcesAction extends SVNAction {
 	private ISVNRemoteResource[] remoteResources;
 	private ISVNResource[] localResources;
+	private SVNRevision[] pegRevisions;
 
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		run(new IRunnableWithProgress() {
@@ -70,7 +72,21 @@ public class CompareRemoteResourcesAction extends SVNAction {
 
 			private void compareFolders(ISVNRemoteFolder folder1,
 					ISVNRemoteFolder folder2) {
-				SVNFolderCompareEditorInput compareEditorInput = new SVNFolderCompareEditorInput(folder1, folder2);
+				SVNRevision pegRevision1 = null;
+				SVNRevision pegRevision2 = null;
+				if (pegRevisions != null && pegRevisions.length > 0) {
+					pegRevision1 = pegRevisions[0];
+				}
+				else {
+					pegRevision1 = SVNRevision.HEAD;
+				}
+				if (pegRevisions != null && pegRevisions.length > 1) {
+					pegRevision2 = pegRevisions[1];
+				}
+				else {
+					pegRevision2 = pegRevision1;
+				}
+				SVNFolderCompareEditorInput compareEditorInput = new SVNFolderCompareEditorInput(folder1, pegRevision1, folder2, pegRevision2);
 				if (localResources != null && localResources.length > 1) {
 					compareEditorInput.setLocalResource1(localResources[0]);
 					compareEditorInput.setLocalResource2(localResources[1]);
@@ -108,6 +124,10 @@ public class CompareRemoteResourcesAction extends SVNAction {
 
 	public void setRemoteResources(ISVNRemoteResource[] remoteResources) {
 		this.remoteResources = remoteResources;
+	}
+
+	public void setPegRevisions(SVNRevision[] pegRevisions) {
+		this.pegRevisions = pegRevisions;
 	}
 
 	protected ISVNRemoteResource[] getSelectedRemoteResources() {
