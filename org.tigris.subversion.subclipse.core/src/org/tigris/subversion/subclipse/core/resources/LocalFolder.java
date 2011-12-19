@@ -157,7 +157,7 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                 new NullProgressMonitor(), ALL_UNIGNORED_MEMBERS);
 
         for (int i = 0; i < children.length; i++) {
-            if (children[i].isDirty() || (children[i].exists() && !children[i].isManaged())) {
+            if (children[i].isDirty() || children[i].getStatus().isMissing() || (children[i].exists() && !children[i].isManaged())) {
                 // if a child resource is dirty consider the parent dirty as
                 // well, there is no need to continue checking other siblings.
                 return true;
