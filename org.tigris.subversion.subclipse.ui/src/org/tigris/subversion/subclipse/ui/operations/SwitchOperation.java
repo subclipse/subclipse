@@ -36,6 +36,7 @@ public class SwitchOperation extends RepositoryProviderOperation {
     private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true; 
+    private boolean ignoreAncestry = false;
     private boolean canRunAsJob = true;
     private ISVNConflictResolver conflictResolver;
     
@@ -69,6 +70,7 @@ public class SwitchOperation extends RepositoryProviderOperation {
 		        command.setSetDepth(setDepth);
 		        command.setIgnoreExternals(ignoreExternals);
 		        command.setForce(force);
+		        command.setIgnoreAncestry(ignoreAncestry);
 		        command.setConflictResolver(conflictResolver);
 		    	command.run(monitor);
 		        monitor.worked(1);
@@ -104,6 +106,10 @@ public class SwitchOperation extends RepositoryProviderOperation {
 
 	public void setForce(boolean force) {
 		this.force = force;
+	}
+
+	public void setIgnoreAncestry(boolean ignoreAncestry) {
+		this.ignoreAncestry = ignoreAncestry;
 	}
 
 	public void setCanRunAsJob(boolean canRunAsJob) {

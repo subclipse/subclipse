@@ -74,6 +74,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 	private Button setDepthButton;
 	private Button ignoreExternalsButton;
 	private Button forceButton;
+	private Button ignoreAncestryButton;
 	
 	private Button textConflictPromptButton;
 	private Button textConflictMarkButton;
@@ -94,6 +95,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
     private boolean setDepth;
     private boolean ignoreExternals;
     private boolean force;
+    private boolean ignoreAncestry;
     
     private String[] urlStrings;
     private String commonRoot;
@@ -275,11 +277,13 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 					setDepthButton.setEnabled(false);
 					ignoreExternalsButton.setVisible(false);
 					forceButton.setVisible(false);
+					ignoreAncestryButton.setVisible(false);
 					revisionGroup.setVisible(false);
 				} else {
 					setDepthButton.setEnabled(true);
 					ignoreExternalsButton.setVisible(true);
 					forceButton.setVisible(true);
+					ignoreAncestryButton.setVisible(true);
 					revisionGroup.setVisible(true);
 				}
 				setPageComplete(canFinish());
@@ -304,6 +308,13 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		data.horizontalSpan = 2;
 		forceButton.setLayoutData(data);
 		forceButton.setSelection(true);
+		
+		ignoreAncestryButton = new Button(parameterGroup, SWT.CHECK);
+		ignoreAncestryButton.setText(Policy.bind("SvnWizardSwitchPage.0")); //$NON-NLS-1$
+		data = new GridData();
+		data.horizontalSpan = 2;
+		ignoreAncestryButton.setLayoutData(data);
+		ignoreAncestryButton.setSelection(false);
 		
 		Group conflictGroup = new Group(composite, SWT.NONE);
 		conflictGroup.setText(Policy.bind("SvnWizardUpdatePage.0")); //$NON-NLS-1$
@@ -401,10 +412,10 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
         	if (urlStrings.length > 1) {
         		urls = new SVNUrl[switchResources.length];
         		for (int i = 0; i < switchResources.length; i++) {
-        			if (urlCombo.getText().endsWith("/"))
+        			if (urlCombo.getText().endsWith("/")) //$NON-NLS-1$
         				urls[i] = new SVNUrl(urlCombo.getText() + switchResources[i].getPartialPath());
         			else
-        				urls[i] = new SVNUrl(urlCombo.getText() + "/" + switchResources[i].getPartialPath());
+        				urls[i] = new SVNUrl(urlCombo.getText() + "/" + switchResources[i].getPartialPath()); //$NON-NLS-1$
         		}
         	}
         	else {
@@ -423,6 +434,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
             setDepth = setDepthButton.getSelection();
             ignoreExternals = ignoreExternalsButton.getSelection();
             force = forceButton.getSelection();
+            ignoreAncestry = ignoreAncestryButton.getSelection();
             depth = DepthComboHelper.getDepth(depthCombo);
             conflictResolver = new SVNConflictResolver(resources[0], getTextConflictHandling(), getBinaryConflictHandling(), getPropertyConflictHandling());
         } catch (MalformedURLException e) {
@@ -497,7 +509,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
     	tag1:
     	for (int i = 0; i < urlString.length(); i++) {
     		String partialPath = urlString.substring(0, i+1);
-    		if (partialPath.endsWith("/")) {
+    		if (partialPath.endsWith("/")) { //$NON-NLS-1$
 	    		for (int j = 1; j < urlStrings.length; j++) {
 	    			if (!urlStrings[j].startsWith(partialPath)) break tag1;
 	    		}
@@ -541,7 +553,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		
 		public String getText(Object element) {
 			SwitchResource switchResource = (SwitchResource)element;
-			return switchResource.getPartialPath() + " [" + urlCombo.getText() + "/" + switchResource.getPartialPath() + "]";
+			return switchResource.getPartialPath() + " [" + urlCombo.getText() + "/" + switchResource.getPartialPath() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 
 		public Image getColumnImage(Object element, int columnIndex) {
@@ -610,6 +622,10 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 
 	public boolean isForce() {
 		return force;
+	}
+	
+	public boolean isIgnoreAncestry() {
+		return ignoreAncestry;
 	}
 
 }

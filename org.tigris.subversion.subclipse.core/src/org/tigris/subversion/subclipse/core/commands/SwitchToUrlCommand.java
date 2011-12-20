@@ -46,6 +46,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
     private boolean setDepth = false;
     private boolean ignoreExternals = false;
     private boolean force = true;
+    private boolean ignoreAncestry = false;
     private ISVNConflictResolver conflictResolver;
     
     private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
@@ -73,7 +74,7 @@ public class SwitchToUrlCommand implements ISVNCommand {
             svnClient.addNotifyListener(operationResourceCollector);
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm, svnClient));
             File file = resource.getLocation().toFile();
-            svnClient.switchToUrl(file, svnUrl, svnRevision, svnRevision, depth, setDepth, ignoreExternals, force);
+            svnClient.switchToUrl(file, svnUrl, svnRevision, svnRevision, depth, setDepth, ignoreExternals, force, ignoreAncestry);
             OperationManager.getInstance().onNotify(resource.getLocation().toFile(), SVNNodeKind.UNKNOWN);
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
@@ -109,6 +110,10 @@ public class SwitchToUrlCommand implements ISVNCommand {
 
 	public void setForce(boolean force) {
 		this.force = force;
+	}
+
+	public void setIgnoreAncestry(boolean ignoreAncestry) {
+		this.ignoreAncestry = ignoreAncestry;
 	}
 
 }

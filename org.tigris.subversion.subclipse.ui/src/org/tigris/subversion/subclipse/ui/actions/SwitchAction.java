@@ -59,6 +59,7 @@ public class SwitchAction extends WorkbenchWindowAction {
 	            switchOperation.setSetDepth(switchPage.isSetDepth());
 	            switchOperation.setIgnoreExternals(switchPage.isIgnoreExternals());
 	            switchOperation.setForce(switchPage.isForce());
+	            switchOperation.setIgnoreAncestry(switchPage.isIgnoreAncestry());
 	            switchOperation.setCanRunAsJob(canRunAsJob);
 	            switchOperation.setConflictResolver(switchPage.getConflictResolver());
 	            switchOperation.run();	        
