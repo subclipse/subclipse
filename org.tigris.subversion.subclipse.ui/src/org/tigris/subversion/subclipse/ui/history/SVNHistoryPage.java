@@ -2380,14 +2380,26 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           } else {
             tagManager = new AliasManager(resource);
           }
-          SVNRevision pegRevision = remoteResource.getRevision();
+          final SVNRevision pegRevision = remoteResource.getRevision();
           SVNRevision revisionEnd = new SVNRevision.Number(0);
           boolean stopOnCopy = toggleStopOnCopyAction.isChecked();
           boolean includeMergedRevisions = toggleIncludeMergedRevisionsAction.isChecked();
           int entriesToFetch = store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH);
           long limit = entriesToFetch;
-          entries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy,
-              limit + 1, tagManager, includeMergedRevisions);
+          try {
+	          entries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy,
+	          limit + 1, tagManager, includeMergedRevisions); 
+          } catch (TeamException e) {
+        	  if (revisionStart.equals(SVNRevision.HEAD) && pegRevision != null && e.getMessage() != null && e.getMessage().contains("svn: Unable to find repository location")) {
+        		  revisionStart = pegRevision;
+        		  entries = getLogEntries(monitor, remoteResource, pegRevision, revisionStart, revisionEnd, stopOnCopy,
+    	    	          limit + 1, tagManager, includeMergedRevisions);  
+        	  }
+        	  else {
+        		  throw e;
+        	  }
+          }
+          
           long entriesLength = entries.length;
           if(entriesLength > limit) {
             ILogEntry[] fetchedEntries = new ILogEntry[ entries.length - 1];
