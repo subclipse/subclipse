@@ -1,20 +1,14 @@
 package org.tigris.subversion.clientadapter.svnkit;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.tigris.subversion.clientadapter.ISVNClientWrapper;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapter;
 import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapterFactory;
-import org.tmatesoft.svn.core.internal.io.svn.ISVNConnectorFactory;
-import org.tmatesoft.svn.core.javahl.SVNClientImpl;
+import org.tmatesoft.svn.core.javahl17.SVNClientImpl;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -32,9 +26,6 @@ public class Activator extends Plugin implements ISVNClientWrapper {
 
 	private String displayName;
 	private String version;
-
-	private ISVNConnectorFactory factory=null;
-	private boolean runOnce = false;
 	
 	/**
 	 * The constructor
@@ -71,7 +62,7 @@ public class Activator extends Plugin implements ISVNClientWrapper {
 
 	public ISVNClientAdapter getAdapter() {
 		if (this.isAvailable())
-			return new SvnKitClientAdapter(null, null, getPluggedInSVNConnectorFactor());
+			return new SvnKitClientAdapter();
 		else
 			return null;
 	}
@@ -110,30 +101,7 @@ public class Activator extends Plugin implements ISVNClientWrapper {
 	public String getLoadErrors() {
 		if (this.isAvailable())
 			return "";
-		return "Class org.tmatesoft.svn.core.javahl.SVNClientImpl not found.\nInstall the SVNKit plug-in from http://www.svnkit.com/";
-	}
-
-	private ISVNConnectorFactory getPluggedInSVNConnectorFactor() {
-		if (!runOnce) {
-			runOnce = true;
-			IExtension[] extensions = Platform.getExtensionRegistry().getExtensionPoint(PLUGIN_ID, PT_SVNCONNECTORFACTORY).getExtensions();
-			for(int i=0; i<extensions.length; i++) {
-				IExtension extension = extensions[i];
-				IConfigurationElement[] configs = extension.getConfigurationElements();
-				if (configs.length == 0) {
-					Activator.log(IStatus.ERROR, NLS.bind("SVNConnectorFactory {0} is missing required fields", new Object[] {extension.getUniqueIdentifier()}), null);//$NON-NLS-1$ 
-					continue;
-				}
-				try {
-					IConfigurationElement config = configs[0];
-					factory=(ISVNConnectorFactory)config.createExecutableExtension("run");//$NON-NLS-1$ 
-				} catch (CoreException ex) {
-					System.err.println(ex);
-					Activator.log(IStatus.ERROR, NLS.bind("Could not instantiate SVNConnectorFactory for  {0}", new Object[] {extension.getUniqueIdentifier()}), ex);//$NON-NLS-1$ 
-				}
-			}
-		}
-		return factory;
+		return "Class org.tmatesoft.svn.core.javahl17.SVNClientImpl not found.\nInstall the SVNKit plug-in from http://www.svnkit.com/";
 	}
 
     /**
