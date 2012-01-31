@@ -50,6 +50,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.themes.ITheme;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
@@ -436,7 +437,7 @@ public class SVNLightweightDecorator
 			}
 
 			if (status.getUrlString() != null) {
-			    String label = svnResource.getRepository().getLabel();
+			    String label = status.getRepository().getLabel();
 			    bindings.put( SVNDecoratorConfiguration.RESOURCE_LABEL, label == null ? status.getUrlString() : label);
     			  
 				bindings.put(
@@ -444,7 +445,7 @@ public class SVNLightweightDecorator
 					Util.unescape(status.getUrlString()));
 				
                 // short url is the path relative to root url of repository
-                SVNUrl repositoryRoot = svnResource.getRepository().getRepositoryRoot();
+                SVNUrl repositoryRoot = status.getRepository().getRepositoryRoot();
                 if (repositoryRoot != null) {
                     int urlLen =  status.getUrlString().length();
                     int rootLen = repositoryRoot.toString().length()+1;
