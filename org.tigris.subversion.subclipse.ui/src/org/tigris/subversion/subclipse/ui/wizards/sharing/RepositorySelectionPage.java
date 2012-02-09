@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -56,6 +57,10 @@ public class RepositorySelectionPage extends SVNWizardPage {
 	
 	private ISVNRepositoryLocation result;
 	private ISVNRepositoryLocation[] locations;
+	
+	private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
+	
+	private static final String LAST_LOCATION = "RepositorySelectionPage.lastRepository";
 	
 	/**
 	 * RepositorySelectionPage constructor.
@@ -105,6 +110,7 @@ public class RepositorySelectionPage extends SVNWizardPage {
 		table.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				result = (ISVNRepositoryLocation)((IStructuredSelection)table.getSelection()).getFirstElement();
+				settings.put(LAST_LOCATION, result.getLocation());
 				setPageComplete(true);
 			}
 		});
@@ -141,7 +147,20 @@ public class RepositorySelectionPage extends SVNWizardPage {
             useNewRepo.setSelection(true);  
         } else {
             useExistingRepo.setSelection(true); 
-            table.setSelection(new StructuredSelection(locations[0]));
+            int selectionIndex = 0;
+            String lastLocation = settings.get(LAST_LOCATION);
+            if (lastLocation != null) {
+            	for (int i = 0; i < locations.length; i++) {
+            		ISVNRepositoryLocation location = locations[i];
+            		if (lastLocation.equals(location.getLocation())) {
+            			selectionIndex = i;
+            			break;
+            		}
+            	}
+            }
+            table.setSelection(new StructuredSelection(locations[selectionIndex]));
+            result = locations[selectionIndex];
+            setPageComplete(true);
         }
 
 	}
