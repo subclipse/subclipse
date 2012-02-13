@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.subclipse"
       label="Subclipse (Required)"
-      version="1.8.4"
+      version="1.8.5"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.subclipse.core"
       colocation-affinity="org.tigris.subversion.subclipse">
