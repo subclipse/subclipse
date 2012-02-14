@@ -224,6 +224,18 @@ public class SVNWorkspaceRoot {
 		// Register the project with Team
 		RepositoryProvider.map(project, SVNProviderPlugin.getTypeId());
 	}
+	
+	public static void upgradeWorkingCopy(IProject project, IProgressMonitor monitor) throws TeamException {
+		ISVNClientAdapter client = SVNProviderPlugin.getPlugin().getSVNClient();
+		try {
+			client.upgrade(project.getLocation().toFile());
+		} catch (SVNClientException e) {
+			throw new TeamException(e.getMessage(), e);
+		}
+		finally {
+			 SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+		}
+	}
 
     /**
      * get the SVNLocalFolder for the given resource

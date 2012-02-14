@@ -108,6 +108,8 @@ public class SVNProviderPlugin extends Plugin {
 	
 	private static boolean consoleLoggingEnabled = true;
 	
+	public final static String UPGRADE_NEEDED = "working copy needs to be upgraded";
+	
 	/**
 	 * This constructor required by the bundle loader (calls newInstance())
 	 *  
@@ -140,6 +142,10 @@ public class SVNProviderPlugin extends Plugin {
 		for (IMessageHandler messageHandler : messageHandlers) {
 			messageHandler.handleMessage(title, message, severity);
 		}
+	}
+	
+	public static boolean handleQuestion(String title, String question) {
+		return messageHandlers[0].handleQuestion(title, question);
 	}
 
 	/**
@@ -611,6 +617,9 @@ public class SVNProviderPlugin extends Plugin {
             if (status.hasRemote())
             	return true;
 		} catch (SVNException e) {
+			if (e.getMessage() != null && e.getMessage().contains(UPGRADE_NEEDED)) {
+				return true;				
+			}
 		}
 		
     	return false;

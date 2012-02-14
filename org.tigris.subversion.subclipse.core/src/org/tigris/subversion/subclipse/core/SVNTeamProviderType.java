@@ -32,6 +32,7 @@ import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.RepositoryProviderType;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.subscribers.Subscriber;
+import org.tigris.subversion.subclipse.core.client.PeekStatusCommand;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -51,7 +52,7 @@ public class SVNTeamProviderType extends RepositoryProviderType {
         List<IProject> projectsToShare = new ArrayList<IProject>();
         
         AutoShareJob() {
-            super("Auto-sharing imported subversion projects");
+            super(Messages.SVNTeamProviderType_0);
         }
 
         public boolean isQueueEmpty() {
@@ -123,6 +124,17 @@ public class SVNTeamProviderType extends RepositoryProviderType {
          */
         private void autoconnectSVNProject(IProject project, IProgressMonitor monitor) {
             try {
+        		PeekStatusCommand command = new PeekStatusCommand(project);
+        		try {
+    				command.execute();
+    			} catch (SVNException e1) {
+    				if (e1.getMessage() != null && e1.getMessage().contains(SVNProviderPlugin.UPGRADE_NEEDED)) {
+    					if (!SVNProviderPlugin.handleQuestion(Messages.SVNTeamProviderType_1, project.getName() + Messages.SVNTeamProviderType_2)) {
+    						return;			
+    					}
+    				}
+    				 SVNWorkspaceRoot.upgradeWorkingCopy(project, monitor);
+    			}
                 SVNWorkspaceRoot.setSharing(project, monitor);
             } catch (TeamException e) {
                 SVNProviderPlugin.log(IStatus.ERROR, "Could not auto-share project " + project.getName(), e); //$NON-NLS-1$
@@ -187,7 +199,7 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 				
 				if (plugin == null || plugin.getSimpleDialogsHelper() == null){
 					if (++reschedCount > MAX_RETRIES){
-						String errorString = "Subclipse core and/or ui didn't come up in " + MAX_RETRIES + " retries, failing.";  //$NON-NLS-1$
+						String errorString = "Subclipse core and/or ui didn't come up in " + MAX_RETRIES + Messages.SVNTeamProviderType_3;  //$NON-NLS-1$
 						System.err.println(errorString); // Let it be visible to the user
 						throw new SVNException(errorString);
 					}
@@ -196,8 +208,8 @@ public class SVNTeamProviderType extends RepositoryProviderType {
 				}
 				
 				if (!plugin.getSimpleDialogsHelper().promptYesNo(
-						"Auto-add "+project.getName()+" to source control", //$NON-NLS-1$
-						  "The new project \""+ project.getName() +"\" was created in a subversion " + //$NON-NLS-1$
+						"Auto-add "+project.getName()+Messages.SVNTeamProviderType_4, //$NON-NLS-1$
+						  "The new project \""+ project.getName() +Messages.SVNTeamProviderType_5 + //$NON-NLS-1$
 						  "controlled directory.\n\n" + //$NON-NLS-1$
 						  "Would you like to automatically add it to source control?", true)) { //$NON-NLS-1$
 

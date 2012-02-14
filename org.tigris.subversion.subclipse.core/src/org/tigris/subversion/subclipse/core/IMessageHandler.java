@@ -6,5 +6,7 @@ public interface IMessageHandler {
 	public static final int ERROR = 2;
 	
 	public void handleMessage(String title, String message, int severity);
+	
+	public boolean handleQuestion(String title, String question);
 
 }

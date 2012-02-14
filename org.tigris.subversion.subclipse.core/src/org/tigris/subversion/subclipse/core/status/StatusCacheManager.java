@@ -90,11 +90,13 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
  	 * @param rule the scheduling rule to use when running this operation
      */
     protected List<IResource> updateCache(IResource parent, final ISVNStatus[] statuses) throws CoreException {
-    	final List<IResource> result = new ArrayList<IResource>(statuses.length);
-        for (ISVNStatus status : statuses) {
-        	IResource resource = SVNWorkspaceRoot.getResourceFor(parent, status);
-        	result.add(updateCache(resource, status));
-        }
+    	final List<IResource> result = new ArrayList<IResource>();
+    	if (statuses != null) {
+	        for (ISVNStatus status : statuses) {
+	        	IResource resource = SVNWorkspaceRoot.getResourceFor(parent, status);
+	        	result.add(updateCache(resource, status));
+	        }
+    	}
         return result;
     }
 

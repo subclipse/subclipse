@@ -62,7 +62,9 @@ public class RecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
             svnClientAdapterStatus = SVNProviderPlugin.getPlugin().getSVNClient();
             statuses = svnClientAdapterStatus.getStatus(resource.getLocation().toFile(),true, true);
         } catch (SVNClientException e1) {
-            throw SVNException.wrapException(e1);
+        	if (!e1.getMessage().contains(SVNProviderPlugin.UPGRADE_NEEDED)) {
+        		throw SVNException.wrapException(e1);
+        	}
         } finally {
             SVNProviderPlugin.enableConsoleLogging();
             SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClientAdapterStatus);
