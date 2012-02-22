@@ -96,8 +96,8 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#isIgnored()
 	 */
 	public boolean isIgnored() throws SVNException {
-		// If the resource is a derived, team private or linked resource, it is ignored
-		if (resource.isDerived() || resource.isTeamPrivateMember() || resource.isLinked() ) {
+		// If the resource is a team private or linked resource, it is ignored
+		if (resource.isTeamPrivateMember() || resource.isLinked() ) {
 			return true;
 		}
 
@@ -121,6 +121,11 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			return false;
 		}
 
+		// If the resource is a derived, unmanged resource, it is ignored
+		if (resource.isDerived()) {
+			return true;
+		}
+		
         // check ignore patterns from the .cvsignore file.
         if (status.isIgnored()) {
             return true;
@@ -177,7 +182,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 * @see ISVNLocalResource#isManaged()
 	 */
 	public boolean isManaged() throws SVNException {
-		return !this.resource.isDerived() && getStatusFromCache().isManaged();
+		return getStatusFromCache().isManaged();
 	}
     
 	/*

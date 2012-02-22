@@ -75,7 +75,7 @@ public class RevertResourcesCommand implements ISVNCommand {
      * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void run(IProgressMonitor monitor) throws SVNException {
-    	Set<IResource> propertiesOnlyFolders = new LinkedHashSet<IResource>();
+    	final Set<IResource> propertiesOnlyFolders = new LinkedHashSet<IResource>();
         // sort first, so that all children of a folder directly follow it in the array
         Arrays.sort( resources, resourceComparator );   
         ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
@@ -122,8 +122,11 @@ public class RevertResourcesCommand implements ISVNCommand {
                     try {
 	                    resources[i].accept(new IResourceVisitor() {
 	            			public boolean visit(IResource aResource) {
-	            				if (aResource.getType() == IResource.FOLDER)
+	            				if (aResource.getType() == IResource.FOLDER) {
 	    	                    	operationManager.onNotify(aResource.getLocation().toFile(), SVNNodeKind.UNKNOWN);
+	    	                    	// This is necessary for folders, that are ignored after the revert
+	    	                    	propertiesOnlyFolders.add(aResource);
+	            				}
 	            				
 	            				return true;
 	            			}

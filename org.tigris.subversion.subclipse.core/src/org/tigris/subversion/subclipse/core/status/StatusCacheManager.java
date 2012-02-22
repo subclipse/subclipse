@@ -258,7 +258,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 	 *         and their children)
 	 * @throws SVNException
 	 */
-    public IResource[] refreshStatus(final IContainer resource, final boolean recursive) throws SVNException {
+    public IResource[] refreshStatus(final IResource resource, final boolean recursive) throws SVNException {
     	if (SVNWorkspaceRoot.isLinkedResource(resource)) { return new IResource[0]; }
 
 		final int depth = (recursive) ? IResource.DEPTH_INFINITE : IResource.DEPTH_ONE;

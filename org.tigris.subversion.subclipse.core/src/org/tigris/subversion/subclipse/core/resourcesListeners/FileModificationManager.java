@@ -29,10 +29,10 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProviderType;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
@@ -85,7 +85,16 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 						}
 					}				
 					else if(resource.getType()==IResource.FOLDER) {
-						if (delta.getKind() == IResourceDelta.ADDED) {
+						// FIXME: Why a different processing for add and delete?
+						if (resource.isDerived() && delta.getKind() == IResourceDelta.CHANGED) {
+							try {
+								LocalResourceStatus aStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatusFromCache(resource);
+								if ((aStatus == null) || !aStatus.isManaged())
+									return false;
+				    		} catch (SVNException e) {
+				    			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				    		}
+						} else if (delta.getKind() == IResourceDelta.ADDED) {
 							if (resource.getParent() != null && !modifiedInfiniteDepthResources.contains(resource.getParent())) {
 								modifiedInfiniteDepthResources.add(resource.getParent());
 							}
@@ -96,7 +105,8 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 						}
 						else if (delta.getKind() == IResourceDelta.REMOVED) {
 							modifiedInfiniteDepthResources.add(resource);
-							return true;
+							// No need to add the complete resource tree
+							return false;
 						}
 						return true;
 					}				
@@ -158,11 +168,6 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
     	for (int i = 0; i < resources.length; i++) {
     		try {  			
                 SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resources[i], true);              
-                try {
-					((IContainer)resources[i]).refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
     		} catch (SVNException e) {
     			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
     		}			
@@ -180,21 +185,27 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
         //All immediate child resources (files) are refreshed automatically
         Set<IContainer> foldersToRefresh = new HashSet<IContainer>(resources.length);
         for (IResource resource : resources) {
-            if (resource.getType()==IResource.FILE)
-            {
-                foldersToRefresh.add(resource.getParent());
-            }
-            else
-            {
-                foldersToRefresh.add((IContainer)resource);
-            }
+        	if (resources.length == 1 && resources[0].getType() == IResource.FILE) {
+           		try {
+                    SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, false);               
+        		} catch (SVNException e) {
+        			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
+        		}
+        	}
+        	else {
+	            if (resource.getType()==IResource.FILE)
+	            {
+	                foldersToRefresh.add(resource.getParent());
+	            }
+	            else
+	            {
+	                foldersToRefresh.add((IContainer)resource);
+	            }
+        	}
         }
         for (IResource folder : foldersToRefresh) {
     		try {
                 SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)folder, true);               
-                try {
-					folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-				} catch (CoreException e) {}
     		} catch (SVNException e) {
     			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
     		}
