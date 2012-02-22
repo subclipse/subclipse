@@ -114,6 +114,7 @@ public class RevertResourcesCommand implements ISVNCommand {
                 // current as a base path. 
                 if (resources[i].getType() == IResource.FOLDER && status.isAdded()) {
                     svnClient.revert(resources[i].getLocation().toFile(), true);
+                    propertiesOnlyFolders.add(resources[i]);
                     monitor.worked(100);
 
                     // Add the subdirectories to the list of resources which must
