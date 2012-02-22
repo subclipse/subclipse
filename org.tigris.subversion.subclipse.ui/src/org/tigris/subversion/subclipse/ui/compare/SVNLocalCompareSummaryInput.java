@@ -114,6 +114,7 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 						diffSummary = getDiffSummaryWithSubfolders(diffSummary);
 						ITypedElement left = new SVNLocalResourceSummaryNode(resource, diffSummary, resource.getResource().getLocation().toString());
 						SummaryEditionNode right = new SummaryEditionNode(remoteFolder);
+						right.setName(resource.getName());
 						right.setRootFolder((RemoteFolder)remoteFolder);
 						right.setNodeType(SummaryEditionNode.RIGHT);
 						right.setRoot(true);		

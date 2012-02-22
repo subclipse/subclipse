@@ -41,6 +41,7 @@ public class SummaryEditionNode
 	private boolean root;
 	private RemoteFolder rootFolder;
 	private int nodeType = LEFT;
+	private String name;
 	
 	public final static int LEFT = 0;
 	public final static int RIGHT = 1;
@@ -58,6 +59,10 @@ public class SummaryEditionNode
 		if (resource instanceof RemoteFolder) {
 			((RemoteFolder)resource).setPegRevision(pegRevision);
 		}
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public ISVNRemoteResource getRemoteResource() {
@@ -233,6 +238,9 @@ public class SummaryEditionNode
 	}
 
 	public String getName() {
+		if (name != null) {
+			return name;
+		}
 		return resource == null ? "" : resource.getName(); //$NON-NLS-1$
 	}
 
