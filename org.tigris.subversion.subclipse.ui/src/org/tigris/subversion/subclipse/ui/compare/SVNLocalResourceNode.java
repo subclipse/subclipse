@@ -47,7 +47,10 @@ public class SVNLocalResourceNode extends ResourceNode {
     
 	//	@Override
 	public String getName() {
-		String name = svnResource.getName();
+		String name = svnResource.getFile().getName();
+		if (name == null) {
+			name = svnResource.getName();
+		}
 		if (name != null) {
 			return name;
 		}
