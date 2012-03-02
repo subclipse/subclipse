@@ -11,10 +11,11 @@
 package org.tigris.subversion.subclipse.core.client;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -116,7 +117,7 @@ public class OperationManager implements ISVNNotifyListener {
 					svnClient.setProgressListener(null);
 				}
 				if (refreshResourceList != null) {
-					List<IResource> folderList = new ArrayList<IResource>();
+					Map<String, IResource> folderList = new TreeMap<String, IResource>();
 					for (IResource resource : refreshResourceList) {
 						IResource folder;
 						if (resource instanceof IContainer) {
@@ -125,29 +126,35 @@ public class OperationManager implements ISVNNotifyListener {
 						else {
 							folder = resource.getParent();
 						}
-						if (!folderList.contains(folder)) {
-							folderList.add(folder);
-						}
+						folderList.put(folder.getFullPath().toString(), folder);
 					}
-					for (IResource resource : folderList) {
-						 SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resource, true);
+					Set<IResource> processedResources = new HashSet<IResource>();
+					for (IResource resource : folderList.values()) {
+						processedResources.add(resource);
+						if (!processedResources.contains(resource.getParent()))
+							SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resource, true);
 					}
 					IResource[] resources = new IResource[refreshResourceList.size()];
 					refreshResourceList.toArray(resources);
 					SVNProviderPlugin.broadcastModificationStateChanges(resources);
 				}
-				Set<IResource> foldersToRefresh = new LinkedHashSet<IResource>();
+				Map<String, IResource> foldersToRefresh = new TreeMap<String, IResource>();
 				for (IResource resource : localRefreshList) {
+					IResource folder;
 					if (resource.getType() == IResource.FILE) {
-						foldersToRefresh.add(resource.getParent());
+						folder = resource.getParent();
 					}
 					else {
-						foldersToRefresh.add(resource);
+						folder = resource;
 					}
+					foldersToRefresh.put(folder.getFullPath().toString(), folder);
 				}
-				for (IResource folder : foldersToRefresh) {
+				Set<IResource> processedResources = new HashSet<IResource>();
+				for (IResource folder : foldersToRefresh.values()) {
 	                try {
-						folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+						processedResources.add(folder);
+						if (!processedResources.contains(folder.getParent()))
+							folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 					} catch (CoreException e) {}
 				}
 			}
