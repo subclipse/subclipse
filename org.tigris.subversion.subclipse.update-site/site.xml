@@ -15,6 +15,9 @@
    <feature url="features/org.tigris.subversion.subclipse_1.8.5.jar" id="org.tigris.subversion.subclipse" version="1.8.5">
       <category name="Subclipse"/>
    </feature>
+   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.7.0.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.7.0">
+      <category name="Subclipse"/>
+   </feature>
    <category-def name="Subclipse" label="Subclipse">
       <description>
          Subversion 1.7 plug-in for Eclipse 3.2 and higher.
