@@ -97,7 +97,12 @@ public class UpdateResourcesCommand implements ISVNCommand {
             throw SVNException.wrapException(e);
         } finally {
         	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
-        	OperationManager.getInstance().endOperation(true, operationResources);
+        	if (operationResourceCollector.isRevisionUpdated()) {
+        		OperationManager.getInstance().endOperation(true, operationResources);
+        	}
+        	else {
+        		OperationManager.getInstance().endOperation();
+        	}
     		if (conflictResolver != null) {
     			svnClient.addConflictResolutionCallback(null);
     		}
