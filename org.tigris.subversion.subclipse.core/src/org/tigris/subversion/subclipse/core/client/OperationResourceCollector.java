@@ -17,40 +17,19 @@ import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class OperationResourceCollector implements ISVNNotifyListener {
+	private Map<String, SVNRevision> revisionMap;
 	private Set<IResource> operationResources = new LinkedHashSet<IResource>();
 	private boolean revisionUpdated = false;
-	private Map<String, SVNRevision> revisionMap = new HashMap<String, SVNRevision>();
 	
+	public void setRevisionMap(Map<String, SVNRevision> revisionMap) {
+		this.revisionMap = revisionMap;
+	}
+
 	public void onNotify(File path, SVNNodeKind kind) {
 		IPath pathEclipse = new Path(path.getAbsolutePath());
 		IResource[] resources = SVNWorkspaceRoot.getResourcesFor(pathEclipse, false);
 		for (IResource resource : resources) {
-			operationResources.add(resource);
-			
-			if (!revisionUpdated) {
-				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-				if (svnResource != null) {
-					try {
-						SVNRevision svnRevision = svnResource.getRevision();
-						if (svnRevision == null) {
-							revisionUpdated = true;
-						}
-						else {
-							SVNRevision previousRevision = revisionMap.get(path.getAbsolutePath());
-							if (previousRevision != null && !previousRevision.equals(svnRevision)) {
-								revisionUpdated = true;
-							}
-							revisionMap.put(path.getAbsolutePath(), svnRevision);
-						}
-					} catch (SVNException e) {
-						revisionUpdated = true;
-					}
-				}
-				else {
-					revisionUpdated = true;
-				}
-			}
-			
+			operationResources.add(resource);		
 		}
 	}
 	
@@ -62,7 +41,18 @@ public class OperationResourceCollector implements ISVNNotifyListener {
 	public void logCommandLine(String commandLine) {}
 	public void logMessage(String message) {}
 	public void logError(String message) {}	
-	public void logRevision(long revision, String path) {}
+	
+	public void logRevision(long revision, String path) {
+		if (!revisionUpdated && revisionMap != null) {
+			SVNRevision svnRevision = revisionMap.get(path);
+			if (svnRevision != null && svnRevision instanceof SVNRevision.Number) {
+				if (((SVNRevision.Number)svnRevision).getNumber() != revision) {
+					revisionUpdated = true;
+				}
+			}
+		}
+	}
+	
 	public void logCompleted(String message) {}
 
 	public boolean isRevisionUpdated() {

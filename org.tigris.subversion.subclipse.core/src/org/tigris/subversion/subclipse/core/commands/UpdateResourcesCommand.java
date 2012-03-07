@@ -11,12 +11,15 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
@@ -43,7 +46,7 @@ public class UpdateResourcesCommand implements ISVNCommand {
     private Set<IResource> updatedResources = new LinkedHashSet<IResource>();
     private ISVNConflictResolver conflictResolver;
     
-    private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
+    private OperationResourceCollector operationResourceCollector;
     
     /**
      * Update the given resources.
@@ -70,8 +73,22 @@ public class UpdateResourcesCommand implements ISVNCommand {
 			svnClient.addConflictResolutionCallback(conflictResolver);
 		}
         try {
-            monitor.beginTask(null, 100 * resources.length);                    
-
+            monitor.beginTask(null, 100 * resources.length);             
+            
+           Map<String, SVNRevision> revisionMap = new HashMap<String, SVNRevision>();
+           for (IResource resource : resources) {
+        	   ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+        	   if (svnResource != null) {
+        		   SVNRevision svnRevision = svnResource.getRevision();
+        		   if (svnRevision != null) {
+        			   revisionMap.put(resource.getLocation().toString(), svnRevision);
+        		   }
+        	   }
+           }
+           
+           operationResourceCollector = new OperationResourceCollector();
+           operationResourceCollector.setRevisionMap(revisionMap);
+           
             svnClient.addNotifyListener(operationResourceCollector);
             
             OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
