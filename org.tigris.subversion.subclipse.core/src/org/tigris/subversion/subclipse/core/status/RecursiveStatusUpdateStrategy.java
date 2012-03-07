@@ -69,7 +69,7 @@ public class RecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
             SVNProviderPlugin.enableConsoleLogging();
             SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClientAdapterStatus);
         }
-        return statuses;
-	}
 
+        return collectUnversionedFolders(statuses, true);
+	}
 }

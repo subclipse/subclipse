@@ -10,9 +10,19 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.core.status;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNNodeKind;
+import org.tigris.subversion.svnclientadapter.SVNStatusKind;
+import org.tigris.subversion.svnclientadapter.SVNStatusUnversioned;
 
 /**
  * When the status of a resource is asked, we don't update a resource at once.
@@ -45,4 +55,52 @@ public abstract class StatusUpdateStrategy {
      */
     abstract ISVNStatus[] statusesToUpdate(IResource resource) throws SVNException;
 
+    /**
+     * Collect the content of unversioned folders.
+     * @param statuses
+     * @param recursive
+     * @return
+     */
+    protected ISVNStatus[] collectUnversionedFolders(ISVNStatus[] statuses, boolean recursive) {
+        List<ISVNStatus> processed = new ArrayList<ISVNStatus>();
+        for (ISVNStatus status : statuses) {
+        	processed.add(status);
+        	if (status.getNodeKind() != SVNNodeKind.FILE && status.getTextStatus() == SVNStatusKind.UNVERSIONED) {
+        		File folder = status.getFile();
+        		if (!folder.isDirectory() && !folder.exists())
+        			continue;
+
+        		try {
+        			Set<String> alreadyProcessed = new HashSet<String>();
+        			processUnversionedFolder(folder, processed, recursive, alreadyProcessed);
+        		} catch (IOException e) {
+        			System.out.println(e);
+        			e.printStackTrace();
+        		}
+        	}
+        }
+
+        return processed.toArray(new ISVNStatus[processed.size()]);
+    }
+
+	void processUnversionedFolder(final File folder, final List<ISVNStatus> statuses, final boolean recursive, final Set<String> alreadyProcessed) throws IOException {
+		String canonicalPath = folder.getCanonicalPath();
+		if (alreadyProcessed.contains(canonicalPath))
+			return;
+		
+		alreadyProcessed.add(canonicalPath);
+
+		File[] files = folder.listFiles();
+		if (files == null)
+			return;
+
+		for (File file : files) {
+			statuses.add(new SVNStatusUnversioned(file, false));
+			
+			if (recursive && file.isDirectory()) {
+				processUnversionedFolder(file, statuses, recursive, alreadyProcessed);
+				continue;
+			}
+		}
+	}
 }
