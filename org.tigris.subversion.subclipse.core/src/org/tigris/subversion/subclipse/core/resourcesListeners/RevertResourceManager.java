@@ -25,7 +25,6 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.resources.SVNMoveDeleteHook;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.core.util.JobUtility;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 /**
@@ -89,53 +88,49 @@ public class RevertResourceManager implements IResourceChangeListener {
 
 	}
 
-	public void resourceChanged(final IResourceChangeEvent event) {		
-		JobUtility.scheduleJob("RevertResourcesOperation", new Runnable() {
-			public void run() {
-		        final List<IResourceDelta> addedFileResources = new ArrayList<IResourceDelta>();
+	public void resourceChanged(IResourceChangeEvent event) {		
+        final List<IResourceDelta> addedFileResources = new ArrayList<IResourceDelta>();
 
-		        try {
-		            event.getDelta().accept(new IResourceDeltaVisitor() {
+        try {
+            event.getDelta().accept(new IResourceDeltaVisitor() {
 
-		                public boolean visit(IResourceDelta delta) throws CoreException {
-		                	IResource resource = delta.getResource();
-		                	if (resource.getType()==IResource.PROJECT) {
-		                		IProject project = (IProject)resource;
-								if (!project.isAccessible()) {
-									return false; // i.e., closed project
-								}
-								if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
-									return false; // ignore project open
-								} 
-								if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
-									return false; // not a svn handled project
-								}
-		                	}
-		                	else if (resource.getType() == IResource.FILE) {
-		                		if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
-		                        	addedFileResources.add(delta);
-		                        }  
-		                        else if (delta.getKind() == IResourceDelta.REMOVED) {
-		                        	SVNMoveDeleteHook.removeFromDeletedFileList((IFile)delta.getResource());
-		                        }
-		                	}
-		                    return true;
-		                }
+                public boolean visit(IResourceDelta delta) throws CoreException {
+                	IResource resource = delta.getResource();
+                	if (resource.getType()==IResource.PROJECT) {
+                		IProject project = (IProject)resource;
+						if (!project.isAccessible()) {
+							return false; // i.e., closed project
+						}
+						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
+							return false; // ignore project open
+						} 
+						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+							return false; // not a svn handled project
+						}
+                	}
+                	else if (resource.getType() == IResource.FILE) {
+                		if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
+                        	addedFileResources.add(delta);
+                        }  
+                        else if (delta.getKind() == IResourceDelta.REMOVED) {
+                        	SVNMoveDeleteHook.removeFromDeletedFileList((IFile)delta.getResource());
+                        }
+                	}
+                    return true;
+                }
 
-		            });
-		            if (!addedFileResources.isEmpty()) {
-		                final IResourceDelta[] resources = (IResourceDelta[]) addedFileResources.toArray(new IResourceDelta[addedFileResources
-		                                                                                                     .size()]);                
-		                ISVNLocalResource[] revertResources = processResources(resources);
-		                if (revertResources.length > 0) {
-		                  	new RevertWorkspaceJob(revertResources).schedule(500);
-		                }
-		            }
-		        } catch (CoreException e) {
-		            SVNProviderPlugin.log(e.getStatus());
-		        }
-			}			
-		}, null, true);
+            });
+            if (!addedFileResources.isEmpty()) {
+                final IResourceDelta[] resources = (IResourceDelta[]) addedFileResources.toArray(new IResourceDelta[addedFileResources
+                                                                                                     .size()]);                
+                ISVNLocalResource[] revertResources = processResources(resources);
+                if (revertResources.length > 0) {
+                  	new RevertWorkspaceJob(revertResources).schedule(500);
+                }
+            }
+        } catch (CoreException e) {
+            SVNProviderPlugin.log(e.getStatus());
+        }
     }
 
     /**

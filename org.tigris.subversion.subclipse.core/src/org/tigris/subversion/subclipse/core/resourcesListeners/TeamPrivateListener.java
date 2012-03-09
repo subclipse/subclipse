@@ -29,7 +29,6 @@ import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.core.util.JobUtility;
 import org.tigris.subversion.svnclientadapter.SVNConstants;
 
 /**
@@ -51,42 +50,38 @@ public class TeamPrivateListener implements IResourceChangeListener, ISavePartic
 	 * 
 	 * @see org.eclipse.core.resources.IResourceChangeListener#resourceChanged(org.eclipse.core.resources.IResourceChangeEvent)
 	 */
-	public void resourceChanged(final IResourceChangeEvent event) {		
-		JobUtility.scheduleJob("TeamPrivateOperation", new Runnable() {
-			public void run() {
-				try {
-					event.getDelta().accept(new IResourceDeltaVisitor() {
-						public boolean visit(IResourceDelta delta) throws CoreException {
-							IResource resource = delta.getResource();
-							int type = resource.getType();
+	public void resourceChanged(IResourceChangeEvent event) {		
+		try {
+			event.getDelta().accept(new IResourceDeltaVisitor() {
+				public boolean visit(IResourceDelta delta) throws CoreException {
+					IResource resource = delta.getResource();
+					int type = resource.getType();
 
-							if(type==IResource.FOLDER) {
-								if (delta.getKind() != IResourceDelta.ADDED)
-									return true;
-								if (provider.isAdminDirectory(resource.getName())) {
-									if (handleSVNDir((IContainer)resource)) {
-										return false;
-									}
-								}
-								return true;
-							}				
-							else if (type==IResource.PROJECT) {
-								IProject project = (IProject)resource;
-								if (!project.isAccessible()) {
-									return false;
-								}
-								if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
-									return false; // not a svn handled project
-								}
-							}
+					if(type==IResource.FOLDER) {
+						if (delta.getKind() != IResourceDelta.ADDED)
 							return true;
+						if (provider.isAdminDirectory(resource.getName())) {
+							if (handleSVNDir((IContainer)resource)) {
+								return false;
+							}
 						}
-					});
-				} catch (CoreException e) {
-					SVNProviderPlugin.log(e.getStatus());
+						return true;
+					}				
+					else if (type==IResource.PROJECT) {
+						IProject project = (IProject)resource;
+						if (!project.isAccessible()) {
+							return false;
+						}
+						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+							return false; // not a svn handled project
+						}
+					}
+					return true;
 				}
-			}			
-		}, null, true);
+			});
+		} catch (CoreException e) {
+			SVNProviderPlugin.log(e.getStatus());
+		}			
 	}
 
 	/**

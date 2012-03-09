@@ -36,7 +36,6 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.commands.GetInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.core.util.JobUtility;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
@@ -336,35 +335,31 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 	 * saved during previous operations when the workspace was locked.
      *
 	 */
-	public void resourceChanged(final IResourceChangeEvent event) {	
-		JobUtility.scheduleJob("StatusCacheOperation", new Runnable() {
-			public void run() {
-				flushCache = false;
-				try {
-		            event.getDelta().accept(new IResourceDeltaVisitor() {
-		                public boolean visit(IResourceDelta delta) throws CoreException {
-		                	IResource resource = delta.getResource();
-		                	if (resource.getType()==IResource.PROJECT) {
-		                		IProject project = (IProject)resource;
-								if (!project.isAccessible()) {
-									return false; // i.e., closed project
-								}
-								if (SVNWorkspaceRoot.isManagedBySubclipse(project)) {
-									flushCache = true;
-								}
-								return false; // No need to check deeper than project.
-		                	}
-		                    return true;
-		                }
-		            });			
-			    } catch (CoreException e) {
-			      SVNProviderPlugin.log(e.getStatus());
-			    }
-				if (flushCache) {
-					statusCache.flushPendingStatuses();
-				}
-			}			
-		}, null, true);
+	public void resourceChanged(IResourceChangeEvent event) {	
+		flushCache = false;
+		try {
+            event.getDelta().accept(new IResourceDeltaVisitor() {
+                public boolean visit(IResourceDelta delta) throws CoreException {
+                	IResource resource = delta.getResource();
+                	if (resource.getType()==IResource.PROJECT) {
+                		IProject project = (IProject)resource;
+						if (!project.isAccessible()) {
+							return false; // i.e., closed project
+						}
+						if (SVNWorkspaceRoot.isManagedBySubclipse(project)) {
+							flushCache = true;
+						}
+						return false; // No need to check deeper than project.
+                	}
+                    return true;
+                }
+            });			
+	    } catch (CoreException e) {
+	      SVNProviderPlugin.log(e.getStatus());
+	    }
+		if (flushCache) {
+			statusCache.flushPendingStatuses();
+		}
 	}
 
     // getStatuses returns null URL for svn:externals folder.  This will
