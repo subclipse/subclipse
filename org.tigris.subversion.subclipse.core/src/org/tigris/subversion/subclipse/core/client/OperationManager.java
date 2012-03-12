@@ -11,26 +11,19 @@
 package org.tigris.subversion.subclipse.core.client;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.FilteringContainerList;
 import org.tigris.subversion.subclipse.core.util.ReentrantLock;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNNotifyListener;
@@ -117,44 +110,19 @@ public class OperationManager implements ISVNNotifyListener {
 					svnClient.setProgressListener(null);
 				}
 				if (refreshResourceList != null) {
-					Map<String, IResource> folderList = new TreeMap<String, IResource>();
-					for (IResource resource : refreshResourceList) {
-						IResource folder;
-						if (resource instanceof IContainer) {
-							folder = resource;
-						}
-						else {
-							folder = resource.getParent();
-						}
-						folderList.put(folder.getFullPath().toString(), folder);
-					}
-					Set<IResource> processedResources = new HashSet<IResource>();
-					for (IResource resource : folderList.values()) {
-						processedResources.add(resource);
-						if (!processedResources.contains(resource.getParent()))
-							SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resource, true);
+					FilteringContainerList folderList = new FilteringContainerList(refreshResourceList);
+					for (IContainer resource : folderList) {
+						SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resource, true);
 					}
 					IResource[] resources = new IResource[refreshResourceList.size()];
 					refreshResourceList.toArray(resources);
 					SVNProviderPlugin.broadcastModificationStateChanges(resources);
 				}
-				Map<String, IResource> foldersToRefresh = new TreeMap<String, IResource>();
-				for (IResource resource : localRefreshList) {
-					IResource folder;
-					if (resource.getType() == IResource.FILE) {
-						folder = resource.getParent();
-					}
-					else {
-						folder = resource;
-					}
-					foldersToRefresh.put(folder.getFullPath().toString(), folder);
-				}
-				Set<IResource> processedResources = new HashSet<IResource>();
-				for (IResource folder : foldersToRefresh.values()) {
+
+				FilteringContainerList foldersToRefresh = new FilteringContainerList(localRefreshList);
+				for (IContainer folder : foldersToRefresh) {
 	                try {
-						processedResources.add(folder);
-						if (!processedResources.contains(folder.getParent()))
-							folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+	                	folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 					} catch (CoreException e) {}
 				}
 			}
@@ -211,31 +179,4 @@ public class OperationManager implements ISVNNotifyListener {
 
 	public void setCommand(int command) {
 	}
-	
-	protected boolean handleSVNDir(final IContainer svnDir) {
-		if (!svnDir.exists() || !svnDir.isTeamPrivateMember()) 
-		{
-			try {
-				// important to have both the refresh and setting of team-private in the
-				// same runnable so that the team-private flag is set before other delta listeners 
-				// sees the SVN folder creation.
-				ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-					public void run(IProgressMonitor monitor) throws CoreException {
-						if (!svnDir.exists()) {
-							svnDir.refreshLocal(IResource.DEPTH_ZERO,new NullProgressMonitor());
-						}
-						if (svnDir.exists())
-							svnDir.setTeamPrivateMember(true);			
-						if(Policy.DEBUG_METAFILE_CHANGES) {
-							System.out.println("[svn] found a new SVN meta folder, marking as team-private: " + svnDir.getFullPath()); //$NON-NLS-1$
-						}
-					} 
-				}, svnDir.getParent(), IWorkspace.AVOID_UPDATE, null);
-			} catch(CoreException e) {
-				SVNProviderPlugin.log(SVNException.wrapException(svnDir, Policy.bind("OperationManager.errorSettingTeamPrivateFlag"), e)); //$NON-NLS-1$
-			}
-		}
-		return svnDir.isTeamPrivateMember();
-	}
-
 }
