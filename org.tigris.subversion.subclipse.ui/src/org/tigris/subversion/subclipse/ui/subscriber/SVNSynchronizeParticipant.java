@@ -309,7 +309,6 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	 */
 	public SVNSynchronizeParticipant() {
 		super();
-		SVNProviderPlugin.getPlugin().getPluginPreferences().addPropertyChangeListener(this);
 	}
 
 	public SVNSynchronizeParticipant(ISynchronizeScope scope) {
@@ -323,6 +322,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant imp
 	public void init(String secondaryId, IMemento memento) throws PartInitException {
 		super.init(secondaryId, memento);
 		setSubscriber(SVNWorkspaceSubscriber.getInstance());
+		SVNProviderPlugin.getPlugin().getPluginPreferences().addPropertyChangeListener(this);
 	}
 
 	 protected ISynchronizeParticipantDescriptor getDescriptor() {
