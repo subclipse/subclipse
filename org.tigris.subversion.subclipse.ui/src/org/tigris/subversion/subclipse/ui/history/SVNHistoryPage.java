@@ -206,6 +206,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   ISelection selection;
   
   private SVNRevisionRange[] revisionRanges;
+  private boolean revertEnabled;
 
   private IAction searchAction;
   private IAction clearSearchAction;
@@ -2008,6 +2009,18 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
 						  revision1 = logEntry.getRevision();
 					  }
 					  revision2 = logEntry.getRevision();
+					  revertEnabled = true;
+					  LogEntryChangePath[] changePaths = logEntry.getLogEntryChangePaths();
+					  if (changePaths != null) {
+						  for (LogEntryChangePath changePath : changePaths) {
+							  if (changePath.getPath().equals(remoteResource.getRepositoryRelativePath())) {
+								  if (changePath.getAction() == 'A') {
+									  revertEnabled = false;
+								  }
+								  break;
+							  }
+						  }
+					  }
 				  }
 				  else {
 					  if (revision1 != null) {
@@ -2088,6 +2101,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
       }
     }
     revertChangesAction.setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MENU_MARKMERGED));
+    revertChangesAction.setEnabled(revertEnabled);
     return revertChangesAction;
   }
   
