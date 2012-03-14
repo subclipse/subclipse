@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.Team;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -95,6 +96,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#isIgnored()
 	 */
+	@SuppressWarnings("deprecation")
 	public boolean isIgnored() throws SVNException {
 		// If the resource is a team private or linked resource, it is ignored
 		if (resource.isTeamPrivateMember() || resource.isLinked() ) {
@@ -113,19 +115,21 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		if (isParentInSvnIgnore()) {
 			return true;
 		}
-		
-		LocalResourceStatus status = getStatusFromCache();
+
+		LocalResourceStatus status = getStatus();
+
+		// If resource is derived, it is ignored if it is unmanaged, or if preference is to ignore managed derived resources.
+		if (resource.isDerived()) {
+			if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES) || !status.isManaged()) {
+				return true;
+			}
+		}
 		
 		// a managed resource is never ignored
 		if (status.isManaged()) {
 			return false;
 		}
-		
-		// If the resource is a derived, unmanged resource, it is ignored
-		if (resource.isDerived()) {
-			return true;
-		}
-		
+
         // check ignore patterns from the .cvsignore file.
         if (status.isIgnored()) {
             return true;

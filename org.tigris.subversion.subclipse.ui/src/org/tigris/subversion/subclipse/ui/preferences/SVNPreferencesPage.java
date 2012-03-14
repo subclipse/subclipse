@@ -67,6 +67,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
     private Button shareNestedProjects;
     private Button warnOnCommitToTagPath;
     private Button ignoreHiddenChanges;
+    private Button ignoreManagedDerivedResources;
     private Button removeOnReplace;
     private Text logEntriesToFetchText;
     private Button defaultConfigLocationRadio;
@@ -195,6 +196,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 			isHiddenSupported = false;
 		}
 		ignoreHiddenChanges.setVisible(isHiddenSupported);
+		
+		ignoreManagedDerivedResources = createCheckBox(composite, Policy.bind("SVNPreferencesPage.1")); //$NON-NLS-1$
 		
 		createLabel(composite, "", 2); //$NON-NLS-1$
 		
@@ -337,6 +340,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		
 		ignoreHiddenChanges.setSelection(SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES));
 
+		ignoreManagedDerivedResources.setSelection(SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES));
+		
 		removeOnReplace.setSelection(store.getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE));
 		
 		logEntriesToFetchText.setText(Integer.toString(store.getInt(ISVNUIConstants.PREF_LOG_ENTRIES_TO_FETCH)));
@@ -401,6 +406,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 		SVNUIPlugin.getPlugin().getPluginPreferences().setValue(ISVNUIConstants.PREF_COMMIT_TO_TAGS_PATH_WITHOUT_WARNING, !warnOnCommitToTagPath.getSelection());
 		
 		SVNProviderPlugin.getPlugin().getPluginPreferences().setValue(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES, ignoreHiddenChanges.getSelection());
+		
+		SVNProviderPlugin.getPlugin().getPluginPreferences().setValue(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES, ignoreManagedDerivedResources.getSelection());
 		
 //		store.setValue(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT, showUnadded.getSelection());
 
