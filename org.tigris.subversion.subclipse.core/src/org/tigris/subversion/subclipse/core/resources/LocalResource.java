@@ -97,7 +97,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	 */
 	public boolean isIgnored() throws SVNException {
 		// If the resource is a team private or linked resource, it is ignored
-		if (resource.isDerived() || resource.isTeamPrivateMember() || resource.isLinked() ) {
+		if (resource.isTeamPrivateMember() || resource.isLinked() ) {
 			return true;
 		}
 
@@ -119,6 +119,11 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		// a managed resource is never ignored
 		if (status.isManaged()) {
 			return false;
+		}
+		
+		// If the resource is a derived, unmanged resource, it is ignored
+		if (resource.isDerived()) {
+			return true;
 		}
 		
         // check ignore patterns from the .cvsignore file.
