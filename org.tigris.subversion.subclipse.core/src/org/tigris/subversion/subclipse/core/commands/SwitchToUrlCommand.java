@@ -82,7 +82,10 @@ public class SwitchToUrlCommand implements ISVNCommand {
         	root.getRepository().returnSVNClient(svnClient);
         	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
         	if (operationResources.size() == 0) {
-        		operationResources.add(resource);
+        		IResource[] resources = SVNWorkspaceRoot.getResourcesFor(resource);
+        		for (IResource refreshResource : resources) {
+        			operationResources.add(refreshResource);
+        		}
         	}
             OperationManager.getInstance().endOperation(true, operationResources);
     		if (conflictResolver != null) {

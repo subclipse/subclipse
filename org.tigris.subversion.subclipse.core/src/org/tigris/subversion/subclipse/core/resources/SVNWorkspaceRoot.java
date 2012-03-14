@@ -475,6 +475,19 @@ public class SVNWorkspaceRoot {
 		}
 		return (IResource[]) resources.toArray(new IResource[resources.size()]);
     }
+    
+    public static IResource[] getResourcesFor(IResource resource) {
+    	Set<IResource> resources = new LinkedHashSet<IResource>();
+    	resources.add(resource);
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IProject[] projects = root.getProjects();
+		for (IProject project : projects) {
+			if (!project.getLocation().equals(resource.getLocation()) && resource.getLocation().isPrefixOf(project.getLocation())) {
+				resources.add(project);
+			}
+		}
+    	return (IResource[]) resources.toArray(new IResource[resources.size()]);
+    }
 
     /**
      * Gets the repository which the local filesystem <code>location</code> belongs to.
