@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceRuleFactory;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -95,11 +97,20 @@ public abstract class RepositoryProviderOperation extends SVNOperation {
 	protected ISchedulingRule getSchedulingRule(SVNTeamProvider provider) {
 		IResourceRuleFactory ruleFactory = provider.getRuleFactory();
 		HashSet rules = new HashSet();
-		for (int i = 0; i < resources.length; i++) {
-			
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (int i = 0; i < resources.length; i++) {			
 			IResource[] pathResources = SVNWorkspaceRoot.getResourcesFor(new Path(resources[i].getLocation().toOSString()), false);
 			for (IResource pathResource : pathResources) {
-				rules.add(ruleFactory.modifyRule(pathResource.getProject()));
+				IProject resourceProject = pathResource.getProject();
+				rules.add(ruleFactory.modifyRule(resourceProject));
+				
+				// Add nested projects
+				for (IProject project : projects) {
+					if (!project.getLocation().equals(resourceProject.getLocation()) && resourceProject.getLocation().isPrefixOf(project.getLocation())) {
+						rules.add(ruleFactory.modifyRule(project));
+					}
+				}	
+				
 			}
 		}
 		return MultiRule.combine((ISchedulingRule[]) rules.toArray(new ISchedulingRule[rules.size()]));
