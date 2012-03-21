@@ -62,6 +62,9 @@ public abstract class StatusUpdateStrategy {
      * @return
      */
     protected ISVNStatus[] collectUnversionedFolders(ISVNStatus[] statuses, boolean recursive) {
+    	if (statuses == null) {
+    		return null;
+    	}
         List<ISVNStatus> processed = new ArrayList<ISVNStatus>();
         for (ISVNStatus status : statuses) {
         	processed.add(status);
