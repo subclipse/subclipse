@@ -47,6 +47,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class RemoteResourcePropertiesDialog extends TrayDialog {
 	private ISVNRemoteResource remoteResource;
@@ -78,7 +79,7 @@ public class RemoteResourcePropertiesDialog extends TrayDialog {
 					client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
 			        SVNProviderPlugin.disableConsoleLogging(); 
 				    svnInfo = client.getInfo(remoteResource.getUrl());
-				    properties = client.getProperties(remoteResource.getUrl());
+				    properties = client.getProperties(remoteResource.getUrl(), SVNRevision.HEAD, SVNRevision.HEAD, false);
 			        SVNProviderPlugin.enableConsoleLogging(); 
 				} catch (Exception e) { 
 					errorMessage = e.getMessage();
