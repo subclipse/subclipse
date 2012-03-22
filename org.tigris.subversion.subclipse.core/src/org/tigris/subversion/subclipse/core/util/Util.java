@@ -152,7 +152,6 @@ public class Util {
 	}
 	
 	public static boolean isHidden(IResource resource) {
-		
 		// If resource is excluded using resource filters, return true.
 		if (!resource.exists() && resource.getLocation() != null && resource.getLocation().toFile() != null && resource.getLocation().toFile().exists()) {
 			return true;
@@ -176,13 +175,6 @@ public class Util {
 		IResource parent = resource;
 		while (parent != null) {			
 			try {
-				
-				if (parent.getName().equals("Expressions")) {
-					System.out.println("location: " + parent.getLocation());
-					System.out.println("accessible: " + parent.isAccessible());
-					System.out.println("exists: " + parent.exists());
-				}
-				
 				Object isHidden = isHiddenMethod.invoke(parent, new Object[] {});
 				if (isHidden instanceof Boolean) {
 					if (((Boolean)isHidden).booleanValue()) {
