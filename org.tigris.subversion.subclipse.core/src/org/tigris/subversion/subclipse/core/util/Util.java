@@ -153,7 +153,7 @@ public class Util {
 	
 	public static boolean isHidden(IResource resource) {
 		// If resource is excluded using resource filters, return true.
-		if (!resource.exists() && resource.getLocation() != null && resource.getLocation().toFile() != null && resource.getLocation().toFile().exists()) {
+		if (resource.getLocation() != null && resource.getLocation().toFile() != null && File2Resource.getResource(resource.getLocation().toFile()) == null) {
 			return true;
 		}
 		
