@@ -16,6 +16,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
 
+import org.eclipse.core.internal.resources.Resource;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -36,12 +37,16 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 /**
  * Unsorted static helper-methods 
  */
+@SuppressWarnings("restriction")
 public class Util {
 	public static final String CURRENT_LOCAL_FOLDER = "."; //$NON-NLS-1$
 	public static final String SERVER_SEPARATOR = "/"; //$NON-NLS-1$
 	
 	public static Method isHiddenMethod;
 	public static boolean isHiddenUnsupported;
+	
+	public static Method isFilteredMethod;
+	public static boolean isFilteredUnsupported;
 	
 	/**
 	 * Return the last segment of the given path
@@ -153,8 +158,25 @@ public class Util {
 	
 	public static boolean isHidden(IResource resource) {
 		// If resource is excluded using resource filters, return true.
-		if (!resource.exists() && resource.getLocation() != null && resource.getLocation().toFile() != null && resource.getLocation().toFile().exists()) {
-			return true;
+		if (resource instanceof Resource && !isFilteredUnsupported) {
+			if (isFilteredMethod == null) {
+				try {
+					isFilteredSupported();
+				} catch (Exception e) {
+					isFilteredUnsupported = true;
+				}
+			}
+			if (!isFilteredUnsupported) {
+				Resource checkResource = (Resource)resource;
+				try {
+					Object isFiltered = isFilteredMethod.invoke(checkResource, new Object[] {});
+					if (isFiltered instanceof Boolean) {
+						if (((Boolean)isFiltered).booleanValue()) {
+							return true;
+						}
+					}
+				} catch (Exception e) {}
+			}
 		}
 		
 		// If we've previously checked for isHidden method and it is not supported, return false.
@@ -195,6 +217,14 @@ public class Util {
 		}
 		isHiddenMethod = IResource.class.getDeclaredMethod("isHidden", new Class[] {});
 		return (isHiddenMethod != null);
+	}
+	
+	public static boolean isFilteredSupported() throws NoSuchMethodException {
+		if (isFilteredUnsupported) {
+			return false;
+		}
+		isFilteredMethod = Resource.class.getDeclaredMethod("isFiltered", new Class[] {});
+		return (isFilteredMethod != null);
 	}
 	
 	public static SVNUrl getUrlForRevision(ISVNRemoteResource resource, SVNRevision.Number revision, IProgressMonitor pm) throws SVNException {
