@@ -845,6 +845,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		super.initializeImageRegistry(reg);
+		reg.put(ISVNUIConstants.IMG_PROPERTIES, getImageDescriptor(ISVNUIConstants.IMG_PROPERTIES));
 		reg.put(ISVNUIConstants.IMG_FILEADD_PENDING, getImageDescriptor(ISVNUIConstants.IMG_FILEADD_PENDING));
 		reg.put(ISVNUIConstants.IMG_SYNCPANE, getImageDescriptor(ISVNUIConstants.IMG_SYNCPANE));
 		reg.put(ISVNUIConstants.IMG_FILEDELETE_PENDING, getImageDescriptor(ISVNUIConstants.IMG_FILEDELETE_PENDING));

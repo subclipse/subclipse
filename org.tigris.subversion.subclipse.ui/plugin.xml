@@ -219,6 +219,12 @@
                id="org.tigris.subversion.subclipse.ui.createRemoteFolder">
          </action>
          <action
+               label="%CompareSvnPropertiesAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.CompareSvnPropertiesAction"
+               menubarPath="historyGroup"
+               id="org.tigris.subversion.subclipse.ui.actions.CompareSvnPropertiesAction">
+         </action>                
+         <action
                label="%ShowDifferencesAsUnifiedDiffAction.label"
                class="org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffAction"
                menubarPath="historyGroup"
@@ -274,7 +280,7 @@
                class="org.tigris.subversion.subclipse.ui.actions.RepositoryBranchTagAction"
                menubarPath="miscGroup"
                id="org.tigris.subversion.subclipse.ui.repositoryBranchTag">
-         </action>                           
+         </action>                                         
          <action
                label="%MoveRemoteAction.label"
                helpContextId="org.tigris.subversion.subclipse.ui.move_remote_resource_action_context"
@@ -441,8 +447,7 @@
                definitionId="org.tigris.subversion.subclipse.ui.cleanup"
                menubarPath="team.main/projectGroup"
                id="org.tigris.subversion.subclipse.ui.cleanup">
-         </action>           
-
+         </action>        
          <action
                label="%CompareWithBranchTagAction.label"
                class="org.tigris.subversion.subclipse.ui.actions.SwitchAction"
@@ -465,6 +470,12 @@
                menubarPath="replaceWithMenu/replaceWithGroup"
                id="org.tigris.subversion.subclipse.ui.replaceWithBase">
          </action>
+        <action
+               label="%CompareSvnPropertiesAction.label"
+               class="org.tigris.subversion.subclipse.ui.actions.CompareSvnPropertiesAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="org.tigris.subversion.subclipse.ui.actions.CompareSvnPropertiesAction">
+         </action>               
          <action
                label="%CompareWithBranchTagAction.label"
                class="org.tigris.subversion.subclipse.ui.actions.ShowDifferencesAsUnifiedDiffActionWC"

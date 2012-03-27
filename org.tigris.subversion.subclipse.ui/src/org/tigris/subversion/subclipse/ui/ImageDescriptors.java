@@ -67,6 +67,7 @@ public class ImageDescriptors {
         createImageDescriptor(ISVNUIConstants.IMG_REFRESH_ENABLED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_REFRESH_DISABLED, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_SYNCPANE, baseURL); 
+        createImageDescriptor(ISVNUIConstants.IMG_PROPERTIES, baseURL); 
 //        createImageDescriptor(ISVNUIConstants.IMG_LINK_WITH_EDITOR, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_GET_ALL, baseURL);
         createImageDescriptor(ISVNUIConstants.IMG_GET_NEXT, baseURL);
