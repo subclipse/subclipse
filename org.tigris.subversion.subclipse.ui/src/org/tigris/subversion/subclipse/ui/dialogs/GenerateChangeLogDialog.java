@@ -1,14 +1,20 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -27,10 +33,12 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
-public class GenerateChangeLogDialog extends TrayDialog {
+public class GenerateChangeLogDialog extends SvnDialog {
+	private List<LogEntry> logEntries;
 	private Button svnLogButton;
 	private Button svnLogAndPathsButton;
 	private Button gnuButton;
@@ -38,25 +46,26 @@ public class GenerateChangeLogDialog extends TrayDialog {
 	private Button fileButton;
 	private Text fileText;
 	private Button browseButton;
+	private Text previewText;
 	private Button okButton;
 	private IDialogSettings settings;
 	private int lastFormat;
 	private int lastOutput;
-	private int format;
-	private int output;
-	private String filePath;
+	private String changeLogPreview;
+	private Exception exception;
 	
 	public final static int CLIPBOARD = 0;
 	public final static int FILESYSTEM = 1;
-	private final static String LAST_OUTPUT = "GenerateChangeLogDialog.lastOutput";
+	private final static String LAST_OUTPUT = "GenerateChangeLogDialog.lastOutput"; //$NON-NLS-1$
 	
 	public final static int SVN_LOG = 0;
 	public final static int SVN_LOG_WITH_PATHS = 1;
 	public final static int GNU = 2;
-	private final static String LAST_FORMAT = "GenerateChangeLogDialog.lastFormat";
+	private final static String LAST_FORMAT = "GenerateChangeLogDialog.lastFormat"; //$NON-NLS-1$
 
-	public GenerateChangeLogDialog(Shell shell) {
-		super(shell);
+	public GenerateChangeLogDialog(Shell shell, List<LogEntry> logEntries) {
+		super(shell, "GenerateChangeLogDialog"); //$NON-NLS-1$
+		this.logEntries = logEntries;
 		settings = SVNUIPlugin.getPlugin().getDialogSettings();
 		try {
 			lastFormat = settings.getInt(LAST_FORMAT);
@@ -77,7 +86,7 @@ public class GenerateChangeLogDialog extends TrayDialog {
 		GridLayout formatLayout = new GridLayout();
 		formatLayout.numColumns = 1;
 		formatGroup.setLayout(formatLayout);
-		GridData data = new GridData(GridData.FILL_BOTH);
+		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		formatGroup.setLayoutData(data);
 		
 		svnLogButton = new Button(formatGroup, SWT.RADIO);
@@ -92,7 +101,7 @@ public class GenerateChangeLogDialog extends TrayDialog {
 		GridLayout outputLayout = new GridLayout();
 		outputLayout.numColumns = 2;
 		outputGroup.setLayout(outputLayout);
-		data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(GridData.FILL_HORIZONTAL);
 		outputGroup.setLayoutData(data);	
 		
 		clipboardButton = new Button(outputGroup, SWT.RADIO);
@@ -154,6 +163,7 @@ public class GenerateChangeLogDialog extends TrayDialog {
 					if (svnLogButton.getSelection()) settings.put(LAST_FORMAT, SVN_LOG);
 					else if (svnLogAndPathsButton.getSelection()) settings.put(LAST_FORMAT, SVN_LOG_WITH_PATHS);
 					else settings.put(LAST_FORMAT, GNU);
+					generateChangeLog(true);
 				}
 			}		
 		};
@@ -201,24 +211,39 @@ public class GenerateChangeLogDialog extends TrayDialog {
 		};
 		fileText.addFocusListener(focusListener);
 		
+		Group previewGroup = new Group(composite, SWT.NULL);
+		previewGroup.setText(Policy.bind("GenerateChangeLogDialog.3")); //$NON-NLS-1$
+		GridLayout previewLayout = new GridLayout();
+		previewLayout.numColumns = 1;
+		previewGroup.setLayout(previewLayout);
+		data = new GridData(GridData.FILL_BOTH);
+		previewGroup.setLayoutData(data);	
+		
+		previewText = new Text(previewGroup, SWT.BORDER | SWT.MULTI | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL);
+		data = new GridData(GridData.FILL_BOTH);
+		data.horizontalSpan = 2;
+		data.heightHint = 200;
+		data.widthHint = 500;
+		data.grabExcessHorizontalSpace = true;
+		previewText.setLayoutData(data);
+		
+		generateChangeLog(true);
+		
 		return composite;
 	}
 	
 	protected void okPressed() {
-		if (svnLogButton.getSelection()) format = SVN_LOG;
-		else if (svnLogAndPathsButton.getSelection()) format = SVN_LOG_WITH_PATHS;
-		else if (gnuButton.getSelection()) format = GNU;
-		if (clipboardButton.getSelection()) output = CLIPBOARD;
-		else if (fileButton.getSelection()) {
-			output = FILESYSTEM;
-			filePath = fileText.getText().trim();
-			File file = new File(filePath);
+		if (fileButton.getSelection()) {
+			File file = new File(fileText.getText().trim());
 			if (file.exists()) {
 				String title = Policy.bind("GenerateSVNDiff.overwriteTitle"); //$NON-NLS-1$
 				String msg = Policy.bind("GenerateSVNDiff.overwriteMsg"); //$NON-NLS-1$
 				final MessageDialog messageDialog = new MessageDialog(Display.getDefault().getActiveShell(), title, null, msg, MessageDialog.QUESTION, new String[] { IDialogConstants.YES_LABEL, IDialogConstants.CANCEL_LABEL }, 0);
 				if (!(messageDialog.open() == MessageDialog.OK)) return;			
 			}		
+		}
+		if (!generateChangeLog(false)) {
+			return;
 		}
 		super.okPressed();
 	}
@@ -231,6 +256,57 @@ public class GenerateChangeLogDialog extends TrayDialog {
 		}
         return button;
     }
+	
+	private boolean generateChangeLog(final boolean preview) {
+		exception = null;
+		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {		
+			public void run() {
+				try {
+					if (!preview && fileButton.getSelection()) {
+						File file = new File(fileText.getText().trim());
+						if (!file.exists()) file.createNewFile();
+						BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+						for (LogEntry logEntry : logEntries) {
+							if (gnuButton.getSelection())
+								writer.write(logEntry.getGnuLog()); //$NON-NLS-2$
+							else
+								writer.write(logEntry.getChangeLog(svnLogAndPathsButton.getSelection())); //$NON-NLS-2$
+						}
+						writer.close();						
+					} else {
+						StringBuffer changeLog = new StringBuffer();
+						for (LogEntry logEntry : logEntries) {
+							if (gnuButton.getSelection())
+								changeLog.append(logEntry.getGnuLog()); //$NON-NLS-2$
+							else
+								changeLog.append(logEntry.getChangeLog(svnLogAndPathsButton.getSelection())); //$NON-NLS-2$					
+						}
+						if (preview) {
+							changeLogPreview = changeLog.toString().trim();
+						}
+						else {
+							TextTransfer plainTextTransfer = TextTransfer.getInstance();
+							Clipboard clipboard= new Clipboard(Display.getDefault());		
+							clipboard.setContents(
+								new String[] {changeLog.toString().trim()}, 
+								new Transfer[]{plainTextTransfer});	
+							clipboard.dispose();
+						}
+					}
+				} catch (Exception e) {
+					exception = e;
+				}		
+			}
+		});
+		if (exception != null) {
+			MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("HistoryView.generateChangeLog"), exception.getMessage()); //$NON-NLS-1$
+			return false;			
+		}
+		if (preview && changeLogPreview != null) {
+			previewText.setText(changeLogPreview);
+		}
+		return true;
+	}
 	
 	private boolean canFinish() {
 		if (fileButton.getSelection()) {
@@ -249,18 +325,6 @@ public class GenerateChangeLogDialog extends TrayDialog {
 		if (!parent.exists()) return false;
 		if (!parent.isDirectory()) return false;
 		return true;
-	}
-
-	public int getFormat() {
-		return format;
-	}
-
-	public int getOutput() {
-		return output;
-	}	
-	
-	public File getFile() {
-		return new File(filePath);
 	}
 
 }
