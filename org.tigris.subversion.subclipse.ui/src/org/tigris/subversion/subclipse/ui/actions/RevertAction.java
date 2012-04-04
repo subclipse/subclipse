@@ -56,10 +56,15 @@ public class RevertAction extends WorkbenchWindowAction {
 	private boolean canRunAsJob = true;
 	private boolean showNothingToRevertMessage = true;
 	private boolean includesExternals;
+	
+	private boolean resourcesHidden;
     
 	protected void execute(final IAction action) throws InvocationTargetException, InterruptedException {
 		statusMap = new HashMap();
 		includesExternals = false;
+		
+		resourcesHidden = false;
+		
 		final IResource[] resources = getSelectedResources();
         try {
             IResource[] modifiedResources = getModifiedResources(resources, new NullProgressMonitor());
@@ -112,7 +117,11 @@ public class RevertAction extends WorkbenchWindowAction {
 				        	 ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentResource);
 				        	 if (!localResource.isIgnored()) {
 					        	 if (isManaged || !Util.isSpecialEclipseFile(currentResource)) {
-					        		 if ((!ignoreHiddenChanges && isManaged) || !Util.isHidden(currentResource)) {
+					        		 boolean hidden = Util.isHidden(currentResource);
+					        		 if (ignoreHiddenChanges && hidden) {
+					        			 resourcesHidden = true;
+					        		 }
+					        		 if ((!ignoreHiddenChanges && isManaged) || !hidden) {
 							             modified.add(currentResource);							             
 				                 		 if (currentResource instanceof IContainer) statusMap.put(currentResource, statuses[j].getPropStatus());
 				                 		 else {
@@ -159,6 +168,7 @@ public class RevertAction extends WorkbenchWindowAction {
 		   return false;
 	   }
 	   revertPage = new SvnWizardRevertPage(modifiedResources, url, statusMap, false);
+	   revertPage.setResourceRemoved(resourcesHidden);
 	   SvnWizard wizard = new SvnWizard(revertPage);
 	   SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 	   boolean revert = (dialog.open() == SvnWizardDialog.OK);

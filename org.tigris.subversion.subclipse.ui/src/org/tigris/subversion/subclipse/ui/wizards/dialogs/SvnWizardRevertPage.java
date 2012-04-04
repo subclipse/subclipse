@@ -164,7 +164,9 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 	}
 
 	public boolean performFinish() {
-		resourceRemoved = resourceSelectionTree.isResourceRemoved();
+		if (!resourceRemoved) {
+			resourceRemoved = resourceSelectionTree.isResourceRemoved();
+		}
 		return true;
 	}
 
@@ -189,6 +191,10 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 	}
 
 	public void createButtonsForButtonBar(Composite parent, SvnWizardDialog wizardDialog) {
+	}
+
+	public void setResourceRemoved(boolean resourceRemoved) {
+		this.resourceRemoved = resourceRemoved;
 	}
 
 	public boolean isResourceRemoved() {

@@ -19,8 +19,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -61,6 +63,7 @@ public class RevertSynchronizeOperation extends SVNSynchronizeOperation {
 					return;
 				}
 				revertPage = new SvnWizardRevertPage(resources, url, statusMap, true);
+				revertPage.setResourceRemoved(SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES));
 				SvnWizard wizard = new SvnWizard(revertPage);
 				SvnWizardDialog dialog = new SvnWizardDialog(getShell(), wizard);
 				revert = (dialog.open() == SvnWizardDialog.OK);
