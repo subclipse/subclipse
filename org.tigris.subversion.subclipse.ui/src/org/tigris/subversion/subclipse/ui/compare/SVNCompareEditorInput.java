@@ -35,6 +35,8 @@ public class SVNCompareEditorInput extends SVNAbstractCompareEditorInput {
 	private Image leftImage;
 	private Image rightImage;
 	private Image ancestorImage;
+	private String leftLabel;
+	private String rightLabel;
 	
 	/**
 	 * Creates a new SVNCompareEditorInput.
@@ -78,13 +80,17 @@ public class SVNCompareEditorInput extends SVNAbstractCompareEditorInput {
 	private String getLabel(ITypedElement element) {
 		if (element instanceof ResourceEditionNode) {
 			ISVNRemoteResource edition = ((ResourceEditionNode)element).getRemoteResource();
+			SVNRevision revision = edition.getLastChangedRevision();
+			if (revision == null) {
+				revision = edition.getRevision();
+			}
 			if (edition instanceof ISVNRemoteFile) {
-				return Policy.bind("nameAndRevision", edition.getName(), edition.getLastChangedRevision().toString()); //$NON-NLS-1$
+				return Policy.bind("nameAndRevision", edition.getName(), revision.toString()); //$NON-NLS-1$
 			}
 			if (edition.isContainer()) {
 				return Policy.bind("SVNCompareEditorInput.inHead", edition.getName()); //$NON-NLS-1$
 			} else {
-				return Policy.bind("SVNCompareEditorInput.repository", new Object[] {edition.getName(), edition.getLastChangedRevision().toString()}); //$NON-NLS-1$
+				return Policy.bind("SVNCompareEditorInput.repository", new Object[] {edition.getName(), revision.toString()}); //$NON-NLS-1$
 			}
 		}
 		return element.getName();
@@ -96,11 +102,14 @@ public class SVNCompareEditorInput extends SVNAbstractCompareEditorInput {
 	private String getVersionLabel(ITypedElement element) {
 		if (element instanceof ResourceEditionNode) {
 			ISVNRemoteResource edition = ((ResourceEditionNode)element).getRemoteResource();
-
+			SVNRevision revision = edition.getLastChangedRevision();
+			if (revision == null) {
+				revision = edition.getRevision();
+			}
 			if (edition.isContainer()) {
 				return Policy.bind("SVNCompareEditorInput.headLabel"); //$NON-NLS-1$
 			} else {
-				return edition.getLastChangedRevision().toString();
+				return revision.toString();
 			}
 		}
 		return element.getName();
@@ -134,12 +143,14 @@ public class SVNCompareEditorInput extends SVNAbstractCompareEditorInput {
         ITypedElement ancestor = this.ancestor;
         
         if (left != null) {
-            cc.setLeftLabel(getLabel(left));
+        	leftLabel = getLabel(left);
+            cc.setLeftLabel(leftLabel);
             cc.setLeftImage(leftImage);
         }
     
         if (right != null) {
-            cc.setRightLabel(getLabel(right));
+        	rightLabel = getLabel(right);
+            cc.setRightLabel(rightLabel);
             cc.setRightImage(rightImage);
         }
         
@@ -209,4 +220,13 @@ public class SVNCompareEditorInput extends SVNAbstractCompareEditorInput {
 	public boolean canRunAsJob() {
 		return true;
 	}
+
+	public String getLeftLabel() {
+		return leftLabel;
+	}
+
+	public String getRightLabel() {
+		return rightLabel;
+	}
+	
 }
