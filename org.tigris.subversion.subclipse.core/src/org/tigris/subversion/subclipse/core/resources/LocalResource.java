@@ -116,7 +116,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			return true;
 		}
 
-		LocalResourceStatus status = getStatus();
+		LocalResourceStatus status = getStatusFromCache();
 
 		// If resource is derived, it is ignored if it is unmanaged, or if preference is to ignore managed derived resources.
 		if (resource.isDerived()) {
