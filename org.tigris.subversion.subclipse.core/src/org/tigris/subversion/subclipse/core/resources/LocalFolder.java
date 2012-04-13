@@ -112,7 +112,9 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
                     final boolean exists = svnResource.exists();
                     if ((includeExisting && exists)
                             || (includePhantoms && !exists)) {
-                        result.add(svnResource);
+                    	if (!ignoreHiddenChanges || !Util.isHidden(resources[i], false)) {
+                    		result.add(svnResource);
+                    	}
                     }
                 }
 
@@ -151,18 +153,16 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
         if (getStatusFromCache().isDirty()) {
             return true;
         }
-        
+ 
         // ignored resources are not considered dirty
         ISVNLocalResource[] children = (ISVNLocalResource[]) members(
                 new NullProgressMonitor(), ALL_UNIGNORED_MEMBERS);
-
+ 
         for (int i = 0; i < children.length; i++) {
             if (children[i].isDirty() || children[i].getStatus().isMissing() || (children[i].exists() && !children[i].isManaged())) {
-                if (!children[i].isIgnored()) {
-	            	// if a child resource is dirty consider the parent dirty as
-	                // well, there is no need to continue checking other siblings.
-	                return true;
-                }
+            	// if a child resource is dirty consider the parent dirty as
+                // well, there is no need to continue checking other siblings.
+                return true;
             }
         }
         return false;

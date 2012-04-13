@@ -157,6 +157,10 @@ public class Util {
 	}
 	
 	public static boolean isHidden(IResource resource) {
+		return isHidden(resource, true);
+	}
+	
+	public static boolean isHidden(IResource resource, boolean checkParents) {
 		// If resource is excluded using resource filters, return true.
 		if (resource instanceof Resource && !isFilteredUnsupported) {
 			if (isFilteredMethod == null) {
@@ -194,19 +198,21 @@ public class Util {
 			}
 		}
 		
-		IResource parent = resource;
-		while (parent != null) {			
-			try {
-				Object isHidden = isHiddenMethod.invoke(parent, new Object[] {});
-				if (isHidden instanceof Boolean) {
-					if (((Boolean)isHidden).booleanValue()) {
-						return true;
+		if (checkParents) {
+			IResource parent = resource;
+			while (parent != null) {			
+				try {
+					Object isHidden = isHiddenMethod.invoke(parent, new Object[] {});
+					if (isHidden instanceof Boolean) {
+						if (((Boolean)isHidden).booleanValue()) {
+							return true;
+						}
 					}
+				} catch (Exception e) {
+					return false;
 				}
-			} catch (Exception e) {
-				return false;
+				parent = parent.getParent();
 			}
-			parent = parent.getParent();
 		}
 		return false;
 	}
