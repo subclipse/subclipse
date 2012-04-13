@@ -211,6 +211,10 @@ public class CommitCommentArea extends DialogArea {
         }
         
         public void keyTraversed(TraverseEvent e) {
+        	if (e.detail == SWT.TRAVERSE_RETURN && (e.stateMask & SWT.SHIFT) != 0) {
+	       		e.doit = false;
+	       		return;
+        	}
             if (e.detail == SWT.TRAVERSE_RETURN && (e.stateMask & SWT.CTRL) != 0) {
                 e.doit = false;
                 firePropertyChangeChange(OK_REQUESTED, null, null);
