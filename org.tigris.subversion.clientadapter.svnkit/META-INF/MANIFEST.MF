@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SVNKit Client Adapter
 Bundle-SymbolicName: org.tigris.subversion.clientadapter.svnkit;singleton:=true
-Bundle-Version: 1.7.0
+Bundle-Version: 1.7.4
 Bundle-Activator: org.tigris.subversion.clientadapter.svnkit.Activator
 Bundle-Vendor: tigris.org
 Require-Bundle: org.eclipse.core.runtime,
