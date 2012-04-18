@@ -12,6 +12,8 @@ package org.tigris.subversion.subclipse.ui.compare;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.IEncodedStreamContentAccessor;
@@ -25,10 +27,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.team.core.TeamException;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
+import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 /**
@@ -54,6 +59,8 @@ public class ResourceEditionNode
 	private SVNLocalResourceNode localResource = null;
 	private String charset = "UTF8";
 	private SVNRevision pegRevision;
+	
+	private boolean ignoreHiddenChanges = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES);
 	
 	
 	public ResourceEditionNode(ISVNRemoteResource resourceEdition) {
@@ -126,21 +133,27 @@ public class ResourceEditionNode
 									try {
 										ISVNRemoteResource[] members = resource
 												.members(monitor);
-										children = new ResourceEditionNode[members.length];
+										List<ResourceEditionNode> nonHiddenChildren = new ArrayList<ResourceEditionNode>();
 										for (int i = 0; i < members.length; i++) {
-											children[i] = new ResourceEditionNode(members[i], pegRevision);
-											SVNLocalResourceNode localNode = matchLocalResource((ISVNRemoteResource) members[i]);
-											if (localNode != null) {
-												children[i]
-														.setLocalResource(localNode);
-												localNode.setRemoteResource(children[i]);
-												try {
-													children[i].setCharset(localNode.getCharset());
-												} catch (CoreException e) {
-													SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-												}
+											if (!ignoreHiddenChanges || members[i].getResource() == null || !Util.isHidden(members[i].getResource(), false)) {
+												ResourceEditionNode child = new ResourceEditionNode(members[i], pegRevision);
+												SVNLocalResourceNode localNode = matchLocalResource((ISVNRemoteResource) members[i]);
+												if (localNode != null) {
+													child.setLocalResource(localNode);
+													localNode.setRemoteResource(child);
+													try {
+														child.setCharset(localNode.getCharset());
+													} catch (CoreException e) {
+														SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+													}
+												}	
+												nonHiddenChildren.add(child);
 											}
 										}
+										
+										children = new ResourceEditionNode[nonHiddenChildren.size()];
+										nonHiddenChildren.toArray(children);
+										
 									} catch (TeamException e) {
 										throw new InvocationTargetException(e);
 									}
