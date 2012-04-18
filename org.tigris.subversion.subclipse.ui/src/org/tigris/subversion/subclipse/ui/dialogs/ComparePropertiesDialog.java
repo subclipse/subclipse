@@ -1,7 +1,5 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
-import java.io.File;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -29,7 +27,6 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.IPropertyProvider;
 import org.tigris.subversion.subclipse.ui.compare.PropertyCompareInput;
@@ -71,6 +68,9 @@ public class ComparePropertiesDialog extends SvnDialog {
 	private PropertyCompareInput input;
 	
 	private Button okButton;
+	
+	private IResource fromLocalResource;
+	private IResource toLocalResource;
 
 	public ComparePropertiesDialog(Shell shell, IPropertyProvider left, IPropertyProvider right) {
 		super(shell, "ComparePropertiesDialog2"); //$NON-NLS-1$
@@ -94,7 +94,7 @@ public class ComparePropertiesDialog extends SvnDialog {
 		
 		fromWorkingCopyButton = new Button(fromGroup, SWT.RADIO);
 		fromWorkingCopyButton.setText(Policy.bind("ComparePropertiesDialog.2")); //$NON-NLS-1$
-		fromWorkingCopyText = new Text(fromGroup, SWT.BORDER);
+		fromWorkingCopyText = new Text(fromGroup, SWT.BORDER | SWT.READ_ONLY);
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		data.widthHint = 600;
 		fromWorkingCopyText.setLayoutData(data);
@@ -153,7 +153,7 @@ public class ComparePropertiesDialog extends SvnDialog {
 		
 		toWorkingCopyButton = new Button(toGroup, SWT.RADIO);
 		toWorkingCopyButton.setText(Policy.bind("ComparePropertiesDialog.2")); //$NON-NLS-1$
-		toWorkingCopyText = new Text(toGroup, SWT.BORDER);
+		toWorkingCopyText = new Text(toGroup, SWT.BORDER | SWT.READ_ONLY);
 		data = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
 		data.widthHint = 600;
 		toWorkingCopyText.setLayoutData(data);
@@ -212,6 +212,7 @@ public class ComparePropertiesDialog extends SvnDialog {
 				fromRepositoryText.setEnabled(false);
 				fromRepositoryBrowseButton.setEnabled(false);
 				fromHeadButton.setEnabled(false);
+				fromLocalResource = ((PropertyCompareLocalResourceNode)left).getResource();
 			}
 			else if (left instanceof PropertyCompareRemoteResourceNode) {
 				fromRepositoryText.setText(((PropertyCompareRemoteResourceNode)left).getRemoteResource().getUrl().toString());
@@ -234,6 +235,7 @@ public class ComparePropertiesDialog extends SvnDialog {
 				toRepositoryBrowseButton.setEnabled(false);
 				toHeadButton.setEnabled(false);
 				repository = SVNWorkspaceRoot.getSVNResourceFor(((PropertyCompareLocalResourceNode)right).getResource()).getRepository();
+				toLocalResource = ((PropertyCompareLocalResourceNode)right).getResource();
 			}
 			else if (right instanceof PropertyCompareRemoteResourceNode) {
 				toRepositoryText.setText(((PropertyCompareRemoteResourceNode)right).getRemoteResource().getUrl().toString());
@@ -270,9 +272,11 @@ public class ComparePropertiesDialog extends SvnDialog {
 						if (result instanceof IResource) {
 							if (e.getSource() == fromWorkingCopyBrowseButton) {
 								fromWorkingCopyText.setText(((IResource)result).getFullPath().toString());
+								fromLocalResource = (IResource)result;
 							}
 							else {
 								toWorkingCopyText.setText(((IResource)result).getFullPath().toString());
+								toLocalResource = (IResource)result;
 							}
 						}
 					}
@@ -344,8 +348,7 @@ public class ComparePropertiesDialog extends SvnDialog {
 	protected void okPressed() {
 		try {
 			if (fromWorkingCopyButton.getSelection()) {
-				IResource resource = File2Resource.getResource(new File(ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/" + fromWorkingCopyText.getText().trim())); //$NON-NLS-1$
-				left = new PropertyCompareLocalResourceNode(resource, recursiveButton.getSelection(), null);
+				left = new PropertyCompareLocalResourceNode(fromLocalResource, recursiveButton.getSelection(), null);
 			}
 			else {
 				SVNRevision revision = null;
@@ -359,8 +362,7 @@ public class ComparePropertiesDialog extends SvnDialog {
 				left = new PropertyCompareRemoteResourceNode(remoteFolder, revision, recursiveButton.getSelection(), null);
 			}
 			if (toWorkingCopyButton.getSelection()) {
-				IResource resource = File2Resource.getResource(new File(ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/" + toWorkingCopyText.getText().trim())); //$NON-NLS-1$
-				right = new PropertyCompareLocalResourceNode(resource, recursiveButton.getSelection(), null);
+				right = new PropertyCompareLocalResourceNode(toLocalResource, recursiveButton.getSelection(), null);
 			}
 			else {
 				SVNRevision revision = null;

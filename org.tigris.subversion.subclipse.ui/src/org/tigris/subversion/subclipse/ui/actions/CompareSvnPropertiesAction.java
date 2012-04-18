@@ -4,6 +4,8 @@ import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -17,22 +19,32 @@ import org.tigris.subversion.subclipse.ui.dialogs.ComparePropertiesDialog;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 public class CompareSvnPropertiesAction extends WorkbenchWindowAction {
+	private IPropertyProvider right;
+	private Exception exception;
 
 	public void execute(IAction action) {	
+		exception = null;
 		IResource[] resources = getSelectedResources();
 		IPropertyProvider left = null;
-		IPropertyProvider right = null;
+		right = null;
 		if (resources != null && resources.length > 0) {
 			left = new PropertyCompareLocalResourceNode(resources[0], true, null);
 			if (resources.length > 1) {
 				right = new PropertyCompareLocalResourceNode(resources[1], true, null);
 			}
 			else {
-				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[0]);
-				try {
-					right = new PropertyCompareRemoteResourceNode(svnResource.getRemoteResource(SVNRevision.HEAD), SVNRevision.HEAD, true, null);
-				} catch (SVNException e) {
-					MessageDialog.openError(getShell(), Policy.bind("CompareSvnPropertiesAction.0"), e.getMessage()); //$NON-NLS-1$
+				final ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[0]);
+				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {			
+					public void run() {
+						try {
+							right = new PropertyCompareRemoteResourceNode(svnResource.getRemoteResource(SVNRevision.HEAD), SVNRevision.HEAD, true, null);
+						} catch (SVNException e) {
+							exception = e;
+						}							
+					}
+				});
+				if (exception != null) {
+					MessageDialog.openError(getShell(), Policy.bind("CompareSvnPropertiesAction.0"), exception.getMessage()); //$NON-NLS-1$
 					return;
 				}
 			}
