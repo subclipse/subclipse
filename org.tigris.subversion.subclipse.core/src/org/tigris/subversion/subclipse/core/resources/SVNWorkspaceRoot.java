@@ -132,8 +132,10 @@ public class SVNWorkspaceRoot {
         } catch (Exception e) {
             throw e;
         } finally {
-            client.getNotificationHandler().enableLog();
-            folder.getRepository().returnSVNClient(client);
+        	if (client != null) {
+	            client.getNotificationHandler().enableLog();
+	            folder.getRepository().returnSVNClient(client);
+        	}
         }
     }
 

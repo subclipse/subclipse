@@ -78,8 +78,9 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 	    	command.run(Policy.subMonitorFor(monitor,1000));
 	    	
 	    	if (svnExternals != null) {
+	    		ISVNClientAdapter svnClient = null;
 	    		try {
-		    		ISVNClientAdapter svnClient = provider.getSVNWorkspaceRoot().getRepository().getSVNClient();
+		    		svnClient = provider.getSVNWorkspaceRoot().getRepository().getSVNClient();
 		        	for (int i = 0; i < sourceUrls.length; i++) {
 		        		SVNUrl copyToUrl = command.getDestinationUrl(sourceUrls[i].toString());
 			        	GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(provider.getSVNWorkspaceRoot().getRepository(), copyToUrl, SVNRevision.HEAD);
@@ -99,11 +100,12 @@ public class BranchTagOperation extends RepositoryProviderOperation {
 			        			svnClient.propertySet(copyToProperty.getUrl(), info.getRevision(), "svn:externals", getUpdatedSvnExternalsProperty(copyToProperty), Policy.bind("BranchTagOperation.3")); //$NON-NLS-1$ //$NON-NLS-2$
 			        		}
 			        	}
-		        	}		    		
-		    		
-		    		provider.getSVNWorkspaceRoot().getRepository().returnSVNClient(svnClient);
+		        	}		    			    		
 	    		} catch (Exception e) {
-	    			e.printStackTrace();
+	    			throw SVNException.wrapException(e);
+	    		}
+	    		finally {
+	    			provider.getSVNWorkspaceRoot().getRepository().returnSVNClient(svnClient);
 	    		}
 	    	}
 	    	

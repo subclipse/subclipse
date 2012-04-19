@@ -79,7 +79,6 @@ public class SwitchToUrlCommand implements ISVNCommand {
         } catch (SVNClientException e) {
             throw SVNException.wrapException(e);
         } finally {
-        	root.getRepository().returnSVNClient(svnClient);
         	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
         	if (operationResources.size() == 0) {
         		IResource[] resources = SVNWorkspaceRoot.getResourcesFor(resource);
@@ -88,9 +87,12 @@ public class SwitchToUrlCommand implements ISVNCommand {
         		}
         	}
             OperationManager.getInstance().endOperation(true, operationResources);
-    		if (conflictResolver != null) {
-    			svnClient.addConflictResolutionCallback(null);
-    		}
+            if (svnClient != null) {
+	    		if (conflictResolver != null) {
+	    			svnClient.addConflictResolutionCallback(null);
+	    		}
+	    		root.getRepository().returnSVNClient(svnClient);
+            }
             subPm.done();
         }
 	}

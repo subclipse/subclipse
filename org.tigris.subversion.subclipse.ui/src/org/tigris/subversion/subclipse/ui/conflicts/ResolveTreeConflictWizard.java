@@ -71,6 +71,8 @@ public class ResolveTreeConflictWizard extends Wizard {
 	private boolean compare;
 	
 	private File mergePath;
+	
+	private ISVNClientAdapter svnClient;
 
 	public ResolveTreeConflictWizard(SVNTreeConflict treeConflict, IWorkbenchPart targetPart) {
 		super();
@@ -112,7 +114,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 				final IResource mergeTarget = mainPage.getMergeTarget();
 				final SVNRevision rev1 = revision1;
 
-				final ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
+				svnClient = svnResource.getRepository().getSVNClient();
 				mergeException = null;
 				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
 					public void run() {
@@ -131,7 +133,6 @@ public class ResolveTreeConflictWizard extends Wizard {
 						}						
 					}				
 				});			
-				svnResource.getRepository().returnSVNClient(svnClient);
 				if (mergeException != null) {
 					SVNUIPlugin.log(IStatus.ERROR, mergeException.getMessage(), mergeException);
 					MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_mergeError, mergeException.getMessage());
@@ -141,6 +142,9 @@ public class ResolveTreeConflictWizard extends Wizard {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_mergeError, e.getMessage());
 				return false;
+			}
+			finally {
+				svnResource.getRepository().returnSVNClient(svnClient);
 			}
 		}
 		if (mainPage.getCompare()) {
@@ -368,13 +372,20 @@ public class ResolveTreeConflictWizard extends Wizard {
 
 	private ISVNLogMessage[] getLogMessages() throws Exception {
 		if (logMessages == null) {
-			ISVNClientAdapter svnClient = svnResource.getRepository().getSVNClient();
-			IProject project = treeConflict.getResource().getProject();
-			ISVNLocalResource svnProject =  SVNWorkspaceRoot.getSVNResourceFor(project);
-			SVNRevision revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision());
-			SVNRevision revision2 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
-			logMessages = svnClient.getLogMessages(svnProject.getUrl(), revision1, revision2, true); 
-			svnResource.getRepository().returnSVNClient(svnClient);
+			ISVNClientAdapter svnClient = null;
+			try {
+				svnClient = svnResource.getRepository().getSVNClient();
+				IProject project = treeConflict.getResource().getProject();
+				ISVNLocalResource svnProject =  SVNWorkspaceRoot.getSVNResourceFor(project);
+				SVNRevision revision1 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcLeftVersion().getPegRevision());
+				SVNRevision revision2 = new SVNRevision.Number(treeConflict.getConflictDescriptor().getSrcRightVersion().getPegRevision());
+				logMessages = svnClient.getLogMessages(svnProject.getUrl(), revision1, revision2, true); 
+			} catch (Exception e) {
+				throw e;
+			}
+			finally {
+				svnResource.getRepository().returnSVNClient(svnClient);
+			}
 		}
 		return logMessages;
 	}

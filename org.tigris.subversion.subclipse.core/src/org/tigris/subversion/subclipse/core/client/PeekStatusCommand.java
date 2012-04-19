@@ -88,8 +88,10 @@ public class PeekStatusCommand {
         	throw SVNException.wrapException(e);
         }
         finally {
-            client.removeNotifyListener( revisionListener );
-            SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+        	if (client != null) {
+	            client.removeNotifyListener( revisionListener );
+	            SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+        	}
         }
     }
 

@@ -405,8 +405,10 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			throw SVNException.wrapException(e); 
 		} finally {
 			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
-			svnClient.removeNotifyListener(operationResourceCollector);
-			getRepository().returnSVNClient(svnClient);
+			if (svnClient != null) {
+				svnClient.removeNotifyListener(operationResourceCollector);
+				getRepository().returnSVNClient(svnClient);
+			}
 		}
 	}
 
@@ -426,8 +428,10 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			throw SVNException.wrapException(e); 
 		} finally {
 			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
-			svnClient.removeNotifyListener(operationResourceCollector);
-			getRepository().returnSVNClient(svnClient);
+			if (svnClient != null) {
+				svnClient.removeNotifyListener(operationResourceCollector);
+				getRepository().returnSVNClient(svnClient);
+			}
 		}
 	}
 
@@ -445,8 +449,10 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 			throw SVNException.wrapException(e); 
 		} finally {
 			OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
-			svnClient.removeNotifyListener(operationResourceCollector);
-			getRepository().returnSVNClient(svnClient);
+			if (svnClient != null) {
+				svnClient.removeNotifyListener(operationResourceCollector);
+				getRepository().returnSVNClient(svnClient);
+			}
 		}
 	}
 

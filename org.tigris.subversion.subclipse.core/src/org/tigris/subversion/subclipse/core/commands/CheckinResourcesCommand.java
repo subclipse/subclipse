@@ -129,10 +129,12 @@ public class CheckinResourcesCommand implements ISVNCommand {
                 } finally {             	
                 	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
                     OperationManager.getInstance().endOperation(true, operationResources);
-                    svnClient.removeNotifyListener(operationResourceCollector);
                     pm.done();
-                    svnClient.removeNotifyListener(notifyListener);
-                    root.getRepository().returnSVNClient(svnClient);
+                    if (svnClient != null) {
+	                    svnClient.removeNotifyListener(operationResourceCollector);
+	                    svnClient.removeNotifyListener(notifyListener);                 
+	                    root.getRepository().returnSVNClient(svnClient);
+                    }
                 }
             }
         }, Policy.monitorFor(monitor));

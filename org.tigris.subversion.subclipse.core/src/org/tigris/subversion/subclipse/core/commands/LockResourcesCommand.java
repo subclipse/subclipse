@@ -67,8 +67,10 @@ public class LockResourcesCommand implements ISVNCommand {
         } finally {
         	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
             OperationManager.getInstance().endOperation(true, operationResources);
-            svnClient.removeNotifyListener(operationResourceCollector);
-            root.getRepository().returnSVNClient(svnClient);
+            if (svnClient != null) {
+	            svnClient.removeNotifyListener(operationResourceCollector);
+	            root.getRepository().returnSVNClient(svnClient);
+            }
             monitor.done();
         }
 	}
