@@ -293,9 +293,10 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     public SVNUrl getUrl()
     {
     	try {
-    		if (isManaged()) {
+    		LocalResourceStatus status = getStatusFromCache();
+    		if (status.isManaged()) {
     			// if the resource is managed, get the url directly
-    			return getStatusFromCache().getUrl();
+    			return status.getUrl();
     		} else {
     			// otherwise, get the url of the parent
     			ISVNLocalResource parent = getParent();
