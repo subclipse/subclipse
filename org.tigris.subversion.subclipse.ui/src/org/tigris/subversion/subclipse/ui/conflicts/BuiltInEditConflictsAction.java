@@ -128,7 +128,7 @@ public class BuiltInEditConflictsAction extends WorkspaceAction {
 
     protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) {
         try {
-            return conflictWorkingFile != null && svnResource.getStatus().isTextConflicted();
+            return conflictWorkingFile != null && svnResource.getStatusFromCache().isTextConflicted();
         } catch (SVNException e) {
             return false;
         }

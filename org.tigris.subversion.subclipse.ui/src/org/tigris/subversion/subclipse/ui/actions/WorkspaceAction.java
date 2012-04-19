@@ -180,16 +180,29 @@ public abstract class WorkspaceAction extends SVNAction {
 	 * @return boolean
 	 */
 	protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) throws SVNException {
+		if (isEnabledForIgnoredResources() &&
+			isEnabledForManagedResources() &&
+			isEnabledForUnmanagedResources() &&
+			isEnabledForAddedResources() &&
+			isEnabledForCopiedResources()) {
+			return true;
+		}
+		LocalResourceStatus status = svnResource.getStatusFromCache();
 		boolean managed = false;
 		boolean ignored = false;
 		boolean added = false;
 		boolean copied = false;
-		if (svnResource.isIgnored()) {
-			ignored = true;
-		} else {
-            managed = svnResource.isManaged();
+		if (!isEnabledForIgnoredResources()) {
+			if (!status.isManaged() && status.isIgnored()) {
+				ignored = true;
+			}
+			else {
+				ignored = svnResource.isIgnored();
+			}
+		}
+		if (!ignored) {
+            managed = status.isManaged();
 			if (managed) {
-				LocalResourceStatus status = svnResource.getStatusFromCache();
 				copied = status.isCopied();
                 added = status.isAdded();
             }

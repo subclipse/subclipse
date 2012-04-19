@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.jface.action.IAction;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.operations.ResolveOperation;
@@ -44,7 +45,8 @@ public class ResolveAction extends WorkbenchWindowAction {
         	if (!super.isEnabledForSVNResource(svnResource)) {
         		return false;
         	}
-            return svnResource.getStatusFromCache().isTextConflicted() || svnResource.getStatusFromCache().isPropConflicted() || svnResource.getStatusFromCache().hasTreeConflict();
+        	LocalResourceStatus status = svnResource.getStatusFromCache();
+            return status.isTextConflicted() || status.isPropConflicted() || status.hasTreeConflict();
         } catch (SVNException e) {
             return false;
         }
