@@ -73,7 +73,7 @@ public class LocalResourceStatus extends ResourceStatus {
 	 *  for an svn:externals folder
 	 */
     public LocalResourceStatus(ISVNStatus status, String url) {
-    	super(status, url);
+    	super(status, url, false);
     	
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;

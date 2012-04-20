@@ -65,7 +65,7 @@ public class RemoteResourceStatus extends ResourceStatus {
      * @param revision
      */
 	public RemoteResourceStatus(ISVNStatus realStatus, SVNRevision.Number revision) {
-		super(realStatus, null);
+		super(realStatus, null, true);
 		
         this.textStatus = realStatus.getRepositoryTextStatus().toInt();
         this.propStatus = realStatus.getRepositoryPropStatus().toInt();

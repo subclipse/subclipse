@@ -83,7 +83,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
 	 * @param url - Only needed when status.getUrl is Null, such as
 	 *  for an svn:externals folder
 	 */
-	public ResourceStatus(ISVNStatus status, String url) {
+	public ResourceStatus(ISVNStatus status, String url, boolean useUrlHack) {
 		super();
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;
@@ -97,8 +97,11 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
         } else {
             this.url = (String) aValue;
         }
-        
-        if (this.url == null) {
+ 
+        // This is a hack to get the URL for incoming additions if when URL is null due to a JavaHL bug.
+        // See Issue #1312 for details.  This should only be done for RemoteResourceStatus (useUrlHack == true),
+        // not LocalResourceStatus.
+        if (this.url == null && useUrlHack) {
         	File file = status.getFile();
         	if (file != null) {
         		List<String> segments = new ArrayList<String>();
