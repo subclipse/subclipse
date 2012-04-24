@@ -26,6 +26,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
+import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
@@ -52,10 +54,12 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
-public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener {
+public class SVNWorkspaceSubscriber extends Subscriber implements IResourceStateChangeListener, IPropertyChangeListener {
 
 	private static SVNWorkspaceSubscriber instance; 
 	private HashMap<IResource, IResource[]> changesMap = new HashMap<IResource, IResource[]>();
+	
+	private boolean ignoreHiddenChanges = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES);
 	
 	/** We need to store unchanged parents in remoteSyncStateStore.
 	 * To distinguish them from real changed resources we store this dummy data instead for them */
@@ -78,6 +82,7 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 
 	private SVNWorkspaceSubscriber() {
 	    SVNProviderPlugin.addResourceStateChangeListener(this);
+	    SVNProviderPlugin.getPlugin().getPluginPreferences().addPropertyChangeListener(this);
 	}
 
     /* (non-Javadoc)
@@ -173,7 +178,11 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
         	return null;
     	if( ! isSupervised( resource ) )
             return null;
-        
+    	
+    	if (ignoreHiddenChanges && Util.isHidden(resource)) {
+    		return null;
+    	}
+    	
         //LocalResourceStatus localStatus = SVNWorkspaceRoot.getSVNResourceFor( resource );
         LocalResourceStatus localStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatus(resource);
 
@@ -250,7 +259,6 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
         	
             boolean descend = (depth == IResource.DEPTH_INFINITE)? true : false;
             boolean showOutOfDate = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS);
-            boolean ignoreHiddenChanges = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES);
             StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource ), descend, showOutOfDate, true );
             cmd.setCallback(new CancelableSVNStatusCallback(monitor));
             cmd.run(monitor);
@@ -360,5 +368,11 @@ public class SVNWorkspaceSubscriber extends Subscriber implements IResourceState
 	    for (int i = 0; i < resources.length; i++) {
 	        remoteSyncStateStore.flushBytes(resources[i], IResource.DEPTH_INFINITE);
 	    }
+	}
+
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES)) {
+			ignoreHiddenChanges = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_HIDDEN_CHANGES);
+		}
 	}
 }
