@@ -13,6 +13,8 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -374,7 +376,9 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
             throw SVNException.wrapException(e); 
         } finally {
         	getRepository().returnSVNClient(svnClient);
-            OperationManager.getInstance().endOperation();
+        	Set<IResource> refreshList = new HashSet<IResource>();
+        	refreshList.add(getResource());
+            OperationManager.getInstance().endOperation(true, refreshList);
         }
     }
     
