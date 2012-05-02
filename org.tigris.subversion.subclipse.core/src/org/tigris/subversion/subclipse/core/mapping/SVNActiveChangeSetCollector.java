@@ -17,7 +17,7 @@ import org.eclipse.team.internal.core.subscribers.SubscriberChangeSetManager;
 /**
  *
  */
-public class SVNActiveChangeSetCollector extends SubscriberChangeSetManager {
+public class SVNActiveChangeSetCollector extends SubclipseSubscriberChangeSetManager {
 
 	public SVNActiveChangeSetCollector(Subscriber subscriber) {
 		super(subscriber);

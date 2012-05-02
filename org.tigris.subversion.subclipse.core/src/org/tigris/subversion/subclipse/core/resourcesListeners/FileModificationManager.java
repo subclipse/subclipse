@@ -29,6 +29,9 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
+import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProviderType;
@@ -44,7 +47,9 @@ import org.tigris.subversion.svnclientadapter.ISVNInfo;
  * participant so that deltas generated before the plugin are loaded are not
  * missed. 
  */
-public class FileModificationManager implements IResourceChangeListener, ISaveParticipant {
+public class FileModificationManager implements IResourceChangeListener, ISaveParticipant, IPropertyChangeListener {
+	
+	private boolean ignoreManagedDerivedResources = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES);
 	
 	// consider the following changes types and ignore the others (e.g. marker and description changes are ignored)
 	protected int INTERESTING_CHANGES = IResourceDelta.CONTENT | 
@@ -67,6 +72,21 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 			event.getDelta().accept(new IResourceDeltaVisitor() {
 				public boolean visit(IResourceDelta delta) {
 					IResource resource = delta.getResource();
+					
+					if (resource.isDerived()) {
+						LocalResourceStatus aStatus = null;
+						try {
+							aStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatusFromCache(resource);
+						} catch (SVNException e) {
+							SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
+						}
+						if ((aStatus == null) || !aStatus.isManaged()) {
+							return false;
+						}
+						if (ignoreManagedDerivedResources) {
+							return false;
+						}
+					}
 
 					if (resource.getType()==IResource.FILE) {
 						if (delta.getKind() == IResourceDelta.CHANGED && resource.exists()) {
@@ -86,15 +106,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 					}				
 					else if(resource.getType()==IResource.FOLDER) {
 						// FIXME: Why a different processing for add and delete?
-						if (resource.isDerived() && delta.getKind() == IResourceDelta.CHANGED) {
-							try {
-								LocalResourceStatus aStatus = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatusFromCache(resource);
-								if ((aStatus == null) || !aStatus.isManaged())
-									return false;
-				    		} catch (SVNException e) {
-				    			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
-				    		}
-						} else if (delta.getKind() == IResourceDelta.ADDED) {
+						if (delta.getKind() == IResourceDelta.ADDED) {
 							if (resource.getParent() != null && !modifiedInfiniteDepthResources.contains(resource.getParent())) {
 								modifiedInfiniteDepthResources.add(resource.getParent());
 							}
@@ -264,6 +276,12 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 		    if (client != null) {
 		    	SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
 		    }
+		}
+	}
+
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES)) {
+			ignoreManagedDerivedResources = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES);
 		}
 	}
 

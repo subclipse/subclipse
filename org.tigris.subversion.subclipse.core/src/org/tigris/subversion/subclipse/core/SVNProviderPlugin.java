@@ -178,6 +178,7 @@ public class SVNProviderPlugin extends Plugin {
 
 		// this listener will listen to modifications to files
 		fileModificationManager = new FileModificationManager();
+		getPluginPreferences().addPropertyChangeListener(fileModificationManager);
 
 		// this listener will listen to modification to metafiles (files in .svn
 		// subdir)
