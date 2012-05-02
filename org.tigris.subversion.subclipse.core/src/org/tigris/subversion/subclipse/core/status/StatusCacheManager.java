@@ -113,7 +113,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
      * @param status
      * @param workspaceRoot
      */
-    protected IResource updateCache(IResource resource, ISVNStatus status) {
+    public IResource updateCache(IResource resource, ISVNStatus status) {
     	if (resource != null && status != null && status.getTextStatus() != null && !resource.exists() && status.getTextStatus().equals(SVNStatusKind.MISSING) && (status.getLastChangedRevision() == null || status.getLastChangedRevision().getNumber() == -1)) {
     		statusCache.removeStatus(resource);
     		return resource;
