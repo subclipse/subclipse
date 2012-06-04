@@ -19,6 +19,8 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
@@ -44,6 +46,7 @@ public class CommitOperation extends SVNOperation {
     private ISVNClientAdapter svnClient;
     private boolean atomicCommit = true;
     private boolean canRunAsJob = true;
+    private String postCommitError;
 
     public CommitOperation(IWorkbenchPart part, IResource[] selectedResources, IResource[] resourcesToAdd, IResource[] resourcesToDelete, IResource[] resourcesToCommit, String commitComment, boolean keepLocks) {
         super(part);
@@ -55,6 +58,7 @@ public class CommitOperation extends SVNOperation {
     }
 
     protected void execute(IProgressMonitor monitor) throws SVNException, InterruptedException {
+    	postCommitError = null;
     	monitor.beginTask(null, resourcesToAdd.length + resourcesToDelete.length + resourcesToCommit.length);
         try {
         	svnClient = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
@@ -105,11 +109,19 @@ public class CommitOperation extends SVNOperation {
 				List<IResource> list = table.get(mapKey);
 				IResource[] providerResources = new IResource[list.size()];
 				list.toArray(providerResources);
-				provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, providerResources.length));
+				postCommitError = provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, providerResources.length));
 				for (IResource providerResource : providerResources) {
 					if (!providerResource.exists()) {
 						SVNProviderPlugin.getPlugin().getStatusCacheManager().removeStatus(providerResource);
 					}
+				}
+				
+				if (postCommitError != null) {
+					Display.getDefault().syncExec(new Runnable() {						
+						public void run() {
+							MessageDialog.openError(Display.getDefault().getActiveShell(), Policy.bind("CommitDialog.title"), postCommitError);
+						}
+					});
 				}
 			}			
         } catch (TeamException e) {

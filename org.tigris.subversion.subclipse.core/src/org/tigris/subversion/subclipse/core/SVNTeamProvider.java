@@ -134,9 +134,10 @@ public class SVNTeamProvider extends RepositoryProvider {
      * @param progress	progressMonitor or null
      * @exception TeamException
      */
-	public void checkin(IResource[] resources, final String comment, boolean keepLocks, final int depth, IProgressMonitor progress) throws TeamException {
+	public String checkin(IResource[] resources, final String comment, boolean keepLocks, final int depth, IProgressMonitor progress) throws TeamException {
 		CheckinResourcesCommand command = new CheckinResourcesCommand(getSVNWorkspaceRoot(), resources, depth, comment, keepLocks);
         command.run(progress);
+        return command.getPostCommitError();
 	}
 	
 	/**

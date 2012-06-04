@@ -51,6 +51,8 @@ public class CheckinResourcesCommand implements ISVNCommand {
     
     private ISVNNotifyListener notifyListener;
     
+    private String postCommitError;
+    
     private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 
     public CheckinResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int depth, String message, boolean keepLocks) {
@@ -65,6 +67,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void run(IProgressMonitor monitor) throws SVNException {
+		postCommitError = null;
         final ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
         
         // Prepare the parents list
@@ -124,6 +127,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     // then the resources the user has requested to commit
                     if (svnClient.canCommitAcrossWC()) svnClient.commitAcrossWC(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks,true);
                     else svnClient.commit(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks);
+                    postCommitError = svnClient.getPostCommitError();
                 } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 } finally {             	
@@ -147,4 +151,9 @@ public class CheckinResourcesCommand implements ISVNCommand {
 		}
 		return false;
 	}
+
+	public String getPostCommitError() {
+		return postCommitError;
+	}
+	
 }
