@@ -55,6 +55,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 	private IResource resource;
 	private IWorkbenchPart targetPart;
+	private String selectedResourceUrl;
 	private Button compareButton;
 	private Button diffButton;
 	private Text fileText;
@@ -120,7 +121,8 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 		ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 		
 		if (localResource != null && localResource.getUrl() != null) {
-			toUrlText.setText(localResource.getUrl().toString());
+			selectedResourceUrl = localResource.getUrl().toString();
+			toUrlText.setText(selectedResourceUrl);
 		}
 		
 		Button urlBrowseButton = new Button(toGroup, SWT.PUSH);
@@ -292,12 +294,14 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 					File path = new File(resource.getLocation().toString());
 					svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 					pegRevision = null;
-					ISVNRemoteResource baseResource = svnResource.getBaseResource();
-					if (baseResource != null) {
-						pegRevision = baseResource.getLastChangedRevision();
+					if (toUrlText.getText().equals(selectedResourceUrl)) {
+						ISVNRemoteResource baseResource = svnResource.getBaseResource();
+						if (baseResource != null) {
+							pegRevision = baseResource.getLastChangedRevision();
+						}
 					}
 					if (pegRevision == null) {
-						pegRevision = SVNRevision.HEAD;
+						pegRevision = toRevision;
 					}
 					repository = svnResource.getRepository();
 					svnClient = repository.getSVNClient();
