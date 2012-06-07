@@ -62,6 +62,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 import org.tigris.subversion.subclipse.ui.history.HistoryTableProvider;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.subclipse.ui.operations.UpdateOperation;
@@ -358,9 +359,14 @@ public class SVNCompareRevisionsInput extends CompareEditorInput implements ISav
 	protected Object prepareInput(IProgressMonitor monitor){
 		initLabels();
 		DiffNode diffRoot = new DiffNode(Differencer.NO_CHANGE);
+		String localCharset = Utilities.getCharset(resource);
 		for (int i = 0; i < logEntries.length; i++) {		
 			ITypedElement left = new TypedBufferedContent(resource);
-			ITypedElement right = new ResourceRevisionNode(logEntries[i]);
+			ResourceRevisionNode right = new ResourceRevisionNode(logEntries[i]);
+			try {
+				right.setCharset(localCharset);
+			} catch (CoreException e) {
+			}
 			diffRoot.add(new VersionCompareDiffNode(left, right));
 		}
 		return diffRoot;		
