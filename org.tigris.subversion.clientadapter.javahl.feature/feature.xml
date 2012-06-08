@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.clientadapter.javahl.feature"
       label="Subversion JavaHL Native Library Adapter"
-      version="1.7.5.1"
+      version="1.7.5.2"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.clientadapter.javahl"
       colocation-affinity="org.tigris.subversion.subclipse">
@@ -47,7 +47,7 @@
    <plugin
          id="org.tigris.subversion.clientadapter.javahl.win64"
          os="win32"
-         arch="x86_64"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
