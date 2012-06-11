@@ -26,31 +26,25 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IDecoration;
-import org.eclipse.jface.viewers.IDecorationContext;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.RepositoryProvider;
-import org.eclipse.team.core.diff.IDiff;
-import org.eclipse.team.core.diff.IThreeWayDiff;
 import org.eclipse.team.ui.ISharedImages;
 import org.eclipse.team.ui.TeamImages;
 import org.eclipse.team.ui.TeamUI;
-import org.eclipse.team.ui.mapping.SynchronizationStateTester;
 import org.eclipse.ui.IContributorResourceAdapter;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.themes.ITheme;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
@@ -111,8 +105,6 @@ public class SVNLightweightDecorator
 	protected boolean showExternal;
 	protected boolean showHasRemote;
 	protected DateFormat dateFormat;
-	
-	private static final SynchronizationStateTester DEFAULT_TESTER = new SynchronizationStateTester();
 
 	/*
 	 * Define a cached image descriptor which only creates the image data once
@@ -338,20 +330,26 @@ public class SVNLightweightDecorator
 		boolean isDirty = false;
 		boolean isUnversioned = false;
 		
-		if (resource == null) {
-			IDecorationContext context = decoration.getDecorationContext();
-			SynchronizationStateTester tester = SVNLightweightDecorator.DEFAULT_TESTER;
-			Object property = context.getProperty(SynchronizationStateTester.PROP_TESTER);
-			if (property instanceof SynchronizationStateTester) {
-				tester = (SynchronizationStateTester) property;
-			}
-			int stateFlags;
-			try {
-				stateFlags = tester.getState(element, IDiff.ADD | IDiff.REMOVE | IDiff.CHANGE | IThreeWayDiff.OUTGOING, new NullProgressMonitor());
-				if ((stateFlags & IThreeWayDiff.CHANGE) != 0 || (stateFlags & IThreeWayDiff.ADD) != 0 || (stateFlags & IThreeWayDiff.REMOVE) != 0) {
-					decoration.addOverlay(dirty);
+		if (resource == null) {			
+			if (element instanceof ResourceMapping) {
+				IProject[] projects = ((ResourceMapping)element).getProjects();
+				if (projects != null) {
+					for (IProject project : projects) {
+						ISVNLocalResource svnProjectResource = SVNWorkspaceRoot.getSVNResourceFor(project);
+						if (svnProjectResource != null) {
+							try {
+								if (svnProjectResource.isDirty()) {
+									decoration.addOverlay(dirty);
+									return;
+								}
+							} catch (SVNException e) {
+								return;
+							}
+						}
+					}
 				}
-			} catch (Exception e) {}
+			}
+			return;
 		} else {		
 			LocalResourceStatus status = null;
 			if (!isIgnored) {
