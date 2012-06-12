@@ -97,11 +97,15 @@ public class OperationManager implements ISVNNotifyListener {
 		endOperation(true, null);
 	}
 	
+	public void endOperation(boolean refresh, Set<IResource> refreshResourceList) throws SVNException {
+		endOperation(refresh, refreshResourceList, true);
+	}
+	
 	/**
 	 * Ends a batch of operations. Pending changes are committed only when the
 	 * number of calls to endOperation() balances those to beginOperation().
 	 */
-	public void endOperation(boolean refresh, Set<IResource> refreshResourceList) throws SVNException {
+	public void endOperation(boolean refresh, Set<IResource> refreshResourceList, boolean refreshLocal) throws SVNException {
 		try {
 			if (lock.getNestingCount() == 1) {
 				svnClient.removeNotifyListener(this);
@@ -118,12 +122,13 @@ public class OperationManager implements ISVNNotifyListener {
 					refreshResourceList.toArray(resources);
 					SVNProviderPlugin.broadcastModificationStateChanges(resources);
 				}
-
-				FilteringContainerList foldersToRefresh = new FilteringContainerList(localRefreshList);
-				for (IContainer folder : foldersToRefresh) {
-	                try {
-	                	folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-					} catch (CoreException e) {}
+				if (refreshLocal) {
+					FilteringContainerList foldersToRefresh = new FilteringContainerList(localRefreshList);
+					for (IContainer folder : foldersToRefresh) {
+		                try {
+		                	folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+						} catch (CoreException e) {}
+					}
 				}
 			}
 		} finally {

@@ -36,13 +36,20 @@ public class LockResourcesCommand implements ISVNCommand {
     
     private SVNWorkspaceRoot root;
     
+    private boolean refreshLocal;
+    
     private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 
-    public LockResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, boolean force, String message) {
+    public LockResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, boolean force, String message, boolean refreshLocal) {
     	this.resources = resources;
         this.message = message;
         this.force = force;
         this.root = root;
+        this.refreshLocal = refreshLocal;
+    }
+    
+    public LockResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, boolean force, String message) {
+    	this(root, resources, force, message, true);
     }
     
 	/* (non-Javadoc)
@@ -66,7 +73,7 @@ public class LockResourcesCommand implements ISVNCommand {
             throw SVNException.wrapException(e);
         } finally {
         	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
-            OperationManager.getInstance().endOperation(true, operationResources);
+            OperationManager.getInstance().endOperation(true, operationResources, refreshLocal);
             if (svnClient != null) {
 	            svnClient.removeNotifyListener(operationResourceCollector);
 	            root.getRepository().returnSVNClient(svnClient);

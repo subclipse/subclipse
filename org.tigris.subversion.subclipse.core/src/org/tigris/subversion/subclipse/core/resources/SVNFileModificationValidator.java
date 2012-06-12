@@ -73,7 +73,7 @@ public class SVNFileModificationValidator implements IFileModificationValidator 
 	    	RepositoryProvider provider = RepositoryProvider.getProvider(managedFiles[0].getProject());
 	    	if ((provider != null) && (provider instanceof SVNTeamProvider)) {
 	    		SVNTeamProvider svnTeamProvider = (SVNTeamProvider) provider;
-	    		LockResourcesCommand command = new LockResourcesCommand(svnTeamProvider.getSVNWorkspaceRoot(), managedFiles, stealLock, comment);
+	    		LockResourcesCommand command = new LockResourcesCommand(svnTeamProvider.getSVNWorkspaceRoot(), managedFiles, stealLock, comment, false);
 	    		try {
 	    			command.run(new NullProgressMonitor());
 	    		} catch (SVNException e) {
