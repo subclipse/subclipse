@@ -13,11 +13,13 @@ package org.tigris.subversion.subclipse.core.commands;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRunnable;
 import org.tigris.subversion.subclipse.core.Policy;
@@ -70,10 +72,19 @@ public class CheckinResourcesCommand implements ISVNCommand {
 		postCommitError = null;
         final ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
         
+        OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
+        
         // Prepare the parents list
         // we will Auto-commit parents if they are not already commited
         List<IContainer> parentsList = new ArrayList<IContainer>();
+        List<IProject> projectList = new ArrayList<IProject>();
         for (IResource currentResource : resources) {
+        	
+        	IProject project = currentResource.getProject();
+        	if (!projectList.contains(project)) {
+        		projectList.add(project);
+        	}
+        	
             IContainer parent = currentResource.getParent();
             ISVNLocalResource svnParentResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
             while (parent.getType() != IResource.ROOT && 
@@ -99,6 +110,10 @@ public class CheckinResourcesCommand implements ISVNCommand {
             resourceFiles[j] = resources[i].getLocation().toFile();  
         }
         
+        IProject[] projects = new IProject[projectList.size()];
+        projectList.toArray(projects);
+        ISchedulingRule rule = MultiRule.combine(projects);
+        
         SVNProviderPlugin.run(new ISVNRunnable() {
             public void run(final IProgressMonitor pm) throws SVNException {
                 try {             	
@@ -120,8 +135,6 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     
                     svnClient.addNotifyListener(operationResourceCollector);
                     
-                    OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(pm, svnClient));
-                    
                     svnClient.addNotifyListener(notifyListener);
                     
                     // then the resources the user has requested to commit
@@ -131,8 +144,6 @@ public class CheckinResourcesCommand implements ISVNCommand {
                 } catch (SVNClientException e) {
                     throw SVNException.wrapException(e);
                 } finally {             	
-                	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
-                    OperationManager.getInstance().endOperation(true, operationResources);
                     pm.done();
                     if (svnClient != null) {
 	                    svnClient.removeNotifyListener(operationResourceCollector);
@@ -141,7 +152,8 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     }
                 }
             }
-        }, Policy.monitorFor(monitor));
+        }, rule, Policy.monitorFor(monitor));
+        OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
 	}
     
 	private boolean inCommitList(IResource resource) {
