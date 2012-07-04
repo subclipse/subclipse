@@ -74,6 +74,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
         
         OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
         
+        try {
         // Prepare the parents list
         // we will Auto-commit parents if they are not already commited
         List<IContainer> parentsList = new ArrayList<IContainer>();
@@ -153,7 +154,9 @@ public class CheckinResourcesCommand implements ISVNCommand {
                 }
             }
         }, rule, Policy.monitorFor(monitor));
-        OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
+        } finally {
+        	OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
+        }
 	}
     
 	private boolean inCommitList(IResource resource) {
