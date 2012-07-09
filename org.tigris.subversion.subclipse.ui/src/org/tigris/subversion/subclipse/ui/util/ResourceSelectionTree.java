@@ -74,8 +74,6 @@ public class ResourceSelectionTree extends Composite {
 	private TreeViewer treeViewer;
 	private LabelProvider labelProvider;
 	private String label;
-//	private Button selectAllButton;
-//	private Button deselectAllButton;
 	private Action treeAction;
 	private Action flatAction;
 	private Action compressedAction;
@@ -346,9 +344,6 @@ public class ResourceSelectionTree extends Composite {
 		
 		if (checkbox) {
       setAllChecked(true);
-      if (mode == MODE_TREE) {
-        treeViewer.collapseAll();
-      }
       ((CheckboxTreeViewer) treeViewer)
           .addCheckStateListener(new ICheckStateListener() {
             public void checkStateChanged(CheckStateChangedEvent event) {
@@ -562,9 +557,6 @@ public class ResourceSelectionTree extends Composite {
 		treeViewer.refresh();
 		treeViewer.expandAll();
 		if (checkbox) ((CheckboxTreeViewer)treeViewer).setCheckedElements(checkedElements);
-		if (checkbox && mode == MODE_TREE) {
-			treeViewer.collapseAll();
-		}
 	}
 	
 	private IContainer[] getRootFolders() {
