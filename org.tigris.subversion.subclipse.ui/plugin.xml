@@ -1431,7 +1431,7 @@ For example:
 	      id="org.tigris.subversion.subclipse.ui.upgrade">
 	    </action>			
 	    <action
-	      label="%CleanupAction.label"
+	      label="%RefreshCleanupAction.label"
 	      icon="icons/full/empty/empty.gif"
 	      helpContextId="org.tigris.subversion.subclipse.ui.team_cleanup_action_context"
 	      class="org.tigris.subversion.subclipse.ui.actions.CleanupAction"
@@ -1613,7 +1613,7 @@ For example:
 			id="org.tigris.subversion.subclipse.ui.export" />
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
-			name="%CleanupAction.label"
+			name="%RefreshCleanupAction.label"
 			id="org.tigris.subversion.subclipse.ui.cleanup" />
 		<command
 			categoryId="org.tigris.subversion.subclipse.commandCategory"
