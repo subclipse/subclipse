@@ -37,6 +37,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProviderType;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.JobUtility;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
 
@@ -138,7 +139,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 						} 
 						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
 							if (delta.getKind() == IResourceDelta.ADDED) {
-								autoShareProjectIfSVNWorkingCopy(resource, project);
+								autoShareProjectIfSVNWorkingCopy(project);
 							}
 							return false; // not a svn handled project
 						}
@@ -154,17 +155,23 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 					return true;
 				}
 			});
-            
-            // we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightweightDecorator)
-			if (!modifiedResources.isEmpty()) {
-                IResource[] resources = (IResource[])modifiedResources.toArray(new IResource[modifiedResources.size()]);
-				refreshStatus(resources);
-                SVNProviderPlugin.broadcastModificationStateChanges(resources);
-			}
-			if (!modifiedInfiniteDepthResources.isEmpty()) {
-                IResource[] resources = (IResource[])modifiedInfiniteDepthResources.toArray(new IResource[modifiedInfiniteDepthResources.size()]);
-                refreshStatusInfitite(resources);
-                SVNProviderPlugin.broadcastModificationStateChanges(resources);
+			
+			if (!modifiedResources.isEmpty() || !modifiedInfiniteDepthResources.isEmpty()) {
+				JobUtility.scheduleJob("Refresh SVN status cache", new Runnable() {				
+					public void run() {
+			            // we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightweightDecorator)
+						if (!modifiedResources.isEmpty()) {
+			                IResource[] resources = (IResource[])modifiedResources.toArray(new IResource[modifiedResources.size()]);
+							refreshStatus(resources);
+			                SVNProviderPlugin.broadcastModificationStateChanges(resources);
+						}
+						if (!modifiedInfiniteDepthResources.isEmpty()) {
+			                IResource[] resources = (IResource[])modifiedInfiniteDepthResources.toArray(new IResource[modifiedInfiniteDepthResources.size()]);
+			                refreshStatusInfitite(resources);
+			                SVNProviderPlugin.broadcastModificationStateChanges(resources);
+						}						
+					}
+				}, null, false);
 			}
 		} catch (CoreException e) {
 			SVNProviderPlugin.log(e.getStatus());
@@ -260,15 +267,14 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	public void saving(ISaveContext context) {
 	}
 
-	private void autoShareProjectIfSVNWorkingCopy(IResource resource,
-			IProject project) {
+	private void autoShareProjectIfSVNWorkingCopy(IProject project) {
 		ISVNClientAdapter client = null;
 		try {
 			client = SVNProviderPlugin.getPlugin().getSVNClient();
 			SVNProviderPlugin.disableConsoleLogging();
 			ISVNInfo info = client.getInfoFromWorkingCopy(project.getLocation().toFile());
 			if (info != null) {
-				SVNTeamProviderType.getAutoShareJob().share((IProject)resource);
+				SVNTeamProviderType.getAutoShareJob().share(project);
 			}
 		} catch (Exception e) {}
 		finally {
