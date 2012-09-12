@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.operations;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -101,16 +100,18 @@ public abstract class RepositoryProviderOperation extends SVNOperation {
 		for (int i = 0; i < resources.length; i++) {			
 			IResource[] pathResources = SVNWorkspaceRoot.getResourcesFor(new Path(resources[i].getLocation().toOSString()), false);
 			for (IResource pathResource : pathResources) {
-				IProject resourceProject = pathResource.getProject();
+				IProject resourceProject = pathResource.getProject();				
 				rules.add(ruleFactory.modifyRule(resourceProject));
-				
-				// Add nested projects
-				for (IProject project : projects) {
-					if (!project.getLocation().equals(resourceProject.getLocation()) && resourceProject.getLocation().isPrefixOf(project.getLocation())) {
-						rules.add(ruleFactory.modifyRule(project));
-					}
-				}	
-				
+				if (resourceProject.getLocation() != null) {
+					// Add nested projects
+					for (IProject project : projects) {
+						if (project.getLocation() != null) {
+							if (!project.getLocation().equals(resourceProject.getLocation()) && resourceProject.getLocation().isPrefixOf(project.getLocation())) {
+								rules.add(ruleFactory.modifyRule(project));
+							}
+						}
+					}	
+				}
 			}
 		}
 		return MultiRule.combine((ISchedulingRule[]) rules.toArray(new ISchedulingRule[rules.size()]));
