@@ -78,6 +78,7 @@ import org.tigris.subversion.subclipse.ui.actions.RemoteResourceTransfer;
 import org.tigris.subversion.subclipse.ui.actions.SVNAction;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.NewLocationWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
@@ -229,7 +230,7 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 			public void run() {
 			    if (!WorkspacePathValidator.validateWorkspacePath()) return;
 				NewLocationWizard wizard = new NewLocationWizard();
-				WizardDialog dialog = new WizardDialog(shell, wizard);
+				WizardDialog dialog = new ClosableWizardDialog(shell, wizard);
 				dialog.open();
 			}
 		};

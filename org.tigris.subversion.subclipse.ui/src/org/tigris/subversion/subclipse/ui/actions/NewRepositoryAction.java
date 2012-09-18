@@ -14,11 +14,13 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.NewLocationWizard;
 
 public class NewRepositoryAction implements IWorkbenchWindowActionDelegate, IViewActionDelegate {
@@ -47,7 +49,7 @@ public class NewRepositoryAction implements IWorkbenchWindowActionDelegate, IVie
 	public void run(IAction action) {
 	    if (!WorkspacePathValidator.validateWorkspacePath()) return;
 		NewLocationWizard wizard = new NewLocationWizard();
-		WizardDialog dialog = new WizardDialog(shell, wizard);
+		WizardDialog dialog = new ClosableWizardDialog(shell, wizard);
 		dialog.open();
 	}
 

@@ -11,7 +11,6 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -43,7 +42,7 @@ import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
-public class SetCommitPropertiesDialog extends TrayDialog {
+public class SetCommitPropertiesDialog extends SubclipseTrayDialog {
     
 	private CommitCommentArea commitCommentArea;
     private ProjectProperties projectProperties;

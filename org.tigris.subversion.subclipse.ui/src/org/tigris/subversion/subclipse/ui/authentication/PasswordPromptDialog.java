@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.authentication;
 
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -26,8 +25,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.dialogs.SubclipseTrayDialog;
 
-public class PasswordPromptDialog extends TrayDialog {
+public class PasswordPromptDialog extends SubclipseTrayDialog {
     private String realm;
     private String username;
     private String password;

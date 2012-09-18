@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.subscriber;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -36,12 +35,13 @@ import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
+import org.tigris.subversion.subclipse.ui.dialogs.SubclipseTrayDialog;
 
 /**
  * Dialog for creating and editing commit set
  * title and comment
  */
-public class CommitSetDialog extends TrayDialog {
+public class CommitSetDialog extends SubclipseTrayDialog {
 
     private static final int DEFAULT_WIDTH_IN_CHARS= 80;
     

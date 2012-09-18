@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 
 import java.io.File;
 
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -44,7 +43,7 @@ import org.tigris.subversion.subclipse.ui.operations.ShowDifferencesAsUnifiedDif
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class ShowDifferencesAsUnifiedDiffDialog extends TrayDialog {
+public class ShowDifferencesAsUnifiedDiffDialog extends SubclipseTrayDialog {
 //	private ISVNRemoteResource[] remoteResources;
 	private ISVNResource[] remoteResources;
 	private IWorkbenchPart targetPart;

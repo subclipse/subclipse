@@ -1,7 +1,6 @@
 package org.tigris.subversion.subclipse.ui.dialogs;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -10,7 +9,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
-public abstract class SvnDialog extends TrayDialog {
+public abstract class SvnDialog extends SubclipseTrayDialog {
 	private String id;
 	private IDialogSettings settings = SVNUIPlugin.getPlugin().getDialogSettings();
 	protected static final int LABEL_WIDTH_HINT = 400;

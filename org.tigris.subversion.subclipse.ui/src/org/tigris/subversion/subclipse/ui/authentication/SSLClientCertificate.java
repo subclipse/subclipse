@@ -15,7 +15,6 @@ import java.security.Security;
 import java.util.Properties;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -33,9 +32,10 @@ import org.eclipse.swt.widgets.Text;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.dialogs.SubclipseTrayDialog;
 import org.tigris.subversion.svnclientadapter.AbstractClientAdapter;
 
-public class SSLClientCertificate extends TrayDialog {
+public class SSLClientCertificate extends SubclipseTrayDialog {
     private String realm;
     private String certificate;
     private String passphrase;

@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 
 /**
  * Action that launches the checkout wizard
@@ -32,7 +33,7 @@ public class CheckoutWizardAction extends WorkbenchWindowAction {
 	 */
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {	    
 	    CheckoutWizard wizard = new CheckoutWizard();
-	    WizardDialog dialog = new WizardDialog(shell, wizard);
+	    WizardDialog dialog = new ClosableWizardDialog(shell, wizard);
 	    dialog.open();
 	}
 

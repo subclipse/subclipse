@@ -12,7 +12,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextViewer;
@@ -59,7 +58,7 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-public class ShowRevisionsDialog extends TrayDialog {
+public class ShowRevisionsDialog extends SubclipseTrayDialog {
 	private ILogEntry logEntry;
     private IResource resource;
     private ISVNRemoteResource remoteResource;

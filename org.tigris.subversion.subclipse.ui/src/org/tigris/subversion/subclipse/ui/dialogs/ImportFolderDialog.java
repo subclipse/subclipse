@@ -12,7 +12,6 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 
 import java.io.File;
 
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -41,7 +40,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.comments.CommitCommentArea;
 import org.tigris.subversion.subclipse.ui.operations.ImportOperation;
 
-public class ImportFolderDialog extends TrayDialog {
+public class ImportFolderDialog extends SubclipseTrayDialog {
 	private ISVNRemoteFolder remoteFolder;
 	private IWorkbenchPart targetPart;
 	private Text directoryText;

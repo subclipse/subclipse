@@ -24,7 +24,6 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IColorProvider;
@@ -75,7 +74,7 @@ import org.tigris.subversion.subclipse.ui.repository.RepositoryFilters;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
 
-public class ChooseUrlDialog extends TrayDialog {
+public class ChooseUrlDialog extends SubclipseTrayDialog {
     private static final int LIST_HEIGHT_HINT = 250;
     private static final int LIST_WIDTH_HINT = 450;
 

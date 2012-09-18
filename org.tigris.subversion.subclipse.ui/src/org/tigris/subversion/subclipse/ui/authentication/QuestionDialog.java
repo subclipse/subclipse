@@ -11,7 +11,6 @@
 package org.tigris.subversion.subclipse.ui.authentication;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -28,8 +27,9 @@ import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.dialogs.SubclipseTrayDialog;
 
-public class QuestionDialog extends TrayDialog {
+public class QuestionDialog extends SubclipseTrayDialog {
     private String realm;
     private String question;
     private boolean showAnswer;

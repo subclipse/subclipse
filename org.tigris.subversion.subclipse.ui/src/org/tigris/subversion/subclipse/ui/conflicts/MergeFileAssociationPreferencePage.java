@@ -57,6 +57,7 @@ import org.osgi.service.prefs.Preferences;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 
 public class MergeFileAssociationPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 	private Table table;
@@ -414,7 +415,7 @@ public class MergeFileAssociationPreferencePage extends PreferencePage implement
 
 	private void addFileType() {
 		NewMergeFileAssociationWizard wizard = new NewMergeFileAssociationWizard(mergeFileAssociations);
-		WizardDialog dialog = new WizardDialog(Display.getCurrent().getActiveShell(), wizard);
+		WizardDialog dialog = new ClosableWizardDialog(Display.getCurrent().getActiveShell(), wizard);
 		if (dialog.open() == WizardDialog.CANCEL) return;
 		associationsUpdated = true;
 		ArrayList associationsList = new ArrayList();

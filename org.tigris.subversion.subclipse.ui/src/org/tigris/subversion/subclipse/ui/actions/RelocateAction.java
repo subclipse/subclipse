@@ -18,6 +18,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositoryLocation;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.RelocateWizard;
 
 public class RelocateAction extends SVNAction {
@@ -29,7 +30,7 @@ public class RelocateAction extends SVNAction {
 			if (object instanceof SVNRepositoryLocation) {
 				SVNRepositoryLocation repository = (SVNRepositoryLocation)object;
 				RelocateWizard wizard = new RelocateWizard(repository);
-				WizardDialog dialog = new WizardDialog(shell, wizard);
+				WizardDialog dialog = new ClosableWizardDialog(shell, wizard);
 				dialog.open();
 				break;
 			}

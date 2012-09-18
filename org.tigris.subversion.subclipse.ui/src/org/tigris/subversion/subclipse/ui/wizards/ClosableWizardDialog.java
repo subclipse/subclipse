@@ -14,4 +14,9 @@ public class ClosableWizardDialog extends WizardDialog {
 		super.finishPressed();
 	}
 
+	@Override
+	public boolean isHelpAvailable() {
+		return false;
+	}
+
 }

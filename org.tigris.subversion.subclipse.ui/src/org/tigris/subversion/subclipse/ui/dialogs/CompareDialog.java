@@ -17,7 +17,6 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.compare.CompareEditorInput;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -34,7 +33,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 
-public class CompareDialog extends TrayDialog {
+public class CompareDialog extends SubclipseTrayDialog {
 		
 	private CompareEditorInput compareEditorInput;
     private IDialogSettings settings;

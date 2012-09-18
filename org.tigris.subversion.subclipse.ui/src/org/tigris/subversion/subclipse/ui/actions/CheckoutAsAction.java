@@ -18,6 +18,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.wizards.CheckoutWizard;
+import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
 
 /**
  * Add a remote resource to the workspace. Current implementation:
@@ -42,7 +43,7 @@ public class CheckoutAsAction extends SVNAction {
 	    final ISVNRemoteFolder[] folders = getSelectedRemoteFolders();
 	    
 	    CheckoutWizard wizard = new CheckoutWizard(folders);
-	    WizardDialog dialog = new WizardDialog(shell, wizard);
+	    WizardDialog dialog = new ClosableWizardDialog(shell, wizard);
 	    dialog.open();
 	}
 

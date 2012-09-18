@@ -18,7 +18,6 @@ import java.util.TreeMap;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextViewer;
@@ -69,7 +68,7 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
-public class HistoryDialog extends TrayDialog {
+public class HistoryDialog extends SubclipseTrayDialog {
     private IResource resource;
     private ISVNRemoteResource remoteResource;
     private SashForm sashForm;
