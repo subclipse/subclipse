@@ -25,8 +25,8 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
-import org.tigris.subversion.svnclientadapter.SVNUrl;
 import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
+import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * This class is used when copying and pasting remote resources to/from clipboard
@@ -82,7 +82,10 @@ public class RemoteResourceTransfer extends ByteArrayTransfer {
         writeOut.writeUTF(remoteResource.getLastChangedRevision().toString());
         
         writeOut.writeLong( remoteResource.getDate().getTime());
-        writeOut.writeUTF( remoteResource.getAuthor());
+        
+        if (remoteResource.getAuthor() != null) {
+        	writeOut.writeUTF( remoteResource.getAuthor());
+        }
         
         writeOut.close();
         
@@ -113,7 +116,13 @@ public class RemoteResourceTransfer extends ByteArrayTransfer {
         SVNRevision.Number lastChangedRevision = ( Number) SVNRevision.getRevision(readIn.readUTF());
         
         Date date = new Date(readIn.readLong());
-        String author = readIn.readUTF();
+        
+        String author = null;
+        try {
+        	author = readIn.readUTF();
+        } catch (Exception e) {
+        	// Ignore null author
+        }
         
         ISVNRepositoryLocation repositoryLocation = SVNProviderPlugin.getPlugin().getRepository(location);
             
