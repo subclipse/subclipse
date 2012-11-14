@@ -2066,10 +2066,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
             public void run() {
               ILogEntry firstElement = getFirstElement();
               ILogEntry lastElement = getLastElement();            
-              final SVNUrl path1 = firstElement.getResource().getUrl();
-              final SVNUrl path2 = lastElement.getResource().getUrl();
               final IResource[] resources = { resource};
               try {
+            	  final SVNUrl path1 = new SVNUrl(firstElement.getResource().getUrl() + "@HEAD");
+                  final SVNUrl path2 = new SVNUrl(lastElement.getResource().getUrl() + "@HEAD");
                 for (int i = 0; i < revisionRanges.length; i++) {
                 	final SVNRevision revision1 = revisionRanges[i].getFromRevision();
                 	final SVNRevision revision2 = new SVNRevision.Number(((SVNRevision.Number)revisionRanges[i].getToRevision()).getNumber() - 1);
