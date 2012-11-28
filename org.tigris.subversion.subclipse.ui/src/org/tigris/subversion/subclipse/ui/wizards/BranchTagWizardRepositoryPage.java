@@ -273,6 +273,9 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 	    		branchResources[i] = new BranchResource(resources[i], urlStrings[i].substring(commonRoot.length() + 1));
 	    	}   
     	}
+    	if(urlStrings.length == 1){
+    		return urlString;
+    	}
     	return commonRoot;
 	}
 	
