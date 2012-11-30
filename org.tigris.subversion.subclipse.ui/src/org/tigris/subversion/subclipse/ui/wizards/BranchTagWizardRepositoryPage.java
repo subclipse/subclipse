@@ -273,9 +273,6 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 	    		branchResources[i] = new BranchResource(resources[i], urlStrings[i].substring(commonRoot.length() + 1));
 	    	}   
     	}
-    	if(urlStrings.length == 1){
-    		return urlString;
-    	}
     	return commonRoot;
 	}
 	
@@ -303,6 +300,27 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 	public ISVNLocalResource getSvnResource() {
 		if (svnResources == null || svnResources.length < 1) return null;
 		return svnResources[0];
+	}
+	
+	public String getToUrl() {
+		if (multipleSelections()) {
+			return getUrlText();
+		}
+		else {
+			String name = null;
+			if (branchResources[0].getRemoteResource() != null) {
+				name = branchResources[0].getRemoteResource().getName();
+			}
+			else if (branchResources[0].getResource() != null) {
+				name = branchResources[0].getResource().getName();
+			}
+			if (name == null) {
+				return toUrlCombo.getText();
+			}
+			else {
+				return toUrlCombo.getText() + "/" + name;
+			}
+		}
 	}
 	
     private class BranchResource implements IAdaptable {
@@ -355,8 +373,19 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 				}
 			}
 			else {
-				return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
-//				return getDestinationText(branchResource);
+				String name = null;
+				if (branchResource.getRemoteResource() != null) {
+					name = branchResource.getRemoteResource().getName();
+				}
+				else if (branchResource.getResource() != null) {
+					name = branchResource.getResource().getName();
+				}
+				if (name == null) {
+					return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
+				}
+				else {
+					return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + name + "]";
+				}
 			}
 		}
 

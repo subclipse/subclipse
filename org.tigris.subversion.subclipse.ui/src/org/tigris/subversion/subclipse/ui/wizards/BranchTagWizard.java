@@ -81,7 +81,7 @@ public class BranchTagWizard extends Wizard implements IClosableWizard {
         
         if (copyPage.serverButton.getSelection()) revision = SVNRevision.HEAD;
         try {
-            toUrl = new SVNUrl(repositoryPage.getUrlText());
+        	toUrl = new SVNUrl(repositoryPage.getToUrl());
             if (copyPage.revisionButton.getSelection()) revision = SVNRevision.getRevision(copyPage.getRevision());
         } catch (Exception e) {
             MessageDialog.openError(getShell(), Policy.bind("BranchTagDialog.title"), e.getMessage()); //$NON-NLS-1$
