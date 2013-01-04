@@ -134,8 +134,6 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 		toUrlCombo = new UrlCombo(urlComposite, SWT.NONE);
 		toUrlCombo.init( resources == null ? "repositoryBrowser" : resources[0].getProject().getName()); //$NON-NLS-1$
 		toUrlCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-//		if (multipleSelections()) toUrlCombo.setText(getCommonRoot());
-//		else toUrlCombo.setText(urls[0].toString());
 		toUrlCombo.setText(getCommonRoot());
 		toUrlCombo.getCombo().addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -273,6 +271,11 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 	    		branchResources[i] = new BranchResource(resources[i], urlStrings[i].substring(commonRoot.length() + 1));
 	    	}   
     	}
+    	
+       	if(urlStrings.length == 1){
+    		return urlString;
+    	}
+    	
     	return commonRoot;
 	}
 	
@@ -307,19 +310,7 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 			return getUrlText();
 		}
 		else {
-			String name = null;
-			if (branchResources[0].getRemoteResource() != null) {
-				name = branchResources[0].getRemoteResource().getName();
-			}
-			else if (branchResources[0].getResource() != null) {
-				name = branchResources[0].getResource().getName();
-			}
-			if (name == null) {
-				return toUrlCombo.getText();
-			}
-			else {
-				return toUrlCombo.getText() + "/" + name;
-			}
+			return toUrlCombo.getText();
 		}
 	}
 	
@@ -373,19 +364,7 @@ public class BranchTagWizardRepositoryPage extends SVNWizardPage {
 				}
 			}
 			else {
-				String name = null;
-				if (branchResource.getRemoteResource() != null) {
-					name = branchResource.getRemoteResource().getName();
-				}
-				else if (branchResource.getResource() != null) {
-					name = branchResource.getResource().getName();
-				}
-				if (name == null) {
-					return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
-				}
-				else {
-					return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "/" + name + "]";
-				}
+				return branchResource.getPartialPath() + " [" + toUrlCombo.getText() + "]";
 			}
 		}
 
