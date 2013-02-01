@@ -12,10 +12,8 @@ package org.tigris.subversion.subclipse.core.repo;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 import java.util.Properties;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -72,7 +70,6 @@ public class SVNRepositoryLocation
 	private String label = null; 
 	
     private String user;
-	private String password;
 	
     // url of this location
     private SVNUrl url;
@@ -134,7 +131,6 @@ public class SVNRepositoryLocation
 	 */
 	private SVNRepositoryLocation(String user, String password, SVNUrl url, SVNUrl repositoryRootUrl) {
 		this.user = user;
-		this.password = password;
 		this.url = url;
         this.repositoryRootUrl = repositoryRootUrl; 
 
@@ -147,17 +143,6 @@ public class SVNRepositoryLocation
 	 * down or a connection is being validated.
 	 */
 	public void dispose() throws SVNException {
-		try {
-			Platform.flushAuthorizationInfo(
-				FAKE_URL,
-				getLocation(),
-				AUTH_SCHEME);
-				ensurePreferencesStored();
-		} catch (CoreException e) {
-			// We should probably wrap the CoreException here!
-			SVNProviderPlugin.log(e.getStatus());
-			throw new SVNException(IStatus.ERROR, IStatus.ERROR, Policy.bind("SVNRepositoryLocation.errorFlushing", getLocation()), e); //$NON-NLS-1$ 
-		}
 		// remove repo location from preferences
 		try {
 			if (hasPreferences()) {
@@ -259,9 +244,6 @@ public class SVNRepositoryLocation
      * @see IUserInfo#getUsername()
      */
     public String getUsername() {
-    	if (user == null) {
-    		retrieveUsername();
-    	}
     	return user == null ? "" : user; //$NON-NLS-1$
     }
 
@@ -275,10 +257,6 @@ public class SVNRepositoryLocation
     
     	svnClient.addNotifyListener(NotificationListener.getInstance());
     
-    	svnClient.setUsername(getUsername());
-        String password = getPassword();
-    	if (password != null)
-    		svnClient.setPassword(password);
     	return svnClient;
     }
     
@@ -307,95 +285,29 @@ public class SVNRepositoryLocation
     public int hashCode() {
     	return getLocation().hashCode();
     }
-    
-    /**
-     * Retrieves the cached username from the keyring. 
-     */
-    private void retrieveUsername() {
-    	Map map =
-    		Platform.getAuthorizationInfo(FAKE_URL, getLocation(), AUTH_SCHEME);
-    	if (map != null) {
-    		String username = (String) map.get(INFO_USERNAME);
-    		if (username != null)
-    			setUsername(username);
-    	}
-    }
-    
-    /**
-     * Retrieves the cached password
-     * @return
-     */
-    private String retrievePassword() {
-        Map map =
-            Platform.getAuthorizationInfo(FAKE_URL, getLocation(), AUTH_SCHEME);
-        if (map != null) {
-            String password = (String) map.get(INFO_PASSWORD);
-            if (password != null) {
-                return password;
-            }        
-        }
-        return null;
-    }
-    
-    /**
-     * get the password
-     * @return
-     */
-    private String getPassword() {
-    	if (password != null) {
-    		return password;
-        } else {
-        	return retrievePassword();
-        }
-    }
-    
-    
+        
     /*
      * @see IUserInfo#setPassword(String)
      */
     public void setPassword(String password) {
-    	this.password = password;
+    	// We stopped storing passwords prior to 1.0
+    	// just ignore this call
     }
     
     /*
      * @see IUserInfo#setUsername(String)
      */
     public void setUsername(String user) {
-    	this.user = user;
+    	// We stopped storing passwords prior to 1.0
+    	// just ignore this call
     }
 
     /**
      * add user and password to the keyring 
      */
     public void updateCache() throws SVNException {
-    	// put the password into the Platform map
-    	Map map =
-    		Platform.getAuthorizationInfo(FAKE_URL, getLocation(), AUTH_SCHEME);
-    	if (map == null) {
-    		map = new java.util.HashMap(10);
-    	}
-    	if (user != null)
-    		map.put(INFO_USERNAME, user);
-    	if (password != null)
-    		map.put(INFO_PASSWORD, password);
-    	try {
-    		Platform.addAuthorizationInfo(
-    			FAKE_URL,
-    			getLocation(),
-    			AUTH_SCHEME,
-    			map);
-    	} catch (CoreException e) {
-    		// We should probably wrap the CoreException here!
-    		SVNProviderPlugin.log(e.getStatus());
-    		throw new SVNException(IStatus.ERROR, IStatus.ERROR, Policy.bind("SVNRepositoryLocation.errorCaching", getLocation()), e); //$NON-NLS-1$ 
-    	}
-        // If the cache was updated, null the password field
-        // so we will obtain the password from the cache when needed
-    	password = null;
-    	// Ensure that the receiver is known by the SVN provider
-    	SVNProviderPlugin.getPlugin().getRepository(getLocation());
-    	// Ensure location is stored in plugin preferences
-    	ensurePreferencesStored();
+    	// We stopped storing passwords prior to 1.0
+    	// just ignore this call
     }
 
     /*
