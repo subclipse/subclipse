@@ -99,6 +99,7 @@ import org.eclipse.team.ui.history.HistoryPage;
 import org.eclipse.team.ui.history.IHistoryPageSite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
@@ -627,8 +628,13 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
           }
         }
         fetchLogEntriesJob.setRemoteFile(remoteResource);
-        Utils.schedule(fetchLogEntriesJob, SVNUIPlugin.getPlugin().getWorkbench().getActiveWorkbenchWindow()
-            .getActivePage().getActivePart().getSite());
+        IWorkbenchWindow window = SVNUIPlugin.getPlugin().getWorkbench().getActiveWorkbenchWindow();
+        if (window.getActivePage() != null && window.getActivePage().getActivePart() != null && window.getActivePage().getActivePart().getSite() != null) {
+        	Utils.schedule(fetchLogEntriesJob, window.getActivePage().getActivePart().getSite());
+        }
+        else {
+        	Utils.schedule(fetchLogEntriesJob, null);
+        }
 
         return new Object[ 0];
       }
