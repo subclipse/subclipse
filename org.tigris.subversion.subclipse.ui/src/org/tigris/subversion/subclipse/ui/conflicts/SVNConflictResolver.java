@@ -18,6 +18,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorDescriptor;
@@ -55,6 +57,8 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 	private ConflictResolution applyToAllTextResolution;
 	private ConflictResolution applyToAllBinaryResolution;
 	private ConflictResolution applyToAllPropertyResolution;
+	
+	private ISchedulingRule schedulingRule;
 	
 	public SVNConflictResolver() {
 		super();
@@ -143,6 +147,11 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 		}
 		try {
 			if (conflictResolution.getResolution() == ConflictResolution.FILE_EDITOR) { 
+				
+				if (schedulingRule != null) {
+					Job.getJobManager().endRule(schedulingRule);
+				}
+				
 				finished = false;
 				workingTempFile = null;
 				File pathFile = new File(descrip.getPath());
@@ -195,6 +204,9 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {} 				
 				}
+				if (schedulingRule != null) {
+					Job.getJobManager().beginRule(schedulingRule, null);
+				}
 				conflictResolution = new ConflictResolution(descrip, resolution);
 				if (!conflictResolution.isResolved()) {
 					if (descrip.getConflictKind() == SVNConflictDescriptor.Kind.property)
@@ -206,6 +218,9 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 				}
 			}
 			if (conflictResolution.getResolution() == ConflictResolution.CONFLICT_EDITOR) {
+				if (schedulingRule != null) {
+					Job.getJobManager().endRule(schedulingRule);
+				}
 				File pathFile = new File(descrip.getPath());
 				File conflictNewFile = new File(descrip.getTheirPath());
 				File conflictWorkingFile = new File(descrip.getMyPath());
@@ -271,6 +286,9 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {} 
+				}
+				if (schedulingRule != null) {
+					Job.getJobManager().beginRule(schedulingRule, null);
 				}
 				if (editConflictsAction.getBuiltInConflictsCompareInput().isResolved()) {
 					conflictResolution = new ConflictResolution(descrip, editConflictsAction.getBuiltInConflictsCompareInput().getResolution());
@@ -400,6 +418,10 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 		this.part = part;
 	}
 	
+	public void setSchedulingRule(ISchedulingRule schedulingRule) {
+		this.schedulingRule = schedulingRule;
+	}
+
 	private void copyFile(File fromFile, File toFile) throws IOException {
 		FileInputStream from = null;
 		FileOutputStream to = null;

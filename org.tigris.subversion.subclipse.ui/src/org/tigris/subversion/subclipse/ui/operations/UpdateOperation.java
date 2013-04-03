@@ -124,7 +124,11 @@ public class UpdateOperation extends RepositoryProviderOperation {
 	}
 
 	protected ISchedulingRule getSchedulingRule(SVNTeamProvider provider) {
-		return null;
+		ISchedulingRule schedulingRule = super.getSchedulingRule(provider);
+		if (schedulingRule != null) {
+			((SVNConflictResolver)conflictResolver).setSchedulingRule(schedulingRule);
+		}
+		return schedulingRule;
 	}
 
 }
