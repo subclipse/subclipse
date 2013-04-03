@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -157,6 +158,27 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 			});
 			
 			if (!modifiedResources.isEmpty() || !modifiedInfiniteDepthResources.isEmpty()) {
+				List<IProject> projects = new ArrayList<IProject>();
+				if (!modifiedResources.isEmpty()) {
+					IResource[] resources = (IResource[])modifiedResources.toArray(new IResource[modifiedResources.size()]);
+					for (IResource resource : resources) {
+						IProject project = resource.getProject();
+						if (project != null && !projects.contains(project)) {
+							projects.add(project);
+						}
+					}
+				}
+				if (!modifiedInfiniteDepthResources.isEmpty()) {
+					IResource[] resources = (IResource[])modifiedInfiniteDepthResources.toArray(new IResource[modifiedInfiniteDepthResources.size()]);
+					for (IResource resource : resources) {
+						IProject project = resource.getProject();
+						if (project != null && !projects.contains(project)) {
+							projects.add(project);
+						}
+					}
+				}
+				IProject[] projectArray = new IProject[projects.size()];
+				projects.toArray(projectArray);
 				JobUtility.scheduleJob("Refresh SVN status cache", new Runnable() {				
 					public void run() {
 			            // we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightweightDecorator)
@@ -171,7 +193,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 			                SVNProviderPlugin.broadcastModificationStateChanges(resources);
 						}						
 					}
-				}, null, false);
+				}, MultiRule.combine(projectArray), false);
 			}
 		} catch (CoreException e) {
 			SVNProviderPlugin.log(e.getStatus());
