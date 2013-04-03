@@ -279,8 +279,9 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }
 
   public void setFocus() {
-    // TODO Auto-generated method stub
-
+    if (tableHistoryViewer != null) {
+    	tableHistoryViewer.getControl().setFocus();
+    }
   }
 
   public String getDescription() {
