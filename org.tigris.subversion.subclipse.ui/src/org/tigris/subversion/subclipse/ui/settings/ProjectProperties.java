@@ -90,12 +90,12 @@ public class ProjectProperties {
 
 	public String getResolvedMessage(String issue) {
         if (message == null) return null;
-        return message.replaceAll("%BUGID%", issue); //$NON-NLS-1$
+        return message.replace("%BUGID%", issue); //$NON-NLS-1$
     }
     
     public String getResolvedUrl(String issue) {
         if (url == null) return null;
-        return url.replaceAll("%BUGID%", issue); //$NON-NLS-1$
+        return url.replace("%BUGID%", issue); //$NON-NLS-1$
     }
     
     // Retrieve hyperlink ranges and url's from commit message.
