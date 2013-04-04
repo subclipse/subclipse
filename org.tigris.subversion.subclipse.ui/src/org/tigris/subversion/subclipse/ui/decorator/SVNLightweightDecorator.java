@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -45,6 +46,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.themes.ITheme;
 import org.tigris.subversion.subclipse.core.IResourceStateChangeListener;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
@@ -296,96 +298,100 @@ public class SVNLightweightDecorator
 	 * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.Object, org.eclipse.jface.viewers.IDecoration)
 	 */
 	public void decorate(Object element, IDecoration decoration) {
-		
-		IResource resource = getResource(element);
-		if (resource != null && resource.getType() == IResource.ROOT)
-			return;
-
-		boolean isIgnored = false;
-		SVNTeamProvider svnProvider = null;
-		ISVNLocalResource svnResource = null;
-		
-		if (resource != null) {
-	        // get the team provider
-	        svnProvider = (SVNTeamProvider)RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
-			if (svnProvider == null)
+		IResource resource = null;
+		try {
+			resource = getResource(element);
+			if (resource != null && resource.getType() == IResource.ROOT)
 				return;
+	
+			boolean isIgnored = false;
+			SVNTeamProvider svnProvider = null;
+			ISVNLocalResource svnResource = null;
 			
-			// if the resource is ignored return an empty decoration. This will
-			// force a decoration update event and clear the existing SVN decoration.
-			svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-			try {
-				if (svnResource.isIgnored()) {
-					isIgnored = true;
-	//				return;
+			if (resource != null) {
+		        // get the team provider
+		        svnProvider = (SVNTeamProvider)RepositoryProvider.getProvider(resource.getProject(), SVNProviderPlugin.getTypeId());
+				if (svnProvider == null)
+					return;
+				
+				// if the resource is ignored return an empty decoration. This will
+				// force a decoration update event and clear the existing SVN decoration.
+				svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+				try {
+					if (svnResource.isIgnored()) {
+						isIgnored = true;
+		//				return;
+					}
+				} catch (SVNException e) {
+					// The was an exception in isIgnored. Don't decorate
+					//todo should log this error
+					return;
 				}
-			} catch (SVNException e) {
-				// The was an exception in isIgnored. Don't decorate
-				//todo should log this error
-				return;
 			}
-		}
-
-		// determine a if resource has outgoing changes (e.g. is dirty).
-		boolean isDirty = false;
-		boolean isUnversioned = false;
-		
-		if (resource == null) {			
-			if (element instanceof ResourceMapping) {
-				IProject[] projects = ((ResourceMapping)element).getProjects();
-				if (projects != null) {
-					for (IProject project : projects) {
-						ISVNLocalResource svnProjectResource = SVNWorkspaceRoot.getSVNResourceFor(project);
-						if (svnProjectResource != null) {
-							try {
-								if (svnProjectResource.isDirty()) {
-									decoration.addOverlay(dirty);
+	
+			// determine a if resource has outgoing changes (e.g. is dirty).
+			boolean isDirty = false;
+			boolean isUnversioned = false;
+			
+			if (resource == null) {			
+				if (element instanceof ResourceMapping) {
+					IProject[] projects = ((ResourceMapping)element).getProjects();
+					if (projects != null) {
+						for (IProject project : projects) {
+							ISVNLocalResource svnProjectResource = SVNWorkspaceRoot.getSVNResourceFor(project);
+							if (svnProjectResource != null) {
+								try {
+									if (svnProjectResource.isDirty()) {
+										decoration.addOverlay(dirty);
+										return;
+									}
+								} catch (SVNException e) {
 									return;
 								}
-							} catch (SVNException e) {
-								return;
 							}
 						}
 					}
 				}
-			}
-			return;
-		} else {		
-			LocalResourceStatus status = null;
-			if (!isIgnored) {
-				try {
-					status = svnResource.getStatusFromCache();
-					isDirty = SVNLightweightDecorator.isDirty(svnResource, status);
-				} catch (SVNException e) {
-					if (!e.operationInterrupted()) {
-						SVNUIPlugin.log(e.getStatus());
-						isDirty = true;
+				return;
+			} else {		
+				LocalResourceStatus status = null;
+				if (!isIgnored) {
+					try {
+						status = svnResource.getStatusFromCache();
+						isDirty = SVNLightweightDecorator.isDirty(svnResource, status);
+					} catch (SVNException e) {
+						if (!e.operationInterrupted()) {
+							SVNUIPlugin.log(e.getStatus());
+							isDirty = true;
+						}
+					}
+					if (status != null) {
+						isUnversioned = status.isUnversioned();
+					}
+	//				if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
+	////			        isDirty = SVNLightweightDecorator.isDirty(svnResource);
+	//					isDirty = SVNLightweightDecorator.isDirty(svnResource, status);
+	//				}
+	//				try {
+	//					status = svnResource.getStatusFromCache();
+	//					isUnversioned = status.isUnversioned();
+	//				} catch (SVNException e1) {
+	//					if (!e1.operationInterrupted()) {
+	//						SVNUIPlugin.log(e1.getStatus());
+	//					}
+	//				}
+					decorateTextLabel(svnResource, status, decoration, isDirty);
+				}		
+				computeColorsAndFonts(isIgnored, isDirty || isUnversioned, decoration);
+				if (!isIgnored) {
+					ImageDescriptor overlay = getOverlay(svnResource, status, isDirty, svnProvider);
+					if(overlay != null) { //actually sending null arg would work but this makes logic clearer
+						decoration.addOverlay(overlay);
 					}
 				}
-				if (status != null) {
-					isUnversioned = status.isUnversioned();
-				}
-//				if (resource.getType() == IResource.FILE || computeDeepDirtyCheck) {
-////			        isDirty = SVNLightweightDecorator.isDirty(svnResource);
-//					isDirty = SVNLightweightDecorator.isDirty(svnResource, status);
-//				}
-//				try {
-//					status = svnResource.getStatusFromCache();
-//					isUnversioned = status.isUnversioned();
-//				} catch (SVNException e1) {
-//					if (!e1.operationInterrupted()) {
-//						SVNUIPlugin.log(e1.getStatus());
-//					}
-//				}
-				decorateTextLabel(svnResource, status, decoration, isDirty);
-			}		
-			computeColorsAndFonts(isIgnored, isDirty || isUnversioned, decoration);
-			if (!isIgnored) {
-				ImageDescriptor overlay = getOverlay(svnResource, status, isDirty, svnProvider);
-				if(overlay != null) { //actually sending null arg would work but this makes logic clearer
-					decoration.addOverlay(overlay);
-				}
 			}
+		} catch (Exception e) {
+			SVNUIPlugin.log(IStatus.ERROR, "Error Decorating " + resource, e);
 		}
 	}
 	
@@ -408,7 +414,7 @@ public class SVNLightweightDecorator
      * This method assumes that only one thread will be accessing it at a time.
      */
 	protected void decorateTextLabel(ISVNLocalResource svnResource, LocalResourceStatus status, IDecoration decoration, boolean isDirty) {
-			Map bindings = new HashMap(6);
+		Map bindings = new HashMap(6);
 
 			// if the resource does not have a location then return. This can happen if the resource
 			// has been deleted after we where asked to decorate it.
@@ -435,7 +441,11 @@ public class SVNLightweightDecorator
 			}
 
 			if (status.getUrlString() != null) {
-			    String label = status.getRepository().getLabel();
+				String label = null;
+				ISVNRepositoryLocation repository = status.getRepository();
+				if (repository != null) {
+					label = status.getRepository().getLabel();
+				}
 			    bindings.put( SVNDecoratorConfiguration.RESOURCE_LABEL, label == null ? status.getUrlString() : label);
     			  
 				bindings.put(
@@ -443,7 +453,10 @@ public class SVNLightweightDecorator
 					Util.unescape(status.getUrlString()));
 				
                 // short url is the path relative to root url of repository
-                SVNUrl repositoryRoot = status.getRepository().getRepositoryRoot();
+				SVNUrl repositoryRoot = null;
+				if (repository != null) {
+					repositoryRoot = repository.getRepositoryRoot();
+				}
                 if (repositoryRoot != null) {
                     int urlLen =  status.getUrlString().length();
                     int rootLen = repositoryRoot.toString().length()+1;
