@@ -30,9 +30,11 @@ import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.synchronize.SyncInfoSet;
 import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.UpdateResourcesCommand;
 import org.tigris.subversion.subclipse.core.sync.SVNStatusSyncInfo;
@@ -82,7 +84,13 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 			resourceArray = new IResource[resourceList.size()];
 			resourceList.toArray(resourceArray);
 			SVNRevision revision = getRevisionForUpdate(resourceArray, set);
-			doUpdate(provider, monitor, trimResources(resourceArray), revision);
+			IResource[] trimmedResources = trimResources(resourceArray);
+			doUpdate(provider, monitor, trimmedResources, revision);
+			if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS) && trimmedResources.length != resourceArray.length) {
+				try {
+					SVNWorkspaceSubscriber.getInstance().refresh(resourceArray, IResource.DEPTH_INFINITE, monitor);
+				} catch (TeamException e) {}
+			}
 		}
 	}
 
