@@ -22,6 +22,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentTypeManager;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -55,6 +59,8 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -73,6 +79,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.internal.ui.SWTUtils;
 import org.eclipse.ui.PlatformUI;
@@ -177,6 +184,47 @@ public class CommitCommentArea extends DialogArea {
             fTextField.addModifyListener(this);
             fTextField.addFocusListener(this);
             fTextField.setWordWrap(mustWrapWord());
+            
+    		MenuManager menuManager = new MenuManager();
+    		IMenuListener listener = new IMenuListener() {		
+    			public void menuAboutToShow(IMenuManager manager) {
+    				if (fTextField.getSelectionText() != null && fTextField.getSelectionText().length() > 0) {
+    					Action cutAction = new Action("Cut") {
+    						public void run() {
+    							fTextField.cut();
+    						}
+    					};
+    					manager.add(cutAction);
+    					Action copyAction = new Action("Copy") {
+    						public void run() {
+    							fTextField.copy();
+    						}
+    					};
+    					manager.add(copyAction);
+    				}
+    				Clipboard clipboard = new Clipboard(Display.getCurrent());
+    				TextTransfer textTransfer = TextTransfer.getInstance();
+    				final Object contents = clipboard.getContents(textTransfer);
+    				if (contents instanceof String && ((String)contents).length() > 0) {
+        				Action pasteAction = new Action("Paste") {
+        					public void run() {
+        						fTextField.insert((String)contents);
+        					}
+        				};
+        				manager.add(pasteAction);
+    				}
+    				Action selectAllAction = new Action("Select All") {
+    					public void run() {
+    						fTextField.selectAll();
+    					}
+    				};
+    				manager.add(selectAllAction);
+    			}
+    		};
+    		menuManager.addMenuListener(listener);
+    		menuManager.setRemoveAllWhenShown(true);
+    		Menu menu = menuManager.createContextMenu(fTextField);
+    		fTextField.setMenu(menu);
         }
 
         private boolean mustWrapWord() {
