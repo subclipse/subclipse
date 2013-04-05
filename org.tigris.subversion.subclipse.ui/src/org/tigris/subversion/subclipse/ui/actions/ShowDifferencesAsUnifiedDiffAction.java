@@ -16,6 +16,10 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.team.core.TeamException;
+import org.eclipse.team.internal.ui.history.GenericHistoryView;
+import org.eclipse.team.ui.history.IHistoryPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.ISVNResource;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
@@ -25,6 +29,7 @@ import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.dialogs.DifferencesDialog;
+import org.tigris.subversion.subclipse.ui.history.SVNHistoryPage;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
@@ -32,6 +37,12 @@ public class ShowDifferencesAsUnifiedDiffAction extends WorkbenchWindowAction {
 	private boolean usePegRevision;
 	private SVNRevision pegRevision1;
 	private SVNRevision pegRevision2;
+//	
+//	private IResource localResource;
+//
+//	public void setLocalResource(IResource localResource) {
+//		this.localResource = localResource;
+//	}
 
 	protected void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		pegRevision1 = null;
@@ -117,6 +128,17 @@ public class ShowDifferencesAsUnifiedDiffAction extends WorkbenchWindowAction {
 		dialog.setUsePegRevision(usePegRevision);
 		dialog.setFromUrl(fromUrl);
 		dialog.setToUrl(toUrl);
+		
+		IResource localResource = null;
+		IWorkbenchPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
+		if (part instanceof GenericHistoryView) {
+			IHistoryPage historyPage = ((GenericHistoryView)part).getHistoryPage();
+			if (historyPage instanceof SVNHistoryPage) {
+				localResource = ((SVNHistoryPage)historyPage).getResource();
+			}
+		}
+		
+		dialog.setLocalResource(localResource);
 		if (!fromRevision.equals("HEAD")) dialog.setFromRevision(fromRevision); //$NON-NLS-1$
 		if (toRevision != null && !toRevision.equals("HEAD")) dialog.setToRevision(toRevision); //$NON-NLS-1$  
 		dialog.open();

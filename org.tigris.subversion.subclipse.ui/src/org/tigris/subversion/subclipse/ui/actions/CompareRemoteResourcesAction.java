@@ -13,6 +13,8 @@ package org.tigris.subversion.subclipse.ui.actions;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.compare.CompareUI;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -27,6 +29,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.compare.ResourceEditionNode;
 import org.tigris.subversion.subclipse.ui.compare.SVNCompareEditorInput;
 import org.tigris.subversion.subclipse.ui.compare.SVNFolderCompareEditorInput;
+import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -37,6 +40,7 @@ public class CompareRemoteResourcesAction extends SVNAction {
 	private ISVNRemoteResource[] remoteResources;
 	private ISVNResource[] localResources;
 	private SVNRevision[] pegRevisions;
+	private IResource localResource;
 
 	public void execute(IAction action) throws InvocationTargetException, InterruptedException {
 		run(new IRunnableWithProgress() {
@@ -65,6 +69,15 @@ public class CompareRemoteResourcesAction extends SVNAction {
 				}				
 				ResourceEditionNode left = new ResourceEditionNode(editions[0]);
 				ResourceEditionNode right = new ResourceEditionNode(editions[1]);
+				if (localResource != null) {
+					String localCharset = Utilities.getCharset(localResource);
+					if (localCharset != null) {
+						try {
+							left.setCharset(localCharset);
+							right.setCharset(localCharset);
+						} catch (CoreException e) {}
+					}
+				}
 				CompareUI.openCompareEditorOnPage(
 				  new SVNCompareEditorInput(left, right),
 				  getTargetPage());
@@ -137,6 +150,10 @@ public class CompareRemoteResourcesAction extends SVNAction {
 
 	public void setLocalResources(ISVNResource[] localResources) {
 		this.localResources = localResources;
+	}
+
+	public void setLocalResource(IResource localResource) {
+		this.localResource = localResource;
 	}
 
 }

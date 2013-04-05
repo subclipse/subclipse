@@ -1607,7 +1607,7 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   }  
   
   class CompareAction extends ShowDifferencesAsUnifiedDiffAction {
-	  public IStructuredSelection fSelection;
+	  public IStructuredSelection fSelection;;
 	  
 	  public CompareAction() {
 		 super();
@@ -2876,6 +2876,10 @@ public class SVNHistoryPage extends HistoryPage implements IResourceStateChangeL
   public void initialize() {	  
   }
   
+public IResource getResource() {
+	return resource;
+}
+
 public static void setHistorySearchViewerFilter(
 		HistorySearchViewerFilter historySearchViewerFilter) {
 	SVNHistoryPage.historySearchViewerFilter = historySearchViewerFilter;

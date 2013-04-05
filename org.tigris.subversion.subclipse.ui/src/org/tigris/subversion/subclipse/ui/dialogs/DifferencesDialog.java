@@ -71,6 +71,8 @@ public class DifferencesDialog extends SvnDialog {
 	private SVNUrl fromUrl;
 	private SVNUrl toUrl;
 	
+	private IResource localResource;
+	
 	public DifferencesDialog(Shell parentShell, String title, ISVNResource[] remoteResources, IWorkbenchPart targetPart) {
 		this(parentShell, title, remoteResources, new SVNRevision[] { SVNRevision.HEAD, SVNRevision.HEAD }, targetPart);
 	}
@@ -90,6 +92,10 @@ public class DifferencesDialog extends SvnDialog {
 		toResource = this.remoteResources[1];
 	}
 	
+	public void setLocalResource(IResource localResource) {
+		this.localResource = localResource;
+	}
+
 	protected Control createDialogArea(Composite parent) {
 		if (title == null) getShell().setText(Policy.bind("DifferencesDialog.compare")); //$NON-NLS-1$
 		else getShell().setText(title);
@@ -501,6 +507,7 @@ public class DifferencesDialog extends SvnDialog {
 
 			ISVNRemoteResource[] remotes = { resource1, resource2 };
     		CompareRemoteResourcesAction compareAction = new CompareRemoteResourcesAction();
+    		compareAction.setLocalResource(localResource);
     		compareAction.setRemoteResources(remotes);
     		compareAction.setPegRevisions(pegRevisions);
     		compareAction.setLocalResources(remoteResources);
