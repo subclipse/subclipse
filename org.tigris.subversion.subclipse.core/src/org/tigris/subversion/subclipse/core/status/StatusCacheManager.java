@@ -283,11 +283,8 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 						refreshedResources.add(child);
 					}
 				}
-				LocalResourceStatus status = statusCache.getStatus(res);
-				if (status != null && !status.isIgnored()) {
-					statusCache.removeStatus(res);
-					refreshedResources.add(res);
-				}
+				statusCache.removeStatus(res);
+				refreshedResources.add(res);
 			}
 			return (IResource[]) refreshedResources.toArray(new IResource[refreshedResources.size()]);
 		}
