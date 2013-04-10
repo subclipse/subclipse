@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.core.variants.IResourceVariant;
@@ -100,7 +101,7 @@ public class RemoteFileEditorInput implements IWorkbenchAdapter, IStorageEditorI
 		if (adapter == IWorkbenchAdapter.class) {
 			return this;
 		}
-		return null;
+		return Platform.getAdapterManager().getAdapter(this, adapter);
 	}
 	/**
 	 * Returns the children of this object.  When this object
