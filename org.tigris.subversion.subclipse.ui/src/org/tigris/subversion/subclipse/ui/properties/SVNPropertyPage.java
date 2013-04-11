@@ -278,29 +278,31 @@ public class SVNPropertyPage extends PropertyPage {
             if (svnProvider == null) return;
             svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
             if (svnResource == null) return;
-            status = svnResource.getStatus();    
-            repository = svnResource.getRepository();
-            svnClient = repository.getSVNClient();
-            ISVNInfo info = svnClient.getInfoFromWorkingCopy(svnResource.getFile());
-            urlCopiedFrom = info.getCopyUrl();
-            revision = svnResource.getRevision(); 
-            lockOwnerText = status.getLockOwner();
-            lockCommentText = status.getLockComment();
-            if (status.getLockCreationDate() != null) lockDateText = status.getLockCreationDate().toString();
-            if (!status.isAdded()) {
-	            try {
-	            	info = svnClient.getInfo(status.getUrl());
-	            } catch (Exception e) {}
+            status = svnResource.getStatus();
+            if (status != null && !status.isIgnored()) {
+	            repository = svnResource.getRepository();
+	            svnClient = repository.getSVNClient();
+	            ISVNInfo info = svnClient.getInfoFromWorkingCopy(svnResource.getFile());
+	            urlCopiedFrom = info.getCopyUrl();
+	            revision = svnResource.getRevision(); 
+	            lockOwnerText = status.getLockOwner();
+	            lockCommentText = status.getLockComment();
+	            if (status.getLockCreationDate() != null) lockDateText = status.getLockCreationDate().toString();
+	            if (!status.isAdded()) {
+		            try {
+		            	info = svnClient.getInfo(status.getUrl());
+		            } catch (Exception e) {}
+	            }
+	            // Get lock information from server if svn:needs-lock property is set
+	            if (info != null && status.getLockOwner() == null && status.getUrlString() != null) {
+	           		ISVNProperty prop = svnResource.getSvnProperty("svn:needs-lock");
+	           		if (prop != null) {
+	                    lockOwnerText = info.getLockOwner();
+	                    if (info.getLockCreationDate() != null) lockDateText = info.getLockCreationDate().toString();
+	                    lockCommentText = info.getLockComment();
+	           		}
+	            }   
             }
-            // Get lock information from server if svn:needs-lock property is set
-            if (info != null && status.getLockOwner() == null && status.getUrlString() != null) {
-           		ISVNProperty prop = svnResource.getSvnProperty("svn:needs-lock");
-           		if (prop != null) {
-                    lockOwnerText = info.getLockOwner();
-                    if (info.getLockCreationDate() != null) lockDateText = info.getLockCreationDate().toString();
-                    lockCommentText = info.getLockComment();
-           		}
-            }            
     	} catch (Exception e) {
             SVNUIPlugin.log(new Status(IStatus.ERROR, SVNUIPlugin.ID, TeamException.UNABLE,
                     "Property Exception", e)); //$NON-NLS-1$
