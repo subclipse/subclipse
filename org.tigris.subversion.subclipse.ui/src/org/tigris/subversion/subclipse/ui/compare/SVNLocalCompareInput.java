@@ -14,13 +14,14 @@ package org.tigris.subversion.subclipse.ui.compare;
 import java.io.File;
 
 import org.eclipse.compare.CompareConfiguration;
-import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
+import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.team.ui.ISaveableWorkbenchPart;
+import org.eclipse.team.ui.synchronize.SaveableCompareEditorInput;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -45,7 +46,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * - any local modification
  * - revision numbers don't match
  */
-public class SVNLocalCompareInput extends CompareEditorInput implements ISaveableWorkbenchPart {
+public class SVNLocalCompareInput extends SaveableCompareEditorInput implements ISaveableWorkbenchPart {
     private final SVNRevision remoteRevision;
 	private ISVNLocalResource resource;
 	private ISVNRemoteResource remoteResource; // the remote resource to compare to or null if it does not exist
@@ -59,7 +60,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	 * creates a SVNLocalCompareInput, allows setting whether the current local resource is read only or not.
 	 */
 	public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision, boolean readOnly) throws SVNException, SVNClientException {
-		super(new CompareConfiguration());
+		super(new CompareConfiguration(), SVNUIPlugin.getActivePage());
         this.remoteRevision = revision;
         this.readOnly = readOnly;
         this.resource = resource;
@@ -107,13 +108,19 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	 * creates a SVNCompareRevisionsInput  
 	 */
 	public SVNLocalCompareInput(ISVNLocalResource resource, ISVNRemoteResource remoteResource, SVNRevision pegRevision) throws SVNException {
-		super(new CompareConfiguration());
+		super(new CompareConfiguration(), SVNUIPlugin.getActivePage());
 		this.resource = resource;
 		this.remoteResource = remoteResource;
         this.remoteRevision = remoteResource.getRevision();
         this.pegRevision = pegRevision;
 	}
 	
+	protected void fireInputChange() {
+		Object compareResult = getCompareResult();
+		if (compareResult instanceof BaseDiffNode) {
+			((BaseDiffNode)compareResult).fireChange();
+		}
+	}	
 	
 	/**
 	 * initialize the labels : the title, the lft label and the right one
@@ -140,7 +147,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 	/**
 	 * Runs the compare operation and returns the compare result.
 	 */
-	protected Object prepareInput(IProgressMonitor monitor){
+	protected ICompareInput prepareCompareInput(IProgressMonitor monitor){
 		
 		if (diffOperation != null) {
 			try {
@@ -169,11 +176,14 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 		} catch (CoreException e) {
 			SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 		}
-
+		ICompareInput compareInput;
         if (SVNRevision.BASE.equals(remoteRevision)) {
-            return new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
+            compareInput = (ICompareInput) new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
         }
-        return new RevisionAwareDifferencer((SVNLocalResourceNode)left,right, diffFile, pegRevision).findDifferences(false, monitor,null,null,left,right);
+        else {
+        	compareInput = (ICompareInput) new RevisionAwareDifferencer((SVNLocalResourceNode)left,right, diffFile, pegRevision).findDifferences(false, monitor,null,null,left,right);
+        }
+        return compareInput;
 	}
 	
 	/* (non-Javadoc)
