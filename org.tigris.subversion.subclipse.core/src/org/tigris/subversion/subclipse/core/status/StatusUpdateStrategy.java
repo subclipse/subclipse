@@ -72,26 +72,20 @@ public abstract class StatusUpdateStrategy {
         		File folder = status.getFile();
         		if (!folder.isDirectory() && !folder.exists())
         			continue;
-
-        		try {
-        			Set<String> alreadyProcessed = new HashSet<String>();
-        			processUnversionedFolder(folder, processed, recursive, alreadyProcessed);
-        		} catch (IOException e) {
-        			System.out.println(e);
-        			e.printStackTrace();
-        		}
+      			Set<String> alreadyProcessed = new HashSet<String>();
+    			processUnversionedFolder(folder, processed, recursive, alreadyProcessed);
         	}
         }
 
         return processed.toArray(new ISVNStatus[processed.size()]);
     }
 
-	void processUnversionedFolder(final File folder, final List<ISVNStatus> statuses, final boolean recursive, final Set<String> alreadyProcessed) throws IOException {
-		String canonicalPath = folder.getCanonicalPath();
-		if (alreadyProcessed.contains(canonicalPath))
+	void processUnversionedFolder(final File folder, final List<ISVNStatus> statuses, final boolean recursive, final Set<String> alreadyProcessed) {
+		String absolutePath = folder.getAbsolutePath();
+		if (alreadyProcessed.contains(absolutePath))
 			return;
 		
-		alreadyProcessed.add(canonicalPath);
+		alreadyProcessed.add(absolutePath);
 
 		File[] files = folder.listFiles();
 		if (files == null)
