@@ -27,11 +27,12 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.PlatformUI;
@@ -43,6 +44,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.util.AdaptableList;
+import org.tigris.subversion.subclipse.ui.wizards.CloudForgeComposite;
 import org.tigris.subversion.subclipse.ui.wizards.SVNWizardPage;
 
 /**
@@ -111,12 +113,12 @@ public class RepositorySelectionPage extends SVNWizardPage {
 			public void selectionChanged(SelectionChangedEvent event) {
 				result = (ISVNRepositoryLocation)((IStructuredSelection)table.getSelection()).getFirstElement();
 				settings.put(LAST_LOCATION, result.getLocation());
-				setPageComplete(true);
+				setPageComplete(canFinish());
 			}
 		});
-
-		useExistingRepo.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
+		
+		SelectionListener selectionListener = new SelectionAdapter() {			
+			public void widgetSelected(SelectionEvent e) {
 				if (useNewRepo.getSelection()) {
 					table.getTable().setEnabled(false);
 					result = null;
@@ -124,9 +126,16 @@ public class RepositorySelectionPage extends SVNWizardPage {
 					table.getTable().setEnabled(true);
 					result = (ISVNRepositoryLocation)((IStructuredSelection)table.getSelection()).getFirstElement();
 				}
-				setPageComplete(true);
+				setPageComplete(canFinish());
 			}
-		});
+		};
+		
+		useNewRepo.addSelectionListener(selectionListener);
+		useExistingRepo.addSelectionListener(selectionListener);
+		
+	    Composite cloudForgeComposite = new CloudForgeComposite(composite, SWT.NONE);
+	    GridData data = new GridData(GridData.VERTICAL_ALIGN_END | GridData.GRAB_VERTICAL | GridData.FILL_VERTICAL);
+	    cloudForgeComposite.setLayoutData(data);
 
 		setControl(composite);
 		
@@ -160,23 +169,20 @@ public class RepositorySelectionPage extends SVNWizardPage {
             }
             table.setSelection(new StructuredSelection(locations[selectionIndex]));
             result = locations[selectionIndex];
-            setPageComplete(true);
         }
-
+        setPageComplete(canFinish());
 	}
 	
 	public ISVNRepositoryLocation getLocation() {
 		return result;
 	}
-    
-    /*
-     *  (non-Javadoc)
-     * @see org.eclipse.jface.dialogs.IDialogPage#setVisible(boolean)
-     */
-	public void setVisible(boolean visible) {
-		super.setVisible(visible);
-		if (visible) {
-			useExistingRepo.setFocus();
+ 
+	private boolean canFinish() {
+		if (useNewRepo.getSelection()) {
+			return true;
+		}
+		else {
+			return !table.getSelection().isEmpty();
 		}
 	}
 }

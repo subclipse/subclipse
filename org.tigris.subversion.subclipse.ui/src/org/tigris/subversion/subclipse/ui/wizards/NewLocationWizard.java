@@ -12,6 +12,8 @@ package org.tigris.subversion.subclipse.ui.wizards;
 
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,10 +23,12 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.ui.ISVNRepositorySourceProvider;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -34,7 +38,9 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
  * about SVN repository location 
  */
 public class NewLocationWizard extends Wizard {
+	private ConfigurationWizardRepositorySourceProviderPage repositorySourceProviderPage;
 	private ConfigurationWizardMainPage mainPage;
+	private Map<ISVNRepositorySourceProvider, SVNRepositoryProviderWizardPage> wizardPageMap = new HashMap<ISVNRepositorySourceProvider, SVNRepositoryProviderWizardPage>();
 
 	private Properties properties = null;
 	
@@ -57,7 +63,21 @@ public class NewLocationWizard extends Wizard {
 	 * Creates the wizard pages
 	 */
 	public void addPages() {
-		mainPage = new ConfigurationWizardMainPage("repositoryPage1", Policy.bind("NewLocationWizard.heading"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_NEW_LOCATION)); //$NON-NLS-1$ //$NON-NLS-2$
+		ISVNRepositorySourceProvider[] repositorySourceProviders = null;
+		try {
+			repositorySourceProviders = SVNUIPlugin.getRepositorySourceProviders();
+		} catch (Exception e) {}
+		if (repositorySourceProviders != null && repositorySourceProviders.length > 0) {
+			repositorySourceProviderPage = new ConfigurationWizardRepositorySourceProviderPage("source", Policy.bind("NewLocationWizard.heading"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_NEW_LOCATION), repositorySourceProviders); //$NON-NLS-1$ //$NON-NLS-2$
+			repositorySourceProviderPage.setDescription(Policy.bind("NewLocationWizard.0")); //$NON-NLS-1$
+			addPage(repositorySourceProviderPage);
+			for (ISVNRepositorySourceProvider repositorySourceProvider : repositorySourceProviders) {
+				SVNRepositoryProviderWizardPage wizardPage = repositorySourceProvider.getWizardPage();
+				addPage(wizardPage);
+				wizardPageMap.put(repositorySourceProvider, wizardPage);
+			}
+		}
+		mainPage = new ConfigurationWizardMainPage("main", Policy.bind("NewLocationWizard.heading"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_NEW_LOCATION)); //$NON-NLS-1$ //$NON-NLS-2$
 		if (properties != null) {
 			mainPage.setProperties(properties);
 		}
@@ -65,12 +85,36 @@ public class NewLocationWizard extends Wizard {
 		mainPage.setDialogSettings(getDialogSettings());
 		addPage(mainPage);
 	}
+	
+	@Override
+	public IWizardPage getNextPage(IWizardPage page) {
+		if (page == repositorySourceProviderPage) {
+			ISVNRepositorySourceProvider selectedRepositorySourceProvider = repositorySourceProviderPage.getSelectedRepositorySourceProvider();
+			if (selectedRepositorySourceProvider != null) {
+				return wizardPageMap.get(selectedRepositorySourceProvider);
+			}
+			else {
+				return mainPage;
+			}
+		}
+		return null;
+	}
+
 	/*
 	 * @see IWizard#performFinish
 	 */
 	public boolean performFinish() {
 		mainPage.finish(new NullProgressMonitor());
 		Properties properties = mainPage.getProperties();
+		if (repositorySourceProviderPage != null) {
+			ISVNRepositorySourceProvider selectedRepositorySourceProvider = repositorySourceProviderPage.getSelectedRepositorySourceProvider();
+			if (selectedRepositorySourceProvider != null) {
+				SVNRepositoryProviderWizardPage wizardPage = wizardPageMap.get(selectedRepositorySourceProvider);
+				if (wizardPage != null) {
+					properties.setProperty("url", wizardPage.getSelectedUrl()); //$NON-NLS-1$
+				}
+			}
+		}
 		final ISVNRepositoryLocation[] root = new ISVNRepositoryLocation[1];
 		SVNProviderPlugin provider = SVNProviderPlugin.getPlugin();
 		try {
@@ -130,4 +174,22 @@ public class NewLocationWizard extends Wizard {
 		}
 		return true;	
 	}
+
+	@Override
+	public boolean canFinish() {
+		if (repositorySourceProviderPage != null) {
+			ISVNRepositorySourceProvider selectedSourceProvider = repositorySourceProviderPage.getSelectedRepositorySourceProvider();
+			if (selectedSourceProvider == null) {
+				return mainPage.isPageComplete();
+			}
+			else {
+				SVNRepositoryProviderWizardPage wizardPage = wizardPageMap.get(selectedSourceProvider);
+				if (wizardPage != null) {
+					return wizardPage.isPageComplete();
+				}
+			}
+		}
+		return super.canFinish();
+	}
+	
 }

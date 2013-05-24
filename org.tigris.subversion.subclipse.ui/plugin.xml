@@ -5,6 +5,7 @@
    <extension-point id="mergeProviders" name="Merge Providers" schema="schema/mergeProviders.exsd"/>
    <extension-point id="commitDialogToolBarActions" name="Commit Dialog ToolBar Actions" schema="schema/commitDialogExtensions.exsd"/>
    <extension-point id="commitDialogCompareActions" name="Commit Dialog Compare Actions" schema="schema/commitDialogExtensions.exsd"/>
+   <extension-point id="svnRepositorySourceProviders" name="SVN Repository Source Providers" schema="schema/svnRepositorySourceProviders.exsd"/>
 
    <extension
          point="org.tigris.subversion.subclipse.core.messageHandlers">

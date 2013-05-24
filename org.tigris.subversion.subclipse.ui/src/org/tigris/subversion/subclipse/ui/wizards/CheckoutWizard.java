@@ -11,6 +11,10 @@
 package org.tigris.subversion.subclipse.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.resources.IProject;
@@ -34,6 +38,7 @@ import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.ui.ISVNRepositorySourceProvider;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -44,6 +49,9 @@ import org.tigris.subversion.subclipse.ui.actions.CheckoutUsingProjectWizardActi
 public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard {
 	private CheckoutWizardLocationPage locationPage;
 
+	private ConfigurationWizardRepositorySourceProviderPage repositorySourceProviderPage;
+	private Map<ISVNRepositorySourceProvider, SVNRepositoryProviderWizardPage> wizardPageMap = new HashMap<ISVNRepositorySourceProvider, SVNRepositoryProviderWizardPage>();
+	
 	private ConfigurationWizardMainPage createLocationPage;
 
 	private CheckoutWizardSelectionPage selectionPage;
@@ -55,6 +63,8 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	private CheckoutWizardCheckoutAsWithoutProjectFilePage checkoutAsWithoutProjectFilePage;
 
 	private CheckoutWizardProjectPage projectPage;
+	
+	private List<String> createdRepositoryUrls = new ArrayList<String>();
 
 	private IProject project;
 	private String projectName;
@@ -87,6 +97,22 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 					SVNUIPlugin.getPlugin().getImageDescriptor(
 							ISVNUIConstants.IMG_WIZBAN_SHARE));
 			addPage(locationPage);
+			
+			ISVNRepositorySourceProvider[] repositorySourceProviders = null;
+			try {
+				repositorySourceProviders = SVNUIPlugin.getRepositorySourceProviders();
+			} catch (Exception e) {}
+			if (repositorySourceProviders != null && repositorySourceProviders.length > 0) {
+				repositorySourceProviderPage = new ConfigurationWizardRepositorySourceProviderPage("source", Policy.bind("NewLocationWizard.heading"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_NEW_LOCATION), repositorySourceProviders); //$NON-NLS-1$ //$NON-NLS-2$
+				repositorySourceProviderPage.setDescription(Policy.bind("NewLocationWizard.0")); //$NON-NLS-1$
+				addPage(repositorySourceProviderPage);
+				for (ISVNRepositorySourceProvider repositorySourceProvider : repositorySourceProviders) {
+					SVNRepositoryProviderWizardPage wizardPage = repositorySourceProvider.getWizardPage();
+					addPage(wizardPage);
+					wizardPageMap.put(repositorySourceProvider, wizardPage);
+				}
+			}
+			
 			createLocationPage = new ConfigurationWizardMainPage(
 					"createLocationPage", //$NON-NLS-1$
 					Policy.bind("CheckoutWizardLocationPage.heading"), //$NON-NLS-1$
@@ -140,8 +166,34 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	}
 
 	public IWizardPage getNextPage(IWizardPage page, boolean aboutToShow) {
+		if (page == repositorySourceProviderPage) {
+			ISVNRepositorySourceProvider selectedRepositorySourceProvider = repositorySourceProviderPage.getSelectedRepositorySourceProvider();
+			if (selectedRepositorySourceProvider != null) {
+				return wizardPageMap.get(selectedRepositorySourceProvider);
+			}
+			else {
+				return createLocationPage;
+			}
+		}
+		if (page instanceof SVNRepositoryProviderWizardPage) {
+			if (aboutToShow) {
+				ISVNRepositoryLocation newLocation = createLocation();
+				if (newLocation != null) {
+					locationPage.refreshLocations();
+					selectionPage.setLocation(newLocation);
+				}
+			}
+			return selectionPage;
+		}
 		if (page == locationPage) {
-			if (locationPage.createNewLocation()) return createLocationPage;
+			if (locationPage.createNewLocation()) {
+				if (repositorySourceProviderPage == null) {
+					return createLocationPage;
+				}
+				else {
+					return repositorySourceProviderPage;
+				}
+			}
 			else {
 				if (aboutToShow) selectionPage.setLocation(repositoryLocation);
 				return selectionPage;
@@ -212,6 +264,19 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 	private ISVNRepositoryLocation createLocation() {
 		createLocationPage.finish(new NullProgressMonitor());
 		Properties properties = createLocationPage.getProperties();
+		if (repositorySourceProviderPage != null) {
+			ISVNRepositorySourceProvider selectedRepositorySourceProvider = repositorySourceProviderPage.getSelectedRepositorySourceProvider();
+			if (selectedRepositorySourceProvider != null) {
+				SVNRepositoryProviderWizardPage wizardPage = wizardPageMap.get(selectedRepositorySourceProvider);
+				if (wizardPage != null) {
+					properties.setProperty("url", wizardPage.getSelectedUrl()); //$NON-NLS-1$
+				}
+			}
+		}
+		String url = properties.getProperty("url");
+		if (createdRepositoryUrls.contains(url)) {
+			return null;
+		}
 		final ISVNRepositoryLocation[] root = new ISVNRepositoryLocation[1];
 		SVNProviderPlugin provider = SVNProviderPlugin.getPlugin();
 		try {
@@ -227,6 +292,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 						}
 					}
 				});
+				createdRepositoryUrls.add(url);
 			} catch (InterruptedException e) {
 				return null;
 			} catch (InvocationTargetException e) {
@@ -327,7 +393,7 @@ public class CheckoutWizard extends Wizard implements INewWizard, IImportWizard 
 			return checkoutAsWithProjectFilePage.isPageComplete()
 					&& projectPage.isPageComplete();
 		}
-		if (page == selectionPage) {
+		if (page == selectionPage || page instanceof SVNRepositoryProviderWizardPage) {
 			return selectionPage.isPageComplete();
 		}
 		return super.canFinish();

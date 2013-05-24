@@ -90,6 +90,10 @@ public class CheckoutWizardLocationPage extends WizardPage {
 			}
 		});
 		
+        Composite cloudForgeComposite = new CloudForgeComposite(outerContainer, SWT.NONE);
+        GridData data = new GridData(GridData.VERTICAL_ALIGN_END | GridData.GRAB_VERTICAL | GridData.FILL_VERTICAL);
+        cloudForgeComposite.setLayoutData(data);
+		
 		setMessage(Policy.bind("CheckoutWizardLocationPage.text")); //$NON-NLS-1$
 		
 		setControl(outerContainer);

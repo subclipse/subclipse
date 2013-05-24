@@ -38,6 +38,7 @@ public interface ISVNUIConstants {
   public final String IMG_WARNING = "obj16/warn.gif"; //$NON-NLS-1$
   public final String IMG_BRANCH = "obj16/tag.gif"; //$NON-NLS-1$
   public final String IMG_PROPERTIES = "clcl16/properties.png"; //$NON-NLS-1$
+  public final String IMG_URL_SOURCE_REPO = "obj16/url_source_repo.gif"; //$NON-NLS-1$
 
   // toolbar
   public final String IMG_REFRESH = "clcl16/refresh.gif"; //$NON-NLS-1$
@@ -74,6 +75,7 @@ public interface ISVNUIConstants {
 
   // wizards
   public final String IMG_NEWLOCATION = "wizards/newlocation_wiz.gif"; //$NON-NLS-1$
+  public final String IMG_CLOUDFORGE = "wizards/cloudforge.png"; //$NON-NLS-1$
 
   // pending
   public final String IMG_FILEADD_PENDING = "pending16/fileadd_pending.gif"; //$NON-NLS-1$

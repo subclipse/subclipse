@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Text;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.wizards.CloudForgeComposite;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 
 public class SvnWizardNewRepositoryPage extends SvnWizardDialogPage {
@@ -85,6 +86,11 @@ public class SvnWizardNewRepositoryPage extends SvnWizardDialogPage {
 		data.horizontalSpan = 2;
 		connectionButton.setLayoutData(data);
 		connectionButton.setSelection(true);
+		
+        Composite cloudForgeComposite = new CloudForgeComposite(composite, SWT.NONE);
+        data = new GridData(GridData.VERTICAL_ALIGN_END | GridData.GRAB_VERTICAL | GridData.FILL_VERTICAL);
+        data.horizontalSpan = 2;
+        cloudForgeComposite.setLayoutData(data);
 		
 		setPageComplete(false);
 		

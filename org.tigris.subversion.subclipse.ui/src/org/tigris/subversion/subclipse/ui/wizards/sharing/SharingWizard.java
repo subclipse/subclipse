@@ -13,7 +13,9 @@ package org.tigris.subversion.subclipse.ui.wizards.sharing;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.resources.IFolder;
@@ -46,6 +48,7 @@ import org.tigris.subversion.subclipse.core.resources.LocalFolder;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
+import org.tigris.subversion.subclipse.ui.ISVNRepositorySourceProvider;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -53,6 +56,8 @@ import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.actions.SynchronizeAction;
 import org.tigris.subversion.subclipse.ui.subscriber.SVNSynchronizeParticipant;
 import org.tigris.subversion.subclipse.ui.wizards.ConfigurationWizardMainPage;
+import org.tigris.subversion.subclipse.ui.wizards.ConfigurationWizardRepositorySourceProviderPage;
+import org.tigris.subversion.subclipse.ui.wizards.SVNRepositoryProviderWizardPage;
 
 /**
  * This wizard helps the user to import a new project in their workspace
@@ -70,6 +75,9 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 	
 	// The import page is used if .svn/ directories do not exist.
 	private RepositorySelectionPage locationPage;
+	
+	private ConfigurationWizardRepositorySourceProviderPage repositorySourceProviderPage;
+	private Map<ISVNRepositorySourceProvider, SVNRepositoryProviderWizardPage> wizardPageMap = new HashMap<ISVNRepositorySourceProvider, SVNRepositoryProviderWizardPage>();
 	
 	// The page that prompts the user for connection information.
 	private ConfigurationWizardMainPage createLocationPage;
@@ -133,6 +141,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
         	
             // otherwise we add : 
             // - the repository selection page
+        	// - any contributed repository source pages
             // - the create location page
             // - the module selection page
             // - the finish page 
@@ -146,11 +155,26 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
     		} catch (Exception e) {
                 SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
     		}
-			if (locations.length > 0) {
-				locationPage = new RepositorySelectionPage("importPage", Policy.bind("SharingWizard.importTitle"), sharingImage); //$NON-NLS-1$ //$NON-NLS-2$
-				locationPage.setDescription(Policy.bind("SharingWizard.importTitleDescription")); //$NON-NLS-1$
-				addPage(locationPage);
-			}
+            
+			locationPage = new RepositorySelectionPage("importPage", Policy.bind("SharingWizard.importTitle"), sharingImage); //$NON-NLS-1$ //$NON-NLS-2$
+			locationPage.setDescription(Policy.bind("SharingWizard.importTitleDescription")); //$NON-NLS-1$
+			addPage(locationPage);
+			
+			ISVNRepositorySourceProvider[] repositorySourceProviders = null;
+			try {
+				repositorySourceProviders = SVNUIPlugin.getRepositorySourceProviders();
+			} catch (Exception e) {}
+			if (repositorySourceProviders != null && repositorySourceProviders.length > 0) {
+				repositorySourceProviderPage = new ConfigurationWizardRepositorySourceProviderPage("source", Policy.bind("NewLocationWizard.heading"), SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_WIZBAN_NEW_LOCATION), repositorySourceProviders); //$NON-NLS-1$ //$NON-NLS-2$
+				repositorySourceProviderPage.setDescription(Policy.bind("NewLocationWizard.0")); //$NON-NLS-1$
+				addPage(repositorySourceProviderPage);
+				for (ISVNRepositorySourceProvider repositorySourceProvider : repositorySourceProviders) {
+					SVNRepositoryProviderWizardPage wizardPage = repositorySourceProvider.getWizardPage();
+					addPage(wizardPage);
+					wizardPageMap.put(repositorySourceProvider, wizardPage);
+				}
+			}				
+				
 			createLocationPage = new ConfigurationWizardMainPage("createLocationPage", Policy.bind("SharingWizard.enterInformation"), sharingImage); //$NON-NLS-1$ //$NON-NLS-2$
 			createLocationPage.setDescription(Policy.bind("SharingWizard.enterInformationDescription")); //$NON-NLS-1$
 			addPage(createLocationPage);
@@ -190,16 +214,32 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
      */
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page == warningPage) {
-			if (locationPage == null) return createLocationPage;
-			else return locationPage;
+			return locationPage;
 		}
 		if (page == autoconnectPage) return null;
 		if (page == locationPage) {
 			if (locationPage.getLocation() == null) {
-				return createLocationPage;
+				if (repositorySourceProviderPage == null) {
+					return createLocationPage;
+				}
+				else {
+					return repositorySourceProviderPage;
+				}
 			} else {
 				return directoryPage;
 			}
+		}
+		if (page == repositorySourceProviderPage) {
+			ISVNRepositorySourceProvider selectedRepositorySourceProvider = repositorySourceProviderPage.getSelectedRepositorySourceProvider();
+			if (selectedRepositorySourceProvider != null) {
+				return wizardPageMap.get(selectedRepositorySourceProvider);
+			}
+			else {
+				return createLocationPage;
+			}
+		}
+		if (page instanceof SVNRepositoryProviderWizardPage) {
+			return directoryPage;
 		}
 		if (page == createLocationPage) {
 			return directoryPage;
@@ -456,7 +496,20 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 				createLocationPage.finish(new NullProgressMonitor());
 			}
 		});
-		Properties properties = createLocationPage.getProperties();
+		final Properties properties = createLocationPage.getProperties();
+		if (repositorySourceProviderPage != null) {
+			ISVNRepositorySourceProvider selectedRepositorySourceProvider = repositorySourceProviderPage.getSelectedRepositorySourceProvider();
+			if (selectedRepositorySourceProvider != null) {
+				final SVNRepositoryProviderWizardPage wizardPage = wizardPageMap.get(selectedRepositorySourceProvider);
+				if (wizardPage != null) {
+					getShell().getDisplay().syncExec(new Runnable() {
+						public void run() {
+							properties.setProperty("url", wizardPage.getSelectedUrl()); //$NON-NLS-1$
+						}
+					});
+				}
+			}
+		}
 		ISVNRepositoryLocation location = SVNProviderPlugin.getPlugin().getRepositories().createRepository(properties);
 		return location;
 	}

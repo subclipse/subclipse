@@ -21,6 +21,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
@@ -87,6 +89,9 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 	public static final String COMMIT_DIALOG_TOOLBAR_ACTIONS = "org.tigris.subversion.subclipse.ui.commitDialogToolBarActions"; //$NON-NLS-1$
 	public static final String COMMIT_DIALOG_COMPARE_ACTIONS = "org.tigris.subversion.subclipse.ui.commitDialogCompareActions"; //$NON-NLS-1$
 
+	// Repository source provider extension point ID
+	public static final String REPOSITORY_SOURCE_PROVIDERS = "org.tigris.subversion.subclipse.ui.svnRepositorySourceProviders"; //$NON-NLS-1$	
+	
 	/**
 	 * Property constant indicating the decorator configuration has changed. 
 	 */
@@ -110,6 +115,7 @@ public class SVNUIPlugin extends AbstractUIPlugin {
     private static WorkspaceAction[] mergeProviders;
 	private static SVNPluginAction[] commitDialogToolBarActions;
 	private static SVNPluginAction[] commitDialogCompareActions;
+	private static ISVNRepositorySourceProvider[] repositorySourceProviders;
 	
 //	// Property change listener
 //	IPropertyChangeListener teamUIListener = new IPropertyChangeListener() {
@@ -712,6 +718,30 @@ public class SVNUIPlugin extends AbstractUIPlugin {
 			mergeProviderList.toArray(mergeProviders);
 		}
 		return mergeProviders;
+	}
+	
+	// Initialize the repository source providers by searching the registry for users of the
+	// svnRepositorySourceProviders extension point.
+	public static ISVNRepositorySourceProvider[] getRepositorySourceProviders() throws Exception {
+		if (repositorySourceProviders == null) {
+			List<ISVNRepositorySourceProvider> repositorySourceProviderList = new ArrayList<ISVNRepositorySourceProvider>();
+			IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+			IConfigurationElement[] configurationElements = extensionRegistry.getConfigurationElementsFor(REPOSITORY_SOURCE_PROVIDERS);
+			for (int i = 0; i < configurationElements.length; i++) {
+				IConfigurationElement configurationElement = configurationElements[i];
+				ISVNRepositorySourceProvider repositorySourceProvider = (ISVNRepositorySourceProvider)configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
+				repositorySourceProvider.setId(configurationElement.getAttribute("id")); //$NON-NLS-1$
+				repositorySourceProviderList.add(repositorySourceProvider);
+			}
+			repositorySourceProviders = new ISVNRepositorySourceProvider[repositorySourceProviderList.size()];
+			repositorySourceProviderList.toArray(repositorySourceProviders);
+			Arrays.sort(repositorySourceProviders, new Comparator<ISVNRepositorySourceProvider>() {
+				public int compare(ISVNRepositorySourceProvider o1, ISVNRepositorySourceProvider o2) {
+					return o1.getName().compareTo(o2.getName());
+				}		
+			});
+		}
+		return repositorySourceProviders;
 	}
 	
 	public static WorkspaceAction getDefaultMergeProvider() {
