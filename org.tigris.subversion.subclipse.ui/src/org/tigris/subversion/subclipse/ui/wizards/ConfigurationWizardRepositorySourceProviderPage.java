@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.wizard.WizardPage;
@@ -20,7 +21,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
@@ -69,8 +69,7 @@ public class ConfigurationWizardRepositorySourceProviderPage extends WizardPage 
 		treeViewer.getControl().setLayoutData(layoutData);
 		treeViewer.setInput(this);
 		
-		TreeItem[] items = treeViewer.getTree().getItems();
-		treeViewer.getTree().select(items[0]);
+		treeViewer.setSelection(new StructuredSelection("URL"));
 		
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
@@ -85,7 +84,7 @@ public class ConfigurationWizardRepositorySourceProviderPage extends WizardPage 
 			}		
 		});
 		
-		Hyperlink repositoryProviderLink = new Hyperlink(treeGroup, SWT.UNDERLINE_LINK);
+		Hyperlink repositoryProviderLink = new Hyperlink(treeGroup, SWT.NONE);
 		repositoryProviderLink.setUnderlined(true);
 		repositoryProviderLink.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 		repositoryProviderLink.setText("Click here to see the list of available providers.");

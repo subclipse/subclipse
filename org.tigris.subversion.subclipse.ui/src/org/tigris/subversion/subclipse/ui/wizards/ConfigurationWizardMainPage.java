@@ -156,7 +156,7 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
 			repositoryProviderLabel.setLayoutData(data);
 			repositoryProviderLabel.setText("Tired of typing in long URL's?  Your repository provider might provide a plug-in that would allow you to select your repository from a list.");
 			new Label(g, SWT.NONE);
-			Hyperlink repositoryProviderLink = new Hyperlink(g, SWT.UNDERLINE_LINK);
+			Hyperlink repositoryProviderLink = new Hyperlink(g, SWT.NONE);
 			repositoryProviderLink.setUnderlined(true);
 			repositoryProviderLink.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 			repositoryProviderLink.setText("Click here to see the list of available providers.");
