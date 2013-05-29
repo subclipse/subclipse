@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -193,7 +194,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 			                SVNProviderPlugin.broadcastModificationStateChanges(resources);
 						}						
 					}
-				}, MultiRule.combine(projectArray), false);
+				}, new RefreshStatusCacheSchedulingRule(MultiRule.combine(projectArray)), false);
 			}
 		} catch (CoreException e) {
 			SVNProviderPlugin.log(e.getStatus());
@@ -311,6 +312,34 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 		if (event.getProperty().equals(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES)) {
 			ignoreManagedDerivedResources = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES);
 		}
+	}
+	
+	private class RefreshStatusCacheSchedulingRule implements ISchedulingRule {
+
+		public ISchedulingRule schedulingRule;
+		
+		public RefreshStatusCacheSchedulingRule(ISchedulingRule schedulingRule) {
+			this.schedulingRule = schedulingRule;
+		}
+		
+		public boolean contains(ISchedulingRule rule) {
+			if (rule instanceof RefreshStatusCacheSchedulingRule) {
+				return schedulingRule.contains(((RefreshStatusCacheSchedulingRule)rule).getSchedulingRule());
+			}
+			return false;
+		}
+
+		public boolean isConflicting(ISchedulingRule rule) {
+			if (rule instanceof RefreshStatusCacheSchedulingRule) {
+				return schedulingRule.isConflicting(((RefreshStatusCacheSchedulingRule)rule).getSchedulingRule());
+			}
+			return false;
+		}
+		
+		public ISchedulingRule getSchedulingRule() {
+			return schedulingRule;
+		}
+		
 	}
 
 }
