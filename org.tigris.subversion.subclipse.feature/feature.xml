@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.subclipse"
       label="Subclipse (Required)"
-      version="1.8.21"
+      version="1.10.0"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.subclipse.core"
       colocation-affinity="org.tigris.subversion.subclipse">
@@ -21,7 +21,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.8.x"/>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.10.x"/>
    </url>
 
    <requires>

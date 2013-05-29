@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.clientadapter.javahl.feature"
       label="Subversion JavaHL Native Library Adapter"
-      version="1.7.9.2"
+      version="1.8.0"
       provider-name="tigris.org"
       plugin="org.tigris.subversion.clientadapter.javahl"
       colocation-affinity="org.tigris.subversion.subclipse">
@@ -20,12 +20,12 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.8.x"/>
+      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.10.x"/>
    </url>
 
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.tigris.subversion.clientadapter" version="1.8.5" match="equivalent"/>
+      <import plugin="org.tigris.subversion.clientadapter" version="1.10.0" match="equivalent"/>
    </requires>
 
    <plugin
