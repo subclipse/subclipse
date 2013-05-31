@@ -95,6 +95,29 @@ automatically when you use the Add to svn:ignore option.
       </svnPropertyTypes>
       <svnPropertyTypes
             type="String"
+            fileOrFolder="folder"
+            allowRecurse = "false"
+            name="svn:global-ignores">
+         <description>
+svn:global-ignores
+A newline separated list of file patterns to ignore.  The svn:global-ignores property
+extends the global-ignores configuration setting as well as the svn:ignore property.
+This property effects all subtrees rooted at the path on which the property is set. 
+        </description>
+      </svnPropertyTypes>
+      <svnPropertyTypes
+            type="String"
+            fileOrFolder="folder"
+            allowRecurse = "false"
+            name="svn:auto-props">
+         <description>
+svn:auto-props
+This property overrides/extends the auto-props configuration setting.
+It effects all subtrees rooted at the path on which the property is set. 
+        </description>
+      </svnPropertyTypes>                  
+      <svnPropertyTypes
+            type="String"
             fileOrFolder="file"
             name="svn:keywords">
          <description>
@@ -106,6 +129,35 @@ Author, LastChangedBy      The last person to modify the file.
 Date, LastChangedDate      The date/time the object was last modified.
 Rev, LastChangedRevision   The last revision the object changed.
 Id                         A compressed summary of the previous 4 keywords.
+Custom Keywords            
+
+Custom keywords are defined using a special syntax within the svn:keywords property.  For example:
+
+MyKeyword=%r%_%a%_%P defines a keyword called "MyKeyword" which contains the number of the last-changed revision,
+the author of that revision, and the file's path in the repository, each separated by one space character.
+Once a custom keyword has been defined it can be used within the file like any other keyword: $MyKeyword$
+
+Known format codes which can be used in custom keyword definitions are shown in the table below.
+Any characters in the keyword definition which are not format codes are expanded literally,
+i.e. a keyword such as MyAuthor=Author:%_%a will expand to Author: joe if the last-changed revision's
+author is "joe".
+
+Known Format Codes:
+
+%a The author of the revision given by %r. 
+%b The basename of the URL of the file. 
+%d Short format of the date of the revision given by %r. 
+%D Long format of the date of the revision given by %r. 
+%P The file's path, relative to the repository root. 
+%r The number of the revision which last changed the file. 
+%R The URL to the root of the repository. 
+%u The URL of the file. 
+%_ A space (keyword definitions cannot contain a literal space). 
+%% A literal '%'. 
+%H Equivalent to %P%_%r%_%d%_%a. 
+%I Equivalent to %b%_%r%_%d%_%a. 
+
+
         </description>
       </svnPropertyTypes>
       <svnPropertyTypes
