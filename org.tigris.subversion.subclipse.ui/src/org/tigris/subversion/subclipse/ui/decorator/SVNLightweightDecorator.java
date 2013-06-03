@@ -82,6 +82,7 @@ public class SVNLightweightDecorator
     private static ImageDescriptor switched;
 	
 	private static ImageDescriptor added;
+	private static ImageDescriptor moved;
 	
 	private static ImageDescriptor newResource;
 	private static ImageDescriptor conflicted;
@@ -129,6 +130,7 @@ public class SVNLightweightDecorator
 		dirty = new CachedImageDescriptor(TeamImages.getImageDescriptor(ISharedImages.IMG_DIRTY_OVR));
 		checkedIn = new CachedImageDescriptor(TeamImages.getImageDescriptor(ISharedImages.IMG_CHECKEDIN_OVR));
 		added = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_ADDED));
+		moved = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_MOVED));
 		merged = new CachedImageDescriptor(TeamImages.getImageDescriptor(ISharedImages.IMG_DIRTY_OVR));
 		newResource = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_QUESTIONABLE));
 		external = new CachedImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_EXTERNAL));
@@ -543,8 +545,14 @@ public class SVNLightweightDecorator
 		    		return deleted;
 		    	}
 		    }
-    	    if (status.isAdded())
-    	        return added;
+    	    if (status.isAdded()) {
+    	    	if (status.getMovedFromAbspath() != null) {
+    	    		return moved;
+    	    	}
+    	    	else {
+    	    		return added;
+    	    	}
+    	    }
     	    else
     	        return dirty;
 		}

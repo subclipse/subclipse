@@ -60,6 +60,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     protected static final int FORMAT_VERSION_2 = 2;
     protected static final int FORMAT_VERSION_3 = 3;
     protected static final int FORMAT_VERSION_4 = 4;
+    protected static final int FORMAT_VERSION_5 = 5;
 
     protected String url;
     protected File file; // file (absolute path) -- not stored in bytes in this class. Subclasses may store it ...
@@ -318,7 +319,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     	int version; 
         try {
             version = dis.readInt();
-            if (version != FORMAT_VERSION_1 && version != FORMAT_VERSION_2 && version != FORMAT_VERSION_3 && version != FORMAT_VERSION_4) {
+            if (version != FORMAT_VERSION_1 && version != FORMAT_VERSION_2 && version != FORMAT_VERSION_3 && version != FORMAT_VERSION_4 && version != FORMAT_VERSION_5) {
                 throw new SVNException("Invalid format");
             }
 
@@ -327,7 +328,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
             } else {
             	readFromVersion3Stream(dis);
             }  
-            if (version == FORMAT_VERSION_4) {
+            if (version == FORMAT_VERSION_4 || version == FORMAT_VERSION_5) {
             	readFromVersion4Stream(dis);
             }
         } catch (IOException e) {
@@ -448,7 +449,7 @@ public abstract class ResourceStatus implements ISVNStatus, Serializable {
     protected void getBytesInto(StatusToBytesStream dos) {
         try {
 //            dos.writeInt(FORMAT_VERSION_3);
-        	dos.writeInt(FORMAT_VERSION_4);
+        	dos.writeInt(FORMAT_VERSION_5);
 
             // url
             dos.writeString(url);

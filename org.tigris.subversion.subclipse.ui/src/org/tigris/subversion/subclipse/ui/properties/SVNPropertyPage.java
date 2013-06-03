@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.properties;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
@@ -168,9 +169,14 @@ public class SVNPropertyPage extends PropertyPage {
         propertiesValue = new Text(composite, SWT.READ_ONLY);
         propertiesValue.setBackground(composite.getBackground());
         
-        if (urlCopiedFrom != null) {
+        if (urlCopiedFrom != null || status.getMovedFromAbspath() != null) {
             label = new Label(composite, SWT.NONE);
-            label.setText(Policy.bind("SVNPropertyPage.copiedFrom")); //$NON-NLS-1$
+            if (status.getMovedFromAbspath() != null) {
+            	label.setText(Policy.bind("SVNPropertyPage.movedFrom")); //$NON-NLS-1$
+            }
+            else {
+            	label.setText(Policy.bind("SVNPropertyPage.copiedFrom")); //$NON-NLS-1$
+            }
             copiedFromValue = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
             copiedFromValue.setBackground(composite.getBackground());
             GridData gd = new GridData();
@@ -321,14 +327,24 @@ public class SVNPropertyPage extends PropertyPage {
         
         StringBuffer sb = new StringBuffer(status.getTextStatus().toString());
         if (status.isSwitched()) sb.append(", switched"); //$NON-NLS-1$
-        if (status.isCopied()) sb.append(", copied"); //$NON-NLS-1$
+        if (status.getMovedFromAbspath() != null) {
+        	sb.append(", moved");
+        }
+        else {
+        	if (status.isCopied()) sb.append(", copied"); //$NON-NLS-1$
+        }
         if (status.isTextMerged()) sb.append(", merged"); //$NON-NLS-1$
         if (status.hasTreeConflict()) sb.append(", tree conflict"); //$NON-NLS-1$
         statusValue.setText(sb.toString());
         propertiesValue.setText(status.getPropStatus().toString());
         
-        if (urlCopiedFrom != null) {
-        	copiedFromValue.setText(urlCopiedFrom.toString());
+        if (status.getMovedFromAbspath() != null) {
+        	copiedFromValue.setText(status.getMovedFromAbspath().substring(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().length()));
+        }
+        else {
+	        if (urlCopiedFrom != null) {
+	        	copiedFromValue.setText(urlCopiedFrom.toString());
+	        }
         }
         
         if (status.getLastChangedRevision() != null) {

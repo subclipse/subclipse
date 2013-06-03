@@ -21,6 +21,7 @@ public interface ISVNUIConstants {
   public final String IMG_CONFLICTED = "ovr16/conflicted_ov.gif"; //$NON-NLS-1$
   public final String IMG_PROPERTY_CONFLICTED = "ovr16/prop_conflicted_ov.gif"; //$NON-NLS-1$
   public final String IMG_ADDED = "ovr16/added_ov.gif"; //$NON-NLS-1$
+  public final String IMG_MOVED = "ovr16/moved_ov.gif"; //$NON-NLS-1$
   public final String IMG_EXTERNAL = "ovr16/external_ov.gif"; //$NON-NLS-1$
   public final String IMG_LOCKED = "ovr16/locked_ov.gif"; //$NON-NLS-1$
   public final String IMG_NEEDSLOCK = "ovr16/protected_ov.gif"; //$NON-NLS-1$

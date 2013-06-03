@@ -224,6 +224,16 @@ public class RemoteResourceStatus extends ResourceStatus {
 	public Number getRevision() {
 		return getRepositoryRevision();
 	}
+	
+	public String getMovedFromAbspath() {
+		//This is remote/repository status. It's irrelevant here. 
+		return null;
+	}
+	
+	public String getMovedToAbspath() {
+		//This is remote/repository status. It's irrelevant here. 
+		return null;
+	}
 
 	public File getConflictNew() {
 		//This is remote/repository status. It's irrelevant here. 

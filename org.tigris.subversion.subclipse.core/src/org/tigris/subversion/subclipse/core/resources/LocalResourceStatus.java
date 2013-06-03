@@ -47,6 +47,9 @@ public class LocalResourceStatus extends ResourceStatus {
     protected boolean isCopied;    
     protected boolean isWcLocked;
     protected boolean isSwitched;
+    
+    protected String movedFromAbspath;
+    protected String movedToAbspath;
 
     
     static final long serialVersionUID = 1L;
@@ -120,6 +123,9 @@ public class LocalResourceStatus extends ResourceStatus {
         this.isCopied = status.isCopied();
         this.isWcLocked = status.isWcLocked();
         this.isSwitched = status.isSwitched();
+        
+        movedFromAbspath = status.getMovedFromAbspath();
+        movedToAbspath = status.getMovedToAbspath();
     }
 
 
@@ -173,6 +179,9 @@ public class LocalResourceStatus extends ResourceStatus {
 
             // file
             dos.writeString(file.getAbsolutePath());
+            
+            dos.writeString(movedFromAbspath);
+            dos.writeString(movedToAbspath);
 
         } catch (IOException e) {
             return;
@@ -185,12 +194,15 @@ public class LocalResourceStatus extends ResourceStatus {
     protected int initFromBytes(StatusFromBytesStream dis) throws SVNException {
     	int version = super.initFromBytes(dis);
         try {
-            if (version == FORMAT_VERSION_4 || version == FORMAT_VERSION_3) {
+            if (version == FORMAT_VERSION_5 || version == FORMAT_VERSION_4 || version == FORMAT_VERSION_3) {
                 readFromVersion3Stream(dis);            	
             } else if (version == FORMAT_VERSION_2) {
             	readFromVersion2Stream(dis);
             } else {
             	readFromVersion1Stream(dis);            	
+            }
+            if (version == FORMAT_VERSION_5) {
+            	readFromVersion5Stream(dis);
             }
         } catch (IOException e) {
             throw new SVNException(
@@ -231,6 +243,11 @@ public class LocalResourceStatus extends ResourceStatus {
         // file
 		file = new File(dis.readString());
 
+	}
+	
+	private void readFromVersion5Stream(StatusFromBytesStream dis) throws IOException {
+		movedFromAbspath = dis.readString();
+		movedToAbspath = dis.readString();
 	}
 
 	/**
@@ -395,7 +412,15 @@ public class LocalResourceStatus extends ResourceStatus {
         return lockOwner != null;
     }
 
-    /**
+    public void setMovedFromAbspath(String movedFromAbspath) {
+		this.movedFromAbspath = movedFromAbspath;
+	}
+
+	public void setMovedToAbspath(String movedToAbspath) {
+		this.movedToAbspath = movedToAbspath;
+	}
+
+	/**
      * the original file without your changes
      * 
      * @return
@@ -490,8 +515,16 @@ public class LocalResourceStatus extends ResourceStatus {
 	public Number getRevision() {
 		throw new UnsupportedOperationException("LocalResourceStatus does not provide (repository) revision");
 	}
+	
+    public String getMovedFromAbspath() {
+		return movedFromAbspath;
+	}
 
-    /**
+	public String getMovedToAbspath() {
+		return movedToAbspath;
+	}
+
+	/**
      * Special LocalResourceStatus subclass representing status "None".
      */
     public static class LocalResourceStatusNone extends LocalResourceStatus {
