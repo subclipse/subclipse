@@ -14,6 +14,7 @@ import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -53,6 +54,8 @@ import org.eclipse.team.ui.synchronize.AbstractSynchronizeLabelProvider;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
@@ -734,6 +737,7 @@ public class ResourceSelectionTree extends Composite {
 			if (statusMap == null) return workbenchLabelProvider.getText(element);
 			String text = null;
 			IResource resource = (IResource)element;
+			ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 			if (mode == MODE_FLAT) text = resource.getName() + " - " + resource.getFullPath().toString(); //$NON-NLS-1$
 			else if (mode == MODE_COMPRESSED_FOLDERS) {
 				if (element instanceof IContainer) {
@@ -744,6 +748,19 @@ public class ResourceSelectionTree extends Composite {
 			}
 			else {
 				text = resource.getName();
+			}
+			if (svnResource != null) {
+				try {
+					LocalResourceStatus status = svnResource.getStatus();
+					if (status != null) {
+						if (status.getMovedFromAbspath() != null) {
+							text = text + Policy.bind("ResourceSelectionTree.movedFrom") + status.getMovedFromAbspath().substring(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().length()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+						}
+						else if (status.getMovedToAbspath() != null) {
+							text = text + Policy.bind("ResourceSelectionTree.movedTo") + status.getMovedToAbspath().substring(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().length()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+						}
+					}
+				} catch (SVNException e) {}
 			}
 			return text;
 		}

@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.core.sync;
 
 import org.eclipse.core.resources.IEncodedStorage;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.team.core.TeamException;
@@ -19,6 +20,7 @@ import org.eclipse.team.core.synchronize.SyncInfo;
 import org.eclipse.team.core.variants.IResourceVariant;
 import org.eclipse.team.core.variants.IResourceVariantComparator;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
+import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.BaseFile;
 import org.tigris.subversion.subclipse.core.resources.BaseFolder;
@@ -303,6 +305,12 @@ public class SVNStatusSyncInfo extends SyncInfo {
 		}
 		else
 		{
+			if (baseStatusInfo != null && baseStatusInfo.getMovedFromAbspath() != null) {
+				return " (" + Policy.bind("SVNStatusSyncInfo.movedFrom") + baseStatusInfo.getMovedFromAbspath().substring(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().length()) + ")";
+			}
+			else if (baseStatusInfo != null && baseStatusInfo.getMovedToAbspath() != null) {
+				return " (" + Policy.bind("SVNStatusSyncInfo.movedTo") + baseStatusInfo.getMovedToAbspath().substring(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().length()) + ")";
+			}
 			return "";
 		}
     }
