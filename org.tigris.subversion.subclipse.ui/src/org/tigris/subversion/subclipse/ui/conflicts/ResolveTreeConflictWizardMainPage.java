@@ -814,9 +814,13 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	public boolean getCompare() {
 		return compareButton != null && compareButton.getSelection();
 	}
+	
+	public boolean refreshConflicts() {
+		return !getCompare() && markResolvedButton.getSelection();
+	}
 
 	public boolean getMarkResolved() {
-		return !getCompare() && markResolvedButton.getSelection();
+		return !getCompare() && markResolvedButton.getSelection() && markResolvedButton.isEnabled();
 	}
 	
 	public IResource getMergeTarget() {
