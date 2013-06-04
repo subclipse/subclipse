@@ -101,44 +101,52 @@ public class ConflictHandlingWizardPage extends WizardPage {
 		
 		markConflictedButton = new Button(conflictGroup, SWT.RADIO);
 		markConflictedButton.setText(Messages.ConflictHandlingWizardPage_4);
-		if (conflictDescriptor.getMyPath() != null) {
-			chooseUserVersionButton = new Button(conflictGroup, SWT.RADIO);
-			if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property) {
-				chooseUserVersionButton.setText(Messages.ConflictHandlingWizardPage_5);
-			} else {
-				chooseUserVersionButton.setText(Messages.ConflictHandlingWizardPage_6);
-				if (!conflictDescriptor.isBinary()) {
-					chooseUserVersionForConflictsButton = new Button(conflictGroup, SWT.RADIO);
-					chooseUserVersionForConflictsButton.setText(Messages.ConflictHandlingWizardPage_16);
-				}
-			}
-		}
-		if (conflictDescriptor.getTheirPath() != null) {
-			chooseIncomingVersionButton = new Button(conflictGroup, SWT.RADIO);
-			if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property) {
-				chooseIncomingVersionButton.setText(Messages.ConflictHandlingWizardPage_7);		
-			} else {
-				chooseIncomingVersionButton.setText(Messages.ConflictHandlingWizardPage_8);
-				if (!conflictDescriptor.isBinary()) {
-					chooseIncomingVersionForConflictsButton = new Button(conflictGroup, SWT.RADIO);
-					chooseIncomingVersionForConflictsButton.setText(Messages.ConflictHandlingWizardPage_17);
-				}
-			}
-		}
-		if (!conflictDescriptor.isBinary()) {
-			if (conflictDescriptor.getConflictKind() != SVNConflictDescriptor.Kind.property && fileExists(conflictDescriptor.getMergedPath())) {
-				fileEditorButton = new Button(conflictGroup, SWT.RADIO);
-				fileEditorButton.setText(Messages.ConflictHandlingWizardPage_9);
-			}
-		}
-		if (showConflictEditorOption()) {
-			conflictEditorButton = new Button(conflictGroup, SWT.RADIO);
-			if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property && conflictDescriptor.getMergedPath() == null)
-				conflictEditorButton.setText(Messages.ConflictHandlingWizardPage_10);	
-			else
-				conflictEditorButton.setText(Messages.ConflictHandlingWizardPage_11);	
-		}
 		
+		if (conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.deleted || conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.moved_away) {
+			chooseUserVersionButton = new Button(conflictGroup, SWT.RADIO);
+			chooseUserVersionButton.setText(Messages.ConflictHandlingWizardPage_18);
+			chooseIncomingVersionButton = new Button(conflictGroup, SWT.RADIO);
+			chooseIncomingVersionButton.setText(Messages.ConflictHandlingWizardPage_19);
+		}
+		else {
+			if (conflictDescriptor.getMyPath() != null) {
+				chooseUserVersionButton = new Button(conflictGroup, SWT.RADIO);
+				if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property) {
+					chooseUserVersionButton.setText(Messages.ConflictHandlingWizardPage_5);
+				} else {
+					chooseUserVersionButton.setText(Messages.ConflictHandlingWizardPage_6);
+					if (!conflictDescriptor.isBinary()) {
+						chooseUserVersionForConflictsButton = new Button(conflictGroup, SWT.RADIO);
+						chooseUserVersionForConflictsButton.setText(Messages.ConflictHandlingWizardPage_16);
+					}
+				}
+			}
+			if (conflictDescriptor.getTheirPath() != null) {
+				chooseIncomingVersionButton = new Button(conflictGroup, SWT.RADIO);
+				if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property) {
+					chooseIncomingVersionButton.setText(Messages.ConflictHandlingWizardPage_7);		
+				} else {
+					chooseIncomingVersionButton.setText(Messages.ConflictHandlingWizardPage_8);
+					if (!conflictDescriptor.isBinary()) {
+						chooseIncomingVersionForConflictsButton = new Button(conflictGroup, SWT.RADIO);
+						chooseIncomingVersionForConflictsButton.setText(Messages.ConflictHandlingWizardPage_17);
+					}
+				}
+			}
+			if (!conflictDescriptor.isBinary()) {
+				if (conflictDescriptor.getConflictKind() != SVNConflictDescriptor.Kind.property && fileExists(conflictDescriptor.getMergedPath())) {
+					fileEditorButton = new Button(conflictGroup, SWT.RADIO);
+					fileEditorButton.setText(Messages.ConflictHandlingWizardPage_9);
+				}
+			}
+			if (showConflictEditorOption()) {
+				conflictEditorButton = new Button(conflictGroup, SWT.RADIO);
+				if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property && conflictDescriptor.getMergedPath() == null)
+					conflictEditorButton.setText(Messages.ConflictHandlingWizardPage_10);	
+				else
+					conflictEditorButton.setText(Messages.ConflictHandlingWizardPage_11);	
+			}
+		}
 		int lastChoice = ISVNConflictResolver.Choice.postpone;
 		try {
 			if (conflictDescriptor.isBinary()) lastChoice = settings.getInt(LAST_BINARY_CHOICE);
@@ -187,7 +195,9 @@ public class ConflictHandlingWizardPage extends WizardPage {
 		if (conflictEditorButton != null) conflictEditorButton.addSelectionListener(selectionListener);
 		
 		applyToAllButton = new Button(composite, SWT.CHECK);
-		if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property)
+		if (conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.deleted || conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.moved_away)
+			applyToAllButton.setText(Messages.ConflictHandlingWizardPage_20);
+		else if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property)
 			applyToAllButton.setText(Messages.ConflictHandlingWizardPage_12);
 		else if (conflictDescriptor.isBinary())
 			applyToAllButton.setText(Messages.ConflictHandlingWizardPage_13);
@@ -195,7 +205,9 @@ public class ConflictHandlingWizardPage extends WizardPage {
 			applyToAllButton.setText(Messages.ConflictHandlingWizardPage_14);
 		
 		File file = new File(conflictDescriptor.getPath());
-		if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property)
+		if (conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.deleted || conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.moved_away)
+			setMessage("Tree conflict on " + convertTempFileName(file.getName()) + "."); //$NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$
+		else if (conflictDescriptor.getConflictKind() == SVNConflictDescriptor.Kind.property)
 			setMessage("SVN cannot automatically merge property " + conflictDescriptor.getPropertyName() + Messages.ConflictHandlingWizardPage_15 + convertTempFileName(file.getName()) + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		else
 			setMessage("SVN cannot automatically merge file " + convertTempFileName(file.getName()) + "."); //$NON-NLS-1$ //$NON-NLS-1$ //$NON-NLS-2$
@@ -210,9 +222,23 @@ public class ConflictHandlingWizardPage extends WizardPage {
 	public ConflictResolution getConflictResolution() {
 		int resolution = ISVNConflictResolver.Choice.postpone;
 		if (markConflictedButton.getSelection()) resolution = ISVNConflictResolver.Choice.postpone;
-		else if (chooseIncomingVersionButton != null && chooseIncomingVersionButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseTheirsFull;
+		else if (chooseIncomingVersionButton != null && chooseIncomingVersionButton.getSelection()) {
+			if (conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.deleted || conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.moved_away) {
+				resolution = ISVNConflictResolver.Choice.chooseMerged;
+			}
+			else {
+				resolution = ISVNConflictResolver.Choice.chooseTheirsFull;
+			}
+		}
 		else if (chooseIncomingVersionForConflictsButton != null && chooseIncomingVersionForConflictsButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseTheirs;
-		else if (chooseUserVersionButton != null && chooseUserVersionButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseMineFull;
+		else if (chooseUserVersionButton != null && chooseUserVersionButton.getSelection()) {
+			if (conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.deleted || conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.moved_away) {
+				resolution = ISVNConflictResolver.Choice.chooseMine;
+			}
+			else {	
+				resolution = ISVNConflictResolver.Choice.chooseMineFull;
+			}
+		}
 		else if (chooseUserVersionForConflictsButton != null && chooseUserVersionForConflictsButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseMine;
 		else if (chooseBaseVersionButton != null && chooseBaseVersionButton.getSelection()) resolution = ISVNConflictResolver.Choice.chooseBase;
 	    if (!conflictDescriptor.isBinary()) {
@@ -255,6 +281,9 @@ public class ConflictHandlingWizardPage extends WizardPage {
 	
 	private boolean showConflictEditorOption() {
 		if (!fileExists(conflictDescriptor.getBasePath())) {
+			return false;
+		}
+		if (conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.deleted || conflictDescriptor.getReason() == SVNConflictDescriptor.Reason.moved_away) {
 			return false;
 		}
 		if (conflictDescriptor.isBinary()) {

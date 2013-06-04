@@ -45,7 +45,7 @@ public class UpdateAction extends WorkbenchWindowAction {
         else {
         	IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
 	        IResource[] resources = getSelectedResources(); 
-	        SVNConflictResolver conflictResolver = new SVNConflictResolver(resources[0], store.getInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TEXT_FILES), store.getInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_BINARY_FILES), store.getInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_PROPERTIES));
+	        SVNConflictResolver conflictResolver = new SVNConflictResolver(resources[0], store.getInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TEXT_FILES), store.getInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_BINARY_FILES), store.getInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_PROPERTIES), store.getInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TREE_CONFLICTS));
         	UpdateOperation updateOperation = new UpdateOperation(getTargetPart(), resources, SVNRevision.HEAD);
 	    	updateOperation.setDepth(depth);
 	    	updateOperation.setSetDepth(setDepth);

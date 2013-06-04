@@ -280,6 +280,7 @@ public interface ISVNUIConstants {
   public final String PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TEXT_FILES = "pref_update_to_head_conflict_handling_text_files"; //$NON-NLS-1$
   public final String PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_BINARY_FILES = "pref_update_to_head_conflict_handling_binary_files"; //$NON-NLS-1$
   public final String PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_PROPERTIES = "pref_update_to_head_conflict_handling_properties"; //$NON-NLS-1$
+  public final String PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TREE_CONFLICTS = "pref_update_to_head_conflict_handling_tree_conflicts"; //$NON-NLS-1$
   
   // depth
   public final String DEPTH_EMPTY = "Only this item"; //$NON-NLS-1$

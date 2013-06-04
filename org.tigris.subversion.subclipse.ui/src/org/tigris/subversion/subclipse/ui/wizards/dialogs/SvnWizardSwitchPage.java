@@ -87,6 +87,11 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 	private Button binaryConflictUserButton;
 	private Button binaryConflictIncomingButton;
 	
+	private Button treeConflictPromptButton;
+	private Button treeConflictMarkButton;
+	private Button treeConflictUserButton;
+	private Button treeConflictResolveButton;
+	
 	private SVNConflictResolver conflictResolver;
     
     private SVNUrl[] urls;
@@ -108,7 +113,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		new ColumnWeightData(100, 100, true)};
 
 	public SvnWizardSwitchPage(IResource[] resources) {
-		this("SwitchDialogWithConflictHandling", resources); //$NON-NLS-1$
+		this("SwitchDialogWithConflictHandling2", resources); //$NON-NLS-1$
 	}
 	
 	public SvnWizardSwitchPage(String name, IResource[] resources) {
@@ -368,9 +373,27 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		propertyConflictMarkButton = new Button(propertyGroup, SWT.RADIO);
 		propertyConflictMarkButton.setText(Policy.bind("SvnWizardUpdatePage.11")); //$NON-NLS-1$
 		
+		Group treeConflictGroup = new Group(conflictGroup, SWT.NONE);
+		treeConflictGroup.setText(Policy.bind("SvnWizardUpdatePage.12")); //$NON-NLS-1$
+		GridLayout treeConflictLayout = new GridLayout();
+		treeConflictLayout.numColumns = 1;
+		treeConflictGroup.setLayout(treeConflictLayout);
+		treeConflictGroup.setLayoutData(
+		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));	
+		
+		treeConflictPromptButton = new Button(treeConflictGroup, SWT.RADIO);
+		treeConflictPromptButton.setText(Policy.bind("SvnWizardUpdatePage.10")); //$NON-NLS-1$
+		treeConflictMarkButton = new Button(treeConflictGroup, SWT.RADIO);
+		treeConflictMarkButton.setText(Policy.bind("SvnWizardUpdatePage.11")); //$NON-NLS-1$
+		treeConflictUserButton = new Button(treeConflictGroup, SWT.RADIO);
+		treeConflictUserButton.setText(Policy.bind("SvnWizardUpdatePage.13")); //$NON-NLS-1$
+		treeConflictResolveButton = new Button(treeConflictGroup, SWT.RADIO);
+		treeConflictResolveButton.setText(Policy.bind("SvnWizardUpdatePage.14")); //$NON-NLS-1$
+		
 		textConflictMarkButton.setSelection(true);
 		binaryConflictMarkButton.setSelection(true);
 		propertyConflictMarkButton.setSelection(true);
+		treeConflictMarkButton.setSelection(true);
 		
 		setPageComplete(canFinish());
 
@@ -436,7 +459,7 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
             force = forceButton.getSelection();
             ignoreAncestry = ignoreAncestryButton.getSelection();
             depth = DepthComboHelper.getDepth(depthCombo);
-            conflictResolver = new SVNConflictResolver(resources[0], getTextConflictHandling(), getBinaryConflictHandling(), getPropertyConflictHandling());
+            conflictResolver = new SVNConflictResolver(resources[0], getTextConflictHandling(), getBinaryConflictHandling(), getPropertyConflictHandling(), getTreeConflictHandling());
         } catch (MalformedURLException e) {
             MessageDialog.openError(getShell(), Policy.bind("SwitchDialog.title"), e.getMessage()); //$NON-NLS-1$
             return false;
@@ -466,6 +489,13 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 	public int getPropertyConflictHandling() {
 		if (propertyConflictMarkButton.getSelection()) return ISVNConflictResolver.Choice.postpone;
 		else return ISVNConflictResolver.Choice.chooseMerged;
+	}
+	
+	public int getTreeConflictHandling() {
+		if (treeConflictMarkButton.getSelection()) return ISVNConflictResolver.Choice.postpone;
+		else if (treeConflictResolveButton.getSelection()) return ISVNConflictResolver.Choice.chooseMerged;
+		else if (treeConflictUserButton.getSelection()) return ISVNConflictResolver.Choice.chooseMine;
+		else return SVNConflictResolver.PROMPT;
 	}
 
 	public void setMessage() {

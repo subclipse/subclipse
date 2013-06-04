@@ -45,6 +45,7 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 	private int textHandling = ISVNConflictResolver.Choice.postpone;
 	private int binaryHandling = ISVNConflictResolver.Choice.postpone;
 	private int propertyHandling = ISVNConflictResolver.Choice.postpone;
+	private int treeConflictHandling = ISVNConflictResolver.Choice.postpone;
 	private ArrayList<ConflictResolution> conflictResolutions = new ArrayList<ConflictResolution>();
 	private volatile DialogWizard dialogWizard;
 	private boolean finished;
@@ -57,23 +58,42 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 	private ConflictResolution applyToAllTextResolution;
 	private ConflictResolution applyToAllBinaryResolution;
 	private ConflictResolution applyToAllPropertyResolution;
+	private ConflictResolution applyToAllTreeConflictResolution;
 	
 	private ISchedulingRule schedulingRule;
+	
+	public static final int PROMPT = -1;
 	
 	public SVNConflictResolver() {
 		super();
 	}
 
-	public SVNConflictResolver(IResource resource, int textHandling, int binaryHandling, int propertyHandling) {
+	public SVNConflictResolver(IResource resource, int textHandling, int binaryHandling, int propertyHandling, int treeConflictHandling) {
 		this();
 		this.resource = resource;
 		this.textHandling = textHandling;
 		this.binaryHandling = binaryHandling;
 		this.propertyHandling = propertyHandling;
+		this.treeConflictHandling = treeConflictHandling;
 	}
 
 	public SVNConflictResult resolve(SVNConflictDescriptor descrip) throws SVNClientException {
-		if (descrip.getReason() == SVNConflictDescriptor.Reason.edited || (descrip.getReason() == SVNConflictDescriptor.Reason.obstructed && descrip.getConflictKind() == SVNConflictDescriptor.Kind.property)) {
+		if (descrip.getReason() == SVNConflictDescriptor.Reason.deleted || descrip.getReason() == SVNConflictDescriptor.Reason.moved_away) {
+			if (treeConflictHandling == PROMPT) {
+				ConflictResolution conflictResolution = getConflictResolution(descrip);
+				conflictResolutions.add(conflictResolution);
+				return new SVNConflictResult(conflictResolution.getResolution(), descrip.getMergedPath());
+			}
+			else if (treeConflictHandling == ISVNConflictResolver.Choice.chooseMerged) {
+				conflictResolutions.add(new ConflictResolution(descrip, treeConflictHandling));
+				return new SVNConflictResult(treeConflictHandling, descrip.getMergedPath());
+			}
+			else {
+				conflictResolutions.add(new ConflictResolution(descrip, treeConflictHandling));
+				return new SVNConflictResult(treeConflictHandling, descrip.getMergedPath());
+			}
+		}
+		else if (descrip.getReason() == SVNConflictDescriptor.Reason.edited || (descrip.getReason() == SVNConflictDescriptor.Reason.obstructed && descrip.getConflictKind() == SVNConflictDescriptor.Kind.property)) {
 			if (descrip.isBinary()) {
 				int handling;
 				if (descrip.getConflictKind() == SVNConflictDescriptor.Kind.property)
@@ -112,7 +132,10 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 		wait = false;
 		dialogWizard = null;		
 		ConflictResolution conflictResolution = null;
-		if (descrip.getConflictKind() == SVNConflictDescriptor.Kind.property && applyToAllPropertyResolution != null)
+		if ((descrip.getReason() == SVNConflictDescriptor.Reason.deleted || descrip.getReason() == SVNConflictDescriptor.Reason.moved_away) && applyToAllTreeConflictResolution != null) {
+			conflictResolution = new ConflictResolution(descrip, applyToAllTreeConflictResolution.getResolution());
+		}
+		else if (descrip.getConflictKind() == SVNConflictDescriptor.Kind.property && applyToAllPropertyResolution != null)
 			conflictResolution = new ConflictResolution(descrip, applyToAllPropertyResolution.getResolution());
 		else if (descrip.isBinary() && applyToAllBinaryResolution != null)
 			conflictResolution = new ConflictResolution(descrip, applyToAllBinaryResolution.getResolution());
@@ -137,7 +160,10 @@ public class SVNConflictResolver implements ISVNConflictResolver {
 			}		
 			conflictResolution = dialogWizard.getConflictResolution();
 			if (conflictResolution.isApplyToAll()) {
-				if (descrip.getConflictKind() == SVNConflictDescriptor.Kind.property)
+				if (descrip.getReason() == SVNConflictDescriptor.Reason.deleted || descrip.getReason() == SVNConflictDescriptor.Reason.moved_away) {
+					applyToAllTreeConflictResolution = conflictResolution;
+				}
+				else if (descrip.getConflictKind() == SVNConflictDescriptor.Kind.property)
 					applyToAllPropertyResolution = conflictResolution;
 				else if (descrip.isBinary())
 					applyToAllBinaryResolution = conflictResolution;

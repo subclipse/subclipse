@@ -73,6 +73,7 @@ public class SVNUIPreferenceInitializer extends AbstractPreferenceInitializer {
         node.putInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TEXT_FILES, ISVNConflictResolver.Choice.postpone);
         node.putInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_BINARY_FILES, ISVNConflictResolver.Choice.postpone);
         node.putInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_PROPERTIES, ISVNConflictResolver.Choice.postpone);
+        node.putInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TREE_CONFLICTS, ISVNConflictResolver.Choice.postpone);
         
         node.putBoolean(ISVNUIConstants.PREF_USE_JAVAHL_COMMIT_HACK, true);
         

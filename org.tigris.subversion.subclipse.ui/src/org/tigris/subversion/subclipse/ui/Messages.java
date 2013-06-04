@@ -23,7 +23,10 @@ public class Messages extends NLS {
 	public static String ConflictHandlingWizardPage_15;
 	public static String ConflictHandlingWizardPage_16;
 	public static String ConflictHandlingWizardPage_17;
+	public static String ConflictHandlingWizardPage_18;
+	public static String ConflictHandlingWizardPage_19;
 	public static String ConflictHandlingWizardPage_2;
+	public static String ConflictHandlingWizardPage_20;
 	public static String ConflictHandlingWizardPage_3;
 	public static String ConflictHandlingWizardPage_4;
 	public static String ConflictHandlingWizardPage_5;

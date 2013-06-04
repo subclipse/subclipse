@@ -14,6 +14,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.conflicts.SVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 
 public class UpdateToHeadPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
@@ -30,6 +31,11 @@ public class UpdateToHeadPreferencePage extends PreferencePage implements IWorkb
 	private Button binaryConflictMarkButton;
 	private Button binaryConflictUserButton;
 	private Button binaryConflictIncomingButton;
+	
+	private Button treeConflictPromptButton;
+	private Button treeConflictMarkButton;
+	private Button treeConflictUserButton;
+	private Button treeConflictResolveButton;
 	
 	private IPreferenceStore store = SVNUIPlugin.getPlugin().getPreferenceStore();
 
@@ -103,6 +109,23 @@ public class UpdateToHeadPreferencePage extends PreferencePage implements IWorkb
 		propertyConflictMarkButton = new Button(propertyGroup, SWT.RADIO);
 		propertyConflictMarkButton.setText(Policy.bind("SvnWizardUpdatePage.11")); //$NON-NLS-1$
 		
+		Group treeConflictGroup = new Group(conflictGroup, SWT.NONE);
+		treeConflictGroup.setText(Policy.bind("SvnWizardUpdatePage.12")); //$NON-NLS-1$
+		GridLayout treeConflictLayout = new GridLayout();
+		treeConflictLayout.numColumns = 1;
+		treeConflictGroup.setLayout(treeConflictLayout);
+		treeConflictGroup.setLayoutData(
+		new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));	
+		
+		treeConflictPromptButton = new Button(treeConflictGroup, SWT.RADIO);
+		treeConflictPromptButton.setText(Policy.bind("SvnWizardUpdatePage.10")); //$NON-NLS-1$
+		treeConflictMarkButton = new Button(treeConflictGroup, SWT.RADIO);
+		treeConflictMarkButton.setText(Policy.bind("SvnWizardUpdatePage.11")); //$NON-NLS-1$
+		treeConflictUserButton = new Button(treeConflictGroup, SWT.RADIO);
+		treeConflictUserButton.setText(Policy.bind("SvnWizardUpdatePage.13")); //$NON-NLS-1$
+		treeConflictResolveButton = new Button(treeConflictGroup, SWT.RADIO);
+		treeConflictResolveButton.setText(Policy.bind("SvnWizardUpdatePage.14")); //$NON-NLS-1$
+		
 		initializeValues();
 		
 		return composite;
@@ -124,6 +147,11 @@ public class UpdateToHeadPreferencePage extends PreferencePage implements IWorkb
 		if (propertyConflictMarkButton.getSelection()) store.setValue(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_PROPERTIES, ISVNConflictResolver.Choice.postpone);
 		else store.setValue(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_PROPERTIES, ISVNConflictResolver.Choice.chooseMerged);
 		
+		if (treeConflictMarkButton.getSelection()) store.setValue(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TREE_CONFLICTS, ISVNConflictResolver.Choice.postpone);
+		else if (treeConflictResolveButton.getSelection()) store.setValue(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TREE_CONFLICTS, ISVNConflictResolver.Choice.chooseMerged);
+		else if (treeConflictUserButton.getSelection()) store.setValue(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TREE_CONFLICTS, ISVNConflictResolver.Choice.chooseMine);
+		else if (treeConflictPromptButton.getSelection()) store.setValue(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TREE_CONFLICTS, SVNConflictResolver.PROMPT);
+		
 		return super.performOk();
 	}
 
@@ -139,6 +167,10 @@ public class UpdateToHeadPreferencePage extends PreferencePage implements IWorkb
 		binaryConflictUserButton.setSelection(false);
 		propertyConflictMarkButton.setSelection(true);
 		propertyConflictPromptButton.setSelection(false);
+		treeConflictMarkButton.setSelection(true);
+		treeConflictPromptButton.setSelection(false);
+		treeConflictResolveButton.setSelection(false);
+		treeConflictUserButton.setSelection(false);
 		super.performDefaults();
 	}
 
@@ -175,6 +207,20 @@ public class UpdateToHeadPreferencePage extends PreferencePage implements IWorkb
 			propertyConflictMarkButton.setSelection(true);
 			break;
 		}
+		switch (store.getInt(ISVNUIConstants.PREF_UPDATE_TO_HEAD_CONFLICT_HANDLING_TREE_CONFLICTS)) {
+		case SVNConflictResolver.PROMPT:
+			binaryConflictPromptButton.setSelection(true);
+			break;
+		case ISVNConflictResolver.Choice.chooseMerged:
+			treeConflictResolveButton.setSelection(true);
+			break;	
+		case ISVNConflictResolver.Choice.chooseMine:
+			treeConflictUserButton.setSelection(true);
+			break;				
+		default:
+			treeConflictMarkButton.setSelection(true);
+			break;
+		}		
 	}
 
 	public void init(IWorkbench workbench) {}
