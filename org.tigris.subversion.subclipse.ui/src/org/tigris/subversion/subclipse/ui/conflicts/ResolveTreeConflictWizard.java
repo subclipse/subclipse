@@ -245,22 +245,24 @@ public class ResolveTreeConflictWizard extends Wizard {
 				return false;
 			}			
 		}
-		if (mainPage.getMarkResolved()) {
+		if (mainPage.getMarkResolved() || mainPage.refreshConflicts()) {
 			try {
-				IResource[] resolvedResources = { treeConflict.getResource() };
-				ResolveOperation resolveOperation = new ResolveOperation(targetPart, resolvedResources, ISVNConflictResolver.Choice.chooseMerged) {
-
-					protected boolean canRunAsJob() {
-						return false;
-					}
-					
-				};
-				resolveOperation.run();
+				if (mainPage.getMarkResolved()) {
+					IResource[] resolvedResources = { treeConflict.getResource() };
+					ResolveOperation resolveOperation = new ResolveOperation(targetPart, resolvedResources, ISVNConflictResolver.Choice.chooseMerged) {
+	
+						protected boolean canRunAsJob() {
+							return false;
+						}
+						
+					};
+					resolveOperation.run();
+				}
 				
-//				svnClient = getSvnClient();
-//				svnClient.resolve(treeConflict.getStatus().getFile(), ISVNConflictResolver.Choice.chooseMerged);
-				IResource[] refreshResources = { svnResource.getResource() };
-				TreeConflictsView.refresh(refreshResources);
+				if (mainPage.refreshConflicts()) {
+					IResource[] refreshResources = { svnResource.getResource() };
+					TreeConflictsView.refresh(refreshResources);
+				}
 			} catch (Exception e) {
 				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
 				MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_markResolvedError, e.getMessage());
