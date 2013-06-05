@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.settings;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +39,17 @@ public class ProjectProperties {
     protected String logregex;
     
     private static final String URL = "://"; //$NON-NLS-1$
+    
+	private final static List<String> propertyFilterList = new ArrayList<String>();
+	static {
+		propertyFilterList.add("bugtraq:message");
+		propertyFilterList.add("bugtraq:label");
+		propertyFilterList.add("bugtraq:url");
+		propertyFilterList.add("bugtraq:number");
+		propertyFilterList.add("bugtraq:warnifnoissue");
+		propertyFilterList.add("bugtraq:append");
+		propertyFilterList.add("bugtraq:logregex");
+	}
 
     public ProjectProperties() {
         super();
@@ -267,14 +279,14 @@ public class ProjectProperties {
               "bugtraq:warnifnoissue: " + warnIfNoIssue + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
               "bugtraq:append: " + append; //$NON-NLS-1$
     }
-    
-    private static ISVNProperty getSvnProperty(File file, String name) throws SVNException {
+ 
+    private static ISVNProperty[] getBugtraqProperties(File file) throws SVNException {
     	ISVNClientAdapter svnClient = null;
 		try {
 			svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
 	        SVNProviderPlugin.disableConsoleLogging(); 
-			ISVNProperty prop = svnClient.propertyGet(file, name);
-	        return prop;
+			ISVNProperty[] props = svnClient.getPropertiesIncludingInherited(file, false, propertyFilterList);
+	        return props;
 		} catch (SVNClientException e) {
 	        throw SVNException.wrapException(e); 
 		} finally {
@@ -285,53 +297,53 @@ public class ProjectProperties {
     
     private static ProjectProperties getProjectProperties(File file, ISVNLocalResource svnResource) throws SVNException {
     	if (file == null) return null;
-    	ISVNProperty property = null;
-    	boolean hasBugtraq = false;
-        try {
-        	property = getSvnProperty(file, "bugtraq:message"); //$NON-NLS-1$
-            if( property != null && !"".equals(property.getValue().trim()) ) {
-            	hasBugtraq = true;
-            }
-			property = getSvnProperty(file, "bugtraq:logregex"); //$NON-NLS-1$
-            if( property != null && !"".equals(property.getValue().trim()) ) {
-            	hasBugtraq = true;
-            }
-		} catch (SVNException e) {
-			if (e.getMessage() != null && e.getMessage().indexOf("Path is not a working copy") != -1) { //$NON-NLS-1$
-				return null;
-			}
-		}
-        if (hasBugtraq) {
-            ProjectProperties projectProperties = new ProjectProperties();
-            property = getSvnProperty(file, "bugtraq:message"); //$NON-NLS-1$
-            if (property != null) projectProperties.setMessage(property.getValue()); 
-            property = getSvnProperty(file, "bugtraq:label"); //$NON-NLS-1$
-            if (property != null) projectProperties.setLabel(property.getValue()); 
-            property = getSvnProperty(file, "bugtraq:url"); //$NON-NLS-1$
-            if (property != null) projectProperties.setUrl(resolveUrl(property.getValue(), svnResource));
-            property = getSvnProperty(file, "bugtraq:number"); //$NON-NLS-1$
-            if ((property != null) && (property.getValue() != null)) projectProperties.setNumber(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$  
-            property = getSvnProperty(file, "bugtraq:warnifnoissue"); //$NON-NLS-1$
-            if ((property != null) && (property.getValue() != null)) projectProperties.setWarnIfNoIssue(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$   
-            property = getSvnProperty(file, "bugtraq:append"); //$NON-NLS-1$
-            if ((property != null) && (property.getValue() != null)) projectProperties.setAppend(property.getValue().equalsIgnoreCase("true")); //$NON-NLS-1$                                   
-            property = getSvnProperty(file, "bugtraq:logregex"); //$NON-NLS-1$
-            if ((property != null) && (property.getValue() != null)) projectProperties.setLogregex(property.getValue()); //$NON-NLS-1$                                   
-            return projectProperties;           
-        }
-        File checkFile = file;
-        while (checkFile.getParentFile() != null) {
-            checkFile = checkFile.getParentFile();
-            try {
-	            return getProjectProperties(checkFile, svnResource);
-            } catch (SVNException e) {}
-        }
-        return null;
+    	
+    	String message = null;
+    	String logregex = null;
+    	String label = null;
+    	String url = null;
+    	boolean number = false;
+    	boolean warnifnoissue = false;
+    	boolean append = false;
+    	ISVNProperty[] bugtraqProperties = getBugtraqProperties(file);
+    	for (ISVNProperty prop : bugtraqProperties) {
+    		if (prop.getName().equals("bugtraq:message")) {
+    			message = prop.getValue();
+    		}
+    		else if (prop.getName().equals("bugtraq:logregex")) {
+    			logregex = prop.getValue();
+    		}
+    		else if (prop.getName().equals("bugtraq:label")) {
+    			label = prop.getValue();
+    		}
+    		else if (prop.getName().equals("bugtraq:url")) {
+    			url = resolveUrl(prop.getValue(), svnResource);
+    		}
+    		else if (prop.getName().equals("bugtraq:number")) {
+    			number = prop.getValue().equalsIgnoreCase("true");
+    		}
+    		else if (prop.getName().equals("bugtraq:warnifnoissue")) {
+    			warnifnoissue = prop.getValue().equalsIgnoreCase("true");
+    		}
+     		else if (prop.getName().equals("bugtraq:append")) {
+    			append = prop.getValue().equalsIgnoreCase("true");
+    		}
+    	}
+    	ProjectProperties projectProperties = null;
+    	if (message != null || logregex != null) {
+    		projectProperties = new ProjectProperties();
+    		projectProperties.setMessage(message);
+    		projectProperties.setLogregex(logregex);
+    		projectProperties.setLabel(label);
+    		projectProperties.setUrl(url);
+    		projectProperties.setNumber(number);
+    		projectProperties.setWarnIfNoIssue(warnifnoissue);
+    		projectProperties.setAppend(append);
+    	}
+    	return projectProperties;
     }
     
-    // Get ProjectProperties for selected resource.  First looks at selected resource,
-    // then works up through ancestors until a folder with the bugtraq:message property
-    // is found.  If none found, returns null.
+    // Get ProjectProperties for selected resource.
     public static ProjectProperties getProjectProperties(IResource resource) throws SVNException {
         if (resource == null || resource.getLocation() == null) return null;
     	ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
