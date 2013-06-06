@@ -500,12 +500,12 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		}
 	}
 	
-	public ISVNProperty[] getPropertiesIncludingInherited(boolean includeEmptyProperties, List<String> filterProperties) throws SVNException {
+	public ISVNProperty[] getPropertiesIncludingInherited(boolean includeEmptyProperties, boolean includeClosestOnly, List<String> filterProperties) throws SVNException {
 		ISVNClientAdapter svnClient = null;
 		try {
 			svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
 	        SVNProviderPlugin.disableConsoleLogging(); 
-			ISVNProperty[] properties = svnClient.getPropertiesIncludingInherited(getFile(), includeEmptyProperties, filterProperties);
+			ISVNProperty[] properties = svnClient.getPropertiesIncludingInherited(getFile(), includeEmptyProperties, includeClosestOnly, filterProperties);
 			return properties;
 		} catch (SVNClientException e) {
 			throw SVNException.wrapException(e); 

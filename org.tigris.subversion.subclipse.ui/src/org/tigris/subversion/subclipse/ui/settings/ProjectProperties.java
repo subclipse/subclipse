@@ -298,7 +298,7 @@ public class ProjectProperties {
     	boolean number = false;
     	boolean warnifnoissue = false;
     	boolean append = false;
-    	ISVNProperty[] bugtraqProperties = parent.getPropertiesIncludingInherited(false, propertyFilterList);
+    	ISVNProperty[] bugtraqProperties = parent.getPropertiesIncludingInherited(false, true, propertyFilterList);
     	for (ISVNProperty prop : bugtraqProperties) {
     		if (prop.getName().equals("bugtraq:message")) {
     			message = prop.getValue();

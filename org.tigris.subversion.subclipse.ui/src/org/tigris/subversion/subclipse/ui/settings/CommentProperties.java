@@ -78,7 +78,7 @@ public class CommentProperties {
     		return null;
     	}
     	properties = new CommentProperties();
-    	ISVNProperty[] commentProperties = svnResource.getPropertiesIncludingInherited(false, commentPropertiesFilterList);
+    	ISVNProperty[] commentProperties = svnResource.getPropertiesIncludingInherited(false, true, commentPropertiesFilterList);
     	for (ISVNProperty commentProperty : commentProperties) {
     		if (commentProperty.getName().equals("tsvn:logminsize")) {
     			int minSize = 0;

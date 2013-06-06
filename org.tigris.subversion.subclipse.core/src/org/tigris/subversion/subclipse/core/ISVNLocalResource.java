@@ -191,7 +191,7 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 	 * @return the svn properties for this resource, including inherited
 	 * @throws SVNException
 	 */
-	public ISVNProperty[] getPropertiesIncludingInherited(boolean includeEmptyProperties, List<String> filterProperties) throws SVNException;
+	public ISVNProperty[] getPropertiesIncludingInherited(boolean includeEmptyProperties, boolean includeClosestOnly, List<String> filterProperties) throws SVNException;
 
 	/**
 	 * Delete a svn property
