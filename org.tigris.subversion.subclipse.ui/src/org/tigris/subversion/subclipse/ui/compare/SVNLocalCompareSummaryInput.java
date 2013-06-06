@@ -99,17 +99,10 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 					ISVNLocalResource resource = resources[i];
 					ISVNRemoteFolder remoteFolder = remoteFolders[i];
 					SVNDiffSummary[] diffSummary = null;
-					if (remoteFolder.getRevision().equals(SVNRevision.HEAD) && remoteFolder.getUrl().equals(resource.getUrl())) {
-				        StatusAndInfoCommand cmd = new StatusAndInfoCommand(SVNWorkspaceRoot.getSVNResourceFor( resource.getResource() ), true, false, true );
-				        cmd.run(monitor);
-				        RemoteResourceStatus[] statuses = cmd.getRemoteResourceStatuses();
-				        diffSummary = getDiffSummary(statuses, resource);
-					} else {
-						client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
-						diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
-						SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
-						client = null;
-					}
+					client = SVNProviderPlugin.getPlugin().getSVNClientManager().getSVNClient();
+					diffSummary = client.diffSummarize(new File(resource.getResource().getLocation().toString()), remoteFolder.getUrl(), remoteFolder.getRevision(), true);
+					SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+					client = null;
 					if (diffSummary != null && diffSummary.length > 0) {
 						diffSummary = getDiffSummaryWithSubfolders(diffSummary);
 						ITypedElement left = new SVNLocalResourceSummaryNode(resource, diffSummary, resource.getResource().getLocation().toString());
