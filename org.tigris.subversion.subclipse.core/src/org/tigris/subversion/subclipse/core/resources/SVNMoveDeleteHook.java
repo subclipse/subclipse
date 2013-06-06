@@ -11,7 +11,9 @@
 package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
@@ -42,6 +44,11 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 public class SVNMoveDeleteHook implements IMoveDeleteHook {
 	private static Set<IFile> deletedFiles = new HashSet<IFile>();
+	
+	private final static List<String> deferFileDeleteFilterList = new ArrayList<String>();
+	static {
+		deferFileDeleteFilterList.add("DeferFileDelete");
+	}
 	
 	private void deleteResource(ISVNLocalResource resource) throws SVNException {
 		ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
@@ -308,31 +315,50 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
     // then works up through ancestors until a folder with the DeferFileDelete property
     // is found.  If none found, returns false.
     private boolean getDeferFileDelete(IResource resource) {
+    	ISVNProperty property = null;
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-        ISVNProperty property = null;
+        ISVNLocalResource parent = svnResource;
         try {
-            if (svnResource.isManaged()) {
-                property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
-            }
+	    	while (parent != null) {
+	    		if (parent.isManaged()) {
+	    			break;
+	    		}
+	    		parent = parent.getParent();
+	    	}
+	    	if (parent == null || !parent.isManaged()) {
+	    		return false;
+	    	}
+	    	ISVNProperty[] deferFileDeleteProperties = parent.getPropertiesIncludingInherited(false, deferFileDeleteFilterList);
+	    	if (deferFileDeleteProperties != null && deferFileDeleteProperties.length > 0) {
+	    		return deferFileDeleteProperties[0].getValue().equalsIgnoreCase("true");
+	    	}
         } catch (SVNException e) {
+        	return false;
         }
-        if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
-            return property.getValue().equalsIgnoreCase("true");            //$NON-NLS-1$
-        }
-        IResource checkResource = resource;
-        while (checkResource.getParent() != null) {
-            checkResource = checkResource.getParent();
-            if (checkResource.getParent() == null) return false;
-            svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
-            try {
-                if (svnResource.isManaged())
-                    property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
-            } catch (SVNException e1) {
-            }
-            if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
-                return property.getValue().equalsIgnoreCase("true");            //$NON-NLS-1$
-            }
-        }
+//        ISVNProperty property = null;
+//        try {
+//            if (svnResource.isManaged()) {
+//                property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
+//            }
+//        } catch (SVNException e) {
+//        }
+//        if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
+//            return property.getValue().equalsIgnoreCase("true");            //$NON-NLS-1$
+//        }
+//        IResource checkResource = resource;
+//        while (checkResource.getParent() != null) {
+//            checkResource = checkResource.getParent();
+//            if (checkResource.getParent() == null) return false;
+//            svnResource = SVNWorkspaceRoot.getSVNResourceFor(checkResource);
+//            try {
+//                if (svnResource.isManaged())
+//                    property = svnResource.getSvnProperty("DeferFileDelete"); //$NON-NLS-1$
+//            } catch (SVNException e1) {
+//            }
+//            if ((property != null) && (property.getValue() != null) && (property.getValue().trim().length() > 0)) {
+//                return property.getValue().equalsIgnoreCase("true");            //$NON-NLS-1$
+//            }
+//        }
         return false;
     }
 
