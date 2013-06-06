@@ -11,12 +11,14 @@
 package org.tigris.subversion.subclipse.core;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
@@ -182,6 +184,14 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
 	 * @throws SVNException
 	 */
 	public ISVNProperty[] getSvnProperties() throws SVNException;
+
+	/**
+	 * @param includeEmptyProperties
+	 * @param filterProperties
+	 * @return the svn properties for this resource, including inherited
+	 * @throws SVNException
+	 */
+	public ISVNProperty[] getPropertiesIncludingInherited(boolean includeEmptyProperties, List<String> filterProperties) throws SVNException;
 
 	/**
 	 * Delete a svn property

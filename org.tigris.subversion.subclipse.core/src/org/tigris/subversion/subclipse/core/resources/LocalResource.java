@@ -14,6 +14,7 @@ package org.tigris.subversion.subclipse.core.resources;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -497,6 +498,22 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 		finally {
 			getRepository().returnSVNClient(svnClient);
 		}
+	}
+	
+	public ISVNProperty[] getPropertiesIncludingInherited(boolean includeEmptyProperties, List<String> filterProperties) throws SVNException {
+		ISVNClientAdapter svnClient = null;
+		try {
+			svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
+	        SVNProviderPlugin.disableConsoleLogging(); 
+			ISVNProperty[] properties = svnClient.getPropertiesIncludingInherited(getFile(), includeEmptyProperties, filterProperties);
+			return properties;
+		} catch (SVNClientException e) {
+			throw SVNException.wrapException(e); 
+		}		
+		finally {
+	        SVNProviderPlugin.enableConsoleLogging();
+	        SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
+		}		
 	}
 
     /* (non-Javadoc)

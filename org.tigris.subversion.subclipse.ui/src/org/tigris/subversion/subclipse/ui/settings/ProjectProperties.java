@@ -20,13 +20,10 @@ import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.util.LinkList;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
-import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class ProjectProperties {
@@ -279,24 +276,20 @@ public class ProjectProperties {
               "bugtraq:warnifnoissue: " + warnIfNoIssue + "\n" + //$NON-NLS-1$ //$NON-NLS-2$
               "bugtraq:append: " + append; //$NON-NLS-1$
     }
- 
-    private static ISVNProperty[] getBugtraqProperties(File file) throws SVNException {
-    	ISVNClientAdapter svnClient = null;
-		try {
-			svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
-	        SVNProviderPlugin.disableConsoleLogging(); 
-			ISVNProperty[] props = svnClient.getPropertiesIncludingInherited(file, false, propertyFilterList);
-	        return props;
-		} catch (SVNClientException e) {
-	        throw SVNException.wrapException(e); 
-		} finally {
-	        SVNProviderPlugin.enableConsoleLogging();
-	        SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
-		}
-    }
     
     private static ProjectProperties getProjectProperties(File file, ISVNLocalResource svnResource) throws SVNException {
     	if (file == null) return null;
+    	
+    	ISVNLocalResource parent = svnResource;
+    	while (parent != null) {
+    		if (parent.isManaged()) {
+    			break;
+    		}
+    		parent = parent.getParent();
+    	}
+    	if (parent == null || !parent.isManaged()) {
+    		return null;
+    	}
     	
     	String message = null;
     	String logregex = null;
@@ -305,7 +298,7 @@ public class ProjectProperties {
     	boolean number = false;
     	boolean warnifnoissue = false;
     	boolean append = false;
-    	ISVNProperty[] bugtraqProperties = getBugtraqProperties(file);
+    	ISVNProperty[] bugtraqProperties = parent.getPropertiesIncludingInherited(false, propertyFilterList);
     	for (ISVNProperty prop : bugtraqProperties) {
     		if (prop.getName().equals("bugtraq:message")) {
     			message = prop.getValue();
