@@ -296,8 +296,12 @@ public class SummaryEditionNode
 	}
 	
 	private boolean include(SVNDiffSummary diff) {
-		if (diff.getDiffKind().equals(SVNDiffKind.ADDED) && nodeType == LEFT) return false;
-		if (diff.getDiffKind().equals(SVNDiffKind.DELETED) && nodeType == RIGHT) return false;
+//		if (diff.getDiffKind().equals(SVNDiffKind.ADDED) && nodeType == LEFT) return false;
+//		if (diff.getDiffKind().equals(SVNDiffKind.DELETED) && nodeType == RIGHT) return false;
+		
+		if (diff.getDiffKind().equals(SVNDiffKind.ADDED) && nodeType == RIGHT) return false;
+		if (diff.getDiffKind().equals(SVNDiffKind.DELETED) && nodeType == LEFT) return false;		
+		
 		return true;
 	}
 	

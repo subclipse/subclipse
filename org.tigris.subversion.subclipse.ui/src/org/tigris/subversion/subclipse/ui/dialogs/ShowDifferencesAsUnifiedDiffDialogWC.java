@@ -325,17 +325,13 @@ public class ShowDifferencesAsUnifiedDiffDialogWC extends SvnDialog {
 						file = new File(fileText.getText().trim());
 						if (file.exists()) {
 							if (!MessageDialog.openQuestion(getShell(), Policy.bind("HistoryView.showDifferences"), Policy.bind("HistoryView.overwriteOutfile", file.getName()))) return;
-						}														
+						}
+						operation = new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file);
+						operation.setGraphicalCompare(true);
 					} else {
-						
-						file = File.createTempFile("revision", ".diff");
-						file.deleteOnExit();
-						
 						diffToOutputFile = false;
 						success = true;
 					}
-					operation = new ShowDifferencesAsUnifiedDiffOperationWC(targetPart, path, toUrl, toRevision, file);
-					operation.setGraphicalCompare(!diffButton.getSelection());
 				} catch (Exception e) {
 					MessageDialog.openError(getShell(), Policy.bind("HistoryView.showDifferences"), e.getMessage());
 					success = false;
