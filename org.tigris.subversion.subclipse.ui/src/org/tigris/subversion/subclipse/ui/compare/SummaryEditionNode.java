@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.IEncodedStreamContentAccessor;
@@ -141,11 +142,12 @@ public class SummaryEditionNode
 	}
 	
 	private SummaryEditionNode[] getRoots() throws Exception {
+		List<String> rootPaths = new ArrayList<String>();
 		ArrayList roots = new ArrayList();
 		for (int i = 0; i < diffSummary.length; i++) {
 			if (include(diffSummary[i])) {
 				File file = new File(diffSummary[i].getPath());
-				if (file.getParent() == null) {
+				if (file.getParent() == null) {	
 					if (diffSummary[i].getNodeKind() == SVNNodeKind.DIR.toInt()) {
 						RemoteFolder remoteFolder = null;
 						if (resource.getRevision() instanceof SVNRevision.Number)
@@ -169,13 +171,6 @@ public class SummaryEditionNode
 						node.setDiffSummary(diffSummary);
 						node.setRootFolder((RemoteFolder)resource);
 						node.setNodeType(nodeType);
-
-//						System.out.println(resource.getResource().getFullPath() + "/" + diffSummary[i].getPath());
-//						IFile localFile = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(resource.getResource().getFullPath() + "/" + diffSummary[i].getPath()));
-//						if (localFile != null) {
-//							System.out.println(localFile.getProjectRelativePath());
-//						}
-						
 						roots.add(node);				
 					}				
 				} else {
@@ -183,7 +178,8 @@ public class SummaryEditionNode
 						file = file.getParentFile();
 					}
 					String path = file.getPath();
-					if (!roots.contains(path)) {
+					if (!rootPaths.contains(path)) {
+						rootPaths.add(path);
 						RemoteFolder remoteFolder = null;
 						if (resource.getRevision() instanceof SVNRevision.Number)
 							remoteFolder = new RemoteFolder(null, resource.getRepository(), new SVNUrl(resource.getUrl().toString() + "/" + path), resource.getRevision(), (SVNRevision.Number)resource.getRevision(), null, null);
@@ -296,12 +292,9 @@ public class SummaryEditionNode
 	}
 	
 	private boolean include(SVNDiffSummary diff) {
-//		if (diff.getDiffKind().equals(SVNDiffKind.ADDED) && nodeType == LEFT) return false;
-//		if (diff.getDiffKind().equals(SVNDiffKind.DELETED) && nodeType == RIGHT) return false;
-		
+		if (diff.getNodeKind() != SVNNodeKind.FILE.toInt() && (diff.getPath() == null || diff.getPath().length() == 0)) return false;
 		if (diff.getDiffKind().equals(SVNDiffKind.ADDED) && nodeType == RIGHT) return false;
-		if (diff.getDiffKind().equals(SVNDiffKind.DELETED) && nodeType == LEFT) return false;		
-		
+		if (diff.getDiffKind().equals(SVNDiffKind.DELETED) && nodeType == LEFT) return false;				
 		return true;
 	}
 	
