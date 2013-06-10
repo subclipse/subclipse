@@ -143,6 +143,7 @@ public class SVNRepositoryLocation
 	 * down or a connection is being validated.
 	 */
 	public void dispose() throws SVNException {
+		ensurePreferencesStored();
 		// remove repo location from preferences
 		try {
 			if (hasPreferences()) {
@@ -306,6 +307,7 @@ public class SVNRepositoryLocation
      * add user and password to the keyring 
      */
     public void updateCache() throws SVNException {
+    	ensurePreferencesStored();
     	// We stopped storing passwords prior to 1.0
     	// just ignore this call
     }

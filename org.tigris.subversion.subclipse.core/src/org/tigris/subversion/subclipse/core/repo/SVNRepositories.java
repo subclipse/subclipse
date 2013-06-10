@@ -118,9 +118,6 @@ public class SVNRepositories
 							repos.validateConnection(new NullProgressMonitor());
 						} catch(SVNException swallow){}
 						addToRepositoriesCache(repos);
-					} else {
-						node.removeNode();
-						prefs.flush();
 					}
 				} catch (SVNException e) {
 					// Log and continue
