@@ -69,12 +69,12 @@ public class CommentProperties {
     	ISVNLocalResource svnResource = null;
     	while (parent != null) {
     		svnResource = SVNWorkspaceRoot.getSVNResourceFor(parent);
-    		if (parent instanceof IProject || (svnResource.exists() && svnResource.isManaged())) {
+    		if (parent instanceof IProject || (svnResource.exists() && svnResource.isManaged() && !svnResource.getStatusFromCache().isDeleted())) {
     			break;
     		}
     		parent = parent.getParent();
     	}
-    	if (svnResource == null || !svnResource.exists() || !svnResource.isManaged()) {
+    	if (svnResource == null || !svnResource.exists() || !svnResource.isManaged() || svnResource.getStatusFromCache().isDeleted()) {
     		return null;
     	}
     	properties = new CommentProperties();
