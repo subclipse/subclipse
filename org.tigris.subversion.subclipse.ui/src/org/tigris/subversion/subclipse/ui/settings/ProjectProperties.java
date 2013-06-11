@@ -282,12 +282,12 @@ public class ProjectProperties {
     	
     	ISVNLocalResource parent = svnResource;
     	while (parent != null) {
-    		if (parent.isManaged()) {
+    		if (parent.exists() && parent.isManaged()) {
     			break;
     		}
     		parent = parent.getParent();
     	}
-    	if (parent == null || !parent.isManaged()) {
+    	if (parent == null || !parent.exists() || !parent.isManaged()) {
     		return null;
     	}
     	
