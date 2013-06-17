@@ -17,7 +17,7 @@
    </feature>
    <category-def name="Subclipse" label="Subclipse">
       <description>
-         Subversion 1.7 plug-in for Eclipse 3.2 and higher.
+         Subversion 1.8 plug-in for Eclipse 3.2 and higher.
       </description>
    </category-def>
 </site>
