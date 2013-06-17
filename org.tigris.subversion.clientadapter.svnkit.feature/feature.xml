@@ -26,7 +26,6 @@
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.tigris.subversion.clientadapter" version="1.10.0" match="equivalent"/>
-      <import plugin="org.tmatesoft.svnkit" version="1.8.0" match="equivalent"/>
    </requires>
 
    <plugin
