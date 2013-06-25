@@ -298,7 +298,7 @@ public class ProjectProperties {
     	String url = null;
     	boolean number = false;
     	boolean warnifnoissue = false;
-    	boolean append = false;
+    	boolean append = true;
     	ISVNProperty[] bugtraqProperties = parent.getPropertiesIncludingInherited(false, true, propertyFilterList);
     	for (ISVNProperty prop : bugtraqProperties) {
     		if (prop.getName().equals("bugtraq:message")) {
@@ -328,7 +328,9 @@ public class ProjectProperties {
     		projectProperties = new ProjectProperties();
     		projectProperties.setMessage(message);
     		projectProperties.setLogregex(logregex);
-    		projectProperties.setLabel(label);
+    		if (label != null) {
+    			projectProperties.setLabel(label);
+    		}
     		projectProperties.setUrl(url);
     		projectProperties.setNumber(number);
     		projectProperties.setWarnIfNoIssue(warnifnoissue);
