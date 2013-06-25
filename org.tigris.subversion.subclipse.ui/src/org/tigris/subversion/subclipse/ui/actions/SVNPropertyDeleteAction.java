@@ -21,6 +21,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.dialogs.DeletePropertyDialog;
+import org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
 /**
@@ -55,6 +56,7 @@ public class SVNPropertyDeleteAction extends SVNPropertyAction {
 						ISVNLocalResource svnResource = getSVNLocalResource(svnProperty);
 						try {
 							svnResource.deleteSvnProperty(svnProperty.getName(),dialog.isRecurse());
+							SvnPropertiesView.refreshView();
 						} catch (SVNException e) {
 							throw new InvocationTargetException(e);
 						}

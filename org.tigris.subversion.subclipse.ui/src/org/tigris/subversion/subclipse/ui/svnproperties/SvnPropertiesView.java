@@ -94,6 +94,8 @@ public class SvnPropertiesView extends ViewPart {
 	private IResourceStateChangeListener resourceStateChangeListener;
 	
 	private PropertyConflict[] conflicts;
+	
+	private static SvnPropertiesView view;
 
 	class ResourceStateChangeListener implements IResourceStateChangeListener {
 		/**
@@ -118,6 +120,7 @@ public class SvnPropertiesView extends ViewPart {
 
 
 	public SvnPropertiesView() {
+		view = this;
 	}
     
 	/*
@@ -125,6 +128,7 @@ public class SvnPropertiesView extends ViewPart {
 	 * @see org.eclipse.ui.IWorkbenchPart#dispose()
 	 */
 	public void dispose() {
+		view = null;
 		SVNProviderPlugin.removeResourceStateChangeListener(resourceStateChangeListener);
 		resourceStateChangeListener = null;
 		getSite().getPage().removePostSelectionListener(pageSelectionListener);
@@ -321,6 +325,7 @@ public class SvnPropertiesView extends ViewPart {
 						} else {
 							resource.setSvnProperty(setPropertyPage.getPropertyName(), setPropertyPage.getPropertyFile(),setPropertyPage.getRecurse());
 						}
+						refresh();
 					} catch (SVNException e) {
 						if (!e.operationInterrupted()) {
 							SVNUIPlugin.openError(
@@ -359,7 +364,7 @@ public class SvnPropertiesView extends ViewPart {
 					SVNPropertyDeleteAction delegate = new SVNPropertyDeleteAction();
 					delegate.init(this);
 					delegate.selectionChanged(this,tableViewer.getSelection());
-					delegate.run(this); 
+					delegate.run(this);
 				}
 			};			
 		}
@@ -499,6 +504,12 @@ public class SvnPropertiesView extends ViewPart {
 				}
 			}
 		});
+	}
+	
+	public static void refreshView() {
+		if (view != null) {
+			view.refresh();
+		}
 	}
 
 	/**

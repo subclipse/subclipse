@@ -19,6 +19,7 @@ import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.svnproperties.SvnPropertiesView;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizard;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardDialog;
 import org.tigris.subversion.subclipse.ui.wizards.dialogs.SvnWizardSetPropertyPage;
@@ -50,6 +51,7 @@ public class SVNPropertyModifyAction extends SVNPropertyAction {
 						} else {
 							svnResource.setSvnProperty(setPropertyPage.getPropertyName(), setPropertyPage.getPropertyFile(),setPropertyPage.getRecurse());
 						}
+						SvnPropertiesView.refreshView();
 					} catch (SVNException e) {
 						throw new InvocationTargetException(e);
 					}
