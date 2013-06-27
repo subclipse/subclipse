@@ -259,7 +259,6 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 		final boolean[] result = new boolean[] { true };
 		try {
 			final boolean[] doSync = new boolean[] { false };
-//			final boolean[] projectExists = new boolean[] { false };
 			getContainer().run(true /* fork */, true /* cancel */, new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) throws InvocationTargetException {
 					try {
@@ -325,12 +324,9 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 								String remoteDirectoryName = getRemoteDirectoryName();
 								ISVNRemoteFolder folder = location.getRemoteFolder(remoteDirectoryName);
 								if (folder.exists(new SubProgressMonitor(monitor, 50))) {
-//									projectExists[0] = true;
-//									final boolean[] sync = new boolean[] {true};
 									if (autoconnectPage == null) {
 										getShell().getDisplay().syncExec(new Runnable() {
 											public void run() {
-//											    sync[0] = false;
 											    if (!MessageDialog.openQuestion(getShell(), Policy.bind("SharingWizard.couldNotImport"), Policy.bind("SharingWizard.couldNotImportLong"))) {  //$NON-NLS-1$ //$NON-NLS-2$
 											    	shareCanceled = true;
 											    	return;
@@ -339,14 +335,10 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 										});
 										if (shareCanceled) return;
 									}
-//									result[0] = sync[0];
-//									doSync[0] = sync[0];
-//									return;
 									createDirectory = false;
 								}
 							} catch (TeamException e) {
 								SVNUIPlugin.openError(getShell(), null, null, e, SVNUIPlugin.PERFORM_SYNC_EXEC);
-//								if (!isKnown && location != null) location.flushUserInfo();
 								result[0] = false;
 								doSync[0] = false;
 								return;
@@ -377,14 +369,6 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 			});
 
 			if (shareCanceled) return false;
-			
-//			if (autoconnectPage == null || (projectStatus == null)) {
-//				CommitAction commitAction = new CommitAction(finishPage.getComment());
-//				commitAction.setSharing(true);
-//				IResource[] selectedResources = { project };
-//				commitAction.setSelectedResources(selectedResources);
-//				commitAction.run(null);
-//			}
 			
 			if (doSync[0]) {
 				final List syncList = new ArrayList();
@@ -420,56 +404,11 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 				};
 				synchronizeAction.run(null);
 			}
-			
-//			if (doSync[0]) {
-//			    IResource[] resources = { project };
-//			    SVNSynchronizeParticipant participant = (SVNSynchronizeParticipant)SubscriberParticipant.getMatchingParticipant(SVNSynchronizeParticipant.ID, resources);
-//				if (participant == null) {
-//					participant = new SVNSynchronizeParticipant(new ResourceScope(resources));
-//					TeamUI.getSynchronizeManager().addSynchronizeParticipants(new ISynchronizeParticipant[] {participant});
-//				}
-//				participant.refresh(resources, Policy.bind("SharingWizard.0"), Policy.bind("SharingWizard.1", participant.getName()), SVNUIPlugin.getActivePage().getActivePart().getSite()); //$NON-NLS-1$ //$NON-NLS-2$
-//			}
-//			if (doSync[0]) {
-//				// Sync of the project
-//				IWorkbenchPage activePage = null; /* not sure how to get the active page */
-//				SyncView view = SyncView.findViewInActivePage(activePage);
-//				if (view != null) {
-//					SVNSyncCompareInput input;
-//					if (projectExists[0]) {
-//						try {
-//							String moduleName = getModuleName();
-//							SVNTag tag;
-//							if (autoconnectPage == null) {
-//								TagSelectionDialog dialog = new TagSelectionDialog(getShell(), 
-//									new ISVNFolder[] {(ISVNFolder)getLocation().getRemoteFolder(moduleName, null)}, 
-//									Policy.bind("SharingWizard.selectTagTitle"),  //$NON-NLS-1$
-//									Policy.bind("SharingWizard.selectTag"), //$NON-NLS-1$
-//									TagSelectionDialog.INCLUDE_HEAD_TAG | TagSelectionDialog.INCLUDE_BRANCHES, 
-//									false, /*don't show recurse option*/
-//									IHelpContextIds.SHARE_WITH_EXISTING_TAG_SELETION_DIALOG);
-//								dialog.setBlockOnOpen(true);
-//								if (dialog.open() == Dialog.CANCEL) {
-//									return false;
-//								}
-//								tag = dialog.getResult();
-//							} else {
-//								tag = autoconnectPage.getSharing().getTag();
-//							}
-//							input = new SVNSyncCompareUnsharedInput(project, getLocation(), moduleName, tag);
-//						} catch (TeamException e) {
-//							throw new InvocationTargetException(e);
-//						}
-//					} else {
-//						input = new SVNSyncCompareInput(new IResource[] {project});
-//					}
-//					view.showSync(input, activePage);
-//				}
-//			}
 		} catch (InterruptedException e) {
 			return true;
 		} catch (InvocationTargetException e) {
 			SVNUIPlugin.openError(getContainer().getShell(), null, null, e);
+			return false;
 		}
 
 		return result[0];
