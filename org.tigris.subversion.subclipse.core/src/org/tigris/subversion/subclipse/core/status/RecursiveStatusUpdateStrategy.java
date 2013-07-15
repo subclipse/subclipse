@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -60,7 +61,15 @@ public class RecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
         try {
             SVNProviderPlugin.disableConsoleLogging(); 
             svnClientAdapterStatus = SVNProviderPlugin.getPlugin().getSVNClient();
-            statuses = svnClientAdapterStatus.getStatus(resource.getLocation().toFile(),true, true);
+            IResource resourceToUpdate = resource;
+            LocalResourceStatus status = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatusFromCache(resourceToUpdate);
+            if (status == null || !status.isManaged()) {
+            	resourceToUpdate = NonRecursiveStatusUpdateStrategy.getVersionedParent(resource);
+            	if (resourceToUpdate == null) {
+            		return new ISVNStatus[0];
+            	}
+            }
+            statuses = svnClientAdapterStatus.getStatus(resourceToUpdate.getLocation().toFile(),true, true);
         } catch (SVNClientException e1) {
         	if (!e1.getMessage().contains(SVNProviderPlugin.UPGRADE_NEEDED)) {
         		throw SVNException.wrapException(e1);

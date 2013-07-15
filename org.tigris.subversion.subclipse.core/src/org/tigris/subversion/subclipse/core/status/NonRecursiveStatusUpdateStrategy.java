@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IResource;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
@@ -35,10 +36,17 @@ public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
 	 * @see org.tigris.subversion.subclipse.core.status.StatusUpdateStrategy#statusesToUpdate(org.eclipse.core.resources.IResource)
 	 */
 	protected ISVNStatus[] statusesToUpdate(IResource resource) throws SVNException {
+		boolean descend = false;
         // we update the parent and its immediate children 
         IResource resourceToUpdate = resource;
         if ((resource.getType() == IResource.FILE)) {
-            resourceToUpdate = resource.getParent();
+            resourceToUpdate = getVersionedParent(resourceToUpdate);
+            if (resourceToUpdate == null) {
+            	return new ISVNStatus[0];
+            }
+            if (!resourceToUpdate.equals(resource.getParent())) {
+            	descend = true;
+            }
         }
         
         if (Policy.DEBUG_STATUS) {
@@ -55,7 +63,7 @@ public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
             SVNProviderPlugin.disableConsoleLogging(); 
             statuses = svnClientAdapterStatus.getStatus(
                     resourceToUpdate.getLocation().toFile(),
-                    false, // do only immediate children. 
+                    descend, // do only immediate children, unless file parent is unversioned. 
                     true); // retrieve all entries
         } catch (SVNClientException e1) {
             throw SVNException.wrapException(e1);
@@ -65,6 +73,16 @@ public class NonRecursiveStatusUpdateStrategy extends StatusUpdateStrategy {
         }
 
         return collectUnversionedFolders(statuses, false);
+	}
+	
+	public static IResource getVersionedParent(IResource resource) throws SVNException {
+		IResource versionedParent = resource.getParent();
+		LocalResourceStatus status = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatusFromCache(versionedParent);
+		while (versionedParent != null && (status == null || !status.isManaged())) {
+			versionedParent = versionedParent.getParent();
+			status = SVNProviderPlugin.getPlugin().getStatusCacheManager().getStatusFromCache(versionedParent);
+		}
+		return versionedParent;
 	}
 
 }
