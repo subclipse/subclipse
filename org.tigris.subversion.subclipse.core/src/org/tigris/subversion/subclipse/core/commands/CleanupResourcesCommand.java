@@ -48,8 +48,10 @@ public class CleanupResourcesCommand implements ISVNCommand {
             monitor.beginTask(null, 100 * resources.length);            
             OperationManager.getInstance().beginOperation(svnClient);           
             for (int i = 0; i < resources.length; i++) {
-                svnClient.cleanup(resources[i].getLocation().toFile());
-                cleanedUpResources.add(resources[i]);
+            	if (resources[i].getLocation() != null) {
+	                svnClient.cleanup(resources[i].getLocation().toFile());
+	                cleanedUpResources.add(resources[i]);
+            	}
                 monitor.worked(100);
             }
         } catch (SVNClientException e) {
@@ -72,7 +74,7 @@ public class CleanupResourcesCommand implements ISVNCommand {
 			try {
 				IResource[] children = ((IContainer)resource).members();
 				for (IResource child : children) {
-					if (child instanceof IContainer) {
+					if (child instanceof IContainer && child.getLocation() != null) {
 						addToRefreshList(refreshResources, child);
 					}
 				}
