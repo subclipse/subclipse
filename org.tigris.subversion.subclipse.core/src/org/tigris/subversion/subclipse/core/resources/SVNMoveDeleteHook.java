@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -33,6 +34,7 @@ import org.tigris.subversion.subclipse.core.IMessageHandler;
 import org.tigris.subversion.subclipse.core.ISVNLocalFile;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -146,15 +148,24 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             .getProvider(destination.getProject());
         	
             if (repositoryProvider == null || !(repositoryProvider instanceof SVNTeamProvider)) //target is not SVN project
-                throw new SVNException(Policy.bind("SVNMoveHook.moveFileException")); //$NON-NLS-1$
+            	return false;
         	
             ISVNLocalFile resource = new LocalFile(source);
 
             if (!resource.isManaged())
                 return false; // pass
 
-            ISVNClientAdapter svnClient = resource.getRepository()
-                    .getSVNClient();
+           
+            ISVNRepositoryLocation sourceRepository = resource.getRepository();
+            ISVNClientAdapter svnClient = sourceRepository.getSVNClient();
+            
+            ISVNLocalResource parent = SVNWorkspaceRoot.getSVNResourceFor(destination.getParent());
+            ISVNRepositoryLocation targetRepository = parent.getRepository();
+            
+            if (!sourceRepository.equals(targetRepository)) {
+            	return false;
+            }
+            
             monitor.beginTask(null, 1000);
 
             try {
@@ -167,7 +178,6 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                     SVNTeamProvider provider = (SVNTeamProvider) repositoryProvider;
                     provider.add(new IResource[] { destination.getParent() },
                             IResource.DEPTH_ZERO, new NullProgressMonitor());
-                    ISVNLocalResource parent = SVNWorkspaceRoot.getSVNResourceFor(destination.getParent());
                     if (parent != null) parent.refreshStatus();
                 }
 
@@ -217,11 +227,20 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
             .getProvider(destination.getProject());
 
         	if (repositoryProvider == null || !(repositoryProvider instanceof SVNTeamProvider)) //target is not SVN project
-        		 throw new SVNException(Policy.bind("SVNMoveHook.moveFolderException")); //$NON-NLS-1$
+        		 return false;
+        	
+        	ISVNRepositoryLocation sourceRepository = resource.getRepository();
+        	ISVNLocalResource parent = SVNWorkspaceRoot.getSVNResourceFor(destination.getParent());
+        	
+        	ISVNRepositoryLocation targetRepository = parent.getRepository();
+            
+            if (!sourceRepository.equals(targetRepository)) {
+            	return false;
+            }
 
             monitor.beginTask(null, 1000);
 
-            ISVNClientAdapter svnClient = resource.getRepository().getSVNClient();
+            ISVNClientAdapter svnClient = sourceRepository.getSVNClient();
 
             try {
                 OperationManager.getInstance().beginOperation(svnClient);
@@ -232,7 +251,6 @@ public class SVNMoveDeleteHook implements IMoveDeleteHook {
                     SVNTeamProvider provider = (SVNTeamProvider)repositoryProvider;
                     provider.add(new IResource[] { destination.getParent() },
                             IResource.DEPTH_ZERO, new NullProgressMonitor());
-                    ISVNLocalResource parent = SVNWorkspaceRoot.getSVNResourceFor(destination.getParent());
                     if (parent != null) parent.refreshStatus();
                }
 
