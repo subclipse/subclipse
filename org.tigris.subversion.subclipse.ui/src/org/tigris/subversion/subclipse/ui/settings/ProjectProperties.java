@@ -99,12 +99,12 @@ public class ProjectProperties {
 	}
 
 	public String getResolvedMessage(String issue) {
-        if (message == null) return null;
+        if (message == null || issue == null) return null;
         return message.replace("%BUGID%", issue); //$NON-NLS-1$
     }
     
     public String getResolvedUrl(String issue) {
-        if (url == null) return null;
+        if (url == null || issue == null) return null;
         return url.replace("%BUGID%", issue); //$NON-NLS-1$
     }
     
