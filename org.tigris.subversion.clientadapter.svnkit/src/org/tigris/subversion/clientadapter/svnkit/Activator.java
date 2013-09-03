@@ -6,9 +6,9 @@ import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 import org.tigris.subversion.clientadapter.ISVNClientWrapper;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-//import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapter;
-//import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapterFactory;
-//import org.tmatesoft.svn.core.javahl17.SVNClientImpl;
+import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapter;
+import org.tigris.subversion.svnclientadapter.svnkit.SvnKitClientAdapterFactory;
+import org.tmatesoft.svn.core.javahl17.SVNClientImpl;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -61,15 +61,14 @@ public class Activator extends Plugin implements ISVNClientWrapper {
 	}
 
 	public ISVNClientAdapter getAdapter() {
-//		if (this.isAvailable())
-//			return new SvnKitClientAdapter();
-//		else
+		if (this.isAvailable())
+			return new SvnKitClientAdapter();
+		else
 			return null;
 	}
 
 	public String getAdapterID() {
-//		return SvnKitClientAdapterFactory.SVNKIT_CLIENT;
-		return "svnkit";
+		return SvnKitClientAdapterFactory.SVNKIT_CLIENT;
 	}
 
 	public String getVersionString() {
@@ -78,18 +77,17 @@ public class Activator extends Plugin implements ISVNClientWrapper {
 
 	private synchronized String getVersionSynchronized() {
 		if (version == null) {
-//			if (this.isAvailable()) {
-//				SVNClientImpl adapter = SVNClientImpl.newInstance();
-//				version = adapter.getVersion().toString();
-//			} else
-				version = "Not supported with SVN 1.8 yet";
+			if (this.isAvailable()) {
+				SVNClientImpl adapter = SVNClientImpl.newInstance();
+				version = adapter.getVersion().toString();
+			} else
+				version = "Not Available";
 			}
 		return version;
 	}
 
 	public boolean isAvailable() {
-		return false;
-//		return SvnKitClientAdapterFactory.isAvailable();
+		return SvnKitClientAdapterFactory.isAvailable();
 	}
 
 	public void setDisplayName(String string) {
@@ -103,8 +101,7 @@ public class Activator extends Plugin implements ISVNClientWrapper {
 	public String getLoadErrors() {
 		if (this.isAvailable())
 			return "";
-//		return "Class org.tmatesoft.svn.core.javahl17.SVNClientImpl not found.\nInstall the SVNKit plug-in from http://www.svnkit.com/";
-		return "SVNKit does not yet support Subversion 1.8.\nUntil it does, you must use JavaHL or an older version of Subclipse.";
+		return "Class org.tmatesoft.svn.core.javahl17.SVNClientImpl not found.\nInstall the SVNKit plug-in from http://www.svnkit.com/";
 	}
 
     /**
