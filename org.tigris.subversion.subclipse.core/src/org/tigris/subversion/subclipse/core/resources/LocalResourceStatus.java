@@ -14,7 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
@@ -80,15 +82,10 @@ public class LocalResourceStatus extends ResourceStatus {
     	
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;
-    	
-//        aValue = status.getUrlCopiedFrom();
-//        if (aValue == null) {
-//            this.urlCopiedFrom = null;
-//        } else {
-//            this.urlCopiedFrom = ((SVNUrl) aValue).toString();
-//        }
-
-        this.readOnly = !getFile().canWrite();
+ 
+    	if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_READ_ONLY)) {
+    		 this.readOnly = !getFile().canWrite();
+    	}
 
         aValue = status.getConflictNew();
         if (aValue == null) {

@@ -24,6 +24,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -93,6 +94,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	private Button imageShowAdded;
 	private Button imageShowNewResource;
 	private Button imageShowExternal;
+	private Button imageShowReadOnly;
 	
 	private Text fileTextFormat;
 	
@@ -374,6 +376,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowAdded = createCheckBox(imageGroup, Policy.bind("S&how_is_added_moved")); //$NON-NLS-1$
 		imageShowNewResource = createCheckBox(imageGroup, Policy.bind("SVNDecoratorPreferencesPage.newResources")); //$NON-NLS-1$
 		imageShowExternal = createCheckBox(imageGroup, Policy.bind("SVNDecoratorPreferencesPage.externalResources")); //$NON-NLS-1$
+		imageShowReadOnly = createCheckBox(imageGroup, Policy.bind("SVNDecoratorPreferencesPage.1")); //$NON-NLS-1$
 		return imageGroup;
 	}
 	
@@ -395,6 +398,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	 */
 	private void initializeValues() {
 		final IPreferenceStore store = getPreferenceStore();
+		final Preferences corePreferences =  SVNProviderPlugin.getPlugin().getPluginPreferences();
 		
 		fileTextFormat.setText(store.getString(ISVNUIConstants.PREF_FILETEXT_DECORATION));
 		folderTextFormat.setText(store.getString(ISVNUIConstants.PREF_FOLDERTEXT_DECORATION));
@@ -414,6 +418,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowHasRemote.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION));
 		imageShowNewResource.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION));
 		imageShowExternal.setSelection(store.getBoolean(ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION));
+		imageShowReadOnly.setSelection(corePreferences.getBoolean(ISVNCoreConstants.PREF_SHOW_READ_ONLY));
 
 		showDirty.setSelection(store.getBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
 		enableFontDecorators.setSelection(store.getBoolean(ISVNUIConstants.PREF_USE_FONT_DECORATORS));
@@ -429,6 +434,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowHasRemote.addSelectionListener(selectionListener);
 		imageShowNewResource.addSelectionListener(selectionListener);
 		imageShowExternal.addSelectionListener(selectionListener);
+		imageShowReadOnly.addSelectionListener(selectionListener);
 		
 		setValid(true);
 	}
@@ -446,6 +452,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	 */
 	public boolean performOk() {
 		IPreferenceStore store = getPreferenceStore();
+		Preferences corePreferences = SVNProviderPlugin.getPlugin().getPluginPreferences();
 		store.setValue(ISVNUIConstants.PREF_FILETEXT_DECORATION, fileTextFormat.getText());
 		store.setValue(ISVNUIConstants.PREF_FOLDERTEXT_DECORATION, folderTextFormat.getText());
 		store.setValue(ISVNUIConstants.PREF_PROJECTTEXT_DECORATION, projectTextFormat.getText());
@@ -461,6 +468,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		store.setValue(ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION, imageShowHasRemote.getSelection());
 		store.setValue(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION, imageShowNewResource.getSelection());
 		store.setValue(ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION, imageShowExternal.getSelection());
+		corePreferences.setValue(ISVNCoreConstants.PREF_SHOW_READ_ONLY, imageShowReadOnly.getSelection());
 		
 		store.setValue(ISVNUIConstants.PREF_CALCULATE_DIRTY, showDirty.getSelection());
 		store.setValue(ISVNUIConstants.PREF_USE_FONT_DECORATORS, enableFontDecorators.getSelection());
@@ -482,6 +490,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 	protected void performDefaults() {
 		super.performDefaults();
 		IPreferenceStore store = getPreferenceStore();
+		Preferences corePreferences = SVNProviderPlugin.getPlugin().getPluginPreferences();
 		
 		fileTextFormat.setText(store.getDefaultString(ISVNUIConstants.PREF_FILETEXT_DECORATION));
 		folderTextFormat.setText(store.getDefaultString(ISVNUIConstants.PREF_FOLDERTEXT_DECORATION));
@@ -498,6 +507,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowHasRemote.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION));
 		imageShowNewResource.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION));
 		imageShowExternal.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION));
+		imageShowReadOnly.setSelection(true);
 		
 		showDirty.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
 		enableFontDecorators.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_USE_FONT_DECORATORS));
@@ -787,7 +797,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 			if (imageShowDirty.getSelection() && previewFile.dirty) return dirty;
 			if (imageShowExternal.getSelection() && previewFile.external) return external;
 			if (previewFile.locked) return locked;
-			if (previewFile.readOnly) return needsLock;
+			if (imageShowReadOnly.getSelection() && previewFile.readOnly) return needsLock;
 			if (previewFile.conflicted) return conflicted;
 			if (previewFile.deleted) return deleted;
 			if (previewFile.switched) return switched;			

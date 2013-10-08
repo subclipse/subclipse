@@ -32,6 +32,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         preferences.setDefault(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS, false);
         preferences.setDefault(ISVNCoreConstants.PREF_SHARE_NESTED_PROJECTS, true);
         preferences.setDefault(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES, false);
+        preferences.setDefault(ISVNCoreConstants.PREF_SHOW_READ_ONLY, true);
     }
 
 }
