@@ -507,7 +507,7 @@ public class SVNDecoratorPreferencesPage extends PreferencePage implements IWork
 		imageShowHasRemote.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_HASREMOTE_DECORATION));
 		imageShowNewResource.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_NEWRESOURCE_DECORATION));
 		imageShowExternal.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_SHOW_EXTERNAL_DECORATION));
-		imageShowReadOnly.setSelection(true);
+		imageShowReadOnly.setSelection(false);
 		
 		showDirty.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_CALCULATE_DIRTY));
 		enableFontDecorators.setSelection(store.getDefaultBoolean(ISVNUIConstants.PREF_USE_FONT_DECORATORS));
