@@ -4,7 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
+import org.eclipse.compare.ITypedElement;
+import org.eclipse.compare.internal.BufferedResourceNode;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
+import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
@@ -25,6 +28,7 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISaveableWorkbenchPart {
+	private Object fRoot;
 	private final SVNRevision remoteRevision;
 	private boolean readOnly;
 	
@@ -106,6 +110,7 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
         		return null;
         	}
         }
+        fRoot = differences;
         return differences;
 	}
 	
@@ -117,6 +122,36 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
 			saveChanges(monitor);
 		} catch (CoreException e) {
 			Utils.handle(e);
+		}
+	}
+	
+	public void saveChanges(IProgressMonitor pm) throws CoreException {
+		super.saveChanges(pm);
+		if (fRoot instanceof DiffNode) {
+			try {
+				commit(pm, (DiffNode) fRoot);
+			} finally {		
+				setDirty(false);
+			}
+		}
+	}
+	
+	private static void commit(IProgressMonitor pm, DiffNode node) throws CoreException {
+		ITypedElement left= node.getLeft();
+		if (left instanceof BufferedResourceNode)
+			((BufferedResourceNode) left).commit(pm);
+			
+		ITypedElement right= node.getRight();
+		if (right instanceof BufferedResourceNode)
+			((BufferedResourceNode) right).commit(pm);
+
+		IDiffElement[] children= node.getChildren();
+		if (children != null) {
+			for (int i= 0; i < children.length; i++) {
+				IDiffElement element= children[i];
+				if (element instanceof DiffNode)
+					commit(pm, (DiffNode) element);
+			}
 		}
 	}
 	

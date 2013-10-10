@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.ResourceNode;
+import org.eclipse.compare.internal.BufferedResourceNode;
 import org.eclipse.compare.structuremergeviewer.IStructureComparator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -25,7 +26,7 @@ import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
  * Node representing a local SVN file.  We can query the status of the resource to determine if
  * it has changed.  It is also used to write the contents back to the file when setContent is called.
  */
-public class SVNLocalResourceNode extends ResourceNode {
+public class SVNLocalResourceNode extends BufferedResourceNode {
 	private final ISVNLocalResource svnResource;
 	private ResourceEditionNode remoteResource = null;
 	private ArrayList fChildren = null;
@@ -126,8 +127,5 @@ public class SVNLocalResourceNode extends ResourceNode {
 	protected IStructureComparator createChild(ISVNLocalResource child) {
 		return new SVNLocalResourceNode(child);
 	}
-	
-	public ITypedElement replace(ITypedElement child, ITypedElement other) {
-		return null;
-	}
+
 }
