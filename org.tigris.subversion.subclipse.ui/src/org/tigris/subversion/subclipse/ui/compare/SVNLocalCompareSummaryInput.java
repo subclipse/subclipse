@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.ITypedElement;
+import org.eclipse.compare.internal.BufferedResourceNode;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
+import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -23,7 +25,6 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.RemoteResourceStatus;
@@ -34,12 +35,13 @@ import org.tigris.subversion.subclipse.ui.compare.internal.Utilities;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
+import org.tigris.subversion.svnclientadapter.SVNDiffSummary.SVNDiffKind;
 import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
-import org.tigris.subversion.svnclientadapter.SVNDiffSummary.SVNDiffKind;
 
-public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput implements ISaveableWorkbenchPart {	
+public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput implements ISaveableWorkbenchPart {
+	private Object fRoot;
 	private ISVNLocalResource[] resources;
 	private final SVNRevision remoteRevision;
 	private ISVNRemoteFolder[] remoteFolders;
@@ -132,6 +134,7 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 					MultipleSelectionNode left = new MultipleSelectionNode(resourceSummaryNodes);
 					MultipleSelectionNode right = new MultipleSelectionNode(summaryEditionNodes);
 			        result[0] = new SummaryDifferencer().findDifferences(false, monitor, null, null, left, right);
+			        fRoot = result[0];
 				}
 			} finally {
 				sub.done();
@@ -198,6 +201,36 @@ public class SVNLocalCompareSummaryInput extends SVNAbstractCompareEditorInput i
 			saveChanges(monitor);
 		} catch (CoreException e) {
 			Utils.handle(e);
+		}
+	}
+	
+	public void saveChanges(IProgressMonitor pm) throws CoreException {
+		super.saveChanges(pm);
+		if (fRoot instanceof DiffNode) {
+			try {
+				commit(pm, (DiffNode) fRoot);
+			} finally {		
+				setDirty(false);
+			}
+		}
+	}
+	
+	private static void commit(IProgressMonitor pm, DiffNode node) throws CoreException {
+		ITypedElement left= node.getLeft();
+		if (left instanceof BufferedResourceNode)
+			((BufferedResourceNode) left).commit(pm);
+			
+		ITypedElement right= node.getRight();
+		if (right instanceof BufferedResourceNode)
+			((BufferedResourceNode) right).commit(pm);
+
+		IDiffElement[] children= node.getChildren();
+		if (children != null) {
+			for (int i= 0; i < children.length; i++) {
+				IDiffElement element= children[i];
+				if (element instanceof DiffNode)
+					commit(pm, (DiffNode) element);
+			}
 		}
 	}
 	
