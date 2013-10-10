@@ -20,7 +20,9 @@ import java.util.List;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
+import org.eclipse.compare.internal.BufferedResourceNode;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
+import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
@@ -67,6 +69,7 @@ import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
  * - revision numbers don't match
  */
 public class SVNLocalCompareInput extends CompareEditorInput implements ISaveableWorkbenchPart {
+	private Object fRoot;
     private final SVNRevision remoteRevision;
 	private ISVNLocalResource resource;
 	private ISVNRemoteResource remoteResource; // the remote resource to compare to or null if it does not exist
@@ -243,6 +246,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 						MultipleSelectionNode left = new MultipleSelectionNode(resourceSummaryNodes);
 						MultipleSelectionNode right = new MultipleSelectionNode(summaryEditionNodes);
 				        result[0] = new SummaryDifferencer().findDifferences(false, monitor, null, null, left, right);
+				        fRoot = result[0];
 					}
 				} finally {
 					sub.done();
@@ -284,9 +288,11 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 			}
 	
 	        if (SVNRevision.BASE.equals(remoteRevision)) {
-	            return new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
+	        	fRoot = new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
+	            return fRoot;
 	        }
-	        return new RevisionAwareDifferencer((SVNLocalResourceNode)left,right, diffFile, pegRevision).findDifferences(false, monitor,null,null,left,right);
+	        fRoot = new RevisionAwareDifferencer((SVNLocalResourceNode)left,right, diffFile, pegRevision).findDifferences(false, monitor,null,null,left,right);
+	        return fRoot;
 		}
 	}
 
@@ -348,6 +354,36 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
 			saveChanges(monitor);
 		} catch (CoreException e) {
 			Utils.handle(e);
+		}
+	}
+	
+	public void saveChanges(IProgressMonitor pm) throws CoreException {
+		super.saveChanges(pm);
+		if (fRoot instanceof DiffNode) {
+			try {
+				commit(pm, (DiffNode) fRoot);
+			} finally {		
+				setDirty(false);
+			}
+		}
+	}
+	
+	private static void commit(IProgressMonitor pm, DiffNode node) throws CoreException {
+		ITypedElement left= node.getLeft();
+		if (left instanceof BufferedResourceNode)
+			((BufferedResourceNode) left).commit(pm);
+			
+		ITypedElement right= node.getRight();
+		if (right instanceof BufferedResourceNode)
+			((BufferedResourceNode) right).commit(pm);
+
+		IDiffElement[] children= node.getChildren();
+		if (children != null) {
+			for (int i= 0; i < children.length; i++) {
+				IDiffElement element= children[i];
+				if (element instanceof DiffNode)
+					commit(pm, (DiffNode) element);
+			}
 		}
 	}
 	

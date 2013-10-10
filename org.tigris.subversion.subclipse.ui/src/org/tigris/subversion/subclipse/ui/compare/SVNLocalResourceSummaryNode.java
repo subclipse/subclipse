@@ -5,8 +5,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-import org.eclipse.compare.ITypedElement;
-import org.eclipse.compare.ResourceNode;
+import org.eclipse.compare.internal.BufferedResourceNode;
 import org.eclipse.compare.structuremergeviewer.IStructureComparator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -23,7 +22,7 @@ import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNDiffSummary;
 
-public class SVNLocalResourceSummaryNode extends ResourceNode {
+public class SVNLocalResourceSummaryNode extends BufferedResourceNode {
 	private final ISVNLocalResource svnResource;
 	private ArrayList fChildren = null;
 	private SVNDiffSummary[] diffSummary;
@@ -117,10 +116,6 @@ public class SVNLocalResourceSummaryNode extends ResourceNode {
 	 */
 	protected IStructureComparator createChild(ISVNLocalResource child) {
 		return new SVNLocalResourceSummaryNode(child, diffSummary, rootLocation);
-	}
-	
-	public ITypedElement replace(ITypedElement child, ITypedElement other) {
-		return null;
 	}
 	
 	private boolean include(ISVNLocalResource member) {
