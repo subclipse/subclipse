@@ -62,6 +62,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
     private IStatusCache statusCache;
     private StatusUpdateStrategy statusUpdateStrategy;
     private boolean flushCache;
+    private boolean checkForReadOnly = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_READ_ONLY);
     
     public StatusCacheManager() {
     	chooseUpdateStrategy();
@@ -118,7 +119,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
     		statusCache.removeStatus(resource);
     		return resource;
     	}
-   		return statusCache.addStatus(resource, new LocalResourceStatus(status, getURL(status)));
+   		return statusCache.addStatus(resource, new LocalResourceStatus(status, getURL(status), checkForReadOnly));
     }
     
     public void removeStatus(IResource resource) {
@@ -225,7 +226,7 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
 //        }
         
         if (status == null && resource != null && resource.getLocation() != null) {
-            status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false), null);
+            status = new LocalResourceStatus(new SVNStatusUnversioned(resource.getLocation().toFile(),false), null, checkForReadOnly);
         }
         
         return status;
@@ -325,6 +326,9 @@ public class StatusCacheManager implements IResourceChangeListener, Preferences.
     public void propertyChange(PropertyChangeEvent event) {
         if (ISVNCoreConstants.PREF_RECURSIVE_STATUS_UPDATE.equals(event.getProperty()))  {
             chooseUpdateStrategy();
+        }
+        else if (ISVNCoreConstants.PREF_SHOW_READ_ONLY.equals(event.getProperty())) {
+        	checkForReadOnly = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_READ_ONLY);
         }
     }
     

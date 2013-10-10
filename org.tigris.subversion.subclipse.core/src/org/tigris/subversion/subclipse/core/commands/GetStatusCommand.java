@@ -12,9 +12,11 @@ package org.tigris.subversion.subclipse.core.commands;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNInfo;
@@ -32,6 +34,7 @@ public class GetStatusCommand implements ISVNCommand {
     private boolean descend = true;
     private boolean getAll = true;
     private ISVNStatus[] svnStatuses;
+    private boolean checkForReadOnly = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_READ_ONLY);
     
     public GetStatusCommand(ISVNLocalResource svnResource, boolean descend, boolean getAll) {
     	this.repository = svnResource.getRepository();
@@ -65,7 +68,7 @@ public class GetStatusCommand implements ISVNCommand {
     private LocalResourceStatus[] convert(ISVNStatus[] statuses) {
         LocalResourceStatus[] localStatuses = new LocalResourceStatus[statuses.length];
         for (int i = 0; i < statuses.length;i++) {
-            localStatuses[i] = new LocalResourceStatus(statuses[i], getURL(statuses[i]));
+            localStatuses[i] = new LocalResourceStatus(statuses[i], getURL(statuses[i]), checkForReadOnly);
         }
         return localStatuses;
     }

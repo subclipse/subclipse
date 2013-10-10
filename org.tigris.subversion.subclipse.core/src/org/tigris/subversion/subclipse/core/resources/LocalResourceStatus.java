@@ -77,13 +77,13 @@ public class LocalResourceStatus extends ResourceStatus {
 	 * @param url - Only needed when status.getUrl is Null, such as
 	 *  for an svn:externals folder
 	 */
-    public LocalResourceStatus(ISVNStatus status, String url) {
+    public LocalResourceStatus(ISVNStatus status, String url, boolean checkForReadOnly) {
     	super(status, url, false);
     	
     	/** a temporary variable serving as immediate cache for various status values */
     	Object aValue = null;
- 
-    	if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_READ_ONLY)) {
+
+    	if (checkForReadOnly) {
     		 this.readOnly = !getFile().canWrite();
     	}
 

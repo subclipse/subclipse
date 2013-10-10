@@ -14,6 +14,7 @@ import java.io.File;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
@@ -39,6 +40,8 @@ public class PeekStatusCommand {
     private ISVNStatus status = null;
     private ISVNInfo info = null;
     protected SVNRevision.Number revision;
+    
+    private boolean checkForReadOnly = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_READ_ONLY);
 
     public PeekStatusCommand(IResource resource) {
         this.resource = resource;
@@ -101,7 +104,7 @@ public class PeekStatusCommand {
 
     public LocalResourceStatus getLocalResourceStatus()
     {    	
-    	return (status != null) ? new LocalResourceStatus(status, getURL(status)) : null;
+    	return (status != null) ? new LocalResourceStatus(status, getURL(status), checkForReadOnly) : null;
     }
     
     public SVNRevision.Number getRevision() {
