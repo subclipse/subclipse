@@ -99,6 +99,44 @@ public class ResolveTreeConflictWizard extends Wizard {
 	}
 
 	public boolean performFinish() {
+		if (mainPage.getReplace()) {
+			mergeException = null;
+			try {
+				BusyIndicator.showWhile(Display.getDefault(), new Runnable() {				
+					public void run() {
+						try {
+							svnClient = svnResource.getRepository().getSVNClient();
+							File file = svnResource.getResource().getLocation().toFile();
+							svnClient.remove(new File[] { file }, true);
+							SVNUrl url = new SVNUrl(treeConflict.getConflictDescriptor().getSrcRightVersion().getReposURL() + "/" + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos()); //$NON-NLS-1$
+							SVNRevision revision;
+							int index = treeConflict.getConflictDescriptor().getSrcRightVersion().toString().lastIndexOf("@"); //$NON-NLS-1$
+							if (index == -1) {
+								revision = SVNRevision.HEAD;
+							}
+							else {
+								long number = Long.parseLong(treeConflict.getConflictDescriptor().getSrcRightVersion().toString().substring(index + 1));
+								revision = new SVNRevision.Number(number);
+							}
+							svnClient.copy(url, file, revision);
+						} catch (Exception e) {
+							mergeException = e;
+						}					
+					}
+				});
+				if (mergeException != null) {
+					SVNUIPlugin.log(IStatus.ERROR, mergeException.getMessage(), mergeException);
+					MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_2, mergeException.getMessage());
+					return false;				
+				}
+				svnResource.getResource().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+			} catch (Exception e) {
+				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				MessageDialog.openError(getShell(), Messages.ResolveTreeConflictWizard_2, e.getMessage());
+				return false;
+			}
+			return true;
+		}
 		compare = mainPage.getCompare();
 		if (mainPage.getMergeFromRepository()) {
 			try {
@@ -155,7 +193,7 @@ public class ResolveTreeConflictWizard extends Wizard {
 				ISVNRemoteResource remoteResource = mainPage.getRemoteResource();
 				try {
 					
-					File file = File.createTempFile("revision", ".diff");
+					File file = File.createTempFile("revision", ".diff"); //$NON-NLS-1$ //$NON-NLS-2$
 					file.deleteOnExit();
 					File path = new File(svnCompareResource.getResource().getLocation().toString());
 					SVNUrl toUrl = remoteResource.getUrl();

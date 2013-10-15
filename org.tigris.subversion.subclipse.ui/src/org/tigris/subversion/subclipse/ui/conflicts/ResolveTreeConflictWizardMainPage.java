@@ -46,6 +46,8 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	private Button mergeFromRepositoryButton;
 	private Button compareButton;
 	
+	private Button replaceButton;
+	
 	private Button revertButton;
 	private Button deleteButton1;
 	private Button deleteButton2;
@@ -729,13 +731,16 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			}
 		}
 		if ((reason == SVNConflictDescriptor.Reason.added && action == SVNConflictDescriptor.Action.add && (operation == SVNConflictDescriptor.Operation._update || operation == SVNConflictDescriptor.Operation._merge)) || (reason == SVNConflictDescriptor.Reason.obstructed && action == SVNConflictDescriptor.Action.add && operation == SVNConflictDescriptor.Operation._merge)) {
-			compareButton = new Button(resolutionGroup, SWT.CHECK);
 			String name;
 			boolean container = isContainer();
 			if (container)
 				name = treeConflict.getResource().getFullPath().toString();
 			else
 				name = treeConflict.getResource().getName();
+			replaceButton = new Button(resolutionGroup, SWT.CHECK);
+			replaceButton.setText(Messages.ResolveTreeConflictWizardMainPage_0  + name + Messages.ResolveTreeConflictWizardMainPage_1+ treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos() + Messages.ResolveTreeConflictWizardMainPage_inRepository);
+			
+			compareButton = new Button(resolutionGroup, SWT.CHECK);
 			compareButton.setText(Messages.ResolveTreeConflictWizardMainPage_compare + name + Messages.ResolveTreeConflictWizardMainPage_to2 + treeConflict.getConflictDescriptor().getSrcRightVersion().getPathInRepos() + Messages.ResolveTreeConflictWizardMainPage_inRepository);
 			compareButton.setSelection(false);
 			compareResource1 = treeConflict.getResource();
@@ -747,15 +752,32 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			compareLabel.setVisible(false);			
 			SelectionListener choiceListener = new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent evt) {
-					if (compareButton.getSelection()) {
-						compareLabel.setVisible(true);
-						markResolvedButton.setEnabled(false);
-					} else {
-						compareLabel.setVisible(false);
-						markResolvedButton.setEnabled(true);
+					if (evt.getSource() == replaceButton) {
+						if (replaceButton.getSelection()) {
+							markResolvedButton.setEnabled(false);
+							markResolvedButton.setSelection(true);
+							compareButton.setVisible(false);
+							compareButton.setSelection(false);
+							compareLabel.setVisible(false);
+						}
+						else {
+							compareButton.setVisible(true);
+							compareLabel.setVisible(compareButton.getSelection());
+							markResolvedButton.setEnabled(!compareButton.getSelection());
+						}
+					}
+					else if (evt.getSource() == compareButton) {
+						if (compareButton.getSelection()) {
+							compareLabel.setVisible(true);
+							markResolvedButton.setEnabled(false);
+						} else {
+							compareLabel.setVisible(false);
+							markResolvedButton.setEnabled(true);
+						}
 					}
 				}				
 			};
+			replaceButton.addSelectionListener(choiceListener);
 			compareButton.addSelectionListener(choiceListener);			
 			
 		}
@@ -809,6 +831,10 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 	public boolean getMergeFromRepository() {
 		if (compareButton != null && compareButton.getSelection()) return false;
 		return mergeFromRepositoryButton != null && mergeFromRepositoryButton.getSelection();
+	}
+	
+	public boolean getReplace() {
+		return replaceButton != null && replaceButton.getSelection();
 	}
 	
 	public boolean getCompare() {
@@ -917,7 +943,7 @@ public class ResolveTreeConflictWizardMainPage extends WizardPage {
 			container = treeConflict.getResource() instanceof IContainer;
 		} else {
 			if (svnCompareResource == null || !svnCompareResource.exists()) {
-				container = treeConflict.getResource().getName().indexOf(".") == -1;
+				container = treeConflict.getResource().getName().indexOf(".") == -1; //$NON-NLS-1$
 			} else {
 				container = svnCompareResource.isFolder();
 			}

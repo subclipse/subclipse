@@ -71,6 +71,7 @@ public class Messages extends NLS {
 	public static String PropertyValueSelectionWizardPage_3;
 	public static String PropertyValueSelectionWizardPage_4;
 	public static String PropertyValueSelectionWizardPage_5;
+	public static String ResolveTreeConflictWizard_2;
 	public static String ResolveTreeConflictWizard_compare;
 	public static String ResolveTreeConflictWizard_compare2;
 	public static String ResolveTreeConflictWizard_compareError;
@@ -81,6 +82,8 @@ public class Messages extends NLS {
 	public static String ResolveTreeConflictWizard_promptToReolve;
 	public static String ResolveTreeConflictWizard_revertError;
 	public static String ResolveTreeConflictWizard_title;
+	public static String ResolveTreeConflictWizardMainPage_0;
+	public static String ResolveTreeConflictWizardMainPage_1;
 	public static String ResolveTreeConflictWizardMainPage_browse;
 	public static String ResolveTreeConflictWizardMainPage_choose;
 	public static String ResolveTreeConflictWizardMainPage_chooseBoth;
