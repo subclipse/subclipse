@@ -451,7 +451,7 @@
          </action>        
          <action
                label="%CompareWithBranchTagAction.label"
-               class="org.tigris.subversion.subclipse.ui.actions.SwitchAction"
+               class="org.tigris.subversion.subclipse.ui.actions.ReplaceWithBranchTagAction"
                menubarPath="replaceWithMenu/replaceWithGroup"
                id="org.tigris.subversion.subclipse.ui.replaceWithBranchTag">
          </action>         

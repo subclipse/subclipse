@@ -61,8 +61,10 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
     private static final int REVISION_WIDTH_HINT = 40;
     
     private IResource[] resources;
+    private boolean showUrl;
     
     private UrlCombo urlCombo;
+    private Composite revisionGroup;
     private Text revisionText;
     private Button logButton;
     private Button headButton;
@@ -112,17 +114,19 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 	private ColumnLayoutData columnLayouts[] = {
 		new ColumnWeightData(100, 100, true)};
 
-	public SvnWizardSwitchPage(IResource[] resources) {
+	public SvnWizardSwitchPage(IResource[] resources, boolean showUrl) {
 		this("SwitchDialogWithConflictHandling2", resources); //$NON-NLS-1$
+		this.showUrl = showUrl;
 	}
 	
 	public SvnWizardSwitchPage(String name, IResource[] resources) {
 		super(name, Policy.bind("SwitchDialog.title")); //$NON-NLS-1$
 		this.resources = resources;
+		showUrl = true;
 	}
 	
 	public SvnWizardSwitchPage(IResource[] resources, long revisionNumber) {
-		this(resources);
+		this(resources, true);
 		this.revisionNumber = revisionNumber;
 	}	
 
@@ -136,104 +140,108 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 		GridData data = new GridData(GridData.FILL_BOTH);
 		composite.setLayoutData(data);
 		
-		Label urlLabel = new Label(composite, SWT.NONE);
-		urlLabel.setText(Policy.bind("SwitchDialog.url")); //$NON-NLS-1$
+		if (showUrl) {
 		
-		urlCombo = new UrlCombo(composite, SWT.NONE);
-		urlCombo.init(resources[0].getProject().getName());
-		urlCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
-
-		commonRoot = getCommonRoot();
-		if (commonRoot != null) urlCombo.setText(commonRoot);
-        
-        urlCombo.getCombo().addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                setPageComplete(canFinish());
-            }         
-        });
-		
-		Button browseButton = new Button(composite, SWT.PUSH);
-		browseButton.setText(Policy.bind("SwitchDialog.browse")); //$NON-NLS-1$
-		browseButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), resources[0]);
-                dialog.setIncludeBranchesAndTags(resources.length == 1);
-                if ((dialog.open() == ChooseUrlDialog.OK) && (dialog.getUrl() != null)) {
-                    urlCombo.setText(dialog.getUrl());
-                    setPageComplete(canFinish());
-                }
-            }
-		});
-
-		final Composite revisionGroup = new Composite(composite, SWT.NULL);
-		GridLayout revisionLayout = new GridLayout();
-		revisionLayout.numColumns = 3;
-		revisionLayout.marginWidth = 0;
-		revisionLayout.marginHeight = 0;
-		revisionGroup.setLayout(revisionLayout);
-		data = new GridData(GridData.FILL_HORIZONTAL);
-		data.horizontalSpan = 3;
-		revisionGroup.setLayoutData(data);
-		
-		headButton = new Button(revisionGroup, SWT.CHECK);
-		headButton.setText(Policy.bind("SvnWizardSwitchPage.head")); //$NON-NLS-1$
-		data = new GridData();
-		data.horizontalSpan = 3;
-		headButton.setLayoutData(data);
-		
-		Label revisionLabel = new Label(revisionGroup, SWT.NONE);
-		revisionLabel.setText(Policy.bind("SvnWizardSwitchPage.revision")); //$NON-NLS-1$
-		
-		revisionText = new Text(revisionGroup, SWT.BORDER);
-		data = new GridData();
-		data.widthHint = REVISION_WIDTH_HINT;
-		revisionText.setLayoutData(data);
-		
-		if (revisionNumber == 0) {
-			headButton.setSelection(true);
-			revisionText.setEnabled(false);
-		} else {
-			revisionText.setText("" + revisionNumber); //$NON-NLS-1$
-		}
-		
-		revisionText.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                setPageComplete(canFinish());
-            }		    
-		});
-		
-		FocusListener focusListener = new FocusAdapter() {
-			public void focusGained(FocusEvent e) {
-				((Text)e.getSource()).selectAll();
+			Label urlLabel = new Label(composite, SWT.NONE);
+			urlLabel.setText(Policy.bind("SwitchDialog.url")); //$NON-NLS-1$
+			
+			urlCombo = new UrlCombo(composite, SWT.NONE);
+			urlCombo.init(resources[0].getProject().getName());
+			urlCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL));
+	
+			commonRoot = getCommonRoot();
+			if (commonRoot != null) urlCombo.setText(commonRoot);
+	        
+	        urlCombo.getCombo().addModifyListener(new ModifyListener() {
+	            public void modifyText(ModifyEvent e) {
+	                setPageComplete(canFinish());
+	            }         
+	        });
+			
+			Button browseButton = new Button(composite, SWT.PUSH);
+			browseButton.setText(Policy.bind("SwitchDialog.browse")); //$NON-NLS-1$
+			browseButton.addSelectionListener(new SelectionAdapter() {
+	            public void widgetSelected(SelectionEvent e) {
+	                ChooseUrlDialog dialog = new ChooseUrlDialog(getShell(), resources[0]);
+	                dialog.setIncludeBranchesAndTags(resources.length == 1);
+	                if ((dialog.open() == ChooseUrlDialog.OK) && (dialog.getUrl() != null)) {
+	                    urlCombo.setText(dialog.getUrl());
+	                    setPageComplete(canFinish());
+	                }
+	            }
+			});
+	
+			revisionGroup = new Composite(composite, SWT.NULL);
+			GridLayout revisionLayout = new GridLayout();
+			revisionLayout.numColumns = 3;
+			revisionLayout.marginWidth = 0;
+			revisionLayout.marginHeight = 0;
+			revisionGroup.setLayout(revisionLayout);
+			data = new GridData(GridData.FILL_HORIZONTAL);
+			data.horizontalSpan = 3;
+			revisionGroup.setLayoutData(data);
+			
+			headButton = new Button(revisionGroup, SWT.CHECK);
+			headButton.setText(Policy.bind("SvnWizardSwitchPage.head")); //$NON-NLS-1$
+			data = new GridData();
+			data.horizontalSpan = 3;
+			headButton.setLayoutData(data);
+			
+			Label revisionLabel = new Label(revisionGroup, SWT.NONE);
+			revisionLabel.setText(Policy.bind("SvnWizardSwitchPage.revision")); //$NON-NLS-1$
+			
+			revisionText = new Text(revisionGroup, SWT.BORDER);
+			data = new GridData();
+			data.widthHint = REVISION_WIDTH_HINT;
+			revisionText.setLayoutData(data);
+			
+			if (revisionNumber == 0) {
+				headButton.setSelection(true);
+				revisionText.setEnabled(false);
+			} else {
+				revisionText.setText("" + revisionNumber); //$NON-NLS-1$
 			}
-			public void focusLost(FocusEvent e) {
-				((Text)e.getSource()).setText(((Text)e.getSource()).getText());
-			}					
-		};
-		revisionText.addFocusListener(focusListener);
+			
+			revisionText.addModifyListener(new ModifyListener() {
+	            public void modifyText(ModifyEvent e) {
+	                setPageComplete(canFinish());
+	            }		    
+			});
+			
+			FocusListener focusListener = new FocusAdapter() {
+				public void focusGained(FocusEvent e) {
+					((Text)e.getSource()).selectAll();
+				}
+				public void focusLost(FocusEvent e) {
+					((Text)e.getSource()).setText(((Text)e.getSource()).getText());
+				}					
+			};
+			revisionText.addFocusListener(focusListener);
+			
+			logButton = new Button(revisionGroup, SWT.PUSH);
+			logButton.setText(Policy.bind("MergeDialog.showLog")); //$NON-NLS-1$
+			logButton.setEnabled(false);
+			logButton.addSelectionListener(new SelectionAdapter() {
+	            public void widgetSelected(SelectionEvent e) {
+	                showLog();
+	            }
+			});	
+			
+			SelectionListener listener = new SelectionAdapter() {
+	            public void widgetSelected(SelectionEvent e) {
+	                revisionText.setEnabled(!headButton.getSelection());
+	                logButton.setEnabled(!headButton.getSelection());
+	                setPageComplete(canFinish());
+	                if (!headButton.getSelection()) {
+	                    revisionText.selectAll();
+	                    revisionText.setFocus();
+	                }
+	            }
+			};
+			
+			headButton.addSelectionListener(listener);
 		
-		logButton = new Button(revisionGroup, SWT.PUSH);
-		logButton.setText(Policy.bind("MergeDialog.showLog")); //$NON-NLS-1$
-		logButton.setEnabled(false);
-		logButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                showLog();
-            }
-		});	
-		
-		SelectionListener listener = new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                revisionText.setEnabled(!headButton.getSelection());
-                logButton.setEnabled(!headButton.getSelection());
-                setPageComplete(canFinish());
-                if (!headButton.getSelection()) {
-                    revisionText.selectAll();
-                    revisionText.setFocus();
-                }
-            }
-		};
-		
-		headButton.addSelectionListener(listener);
+		}
 		
 		if (resources.length > 1) {
 			table = new Table(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
@@ -283,13 +291,17 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 					ignoreExternalsButton.setVisible(false);
 					forceButton.setVisible(false);
 					ignoreAncestryButton.setVisible(false);
-					revisionGroup.setVisible(false);
+					if (revisionGroup != null) {
+						revisionGroup.setVisible(false);
+					}
 				} else {
 					setDepthButton.setEnabled(true);
 					ignoreExternalsButton.setVisible(true);
 					forceButton.setVisible(true);
 					ignoreAncestryButton.setVisible(true);
-					revisionGroup.setVisible(true);
+					if (revisionGroup != null) {
+						revisionGroup.setVisible(true);
+					}
 				}
 				setPageComplete(canFinish());
 			}			
@@ -430,30 +442,32 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
     }	
 
 	public boolean performFinish() {
-        urlCombo.saveUrl();
         try {
-        	if (urlStrings.length > 1) {
-        		urls = new SVNUrl[switchResources.length];
-        		for (int i = 0; i < switchResources.length; i++) {
-        			if (urlCombo.getText().endsWith("/")) //$NON-NLS-1$
-        				urls[i] = new SVNUrl(urlCombo.getText() + switchResources[i].getPartialPath());
-        			else
-        				urls[i] = new SVNUrl(urlCombo.getText() + "/" + switchResources[i].getPartialPath()); //$NON-NLS-1$
-        		}
+        	if (showUrl) {
+	        	urlCombo.saveUrl();
+	        	if (urlStrings.length > 1) {
+	        		urls = new SVNUrl[switchResources.length];
+	        		for (int i = 0; i < switchResources.length; i++) {
+	        			if (urlCombo.getText().endsWith("/")) //$NON-NLS-1$
+	        				urls[i] = new SVNUrl(urlCombo.getText() + switchResources[i].getPartialPath());
+	        			else
+	        				urls[i] = new SVNUrl(urlCombo.getText() + "/" + switchResources[i].getPartialPath()); //$NON-NLS-1$
+	        		}
+	        	}
+	        	else {
+	        		urls = new SVNUrl[1];
+	        		urls[0] = new SVNUrl(urlCombo.getText());
+	        	}
+	            if (headButton.getSelection()) revision = SVNRevision.HEAD;
+	            else {
+	                try {
+	                    revision = SVNRevision.getRevision(revisionText.getText().trim());
+	                } catch (ParseException e1) {
+	                  MessageDialog.openError(getShell(), Policy.bind("SwitchDialog.title"), Policy.bind("SwitchDialog.invalid")); //$NON-NLS-1$ //$NON-NLS-2$
+	                  return false;   
+	                }
+	            }
         	}
-        	else {
-        		urls = new SVNUrl[1];
-        		urls[0] = new SVNUrl(urlCombo.getText());
-        	}
-            if (headButton.getSelection()) revision = SVNRevision.HEAD;
-            else {
-                try {
-                    revision = SVNRevision.getRevision(revisionText.getText().trim());
-                } catch (ParseException e1) {
-                  MessageDialog.openError(getShell(), Policy.bind("SwitchDialog.title"), Policy.bind("SwitchDialog.invalid")); //$NON-NLS-1$ //$NON-NLS-2$
-                  return false;   
-                }
-            }
             setDepth = setDepthButton.getSelection();
             ignoreExternals = ignoreExternalsButton.getSelection();
             force = forceButton.getSelection();
@@ -504,11 +518,13 @@ public class SvnWizardSwitchPage extends SvnWizardDialogPage {
 	
 	private boolean canFinish() {
 		setErrorMessage(null);
-		if (!(urlCombo.getText().length() > 0 && (headButton.getSelection() || (revisionText.getText().trim().length() > 0)))) return false;
-		if (depthCombo.getText().equals(ISVNUIConstants.DEPTH_EXCLUDE)) {
-			if (commonRoot == null || !urlCombo.getText().equals(commonRoot)) {
-				setErrorMessage(Policy.bind("SwitchDialog.excludeAndSwitchError")); //$NON-NLS-1$
-				return false;
+		if (showUrl) {
+			if (!(urlCombo.getText().length() > 0 && (headButton.getSelection() || (revisionText.getText().trim().length() > 0)))) return false;
+			if (depthCombo.getText().equals(ISVNUIConstants.DEPTH_EXCLUDE)) {
+				if (commonRoot == null || !urlCombo.getText().equals(commonRoot)) {
+					setErrorMessage(Policy.bind("SwitchDialog.excludeAndSwitchError")); //$NON-NLS-1$
+					return false;
+				}
 			}
 		}
 		return true;
