@@ -10,11 +10,15 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.operations;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
@@ -23,7 +27,9 @@ import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.commands.SwitchToUrlCommand;
 import org.tigris.subversion.subclipse.core.sync.SVNWorkspaceSubscriber;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.conflicts.SVNConflictResolver;
+import org.tigris.subversion.subclipse.ui.decorator.SVNLightweightDecorator;
 import org.tigris.subversion.svnclientadapter.ISVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
@@ -58,6 +64,7 @@ public class SwitchOperation extends RepositoryProviderOperation {
     protected void execute(SVNTeamProvider provider, IResource[] resources, IProgressMonitor monitor) throws SVNException, InterruptedException {
         monitor.beginTask("Switch to Branch/Tag", resources.length);
 		try {
+			final List<IProject> projectList = new ArrayList<IProject>();
 			for (int i = 0; i < resources.length; i++) {
 				monitor.subTask("Switching " + resources[i].getName() + ". . .");
 				SVNUrl svnUrl = (SVNUrl)urlMap.get(resources[i]);
@@ -74,7 +81,20 @@ public class SwitchOperation extends RepositoryProviderOperation {
 		        command.setConflictResolver(conflictResolver);
 		    	command.run(monitor);
 		        monitor.worked(1);
+		        if (resources[i].getProject() != null && !projectList.contains(resources[i].getProject())) {
+		        	projectList.add(resources[i].getProject());
+		        }
 			}
+			// Trigger lightweight refresh of decorators for project.  This is needed because refreshLocal is not triggering a refresh for unchanged
+			// resources in Project Explorer.
+			Display.getDefault().asyncExec(new Runnable() {				
+				public void run() {
+					SVNLightweightDecorator decorator = (SVNLightweightDecorator)SVNUIPlugin.getPlugin().getWorkbench().getDecoratorManager().getBaseLabelProvider(SVNUIPlugin.DECORATOR_ID);
+					for (IProject project : projectList) {
+						decorator.refresh(project);
+					}
+				}
+			});
 		} catch (SVNException e) {
 			if (e.operationInterrupted()) {
 				showCancelledMessage();
