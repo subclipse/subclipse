@@ -107,8 +107,12 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 			}			
 		};
 		
+		IResource[] dedupedResourcesToRevert = ResourceSelectionTree.dedupeResources(resourcesToRevert);
+		if (dedupedResourcesToRevert.length != resourcesToRevert.length) {
+			resourceRemoved = true;
+		}
 		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE,
-        Policy.bind("GenerateSVNDiff.Changes"), ResourceSelectionTree.dedupeResources(resourcesToRevert), statusMap, null, true, toolbarControlCreator, null); //$NON-NLS-1$
+        Policy.bind("GenerateSVNDiff.Changes"), ResourceSelectionTree.dedupeResources(dedupedResourcesToRevert), statusMap, null, true, toolbarControlCreator, null); //$NON-NLS-1$
     	if (!resourceSelectionTree.showIncludeUnversionedButton()) includeUnversionedButton.setVisible(false);    
 		
 		// resourceSelectionTree.getTreeViewer().setAllChecked(true);
