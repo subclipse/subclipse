@@ -863,9 +863,11 @@ public class ResourceSelectionTree extends Composite {
 		List<String> locations = new ArrayList<String>();
 		List<IResource> uniqueResources = new ArrayList<IResource>();
 		for (IResource resource : resources) {
-			if (resource.getLocation() == null || !locations.contains(resource.getLocation().toString())) {
-				uniqueResources.add(resource);
-				locations.add(resource.getLocation().toString());
+			if (resource.getParent() == null || resource.getParent().exists()) {
+				if (resource.getLocation() == null || !locations.contains(resource.getLocation().toString())) {
+					uniqueResources.add(resource);
+					locations.add(resource.getLocation().toString());
+				}
 			}
 		}
 		IResource[] uniqueResourceArray = new IResource[uniqueResources.size()];
