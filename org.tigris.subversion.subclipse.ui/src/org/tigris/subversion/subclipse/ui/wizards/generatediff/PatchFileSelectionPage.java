@@ -278,8 +278,7 @@ class PatchFileSelectionPage extends WizardPage {
 			}
 		});
 		
-//		LabelProvider labelProvider = new SVNLightweightDecorator();
-		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resources, statusMap, null, true, null, null); //$NON-NLS-1$
+		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), ResourceSelectionTree.dedupeResources(resources), statusMap, null, true, null, null); //$NON-NLS-1$
 		((CheckboxTreeViewer)resourceSelectionTree.getTreeViewer()).setAllChecked(true);
         
 		resourceSelectionTree.getTreeViewer().addSelectionChangedListener(new ISelectionChangedListener() {

@@ -855,5 +855,22 @@ public class ResourceSelectionTree extends Composite {
 		}
 		return resourceRemoved;
 	}
+	
+	public static IResource[] dedupeResources(IResource[] resources) {
+		if (resources == null) {
+			return null;
+		}
+		List<String> locations = new ArrayList<String>();
+		List<IResource> uniqueResources = new ArrayList<IResource>();
+		for (IResource resource : resources) {
+			if (resource.getLocation() == null || !locations.contains(resource.getLocation().toString())) {
+				uniqueResources.add(resource);
+				locations.add(resource.getLocation().toString());
+			}
+		}
+		IResource[] uniqueResourceArray = new IResource[uniqueResources.size()];
+		uniqueResources.toArray(uniqueResourceArray);
+		return uniqueResourceArray;
+	}
 
 }

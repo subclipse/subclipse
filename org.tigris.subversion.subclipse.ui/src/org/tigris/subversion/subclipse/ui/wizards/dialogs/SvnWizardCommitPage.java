@@ -361,7 +361,7 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
         return 1;
       }
     };
-    	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), resourcesToCommit, statusMap, null, true, toolbarControlCreator, syncInfoSet); //$NON-NLS-1$    	
+    	resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE, Policy.bind("GenerateSVNDiff.Changes"), ResourceSelectionTree.dedupeResources(resourcesToCommit), statusMap, null, true, toolbarControlCreator, syncInfoSet); //$NON-NLS-1$    	
     	if (!resourceSelectionTree.showIncludeUnversionedButton()) includeUnversionedButton.setVisible(false);
 
 		resourceSelectionTree.setCustomOptions(getCustomOptions());

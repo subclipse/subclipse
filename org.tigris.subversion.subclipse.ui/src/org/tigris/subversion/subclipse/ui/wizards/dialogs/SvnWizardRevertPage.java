@@ -108,7 +108,7 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 		};
 		
 		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE,
-        Policy.bind("GenerateSVNDiff.Changes"), resourcesToRevert, statusMap, null, true, toolbarControlCreator, null); //$NON-NLS-1$
+        Policy.bind("GenerateSVNDiff.Changes"), ResourceSelectionTree.dedupeResources(resourcesToRevert), statusMap, null, true, toolbarControlCreator, null); //$NON-NLS-1$
     	if (!resourceSelectionTree.showIncludeUnversionedButton()) includeUnversionedButton.setVisible(false);    
 		
 		// resourceSelectionTree.getTreeViewer().setAllChecked(true);
