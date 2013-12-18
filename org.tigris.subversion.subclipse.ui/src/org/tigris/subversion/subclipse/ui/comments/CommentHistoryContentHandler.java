@@ -12,6 +12,8 @@ package org.tigris.subversion.subclipse.ui.comments;
 
 import java.util.Vector;
 
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -48,7 +50,7 @@ class CommentHistoryContentHandler extends DefaultHandler {
 			return;
 		} 
 		if (elementName.equals(CommentsManager.ELEMENT_COMMIT_HISTORY)) {
-			comments = new Vector(CommentsManager.MAX_COMMENTS);
+			comments = new Vector(SVNUIPlugin.getPlugin().getPreferenceStore().getInt(ISVNUIConstants.PREF_COMMENTS_TO_SAVE));
 			return;
 		}
 	}

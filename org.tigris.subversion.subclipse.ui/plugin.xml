@@ -882,7 +882,7 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            name="%CommentTemplatesPreferencePage.name"
+            name="%CommentsPreferencePage.name"
             category="org.tigris.subversion.subclipse.ui.SVNPreferences"
             class="org.tigris.subversion.subclipse.ui.comments.CommentTemplatesPreferencePage"
             id="org.tigris.subversion.subclipse.ui.CommentTemplatesPreferences">

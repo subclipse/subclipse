@@ -25,9 +25,12 @@ import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.team.core.TeamException;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.internal.XMLWriter;
@@ -37,23 +40,38 @@ import org.xml.sax.SAXException;
 /**
  * the comments manager : holds previous comments 
  */
-public class CommentsManager {
+public class CommentsManager implements IPropertyChangeListener {
+	private int maxComments;
     // The previously remembered comment
     static String[] previousComments = new String[0];
     static String[] commentTemplates = new String[0];
-    static final int MAX_COMMENTS = 10;
     private static final String COMMENT_HIST_FILE = "commitCommentHistory.xml"; //$NON-NLS-1$
     private static final String COMMENT_TEMPLATES_FILE = "commentTemplates.xml"; //$NON-NLS-1$
 	static final String ELEMENT_COMMIT_COMMENT = "CommitComment"; //$NON-NLS-1$
 	static final String ELEMENT_COMMIT_HISTORY = "CommitComments"; //$NON-NLS-1$
     static final String ELEMENT_COMMENT_TEMPLATES = "CommitCommentTemplates"; //$NON-NLS-1$
 
+    public CommentsManager() {
+		super();
+		maxComments = SVNUIPlugin.getPlugin().getPreferenceStore().getInt(ISVNUIConstants.PREF_COMMENTS_TO_SAVE);
+		SVNUIPlugin.getPlugin().getPreferenceStore().addPropertyChangeListener(this);
+	}
 
-    /**
+	/**
      * Answer the list of comments that were previously used when committing.
      * @return String[]
      */
     public String[] getPreviousComments() {
+    	if (maxComments == 0) {
+    		previousComments = new String[0];
+    	}
+    	else if (previousComments.length > maxComments) {
+	    	String[] previousCommentArray = new String[maxComments];
+	    	for (int i = 0; i < maxComments; i++) {
+	    		previousCommentArray[i] = previousComments[i];
+	    	}
+	    	previousComments = previousCommentArray;
+    	}
         return previousComments;
     }
 
@@ -72,7 +90,7 @@ public class CommentsManager {
 			return;
 		
 		// Insert the comment as the first element
-		String[] newComments = new String[Math.min(previousComments.length + 1, MAX_COMMENTS)];
+		String[] newComments = new String[Math.min(previousComments.length + 1, maxComments)];
 		newComments[0] = comment;
 		for (int i = 1; i < newComments.length; i++) {
 			newComments[i] = previousComments[i-1];
@@ -143,7 +161,7 @@ public class CommentsManager {
                  XMLWriter writer = new XMLWriter(new BufferedOutputStream(new FileOutputStream(tempFile)));
                  try {
                      writer.startTag(ELEMENT_COMMIT_HISTORY, null, false);
-                     for (int i=0; i<previousComments.length && i<MAX_COMMENTS; i++)
+                     for (int i=0; i<previousComments.length && i<maxComments; i++)
                          writer.printSimpleTag(ELEMENT_COMMIT_COMMENT, previousComments[i]);
                      writer.endTag(ELEMENT_COMMIT_HISTORY);
                  } finally {
@@ -256,5 +274,11 @@ public class CommentsManager {
 			throws TeamException {
 		commentTemplates = templates;
 		saveCommentTemplates();
+	}
+
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(ISVNUIConstants.PREF_COMMENTS_TO_SAVE)) {
+			maxComments = SVNUIPlugin.getPlugin().getPreferenceStore().getInt(ISVNUIConstants.PREF_COMMENTS_TO_SAVE);
+		}
 	}
 }

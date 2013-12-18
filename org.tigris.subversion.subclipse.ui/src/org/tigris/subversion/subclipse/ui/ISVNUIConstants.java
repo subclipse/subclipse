@@ -148,6 +148,7 @@ public interface ISVNUIConstants {
   public final String PREF_USE_JAVAHL_COMMIT_HACK = "pref_use_javahl_commit_hack"; //$NON-NLS-1$
   public final String PREF_MERGE_PROVIDER = "pref_merge_provider"; //$NON-NLS-1$
   public final String PREF_SUGGEST_MERGE_SOURCES = "pref_suggest_merge_sources"; //$NON-NLS-1$
+  public final String PREF_COMMENTS_TO_SAVE = "pref_comments_to_save"; //$NON-NLS-1$
 
   public final String PREF_PROMPT_ON_MIXED_TAGS = "pref_prompt_on_mixed_tags"; //$NON-NLS-1$
 
