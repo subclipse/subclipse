@@ -25,6 +25,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
@@ -50,6 +51,8 @@ public class CheckoutIntoAction extends CheckoutAsProjectAction {
     private int depth = ISVNCoreConstants.DEPTH_INFINITY;
     private boolean ignoreExternals = false;
     private boolean force = true;
+    
+    private IWorkingSet[] workingSets;
 
 	public CheckoutIntoAction(ISVNRemoteFolder[] selectedFolders, String projectName, String intoDirectory, Shell shell) {
 		super();
@@ -64,6 +67,10 @@ public class CheckoutIntoAction extends CheckoutAsProjectAction {
 	    this.projectNamePrefix = projectNamePrefix;
 	    this.projectNameSuffix = projectNameSuffix;
     }
+
+	public void setWorkingSets(IWorkingSet[] workingSets) {
+		this.workingSets = workingSets;
+	}
 
 	/*
 	 * @see SVNAction#execute()
@@ -163,6 +170,7 @@ public class CheckoutIntoAction extends CheckoutAsProjectAction {
 	    	checkoutAsProjectOperation.setDepth(depth);
 	    	checkoutAsProjectOperation.setIgnoreExternals(ignoreExternals);
 	    	checkoutAsProjectOperation.setForce(force);
+	    	checkoutAsProjectOperation.setWorkingSets(workingSets);
 	    	checkoutAsProjectOperation.run();
 	    }
 	}

@@ -12,8 +12,12 @@ package org.tigris.subversion.subclipse.ui.wizards;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -24,10 +28,15 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.IWorkingSetManager;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.IWorkingSetSelectionDialog;
 import org.tigris.subversion.subclipse.ui.Policy;
 
 public class CheckoutWizardProjectPage extends WizardPage {
@@ -35,6 +44,12 @@ public class CheckoutWizardProjectPage extends WizardPage {
 	private Label locationLabel;
 	private Text locationText;
 	private Button browseButton;
+	private Button addToWorkingSetsButton;
+	private Label workingSetsLabel;
+	private Combo workingSetsCombo;
+	private Button workingSetsSelectButton;
+	private IWorkingSet[] workingSets;
+	private Map<String, IWorkingSet[]> workingSetsMap = new HashMap<String, IWorkingSet[]>();
 
 	public CheckoutWizardProjectPage(String pageName, String title, ImageDescriptor titleImage) {
 		super(pageName, title, titleImage);
@@ -94,9 +109,111 @@ public class CheckoutWizardProjectPage extends WizardPage {
 		
 		setLocationEnablement();
 		
+		Composite workingSetsComposite = new Composite(outerContainer,SWT.NONE);
+		GridLayout workingSetsLayout = new GridLayout();
+		workingSetsLayout.numColumns = 3;
+		workingSetsLayout.marginHeight = 0;
+		workingSetsLayout.marginWidth = 0;
+		workingSetsComposite.setLayout(workingSetsLayout);
+		data = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		data.horizontalSpan = 3;
+		workingSetsComposite.setLayoutData(data);
+		
+		addToWorkingSetsButton = new Button(workingSetsComposite, SWT.CHECK);
+		addToWorkingSetsButton.setText(Policy.bind("CheckoutWizardProjectPage.0")); //$NON-NLS-1$
+		data = new GridData();
+		data.horizontalSpan = 3;
+		addToWorkingSetsButton.setLayoutData(data);
+		addToWorkingSetsButton.addSelectionListener(new SelectionAdapter() {			
+			public void widgetSelected(SelectionEvent e) {
+				setWorkingSetsEnablement();
+			}
+		});
+		
+		workingSetsLabel = new Label(workingSetsComposite, SWT.NONE);
+		workingSetsLabel.setText(Policy.bind("CheckoutWizardProjectPage.1")); //$NON-NLS-1$
+		workingSetsCombo = new Combo(workingSetsComposite, SWT.BORDER | SWT.READ_ONLY);
+		workingSetsCombo.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		workingSetsCombo.addSelectionListener(new SelectionAdapter() {			
+			public void widgetSelected(SelectionEvent e) {
+				workingSets = workingSetsMap.get(workingSetsCombo.getText());
+			}
+		});
+		
+		workingSetsSelectButton = new Button(workingSetsComposite, SWT.PUSH);
+		workingSetsSelectButton.setText(Policy.bind("CheckoutWizardProjectPage.2")); //$NON-NLS-1$
+		workingSetsSelectButton.addSelectionListener(new SelectionAdapter() {			
+			public void widgetSelected(SelectionEvent e) {
+				IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
+				IWorkingSetSelectionDialog dialog = manager.createWorkingSetSelectionDialog(getShell(), true);
+				if (workingSets != null) {
+					dialog.setSelection(workingSets);
+				}
+				dialog.open();
+				workingSets = dialog.getSelection();
+				if (workingSets != null) {
+					String workingSetsString = getWorkingSetsString(workingSets);
+					if (workingSetsMap.get(workingSetsString) == null) {
+						workingSetsMap.put(workingSetsString, workingSets);
+						workingSetsCombo.add(workingSetsString);
+					}
+					workingSetsCombo.setText(workingSetsString);
+				}
+				else {
+					addToWorkingSetsButton.setSelection(false);
+					setWorkingSetsEnablement();
+				}
+			}
+		});
+		
+		setWorkingSetsEnablement();
+		
+		// Don't show working set section if Eclipse API doesn't support it.
+		IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
+		Class[] parameterTypes = { IAdaptable.class, IWorkingSet[].class };
+		Method addToWorkingSets = null;
+		try {
+			addToWorkingSets = manager.getClass().getMethod("addToWorkingSets", parameterTypes);				
+		} catch (Exception e) {}
+		if (addToWorkingSets == null) {
+			addToWorkingSetsButton.setVisible(false);
+			workingSetsLabel.setVisible(false);
+			workingSetsCombo.setVisible(false);
+			workingSetsSelectButton.setVisible(false);
+		}
+		
 		setMessage(Policy.bind("CheckoutWizardProjectPage.text")); //$NON-NLS-1$
 		
 		setControl(outerContainer);	
+	}
+	
+	public IWorkingSet[] getWorkingSets() {
+		if (addToWorkingSetsButton.getSelection()) {
+			return workingSets;
+		}
+		else {
+			return null;
+		}
+	}
+	
+	private String getWorkingSetsString(IWorkingSet[] workingSets) {
+		if (workingSets == null) {
+			return null;
+		}
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < workingSets.length; i++) {
+			if (i > 0) {
+				buffer.append(", "); //$NON-NLS-1$
+			}
+			buffer.append(workingSets[i].getName());
+		}
+		return buffer.toString();
+	}
+	
+	private void setWorkingSetsEnablement() {
+		workingSetsLabel.setEnabled(addToWorkingSetsButton.getSelection());
+		workingSetsCombo.setEnabled(addToWorkingSetsButton.getSelection());
+		workingSetsSelectButton.setEnabled(addToWorkingSetsButton.getSelection());
 	}
 
 	private void setLocationEnablement() {

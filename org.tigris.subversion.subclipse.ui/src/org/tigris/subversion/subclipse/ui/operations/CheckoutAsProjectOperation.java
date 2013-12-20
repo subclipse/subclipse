@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui.operations;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -28,6 +30,9 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.IWorkingSetManager;
+import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -47,6 +52,7 @@ public class CheckoutAsProjectOperation extends SVNOperation {
     private boolean force = true;
     private List<IProject> createProjectList = new ArrayList<IProject>();
     private List<IProject> manageProjectList = new ArrayList<IProject>();
+    private IWorkingSet[] workingSets;
 
     public CheckoutAsProjectOperation(IWorkbenchPart part, ISVNRemoteFolder[] remoteFolders, IProject[] localFolders) {
     	this(part, remoteFolders, localFolders, null);
@@ -59,7 +65,11 @@ public class CheckoutAsProjectOperation extends SVNOperation {
         this.projectRoot = projectRoot; 
     }
     
-    protected String getTaskName() {
+    public void setWorkingSets(IWorkingSet[] workingSets) {
+		this.workingSets = workingSets;
+	}
+
+	protected String getTaskName() {
         return Policy.bind("CheckoutAsProjectOperation.taskName"); //$NON-NLS-1$;
     }
     
@@ -74,9 +84,11 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 	
 	private void createProject(final IProject project) throws SVNException {
 		try {
+			IProject newProject;
 			if (projectRoot == null) {
 				project.create(null);
 				project.open(null);
+				newProject = project;
 			}
 			else {
 				String path = projectRoot.toString();
@@ -93,6 +105,19 @@ public class CheckoutAsProjectOperation extends SVNOperation {
 				IProject customProject = ResourcesPlugin.getWorkspace().getRoot().getProject(project.getName());
 				customProject.create(description, null);
 				customProject.open(null);
+				newProject = customProject;
+			}
+			if (workingSets != null && workingSets.length > 0) {
+				// Have to use reflection for compatibility with Eclipse 3.2 API
+				IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
+				Class[] parameterTypes = { IAdaptable.class, IWorkingSet[].class };
+				Method addToWorkingSets = null;
+				try {
+					addToWorkingSets = manager.getClass().getMethod("addToWorkingSets", parameterTypes);
+					if (addToWorkingSets != null) {
+						addToWorkingSets.invoke(manager, newProject, workingSets);
+					}					
+				} catch (Exception e) {}
 			}
 		} catch (CoreException e1) {
 			throw new SVNException(
