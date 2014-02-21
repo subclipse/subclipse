@@ -102,7 +102,9 @@ public class SVNTeamProviderType extends RepositoryProviderType {
             next = getNextProject();
             monitor.beginTask(null, IProgressMonitor.UNKNOWN);
             while (next != null) {
-                autoconnectSVNProject(next, Policy.subMonitorFor(monitor, IProgressMonitor.UNKNOWN));
+            	if (next.isAccessible()) {
+            		autoconnectSVNProject(next, Policy.subMonitorFor(monitor, IProgressMonitor.UNKNOWN));
+            	}
                 next = getNextProject();
             }
             monitor.done();
