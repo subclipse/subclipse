@@ -11,13 +11,21 @@
 package org.tigris.subversion.subclipse.core.commands;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
+import org.tigris.subversion.subclipse.core.ISVNRunnable;
+import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
@@ -65,46 +73,66 @@ public class UpdateResourcesCommand implements ISVNCommand {
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void run(final IProgressMonitor monitor) throws SVNException {
-		ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
-		if (conflictResolver != null) {
-			svnClient.addConflictResolutionCallback(conflictResolver);
-		}
-        try {
-            monitor.beginTask(null, 100 * resources.length);                    
-
-            svnClient.addNotifyListener(operationResourceCollector);
-            
-            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
-    		if (resources.length == 1)
-    		{
-                monitor.subTask(resources[0].getName());
-                svnClient.update(resources[0].getLocation().toFile(),revision, depth, setDepth, ignoreExternals, force);
-                updatedResources.add(resources[0]);
-                monitor.worked(100);    			
-    		}
-    		else
-    		{
-    			File[] files = new File[resources.length];
-    			for (int i = 0; i < resources.length; i++) {
-					files[i] = resources[i].getLocation().toFile();
-					updatedResources.add(resources[i]);
-				}
-  
-   				svnClient.update(files, revision, depth, setDepth, ignoreExternals, force);   				
-   				monitor.worked(100);
-    		}
-        } catch (SVNClientException e) {
-            throw SVNException.wrapException(e);
+		final ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+		OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));		
+		try {		
+	        List<IProject> projectList = new ArrayList<IProject>();
+	        for (IResource currentResource : resources) {
+	        	IProject project = currentResource.getProject();
+	        	if (!projectList.contains(project)) {
+	        		projectList.add(project);
+	        	}        	
+	        }
+			if (conflictResolver != null) {
+				svnClient.addConflictResolutionCallback(conflictResolver);
+			}
+			
+	        IProject[] projects = new IProject[projectList.size()];
+	        projectList.toArray(projects);
+	        ISchedulingRule rule = MultiRule.combine(projects);
+	        
+	        SVNProviderPlugin.run(new ISVNRunnable() {
+	            public void run(final IProgressMonitor pm) throws SVNException {
+	                try {
+	                    monitor.beginTask(null, 100 * resources.length);                    
+	
+	                    svnClient.addNotifyListener(operationResourceCollector);
+	                    
+	            		if (resources.length == 1)
+	            		{
+	                        monitor.subTask(resources[0].getName());
+	                        svnClient.update(resources[0].getLocation().toFile(),revision, depth, setDepth, ignoreExternals, force);
+	                        updatedResources.add(resources[0]);
+	                        monitor.worked(100);    			
+	            		}
+	            		else
+	            		{
+	            			File[] files = new File[resources.length];
+	            			for (int i = 0; i < resources.length; i++) {
+	        					files[i] = resources[i].getLocation().toFile();
+	        					updatedResources.add(resources[i]);
+	        				}
+	          
+	           				svnClient.update(files, revision, depth, setDepth, ignoreExternals, force);   				
+	           				monitor.worked(100);
+	            		}
+	                } catch (SVNClientException e) {
+	                    throw SVNException.wrapException(e);
+	                } finally {
+	                	monitor.done();
+	                	if (svnClient != null) {
+		            		if (conflictResolver != null) {
+		            			svnClient.addConflictResolutionCallback(null);
+		            		}
+		            		svnClient.removeNotifyListener(operationResourceCollector);
+		            		root.getRepository().returnSVNClient(svnClient);
+	                	}
+	                }                    	
+	            }
+	        }, rule, Policy.monitorFor(monitor));
         } finally {
-        	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
-        	OperationManager.getInstance().endOperation(true, operationResources);
-    		if (conflictResolver != null) {
-    			svnClient.addConflictResolutionCallback(null);
-    		}
-    		 svnClient.removeNotifyListener(operationResourceCollector);
-    		root.getRepository().returnSVNClient(svnClient);
-            monitor.done();
-        }        
+        	OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
+        }
 	}
 
 	public void setConflictResolver(ISVNConflictResolver conflictResolver) {

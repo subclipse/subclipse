@@ -55,6 +55,8 @@ public class CheckinResourcesCommand implements ISVNCommand {
     
     private String postCommitError;
     
+    private boolean commitError;
+    
     private OperationResourceCollector operationResourceCollector = new OperationResourceCollector();
 
     public CheckinResourcesCommand(SVNWorkspaceRoot root, IResource[] resources, int depth, String message, boolean keepLocks) {
@@ -69,6 +71,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void run(IProgressMonitor monitor) throws SVNException {
+		commitError = false;
 		postCommitError = null;
         final ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
         
@@ -143,6 +146,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
                     else svnClient.commit(resourceFiles,message,depth == IResource.DEPTH_INFINITE,keepLocks);
                     postCommitError = svnClient.getPostCommitError();
                 } catch (SVNClientException e) {
+                	commitError = true;
                     throw SVNException.wrapException(e);
                 } finally {             	
                     pm.done();
@@ -155,7 +159,7 @@ public class CheckinResourcesCommand implements ISVNCommand {
             }
         }, rule, Policy.monitorFor(monitor));
         } finally {
-        	OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources());
+        	OperationManager.getInstance().endOperation(true, operationResourceCollector.getOperationResources(), !commitError);
         }
 	}
     
