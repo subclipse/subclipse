@@ -1,6 +1,8 @@
 package org.tigris.subversion.subclipse.ui.compare;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
@@ -8,6 +10,7 @@ import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.internal.BufferedResourceNode;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
@@ -17,8 +20,10 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.commands.AddResourcesCommand;
 import org.tigris.subversion.subclipse.core.commands.GetRemoteResourceCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.internal.Utils;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -35,6 +40,8 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
 	private SVNLocalResourceNode[] localResourceNodes;
 	private ResourceEditionNode[] remoteResourceNodes;
 	
+	private List<IResource> unaddedResources;
+	
 	public SVNLocalBaseCompareInput(ISVNLocalResource[] resources, SVNRevision revision, boolean readOnly) throws SVNException, SVNClientException {
 		super(new CompareConfiguration());
         this.remoteRevision = revision;
@@ -42,30 +49,43 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
         
         localResourceNodes = new SVNLocalResourceNode[resources.length];
         remoteResourceNodes = new ResourceEditionNode[resources.length];
+        unaddedResources = new ArrayList<IResource>();
         for (int i = 0; i < resources.length; i++) {
         	localResourceNodes[i] = new SVNLocalResourceNode(resources[i]);
         	ISVNRemoteResource remoteResource = null;
         	LocalResourceStatus status = resources[i].getStatus();
-            if (status != null && status.isCopied()) {
-            	ISVNClientAdapter svnClient = null;
-            	try {
-	            	svnClient = resources[i].getRepository().getSVNClient();
-	            	ISVNInfo info = svnClient.getInfoFromWorkingCopy(resources[i].getFile());
-	            	SVNUrl copiedFromUrl = info.getCopyUrl();
-	            	if (copiedFromUrl != null) {
-	            		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(resources[i].getRepository(), copiedFromUrl, SVNRevision.HEAD);
-	            		getRemoteResourceCommand.run(null);
-	            		remoteResource = getRemoteResourceCommand.getRemoteResource();
+            if (status != null && (!status.isManaged() || status.isCopied())) {
+	            	if (!status.isManaged()) {
+	            		unaddedResources.add(resources[i].getResource());
 	            	}
-            	}
-            	finally {
-            		resources[i].getRepository().returnSVNClient(svnClient);
-            	}
+	            	else {
+	            		ISVNClientAdapter svnClient = null;
+		            	try {
+			            	svnClient = resources[i].getRepository().getSVNClient();
+			            	ISVNInfo info = svnClient.getInfoFromWorkingCopy(resources[i].getFile());
+			            	SVNUrl copiedFromUrl = info.getCopyUrl();
+			            	if (copiedFromUrl != null) {
+			            		GetRemoteResourceCommand getRemoteResourceCommand = new GetRemoteResourceCommand(resources[i].getRepository(), copiedFromUrl, SVNRevision.HEAD);
+			            		getRemoteResourceCommand.run(null);
+			            		remoteResource = getRemoteResourceCommand.getRemoteResource();
+			            	}
+		            	}
+		            	finally {
+		            		resources[i].getRepository().returnSVNClient(svnClient);
+		            	}
+	            	}
             }
             if (remoteResource == null) remoteResource = resources[i].getRemoteResource(revision);
             remoteResourceNodes[i] = new ResourceEditionNode(remoteResource);
             remoteResourceNodes[i].setLocalResource(localResourceNodes[i]);
             localResourceNodes[i].setRemoteResource(remoteResourceNodes[i]);
+        }
+        if (unaddedResources.size() > 0) {
+			SVNWorkspaceRoot workspaceRoot = new SVNWorkspaceRoot(unaddedResources.get(0).getProject());
+			IResource[] unadded = new IResource[unaddedResources.size()];
+			unaddedResources.toArray(unadded);
+			AddResourcesCommand addResourcesCommand = new AddResourcesCommand(workspaceRoot, unadded, IResource.DEPTH_INFINITE);
+			addResourcesCommand.run(null);
         }
 	}
 
@@ -106,9 +126,25 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
         Object differences = new StatusAwareDifferencer().findDifferences(false, monitor,null,null,left,right);
         if (differences instanceof DiffNode) {
         	DiffNode diffNode = (DiffNode)differences;
+        	
+        	IDiffElement[] children = diffNode.getChildren();
+        	for (IDiffElement child : children) {
+        		if (child instanceof DiffNode) {
+        			DiffNode childDiffNode = (DiffNode)child;
+        			if (childDiffNode.getLeft() == null && childDiffNode.getRight() instanceof ResourceEditionNode) {
+        				diffNode.remove(child);
+        			}
+        		}
+        	}
+        	
         	if (!diffNode.hasChildren()) {
         		return null;
         	}
+        }
+        for (IResource unaddedResource : unaddedResources) {
+			try {
+				SVNWorkspaceRoot.getSVNResourceFor(unaddedResource).revert();
+			} catch (Exception e) {}
         }
         fRoot = differences;
         return differences;
