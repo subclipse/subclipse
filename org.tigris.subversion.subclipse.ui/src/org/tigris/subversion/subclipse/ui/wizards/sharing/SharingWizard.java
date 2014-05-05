@@ -11,18 +11,25 @@
 package org.tigris.subversion.subclipse.ui.wizards.sharing;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -32,13 +39,18 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.ui.IConfigurationWizard;
 import org.eclipse.team.ui.TeamUI;
 import org.eclipse.team.ui.synchronize.ISynchronizeParticipant;
 import org.eclipse.team.ui.synchronize.ISynchronizeParticipantReference;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.internal.ide.StatusUtil;
+import org.eclipse.ui.internal.wizards.datatransfer.DataTransferMessages;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -47,6 +59,7 @@ import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.resources.LocalFolder;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.subclipse.core.util.File2Resource;
 import org.tigris.subversion.subclipse.core.util.Util;
 import org.tigris.subversion.subclipse.ui.ISVNRepositorySourceProvider;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -95,6 +108,8 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 	private ISVNRepositoryLocation[] locations;
 	
 	private boolean shareCanceled;
+	
+	public static final String METADATA_FOLDER = ".metadata"; //$NON-NLS-1$
 	
 	public SharingWizard() {
 		IDialogSettings workbenchSettings = SVNUIPlugin.getPlugin().getDialogSettings();
@@ -359,6 +374,16 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 								throw new TeamException(ce.getStatus());
 							}
 							
+							// Map any nested projects to repository provider.
+							Collection<File> files = new ArrayList<File>();
+							collectProjectFilesFromDirectory(files, project.getLocation().toFile(), null, monitor);
+							for (File file : files) {
+								IResource resource = File2Resource.getResource(file.getParentFile());
+								IProject childProject = resource.getProject();
+								if (!childProject.equals(project)) {
+									RepositoryProvider.map(childProject, SVNProviderPlugin.getTypeId());
+								}
+							}
 						}
 					} catch (TeamException e) {
 						throw new InvocationTargetException(e);
@@ -498,4 +523,62 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
         return project;
     }
     
+	@SuppressWarnings("restriction")
+	private boolean collectProjectFilesFromDirectory(Collection<File> files,
+			File directory, Set<String> directoriesVisited, IProgressMonitor monitor) {
+
+		if (monitor.isCanceled()) {
+			return false;
+		}
+		monitor.subTask(NLS.bind(
+				DataTransferMessages.WizardProjectsImportPage_CheckingMessage,
+				directory.getPath()));
+		File[] contents = directory.listFiles();
+		if (contents == null)
+			return false;
+
+		// Protect against recursion for recursive symbolic links
+		if (directoriesVisited == null) {
+			directoriesVisited = new HashSet<String>();
+			try {
+				directoriesVisited.add(directory.getCanonicalPath());
+			} catch (IOException exception) {
+				StatusManager.getManager().handle(
+						StatusUtil.newStatus(IStatus.ERROR, exception
+								.getLocalizedMessage(), exception));
+			}
+		}
+
+		// Look for project description files
+		final String dotProject = IProjectDescription.DESCRIPTION_FILE_NAME;
+		for (int i = 0; i < contents.length; i++) {
+			File file = contents[i];
+			if (file.isFile() && file.getName().equals(dotProject)) {
+				files.add(file);
+			}
+		}
+		
+		// Recurse into subdirectories
+		for (int i = 0; i < contents.length; i++) {
+			if (contents[i].isDirectory()) {
+				if (!contents[i].getName().equals(METADATA_FOLDER)) {
+					try {
+						String canonicalPath = contents[i].getCanonicalPath();
+						if (!directoriesVisited.add(canonicalPath)) {
+							// already been here --> do not recurse
+							continue;
+						}
+					} catch (IOException exception) {
+						StatusManager.getManager().handle(
+								StatusUtil.newStatus(IStatus.ERROR, exception
+										.getLocalizedMessage(), exception));
+
+					}
+					collectProjectFilesFromDirectory(files, contents[i],
+							directoriesVisited, monitor);
+				}
+			}
+		}
+		return true;
+	}
 }
