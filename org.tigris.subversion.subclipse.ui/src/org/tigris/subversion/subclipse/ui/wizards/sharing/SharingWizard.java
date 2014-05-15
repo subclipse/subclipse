@@ -29,7 +29,6 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -48,9 +47,7 @@ import org.eclipse.team.ui.TeamUI;
 import org.eclipse.team.ui.synchronize.ISynchronizeParticipant;
 import org.eclipse.team.ui.synchronize.ISynchronizeParticipantReference;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.internal.ide.StatusUtil;
 import org.eclipse.ui.internal.wizards.datatransfer.DataTransferMessages;
-import org.eclipse.ui.statushandlers.StatusManager;
 import org.tigris.subversion.subclipse.core.ISVNLocalFolder;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -543,9 +540,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 			try {
 				directoriesVisited.add(directory.getCanonicalPath());
 			} catch (IOException exception) {
-				StatusManager.getManager().handle(
-						StatusUtil.newStatus(IStatus.ERROR, exception
-								.getLocalizedMessage(), exception));
+				SVNUIPlugin.openError(getShell(), null, null, exception, SVNUIPlugin.PERFORM_SYNC_EXEC);
 			}
 		}
 
@@ -569,10 +564,7 @@ public class SharingWizard extends Wizard implements IConfigurationWizard {
 							continue;
 						}
 					} catch (IOException exception) {
-						StatusManager.getManager().handle(
-								StatusUtil.newStatus(IStatus.ERROR, exception
-										.getLocalizedMessage(), exception));
-
+						SVNUIPlugin.openError(getShell(), null, null, exception, SVNUIPlugin.PERFORM_SYNC_EXEC);
 					}
 					collectProjectFilesFromDirectory(files, contents[i],
 							directoriesVisited, monitor);
