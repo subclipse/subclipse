@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -28,6 +29,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.team.core.TeamException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
@@ -484,8 +486,28 @@ public class DifferencesDialog extends SvnDialog {
 			} else {
 				lastChangedRevision1 = ((ISVNRemoteResource)remoteResources[0]).getLastChangedRevision();
 			}
-			if (fromResource.isFolder()) resource1 = new RemoteFolder(null, fromResource.getRepository(), fromUrl, fromRevision, lastChangedRevision1, null, null);
-			else resource1 = new RemoteFile(null, fromResource.getRepository(), fromUrl, fromRevision, lastChangedRevision1, null, null);		
+			if (fromResource.isFolder()) {
+				resource1 = new RemoteFolder(null, fromResource.getRepository(), fromUrl, fromRevision, lastChangedRevision1, null, null);
+				if (!fromUrl.equals(fromResource.getUrl())) {
+					try {
+						resource1.members(null);
+					} catch (TeamException e) {
+						resource1 = new RemoteFile(null, fromResource.getRepository(), fromUrl, fromRevision, lastChangedRevision1, null, null);
+					}
+				}
+			}
+			else {
+				resource1 = new RemoteFile(null, fromResource.getRepository(), fromUrl, fromRevision, lastChangedRevision1, null, null);
+				if (!fromUrl.equals(fromResource.getUrl())) {
+					IStorage storage = null;
+					try {
+						storage = resource1.getStorage(null);
+					} catch (TeamException e) {}
+					if (storage == null) {
+						resource1 = new RemoteFolder(null, fromResource.getRepository(), fromUrl, fromRevision, lastChangedRevision1, null, null);
+					}
+				}
+			}
 			if (fromRevision instanceof SVNRevision.Number) {
 				if (usePegRevision && resource1 instanceof RemoteResource) {
 					((RemoteResource)resource1).setPegRevision(fromRevision);
@@ -497,8 +519,28 @@ public class DifferencesDialog extends SvnDialog {
 			} else {
 				lastChangedRevision2 = ((ISVNRemoteResource)remoteResources[1]).getLastChangedRevision();
 			}
-			if (toResource.isFolder()) resource2 = new RemoteFolder(null, toResource.getRepository(), toUrl, toRevision, lastChangedRevision2, null, null);
-			else resource2 = new RemoteFile(null, toResource.getRepository(), toUrl, toRevision, lastChangedRevision2, null, null);
+			if (toResource.isFolder()) {
+				resource2 = new RemoteFolder(null, toResource.getRepository(), toUrl, toRevision, lastChangedRevision2, null, null);
+				if (!toUrl.equals(toResource.getUrl())) {
+					try {
+						resource2.members(null);
+					} catch (TeamException e) {
+						resource2 = new RemoteFile(null, toResource.getRepository(), toUrl, toRevision, lastChangedRevision2, null, null);
+					}					
+				}
+			}
+			else {
+				resource2 = new RemoteFile(null, toResource.getRepository(), toUrl, toRevision, lastChangedRevision2, null, null);
+				if (!toUrl.equals(toResource.getUrl())) {
+					IStorage storage = null;
+					try {
+						storage = resource2.getStorage(null);
+					} catch (TeamException e) {}
+					if (storage == null) {
+						resource2 = new RemoteFolder(null, toResource.getRepository(), toUrl, toRevision, lastChangedRevision2, null, null);
+					}					
+				}
+			}
 			if (toRevision instanceof SVNRevision.Number) {
 				if (usePegRevision && resource2 instanceof RemoteResource) {
 					((RemoteResource)resource2).setPegRevision(toRevision);
