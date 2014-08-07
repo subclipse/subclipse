@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -116,7 +117,13 @@ public class OperationManager implements ISVNNotifyListener {
 				if (refreshResourceList != null) {
 					FilteringContainerList folderList = new FilteringContainerList(refreshResourceList);
 					for (IContainer resource : folderList) {
-						SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resource, true);
+						if (resource.getProject().isOpen()) {
+							try {
+								SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resource, true);
+							} catch (Exception e) {
+								SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
+							}
+						}
 					}
 					IResource[] resources = new IResource[refreshResourceList.size()];
 					refreshResourceList.toArray(resources);
