@@ -58,6 +58,20 @@ public class Activator extends Plugin {
 		super.stop(context);
 	}
 	
+	public ISVNClientWrapper getClientWrapper(String id) {
+		ISVNClientWrapper wrapper = null;
+		if (id != null) {
+			if (wrappers == null) {
+				wrappers = adapterManager.getClientWrappers();
+			}
+			wrapper = (ISVNClientWrapper) wrappers.get(id);
+			if (wrapper == null || !wrapper.isAvailable()) {
+				wrapper = null;
+			}
+		}
+		return wrapper;
+	}
+	
 	public ISVNClientAdapter getClientAdapter(String id) {
 		if (id == null)
 			return this.getAnyClientAdapter();

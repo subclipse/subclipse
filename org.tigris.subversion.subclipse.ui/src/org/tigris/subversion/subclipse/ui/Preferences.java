@@ -18,6 +18,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Display;
+import org.tigris.subversion.clientadapter.Activator;
+import org.tigris.subversion.clientadapter.ISVNClientWrapper;
 import org.tigris.subversion.subclipse.core.SVNClientManager;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.dialogs.UnsupportedPasswordStoresDialog;
@@ -56,21 +58,29 @@ private IPreferenceStore store;
      * @param configDir
      */
     private void setSvnClientConfigDir(String configDir) {
-    	if (SVNUIPlugin.getPlugin().passwordStoresConfiguredOnLinux()) {   
+    	if (SVNUIPlugin.getPlugin().passwordStoresConfiguredOnLinux() && !SVNUIPlugin.getPlugin().getDialogSettings().getBoolean(UnsupportedPasswordStoresDialog.SETTING_DO_NOT_SHOW_AGAIN)) {
     		if (!SVNUIPlugin.TEST_MODE) {
-	    		Display.getDefault().syncExec(new Runnable() {
-					public void run() {
-				   		UnsupportedPasswordStoresDialog dialog = new UnsupportedPasswordStoresDialog(Display.getDefault().getActiveShell());
-			    		if (dialog.open() == UnsupportedPasswordStoresDialog.OK) {
-			    			try {
-								SVNUIPlugin.getPlugin().clearPasswordStoresFromConfiguration(false);
-							} catch (Exception e) {
-								SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-								MessageDialog.openError(Display.getDefault().getActiveShell(), Messages.Preferences_0, e.getMessage());
-							}
-			    		}
-					}   			
-	    		});
+    			ISVNClientWrapper clientWrapper = Activator.getDefault().getClientWrapper("javahl");
+    			String version = clientWrapper.getVersionString();
+    			boolean bugFixed = clientWrapper != null && new SvnVersion(version).isNewerThanOrEqualTo(SvnVersion.VERSION_1_8_11);
+    			if (!bugFixed) {
+		    		Display.getDefault().syncExec(new Runnable() {
+						public void run() {
+					   		UnsupportedPasswordStoresDialog dialog = new UnsupportedPasswordStoresDialog(Display.getDefault().getActiveShell());
+				    		if (dialog.open() == UnsupportedPasswordStoresDialog.OK) {
+				    			try {
+									SVNUIPlugin.getPlugin().clearPasswordStoresFromConfiguration(false);
+								} catch (Exception e) {
+									SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+									MessageDialog.openError(Display.getDefault().getActiveShell(), Messages.Preferences_0, e.getMessage());
+								}
+				    		}
+				    		else {
+				    			SVNUIPlugin.getPlugin().getDialogSettings().put(UnsupportedPasswordStoresDialog.SETTING_DO_NOT_SHOW_AGAIN, dialog.isDoNotShowAgain());
+				    		}
+						}
+		    		});
+    			}
     		}
     	}
     	

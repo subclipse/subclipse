@@ -3,8 +3,11 @@ package org.tigris.subversion.subclipse.ui.dialogs;
 import java.net.URL;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -20,9 +23,13 @@ import org.tigris.subversion.subclipse.ui.Messages;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class UnsupportedPasswordStoresDialog extends SvnDialog {
+	private Button doNotShowAgainButton;
+	private boolean doNotShowAgain;
+	
+	public static final String SETTING_DO_NOT_SHOW_AGAIN = "UnsupportedPasswordStoresDialog.doNotShowAgain"; //$NON-NLS-1$
 
 	public UnsupportedPasswordStoresDialog(Shell shell) {
-		super(shell, "passwordStores"); //$NON-NLS-1$
+		super(shell, "passwordStores2"); //$NON-NLS-1$
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -87,7 +94,7 @@ public class UnsupportedPasswordStoresDialog extends SvnDialog {
 		storesText.setLayoutData(gd);
 		String passwordStores = SVNUIPlugin.getPlugin().getPasswordStores();
 		if (passwordStores == null) {
-			passwordStores = "gnome-keyring";
+			passwordStores = "gnome-keyring"; //$NON-NLS-1$
 		}
 		storesText.setText(passwordStores);
 		
@@ -101,7 +108,20 @@ public class UnsupportedPasswordStoresDialog extends SvnDialog {
 		
 		fileText.setFocus();
 		
+		doNotShowAgainButton = new Button(composite, SWT.CHECK);
+		doNotShowAgainButton.setText(Messages.UnsupportedPasswordStoresDialog_4);
+		
+		doNotShowAgainButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				doNotShowAgain = doNotShowAgainButton.getSelection();
+			}
+		});
+		
 		return composite;
+	}
+
+	public boolean isDoNotShowAgain() {
+		return doNotShowAgain;
 	}
 
 }

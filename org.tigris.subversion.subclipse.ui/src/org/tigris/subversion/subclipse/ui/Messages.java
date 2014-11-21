@@ -124,6 +124,7 @@ public class Messages extends NLS {
 	public static String UnsupportedPasswordStoresDialog_1;
 	public static String UnsupportedPasswordStoresDialog_2;
 	public static String UnsupportedPasswordStoresDialog_3;
+	public static String UnsupportedPasswordStoresDialog_4;
 	public static String UnsupportedPasswordStoresDialog_5;
 	public static String UnsupportedPasswordStoresDialog_6;
 	public static String UnsupportedPasswordStoresDialog_7;
