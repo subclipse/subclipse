@@ -47,6 +47,10 @@ public class CommitOperation extends SVNOperation {
     private boolean atomicCommit = true;
     private boolean canRunAsJob = true;
     private String postCommitError;
+    
+    private static final String DELETED_FOLDERS = "deletedFolders";
+    private static final String NOT_DELETED_FOLDERS = "notDeletedFolders";
+    private static final String PROPERTY_CHANGE_FOLDERS = "propChangeFolders";
 
     public CommitOperation(IWorkbenchPart part, IResource[] selectedResources, IResource[] resourcesToAdd, IResource[] resourcesToDelete, IResource[] resourcesToCommit, String commitComment, boolean keepLocks) {
         super(part);
@@ -109,7 +113,23 @@ public class CommitOperation extends SVNOperation {
 				List<IResource> list = table.get(mapKey);
 				IResource[] providerResources = new IResource[list.size()];
 				list.toArray(providerResources);
-				postCommitError = provider.checkin(providerResources, commitComment, keepLocks, getDepth(providerResources), Policy.subMonitorFor(monitor, providerResources.length));
+				Map<String, IResource[]> commitResourcesMap = getCommitResourcesMap(providerResources);
+				int depth;
+				if (commitResourcesMap.get(PROPERTY_CHANGE_FOLDERS).length > 0) {
+					depth = IResource.DEPTH_ZERO;
+				}
+				else {
+					depth = IResource.DEPTH_INFINITE;
+				}
+				if (commitResourcesMap.get(DELETED_FOLDERS).length > 0 && commitResourcesMap.get(PROPERTY_CHANGE_FOLDERS).length > 0) {
+					postCommitError = provider.checkin(commitResourcesMap.get(NOT_DELETED_FOLDERS), commitComment, keepLocks, depth, Policy.subMonitorFor(monitor, commitResourcesMap.get(NOT_DELETED_FOLDERS).length));
+					if (postCommitError == null) {
+						postCommitError = provider.checkin(commitResourcesMap.get(DELETED_FOLDERS), commitComment, keepLocks, IResource.DEPTH_INFINITE, Policy.subMonitorFor(monitor, commitResourcesMap.get(DELETED_FOLDERS).length));
+					}
+				}
+				else {
+					postCommitError = provider.checkin(providerResources, commitComment, keepLocks, depth, Policy.subMonitorFor(monitor, providerResources.length));
+				}
 				for (IResource providerResource : providerResources) {
 					if (!providerResource.exists()) {
 						SVNProviderPlugin.getPlugin().getStatusCacheManager().removeStatus(providerResource);
@@ -135,30 +155,69 @@ public class CommitOperation extends SVNOperation {
     }
    
 
-	/**
-	 * This method figures out of if we should commit with DEPTH_ZERO or DEPTH_INFINITE
-	 * If there are any modified folders (which could only be a prop change) in the list of committed items,
-	 * then it should return DEPTH_ZERO, otherwise it should return DEPTH_INFINITE.
-	 * @param resources an array of resources to check
-	 * @return IResource.DEPTH_ZERO or IResource.DEPTH_INFINITE  
-	 */
-	private int getDepth(IResource[] resources) {
-	    int depth = IResource.DEPTH_INFINITE;
-		for (int i = 0; i < resources.length; i++) {
-			if (resources[i].getType() != IResource.FILE) {
-				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
+//	/**
+//	 * This method figures out of if we should commit with DEPTH_ZERO or DEPTH_INFINITE
+//	 * If there are any modified folders (which could only be a prop change) in the list of committed items,
+//	 * then it should return DEPTH_ZERO, otherwise it should return DEPTH_INFINITE.
+//	 * @param resources an array of resources to check
+//	 * @return IResource.DEPTH_ZERO or IResource.DEPTH_INFINITE  
+//	 */
+//	private int getDepth(IResource[] resources) {
+//	    int depth = IResource.DEPTH_INFINITE;
+//		for (int i = 0; i < resources.length; i++) {
+//			if (resources[i].getType() != IResource.FILE) {
+//				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resources[i]);
+//				try {
+//				    // If there is a folder delete, then we cannot do a
+//				    // non-recursive commit
+//					if (svnResource.getStatus().isDeleted())
+//						return IResource.DEPTH_INFINITE;
+//					if (svnResource.getStatus().isPropModified())
+//						depth = IResource.DEPTH_ZERO;
+//				} catch (SVNException e) {
+//				}
+//			}
+//		}
+//		return depth;
+//	}
+	
+	private Map<String, IResource[]> getCommitResourcesMap(IResource[] resources) {
+		Map<String, IResource[]> commitResourcesMap = new HashMap<String, IResource[]>();
+		List<IResource> deletedFoldersList = new ArrayList<IResource>();
+		List<IResource> propertyChangeFoldersList = new ArrayList<IResource>();
+		List<IResource> notDeletedFoldersList = new ArrayList<IResource>();
+		for (IResource resource : resources) {
+			if (resource.getType() == IResource.FILE) {
+				notDeletedFoldersList.add(resource);
+			}
+			else {
+				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
 				try {
-				    // If there is a folder delete, then we cannot do a
-				    // non-recursive commit
-					if (svnResource.getStatus().isDeleted())
-						return IResource.DEPTH_INFINITE;
-					if (svnResource.getStatus().isPropModified())
-						depth = IResource.DEPTH_ZERO;
-				} catch (SVNException e) {
+					if (svnResource.getStatus().isDeleted()) {
+						deletedFoldersList.add(resource);
+					}
+					else {
+						if (svnResource.getStatus().isPropModified()) {
+							propertyChangeFoldersList.add(resource);
+						}
+						notDeletedFoldersList.add(resource);
+					}
+				}
+				catch (Exception e) {
+					notDeletedFoldersList.add(resource);
 				}
 			}
 		}
-		return depth;
+		IResource[] deletedFolderArray = new IResource[deletedFoldersList.size()];
+		deletedFoldersList.toArray(deletedFolderArray);
+		commitResourcesMap.put(DELETED_FOLDERS, deletedFolderArray);
+		IResource[] notDeletedFolderArray = new IResource[notDeletedFoldersList.size()];
+		notDeletedFoldersList.toArray(notDeletedFolderArray);
+		commitResourcesMap.put(NOT_DELETED_FOLDERS, notDeletedFolderArray);
+		IResource[] propChangeFolderArray = new IResource[propertyChangeFoldersList.size()];
+		propertyChangeFoldersList.toArray(propChangeFolderArray);
+		commitResourcesMap.put(PROPERTY_CHANGE_FOLDERS, propChangeFolderArray);
+		return commitResourcesMap;
 	}
 
 	protected String getTaskName() {
