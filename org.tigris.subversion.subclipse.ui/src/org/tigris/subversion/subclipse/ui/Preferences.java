@@ -61,8 +61,11 @@ private IPreferenceStore store;
     	if (SVNUIPlugin.getPlugin().passwordStoresConfiguredOnLinux() && !SVNUIPlugin.getPlugin().getDialogSettings().getBoolean(UnsupportedPasswordStoresDialog.SETTING_DO_NOT_SHOW_AGAIN)) {
     		if (!SVNUIPlugin.TEST_MODE) {
     			ISVNClientWrapper clientWrapper = Activator.getDefault().getClientWrapper("javahl");
-    			String version = clientWrapper.getVersionString();
-    			boolean bugFixed = clientWrapper != null && new SvnVersion(version).isNewerThanOrEqualTo(SvnVersion.VERSION_1_8_11);
+    			String version = null;
+    			if (clientWrapper != null) {
+    				version = clientWrapper.getVersionString();
+    			}
+    			boolean bugFixed = version != null && new SvnVersion(version).isNewerThanOrEqualTo(SvnVersion.VERSION_1_8_11);
     			if (!bugFixed) {
 		    		Display.getDefault().syncExec(new Runnable() {
 						public void run() {
