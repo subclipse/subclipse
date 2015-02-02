@@ -31,61 +31,69 @@ public class RepositorySorter extends ViewerSorter {
 
 		public int compare(Object o1, Object o2) {
 			String s1 = (String) o1;
-			Matcher m1 = VERSION_PATTERN.matcher(s1);
 			String s2 = (String) o2;
-			Matcher m2 = VERSION_PATTERN.matcher(s2);
-			int beginningS1 = 0;
-			int beginningS2 = 0;
-			while(m1.find() && m2.find())
-			{
-				//preVersion* is anything found before the version for this iteration
-				String preVersion1 =  s1.substring(beginningS1, m1.start());
-				String preVersion2 =  s2.substring(beginningS2, m2.start());
-				if(preVersion1.compareTo(preVersion2) != 0)
+			try {
+				Matcher m1 = VERSION_PATTERN.matcher(s1);
+				Matcher m2 = VERSION_PATTERN.matcher(s2);
+				int beginningS1 = 0;
+				int beginningS2 = 0;
+				while(m1.find() && m2.find())
 				{
-					//if a non-version portion of the string is different, perform normal string comparison.
-					break;
-				}
-				else
-				{
-					//compare version strings
-					String version1 = s1.substring(m1.start(), m1.end());
-					String version2 = s2.substring(m2.start(), m2.end());
-					String[] versionsMax = VERSION_SEPARATOR_PATTERN.split(version1);
-					String[] versionsMin = VERSION_SEPARATOR_PATTERN.split(version2);
-					int inverter = 1;
-					//invert if max an min are flipped.
-					if(Math.max(versionsMax.length, versionsMin.length) != versionsMax.length)
+					//preVersion* is anything found before the version for this iteration
+					String preVersion1 =  s1.substring(beginningS1, m1.start());
+					String preVersion2 =  s2.substring(beginningS2, m2.start());
+					if(preVersion1.compareTo(preVersion2) != 0)
 					{
-						String[] temp;
-						temp = versionsMax;
-						versionsMax = versionsMin;
-						versionsMin = temp;
-						inverter = -1;
+						//if a non-version portion of the string is different, perform normal string comparison.
+						break;
 					}
-					for(int i = 0; i < versionsMax.length; i++)
+					else
 					{
-						if(versionsMin.length == i)
+						//compare version strings
+						String version1 = s1.substring(m1.start(), m1.end());
+						String version2 = s2.substring(m2.start(), m2.end());
+						String[] versionsMax = VERSION_SEPARATOR_PATTERN.split(version1);
+						String[] versionsMin = VERSION_SEPARATOR_PATTERN.split(version2);
+						int inverter = 1;
+						//invert if max an min are flipped.
+						if(Math.max(versionsMax.length, versionsMin.length) != versionsMax.length)
 						{
-							//smaller version string means it's a smaller version
-							return 1 * inverter; 
+							String[] temp;
+							temp = versionsMax;
+							versionsMax = versionsMin;
+							versionsMin = temp;
+							inverter = -1;
 						}
-						Integer digit1 = Integer.parseInt(versionsMax[i]);
-						Integer digit2 = Integer.parseInt(versionsMin[i]);
-						if(digit1.compareTo(digit2) != 0)
+						for(int i = 0; i < versionsMax.length; i++)
 						{
-							return digit1.compareTo(digit2) * inverter;
+							if(versionsMin.length == i)
+							{
+								//smaller version string means it's a smaller version
+								return 1 * inverter; 
+							}
+							
+							if (versionsMax[i].length() > 5 || versionsMin[i].length() > 5) {
+								return s1.compareTo(s2);
+							}
+							
+							Integer digit1 = Integer.parseInt(versionsMax[i]);
+							Integer digit2 = Integer.parseInt(versionsMin[i]);
+							if(digit1.compareTo(digit2) != 0)
+							{
+								return digit1.compareTo(digit2) * inverter;
+							}
+							//else move to the next version digit
 						}
-						//else move to the next version digit
+						// set beginning of string to end of current version, in case we have multiple versions or 
+						// digits in string.
+						beginningS1 = m1.end();
+						beginningS2 = m2.end();
 					}
-					// set beginning of string to end of current version, in case we have multiple versions or 
-					// digits in string.
-					beginningS1 = m1.end();
-					beginningS2 = m2.end();
 				}
+			} catch (Exception e) { 
+				// Ignore.  Don't crash over an unexpected sorting error.
 			}
 			return s1.compareTo(s2);
-			
 		}
 		
 	};
