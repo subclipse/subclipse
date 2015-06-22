@@ -16,8 +16,10 @@ import java.util.Set;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
+import org.tigris.subversion.subclipse.core.ISVNRunnable;
 import org.tigris.subversion.subclipse.core.Policy;
 import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.client.OperationManager;
 import org.tigris.subversion.subclipse.core.client.OperationProgressNotifyListener;
 import org.tigris.subversion.subclipse.core.client.OperationResourceCollector;
@@ -62,39 +64,44 @@ public class SwitchToUrlCommand implements ISVNCommand {
 	/* (non-Javadoc)
 	 * @see org.tigris.subversion.subclipse.core.commands.ISVNCommand#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void run(IProgressMonitor monitor) throws SVNException {    
-		final IProgressMonitor subPm = Policy.infiniteSubMonitorFor(monitor, 100);
-		ISVNClientAdapter svnClient = null;
-        try {
-    		subPm.beginTask(null, Policy.INFINITE_PM_GUESS_FOR_SWITCH);
-            svnClient = root.getRepository().getSVNClient();
-    		if (conflictResolver != null) {
-    			svnClient.addConflictResolutionCallback(conflictResolver);
+	public void run(final IProgressMonitor monitor) throws SVNException {    
+		final ISVNClientAdapter svnClient = root.getRepository().getSVNClient();
+		OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(monitor, svnClient));
+		try {
+			SVNProviderPlugin.run(new ISVNRunnable() {
+				public void run(IProgressMonitor monitor) throws SVNException {
+	        try {
+	      		monitor.beginTask(null, Policy.INFINITE_PM_GUESS_FOR_SWITCH);
+	      		if (conflictResolver != null) {
+	      			svnClient.addConflictResolutionCallback(conflictResolver);
+	      		}
+	              svnClient.addNotifyListener(operationResourceCollector);
+	              File file = resource.getLocation().toFile();
+	              svnClient.switchToUrl(file, svnUrl, svnRevision, svnRevision, depth, setDepth, ignoreExternals, force, ignoreAncestry);
+	              OperationManager.getInstance().onNotify(resource.getLocation().toFile(), SVNNodeKind.UNKNOWN);
+	          } catch (SVNClientException e) {
+	              throw SVNException.wrapException(e);
+	          } finally {
+	            if (svnClient != null) {
+		  	    		if (conflictResolver != null) {
+		  	    			svnClient.addConflictResolutionCallback(null);
+		  	    		}
+		  	    		root.getRepository().returnSVNClient(svnClient);
+	            }
+	            monitor.done();
+	          }
+				}
+			}, resource.getProject(), Policy.monitorFor(monitor));
+		} finally {
+    	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
+    	if (operationResources.size() == 0) {
+    		IResource[] resources = SVNWorkspaceRoot.getResourcesFor(resource);
+    		for (IResource refreshResource : resources) {
+    			operationResources.add(refreshResource);
     		}
-            svnClient.addNotifyListener(operationResourceCollector);
-            OperationManager.getInstance().beginOperation(svnClient, new OperationProgressNotifyListener(subPm, svnClient));
-            File file = resource.getLocation().toFile();
-            svnClient.switchToUrl(file, svnUrl, svnRevision, svnRevision, depth, setDepth, ignoreExternals, force, ignoreAncestry);
-            OperationManager.getInstance().onNotify(resource.getLocation().toFile(), SVNNodeKind.UNKNOWN);
-        } catch (SVNClientException e) {
-            throw SVNException.wrapException(e);
-        } finally {
-        	Set<IResource> operationResources = operationResourceCollector.getOperationResources();
-        	if (operationResources.size() == 0) {
-        		IResource[] resources = SVNWorkspaceRoot.getResourcesFor(resource);
-        		for (IResource refreshResource : resources) {
-        			operationResources.add(refreshResource);
-        		}
-        	}
-            OperationManager.getInstance().endOperation(true, operationResources);
-            if (svnClient != null) {
-	    		if (conflictResolver != null) {
-	    			svnClient.addConflictResolutionCallback(null);
-	    		}
-	    		root.getRepository().returnSVNClient(svnClient);
-            }
-            subPm.done();
-        }
+    	}
+      OperationManager.getInstance().endOperation(true, operationResources);
+		}
 	}
 	
 	public void setConflictResolver(ISVNConflictResolver conflictResolver) {
