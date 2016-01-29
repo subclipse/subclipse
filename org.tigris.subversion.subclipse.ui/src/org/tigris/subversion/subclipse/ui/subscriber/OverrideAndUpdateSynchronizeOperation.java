@@ -34,6 +34,7 @@ import org.tigris.subversion.subclipse.core.util.Assert;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.conflicts.SVNConflictResolver;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
+import org.tigris.subversion.svnclientadapter.utils.Depth;
 
 public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	private IResource[] modifiedResources;
@@ -87,6 +88,7 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 			IResource[] incomingResources = getIncoming(resourceArray);
 		    SVNWorkspaceSubscriber.getInstance().updateRemote(incomingResources);
 	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),incomingResources, revision);
+	    	command.setDepth(Depth.empty);
 	    	command.setConflictResolver(new SVNConflictResolver());
 	    	command.run(Policy.subMonitorFor(monitor,100));
 		} catch (SVNException e) {
