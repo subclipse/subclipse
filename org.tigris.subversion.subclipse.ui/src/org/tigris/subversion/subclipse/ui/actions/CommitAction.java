@@ -105,7 +105,7 @@ public class CommitAction extends WorkbenchWindowAction {
         			public void run(IProgressMonitor monitor) throws InvocationTargetException {
         				try {	
         				    // search for modified or added, non-ignored resources in the selection.
-        				    IResource[] modified = getModifiedResources(resources, monitor);
+        				    IResource[] modified = getChangeSetResources(getModifiedResources(resources, monitor));
         					
         				    // if no changes since last commit, do not show commit dialog.
         				    if (modified.length == 0) {
@@ -485,6 +485,22 @@ public class CommitAction extends WorkbenchWindowAction {
     		}
     	}
     	return comment.toString();
+    }
+
+    private IResource[] getChangeSetResources(IResource[] allResources) {
+    	ActiveChangeSet changeSet = SVNProviderPlugin.getPlugin().getChangeSetManager().getDefaultSet();
+    	if (changeSet != null && !("<No Active Task>".equals(changeSet.getName()))) {
+    		List<IResource> changeSetResourceList = new ArrayList<IResource>();
+    		for (IResource resource : allResources) {
+    			if (changeSet.contains(resource)) {
+    				changeSetResourceList.add(resource);
+    			}
+    		}
+    		IResource[] changeSetResources = new IResource[changeSetResourceList.size()];
+    		changeSetResourceList.toArray(changeSetResources);
+    		return changeSetResources;
+    	}
+    	return allResources;
     }
 
     private boolean isUserSet(ChangeSet set) {
