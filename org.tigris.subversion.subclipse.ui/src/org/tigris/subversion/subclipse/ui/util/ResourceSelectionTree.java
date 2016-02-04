@@ -863,7 +863,16 @@ public class ResourceSelectionTree extends Composite {
 		List<String> locations = new ArrayList<String>();
 		List<IResource> uniqueResources = new ArrayList<IResource>();
 		for (IResource resource : resources) {
-			if (resource.getParent() == null || resource.getParent().exists()) {
+			boolean parentDeleted = false;
+			if (resource.getParent() != null && !resource.getParent().exists()) {
+				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource.getParent());
+				try {
+					if (svnResource != null && svnResource.getStatus().isDeleted()) {
+						parentDeleted = true;
+					}
+				} catch (SVNException e) {}
+			}
+			if (parentDeleted || resource.getParent() == null || resource.getParent().exists()) {
 				if (resource.getLocation() == null || !locations.contains(resource.getLocation().toString())) {
 					uniqueResources.add(resource);
 					locations.add(resource.getLocation().toString());
