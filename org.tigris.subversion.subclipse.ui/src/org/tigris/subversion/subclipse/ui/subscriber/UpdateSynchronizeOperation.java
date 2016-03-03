@@ -85,13 +85,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 			resourceArray = new IResource[resourceList.size()];
 			resourceList.toArray(resourceArray);
 			SVNRevision revision = getRevisionForUpdate(resourceArray, set);
-			IResource[] trimmedResources = trimResources(resourceArray);
-			doUpdate(provider, monitor, trimmedResources, revision);
-			if (SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_SHOW_OUT_OF_DATE_FOLDERS) && trimmedResources.length != resourceArray.length) {
-				try {
-					SVNWorkspaceSubscriber.getInstance().refresh(resourceArray, IResource.DEPTH_INFINITE, monitor);
-				} catch (TeamException e) {}
-			}
+			doUpdate(provider, monitor, resourceArray, revision);
 		}
 	}
 
@@ -101,6 +95,7 @@ public class UpdateSynchronizeOperation extends SVNSynchronizeOperation {
 			SVNWorkspaceSubscriber.getInstance().updateRemote(resourceArray);
 	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),resourceArray, revision);
 	    	command.setDepth(Depth.empty);
+	    	command.setSetDepth(false);
 	    	command.setConflictResolver(new SVNConflictResolver());
 	        command.run(Policy.subMonitorFor(monitor,100));		
 		} catch (SVNException e) {

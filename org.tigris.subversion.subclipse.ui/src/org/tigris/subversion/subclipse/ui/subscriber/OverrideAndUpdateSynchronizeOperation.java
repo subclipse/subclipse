@@ -89,6 +89,7 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 		    SVNWorkspaceSubscriber.getInstance().updateRemote(incomingResources);
 	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),incomingResources, revision);
 	    	command.setDepth(Depth.empty);
+	    	command.setSetDepth(false);
 	    	command.setConflictResolver(new SVNConflictResolver());
 	    	command.run(Policy.subMonitorFor(monitor,100));
 		} catch (SVNException e) {
