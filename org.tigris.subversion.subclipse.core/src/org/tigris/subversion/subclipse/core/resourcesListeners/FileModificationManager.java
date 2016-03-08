@@ -11,6 +11,8 @@
 package org.tigris.subversion.subclipse.core.resourcesListeners;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -182,17 +184,18 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 				projects.toArray(projectArray);
 				JobUtility.scheduleJob("Refresh SVN status cache", new Runnable() {				
 					public void run() {
-			            // we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightweightDecorator)
+						// we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightweightDecorator)
 						if (!modifiedResources.isEmpty()) {
-			                IResource[] resources = (IResource[])modifiedResources.toArray(new IResource[modifiedResources.size()]);
+						  IResource[] resources = (IResource[])modifiedResources.toArray(new IResource[modifiedResources.size()]);
 							refreshStatus(resources);
-			                SVNProviderPlugin.broadcastModificationStateChanges(resources);
+							SVNProviderPlugin.broadcastModificationStateChanges(resources);
 						}
 						if (!modifiedInfiniteDepthResources.isEmpty()) {
-			                IResource[] resources = (IResource[])modifiedInfiniteDepthResources.toArray(new IResource[modifiedInfiniteDepthResources.size()]);
-			                refreshStatusInfitite(resources);
-			                SVNProviderPlugin.broadcastModificationStateChanges(resources);
-						}						
+							refreshStatusInfinite(modifiedInfiniteDepthResources);
+							IResource[] resources = (IResource[]) modifiedInfiniteDepthResources
+									.toArray(new IResource[modifiedInfiniteDepthResources.size()]);
+							SVNProviderPlugin.broadcastModificationStateChanges(resources);
+						}
 					}
 				}, new RefreshStatusCacheSchedulingRule(MultiRule.combine(projectArray)), false);
 			}
@@ -203,18 +206,24 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 
 	/**
 	 * Refresh (reset/reload) the status of all the given resources.
-	 * @param resources Array of IResources to refresh
-     */
-    private void refreshStatusInfitite(IResource[] resources) 
-    {
-    	for (int i = 0; i < resources.length; i++) {
-    		try {  			
-                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)resources[i], true);              
-    		} catch (SVNException e) {
-    			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
-    		}			
+	 * 
+	 * @param resources
+	 *          List of IResource to refresh
+	 */
+	private void refreshStatusInfinite(Collection<? extends IResource> resources) {
+		Set<IResource> alreadyRefreshedResources = new HashSet<IResource>();
+		for (IResource resource : resources) {
+			if (!alreadyRefreshedResources.contains(resource)) {
+				try {
+					IResource[] refreshedResources = SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource,
+							true);
+					alreadyRefreshedResources.addAll(Arrays.asList(refreshedResources));
+				} catch (SVNException e) {
+					SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
+				}
+			}
 		}
-    }
+	}
 
 	/**
 	 * Refresh (reset/reload) the status of all the given resources.
@@ -245,15 +254,8 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 	            }
         	}
         }
-        for (IResource folder : foldersToRefresh) {
-    		try {
-                SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus((IContainer)folder, true);               
-    		} catch (SVNException e) {
-    			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
-    		}
-        }
+        refreshStatusInfinite(foldersToRefresh);
     }
-    
     
 	/**
 	 * We register a save participant so we can get the delta from workbench
