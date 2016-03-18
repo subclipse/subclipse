@@ -20,6 +20,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.synchronize.FastSyncInfoFilter;
 import org.eclipse.team.core.synchronize.SyncInfo;
+import org.eclipse.team.internal.ui.synchronize.ChangeSetDiffNode;
 import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.team.ui.synchronize.ISynchronizePageConfiguration;
 import org.eclipse.team.ui.synchronize.SynchronizeModelAction;
@@ -55,7 +56,11 @@ public class UpdateSynchronizeAction extends SynchronizeModelAction {
 		}
 		IResource[] resources = new IResource[selectedResources.size()];
 		selectedResources.toArray(resources);
-		UpdateSynchronizeOperation operation = new UpdateSynchronizeOperation(configuration, elements, resources);
+		IStructuredSelection selection = getStructuredSelection();
+		Object firstElement = selection.getFirstElement();
+		boolean changeSetSelected = firstElement instanceof ChangeSetDiffNode;
+		UpdateSynchronizeOperation operation = new UpdateSynchronizeOperation(configuration, elements, resources,
+				changeSetSelected);
 		operation.setConfirmNeeded(confirm);
 		return operation;
 	}

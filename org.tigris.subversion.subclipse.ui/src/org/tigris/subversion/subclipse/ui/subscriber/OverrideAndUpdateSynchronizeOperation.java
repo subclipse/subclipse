@@ -39,6 +39,7 @@ import org.tigris.subversion.svnclientadapter.utils.Depth;
 public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperation {
 	private IResource[] modifiedResources;
 	private IResource[] resources;
+	private boolean changeSetSelected;
 	private boolean revertAndUpdate = true;
 	private boolean prompted;
 	private List<IStatus> errors = new ArrayList<IStatus>(); // of IStatus
@@ -46,10 +47,12 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 	public final static int PROGRESS_DIALOG = 1;
 	public final static int PROGRESS_BUSYCURSOR = 2;
 
-	public OverrideAndUpdateSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements, IResource[] modifiedResources, IResource[] resources) {
+	public OverrideAndUpdateSynchronizeOperation(ISynchronizePageConfiguration configuration, IDiffElement[] elements,
+			IResource[] modifiedResources, IResource[] resources, boolean changeSetSelected) {
 		super(configuration, elements);
 		this.modifiedResources = modifiedResources;
 		this.resources = resources;
+		this.changeSetSelected = changeSetSelected;
 	}
 
 	protected boolean promptForConflictHandling(Shell shell, SyncInfoSet syncSet) {
@@ -86,12 +89,35 @@ public class OverrideAndUpdateSynchronizeOperation extends SVNSynchronizeOperati
 		monitor.beginTask(null, 100);
 		try {	
 			IResource[] incomingResources = getIncoming(resourceArray);
-		    SVNWorkspaceSubscriber.getInstance().updateRemote(incomingResources);
-	    	UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),incomingResources, revision);
-	    	command.setDepth(Depth.empty);
-	    	command.setSetDepth(false);
-	    	command.setConflictResolver(new SVNConflictResolver());
-	    	command.run(Policy.subMonitorFor(monitor,100));
+			SVNWorkspaceSubscriber.getInstance().updateRemote(incomingResources);
+			if (changeSetSelected) {
+				List<IResource> existingResources = new ArrayList<IResource>();
+				for (IResource resource : incomingResources) {
+					if (resource.exists()) {
+						existingResources.add(resource);
+					} else {
+						UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),
+								new IResource[] { resource }, revision);
+						command.setConflictResolver(new SVNConflictResolver());
+						command.run(Policy.subMonitorFor(monitor, 100));
+					}
+				}
+				if (!existingResources.isEmpty()) {
+					IResource[] existingResourceArray = new IResource[existingResources.size()];
+					existingResources.toArray(existingResourceArray);
+					UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(),
+							existingResourceArray, revision);
+					command.setDepth(Depth.empty);
+					command.setSetDepth(false);
+					command.setConflictResolver(new SVNConflictResolver());
+					command.run(Policy.subMonitorFor(monitor, 100));
+				}
+			} else {
+				UpdateResourcesCommand command = new UpdateResourcesCommand(provider.getSVNWorkspaceRoot(), incomingResources,
+						revision);
+				command.setConflictResolver(new SVNConflictResolver());
+				command.run(Policy.subMonitorFor(monitor, 100));
+			}
 		} catch (SVNException e) {
 		    collectStatus(e.getStatus());
 		} catch (TeamException e) {
