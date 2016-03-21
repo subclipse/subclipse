@@ -867,7 +867,7 @@ public class ResourceSelectionTree extends Composite {
 			if (resource.getParent() != null && !resource.getParent().exists()) {
 				ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource.getParent());
 				try {
-					if (svnResource != null && svnResource.getStatus().isDeleted()) {
+					if (svnResource != null && (svnResource.getStatus().isDeleted() || svnResource.getStatus().isMissing())) {
 						parentDeleted = true;
 					}
 				} catch (SVNException e) {}

@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PlatformUI;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
@@ -112,7 +111,7 @@ public class SvnWizardRevertPage extends SvnWizardDialogPage {
 			resourceRemoved = true;
 		}
 		resourceSelectionTree = new ResourceSelectionTree(composite, SWT.NONE,
-        Policy.bind("GenerateSVNDiff.Changes"), ResourceSelectionTree.dedupeResources(dedupedResourcesToRevert), statusMap, null, true, toolbarControlCreator, null); //$NON-NLS-1$
+        Policy.bind("GenerateSVNDiff.Changes"), dedupedResourcesToRevert, statusMap, null, true, toolbarControlCreator, null); //$NON-NLS-1$
     	if (!resourceSelectionTree.showIncludeUnversionedButton()) includeUnversionedButton.setVisible(false);    
 		
 		// resourceSelectionTree.getTreeViewer().setAllChecked(true);
