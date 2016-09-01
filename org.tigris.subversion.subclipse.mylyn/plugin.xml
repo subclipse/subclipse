@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+  <extension point="org.eclipse.mylyn.team.ui.changeSets">
+    <activeChangeSetProvider
+        class="org.tigris.subversion.subclipse.mylyn.SubclipseTeamChangeSetProvider"/>
+  </extension>
+
+  <extension point="org.eclipse.core.runtime.adapters">
+    <factory adaptableType="org.tigris.subversion.subclipse.core.history.LogEntry"
+             class="org.tigris.subversion.subclipse.mylyn.SubclipseLinkedTaskInfoAdapterFactory">
+      <adapter type="org.eclipse.mylyn.team.ui.AbstractTaskReference"/>
+    </factory>
+    <factory adaptableType="org.tigris.subversion.subclipse.ui.subscriber.SVNChangeSetCollector$SVNCheckedInChangeSet"
+             class="org.tigris.subversion.subclipse.mylyn.SubclipseLinkedTaskInfoAdapterFactory">
+      <adapter type="org.eclipse.mylyn.team.ui.AbstractTaskReference"/>
+    </factory>
+  </extension>
+
+  <extension point="org.eclipse.mylyn.tasks.ui.projectLinkProviders">
+    <linkProvider
+        class="org.tigris.subversion.subclipse.mylyn.SubclipseTaskRepositoryLinkProvider"
+        id="org.tigris.subversion.subclipse.mylar.taskRepositoryLinkProvider"
+        name="Subclipse Link Provider"
+        order="100">
+    </linkProvider>
+  </extension>
+  
+  <extension
+        point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.tigris.subversion.subclipse.ui.svnPerspective">
+       <view
+              id="org.eclipse.mylyn.tasks.ui.views.repositories"
+              ratio="0.7"
+              relationship="bottom"
+              relative="org.tigris.subversion.subclipse.ui.repository.RepositoriesView"
+              visible="true"/>
+       <viewShortcut id="org.eclipse.mylyn.tasks.ui.views.repositories"/>
+    </perspectiveExtension>
+  </extension>
+
+</plugin>
