@@ -8,4 +8,4 @@ Best attempt possible was made to prune out the history though branches and tags
 make it and features like svn:externals do not translate to Git.
 
 # License
-The source code for this project is licensed under Apache 2.0 license.
+The source code for this project is licensed under Eclipse 1.0 license.
