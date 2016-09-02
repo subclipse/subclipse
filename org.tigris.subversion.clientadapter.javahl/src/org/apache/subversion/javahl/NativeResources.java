@@ -24,6 +24,7 @@
 package org.apache.subversion.javahl;
 
 import org.apache.subversion.javahl.types.Version;
+import org.apache.subversion.javahl.types.RuntimeVersion;
 
 /**
  * Handles activities related to management of native resouces
@@ -35,18 +36,29 @@ import org.apache.subversion.javahl.types.Version;
 public class NativeResources
 {
     /**
-     * @return Version information about the underlying native libraries.
+     * Version information about the underlying native libraries.
      */
     private static Version version;
 
     /**
-     * Returns version information about the underlying native libraries.
-     *
-     * @return version
-     *
+     * Runtime version information about the loaded libsvn_client.
      */
-    public static Version getVersion() {
+    private static RuntimeVersion runtimeVersion;
+
+    /**
+     * @return Version information about the underlying native libraries.
+     */
+    public static Version getVersion()
+    {
         return version;
+    }
+
+    /**
+     * @return Runtime version information about the loaded libsvn_client.
+     */
+    public static RuntimeVersion getRuntimeVersion()
+    {
+        return runtimeVersion;
     }
 
     /**
@@ -131,15 +143,27 @@ public class NativeResources
     {
         initNativeLibrary();
         version = new Version();
-        if (!version.isAtLeast(1, 8, 0))
+        if (!version.isAtLeast(1, 9, 0))
         {
             throw new LinkageError("Native library version must be at least " +
-                                   "1.8.0, but is only " + version);
+                                   "1.9.0, but is only " + version);
+        }
+
+        runtimeVersion = new RuntimeVersion();
+        if (runtimeVersion.getMajor() < version.getMajor()
+            || (runtimeVersion.getMajor() == version.getMajor()
+                && runtimeVersion.getMinor() < version.getMinor()))
+        {
+            throw new LinkageError(
+                "Compile-time Native library version is " + version +
+                " but the run-time version is " + runtimeVersion);
         }
     }
 
     /**
      * Initialize the native library layer.
+     * @note This is a no-op in 1.9+, but we need it for ABI
+     *       compatibility with older versions of the native library.
      */
     private static native void initNativeLibrary();
 }

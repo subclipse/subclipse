@@ -182,15 +182,15 @@ public class JhlClientAdapterFactory extends SVNClientAdapterFactory {
     			try {
 	                ISVNClient svnClient = new SVNClient();
     				Version version = svnClient.getVersion();
-    				if (version.getMajor() == 1 && version.getMinor() == 8)
+    				if (version.getMajor() == 1 && version.getMinor() == 9)
     					available = true;
     				else {
     					available = false;
-    					javaHLErrors = new StringBuffer("Incompatible JavaHL library loaded.  Subversion 1.8.x required.");
+    					javaHLErrors = new StringBuffer("Incompatible JavaHL library loaded.  Subversion 1.9.x required.");
     				}
     			} catch (UnsatisfiedLinkError e) {
     				available = false;
-    				javaHLErrors = new StringBuffer("Incompatible JavaHL library loaded.  1.8.x or later required.");
+    				javaHLErrors = new StringBuffer("Incompatible JavaHL library loaded.  1.9.x or later required.");
     			}
     		}
     	}
