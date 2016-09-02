@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.tigris.subversion.clientadapter.svnkit.feature</name>
+	<name>feature.svnkit</name>
 	<comment></comment>
 	<projects>
 	</projects>

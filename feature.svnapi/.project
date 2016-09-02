@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.tigris.subversion.clientadapter.feature</name>
+	<name>feature.svnapi</name>
 	<comment></comment>
 	<projects>
 	</projects>
