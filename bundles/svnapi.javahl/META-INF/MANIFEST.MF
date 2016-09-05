@@ -12,4 +12,7 @@ Export-Package: org.apache.subversion.javahl,
  org.apache.subversion.javahl.callback,
  org.tigris.subversion.clientadapter.javahl,
  org.tigris.subversion.svnclientadapter.javahl
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: .,
+ lib/adapter-javahl-1.9.4.jar,
+ lib/javahl-1.9.4.jar
