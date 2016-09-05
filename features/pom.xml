@@ -15,5 +15,6 @@
         <module>feature.svnapi</module>
         <module>feature.subclipse</module>
         <module>feature.graph</module>
+        <module>feature.mylyn</module>
     </modules>
 </project>

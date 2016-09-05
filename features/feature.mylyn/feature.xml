@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.tigris.subversion.subclipse.mylyn"
+      id="org.tigris.subversion.subclipse.mylyn.feature"
       label="Subclipse Integration for Mylyn 3.x (Optional)"
       version="3.0.0"
       provider-name="tigris.org"
