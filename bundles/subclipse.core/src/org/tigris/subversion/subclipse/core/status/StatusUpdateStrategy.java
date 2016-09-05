@@ -11,7 +11,6 @@
 package org.tigris.subversion.subclipse.core.status;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

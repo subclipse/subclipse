@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.tigris.subversion.subclipse.ui;
 
-import org.eclipse.core.runtime.IStatus;
-
 //import java.io.File;
 //import java.io.IOException;
 //
