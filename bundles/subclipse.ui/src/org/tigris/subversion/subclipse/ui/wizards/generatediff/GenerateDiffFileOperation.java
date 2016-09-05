@@ -191,6 +191,7 @@ public class GenerateDiffFileOperation implements IRunnableWithProgress {
                 while ((length = is.read(buffer)) != -1) {
                     os.write(buffer,0,length);                    
                 }
+				is.close();
 			} finally {
 				os.close();
 			}
