@@ -101,14 +101,10 @@ public class SVNCompareRevisionsInput extends CompareEditorInput implements ISav
 				public void run(IProgressMonitor monitor) throws InvocationTargetException  {
 					try {
 						IFile file = resource;
-						if (is != null) {
-							if (!file.exists()) {
-								file.create(is, false, monitor);
-							} else {
-								file.setContents(is, false, true, monitor);
-							}
+						if (!file.exists()) {
+							file.create(is, false, monitor);
 						} else {
-							file.delete(false, true, monitor);
+							file.setContents(is, false, true, monitor);
 						}
 					} catch (CoreException e) {
 						throw new InvocationTargetException(e);

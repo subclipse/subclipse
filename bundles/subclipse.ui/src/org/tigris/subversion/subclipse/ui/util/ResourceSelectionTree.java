@@ -536,7 +536,6 @@ public class ResourceSelectionTree extends Composite {
 			return;
 		}
 		CheckboxTreeViewer checkboxTreeViewer = (CheckboxTreeViewer)treeViewer;
-		if (child == null) return;
 		Object parent = resourceSelectionContentProvider.getParent(child);
 		if (parent == null) return;
 		boolean allSameState = true;
