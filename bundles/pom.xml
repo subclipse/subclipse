@@ -21,6 +21,5 @@
         <module>subclipse.doc</module>
         <module>subclipse.graph</module>
         <module>subclipse.mylyn</module>
-        <module>subclipse.usage</module>
     </modules>
 </project>
