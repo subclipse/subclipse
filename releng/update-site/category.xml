@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="/features/org.tigris.subversion.clientadapter.feature-1.10.3.jar" id="org.tigris.subversion.clientadapter.feature" version="1.10.3">
+   <feature url="features/org.tigris.subversion.subclipse_4.0.0.qualifier.jar" id="org.tigris.subversion.subclipse" version="4.0.0.qualifier">
       <category name="Subclipse"/>
    </feature>
-   <feature url="/features/org.tigris.subversion.subclipse-1.10.3.jar" id="org.tigris.subversion.subclipse" version="1.10.3">
+   <feature url="features/org.tigris.subversion.clientadapter.feature_4.0.0.qualifier.jar" id="org.tigris.subversion.clientadapter.feature" version="4.0.0.qualifier">
+      <category name="Subclipse"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.subclipse.graph.feature_4.0.0.qualifier.jar" id="org.tigris.subversion.subclipse.graph.feature" version="4.0.0.qualifier">
+      <category name="Subclipse"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.subclipse.mylyn.feature_4.0.0.qualifier.jar" id="org.tigris.subversion.subclipse.mylyn.feature" version="4.0.0.qualifier">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse">
