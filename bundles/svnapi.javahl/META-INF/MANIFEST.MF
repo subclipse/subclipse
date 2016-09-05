@@ -7,7 +7,7 @@ Bundle-Activator: org.tigris.subversion.clientadapter.javahl.Activator
 Bundle-Vendor: tigris.org
 Require-Bundle: org.eclipse.core.runtime,
  org.tigris.subversion.clientadapter;bundle-version="[4.0.0,5.0.0)"
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.apache.subversion.javahl,
  org.apache.subversion.javahl.callback,
  org.tigris.subversion.clientadapter.javahl,

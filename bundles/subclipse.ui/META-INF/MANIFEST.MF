@@ -23,7 +23,7 @@ Require-Bundle: org.tigris.subversion.subclipse.core;bundle-version="1.8.0",
  org.eclipse.help,
  org.eclipse.ui.forms,
  org.eclipse.core.filesystem
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.tigris.subversion.subclipse.ui,
  org.tigris.subversion.subclipse.ui.actions,
  org.tigris.subversion.subclipse.ui.annotations,
@@ -53,4 +53,4 @@ Export-Package: org.tigris.subversion.subclipse.ui,
  org.tigris.subversion.subclipse.ui.wizards.dialogs,
  org.tigris.subversion.subclipse.ui.wizards.generatediff,
  org.tigris.subversion.subclipse.ui.wizards.sharing
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -5,7 +5,7 @@ Bundle-Vendor: %pluginProvider
 Bundle-Version: 4.0.0.qualifier
 Bundle-Localization: plugin
 Bundle-SymbolicName: org.tigris.subversion.subclipse.mylyn;singleton:=true
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: org.tigris.subversion.subclipse.mylyn.SubclipseTeamPlugin
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,

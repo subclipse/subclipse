@@ -4,5 +4,4 @@ Bundle-Name: Subclipse Documentation
 Bundle-SymbolicName: org.tigris.subversion.subclipse.doc; singleton:=true
 Bundle-Version: 4.0.0.qualifier
 Bundle-Vendor: tigris.org
-Bundle-Localization: plugin
 Require-Bundle: org.eclipse.help

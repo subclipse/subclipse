@@ -17,8 +17,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide,
  org.eclipse.ui.views
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: org.tigris.subversion.subclipse.graph.cache
 Bundle-ClassPath: .
 Bundle-Vendor: tigris.org
 Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
