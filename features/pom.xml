@@ -12,6 +12,7 @@
 
     <modules>
         <module>feature.svnapi</module>
+        <module>feature.svnkit</module>
         <module>feature.subclipse</module>
         <module>feature.graph</module>
         <module>feature.mylyn</module>
