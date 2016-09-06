@@ -8,14 +8,14 @@
  <properties>
   <tycho.version>0.25.0</tycho.version>
   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  <mars-repo.url>http://download.eclipse.org/releases/mars</mars-repo.url>
+  <juno-repo.url>http://download.eclipse.org/releases/juno</juno-repo.url>
   <svnkit-repo.url>https://dl.bintray.com/subclipse/svnkit-updates</svnkit-repo.url>
  </properties>
 
  <repositories>
   <repository>
-   <id>mars</id>
-   <url>${mars-repo.url}</url>
+   <id>juno</id>
+   <url>${juno-repo.url}</url>
    <layout>p2</layout>
   </repository>
   <repository>
@@ -33,6 +33,16 @@
     <artifactId>tycho-maven-plugin</artifactId>
     <version>${tycho.version}</version>
     <extensions>true</extensions>
+   </plugin>
+
+   <plugin>
+       <groupId>org.eclipse.tycho</groupId>
+       <artifactId>tycho-compiler-plugin</artifactId>
+       <version>${tycho.version}</version>
+       <configuration>
+           <source>1.6</source>
+           <target>1.6</target>
+       </configuration>
    </plugin>
 
    <plugin>
