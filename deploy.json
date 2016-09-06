@@ -21,7 +21,7 @@
     },
 
     "files":
-        [{"includePattern": "releng/update-site/target/repository/(.*)", "uploadPattern": "snapshot/$1",
+        [{"includePattern": "build/subclipse/subclipse/releng/update-site/target/repository/(.*)", "uploadPattern": "snapshot/$1",
             "matrixParams": {
                 "override": 1 }
           }
