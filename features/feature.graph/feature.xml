@@ -3,40 +3,24 @@
       id="org.tigris.subversion.subclipse.graph.feature"
       label="Subversion Revision Graph"
       version="4.0.0.qualifier"
-      provider-name="tigris.org"
-      plugin="org.tigris.subversion.subclipse.graph"
-      colocation-affinity="org.tigris.subversion.subclipse">
+      provider-name="Subclipse"
+      plugin="org.tigris.subversion.subclipse.graph">
 
-   <description url="%changesURL">
+   <description>
       Subversion Revision Graph for Subclipse
    </description>
-
-   <copyright url="http://subclipse.tigris.org/">
-      http://subclipse.tigris.org/
-   </copyright>
 
    <license url="%licenseURL">
       %license
    </license>
 
-   <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.8.x"/>
-   </url>
-
    <requires>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.tigris.subversion.subclipse.core" version="1.7.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.team.core"/>
       <import plugin="org.eclipse.team.ui"/>
       <import plugin="org.eclipse.jface.text"/>
       <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.tigris.subversion.subclipse.ui" version="1.4.6" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.draw2d" version="3.2.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.gef" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="org.tigris.subversion.subclipse.ui"/>
+      <import plugin="org.eclipse.draw2d"/>
+      <import plugin="org.eclipse.gef"/>
    </requires>
 
    <plugin

@@ -1,39 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.tigris.subversion.subclipse.mylyn.feature"
-      label="Subclipse Integration for Mylyn 3.x (Optional)"
+      label="Subclipse Integration for Mylyn (Optional)"
       version="4.0.0.qualifier"
-      provider-name="tigris.org"
-      colocation-affinity="org.tigris.subversion.subclipse">
-   <install-handler/>
-
-   <description url="%changesURL">
+      provider-name="Subclipse">
+ 
+   <description>
       %description
    </description>
 
-   <copyright url="http://subclipse.tigris.org/">
-      http://subclipse.tigris.org/
+   <copyright url="https://github.com/subclipse/subclipse">
+      https://github.com/subclipse/subclipse
    </copyright>
 
    <license url="%licenseURL">
       %license
    </license>
 
-   <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.2.x"/>
-      <discovery label="%updateSiteName" url="http://subclipse.tigris.org/update_1.2.x"/>
-   </url>
-
    <requires>
-      <import plugin="org.eclipse.core.resources" version="3.2.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.core.runtime" version="3.2.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.team.core" version="3.2.0" match="greaterOrEqual"/>
-      <import plugin="org.tigris.subversion.subclipse.core" version="1.1.9" match="greaterOrEqual"/>
-      <import plugin="org.tigris.subversion.subclipse.ui" version="1.1.9" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui" version="3.2.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.mylyn.tasks.core" version="3.0.0" match="compatible"/>
-      <import plugin="org.eclipse.mylyn.tasks.ui" version="3.0.0" match="compatible"/>
-      <import plugin="org.eclipse.mylyn.team.ui" version="3.0.0" match="compatible"/>
+      <import plugin="org.tigris.subversion.subclipse.ui"/>
+      <import plugin="org.eclipse.mylyn.tasks.ui"/>
+      <import plugin="org.eclipse.mylyn.team.ui"/>
    </requires>
 
    <plugin

@@ -1,39 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.tigris.subversion.clientadapter.javahl.feature"
-      label="Subversion JavaHL Native Library Adapter"
+      label="Subversion JavaHL Windows Native DLL's"
       version="4.0.0.qualifier"
-      provider-name="tigris.org"
-      plugin="org.tigris.subversion.clientadapter.javahl"
-      colocation-affinity="org.tigris.subversion.subclipse">
+      provider-name="Subclipse">
 
    <description>
       %description
    </description>
 
-   <copyright url="http://subclipse.tigris.org/">
-      http://subclipse.tigris.org/
+   <copyright url="https://github.com/subclipse/subclipse">
+      https://github.com/subclipse/subclipse
    </copyright>
 
    <license url="%licenseURL">
       %license
    </license>
 
-   <url>
-      <update label="%updateSiteName" url="http://subclipse.tigris.org/update_1.10.x"/>
-   </url>
-
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.tigris.subversion.clientadapter" version="4.0.0" match="equivalent"/>
    </requires>
-
-   <plugin
-         id="org.tigris.subversion.clientadapter.javahl"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="org.tigris.subversion.clientadapter.javahl.win32"
