@@ -5,3 +5,4 @@ jdk:
 cache:  
   directories:  
    - $HOME/.m2
+before_install: ./setup_travis.sh
