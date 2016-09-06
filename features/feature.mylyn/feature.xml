@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.subclipse.mylyn.feature"
       label="Subclipse Integration for Mylyn (Optional)"
-      version="4.0.0.qualifier"
+      version="4.2.0.qualifier"
       provider-name="Subclipse">
  
    <description>

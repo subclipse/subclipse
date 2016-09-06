@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.clientadapter.svnkit.feature"
       label="SVNKit Client Adapter"
-      version="4.0.0.qualifier"
+      version="4.2.0.qualifier"
       provider-name="Subclipse"
       plugin="org.tigris.subversion.clientadapter.svnkit">
 
@@ -20,7 +20,7 @@
 
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.tigris.subversion.clientadapter" version="4.0.0" match="equivalent"/>
+      <import plugin="org.tigris.subversion.clientadapter" version="4.2.0" match="equivalent"/>
       <import plugin="org.tmatesoft.svnkit" version="1.8.0" match="equivalent"/>
    </requires>
 

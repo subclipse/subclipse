@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.tigris.subversion.subclipse_4.0.0.qualifier.jar" id="org.tigris.subversion.subclipse" version="4.0.0.qualifier">
+   <feature url="features/org.tigris.subversion.subclipse_4.2.0.qualifier.jar" id="org.tigris.subversion.subclipse" version="4.2.0.qualifier">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse.graph.feature_4.0.0.qualifier.jar" id="org.tigris.subversion.subclipse.graph.feature" version="4.0.0.qualifier">
+   <feature url="features/org.tigris.subversion.subclipse.graph.feature_4.2.0.qualifier.jar" id="org.tigris.subversion.subclipse.graph.feature" version="4.2.0.qualifier">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.subclipse.mylyn.feature_4.0.0.qualifier.jar" id="org.tigris.subversion.subclipse.mylyn.feature" version="4.0.0.qualifier">
+   <feature url="features/org.tigris.subversion.subclipse.mylyn.feature_4.2.0.qualifier.jar" id="org.tigris.subversion.subclipse.mylyn.feature" version="4.2.0.qualifier">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_4.0.0.qualifier.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="4.0.0.qualifier">
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_4.2.0.qualifier.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="4.2.0.qualifier">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_4.0.0.qualifier.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="4.0.0.qualifier">
+   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_4.2.0.qualifier.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="4.2.0.qualifier">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse">

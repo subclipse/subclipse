@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CollabNet Subversion Merge Client
 Bundle-SymbolicName: com.collabnet.subversion.merge; singleton:=true
-Bundle-Version: 4.0.0.qualifier
+Bundle-Version: 4.2.0.qualifier
 Bundle-Activator: com.collabnet.subversion.merge.Activator
 Bundle-Vendor: CollabNet
 Bundle-Localization: plugin
