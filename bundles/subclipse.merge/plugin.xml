@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension-point id="mergeInputProviders" name="Merge Input Providers" schema="schema/mergeInputProviders.exsd"/>
+
+   <extension
+         point="com.collabnet.subversion.merge.mergeInputProviders">
+      <mergeInput
+            name="%inputProviderName.standard"
+            description="%inputProviderDescription.standard"
+            sequence="0"
+            image="onefolder.png"
+            class="com.collabnet.subversion.merge.StandardMergeInputProvider"
+            id="com.collabnet.subversion.merge.StandardMergeInputProvider">
+      </mergeInput> 
+      <mergeInput
+            name="%inputProviderName.advanced"
+            description="%inputProviderDescription.advanced"
+            sequence="30"
+            image="twofolders.png"             
+            class="com.collabnet.subversion.merge.AdvancedMergeInputProvider"
+            id="com.collabnet.subversion.merge.AdvancedMergeInputProvider">
+      </mergeInput>               
+      <mergeInput
+            name="%inputProviderName.block"
+            description="%inputProviderDescription.block"
+            sequence="40"
+            image="block.png"
+            class="com.collabnet.subversion.merge.BlockMergeInputProvider"
+            id="com.collabnet.subversion.merge.BlockMergeInputProvider">
+      </mergeInput>
+      <mergeInput
+            name="%inputProviderName.unblock"
+            description="%inputProviderDescription.unblock"
+            sequence="50"
+            image="unblock.png"
+            class="com.collabnet.subversion.merge.UnblockMergeInputProvider"
+            id="com.collabnet.subversion.merge.UnblockMergeInputProvider">
+      </mergeInput>                          
+   </extension>
+   
+   <extension
+         point="org.tigris.subversion.subclipse.ui.mergeProviders">
+      <mergeInput
+            name="CollabNet Desktop"
+            class="com.collabnet.subversion.merge.actions.MergeAction"
+            id="com.collabnet.subversion.merge.actions.MergeAction">
+      </mergeInput>  
+   </extension>   
+
+   <extension
+         point="org.eclipse.ui.popupMenus">            
+      <objectContribution
+            objectClass="com.collabnet.subversion.merge.MergeOutput"
+            id="com.collabnet.subversion.merge.MergeOutput">
+         <action
+               label="%actionLabel.resumeMerge"
+               menubarPath="delete"
+               class="com.collabnet.subversion.merge.actions.ResumeMergeAction"
+               id="com.collabnet.subversion.merge.actions.ResumeMergeAction">
+         </action>                       
+         <action
+               label="%actionLabel.undoMerge"
+               menubarPath="delete"
+               class="com.collabnet.subversion.merge.actions.UndoMergeAction"
+               id="com.collabnet.subversion.merge.actions.UndoMergeAction">
+         </action>            
+         <action
+               label="%actionLabel.deleteMergeResults"
+               menubarPath="delete"
+               class="com.collabnet.subversion.merge.actions.DeleteMergeOutputAction"
+               id="com.collabnet.subversion.merge.actions.DeleteMergeOutputAction">
+         </action>
+      </objectContribution> 
+      <objectContribution
+            objectClass="com.collabnet.subversion.merge.MergeResult"
+            id="com.collabnet.subversion.merge.MergeResult">
+         <action
+               label="%actionLabel.showHistory"
+               class="com.collabnet.subversion.merge.actions.ShowRemoteHistoryAction"
+               menubarPath="additions"
+               enablesFor="1"
+               id="com.collabnet.subversion.merge.actions.ShowRemoteHistoryAction">
+         </action>                   
+     </objectContribution>          
+      <objectContribution
+            objectClass="com.collabnet.subversion.merge.AdaptableMergeResult"
+            id="com.collabnet.subversion.merge.AdaptableMergeResult">       
+         <action
+               label="%actionLabel.markResolved"
+               class="com.collabnet.subversion.merge.actions.MergeViewResolveAction"
+               menubarPath="additions.resolve"
+               id="com.collabnet.subversion.merge.actions.MergeViewResolveAction">
+         </action>         
+     </objectContribution>
+      <objectContribution
+            objectClass="com.collabnet.subversion.merge.MergeResultsFolder"
+            id="com.collabnet.subversion.merge.MergeResultsFolder">
+         <action
+               label="%actionLabel.showHistory"
+               class="com.collabnet.subversion.merge.actions.ShowRemoteHistoryAction"
+               menubarPath="additions"
+               enablesFor="1"
+               id="com.collabnet.subversion.merge.actions.ShowRemoteHistoryAction">
+         </action>                      
+     </objectContribution>     
+      <objectContribution
+            objectClass="com.collabnet.subversion.merge.AdaptableMergeResultsFolder"
+            id="com.collabnet.subversion.merge.AdaptableMergeResultsFolder">                
+         <action
+               label="%actionLabel.markResolved"
+               class="com.collabnet.subversion.merge.actions.MergeViewResolveAction"
+               menubarPath="additions.resolve"
+               id="com.collabnet.subversion.merge.actions.MergeViewResolveAction">
+         </action>         
+     </objectContribution>
+      <objectContribution
+            objectClass="com.collabnet.subversion.merge.ISkippedMergeResult"
+            id="com.collabnet.subversion.merge.ISkippedMergeResult">
+         <action
+               label="%actionLabel.copyFromMergeSource"
+               class="com.collabnet.subversion.merge.actions.CopyFromMergeSourceAction"
+               menubarPath="additions"
+               id="com.collabnet.subversion.merge.actions.CopyFromMergeSourceAction">
+         </action>                      
+     </objectContribution>
+     
+<!-- Example of how to contribute an action to the context menu for task editor
+     attachments.  The action class should extend abstract class MergeResultsAttachmentAction
+     and implement the enabledForSelection method.
+          
+     <objectContribution
+            adaptable="false"
+            id="com.collabnet.subversion.merge.attachment"
+            objectClass="org.eclipse.mylyn.tasks.core.RepositoryAttachment">
+         <action
+               class="com.collabnet.subversion.merge.actions.TestMergeResultsAttachmentAction"
+               id="com.collabnet.subversion.merge.actions.TestMergeResultsAttachmentAction"
+               label="My Test Action..."
+               menubarPath="actions"
+               tooltip="My test action">
+            <enablement>
+               <objectClass
+                     name="org.eclipse.mylyn.tasks.core.RepositoryAttachment">
+               </objectClass>
+            </enablement>
+         </action>
+      </objectContribution>   
+-->                      
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="%viewName.mergeResults"
+            icon="icons/merge.gif"
+            category="org.tigris.subversion.subclipse"
+            class="com.collabnet.subversion.merge.views.MergeResultsView"
+            id="com.collabnet.subversion.merge.views.MergeResultsView">
+      </view>
+   </extension>  
+   
+   <extension
+         id="com.collabnet.subversion.merge.adapters"
+         name="Merge Adapters"
+         point="org.eclipse.core.runtime.adapters">
+         <factory
+         	class="com.collabnet.subversion.merge.MergeAdapterFactory"
+         	adaptableType="com.collabnet.subversion.merge.AdaptableMergeResultsFolder">
+         	<adapter type="org.eclipse.core.resources.IContainer"/>
+         </factory>                                     
+   </extension>  
+
+</plugin>
