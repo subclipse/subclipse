@@ -12,6 +12,7 @@
         "public_download_numbers": false,
         "public_stats": false
     },
+
     "version": {
         "name": "4.2.0",
         "desc": "",
@@ -20,11 +21,13 @@
         "gpgSign": false
     },
 
-    "files":
-        [{"includePattern": "./releng/update-site/target/repository/(.*)", "uploadPattern": "snapshot/$1",
-            "matrixParams": {
-                "override": 1 }
-          }
-        ],
+    "files": [
+        {
+            "includePattern": "./releng/update-site/target/repository/(.*)",
+            "uploadPattern": "snapshot/$1",
+            "matrixParams": { "override": 1 }
+        }
+    ],
+
     "publish": true
 }
