@@ -1,6 +1,8 @@
 # Subclipse
 Subclipse - Eclipse SVN Provider
 
+[![Build Status](https://travis-ci.org/subclipse/subclipse.svg?branch=master)](https://travis-ci.org/subclipse/subclipse)
+
 # History
 This repository was cloned from its original home at http://subclipse.tigris.org
 The original SVN repository housed three projects (Subclipse, svnClientAdapter and svnAnt)
