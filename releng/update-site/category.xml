@@ -12,9 +12,20 @@
    <feature url="features/org.tigris.subversion.subclipse.mylyn.feature_4.0.0.qualifier.jar" id="org.tigris.subversion.subclipse.mylyn.feature" version="4.0.0.qualifier">
       <category name="Subclipse"/>
    </feature>
+   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_4.0.0.qualifier.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="4.0.0.qualifier">
+      <category name="Subclipse"/>
+   </feature>
+   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.8.12.qualifier.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.8.12.qualifier">
+      <category name="SVNKit"/>
+   </feature>
    <category-def name="Subclipse" label="Subclipse">
       <description>
          Eclipse Team Provider for Subversion
+      </description>
+   </category-def>
+   <category-def name="SVNKit" label="SVNKit Adapter (optional)">
+      <description>
+         The optional SVNKit Adapter allows you to use the SVNKit library as the provider for your SVN client API.  SVNKit is a pure Java library so easy to install but it is a third-party reverse engineered implementation of Subversion.
       </description>
    </category-def>
 </site>
