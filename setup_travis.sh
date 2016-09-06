@@ -3,6 +3,6 @@
 [ -d $HOME/.m2 ] || mkdir $HOME/.m2
 
 # Copy the settings.xml file to .m2
-[ -d $HOME/.m2/settings.xml ] || rm $HOME/.m2/settings.xml
+[ -f $HOME/.m2/settings.xml ] || rm $HOME/.m2/settings.xml
 cp ./travis_settings.xml $HOME/.m2/settings.xml
 

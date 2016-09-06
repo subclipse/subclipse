@@ -6,4 +6,5 @@ cache:
   directories:  
    - $HOME/.m2
 before_install: ./setup_travis.sh 
+after_install: "mvn --version 
 script: "mvn clean install -B"
