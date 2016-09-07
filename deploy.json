@@ -18,11 +18,12 @@
 
     "files": [
         {
-            "includePattern": "./releng/update-site/target/(*.zip)",
+            "includePattern": "./releng/update-site/target(.*)*/(.*\\.zip)",
             "uploadPattern": "$1",
             "matrixParams": { "override": 1 }
         }
     ],
 
-    "publish": true
+    "publish": true,
+    "explode": true
 }
