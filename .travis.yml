@@ -6,7 +6,7 @@ cache:
   directories:  
    - $HOME/.m2
 before_install: ./setup_travis.sh
-script: "./mvnw clean verify -B"
+script: "./mvn -version"
 deploy:
   skip_cleanup: true
   provider: bintray

@@ -18,7 +18,7 @@
 
     "files": [
         {
-            "includePattern": "./releng/update-site/target/repository/(.*)",
+            "includePattern": "./releng/update-site/target/(*.zip)",
             "uploadPattern": "$1",
             "matrixParams": { "override": 1 }
         }
