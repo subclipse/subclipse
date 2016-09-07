@@ -1,7 +1,7 @@
 {
     "package": {
-        "name": "snapshots",
-        "repo": "p2",
+        "name": "master",
+        "repo": "snapshots",
         "subject": "subclipse",
         "desc": "Subclipse latest snapshot build",
         "website_url": "https://github.com/subclipse/subclipse",
