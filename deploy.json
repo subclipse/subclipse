@@ -1,7 +1,7 @@
 {
     "package": {
-        "name": "master",
-        "repo": "snapshots",
+        "name": "subclipse",
+        "repo": "p2",
         "subject": "subclipse",
         "desc": "Subclipse latest snapshot build",
         "website_url": "https://github.com/subclipse/subclipse",
@@ -13,13 +13,28 @@
     },
 
     "version": {
-        "name": "4.2.0"
+        "name": "snapshots"
     },
 
     "files": [
         {
-            "includePattern": "./releng/update-site/target/(.*\\.zip)",
-            "uploadPattern": "$1",
+            "includePattern": "./releng/update-site/target/repository/artifacts.jar",
+            "uploadPattern": "artifacts.jar",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/repository/content.jar",
+            "uploadPattern": "content.jar",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/repository/plugins/(.*)",
+            "uploadPattern": "/subclipse/snapshots/plugins/$1",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/repository/features/(.*)",
+            "uploadPattern": "/subclipse/snapshots/features/$1",
             "matrixParams": { "override": 1 }
         }
     ],
