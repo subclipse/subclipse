@@ -13,28 +13,28 @@
     },
 
     "version": {
-        "name": "snapshots"
+        "name": "master"
     },
 
     "files": [
         {
             "includePattern": "./releng/update-site/target/repository/artifacts.jar",
-            "uploadPattern": "/artifacts.jar",
+            "uploadPattern": "/master/artifacts.jar",
             "matrixParams": { "override": 1 }
         },
         {
             "includePattern": "./releng/update-site/target/repository/content.jar",
-            "uploadPattern": "/content.jar",
+            "uploadPattern": "/master/content.jar",
             "matrixParams": { "override": 1 }
         },
         {
             "includePattern": "./releng/update-site/target/repository/plugins/(.*)",
-            "uploadPattern": "/plugins/$1",
+            "uploadPattern": "/master/plugins/$1",
             "matrixParams": { "override": 1 }
         },
         {
             "includePattern": "./releng/update-site/target/repository/features/(.*)",
-            "uploadPattern": "/features/$1",
+            "uploadPattern": "/master/features/$1",
             "matrixParams": { "override": 1 }
         }
     ],
