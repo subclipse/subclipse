@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-Vendor: %pluginProvider
-Bundle-Version: 4.2.0.qualifier
+Bundle-Version: 4.2.0.1
 Bundle-Localization: plugin
 Bundle-SymbolicName: org.tigris.subversion.subclipse.mylyn;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

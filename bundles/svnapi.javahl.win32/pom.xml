@@ -18,7 +18,7 @@
       <relativePath>../../</relativePath>
   </parent>
   <artifactId>org.tigris.subversion.clientadapter.javahl.win32</artifactId>
-  <version>1.9.4-SNAPSHOT</version>
+  <version>1.9.4.1</version>
   <packaging>eclipse-plugin</packaging>
   <build>
     <plugins>

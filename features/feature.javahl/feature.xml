@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.tigris.subversion.clientadapter.javahl.feature"
-      label="Subversion JavaHL Windows Native DLL's"
-      version="4.2.0.qualifier"
+      label="Subversion JavaHL Windows Native DLL&apos;s"
+      version="1.9.4.1"
       provider-name="Subclipse">
 
    <description>
@@ -19,7 +19,7 @@
 
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.tigris.subversion.clientadapter" version="4.2.0" match="equivalent"/>
+      <import plugin="org.tigris.subversion.clientadapter"/>
    </requires>
 
    <plugin
