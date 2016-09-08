@@ -36,6 +36,11 @@
             "includePattern": "./releng/update-site/target/repository/features/(.*)",
             "uploadPattern": "/subclipse/master/features/$1",
             "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/(.*\\.zip)",
+            "uploadPattern": "$1",
+            "matrixParams": { "override": 1 }
         }
     ],
 
