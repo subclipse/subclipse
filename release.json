@@ -15,8 +15,8 @@
     },
 
     "version": {
-        "name": "$TRAVIS_TAG",
-        "vcs_tag": "$TRAVIS_TAG"
+        "name": "${TRAVIS_TAG}",
+        "vcs_tag": "${TRAVIS_TAG}"
     },
 
     "files": [
@@ -32,17 +32,17 @@
         },
         {
             "includePattern": "./releng/update-site/target/repository/plugins/(.*)",
-            "uploadPattern": "/subclipse/$TRAVIS_TAG/plugins/$1",
+            "uploadPattern": "/subclipse/${TRAVIS_TAG}/plugins/$1",
             "matrixParams": { "override": 1 }
         },
         {
             "includePattern": "./releng/update-site/target/repository/features/(.*)",
-            "uploadPattern": "/subclipse/$TRAVIS_TAG/features/$1",
+            "uploadPattern": "/subclipse/${TRAVIS_TAG}/features/$1",
             "matrixParams": { "override": 1 }
         },
         {
             "includePattern": "./releng/update-site/target/(.*\\.zip)",
-            "uploadPattern": "$1",
+            "uploadPattern": "subclipse-${TRAVIS_TAG}.zip",
             "matrixParams": { "override": 1 }
         }
     ],
