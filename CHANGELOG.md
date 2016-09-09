@@ -1,4 +1,5 @@
-## master
+## Version 4.2.0
+September 9, 2016
 
 Moved project to Github and pruned out binaries and some of the old content.
 Split svnClientAdapter and svnAnt into their own repositories.  Rearranged
