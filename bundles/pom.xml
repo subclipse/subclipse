@@ -13,8 +13,6 @@
     <modules>
         <module>svnapi.core</module>
         <module>svnapi.javahl</module>
-        <module>svnapi.javahl.win32</module>
-        <module>svnapi.javahl.win64</module>
         <module>svnapi.svnkit</module>
         <module>subclipse.core</module>
         <module>subclipse.ui</module>
