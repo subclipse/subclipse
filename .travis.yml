@@ -7,6 +7,7 @@ cache:
    - $HOME/.m2
 before_install: ./setup_travis.sh
 script: "./mvnw package -B"
+before_deploy: cat release_template.json | sed s/\$\{TRAVIS_TAG\}/${TRAVIS_TAG}/g > tag.json
 deploy:
   - provider: bintray
     skip_cleanup: true
@@ -18,7 +19,7 @@ deploy:
         secure: "0czK1uj+uMZRXfLChu87xm60kh1BAJ9Sej1ktMNX33xqFe52ya+dZNZKLJUT8yNGiMhI65fBD3Ek/nde2q23rDCK+sad3oVTLZ8L1hpHss81Fic4F8lRtlRWCxJeStPuirNUCWN9/WPx8ytJm40dIGlf9pzMkr3qx6GR1DiY09YxrKgUQrKrfCSP8HbSN6vk5orpwqaMMe9ZmDckakZP+HX7upj7cyYex058JQeE0Yv2uX68r4bBq5QR3YQMNYmKYbjufo01/pPXbJhSsPK07VoGyNWF0B+VkO1e6gj4h9QVQl+x6d6B9Wx/8qymfOmu3+i4a5UfPTuL27f16qS5APiex3Gcd5QH+QNxS7vPt+YoRWNzg/2Rqb6yqgIY7Gz1RUw9hwkCK41Icmum6+fH71kRjICxFgWrnOGxp4mryVwmT63tyBwQAvt46h4eqorthr6hAX6QEwfY14jRzIMFwrq/symQ8sySTPelyCGtrhHD1DIWIvuzN7YzNvecdZqSQa+YfjsvJkUOFmkqDVpYnWO0Tsj7E9xQaaZS4ZDGlei3/Jge6TT3zbhVkmAXShaQjBMc0jlEsrA0SQ5n51zea6D0o/5AnQ2UncXagqRjXA3ZvZVKxVgUudSsH3lAfD48zs8eI6rT0P75TnZPE48jzJ0IrNy9e4hm/p2WaTcBQ+U="
   - provider: bintray
     skip_cleanup: true
-    file: "release.json"
+    file: "tag.json"
     on:
         tags: true
     user: 
