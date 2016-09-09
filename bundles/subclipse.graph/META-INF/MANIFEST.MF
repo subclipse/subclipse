@@ -20,6 +20,6 @@ Require-Bundle: org.eclipse.ui,
 Bundle-ActivationPolicy: lazy
 Export-Package: org.tigris.subversion.subclipse.graph.cache
 Bundle-ClassPath: .
-Bundle-Vendor: tigris.org
+Bundle-Vendor: Subclipse
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
