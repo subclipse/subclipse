@@ -3,9 +3,6 @@
    <feature url="features/org.tigris.subversion.subclipse_4.2.0.qualifier.jar" id="org.tigris.subversion.subclipse" version="4.2.0.qualifier">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.javahl.feature_1.9.4.1.jar" id="org.tigris.subversion.clientadapter.javahl.feature" version="1.9.4.1">
-      <category name="Subclipse"/>
-   </feature>
    <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.8.12.1.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.8.12.1">
       <category name="Subclipse"/>
    </feature>

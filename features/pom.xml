@@ -14,7 +14,6 @@
         <module>feature.subclipse</module>
         <module>feature.graph</module>
         <module>feature.mylyn</module>
-        <module>feature.javahl</module>
         <module>feature.svnkit</module>
     </modules>
 </project>
