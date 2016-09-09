@@ -2,12 +2,14 @@
 
 Subclipse is an Eclipse Team Provider plugin for Apache Subversion. 
 
-Requirements and installation instructions are maintained in the wiki.
+See the wiki for information on Requirements, Installation, Development etc.
 https://github.com/subclipse/subclipse/wiki
 
-# Development
+# Need Help?
 
-After cloning the repository, you can Import Projects into your workspace.  Edit/compile/debug can be done from Eclipse and via the Eclipse Runtime workspace.
+Report bugs or feature requests in the [Issue Tracker](https://github.com/subclipse/subclipse/issues)
+
+For Q&A we recommend [StackOverflow](http://stackoverflow.com/questions/tagged/subclipse)
 
 # Builds
 
