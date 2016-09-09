@@ -17,7 +17,6 @@
         <module>subclipse.core</module>
         <module>subclipse.ui</module>
         <module>subclipse.merge</module>
-        <module>subclipse.doc</module>
         <module>subclipse.graph</module>
         <module>subclipse.mylyn</module>
     </modules>
