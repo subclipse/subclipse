@@ -7,13 +7,16 @@
         "website_url": "https://github.com/subclipse/subclipse",
         "issue_tracker_url": "https://github.com/subclipse/subclipse/issues",
         "vcs_url": "https://github.com/subclipse/subclipse.git",
+        "github_use_tag_release_notes": true,
+        "github_release_notes_file": "CHANGELOG.md",
         "licenses": ["EPL-1.0"],
-        "public_download_numbers": false,
-        "public_stats": false
+        "public_download_numbers": true,
+        "public_stats": true
     },
 
     "version": {
-        "name": "4.2.x"
+        "name": "$TRAVIS_TAG",
+        "vcs_tag": "$TRAVIS_TAG"
     },
 
     "files": [
@@ -29,12 +32,12 @@
         },
         {
             "includePattern": "./releng/update-site/target/repository/plugins/(.*)",
-            "uploadPattern": "/subclipse/4.2.x/plugins/$1",
+            "uploadPattern": "/subclipse/$TRAVIS_TAG/plugins/$1",
             "matrixParams": { "override": 1 }
         },
         {
             "includePattern": "./releng/update-site/target/repository/features/(.*)",
-            "uploadPattern": "/subclipse/4.2.x/features/$1",
+            "uploadPattern": "/subclipse/$TRAVIS_TAG/features/$1",
             "matrixParams": { "override": 1 }
         },
         {
