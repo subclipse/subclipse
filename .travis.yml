@@ -7,7 +7,7 @@ cache:
    - $HOME/.m2
 before_install: ./setup_travis.sh
 script: "./mvnw package -B"
-before_deploy: cat release_template.json | sed s/\$\{TRAVIS_TAG\}/${TRAVIS_TAG}/g > tag.json
+before_deploy: cat release.json | sed s/\$\{TRAVIS_TAG\}/${TRAVIS_TAG}/g > tag.json
 deploy:
   - provider: bintray
     skip_cleanup: true
