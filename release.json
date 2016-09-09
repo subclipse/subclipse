@@ -1,0 +1,48 @@
+{
+    "package": {
+        "name": "subclipse",
+        "repo": "releases",
+        "subject": "subclipse",
+        "desc": "Subclipse Release Builds",
+        "website_url": "https://github.com/subclipse/subclipse",
+        "issue_tracker_url": "https://github.com/subclipse/subclipse/issues",
+        "vcs_url": "https://github.com/subclipse/subclipse.git",
+        "licenses": ["EPL-1.0"],
+        "public_download_numbers": false,
+        "public_stats": false
+    },
+
+    "version": {
+        "name": "4.2.x"
+    },
+
+    "files": [
+        {
+            "includePattern": "./releng/update-site/target/repository/artifacts.jar",
+            "uploadPattern": "artifacts.jar",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/repository/content.jar",
+            "uploadPattern": "content.jar",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/repository/plugins/(.*)",
+            "uploadPattern": "/subclipse/4.2.x/plugins/$1",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/repository/features/(.*)",
+            "uploadPattern": "/subclipse/4.2.x/features/$1",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/(.*\\.zip)",
+            "uploadPattern": "$1",
+            "matrixParams": { "override": 1 }
+        }
+    ],
+
+    "publish": true
+}
