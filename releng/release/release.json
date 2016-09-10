@@ -6,7 +6,7 @@
     },
 
     "version": {
-        "name": "4.2.x"
+        "name": "${RELEASE_VERSION}"
     },
 
     "files": [
