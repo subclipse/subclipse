@@ -1,3 +1,7 @@
+## master
+
+* Added set-version.sh script to assist with starting a new version
+
 ## Version 4.2.0
 September 10, 2016
 
