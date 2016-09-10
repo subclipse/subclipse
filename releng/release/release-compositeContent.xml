@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?compositeMetadataRepository version='1.0.0'?>
+<repository name='Subclipse Latest 4.2.x Release'
+    type='org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository'
+    version='1.0.0'>
+    <properties size='2'>
+       <property name="p2.compressed" value="true"/>
+       <property name="p2.timestamp" value="${BUILD_TIME}000"/>
+    </properties>
+    <children size='4'>
+       <child location='../${TRAVIS_TAG}'/>
+       <child location='../../javahl/latest/'/>
+       <child location='https://dl.bintray.com/subclipse/svnkit-updates/'/>
+       <child location='../../m2e/latest/'/>
+    </children>
+</repository>

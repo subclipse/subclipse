@@ -1,0 +1,26 @@
+{
+    "package": {
+        "name": "subclipse",
+        "repo": "releases",
+        "subject": "subclipse"
+    },
+
+    "version": {
+        "name": "latest"
+    },
+
+    "files": [
+        {
+            "includePattern": "./latest-compositeArtifacts.xml",
+            "uploadPattern": "compositeArtifacts.xml",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./latest-compositeContent.xml",
+            "uploadPattern": "compositeContent.xml",
+            "matrixParams": { "override": 1 }
+        }
+    ],
+
+    "publish": true
+}
