@@ -11,5 +11,9 @@ if [ $# -ne 2 ];
         find . -type f -name "*.xml" -exec sed -i '' -e $SNAPSHOT {} \;
         find . -type f -name "*.xml" -exec sed -i '' -e $QUALIFIER {} \;
         find . -type f -name "*.MF" -exec sed -i '' -e $QUALIFIER {} \;
-fi
+
+        echo "Versions updated.  Use git status and git diff to confirm"
+        echo "Be sure to test build using mvn clean package before commit"
+        echo "Update CHANGELOG.md for next dev cycle"
+    fi
 
