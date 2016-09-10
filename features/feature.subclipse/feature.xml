@@ -2,7 +2,7 @@
 <feature
       id="org.tigris.subversion.subclipse"
       label="Subclipse"
-      version="4.2.0.qualifier"
+      version="4.2.1.qualifier"
       provider-name="Subclipse"
       plugin="org.tigris.subversion.subclipse.core">
 
