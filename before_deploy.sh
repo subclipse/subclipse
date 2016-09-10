@@ -13,4 +13,5 @@ if [[ $TRAVIS_TAG ]]
   cat ./releng/release/latest-compositeArtifacts.xml | sed s/\$\{TRAVIS_TAG\}/${TRAVIS_TAG}/g | sed s/\$\{BUILD_TIME\}/${BUILD_TIME}/g  > ./latest-compositeArtifacts.xml
   cat ./releng/release/latest-compositeContent.xml | sed s/\$\{TRAVIS_TAG\}/${TRAVIS_TAG}/g | sed s/\$\{BUILD_TIME\}/${BUILD_TIME}/g  > ./latest-compositeContent.xml
 else
+  echo "Not a release tag, nothing to do ..." 
 fi
