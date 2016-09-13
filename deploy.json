@@ -28,6 +28,21 @@
             "matrixParams": { "override": 1 }
         },
         {
+            "includePattern": "./releng/update-site/target/repository/artifacts.xml.xz",
+            "uploadPattern": "artifacts.xml.xz",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/repository/content.xml.xz",
+            "uploadPattern": "content.xml.xz",
+            "matrixParams": { "override": 1 }
+        },
+        {
+            "includePattern": "./releng/update-site/target/repository/p2.index",
+            "uploadPattern": "p2.index",
+            "matrixParams": { "override": 1 }
+        },
+        {
             "includePattern": "./releng/update-site/target/repository/plugins/(.*)",
             "uploadPattern": "/subclipse/master/plugins/$1",
             "matrixParams": { "override": 1 }
