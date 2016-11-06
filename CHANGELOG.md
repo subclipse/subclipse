@@ -1,6 +1,7 @@
-## master
+## Version 4.2.1
 
 * Added set-version.sh script to assist with starting a new version
+* Fixed missing console messages [#10](https://github.com/subclipse/subclipse/issues/10)
 
 ## Version 4.2.0
 September 10, 2016
