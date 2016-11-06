@@ -1,3 +1,7 @@
+## master
+
+* Prepare for next release here
+
 ## Version 4.2.1
 
 * Added set-version.sh script to assist with starting a new version
