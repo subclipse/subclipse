@@ -80,30 +80,30 @@ public class CommitOperation extends SVNOperation {
 			}
         	if (resourcesToDelete.length > 0) {
 				ISVNClientAdapter svnDeleteClient = null; // use an adapter that will log to console
-				Map<SVNTeamProvider, List<IResource>> table = getProviderMapping(resourcesToDelete);
-				if (table.get(null) != null) {
-					throw new SVNException(Policy.bind("RepositoryManager.addErrorNotAssociated"));  //$NON-NLS-1$
-				}
-				Set<SVNTeamProvider> keySet = table.keySet();
-				for (SVNTeamProvider provider : keySet) {
-					List<IResource> list = table.get(provider);
-					File[] files = new File[list.size()];
-					int i=0;
-					for (IResource resource : list) {
-						ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
-						if (svnDeleteClient == null)
-						    svnDeleteClient = svnResource.getRepository().getSVNClient();
-						files[i] = svnResource.getFile();
-						i++;
+				try {
+					Map<SVNTeamProvider, List<IResource>> table = getProviderMapping(resourcesToDelete);
+					if (table.get(null) != null) {
+						throw new SVNException(Policy.bind("RepositoryManager.addErrorNotAssociated"));  //$NON-NLS-1$
 					}
-					try {
+					Set<SVNTeamProvider> keySet = table.keySet();
+					for (SVNTeamProvider provider : keySet) {
+						List<IResource> list = table.get(provider);
+						File[] files = new File[list.size()];
+						int i=0;
+						for (IResource resource : list) {
+							ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+							if (svnDeleteClient == null)
+								svnDeleteClient = svnResource.getRepository().getSVNClient();
+							files[i] = svnResource.getFile();
+							i++;
+						}
 						svnDeleteClient.remove(files, true);
-					} catch (SVNClientException e) {
-						throw new TeamException(e.getMessage());
-					} finally {
-						SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnDeleteClient);
 					}
-				}						
+				} catch (SVNClientException e) {
+					throw new TeamException(e.getMessage());
+				} finally {
+					SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnDeleteClient);
+				}
 			}
         	setAtomicCommitMode();
         	Map<ProjectAndRepository, List<IResource>> table = getCommitProviderMapping(resourcesToCommit);
