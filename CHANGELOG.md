@@ -1,3 +1,7 @@
+## master
+
+* Prepare for next release
+
 ## Version 4.2.2
 
 * CommitOperation: fix double-free on disposed SVN client [#14](https://github.com/subclipse/subclipse/pull/14)
