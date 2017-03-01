@@ -24,7 +24,7 @@ public class CloudForgeComposite extends Composite {
 	}
 	
 	private void createControls() {	
-		String bannerDisabled = System.getProperty("disable.banner");
+		String bannerDisabled = System.getProperty("subclipse.disableBanner");
 		if(bannerDisabled==null || bannerDisabled.equals("false") ){
 			Composite cloudForgeComposite = new Composite(this, SWT.NULL);
 			GridLayout layout = new GridLayout();
