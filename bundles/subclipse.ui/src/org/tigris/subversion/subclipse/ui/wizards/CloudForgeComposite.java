@@ -24,26 +24,29 @@ public class CloudForgeComposite extends Composite {
 	}
 	
 	private void createControls() {	
-		Composite cloudForgeComposite = new Composite(this, SWT.NULL);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 1;
-		cloudForgeComposite.setLayout(layout);
-		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
-		cloudForgeComposite.setLayoutData(data);
+		String bannerDisabled = System.getProperty("disable.banner");
+		if(bannerDisabled==null || bannerDisabled.equals("false") ){
+			Composite cloudForgeComposite = new Composite(this, SWT.NULL);
+			GridLayout layout = new GridLayout();
+			layout.numColumns = 1;
+			cloudForgeComposite.setLayout(layout);
+			GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
+			cloudForgeComposite.setLayoutData(data);
 		
-		ImageHyperlink cloudForgeLink = new ImageHyperlink(cloudForgeComposite, SWT.NONE);
-		cloudForgeLink.setImage(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_CLOUDFORGE).createImage());
-		cloudForgeLink.addHyperlinkListener(new HyperlinkAdapter() {
-			@Override
-			public void linkActivated(HyperlinkEvent evt) {
-				try {
-					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(SIGNUP_URL));
-				} catch (Exception e) {
-					MessageDialog.openError(getShell(), "Sign-up for CloudForge", e.getMessage());
-				}
-			}			
-		});
-		cloudForgeLink.setToolTipText(SIGNUP_URL);
+			ImageHyperlink cloudForgeLink = new ImageHyperlink(cloudForgeComposite, SWT.NONE);
+			cloudForgeLink.setImage(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_CLOUDFORGE).createImage());
+			cloudForgeLink.addHyperlinkListener(new HyperlinkAdapter() {
+				@Override
+				public void linkActivated(HyperlinkEvent evt) {
+					try {
+						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(SIGNUP_URL));
+					} catch (Exception e) {
+						MessageDialog.openError(getShell(), "Sign-up for CloudForge", e.getMessage());
+					}
+				}			
+			});
+			cloudForgeLink.setToolTipText(SIGNUP_URL);
+		}
 	}
 
 }
