@@ -1,6 +1,6 @@
 ## master
 
-* Prepare for next release
+* Added support for a JVM property to disable banner ad
 
 ## Version 4.2.2
 

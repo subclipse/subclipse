@@ -19,8 +19,12 @@ public class CloudForgeComposite extends Composite {
 
 	public CloudForgeComposite(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new GridLayout());
-		createControls();
+		// Allow a JVM system property to be defined which hides this from UI
+		// default behavior if property is not set is to show the banner
+		if(!System.getProperty("subclipse.disableBanner", "false").equalsIgnoreCase("true")) {
+		   setLayout(new GridLayout());
+		   createControls();
+		}
 	}
 	
 	private void createControls() {	
