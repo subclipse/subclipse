@@ -1,6 +1,7 @@
 ## master
 
 * Added support for a JVM property to disable banner ad
+* throw a more specific exception on malformed project reference strings [#25](https://github.com/subclipse/subclipse/pull/25)
 
 ## Version 4.2.2
 
