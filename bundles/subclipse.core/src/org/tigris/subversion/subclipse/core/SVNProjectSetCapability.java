@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IProject;
@@ -133,17 +134,20 @@ public class SVNProjectSetCapability extends ProjectSetCapability {
             String[] referenceStrings, Map<IProject, LoadInfo> infoMap) throws SVNException {
         Collection<IProject> result = new ArrayList<IProject>();
         for (String referenceString : referenceStrings) {
-            StringTokenizer tokenizer = new StringTokenizer(
-                    referenceString, ","); //$NON-NLS-1$
-            String version = tokenizer.nextToken();
-            // If this is a newer version, then ignore it
-            if (!version.equals("0.9.3")) { //$NON-NLS-1$
-                continue;
+            StringTokenizer tokenizer = new StringTokenizer(referenceString, ","); //$NON-NLS-1$
+            try {
+                String version = tokenizer.nextToken();
+                // If this is a newer version, then ignore it
+                if (!version.equals("0.9.3")) { //$NON-NLS-1$
+                    continue;
+                }
+                LoadInfo info = new LoadInfo(context, tokenizer);
+                IProject proj = info.getProject();
+                result.add(proj);
+                infoMap.put(proj, info);
+            } catch (NoSuchElementException e) {
+                throw new IllegalArgumentException("malformed project reference: " + referenceString, e); //$NON-NLS-1$
             }
-            LoadInfo info = new LoadInfo(context, tokenizer);
-            IProject proj = info.getProject();
-            result.add(proj);
-            infoMap.put(proj, info);
         }
         return (IProject[]) result.toArray(new IProject[result.size()]);
     }
