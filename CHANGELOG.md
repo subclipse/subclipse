@@ -2,6 +2,7 @@
 
 * Added support for a JVM property to disable banner ad
 * throw a more specific exception on malformed project reference strings [#25](https://github.com/subclipse/subclipse/pull/25)
+* replace gif images removed in Eclipse 4.7 [#43](https://github.com/subclipse/subclipse/pull/43)
 
 ## Version 4.2.2
 
