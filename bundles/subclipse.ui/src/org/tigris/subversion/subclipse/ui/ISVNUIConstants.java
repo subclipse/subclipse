@@ -55,11 +55,13 @@ public interface ISVNUIConstants {
   public final String IMG_REFRESH_DISABLED = "dlcl16/refresh.gif"; //$NON-NLS-1$
   public final String IMG_CLEAR_DISABLED = "dlcl16/clear_co.gif"; //$NON-NLS-1$
   public final String IMG_FILTER_HISTORY_DISABLED = "dlcl16/filter_history.gif"; //$NON-NLS-1$
+  public final String IMG_PARTICIPANT_REM_DISABLED = "dlcl16/participant_rem.gif"; //$NON-NLS-1$
 
   // toolbar (enabled)
   public final String IMG_REFRESH_ENABLED = "elcl16/refresh.gif"; //$NON-NLS-1$
   public final String IMG_COLLAPSE_ALL_ENABLED = "elcl16/collapseall.gif"; //$NON-NLS-1$
   public final String IMG_EXPAND_ALL_ENABLED = "elcl16/expandall.gif"; //$NON-NLS-1$
+  public final String IMG_PARTICIPANT_REM_ENABLED = "elcl16/participant_rem.gif"; //$NON-NLS-1$
 
   public final String IMG_AFFECTED_PATHS_TABLE_MODE = "elcl16/tableLayout.gif"; //$NON-NLS-1$
   public final String IMG_AFFECTED_PATHS_TREE_MODE = "elcl16/treeLayout.gif"; //$NON-NLS-1$

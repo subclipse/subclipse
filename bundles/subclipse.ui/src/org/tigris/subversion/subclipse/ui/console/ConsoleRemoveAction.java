@@ -11,8 +11,9 @@
 package org.tigris.subversion.subclipse.ui.console;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.team.ui.TeamImages;
+import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
+import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 /**
  * Action that removed the SVN console from the console view. The console
@@ -24,8 +25,8 @@ public class ConsoleRemoveAction extends Action {
 	ConsoleRemoveAction() {
 		this.setText(Policy.bind("ConsoleRemoveAction.label")); //$NON-NLS-1$
 		setToolTipText(Policy.bind("ConsoleRemoveAction.tooltip")); //$NON-NLS-1$
-		setImageDescriptor(TeamImages.getImageDescriptor("elcl16/participant_rem.gif")); //$NON-NLS-1$
-		setDisabledImageDescriptor(TeamImages.getImageDescriptor("dlcl16/participant_rem.gif")); //$NON-NLS-1$
+		setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PARTICIPANT_REM_ENABLED)); //$NON-NLS-1$
+		setDisabledImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(ISVNUIConstants.IMG_PARTICIPANT_REM_DISABLED)); //$NON-NLS-1$
 	}
 	
 	public void run() {
