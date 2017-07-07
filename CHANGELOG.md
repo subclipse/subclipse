@@ -1,14 +1,17 @@
-## master
+## Version 4.2.3
+July 7, 2017
 
 * Added support for a JVM property to disable banner ad
 * throw a more specific exception on malformed project reference strings [#25](https://github.com/subclipse/subclipse/pull/25)
 * replace gif images removed in Eclipse 4.7 [#43](https://github.com/subclipse/subclipse/pull/43)
 
 ## Version 4.2.2
+December 13, 2016
 
 * CommitOperation: fix double-free on disposed SVN client [#14](https://github.com/subclipse/subclipse/pull/14)
 
 ## Version 4.2.1
+November 6, 2016
 
 * Added set-version.sh script to assist with starting a new version
 * Fixed missing console messages [#10](https://github.com/subclipse/subclipse/issues/10)
