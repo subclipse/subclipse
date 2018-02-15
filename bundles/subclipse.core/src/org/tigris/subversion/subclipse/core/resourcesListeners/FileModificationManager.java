@@ -298,7 +298,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 			client = SVNProviderPlugin.getPlugin().getSVNClient();
 			SVNProviderPlugin.disableConsoleLogging();
 			ISVNInfo info = client.getInfoFromWorkingCopy(project.getLocation().toFile());
-			if (info != null) {
+			if (info != null && info.getRepository() != null) {
 				SVNTeamProviderType.getAutoShareJob().share(project);
 			}
 		} catch (Exception e) {}
