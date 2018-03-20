@@ -1,6 +1,7 @@
 ## master
 
-* TBD
+* Update client adapter API to latest build
+  - Contains fix for SVNUrl with # in name [#33](https://github.com/subclipse/svnclientadapter/pull/33)
 
 ## Version 4.2.3
 July 7, 2017
