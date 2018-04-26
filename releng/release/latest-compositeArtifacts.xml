@@ -8,7 +8,7 @@
   </properties>
   <children size='4'>
      <child location='../${TRAVIS_TAG}'/>
-     <child location='../../javahl/latest/'/>
+     <child location='../../javahl/1.9.x/'/>
      <child location='https://dl.bintray.com/subclipse/svnkit-updates/'/>
      <child location='../../m2e/latest/'/>
   </children>
