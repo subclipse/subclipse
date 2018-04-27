@@ -1,3 +1,7 @@
+## Next 4.2.x Release
+
+* Expose all JavaHL packages [#60](https://github.com/subclipse/subclipse/issues/60)
+
 ## Version 4.2.4
 April 26, 2018
 
