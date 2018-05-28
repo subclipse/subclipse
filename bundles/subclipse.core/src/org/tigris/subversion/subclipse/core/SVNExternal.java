@@ -143,7 +143,7 @@ public class SVNExternal {
 			return propertyLine;
 		}
 		else {
-			return "-r" + revision + " " + url + "@" + revision + " " + folder;
+			return "-r" + revision + " " + url + "@" + (fixedAtRevision == -1 ? revision : fixedAtRevision) + " " + folder;
 		}
 	}
 	
