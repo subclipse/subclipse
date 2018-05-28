@@ -84,6 +84,7 @@ public class SVNExternal {
 				if (index != -1) {
 					try {
 						fixedAtRevision = Long.parseLong(url.substring(index + 1));
+						url = url.substring(0, index);
 					} catch (Exception e) {}
 				}
 			}
@@ -142,7 +143,7 @@ public class SVNExternal {
 			return propertyLine;
 		}
 		else {
-			return "-r" + revision + " " + url + "@" + revision + " " + folder;
+			return "-r" + revision + " " + url + "@" + (fixedAtRevision == -1 ? revision : fixedAtRevision) + " " + folder;
 		}
 	}
 	
