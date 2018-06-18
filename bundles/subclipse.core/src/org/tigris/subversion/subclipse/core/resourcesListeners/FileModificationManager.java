@@ -50,23 +50,23 @@ import org.tigris.subversion.svnclientadapter.ISVNInfo;
  * status of files under Subversion control. First, it listens for change delta's for
  * files and brodcasts them to all listeners. It also registers as a save
  * participant so that deltas generated before the plugin are loaded are not
- * missed. 
+ * missed.
  */
 public class FileModificationManager implements IResourceChangeListener, ISaveParticipant, IPropertyChangeListener {
-	
+
 	private boolean ignoreManagedDerivedResources = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES);
-	
+
 	// consider the following changes types and ignore the others (e.g. marker and description changes are ignored)
-	protected int INTERESTING_CHANGES = IResourceDelta.CONTENT | 
-	                                    IResourceDelta.MOVED_FROM | 
+	protected int INTERESTING_CHANGES = IResourceDelta.CONTENT |
+	                                    IResourceDelta.MOVED_FROM |
 										IResourceDelta.MOVED_TO |
-										IResourceDelta.OPEN | 
+										IResourceDelta.OPEN |
 										IResourceDelta.REPLACED |
 										IResourceDelta.TYPE;
 
 	/**
 	 * Listen for file modifications and fire modification state changes
-	 * 
+	 *
 	 * @see org.eclipse.core.resources.IResourceChangeListener#resourceChanged(org.eclipse.core.resources.IResourceChangeEvent)
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
@@ -77,7 +77,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 			event.getDelta().accept(new IResourceDeltaVisitor() {
 				public boolean visit(IResourceDelta delta) {
 					IResource resource = delta.getResource();
-					
+
 					if (resource.isDerived()) {
 						LocalResourceStatus aStatus = null;
 						try {
@@ -100,7 +100,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 								return true;
 							}
 						} else if (delta.getKind() == IResourceDelta.ADDED) {
-							modifiedResources.add(resource);                        
+							modifiedResources.add(resource);
 							return true;
 						} else if (delta.getKind() == IResourceDelta.REMOVED) {
 							// provide notifications for deletions since they may not have been managed
@@ -108,7 +108,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 							modifiedResources.add(resource);
 							return true;
 						}
-					}				
+					}
 					else if(resource.getType()==IResource.FOLDER) {
 						// FIXME: Why a different processing for add and delete?
 						if (delta.getKind() == IResourceDelta.ADDED) {
@@ -126,10 +126,10 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 							return false;
 						}
 						return true;
-					}				
+					}
 					else if (resource.getType()==IResource.PROJECT) {
 						IProject project = (IProject)resource;
-						
+
 						if ((delta.getKind() & IResourceDelta.REMOVED) != 0) {
 							SVNWorkspaceRoot.unsetManagedBySubclipse(project);
 							return false;
@@ -140,7 +140,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 						}
 						if (delta.getKind() != IResourceDelta.ADDED && (delta.getFlags() & IResourceDelta.OPEN) != 0) {
 							return false;
-						} 
+						}
 						if (!SVNWorkspaceRoot.isManagedBySubclipse(project)) {
 							if (delta.getKind() == IResourceDelta.ADDED) {
 								autoShareProjectIfSVNWorkingCopy(project);
@@ -159,7 +159,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 					return true;
 				}
 			});
-			
+
 			if (!modifiedResources.isEmpty() || !modifiedInfiniteDepthResources.isEmpty()) {
 				List<IProject> projects = new ArrayList<IProject>();
 				if (!modifiedResources.isEmpty()) {
@@ -182,7 +182,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 				}
 				IProject[] projectArray = new IProject[projects.size()];
 				projects.toArray(projectArray);
-				JobUtility.scheduleJob("Refresh SVN status cache", new Runnable() {				
+				JobUtility.scheduleJob("Refresh SVN status cache", new Runnable() {
 					public void run() {
 						// we refresh all changed resources and broadcast the changes to all listeners (ex : SVNLightweightDecorator)
 						if (!modifiedResources.isEmpty()) {
@@ -197,7 +197,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 							SVNProviderPlugin.broadcastModificationStateChanges(resources);
 						}
 					}
-				}, new RefreshStatusCacheSchedulingRule(MultiRule.combine(projectArray)), false);
+				}, MultiRule.combine(projectArray), false);
 			}
 		} catch (CoreException e) {
 			SVNProviderPlugin.log(e.getStatus());
@@ -206,7 +206,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 
 	/**
 	 * Refresh (reset/reload) the status of all the given resources.
-	 * 
+	 *
 	 * @param resources
 	 *          List of IResource to refresh
 	 */
@@ -232,13 +232,13 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
     private void refreshStatus(IResource[] resources) {
         //We are not able to get the status for a single file anyway,
         //so from the performance reasons we collect the parent folders of the files
-        //and we refresh only those folders then. 
+        //and we refresh only those folders then.
         //All immediate child resources (files) are refreshed automatically
         Set<IContainer> foldersToRefresh = new HashSet<IContainer>(resources.length);
         for (IResource resource : resources) {
         	if (resources.length == 1 && resources[0].getType() == IResource.FILE) {
            		try {
-                    SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, false);               
+                    SVNProviderPlugin.getPlugin().getStatusCacheManager().refreshStatus(resource, false);
         		} catch (SVNException e) {
         			SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
         		}
@@ -256,7 +256,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
         }
         refreshStatusInfinite(foldersToRefresh);
     }
-    
+
 	/**
 	 * We register a save participant so we can get the delta from workbench
 	 * startup to plugin startup.
@@ -270,7 +270,7 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 		}
 		ws.removeSaveParticipant(SVNProviderPlugin.getPlugin());
 	}
-	
+
 	/**
 	 * @see org.eclipse.core.resources.ISaveParticipant#doneSaving(org.eclipse.core.resources.ISaveContext)
 	 */
@@ -315,15 +315,15 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 			ignoreManagedDerivedResources = SVNProviderPlugin.getPlugin().getPluginPreferences().getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES);
 		}
 	}
-	
+
 	private class RefreshStatusCacheSchedulingRule implements ISchedulingRule {
 
 		public ISchedulingRule schedulingRule;
-		
+
 		public RefreshStatusCacheSchedulingRule(ISchedulingRule schedulingRule) {
 			this.schedulingRule = schedulingRule;
 		}
-		
+
 		public boolean contains(ISchedulingRule rule) {
 			if (rule instanceof RefreshStatusCacheSchedulingRule) {
 				return schedulingRule.contains(((RefreshStatusCacheSchedulingRule)rule).getSchedulingRule());
@@ -337,11 +337,11 @@ public class FileModificationManager implements IResourceChangeListener, ISavePa
 			}
 			return false;
 		}
-		
+
 		public ISchedulingRule getSchedulingRule() {
 			return schedulingRule;
 		}
-		
+
 	}
 
 }
