@@ -3,6 +3,7 @@
 * Update for major version upgrade to SVN 1.10
 * Expose all JavaHL packages [#60](https://github.com/subclipse/subclipse/issues/60)
 * add peg revision to URL in pinned externals [#68](https://github.com/subclipse/svnclientadapter/pull/68)
+* Support SVNKit 1.9.x [#76](https://github.com/subclipse/subclipse/issues/76)
 
 ## Version 4.2.4
 April 26, 2018
