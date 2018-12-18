@@ -9,7 +9,7 @@
    <feature url="features/org.tigris.subversion.subclipse.mylyn.feature_4.2.0.1.jar" id="org.tigris.subversion.subclipse.mylyn.feature" version="4.2.0.1">
       <category name="Subclipse"/>
    </feature>
-   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.8.12.2.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.8.12.2">
+   <feature url="features/org.tigris.subversion.clientadapter.svnkit.feature_1.8.12.3.jar" id="org.tigris.subversion.clientadapter.svnkit.feature" version="1.8.12.3">
       <category name="Subclipse"/>
    </feature>
    <category-def name="Subclipse" label="Subclipse">
