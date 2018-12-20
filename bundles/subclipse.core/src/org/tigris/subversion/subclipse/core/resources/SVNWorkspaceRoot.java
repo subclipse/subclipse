@@ -486,7 +486,7 @@ public class SVNWorkspaceRoot {
 				IProject[] projects = root.getProjects();
 				for (IProject project : projects) {
 					if (project.getLocation() != null
-							&&!resource.getLocation().equals(project.getLocation())
+							&& !resource.getLocation().equals(project.getLocation())
 							&& resource.getLocation().isPrefixOf(project.getLocation())) {
 						resources.add(project);
 					}
@@ -503,7 +503,7 @@ public class SVNWorkspaceRoot {
 		IProject[] projects = root.getProjects();
 		for (IProject project : projects) {
 			if (SVNWorkspaceRoot.isManagedBySubclipse(project)
-					&&project.getLocation().isPrefixOf(location) ) {
+					&& project.getLocation().isPrefixOf(location) ) {
 				try {
 					SVNTeamProvider teamProvider = (SVNTeamProvider)RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());
 					return teamProvider.getSVNWorkspaceRoot().getRepository();
