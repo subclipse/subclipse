@@ -9,103 +9,95 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapter;
 import org.tigris.subversion.svnclientadapter.javahl.JhlClientAdapterFactory;
 
-/**
- * The activator class controls the plug-in life cycle
- */
-public class Activator extends Plugin implements ISVNClientWrapper{
+/** The activator class controls the plug-in life cycle */
+public class Activator extends Plugin implements ISVNClientWrapper {
 
-	// The plug-in ID
-	public static final String PLUGIN_ID = "org.tigris.subversion.clientadapter.javahl";
+  // The plug-in ID
+  public static final String PLUGIN_ID = "org.tigris.subversion.clientadapter.javahl";
 
-	// The shared instance
-	private static Activator plugin;
-	
-	private String displayName;
-	
-	private String version;
-	
-	private boolean loadErrorLogged = false;
-	
-	/**
-	 * The constructor
-	 */
-	public Activator() {
-	}
+  // The shared instance
+  private static Activator plugin;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
-	}
+  private String displayName;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
-	}
+  private String version;
 
-	/**
-	 * Returns the shared instance
-	 *
-	 * @return the shared instance
-	 */
-	public static Activator getDefault() {
-		return plugin;
-	}
+  private boolean loadErrorLogged = false;
 
-	public ISVNClientAdapter getAdapter() {
-		if (this.isAvailable())
-			return new JhlClientAdapter();
-		else
-			return null;
-	}
+  /** The constructor */
+  public Activator() {}
 
-	public String getAdapterID() {
-		return JhlClientAdapterFactory.JAVAHL_CLIENT;
-	}
+  /*
+   * (non-Javadoc)
+   * @see org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
+   */
+  public void start(BundleContext context) throws Exception {
+    super.start(context);
+    plugin = this;
+  }
 
-	public String getVersionString() {
-		return getVersionSynchronized();
-	}
+  /*
+   * (non-Javadoc)
+   * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
+   */
+  public void stop(BundleContext context) throws Exception {
+    plugin = null;
+    super.stop(context);
+  }
 
-	private synchronized String getVersionSynchronized() {
-		if (version == null) {
-			if (this.isAvailable()) {
-				JhlClientAdapter adapter = new JhlClientAdapter();
-				version = adapter.getNativeLibraryVersionString();
-			} else {
-				version = "Not Available";
-			}
-		}
-		return version;
-	}
+  /**
+   * Returns the shared instance
+   *
+   * @return the shared instance
+   */
+  public static Activator getDefault() {
+    return plugin;
+  }
 
-	public boolean isAvailable() {
-		boolean available = JhlClientAdapterFactory.isAvailable();
-		if (!available && !loadErrorLogged) {
-			getLog().log(new Status(IStatus.INFO, PLUGIN_ID, 0, getLoadErrors(), null));
-			loadErrorLogged = true;
-			org.tigris.subversion.clientadapter.Activator.getDefault().handleLoadErrors(this);
-		}
-		return available;
-	}
+  public ISVNClientAdapter getAdapter() {
+    if (this.isAvailable()) return new JhlClientAdapter();
+    else return null;
+  }
 
-	public void setDisplayName(String string) {
-		displayName = string;
-	}
+  public String getAdapterID() {
+    return JhlClientAdapterFactory.JAVAHL_CLIENT;
+  }
 
-	public String getDisplayName() {
-		return displayName + " " + this.getVersionString();
-	}
+  public String getVersionString() {
+    return getVersionSynchronized();
+  }
 
-	public String getLoadErrors() {
-		return JhlClientAdapterFactory.getLibraryLoadErrors();
-	}
+  private synchronized String getVersionSynchronized() {
+    if (version == null) {
+      if (this.isAvailable()) {
+        JhlClientAdapter adapter = new JhlClientAdapter();
+        version = adapter.getNativeLibraryVersionString();
+      } else {
+        version = "Not Available";
+      }
+    }
+    return version;
+  }
 
+  public boolean isAvailable() {
+    boolean available = JhlClientAdapterFactory.isAvailable();
+    if (!available && !loadErrorLogged) {
+      getLog().log(new Status(IStatus.INFO, PLUGIN_ID, 0, getLoadErrors(), null));
+      loadErrorLogged = true;
+      org.tigris.subversion.clientadapter.Activator.getDefault().handleLoadErrors(this);
+    }
+    return available;
+  }
+
+  public void setDisplayName(String string) {
+    displayName = string;
+  }
+
+  public String getDisplayName() {
+    return displayName + " " + this.getVersionString();
+  }
+
+  public String getLoadErrors() {
+    return JhlClientAdapterFactory.getLibraryLoadErrors();
+  }
 }

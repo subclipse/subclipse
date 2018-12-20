@@ -1,20 +1,17 @@
-/*******************************************************************************
- * Copyright (c) 2003, 2006 Subclipse project and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/**
+ * ***************************************************************************** Copyright (c) 2003,
+ * 2006 Subclipse project and others. All rights reserved. This program and the accompanying
+ * materials are made available under the terms of the Eclipse Public License v1.0 which accompanies
+ * this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     Subclipse project committers - initial API and implementation
- ******************************************************************************/
+ * <p>Contributors: Subclipse project committers - initial API and implementation
+ * ****************************************************************************
+ */
 package org.tigris.subversion.subclipse.core.resources;
-
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -37,255 +34,268 @@ import org.tigris.subversion.svnclientadapter.SVNNodeKind;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
-/**
- * This class provides the implementation of ISVNRemoteFolder
- * 
- */
+/** This class provides the implementation of ISVNRemoteFolder */
 public class RemoteFolder extends RemoteResource implements ISVNRemoteFolder, ISVNFolder {
 
-    protected ISVNRemoteResource[] children;
-	
-	/**
-	 * Constructor for RemoteFolder.
-	 * @param parent
-	 * @param repository
-	 * @param url
-	 * @param revision
-	 * @param lastChangedRevision
-	 * @param date
-	 * @param author
-	 */
-	public RemoteFolder(RemoteFolder parent, 
-        ISVNRepositoryLocation repository,
-        SVNUrl url,
-        SVNRevision revision,
-        SVNRevision.Number lastChangedRevision,
-        Date date,
-        String author) {
-		super(parent, repository, url, revision, lastChangedRevision, date, author);
-	}
+  protected ISVNRemoteResource[] children;
 
-    /**
-     * Constructor (from url and revision)
-     * @param repository
-     * @param url
-     * @param revision
-     */
-    public RemoteFolder(ISVNRepositoryLocation repository, SVNUrl url, SVNRevision revision) {
-        super(repository, url,revision);
-    }
-	
-	/**
-	 * Constructor (from byet[])
-	 * @param resource
-	 * @param bytes
-	 */
-	public RemoteFolder(IResource resource, byte[] bytes) {		
-		super(resource, bytes);
-	}
+  /**
+   * Constructor for RemoteFolder.
+   *
+   * @param parent
+   * @param repository
+   * @param url
+   * @param revision
+   * @param lastChangedRevision
+   * @param date
+   * @param author
+   */
+  public RemoteFolder(
+      RemoteFolder parent,
+      ISVNRepositoryLocation repository,
+      SVNUrl url,
+      SVNRevision revision,
+      SVNRevision.Number lastChangedRevision,
+      Date date,
+      String author) {
+    super(parent, repository, url, revision, lastChangedRevision, date, author);
+  }
 
-	public RemoteFolder(RemoteResourceStatus remoteStatusInfo)
-	{
-        this( null,
-        		remoteStatusInfo.getRepository(),
-				remoteStatusInfo.getUrl(), 
-				remoteStatusInfo.getRepositoryRevision(),
-				remoteStatusInfo.getLastChangedRevision(), 
-				remoteStatusInfo.getLastChangedDate(), 
-				remoteStatusInfo.getLastCommitAuthor());
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#exists(org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	public boolean exists(IProgressMonitor monitor) throws TeamException {
-		try {
-			getMembers(monitor);
-			return true;
-		} catch (SVNException e) {
-			if (e.getStatus().getCode() == SVNStatus.DOES_NOT_EXIST) {
-				return false;
-			} else {
-				throw e;
-			}
-		}
-	}
+  /**
+   * Constructor (from url and revision)
+   *
+   * @param repository
+   * @param url
+   * @param revision
+   */
+  public RemoteFolder(ISVNRepositoryLocation repository, SVNUrl url, SVNRevision revision) {
+    super(repository, url, revision);
+  }
 
-	/**
-	 * Check whether the given child exists
-	 * @param child the child resource to check for existence
-	 * @param monitor a progress monitor
-	 * @return true when the child resource exists 
-	 */
-	protected boolean exists(final ISVNRemoteResource child, IProgressMonitor monitor) throws SVNException {
-        ISVNRemoteResource[] members;
-        try {
-            members = getMembers(monitor);
-        } catch (SVNException e) {
-            if (e.getStatus().getCode() == SVNStatus.DOES_NOT_EXIST) {
-                return false;
-            } else {
-                throw e;
-            }
-        }
-        
-        for (int i = 0; i < members.length;i++) {
-            if (members[i].equals(child))
-                return true;
-        }
+  /**
+   * Constructor (from byet[])
+   *
+   * @param resource
+   * @param bytes
+   */
+  public RemoteFolder(IResource resource, byte[] bytes) {
+    super(resource, bytes);
+  }
+
+  public RemoteFolder(RemoteResourceStatus remoteStatusInfo) {
+    this(
+        null,
+        remoteStatusInfo.getRepository(),
+        remoteStatusInfo.getUrl(),
+        remoteStatusInfo.getRepositoryRevision(),
+        remoteStatusInfo.getLastChangedRevision(),
+        remoteStatusInfo.getLastChangedDate(),
+        remoteStatusInfo.getLastCommitAuthor());
+  }
+
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#exists(org.eclipse.core.runtime.IProgressMonitor)
+   */
+  public boolean exists(IProgressMonitor monitor) throws TeamException {
+    try {
+      getMembers(monitor);
+      return true;
+    } catch (SVNException e) {
+      if (e.getStatus().getCode() == SVNStatus.DOES_NOT_EXIST) {
         return false;
-	}
+      } else {
+        throw e;
+      }
+    }
+  }
 
-    /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.ISVNRemoteFolder#refresh()
-     */
-    public void refresh() {
-        children = null;
+  /**
+   * Check whether the given child exists
+   *
+   * @param child the child resource to check for existence
+   * @param monitor a progress monitor
+   * @return true when the child resource exists
+   */
+  protected boolean exists(final ISVNRemoteResource child, IProgressMonitor monitor)
+      throws SVNException {
+    ISVNRemoteResource[] members;
+    try {
+      members = getMembers(monitor);
+    } catch (SVNException e) {
+      if (e.getStatus().getCode() == SVNStatus.DOES_NOT_EXIST) {
+        return false;
+      } else {
+        throw e;
+      }
     }
 
-    /**
-     * Get the members of this folder at the same revision than this resource
-     * @param monitor a progress monitor
-     * @return ISVNRemoteResource[] an array of child remoteResources
-     */
-	protected ISVNRemoteResource[] getMembers(IProgressMonitor monitor) throws SVNException {
+    for (int i = 0; i < members.length; i++) {
+      if (members[i].equals(child)) return true;
+    }
+    return false;
+  }
 
-		final IProgressMonitor progress = Policy.monitorFor(monitor);
-		progress.beginTask(Policy.bind("RemoteFolder.getMembers"), 100); //$NON-NLS-1$
-        
-		//Try to hit the cache first.
-        if (children != null)
-        {
-            progress.done();
-            return children;
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNRemoteFolder#refresh()
+   */
+  public void refresh() {
+    children = null;
+  }
+
+  /**
+   * Get the members of this folder at the same revision than this resource
+   *
+   * @param monitor a progress monitor
+   * @return ISVNRemoteResource[] an array of child remoteResources
+   */
+  protected ISVNRemoteResource[] getMembers(IProgressMonitor monitor) throws SVNException {
+
+    final IProgressMonitor progress = Policy.monitorFor(monitor);
+    progress.beginTask(Policy.bind("RemoteFolder.getMembers"), 100); // $NON-NLS-1$
+
+    // Try to hit the cache first.
+    if (children != null) {
+      progress.done();
+      return children;
+    }
+    ISVNClientAdapter client = null;
+    try {
+      client = getRepository().getSVNClient();
+
+      ISVNDirEntryWithLock[] list =
+          client.getListWithLocks(url, getRevision(), SVNRevision.HEAD, false);
+      List<RemoteResource> result = new ArrayList<RemoteResource>(list.length);
+
+      // directories first
+      for (ISVNDirEntryWithLock entryWithLock : list) {
+        ISVNDirEntry entry = entryWithLock.getDirEntry();
+        if (entry.getNodeKind() == SVNNodeKind.DIR) {
+          result.add(
+              new RemoteFolder(
+                  this,
+                  getRepository(),
+                  url.appendPath(entry.getPath()),
+                  getRevision(),
+                  entry.getLastChangedRevision(),
+                  entry.getLastChangedDate(),
+                  entry.getLastCommitAuthor()));
         }
-		ISVNClientAdapter client = null;
-		try {
-            client = getRepository().getSVNClient();
+      }
 
-            ISVNDirEntryWithLock[] list = client.getListWithLocks(url, getRevision(), SVNRevision.HEAD, false);
-			List<RemoteResource> result = new ArrayList<RemoteResource>(list.length);
-
-			// directories first				
-			for (ISVNDirEntryWithLock entryWithLock : list)
-			{
-				ISVNDirEntry entry = entryWithLock.getDirEntry();
-                if (entry.getNodeKind() == SVNNodeKind.DIR)
-				{
-				    result.add(new RemoteFolder(this, getRepository(),
-				       url.appendPath(entry.getPath()),
-                       getRevision(),
-                       entry.getLastChangedRevision(),
-                       entry.getLastChangedDate(),
-                       entry.getLastCommitAuthor()));
-				}
-			}
-
-			// files then				
-			for (ISVNDirEntryWithLock entryWithLock : list)
-			{
-				ISVNDirEntry entry = entryWithLock.getDirEntry();
-				ISVNLock lock = entryWithLock.getLock();
-				if (entry.getNodeKind() == SVNNodeKind.FILE)
-				{
-					RemoteFile remoteFile = new RemoteFile(this, getRepository(),
-							url.appendPath(entry.getPath()),
-	                        getRevision(),
-	                        entry.getLastChangedRevision(),
-	                        entry.getLastChangedDate(),
-	                        entry.getLastCommitAuthor());
-					remoteFile.setPegRevision(getRevision());
-					remoteFile.setLock(lock);
-					result.add(remoteFile);
-			     }					 	
-			}
-
-			//Save it to the cache
-			children = (ISVNRemoteResource[]) result.toArray(new ISVNRemoteResource[result.size()]);
-            return children;
-        } catch (SVNClientException e)
-		{
-            throw new SVNException(new SVNStatus(IStatus.ERROR, SVNStatus.DOES_NOT_EXIST, Policy.bind("RemoteFolder.doesNotExist", getRepositoryRelativePath()))); //$NON-NLS-1$
-        } finally {
-        	getRepository().returnSVNClient(client);
-			progress.done();
-		}	 	
-	}
-
-
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.core.ISVNFolder#members(org.eclipse.core.runtime.IProgressMonitor, int)
-	 */
-	public ISVNResource[] members(IProgressMonitor monitor, int flags) throws SVNException {		
-		final List<ISVNResource> result = new ArrayList<ISVNResource>();
-		ISVNRemoteResource[] resources = getMembers(monitor);
-
-		// RemoteFolders never have phantom members
-		if ((flags & EXISTING_MEMBERS) == 0 && (flags & PHANTOM_MEMBERS) == 1) {
-			return new ISVNResource[0];
-		}
-		boolean includeFiles = (((flags & FILE_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
-		boolean includeFolders = (((flags & FOLDER_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
-		boolean includeManaged = (((flags & MANAGED_MEMBERS) != 0) || ((flags & (MANAGED_MEMBERS | UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
-	
-		for (ISVNResource svnResource : resources) {
-			if ((includeFiles && ( ! svnResource.isFolder())) 
-					|| (includeFolders && (svnResource.isFolder()))) {
-				if (includeManaged) {
-					result.add(svnResource);
-				}						
-			}		
-		}
-		return (ISVNResource[]) result.toArray(new ISVNResource[result.size()]);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.core.ISVNResource#isFolder()
-	 */
-	public boolean isFolder() {
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.team.core.variants.IResourceVariant#isContainer()
-	 */
-	public boolean isContainer() {
-		return true;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#members(org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	public ISVNRemoteResource[] members(IProgressMonitor progress) throws TeamException {
-		return getMembers(progress);
-	}
-
-    /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.ISVNRemoteFolder#createRemoteFolder(java.lang.String, java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void createRemoteFolder(String folderName, String message, IProgressMonitor monitor) throws SVNException {
-        IProgressMonitor progress = Policy.monitorFor(monitor);
-        progress.beginTask(Policy.bind("RemoteFolder.createRemoteFolder"), 100); //$NON-NLS-1$
-        ISVNClientAdapter svnClient = null;
-        try {
-            svnClient = getRepository().getSVNClient();
-            svnClient.mkdir( getUrl().appendPath(folderName), message);
-            refresh();
-            SVNProviderPlugin.getPlugin().getRepositoryResourcesManager().remoteResourceCreated(this, folderName);
-        } catch (SVNClientException e) {
-            throw SVNException.wrapException(e);
-        } finally {
-        	getRepository().returnSVNClient(svnClient);
-            progress.done();
+      // files then
+      for (ISVNDirEntryWithLock entryWithLock : list) {
+        ISVNDirEntry entry = entryWithLock.getDirEntry();
+        ISVNLock lock = entryWithLock.getLock();
+        if (entry.getNodeKind() == SVNNodeKind.FILE) {
+          RemoteFile remoteFile =
+              new RemoteFile(
+                  this,
+                  getRepository(),
+                  url.appendPath(entry.getPath()),
+                  getRevision(),
+                  entry.getLastChangedRevision(),
+                  entry.getLastChangedDate(),
+                  entry.getLastCommitAuthor());
+          remoteFile.setPegRevision(getRevision());
+          remoteFile.setLock(lock);
+          result.add(remoteFile);
         }
-    }    
+      }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.team.core.variants.CachedResourceVariant#fetchContents(org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	protected void fetchContents(IProgressMonitor monitor)
-	{	
-		//Do nothing. Folders do not have contents
-	}
+      // Save it to the cache
+      children = (ISVNRemoteResource[]) result.toArray(new ISVNRemoteResource[result.size()]);
+      return children;
+    } catch (SVNClientException e) {
+      throw new SVNException(
+          new SVNStatus(
+              IStatus.ERROR,
+              SVNStatus.DOES_NOT_EXIST,
+              Policy.bind(
+                  "RemoteFolder.doesNotExist", getRepositoryRelativePath()))); // $NON-NLS-1$
+    } finally {
+      getRepository().returnSVNClient(client);
+      progress.done();
+    }
+  }
 
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNFolder#members(org.eclipse.core.runtime.IProgressMonitor, int)
+   */
+  public ISVNResource[] members(IProgressMonitor monitor, int flags) throws SVNException {
+    final List<ISVNResource> result = new ArrayList<ISVNResource>();
+    ISVNRemoteResource[] resources = getMembers(monitor);
+
+    // RemoteFolders never have phantom members
+    if ((flags & EXISTING_MEMBERS) == 0 && (flags & PHANTOM_MEMBERS) == 1) {
+      return new ISVNResource[0];
+    }
+    boolean includeFiles =
+        (((flags & FILE_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
+    boolean includeFolders =
+        (((flags & FOLDER_MEMBERS) != 0) || ((flags & (FILE_MEMBERS | FOLDER_MEMBERS)) == 0));
+    boolean includeManaged =
+        (((flags & MANAGED_MEMBERS) != 0)
+            || ((flags & (MANAGED_MEMBERS | UNMANAGED_MEMBERS | IGNORED_MEMBERS)) == 0));
+
+    for (ISVNResource svnResource : resources) {
+      if ((includeFiles && (!svnResource.isFolder()))
+          || (includeFolders && (svnResource.isFolder()))) {
+        if (includeManaged) {
+          result.add(svnResource);
+        }
+      }
+    }
+    return (ISVNResource[]) result.toArray(new ISVNResource[result.size()]);
+  }
+
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNResource#isFolder()
+   */
+  public boolean isFolder() {
+    return true;
+  }
+
+  /* (non-Javadoc)
+   * @see org.eclipse.team.core.variants.IResourceVariant#isContainer()
+   */
+  public boolean isContainer() {
+    return true;
+  }
+
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNRemoteResource#members(org.eclipse.core.runtime.IProgressMonitor)
+   */
+  public ISVNRemoteResource[] members(IProgressMonitor progress) throws TeamException {
+    return getMembers(progress);
+  }
+
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNRemoteFolder#createRemoteFolder(java.lang.String, java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+   */
+  public void createRemoteFolder(String folderName, String message, IProgressMonitor monitor)
+      throws SVNException {
+    IProgressMonitor progress = Policy.monitorFor(monitor);
+    progress.beginTask(Policy.bind("RemoteFolder.createRemoteFolder"), 100); // $NON-NLS-1$
+    ISVNClientAdapter svnClient = null;
+    try {
+      svnClient = getRepository().getSVNClient();
+      svnClient.mkdir(getUrl().appendPath(folderName), message);
+      refresh();
+      SVNProviderPlugin.getPlugin()
+          .getRepositoryResourcesManager()
+          .remoteResourceCreated(this, folderName);
+    } catch (SVNClientException e) {
+      throw SVNException.wrapException(e);
+    } finally {
+      getRepository().returnSVNClient(svnClient);
+      progress.done();
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.eclipse.team.core.variants.CachedResourceVariant#fetchContents(org.eclipse.core.runtime.IProgressMonitor)
+   */
+  protected void fetchContents(IProgressMonitor monitor) {
+    // Do nothing. Folders do not have contents
+  }
 }

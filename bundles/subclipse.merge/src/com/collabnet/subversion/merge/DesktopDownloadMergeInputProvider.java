@@ -1,15 +1,17 @@
-/*******************************************************************************
- * Copyright (c) 2009 CollabNet.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     CollabNet - initial API and implementation
- ******************************************************************************/
+/**
+ * ***************************************************************************** Copyright (c) 2009
+ * CollabNet. All rights reserved. This program and the accompanying materials are made available
+ * under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
+ *
+ * <p>Contributors: CollabNet - initial API and implementation
+ * ****************************************************************************
+ */
 package com.collabnet.subversion.merge;
 
+import com.collabnet.subversion.merge.wizards.MergeWizardDesktopDownloadPage;
+import com.collabnet.subversion.merge.wizards.MergeWizardLastPage;
+import com.collabnet.subversion.merge.wizards.MergeWizardMainPage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
@@ -17,90 +19,90 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPart;
 
-import com.collabnet.subversion.merge.wizards.MergeWizardDesktopDownloadPage;
-import com.collabnet.subversion.merge.wizards.MergeWizardLastPage;
-import com.collabnet.subversion.merge.wizards.MergeWizardMainPage;
-
 public class DesktopDownloadMergeInputProvider implements IChangeSetMergeInputProvider {
-	private MergeWizardDesktopDownloadPage downloadPage;
-	private WizardPage[] wizardPages;
-	
-	public boolean enabledForMultipleSelection() {
-		return true;
-	}
+  private MergeWizardDesktopDownloadPage downloadPage;
+  private WizardPage[] wizardPages;
 
-	public String getDescription() {
-		return "Use this method to merge the revisions associated with one or more CollabNet artifacts.  Typically this option would be used to backport fixes to a release branch or similar scenarios where all of the changes associated with an artifact need to be merged from one location to another.";
-	}
+  public boolean enabledForMultipleSelection() {
+    return true;
+  }
 
-	public Image getImage() {
-		return Activator.getImage(Activator.IMAGE_CHANGE_SETS);
-	}
+  public String getDescription() {
+    return "Use this method to merge the revisions associated with one or more CollabNet artifacts.  Typically this option would be used to backport fixes to a release branch or similar scenarios where all of the changes associated with an artifact need to be merged from one location to another.";
+  }
 
-	public IWizardPage getNextPage(IWizardPage currentPage) {
-		return null;
-	}
+  public Image getImage() {
+    return Activator.getImage(Activator.IMAGE_CHANGE_SETS);
+  }
 
-	public int getSequence() {
-		return 20;
-	}
+  public IWizardPage getNextPage(IWizardPage currentPage) {
+    return null;
+  }
 
-	public String getText() {
-		return "Change-set based merge";
-	}
+  public int getSequence() {
+    return 20;
+  }
 
-	public IWizardPage[] getWizardPages(boolean initializePages) {
-		if (wizardPages == null || initializePages) {
-			downloadPage = new MergeWizardDesktopDownloadPage("download", "Change-set merge", Activator.getDefault().getImageDescriptor(Activator.IMAGE_COLLABNET_WIZBAN)); //$NON-NLS-1$
-			WizardPage[] pages = { downloadPage };
-			wizardPages = pages;
-		}
-		return wizardPages;
-	}
+  public String getText() {
+    return "Change-set based merge";
+  }
 
-	public boolean hideDepth() {
-		return false;
-	}
+  public IWizardPage[] getWizardPages(boolean initializePages) {
+    if (wizardPages == null || initializePages) {
+      downloadPage =
+          new MergeWizardDesktopDownloadPage(
+              "download",
+              "Change-set merge",
+              Activator.getDefault()
+                  .getImageDescriptor(Activator.IMAGE_COLLABNET_WIZBAN)); // $NON-NLS-1$
+      WizardPage[] pages = {downloadPage};
+      wizardPages = pages;
+    }
+    return wizardPages;
+  }
 
-	public boolean hideForce() {
-		return false;
-	}
+  public boolean hideDepth() {
+    return false;
+  }
 
-	public boolean hideIgnoreAncestry() {
-		return false;
-	}
+  public boolean hideForce() {
+    return false;
+  }
 
-	public boolean performMerge(MergeWizardMainPage mainPage, MergeWizardLastPage optionsPage, IWorkbenchPart targetPart) {
-		MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Download Desktop", "This is where you will download this stuff.");
-		return false;
-	}
+  public boolean hideIgnoreAncestry() {
+    return false;
+  }
 
-	public void setDescription(String description) {
-	}
+  public boolean performMerge(
+      MergeWizardMainPage mainPage, MergeWizardLastPage optionsPage, IWorkbenchPart targetPart) {
+    MessageDialog.openInformation(
+        Display.getDefault().getActiveShell(),
+        "Download Desktop",
+        "This is where you will download this stuff.");
+    return false;
+  }
 
-	public void setImage(Image image) {
-	}
+  public void setDescription(String description) {}
 
-	public void setSequence(int sequence) {
-	}
+  public void setImage(Image image) {}
 
-	public void setText(String text) {
-	}
+  public void setSequence(int sequence) {}
 
-	public boolean showBestPracticesPage() {
-		return false;
-	}
+  public void setText(String text) {}
 
-	public boolean showOptionsPage() {
-		return false;
-	}
+  public boolean showBestPracticesPage() {
+    return false;
+  }
 
-	public int compareTo(Object compareToObject) {
-		if (!(compareToObject instanceof IMergeInputProvider)) return 0;
-		IMergeInputProvider compareToInputProvider = (IMergeInputProvider)compareToObject;
-		if (getSequence() > compareToInputProvider.getSequence()) return 1;
-		else if (compareToInputProvider.getSequence() > getSequence()) return -1;
-		return getText().compareTo(compareToInputProvider.getText());
-	}
+  public boolean showOptionsPage() {
+    return false;
+  }
 
+  public int compareTo(Object compareToObject) {
+    if (!(compareToObject instanceof IMergeInputProvider)) return 0;
+    IMergeInputProvider compareToInputProvider = (IMergeInputProvider) compareToObject;
+    if (getSequence() > compareToInputProvider.getSequence()) return 1;
+    else if (compareToInputProvider.getSequence() > getSequence()) return -1;
+    return getText().compareTo(compareToInputProvider.getText());
+  }
 }

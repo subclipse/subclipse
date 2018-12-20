@@ -6,8 +6,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 
 public interface ISVNRepositoryLocationProvider {
 
-	public ISVNRepositoryLocation getLocation() throws TeamException;
-	
-	public IProject getProject();
-	
+  public ISVNRepositoryLocation getLocation() throws TeamException;
+
+  public IProject getProject();
 }

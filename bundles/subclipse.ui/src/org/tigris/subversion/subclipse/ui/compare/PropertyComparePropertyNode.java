@@ -2,7 +2,6 @@ package org.tigris.subversion.subclipse.ui.compare;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.IStructureComparator;
@@ -12,44 +11,44 @@ import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.ISVNProperty;
 
-public class PropertyComparePropertyNode implements IStructureComparator, ITypedElement, IStreamContentAccessor {
-	private ISVNProperty property;
-	
-	public PropertyComparePropertyNode(ISVNProperty property) {
-		this.property = property;
-	}
+public class PropertyComparePropertyNode
+    implements IStructureComparator, ITypedElement, IStreamContentAccessor {
+  private ISVNProperty property;
 
-	public InputStream getContents() throws CoreException {
-		return new ByteArrayInputStream(property.getValue().getBytes());
-	}
+  public PropertyComparePropertyNode(ISVNProperty property) {
+    this.property = property;
+  }
 
-	public String getName() {
-		return property.getName();
-	}
+  public InputStream getContents() throws CoreException {
+    return new ByteArrayInputStream(property.getValue().getBytes());
+  }
 
-	public Image getImage() {
-		return SVNUIPlugin.getImage(ISVNUIConstants.IMG_PROPERTIES);
-	}
+  public String getName() {
+    return property.getName();
+  }
 
-	public String getType() {
-		return "txt"; //$NON-NLS-1$
-	}
+  public Image getImage() {
+    return SVNUIPlugin.getImage(ISVNUIConstants.IMG_PROPERTIES);
+  }
 
-	public Object[] getChildren() {
-		return null;
-	}
+  public String getType() {
+    return "txt"; //$NON-NLS-1$
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof ITypedElement) {
-			ITypedElement compareTo = (ITypedElement)obj;
-			return getName().equals(compareTo.getName());
-		}
-		return super.equals(obj);
-	}
-	
-	public int hashCode() {
-		return getName().hashCode();
-	}
+  public Object[] getChildren() {
+    return null;
+  }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof ITypedElement) {
+      ITypedElement compareTo = (ITypedElement) obj;
+      return getName().equals(compareTo.getName());
+    }
+    return super.equals(obj);
+  }
+
+  public int hashCode() {
+    return getName().hashCode();
+  }
 }

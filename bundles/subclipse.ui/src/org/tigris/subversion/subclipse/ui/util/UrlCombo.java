@@ -1,18 +1,16 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2006 Subclipse project and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/**
+ * ***************************************************************************** Copyright (c) 2004,
+ * 2006 Subclipse project and others. All rights reserved. This program and the accompanying
+ * materials are made available under the terms of the Eclipse Public License v1.0 which accompanies
+ * this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     Subclipse project committers - initial API and implementation
- ******************************************************************************/
+ * <p>Contributors: Subclipse project committers - initial API and implementation
+ * ****************************************************************************
+ */
 package org.tigris.subversion.subclipse.ui.util;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -62,9 +60,8 @@ public class UrlCombo extends Composite {
     this.projectName = projectName;
     this.settings = SVNUIPlugin.getPlugin().getDialogSettings();
     for (int i = 0; i < 5; i++) {
-      String url = settings.get("UrlCombo." + projectName + "." + i); //$NON-NLS-1$ //$NON-NLS-2$
-      if (url == null)
-        break;
+      String url = settings.get("UrlCombo." + projectName + "." + i); // $NON-NLS-1$ //$NON-NLS-2$
+      if (url == null) break;
       combo.add(url);
     }
   }
@@ -77,19 +74,16 @@ public class UrlCombo extends Composite {
     ArrayList urls = new ArrayList();
     urls.add(getText());
     for (int i = 0; i < 5; i++) {
-      String url = settings.get("UrlCombo." + projectName + "." + i); //$NON-NLS-1$ //$NON-NLS-2$
-      if (url == null)
-        break;
-      if (!urls.contains(url))
-        urls.add(url);
+      String url = settings.get("UrlCombo." + projectName + "." + i); // $NON-NLS-1$ //$NON-NLS-2$
+      if (url == null) break;
+      if (!urls.contains(url)) urls.add(url);
     }
     int i = 0;
     Iterator iter = urls.iterator();
     while (iter.hasNext()) {
       String url = (String) iter.next();
-      settings.put("UrlCombo." + projectName + "." + i++, url); //$NON-NLS-1$ //$NON-NLS-2$
-      if (i == 5)
-        break;
+      settings.put("UrlCombo." + projectName + "." + i++, url); // $NON-NLS-1$ //$NON-NLS-2$
+      if (i == 5) break;
     }
   }
 }

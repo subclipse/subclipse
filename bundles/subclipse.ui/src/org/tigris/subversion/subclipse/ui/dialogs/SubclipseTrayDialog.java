@@ -6,17 +6,16 @@ import org.eclipse.swt.widgets.Shell;
 
 public class SubclipseTrayDialog extends TrayDialog {
 
-	public SubclipseTrayDialog(Shell shell) {
-		super(shell);
-	}
+  public SubclipseTrayDialog(Shell shell) {
+    super(shell);
+  }
 
-	public SubclipseTrayDialog(IShellProvider parentShell) {
-		super(parentShell);
-	}
+  public SubclipseTrayDialog(IShellProvider parentShell) {
+    super(parentShell);
+  }
 
-	@Override
-	public boolean isHelpAvailable() {
-		return false;
-	}
-
+  @Override
+  public boolean isHelpAvailable() {
+    return false;
+  }
 }

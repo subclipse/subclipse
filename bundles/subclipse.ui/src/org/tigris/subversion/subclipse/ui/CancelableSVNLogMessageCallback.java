@@ -8,26 +8,25 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNLogMessageCallback;
 
 public class CancelableSVNLogMessageCallback extends SVNLogMessageCallback {
-	private IProgressMonitor monitor;
-	private ISVNClientAdapter svnClient;
-	private boolean canceled;
+  private IProgressMonitor monitor;
+  private ISVNClientAdapter svnClient;
+  private boolean canceled;
 
-	public CancelableSVNLogMessageCallback(IProgressMonitor monitor, ISVNClientAdapter svnClient) {
-		super();
-		this.monitor = monitor;
-		this.svnClient = svnClient;
-	}
+  public CancelableSVNLogMessageCallback(IProgressMonitor monitor, ISVNClientAdapter svnClient) {
+    super();
+    this.monitor = monitor;
+    this.svnClient = svnClient;
+  }
 
-	public void singleMessage(ISVNLogMessage msg) {
-		super.singleMessage(msg);
-		if (monitor != null && monitor.isCanceled() && !canceled) {
-			try {
-				svnClient.cancelOperation();
-				canceled = true;
-			} catch (SVNClientException e) {
-				SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
-			}
-		}
-	}
-
+  public void singleMessage(ISVNLogMessage msg) {
+    super.singleMessage(msg);
+    if (monitor != null && monitor.isCanceled() && !canceled) {
+      try {
+        svnClient.cancelOperation();
+        canceled = true;
+      } catch (SVNClientException e) {
+        SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+      }
+    }
+  }
 }

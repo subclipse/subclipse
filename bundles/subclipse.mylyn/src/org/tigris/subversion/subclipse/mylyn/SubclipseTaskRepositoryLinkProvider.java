@@ -1,14 +1,12 @@
-/*******************************************************************************
- * Copyright (c) 2006 Subclipse project and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/**
+ * ***************************************************************************** Copyright (c) 2006
+ * Subclipse project and others. All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     Eugene Kuleshov - initial API and implementation
- ******************************************************************************/
-
+ * <p>Contributors: Eugene Kuleshov - initial API and implementation
+ * ****************************************************************************
+ */
 package org.tigris.subversion.subclipse.mylyn;
 
 import org.eclipse.core.resources.IResource;
@@ -20,19 +18,17 @@ import org.tigris.subversion.subclipse.ui.settings.ProjectProperties;
 
 /**
  * Task Repository link provider based on Subversion properties
- * 
+ *
  * @see http://markphip.blogspot.com/2007/01/integrating-subversion-with-your-issue.html
- * 
  * @author Eugene Kuleshov
  */
-public class SubclipseTaskRepositoryLinkProvider extends
-    AbstractTaskRepositoryLinkProvider {
+public class SubclipseTaskRepositoryLinkProvider extends AbstractTaskRepositoryLinkProvider {
 
-  public TaskRepository getTaskRepository(IResource resource,
-      IRepositoryManager repositoryManager) {
+  public TaskRepository getTaskRepository(
+      IResource resource, IRepositoryManager repositoryManager) {
     try {
       ProjectProperties props = ProjectProperties.getProjectProperties(resource);
-      if(props!=null) {
+      if (props != null) {
         return SubclipseTeamPlugin.getRepository(props.getUrl(), repositoryManager);
       }
     } catch (SVNException ex) {
@@ -40,5 +36,4 @@ public class SubclipseTaskRepositoryLinkProvider extends
     }
     return null;
   }
-
 }

@@ -22,55 +22,75 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 public class RevisionDetailsAction extends Action {
-	private Node node;
-	private RevisionGraphEditor editor;
-	private ISVNRemoteResource remoteResource;
-	private ILogEntry logEntry;
-	private boolean includeTags;
+  private Node node;
+  private RevisionGraphEditor editor;
+  private ISVNRemoteResource remoteResource;
+  private ILogEntry logEntry;
+  private boolean includeTags;
 
-	public RevisionDetailsAction(Node node, RevisionGraphEditor editor) {
-		super();
-		this.node = node;
-		this.editor = editor;
-		setText("Revision info...");		
-	}
-	
-	public void run() {
-		remoteResource = null;
-		logEntry = null;
-		includeTags = SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE);
-		BusyIndicator.showWhile(Display.getDefault(), new Runnable() {
-			public void run() {
-				try {
-					RevisionGraphEditorInput input = (RevisionGraphEditorInput)editor.getEditorInput();
-					ISVNInfo info = input.getInfo();
-					ISVNRepositoryLocation repository = SVNProviderPlugin.getPlugin().getRepository(info.getRepository().toString());
-					
-					remoteResource = new RemoteFile(repository, new SVNUrl(repository.getLocation() + node.getPath()), new SVNRevision.Number(node.getRevision()));
-					
-					AliasManager tagManager = null;
-	            	if (includeTags) tagManager = new AliasManager(remoteResource.getUrl());
-	            	SVNRevision pegRevision = new SVNRevision.Number(node.getRevision());
-	            	SVNRevision revisionStart = new SVNRevision.Number(node.getRevision());
-	            	SVNRevision revisionEnd = new SVNRevision.Number(node.getRevision());
-					GetLogsCommand logCmd = new GetLogsCommand(remoteResource, pegRevision, revisionStart, revisionEnd, false, 0, tagManager, true);
-					logCmd.run(null);
-					ILogEntry[] logEntries = logCmd.getLogEntries(); 
-					if (logEntries != null && logEntries.length > 0) {
-						logEntry = logEntries[0];
-					} 
-				} catch (Exception e) {
-					MessageDialog.openError(Display.getDefault().getActiveShell(), "Revision Info", e.getMessage());
-				}
-			}
-			
-		});
-		if (logEntry != null) {
-			ShowRevisionsDialog dialog = new ShowRevisionsDialog(Display.getDefault().getActiveShell(), logEntry, remoteResource, includeTags, null);
-			dialog.setTitle("Revision Info");
-			dialog.setSelectFirst(true);
-			dialog.open();
-		}
-	}
+  public RevisionDetailsAction(Node node, RevisionGraphEditor editor) {
+    super();
+    this.node = node;
+    this.editor = editor;
+    setText("Revision info...");
+  }
 
+  public void run() {
+    remoteResource = null;
+    logEntry = null;
+    includeTags =
+        SVNUIPlugin.getPlugin()
+            .getPreferenceStore()
+            .getBoolean(ISVNUIConstants.PREF_SHOW_TAGS_IN_REMOTE);
+    BusyIndicator.showWhile(
+        Display.getDefault(),
+        new Runnable() {
+          public void run() {
+            try {
+              RevisionGraphEditorInput input = (RevisionGraphEditorInput) editor.getEditorInput();
+              ISVNInfo info = input.getInfo();
+              ISVNRepositoryLocation repository =
+                  SVNProviderPlugin.getPlugin().getRepository(info.getRepository().toString());
+
+              remoteResource =
+                  new RemoteFile(
+                      repository,
+                      new SVNUrl(repository.getLocation() + node.getPath()),
+                      new SVNRevision.Number(node.getRevision()));
+
+              AliasManager tagManager = null;
+              if (includeTags) tagManager = new AliasManager(remoteResource.getUrl());
+              SVNRevision pegRevision = new SVNRevision.Number(node.getRevision());
+              SVNRevision revisionStart = new SVNRevision.Number(node.getRevision());
+              SVNRevision revisionEnd = new SVNRevision.Number(node.getRevision());
+              GetLogsCommand logCmd =
+                  new GetLogsCommand(
+                      remoteResource,
+                      pegRevision,
+                      revisionStart,
+                      revisionEnd,
+                      false,
+                      0,
+                      tagManager,
+                      true);
+              logCmd.run(null);
+              ILogEntry[] logEntries = logCmd.getLogEntries();
+              if (logEntries != null && logEntries.length > 0) {
+                logEntry = logEntries[0];
+              }
+            } catch (Exception e) {
+              MessageDialog.openError(
+                  Display.getDefault().getActiveShell(), "Revision Info", e.getMessage());
+            }
+          }
+        });
+    if (logEntry != null) {
+      ShowRevisionsDialog dialog =
+          new ShowRevisionsDialog(
+              Display.getDefault().getActiveShell(), logEntry, remoteResource, includeTags, null);
+      dialog.setTitle("Revision Info");
+      dialog.setSelectFirst(true);
+      dialog.open();
+    }
+  }
 }

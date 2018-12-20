@@ -1,95 +1,94 @@
 package org.tigris.subversion.subclipse.graph.cache;
 
 import java.util.Date;
-
 import org.tigris.subversion.svnclientadapter.ISVNLogMessage;
 import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
 import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 public class LogMessage implements ISVNLogMessage {
-	
-	private String author;
-	private Date date;
-	private String message;
-	private Number revision;
-	private LogMessageChangePath[] changedPaths;
-	private LogMessage[] childMessages;
 
-	public LogMessage(long revision, String author, Date date, String message) {
-		this.author = author;
-		this.date = date;
-		this.message = message;
-		this.revision = new Number(revision);
-	}
+  private String author;
+  private Date date;
+  private String message;
+  private Number revision;
+  private LogMessageChangePath[] changedPaths;
+  private LogMessage[] childMessages;
 
-	public String getAuthor() {
-		return author;
-	}
+  public LogMessage(long revision, String author, Date date, String message) {
+    this.author = author;
+    this.date = date;
+    this.message = message;
+    this.revision = new Number(revision);
+  }
 
-	public void setAuthor(String author) {
-		this.author = author;
-	}
+  public String getAuthor() {
+    return author;
+  }
 
-	public Date getDate() {
-		return date;
-	}
+  public void setAuthor(String author) {
+    this.author = author;
+  }
 
-	public void setDate(Date date) {
-		this.date = date;
-	}
+  public Date getDate() {
+    return date;
+  }
 
-	public String getMessage() {
-		return message;
-	}
+  public void setDate(Date date) {
+    this.date = date;
+  }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+  public String getMessage() {
+    return message;
+  }
 
-	public Number getRevision() {
-		return revision;
-	}
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-	public void setRevision(Number revision) {
-		this.revision = revision;
-	}
-	
-	public void addChild(ISVNLogMessage msg) {
-		throw new RuntimeException("Method not implemented");
-	}
-	
-	public boolean hasChildren() {
-		return childMessages != null;
-	}
+  public Number getRevision() {
+    return revision;
+  }
 
-	public void setChangedPaths(LogMessageChangePath[] changedPaths) {
-		this.changedPaths = changedPaths;
-	}
+  public void setRevision(Number revision) {
+    this.revision = revision;
+  }
 
-	public ISVNLogMessageChangePath[] getChangedPaths() {
-		return changedPaths;
-	}
+  public void addChild(ISVNLogMessage msg) {
+    throw new RuntimeException("Method not implemented");
+  }
 
-	public ISVNLogMessage[] getChildMessages() {
-		return childMessages;
-	}
+  public boolean hasChildren() {
+    return childMessages != null;
+  }
 
-	public void setChildMessages(LogMessage[] childMessages) {
-		this.childMessages = childMessages;
-	}
+  public void setChangedPaths(LogMessageChangePath[] changedPaths) {
+    this.changedPaths = changedPaths;
+  }
 
-	public long getNumberOfChildren() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+  public ISVNLogMessageChangePath[] getChangedPaths() {
+    return changedPaths;
+  }
 
-	public long getTimeMicros() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+  public ISVNLogMessage[] getChildMessages() {
+    return childMessages;
+  }
 
-	public long getTimeMillis() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+  public void setChildMessages(LogMessage[] childMessages) {
+    this.childMessages = childMessages;
+  }
+
+  public long getNumberOfChildren() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public long getTimeMicros() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public long getTimeMillis() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }

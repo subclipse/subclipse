@@ -3,19 +3,18 @@ package org.tigris.subversion.clientadapter;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 
 public interface ISVNClientWrapper {
-	
-	public ISVNClientAdapter getAdapter();
 
-	public boolean isAvailable();
+  public ISVNClientAdapter getAdapter();
 
-	public String getVersionString();
+  public boolean isAvailable();
 
-	public void setDisplayName(String string);
-	
-	public String getDisplayName();
-	
-	public String getLoadErrors();
+  public String getVersionString();
 
-	public String getAdapterID();
+  public void setDisplayName(String string);
 
+  public String getDisplayName();
+
+  public String getLoadErrors();
+
+  public String getAdapterID();
 }

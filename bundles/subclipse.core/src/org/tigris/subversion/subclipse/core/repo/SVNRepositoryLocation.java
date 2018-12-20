@@ -1,19 +1,17 @@
-/*******************************************************************************
- * Copyright (c) 2003, 2006 Subclipse project and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/**
+ * ***************************************************************************** Copyright (c) 2003,
+ * 2006 Subclipse project and others. All rights reserved. This program and the accompanying
+ * materials are made available under the terms of the Eclipse Public License v1.0 which accompanies
+ * this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     Subclipse project committers - initial API and implementation
- ******************************************************************************/
+ * <p>Contributors: Subclipse project committers - initial API and implementation
+ * ****************************************************************************
+ */
 package org.tigris.subversion.subclipse.core.repo;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -42,571 +40,562 @@ import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
- * This class manages a SVN repository location.
- * <br>
- * After modifying a SVNRepositoryLocation (label, username, password),
- * add it to repositories using {@link SVNRepositories#addOrUpdateRepository(ISVNRepositoryLocation)}
+ * This class manages a SVN repository location. <br>
+ * After modifying a SVNRepositoryLocation (label, username, password), add it to repositories using
+ * {@link SVNRepositories#addOrUpdateRepository(ISVNRepositoryLocation)}
  */
-public class SVNRepositoryLocation
-	implements ISVNRepositoryLocation, IUserInfo, IAdaptable {
+public class SVNRepositoryLocation implements ISVNRepositoryLocation, IUserInfo, IAdaptable {
 
-	/**
-	 * The name of the preferences node in the CVS preferences that contains
-	 * the known repositories as its children.
-	 */
-	public static final String PREF_REPOSITORIES_NODE = "repositories"; //$NON-NLS-1$
-	
-	/*
-	 * The name of the node in the default scope that has the default settings
-	 * for a repository.
-	 */
-	private static final String DEFAULT_REPOSITORY_SETTINGS_NODE = "default_repository_settings"; //$NON-NLS-1$
+  /**
+   * The name of the preferences node in the CVS preferences that contains the known repositories as
+   * its children.
+   */
+  public static final String PREF_REPOSITORIES_NODE = "repositories"; // $NON-NLS-1$
 
-	// Preference keys used to persist the state of the location
-	public static final String PREF_LOCATION = "location"; //$NON-NLS-1$
-	public static final String PREF_SERVER_ENCODING = "encoding"; //$NON-NLS-1$
+  /*
+   * The name of the node in the default scope that has the default settings
+   * for a repository.
+   */
+  private static final String DEFAULT_REPOSITORY_SETTINGS_NODE =
+      "default_repository_settings"; //$NON-NLS-1$
 
-	// friendly name of the location
-	private String label = null; 
-	
-    private String user;
-	
-    // url of this location
-    private SVNUrl url;
-	
-    // url of the root repository
-    private SVNUrl repositoryRootUrl;
-    
-	// the folder corresponding to this repository location
-    private RemoteFolder rootFolder;
-	
+  // Preference keys used to persist the state of the location
+  public static final String PREF_LOCATION = "location"; // $NON-NLS-1$
+  public static final String PREF_SERVER_ENCODING = "encoding"; // $NON-NLS-1$
 
-	// fields needed for caching the password
-	public static final String INFO_PASSWORD = "org.tigris.subversion.subclipse.core.password"; //$NON-NLS-1$ 
-	public static final String INFO_USERNAME = "org.tigris.subversion.subclipse.core.username"; //$NON-NLS-1$ 
-	public static final String AUTH_SCHEME = ""; //$NON-NLS-1$ 
-	public static final URL FAKE_URL;
+  // friendly name of the location
+  private String label = null;
 
-	public static final String USER_VARIABLE = "{user}"; //$NON-NLS-1$
-	public static final String PASSWORD_VARIABLE = "{password}"; //$NON-NLS-1$
-	public static final String HOST_VARIABLE = "{host}"; //$NON-NLS-1$
-	public static final String PORT_VARIABLE = "{port}"; //$NON-NLS-1$
+  private String user;
 
-	//	private ISVNClientAdapter svnClient; 
+  // url of this location
+  private SVNUrl url;
 
-	static {
-		URL temp = null;
-		try {
-			temp = new URL("http://org.tigris.subversion.subclipse.core"); //$NON-NLS-1$ 
-		} catch (MalformedURLException e) {
-		}
-		// The protection space is defined by this url and realm (AUTH_SCHEME)
-		FAKE_URL = temp;
-	}
+  // url of the root repository
+  private SVNUrl repositoryRootUrl;
 
-	/**
-	 * Return the preferences node whose child nodes are the know repositories
-	 * @return a preferences node
-	 */
-	public static Preferences getParentPreferences() {
-		return SVNProviderPlugin.getPlugin().getInstancePreferences().node(PREF_REPOSITORIES_NODE);
-	}
-	
-	/**
-	 * Return a preferences node that contains suitabel defaults for a
-	 * repository location.
-	 * @return  a preferences node
-	 */
-	public static Preferences getDefaultPreferences() {
-		Preferences defaults = new DefaultScope().getNode(SVNProviderPlugin.ID).node(DEFAULT_REPOSITORY_SETTINGS_NODE);
-		defaults.put(PREF_SERVER_ENCODING, getDefaultEncoding());
-		return defaults;
-	}
-	
-	private static String getDefaultEncoding() {
-		return System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
-	}	
-	/*
-	 * Create a SVNRepositoryLocation from its composite parts.
-	 */
-	private SVNRepositoryLocation(String user, String password, SVNUrl url, SVNUrl repositoryRootUrl) {
-		this.user = user;
-		this.url = url;
-        this.repositoryRootUrl = repositoryRootUrl; 
+  // the folder corresponding to this repository location
+  private RemoteFolder rootFolder;
 
-		rootFolder = new RemoteFolder(this, url, SVNRevision.HEAD);
-	}
+  // fields needed for caching the password
+  public static final String INFO_PASSWORD =
+      "org.tigris.subversion.subclipse.core.password"; //$NON-NLS-1$
+  public static final String INFO_USERNAME =
+      "org.tigris.subversion.subclipse.core.username"; //$NON-NLS-1$
+  public static final String AUTH_SCHEME = ""; // $NON-NLS-1$
+  public static final URL FAKE_URL;
 
-	/*
-	 * Dispose of the receiver by clearing any cached authorization information.
-	 * This method should only be invoked when the corresponding adapter is shut
-	 * down or a connection is being validated.
-	 */
-	public void dispose() throws SVNException {
-		ensurePreferencesStored();
-		// remove repo location from preferences
-		try {
-			if (hasPreferences()) {
-				internalGetPreferences().removeNode();
-				getParentPreferences().flush();
-			}
-		} catch (BackingStoreException e) {
-			SVNProviderPlugin.log(SVNException.wrapException(e));
-		}
-	}
+  public static final String USER_VARIABLE = "{user}"; // $NON-NLS-1$
+  public static final String PASSWORD_VARIABLE = "{password}"; // $NON-NLS-1$
+  public static final String HOST_VARIABLE = "{host}"; // $NON-NLS-1$
+  public static final String PORT_VARIABLE = "{port}"; // $NON-NLS-1$
 
-	/*
-	 * @see ISVNRepositoryLocation#getUrl()
-	 */
-	public SVNUrl getUrl() {
-		return url;
-	}
+  //	private ISVNClientAdapter svnClient;
 
-	/*
-	 * @see IRepositoryLocation#getLocation()
-	 */
-	public String getLocation() {
-		return getUrl().toString();
-	}
+  static {
+    URL temp = null;
+    try {
+      temp = new URL("http://org.tigris.subversion.subclipse.core"); // $NON-NLS-1$
+    } catch (MalformedURLException e) {
+    }
+    // The protection space is defined by this url and realm (AUTH_SCHEME)
+    FAKE_URL = temp;
+  }
 
-	public ISVNRemoteFolder getRootFolder() {
-		//        // refresh it so that members don't return always the same remote resources ...
-		//        rootFolder.refresh();
-		return rootFolder;
-	}
+  /**
+   * Return the preferences node whose child nodes are the know repositories
+   *
+   * @return a preferences node
+   */
+  public static Preferences getParentPreferences() {
+    return SVNProviderPlugin.getPlugin().getInstancePreferences().node(PREF_REPOSITORIES_NODE);
+  }
 
-	public void refreshRootFolder() {
-		rootFolder.refresh();
-	}
+  /**
+   * Return a preferences node that contains suitabel defaults for a repository location.
+   *
+   * @return a preferences node
+   */
+  public static Preferences getDefaultPreferences() {
+    Preferences defaults =
+        new DefaultScope().getNode(SVNProviderPlugin.ID).node(DEFAULT_REPOSITORY_SETTINGS_NODE);
+    defaults.put(PREF_SERVER_ENCODING, getDefaultEncoding());
+    return defaults;
+  }
 
-	/*
-	 * @see ISVNRepositoryLocation#members(IProgressMonitor)
-	 */
-	public ISVNRemoteResource[] members(IProgressMonitor progress)
-		throws SVNException {
-		try {
-			ISVNRemoteResource[] resources =
-				getRootFolder().members(progress);
-			return resources;
-		} catch (TeamException e) {
-			throw new SVNException(e.getStatus());
-		}
-	}
+  private static String getDefaultEncoding() {
+    return System.getProperty("file.encoding", "UTF-8"); // $NON-NLS-1$ //$NON-NLS-2$
+  }
+  /*
+   * Create a SVNRepositoryLocation from its composite parts.
+   */
+  private SVNRepositoryLocation(
+      String user, String password, SVNUrl url, SVNUrl repositoryRootUrl) {
+    this.user = user;
+    this.url = url;
+    this.repositoryRootUrl = repositoryRootUrl;
 
+    rootFolder = new RemoteFolder(this, url, SVNRevision.HEAD);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#getRemoteFolder(java.lang.String)
-	 */
-	public ISVNRemoteFolder getRemoteFolder(String remotePath) {
-		return new RemoteFolder(
-				this,
-				getUrl().appendPath(remotePath),
-				SVNRevision.HEAD);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#getRemoteFile(org.tigris.subversion.svnclientadapter.SVNUrl)
-	 */
-	public ISVNRemoteFile getRemoteFile(SVNUrl url) throws SVNException{
-		ISVNClientAdapter svnClient = getSVNClient();
-		ISVNInfo info = null;
-		try {
-			if (this.getRepositoryRoot().equals(url))
-			    return new RemoteFile(this, url, SVNRevision.HEAD);
-			else
-			    info = svnClient.getInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
-		} catch (SVNClientException e) {
-			throw new SVNException(
-				"Can't get latest remote resource for "
-					+ url);
-		}
+  /*
+   * Dispose of the receiver by clearing any cached authorization information.
+   * This method should only be invoked when the corresponding adapter is shut
+   * down or a connection is being validated.
+   */
+  public void dispose() throws SVNException {
+    ensurePreferencesStored();
+    // remove repo location from preferences
+    try {
+      if (hasPreferences()) {
+        internalGetPreferences().removeNode();
+        getParentPreferences().flush();
+      }
+    } catch (BackingStoreException e) {
+      SVNProviderPlugin.log(SVNException.wrapException(e));
+    }
+  }
 
-		if (info == null)
-			return null; // no remote file
-		else {
-			return new RemoteFile(null, // we don't know its parent
-			this,
-				url,
-				SVNRevision.HEAD,
-				info.getLastChangedRevision(),
-				info.getLastChangedDate(),
-				info.getLastCommitAuthor());
-		}		
-	}
+  /*
+   * @see ISVNRepositoryLocation#getUrl()
+   */
+  public SVNUrl getUrl() {
+    return url;
+  }
 
-	public ISVNRemoteFile getRemoteFile(String remotePath) throws SVNException{
-		return getRemoteFile(getUrl().appendPath(remotePath));
-	}
+  /*
+   * @see IRepositoryLocation#getLocation()
+   */
+  public String getLocation() {
+    return getUrl().toString();
+  }
 
-    /*
-     * @see ISVNRepositoryLocation#getUsername()
-     * @see IUserInfo#getUsername()
-     */
-    public String getUsername() {
-    	return user == null ? "" : user; //$NON-NLS-1$
+  public ISVNRemoteFolder getRootFolder() {
+    //        // refresh it so that members don't return always the same remote resources ...
+    //        rootFolder.refresh();
+    return rootFolder;
+  }
+
+  public void refreshRootFolder() {
+    rootFolder.refresh();
+  }
+
+  /*
+   * @see ISVNRepositoryLocation#members(IProgressMonitor)
+   */
+  public ISVNRemoteResource[] members(IProgressMonitor progress) throws SVNException {
+    try {
+      ISVNRemoteResource[] resources = getRootFolder().members(progress);
+      return resources;
+    } catch (TeamException e) {
+      throw new SVNException(e.getStatus());
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#getRemoteFolder(java.lang.String)
+   */
+  public ISVNRemoteFolder getRemoteFolder(String remotePath) {
+    return new RemoteFolder(this, getUrl().appendPath(remotePath), SVNRevision.HEAD);
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#getRemoteFile(org.tigris.subversion.svnclientadapter.SVNUrl)
+   */
+  public ISVNRemoteFile getRemoteFile(SVNUrl url) throws SVNException {
+    ISVNClientAdapter svnClient = getSVNClient();
+    ISVNInfo info = null;
+    try {
+      if (this.getRepositoryRoot().equals(url)) return new RemoteFile(this, url, SVNRevision.HEAD);
+      else info = svnClient.getInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
+    } catch (SVNClientException e) {
+      throw new SVNException("Can't get latest remote resource for " + url);
     }
 
-    /**
-     * get the svn client corresponding to the repository
-     * @throws SVNException
-     */
-    public ISVNClientAdapter getSVNClient() throws SVNException {
-    	ISVNClientAdapter svnClient =
-    		SVNProviderPlugin.getPlugin().getSVNClient();
-    
-    	svnClient.addNotifyListener(NotificationListener.getInstance());
-    
-    	return svnClient;
+    if (info == null) return null; // no remote file
+    else {
+      return new RemoteFile(
+          null, // we don't know its parent
+          this,
+          url,
+          SVNRevision.HEAD,
+          info.getLastChangedRevision(),
+          info.getLastChangedDate(),
+          info.getLastCommitAuthor());
     }
-    
-    public void returnSVNClient(ISVNClientAdapter client) {
-    	SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
-    }
+  }
 
-    /*
-     * Implementation of inherited toString()
-     */
-    public String toString() {
-    	if (getLabel() != null) {
-    		return getLabel();
-        } else
-        {
-        	return getLocation();
-        }
-    }
-    
-    public boolean equals(Object o) {
-    	if (!(o instanceof SVNRepositoryLocation))
-    		return false;
-    	return getLocation().equals(((SVNRepositoryLocation) o).getLocation());
-    }
-    
-    public int hashCode() {
-    	return getLocation().hashCode();
-    }
-        
-    /*
-     * @see IUserInfo#setPassword(String)
-     */
-    public void setPassword(String password) {
-    	// We stopped storing passwords prior to 1.0
-    	// just ignore this call
-    }
-    
-    /*
-     * @see IUserInfo#setUsername(String)
-     */
-    public void setUsername(String user) {
-    	// We stopped storing passwords prior to 1.0
-    	// just ignore this call
-    }
+  public ISVNRemoteFile getRemoteFile(String remotePath) throws SVNException {
+    return getRemoteFile(getUrl().appendPath(remotePath));
+  }
 
-    /**
-     * add user and password to the keyring 
-     */
-    public void updateCache() throws SVNException {
-    	ensurePreferencesStored();
-    	// We stopped storing passwords prior to 1.0
-    	// just ignore this call
-    }
+  /*
+   * @see ISVNRepositoryLocation#getUsername()
+   * @see IUserInfo#getUsername()
+   */
+  public String getUsername() {
+    return user == null ? "" : user; // $NON-NLS-1$
+  }
 
-    /*
-     * Validate that the receiver contains valid information for
-     * making a connection. If the receiver contains valid
-     * information, the method returns. Otherwise, an exception
-     * indicating the problem is throw.
-     */
-    public void validateConnection(IProgressMonitor monitor) throws SVNException {
-    	ISVNClientAdapter svnClient = getSVNClient();
-    	try {
-    		// we try to get the list of directories and files using the connection
-    		ISVNInfo info = svnClient.getInfo(getUrl());
-   		    repositoryRootUrl = info.getRepository();
-    	} catch (SVNClientException e) {
-    		// If the validation failed, dispose of any cached info
-    		dispose();
-    		throw SVNException.wrapException(e);
-    	}
-    }
+  /**
+   * get the svn client corresponding to the repository
+   *
+   * @throws SVNException
+   */
+  public ISVNClientAdapter getSVNClient() throws SVNException {
+    ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
 
-    /*
-     *  this should be made more robust --mml 11/27/03
-     * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#pathExists()
-     */
-    public boolean pathExists() throws SVNException{
-    	ISVNClientAdapter svnClient = getSVNClient();
-    	try{
-    		svnClient.getList(getUrl(), SVNRevision.HEAD, false);
-    	}catch(SVNClientException e){
-    		return false;
-    	}
-    	return true;
-    }
+    svnClient.addNotifyListener(NotificationListener.getInstance());
 
-    /*
-     * Create a repository location instance from the given properties.
-     * The supported properties are:
-     *   user The username for the connection (optional)
-     *   password The password used for the connection (optional)
-     *   url The url where the repository resides
-     *   rootUrl The repository root url
-     */
-    public static SVNRepositoryLocation fromProperties(Properties configuration)
-    	throws SVNException {
-    	// We build a string to allow validation of the components that are provided to us
-    
-    	String user = configuration.getProperty("user"); //$NON-NLS-1$ 
-    	if ((user == null) || (user.length() == 0))
-    		user = null;
-    	String password = configuration.getProperty("password"); //$NON-NLS-1$ 
-    	if (user == null)
-    		password = null;
-        String rootUrl = configuration.getProperty("rootUrl"); //$NON-NLS-1$
-        if ((rootUrl == null) || (rootUrl.length() == 0))
-            rootUrl = null;
-    	String url = configuration.getProperty("url"); //$NON-NLS-1$ 
-    	if (url == null)
-    		throw new SVNException(new Status(IStatus.ERROR, SVNProviderPlugin.ID, TeamException.UNABLE, Policy.bind("SVNRepositoryLocation.hostRequired"), null)); //$NON-NLS-1$ 
-    
-    	SVNUrl urlURL = null;
-    	try {
-    		urlURL = new SVNUrl(url);
-    	} catch (MalformedURLException e) {
-    		throw new SVNException(e.getMessage());
-    	}
-    
-        SVNUrl rootUrlURL = null;
-        if (rootUrl != null) {
-            try {
-                rootUrlURL = new SVNUrl(rootUrl);
-            } catch (MalformedURLException e) {
-                throw new SVNException(e.getMessage());
-            }
-        }
-        
-    	return new SVNRepositoryLocation(user, password, urlURL, rootUrlURL);
-    }
+    return svnClient;
+  }
 
-    /*
-     * Parse a location string and return a SVNRepositoryLocation.
-     * 
-     * On failure, the status of the exception will be a MultiStatus
-     * that includes the original parsing error and a general status
-     * displaying the passed location and proper form. This form is
-     * better for logging, etc.
-     */
-    public static SVNRepositoryLocation fromString(String location)
-    	throws SVNException {
-    	try {
-    		return fromString(location, false);
-    	} catch (SVNException e) {
-    		// Parsing failed. Include a status that
-    		// shows the passed location and the proper form
-    		MultiStatus error = new MultiStatus(SVNProviderPlugin.ID, SVNStatus.ERROR, Policy.bind("SVNRepositoryLocation.invalidFormat", new Object[] { location }), null); //$NON-NLS-1$ 
-    		error.merge(new SVNStatus(SVNStatus.ERROR, Policy.bind("SVNRepositoryLocation.locationForm"))); //$NON-NLS-1$ 
-    		error.merge(e.getStatus());
-    		throw new SVNException(error);
-    	}
+  public void returnSVNClient(ISVNClientAdapter client) {
+    SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(client);
+  }
+
+  /*
+   * Implementation of inherited toString()
+   */
+  public String toString() {
+    if (getLabel() != null) {
+      return getLabel();
+    } else {
+      return getLocation();
+    }
+  }
+
+  public boolean equals(Object o) {
+    if (!(o instanceof SVNRepositoryLocation)) return false;
+    return getLocation().equals(((SVNRepositoryLocation) o).getLocation());
+  }
+
+  public int hashCode() {
+    return getLocation().hashCode();
+  }
+
+  /*
+   * @see IUserInfo#setPassword(String)
+   */
+  public void setPassword(String password) {
+    // We stopped storing passwords prior to 1.0
+    // just ignore this call
+  }
+
+  /*
+   * @see IUserInfo#setUsername(String)
+   */
+  public void setUsername(String user) {
+    // We stopped storing passwords prior to 1.0
+    // just ignore this call
+  }
+
+  /** add user and password to the keyring */
+  public void updateCache() throws SVNException {
+    ensurePreferencesStored();
+    // We stopped storing passwords prior to 1.0
+    // just ignore this call
+  }
+
+  /*
+   * Validate that the receiver contains valid information for
+   * making a connection. If the receiver contains valid
+   * information, the method returns. Otherwise, an exception
+   * indicating the problem is throw.
+   */
+  public void validateConnection(IProgressMonitor monitor) throws SVNException {
+    ISVNClientAdapter svnClient = getSVNClient();
+    try {
+      // we try to get the list of directories and files using the connection
+      ISVNInfo info = svnClient.getInfo(getUrl());
+      repositoryRootUrl = info.getRepository();
+    } catch (SVNClientException e) {
+      // If the validation failed, dispose of any cached info
+      dispose();
+      throw SVNException.wrapException(e);
+    }
+  }
+
+  /*
+   *  this should be made more robust --mml 11/27/03
+   * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#pathExists()
+   */
+  public boolean pathExists() throws SVNException {
+    ISVNClientAdapter svnClient = getSVNClient();
+    try {
+      svnClient.getList(getUrl(), SVNRevision.HEAD, false);
+    } catch (SVNClientException e) {
+      return false;
+    }
+    return true;
+  }
+
+  /*
+   * Create a repository location instance from the given properties.
+   * The supported properties are:
+   *   user The username for the connection (optional)
+   *   password The password used for the connection (optional)
+   *   url The url where the repository resides
+   *   rootUrl The repository root url
+   */
+  public static SVNRepositoryLocation fromProperties(Properties configuration) throws SVNException {
+    // We build a string to allow validation of the components that are provided to us
+
+    String user = configuration.getProperty("user"); // $NON-NLS-1$
+    if ((user == null) || (user.length() == 0)) user = null;
+    String password = configuration.getProperty("password"); // $NON-NLS-1$
+    if (user == null) password = null;
+    String rootUrl = configuration.getProperty("rootUrl"); // $NON-NLS-1$
+    if ((rootUrl == null) || (rootUrl.length() == 0)) rootUrl = null;
+    String url = configuration.getProperty("url"); // $NON-NLS-1$
+    if (url == null)
+      throw new SVNException(
+          new Status(
+              IStatus.ERROR,
+              SVNProviderPlugin.ID,
+              TeamException.UNABLE,
+              Policy.bind("SVNRepositoryLocation.hostRequired"),
+              null)); //$NON-NLS-1$
+
+    SVNUrl urlURL = null;
+    try {
+      urlURL = new SVNUrl(url);
+    } catch (MalformedURLException e) {
+      throw new SVNException(e.getMessage());
     }
 
-    /*
-     * Parse a location string and return a SVNRepositoryLocation.
-     * 
-     * The location is an url
-     */
-    public static SVNRepositoryLocation fromString(
-    	String location,
-    	boolean validateOnly)
-    	throws SVNException {
-    
-    	String partId = null;
-    	try {
-    		String user = null;
-    		String password = null;
-            SVNUrl rootUrl = null;
-    		SVNUrl url = new SVNUrl(location);
-    
-    		if (validateOnly)
-    			throw new SVNException(new SVNStatus(SVNStatus.OK, Policy.bind("ok"))); //$NON-NLS-1$ 
-    
-    		return new SVNRepositoryLocation(user, password, url, rootUrl);
-    	} catch (MalformedURLException e) {
-    		throw new SVNException(Policy.bind(partId));
-    	} catch (IndexOutOfBoundsException e) {
-    		// We'll get here if anything funny happened while extracting substrings
-    		throw new SVNException(Policy.bind(partId));
-    	} catch (NumberFormatException e) {
-    		// We'll get here if we couldn't parse a number
-    		throw new SVNException(Policy.bind(partId));
-    	}
+    SVNUrl rootUrlURL = null;
+    if (rootUrl != null) {
+      try {
+        rootUrlURL = new SVNUrl(rootUrl);
+      } catch (MalformedURLException e) {
+        throw new SVNException(e.getMessage());
+      }
     }
 
-    /*
-     * Parse a location string and return a SVNRepositoryLocation.
-     * If useRootUrl is true, use the repository root URL.
-     */    
-    public static SVNRepositoryLocation fromString(
-    		String location,
-    		boolean validateOnly,
-    		boolean useRootUrl) throws SVNException {
-    	if (!useRootUrl) return fromString(location, validateOnly);
-    	ISVNClientAdapter svnClient =
-    		SVNProviderPlugin.getPlugin().getSVNClient();
-    	try {
-	    	SVNUrl url = new SVNUrl(location);
-	    	ISVNInfo info = svnClient.getInfo(url);
-	    	SVNUrl rootUrl = info.getRepository();
-	    	return fromString(rootUrl.toString());
-    	} catch (MalformedURLException e) {
-    		throw SVNException.wrapException(e);
-    	} catch (SVNClientException e) {
-    		throw SVNException.wrapException(e);
-        } finally {
-	        SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
-        }
+    return new SVNRepositoryLocation(user, password, urlURL, rootUrlURL);
+  }
+
+  /*
+   * Parse a location string and return a SVNRepositoryLocation.
+   *
+   * On failure, the status of the exception will be a MultiStatus
+   * that includes the original parsing error and a general status
+   * displaying the passed location and proper form. This form is
+   * better for logging, etc.
+   */
+  public static SVNRepositoryLocation fromString(String location) throws SVNException {
+    try {
+      return fromString(location, false);
+    } catch (SVNException e) {
+      // Parsing failed. Include a status that
+      // shows the passed location and the proper form
+      MultiStatus error =
+          new MultiStatus(
+              SVNProviderPlugin.ID,
+              SVNStatus.ERROR,
+              Policy.bind("SVNRepositoryLocation.invalidFormat", new Object[] {location}),
+              null); //$NON-NLS-1$
+      error.merge(
+          new SVNStatus(
+              SVNStatus.ERROR, Policy.bind("SVNRepositoryLocation.locationForm"))); // $NON-NLS-1$
+      error.merge(e.getStatus());
+      throw new SVNException(error);
     }
+  }
 
-//	public static IUserAuthenticator getAuthenticator() {
-//		if (authenticator == null) {
-//			authenticator = getPluggedInAuthenticator();
-//		}
-//		return authenticator;
-//	}
+  /*
+   * Parse a location string and return a SVNRepositoryLocation.
+   *
+   * The location is an url
+   */
+  public static SVNRepositoryLocation fromString(String location, boolean validateOnly)
+      throws SVNException {
 
-/*
- * Return the connection method registered for the given name or null if none
- * are registered
- */
-//	private static IConnectionMethod getPluggedInConnectionMethod(String methodName) {
-//		IConnectionMethod[] methods = getPluggedInConnectionMethods();
-//		for(int i=0; i<methods.length; i++) {
-//			if(methodName.equals(methods[i].getName()))
-//				return methods[i];
-//		}
-//		return null;		
-//	}
+    String partId = null;
+    try {
+      String user = null;
+      String password = null;
+      SVNUrl rootUrl = null;
+      SVNUrl url = new SVNUrl(location);
 
-//	private static IUserAuthenticator getPluggedInAuthenticator() {
-//		IExtension[] extensions = Platform.getPluginRegistry().getExtensionPoint(CVSProviderPlugin.ID, CVSProviderPlugin.PT_AUTHENTICATOR).getExtensions();
-//		if (extensions.length == 0)
-//			return null;
-//		IExtension extension = extensions[0];
-//		IConfigurationElement[] configs = extension.getConfigurationElements();
-//		if (configs.length == 0) {
-//			CVSProviderPlugin.log(new Status(IStatus.ERROR, CVSProviderPlugin.ID, 0, Policy.bind("CVSAdapter.noConfigurationElement", new Object[] {extension.getUniqueIdentifier()}), null));//$NON-NLS-1$ 
-//			return null;
-//		}
-//		try {
-//			IConfigurationElement config = configs[0];
-//			return (IUserAuthenticator) config.createExecutableExtension("run");//$NON-NLS-1$ 
-//		} catch (CoreException ex) {
-//			CVSProviderPlugin.log(new Status(IStatus.ERROR, CVSProviderPlugin.ID, 0, Policy.bind("CVSAdapter.unableToInstantiate", new Object[] {extension.getUniqueIdentifier()}), ex));//$NON-NLS-1$ 
-//			return null;
-//		}
-//	}
+      if (validateOnly)
+        throw new SVNException(new SVNStatus(SVNStatus.OK, Policy.bind("ok"))); // $NON-NLS-1$
 
-	public Object getAdapter(Class adapter) {
-		if (adapter == ISVNRemoteFolder.class)
-			return rootFolder;
-		else
-			return Platform.getAdapterManager().getAdapter(this, adapter);
-	}
-
-    /**
-     * get the url of the repository root <br>
-     * Ex : if url is http://svn.collab.net/viewcvs/svn/trunk/subversion/, the
-     * repository root is http://svn.collab.net/viewcvs/svn
-     * @return
-     */
-    public SVNUrl getRepositoryRoot() {
-        // for now, we can't get it using svn, so user must give it
-        // if the user did not provide a value, we will just return
-        // the repository URL.
-        if (repositoryRootUrl == null)
-            return getUrl();
-        else
-            return repositoryRootUrl;
+      return new SVNRepositoryLocation(user, password, url, rootUrl);
+    } catch (MalformedURLException e) {
+      throw new SVNException(Policy.bind(partId));
+    } catch (IndexOutOfBoundsException e) {
+      // We'll get here if anything funny happened while extracting substrings
+      throw new SVNException(Policy.bind(partId));
+    } catch (NumberFormatException e) {
+      // We'll get here if we couldn't parse a number
+      throw new SVNException(Policy.bind(partId));
     }
+  }
 
-    /* (non-Javadoc)
-     * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#setRepositoryRoot(org.tigris.subversion.svnclientadapter.SVNUrl)
-     */
-    public void setRepositoryRoot(SVNUrl url) {
-        repositoryRootUrl = url;
+  /*
+   * Parse a location string and return a SVNRepositoryLocation.
+   * If useRootUrl is true, use the repository root URL.
+   */
+  public static SVNRepositoryLocation fromString(
+      String location, boolean validateOnly, boolean useRootUrl) throws SVNException {
+    if (!useRootUrl) return fromString(location, validateOnly);
+    ISVNClientAdapter svnClient = SVNProviderPlugin.getPlugin().getSVNClient();
+    try {
+      SVNUrl url = new SVNUrl(location);
+      ISVNInfo info = svnClient.getInfo(url);
+      SVNUrl rootUrl = info.getRepository();
+      return fromString(rootUrl.toString());
+    } catch (MalformedURLException e) {
+      throw SVNException.wrapException(e);
+    } catch (SVNClientException e) {
+      throw SVNException.wrapException(e);
+    } finally {
+      SVNProviderPlugin.getPlugin().getSVNClientManager().returnSVNClient(svnClient);
     }
+  }
 
-	/**
-	 * @return Returns the label.
-	 */
-	public String getLabel() {
-		return label;
-	}
-	
-	/**
-	 * @param label The label to set.
-	 */
-	public void setLabel(String label) {
-		this.label = label;
-	}
-	/*
-	 * Return the preferences node for this repository
-	 */
-	public Preferences getPreferences() {
-		if (!hasPreferences()) {
-			ensurePreferencesStored();
-		}
-		return internalGetPreferences();
-	}
-	
-	private Preferences internalGetPreferences() {
-		return getParentPreferences().node(getPreferenceName());
-	}
-	
-	private boolean hasPreferences() {
-		try {
-			return getParentPreferences().nodeExists(getPreferenceName());
-		} catch (Exception e) {
-			// FIXME: commented 2 lines below is how CVS did it. Did i do it right?
-			//CVSProviderPlugin.log(IStatus.ERROR, NLS.bind(CVSMessages.CVSRepositoryLocation_74, new String[] { getLocation(true) }), e); 
-			//return false;
-			SVNProviderPlugin.log(SVNException.wrapException(e));
-			return false;
-		}
-	}
-	
-	/**
-	 * Return a unique name that identifies this location but
-	 * does not contain any slashes (/). Also, do not use ':'.
-	 * Although a valid path character, the initial core implementation
-	 * didn't handle it well.
-	 */
-	private String getPreferenceName() {
-		return getLocation().replace('/', '%').replace(':', '%');
-	}
+  //	public static IUserAuthenticator getAuthenticator() {
+  //		if (authenticator == null) {
+  //			authenticator = getPluggedInAuthenticator();
+  //		}
+  //		return authenticator;
+  //	}
 
-	public void storePreferences() {
-		Preferences prefs = internalGetPreferences();
-		// Must store at least one preference in the node
-		prefs.put(PREF_LOCATION, getLocation());
-		flushPreferences();
-	}
-	
-	private void flushPreferences() {
-		try {
-			internalGetPreferences().flush();
-		} catch (BackingStoreException e) {
-			SVNProviderPlugin.log(SVNException.wrapException(e));
-		}
-	}
-	public void setUrl(SVNUrl url) {
-		this.url = url;
-	}
-	private void ensurePreferencesStored() {
-		if (!hasPreferences()) {
-			storePreferences();
-		}
-	}
+  /*
+   * Return the connection method registered for the given name or null if none
+   * are registered
+   */
+  //	private static IConnectionMethod getPluggedInConnectionMethod(String methodName) {
+  //		IConnectionMethod[] methods = getPluggedInConnectionMethods();
+  //		for(int i=0; i<methods.length; i++) {
+  //			if(methodName.equals(methods[i].getName()))
+  //				return methods[i];
+  //		}
+  //		return null;
+  //	}
 
+  //	private static IUserAuthenticator getPluggedInAuthenticator() {
+  //		IExtension[] extensions = Platform.getPluginRegistry().getExtensionPoint(CVSProviderPlugin.ID,
+  // CVSProviderPlugin.PT_AUTHENTICATOR).getExtensions();
+  //		if (extensions.length == 0)
+  //			return null;
+  //		IExtension extension = extensions[0];
+  //		IConfigurationElement[] configs = extension.getConfigurationElements();
+  //		if (configs.length == 0) {
+  //			CVSProviderPlugin.log(new Status(IStatus.ERROR, CVSProviderPlugin.ID, 0,
+  // Policy.bind("CVSAdapter.noConfigurationElement", new Object[]
+  // {extension.getUniqueIdentifier()}), null));//$NON-NLS-1$
+  //			return null;
+  //		}
+  //		try {
+  //			IConfigurationElement config = configs[0];
+  //			return (IUserAuthenticator) config.createExecutableExtension("run");//$NON-NLS-1$
+  //		} catch (CoreException ex) {
+  //			CVSProviderPlugin.log(new Status(IStatus.ERROR, CVSProviderPlugin.ID, 0,
+  // Policy.bind("CVSAdapter.unableToInstantiate", new Object[] {extension.getUniqueIdentifier()}),
+  // ex));//$NON-NLS-1$
+  //			return null;
+  //		}
+  //	}
+
+  public Object getAdapter(Class adapter) {
+    if (adapter == ISVNRemoteFolder.class) return rootFolder;
+    else return Platform.getAdapterManager().getAdapter(this, adapter);
+  }
+
+  /**
+   * get the url of the repository root <br>
+   * Ex : if url is http://svn.collab.net/viewcvs/svn/trunk/subversion/, the repository root is
+   * http://svn.collab.net/viewcvs/svn
+   *
+   * @return
+   */
+  public SVNUrl getRepositoryRoot() {
+    // for now, we can't get it using svn, so user must give it
+    // if the user did not provide a value, we will just return
+    // the repository URL.
+    if (repositoryRootUrl == null) return getUrl();
+    else return repositoryRootUrl;
+  }
+
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNRepositoryLocation#setRepositoryRoot(org.tigris.subversion.svnclientadapter.SVNUrl)
+   */
+  public void setRepositoryRoot(SVNUrl url) {
+    repositoryRootUrl = url;
+  }
+
+  /** @return Returns the label. */
+  public String getLabel() {
+    return label;
+  }
+
+  /** @param label The label to set. */
+  public void setLabel(String label) {
+    this.label = label;
+  }
+  /*
+   * Return the preferences node for this repository
+   */
+  public Preferences getPreferences() {
+    if (!hasPreferences()) {
+      ensurePreferencesStored();
+    }
+    return internalGetPreferences();
+  }
+
+  private Preferences internalGetPreferences() {
+    return getParentPreferences().node(getPreferenceName());
+  }
+
+  private boolean hasPreferences() {
+    try {
+      return getParentPreferences().nodeExists(getPreferenceName());
+    } catch (Exception e) {
+      // FIXME: commented 2 lines below is how CVS did it. Did i do it right?
+      // CVSProviderPlugin.log(IStatus.ERROR, NLS.bind(CVSMessages.CVSRepositoryLocation_74, new
+      // String[] { getLocation(true) }), e);
+      // return false;
+      SVNProviderPlugin.log(SVNException.wrapException(e));
+      return false;
+    }
+  }
+
+  /**
+   * Return a unique name that identifies this location but does not contain any slashes (/). Also,
+   * do not use ':'. Although a valid path character, the initial core implementation didn't handle
+   * it well.
+   */
+  private String getPreferenceName() {
+    return getLocation().replace('/', '%').replace(':', '%');
+  }
+
+  public void storePreferences() {
+    Preferences prefs = internalGetPreferences();
+    // Must store at least one preference in the node
+    prefs.put(PREF_LOCATION, getLocation());
+    flushPreferences();
+  }
+
+  private void flushPreferences() {
+    try {
+      internalGetPreferences().flush();
+    } catch (BackingStoreException e) {
+      SVNProviderPlugin.log(SVNException.wrapException(e));
+    }
+  }
+
+  public void setUrl(SVNUrl url) {
+    this.url = url;
+  }
+
+  private void ensurePreferencesStored() {
+    if (!hasPreferences()) {
+      storePreferences();
+    }
+  }
 }

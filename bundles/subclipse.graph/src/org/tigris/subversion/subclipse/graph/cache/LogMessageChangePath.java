@@ -4,54 +4,53 @@ import org.tigris.subversion.svnclientadapter.ISVNLogMessageChangePath;
 import org.tigris.subversion.svnclientadapter.SVNRevision.Number;
 
 public class LogMessageChangePath implements ISVNLogMessageChangePath {
-	
-	private char action;
-	private String copySrcPath;
-	private Number copySrcRevision;
-	private String path;
 
-	public LogMessageChangePath(char action, String path, String copySrcPath,
-			long copySrcRevision) {
-		this.action = action;
-		this.copySrcPath = copySrcPath;
-		this.copySrcRevision = new Number(copySrcRevision);
-		this.path = path;
-	}
+  private char action;
+  private String copySrcPath;
+  private Number copySrcRevision;
+  private String path;
 
-	public LogMessageChangePath(char action, String path) {
-		this.action = action;
-		this.path = path;
-	}
+  public LogMessageChangePath(char action, String path, String copySrcPath, long copySrcRevision) {
+    this.action = action;
+    this.copySrcPath = copySrcPath;
+    this.copySrcRevision = new Number(copySrcRevision);
+    this.path = path;
+  }
 
-	public char getAction() {
-		return action;
-	}
+  public LogMessageChangePath(char action, String path) {
+    this.action = action;
+    this.path = path;
+  }
 
-	public void setAction(char action) {
-		this.action = action;
-	}
+  public char getAction() {
+    return action;
+  }
 
-	public String getCopySrcPath() {
-		return copySrcPath;
-	}
+  public void setAction(char action) {
+    this.action = action;
+  }
 
-	public void setCopySrcPath(String copySrcPath) {
-		this.copySrcPath = copySrcPath;
-	}
+  public String getCopySrcPath() {
+    return copySrcPath;
+  }
 
-	public Number getCopySrcRevision() {
-		return copySrcRevision;
-	}
+  public void setCopySrcPath(String copySrcPath) {
+    this.copySrcPath = copySrcPath;
+  }
 
-	public void setCopySrcRevision(Number copySrcRevision) {
-		this.copySrcRevision = copySrcRevision;
-	}
+  public Number getCopySrcRevision() {
+    return copySrcRevision;
+  }
 
-	public String getPath() {
-		return path;
-	}
+  public void setCopySrcRevision(Number copySrcRevision) {
+    this.copySrcRevision = copySrcRevision;
+  }
 
-	public void setPath(String path) {
-		this.path = path;
-	}
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
+  }
 }

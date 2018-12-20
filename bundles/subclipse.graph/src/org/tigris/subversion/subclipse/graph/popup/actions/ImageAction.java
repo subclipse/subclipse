@@ -8,18 +8,18 @@ import org.tigris.subversion.subclipse.graph.editors.RevisionGraphEditor;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class ImageAction extends Action {
-	private RevisionGraphEditor editor;
+  private RevisionGraphEditor editor;
 
-	public ImageAction(RevisionGraphEditor editor) {
-		super();
-		this.editor = editor;
-		setText("Save image to file...");
-		setImageDescriptor(SVNUIPlugin.getPlugin().getImageDescriptor(IRevisionGraphConstants.IMG_EXPORT_IMAGE));
-	}
+  public ImageAction(RevisionGraphEditor editor) {
+    super();
+    this.editor = editor;
+    setText("Save image to file...");
+    setImageDescriptor(
+        SVNUIPlugin.getPlugin().getImageDescriptor(IRevisionGraphConstants.IMG_EXPORT_IMAGE));
+  }
 
-	public void run() {
-		SaveImageDialog dialog = new SaveImageDialog(Display.getDefault().getActiveShell(), editor);
-		dialog.open();
-	}
-
+  public void run() {
+    SaveImageDialog dialog = new SaveImageDialog(Display.getDefault().getActiveShell(), editor);
+    dialog.open();
+  }
 }

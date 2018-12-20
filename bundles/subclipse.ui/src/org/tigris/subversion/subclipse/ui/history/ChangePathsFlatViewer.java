@@ -1,13 +1,12 @@
-/*******************************************************************************
- * Copyright (c) 2007 Subclipse project and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/**
+ * ***************************************************************************** Copyright (c) 2007
+ * Subclipse project and others. All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     Subclipse project committers - initial API and implementation
- ******************************************************************************/
+ * <p>Contributors: Subclipse project committers - initial API and implementation
+ * ****************************************************************************
+ */
 package org.tigris.subversion.subclipse.ui.history;
 
 import org.eclipse.jface.resource.JFaceResources;
@@ -42,7 +41,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
  * Flat list representation of the affected paths panel.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class ChangePathsFlatViewer extends TableViewer {
@@ -51,16 +50,18 @@ public class ChangePathsFlatViewer extends TableViewer {
 
   public ChangePathsFlatViewer(Composite parent, SVNHistoryPage page) {
     super(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI /* SWT.FULL_SELECTION */);
-    
+
     GridData data = new GridData(GridData.FILL_BOTH);
     getControl().setLayoutData(data);
-    getControl().addDisposeListener(new DisposeListener() {
-      public void widgetDisposed(DisposeEvent e) {
-        if (currentPathFont != null) {
-          currentPathFont.dispose();
-        }
-      }
-    });
+    getControl()
+        .addDisposeListener(
+            new DisposeListener() {
+              public void widgetDisposed(DisposeEvent e) {
+                if (currentPathFont != null) {
+                  currentPathFont.dispose();
+                }
+              }
+            });
 
     setLabelProvider(new ChangePathLabelProvider());
     setContentProvider(new ChangePathsFlatContentProvider(page));
@@ -79,36 +80,39 @@ public class ChangePathsFlatViewer extends TableViewer {
     }
   }
 
-  /**
-   * The label provider.
-   */
+  /** The label provider. */
   class ChangePathLabelProvider extends LabelProvider implements IFontProvider, IColorProvider {
 
     public String getText(Object element) {
       if (element instanceof LogEntryChangePath) {
         LogEntryChangePath changePath = (LogEntryChangePath) element;
         String path = changePath.getPath();
-//        int n = path.lastIndexOf('/');
-//        if (n > -1)
-//          path = path.substring(n + 1);
+        //        int n = path.lastIndexOf('/');
+        //        if (n > -1)
+        //          path = path.substring(n + 1);
         if (changePath.getCopySrcPath() == null) {
           return path;
         }
         return path
-            + " [" + //$NON-NLS-1$
-            Policy.bind("ChangePathsTableProvider.copiedfrom", //$NON-NLS-1$
-                changePath.getCopySrcPath(), changePath.getCopySrcRevision()
-                    .toString()) + "]";
+            + " ["
+            + //$NON-NLS-1$
+            Policy.bind(
+                "ChangePathsTableProvider.copiedfrom", //$NON-NLS-1$
+                changePath.getCopySrcPath(),
+                changePath.getCopySrcRevision().toString())
+            + "]";
       } else if (element instanceof HistoryFolder) {
         HistoryFolder f = (HistoryFolder) element;
         if (f.getCopySrcPath() == null) {
-          return f.getPath()
-              + (f.getChildCount() == 0 ? "" : " [" + f.getChildCount() + "]");
+          return f.getPath() + (f.getChildCount() == 0 ? "" : " [" + f.getChildCount() + "]");
         }
         return f.getPath()
             + (f.getChildCount() == 0 ? " [" : " [" + f.getChildCount() + "] [")
-            + Policy.bind("ChangePathsTableProvider.copiedfrom", //$NON-NLS-1$
-                f.getCopySrcPath(), f.getCopySrcRevision().toString()) + "]";
+            + Policy.bind(
+                "ChangePathsTableProvider.copiedfrom", //$NON-NLS-1$
+                f.getCopySrcPath(),
+                f.getCopySrcRevision().toString())
+            + "]";
       }
       return element.toString();
     }
@@ -118,63 +122,61 @@ public class ChangePathsFlatViewer extends TableViewer {
       if (element instanceof LogEntryChangePath) {
         LogEntryChangePath changePath = (LogEntryChangePath) element;
         switch (changePath.getAction()) {
-        case 'A':
-          id = ISVNUIConstants.IMG_FILEADD_PENDING;
-          break;
-        case 'D':
-          id = ISVNUIConstants.IMG_FILEDELETE_PENDING;
-          break;
-        // case 'M':
-        default:
-          id = ISVNUIConstants.IMG_FILEMODIFIED_PENDING;
-          break;
-        }
-
-      } else if (element instanceof HistoryFolder) {
-        HistoryFolder folder = (HistoryFolder) element;
-        if (folder.getChildren().length == 0) {
-          switch (folder.getAction()) {
           case 'A':
             id = ISVNUIConstants.IMG_FILEADD_PENDING;
             break;
           case 'D':
             id = ISVNUIConstants.IMG_FILEDELETE_PENDING;
             break;
-          // case 'M':
+            // case 'M':
           default:
             id = ISVNUIConstants.IMG_FILEMODIFIED_PENDING;
             break;
+        }
+
+      } else if (element instanceof HistoryFolder) {
+        HistoryFolder folder = (HistoryFolder) element;
+        if (folder.getChildren().length == 0) {
+          switch (folder.getAction()) {
+            case 'A':
+              id = ISVNUIConstants.IMG_FILEADD_PENDING;
+              break;
+            case 'D':
+              id = ISVNUIConstants.IMG_FILEDELETE_PENDING;
+              break;
+              // case 'M':
+            default:
+              id = ISVNUIConstants.IMG_FILEMODIFIED_PENDING;
+              break;
           }
         } else {
           switch (folder.getAction()) {
-          case 'A':
-            id = ISVNUIConstants.IMG_FOLDERADD_PENDING;
-            break;
-          case 'D':
-            id = ISVNUIConstants.IMG_FOLDERDELETE_PENDING;
-            break;
-          case 'M':
-            id = ISVNUIConstants.IMG_FOLDERMODIFIED_PENDING;
-            break;
-          default:
-            id = ISVNUIConstants.IMG_FOLDER;
-            break;
+            case 'A':
+              id = ISVNUIConstants.IMG_FOLDERADD_PENDING;
+              break;
+            case 'D':
+              id = ISVNUIConstants.IMG_FOLDERDELETE_PENDING;
+              break;
+            case 'M':
+              id = ISVNUIConstants.IMG_FOLDERMODIFIED_PENDING;
+              break;
+            default:
+              id = ISVNUIConstants.IMG_FOLDER;
+              break;
           }
         }
       }
-      if (id == null)
-        return null;
+      if (id == null) return null;
       return SVNUIPlugin.getImage(id);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
      */
     public Font getFont(Object element) {
-      if (element == null || currentLogEntry == null
-          || !(element instanceof LogEntryChangePath)) {
+      if (element == null || currentLogEntry == null || !(element instanceof LogEntryChangePath)) {
         return null;
       }
 
@@ -202,30 +204,33 @@ public class ChangePathsFlatViewer extends TableViewer {
       }
       return null;
     }
-    
-	public Color getBackground(Object element) {
-		return null;
-	}
 
-	public Color getForeground(Object element) {
-		if (currentLogEntry == null) {
-			return null;
-		}
-		ISVNResource resource = currentLogEntry.getResource();
-		if (resource == null) return null;
-		boolean isPartOfSelection = false;
-		if (element instanceof HistoryFolder) {
-			HistoryFolder historyFolder = (HistoryFolder)element;				
-			isPartOfSelection = (resource.getRepository().getUrl().toString() + historyFolder.getPath()).startsWith(currentLogEntry.getResource().getUrl().toString());
-		}
-		if (element instanceof LogEntryChangePath) {
-			LogEntryChangePath logEntryChangePath = (LogEntryChangePath)element;
-			isPartOfSelection = (resource.getRepository().getUrl().toString() + logEntryChangePath.getPath()).startsWith(currentLogEntry.getResource().getUrl().toString());
-		}
-		if (!isPartOfSelection) return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
-		return null;
-	}
+    public Color getBackground(Object element) {
+      return null;
+    }
 
+    public Color getForeground(Object element) {
+      if (currentLogEntry == null) {
+        return null;
+      }
+      ISVNResource resource = currentLogEntry.getResource();
+      if (resource == null) return null;
+      boolean isPartOfSelection = false;
+      if (element instanceof HistoryFolder) {
+        HistoryFolder historyFolder = (HistoryFolder) element;
+        isPartOfSelection =
+            (resource.getRepository().getUrl().toString() + historyFolder.getPath())
+                .startsWith(currentLogEntry.getResource().getUrl().toString());
+      }
+      if (element instanceof LogEntryChangePath) {
+        LogEntryChangePath logEntryChangePath = (LogEntryChangePath) element;
+        isPartOfSelection =
+            (resource.getRepository().getUrl().toString() + logEntryChangePath.getPath())
+                .startsWith(currentLogEntry.getResource().getUrl().toString());
+      }
+      if (!isPartOfSelection) return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
+      return null;
+    }
   }
 
   static final LogEntryChangePath[] EMPTY_CHANGE_PATHS = new LogEntryChangePath[0];
@@ -239,8 +244,7 @@ public class ChangePathsFlatViewer extends TableViewer {
     }
 
     public Object[] getChildren(Object parentElement) {
-      if (page != null && !page.isShowChangePaths())
-        return null;
+      if (page != null && !page.isShowChangePaths()) return null;
       if (parentElement instanceof HistoryFolder) {
         return ((HistoryFolder) parentElement).getChildren();
       }
@@ -265,13 +269,10 @@ public class ChangePathsFlatViewer extends TableViewer {
         return EMPTY_CHANGE_PATHS;
       }
 
-      if (page != null && this.page.currentLogEntryChangePath != null) {
-
-      }
+      if (page != null && this.page.currentLogEntryChangePath != null) {}
 
       ILogEntry logEntry = (ILogEntry) inputElement;
-      if (SVNProviderPlugin.getPlugin().getSVNClientManager()
-          .isFetchChangePathOnDemand()) {
+      if (SVNProviderPlugin.getPlugin().getSVNClientManager().isFetchChangePathOnDemand()) {
         if (page != null && this.page.currentLogEntryChangePath != null) {
           return getGroups(this.page.currentLogEntryChangePath);
         }
@@ -286,16 +287,14 @@ public class ChangePathsFlatViewer extends TableViewer {
       return changePaths;
     }
 
-    public void dispose() {
-    }
+    public void dispose() {}
 
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
       if (page != null) this.page.currentLogEntryChangePath = null;
     }
-
   }
-  
-	public void setCurrentLogEntry(ILogEntry currentLogEntry) {
-		this.currentLogEntry = currentLogEntry;
-	}  
+
+  public void setCurrentLogEntry(ILogEntry currentLogEntry) {
+    this.currentLogEntry = currentLogEntry;
+  }
 }

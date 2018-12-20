@@ -6,17 +6,16 @@ import org.eclipse.swt.widgets.Shell;
 
 public class ClosableWizardDialog extends WizardDialog {
 
-	public ClosableWizardDialog(Shell parentShell, IWizard newWizard) {
-		super(parentShell, newWizard);
-	}
+  public ClosableWizardDialog(Shell parentShell, IWizard newWizard) {
+    super(parentShell, newWizard);
+  }
 
-	public void finishPressed() {
-		super.finishPressed();
-	}
+  public void finishPressed() {
+    super.finishPressed();
+  }
 
-	@Override
-	public boolean isHelpAvailable() {
-		return false;
-	}
-
+  @Override
+  public boolean isHelpAvailable() {
+    return false;
+  }
 }

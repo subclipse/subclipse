@@ -12,39 +12,37 @@ import org.tigris.subversion.subclipse.graph.cache.Node;
 import org.tigris.subversion.subclipse.graph.cache.Path;
 
 public class GraphEditPartFactory implements EditPartFactory {
-	
-	private GraphicalViewer viewer;
-	
-	public GraphEditPartFactory(GraphicalViewer viewer) {
-		this.viewer = viewer;
-	}
 
-	public EditPart createEditPart(EditPart context, Object model) {
-		EditPart editPart = null;
-		if (model instanceof String) {
-			final String s = (String) model;
-			return new AbstractGraphicalEditPart() {
-				protected IFigure createFigure() {
-					return new Label(s);
-				}
+  private GraphicalViewer viewer;
 
-				protected void createEditPolicies() {
-				}
-			};
-		} else if (model instanceof Graph) {
-			editPart = new GraphEditPart(viewer);
-		} else if (model instanceof Branch) {
-			editPart = new BranchEditPart();
-		} else if (model instanceof Path) {
-			editPart = new PathEditPart();
-		} else if (model instanceof Node) {
-			editPart = new RevisionEditPart();
-		}
-		if (editPart == null)
-			throw new RuntimeException("cannot create EditPart for "+model.getClass().getName()+" class");
-		else
-			editPart.setModel(model);
-		return editPart;
-	}
+  public GraphEditPartFactory(GraphicalViewer viewer) {
+    this.viewer = viewer;
+  }
 
+  public EditPart createEditPart(EditPart context, Object model) {
+    EditPart editPart = null;
+    if (model instanceof String) {
+      final String s = (String) model;
+      return new AbstractGraphicalEditPart() {
+        protected IFigure createFigure() {
+          return new Label(s);
+        }
+
+        protected void createEditPolicies() {}
+      };
+    } else if (model instanceof Graph) {
+      editPart = new GraphEditPart(viewer);
+    } else if (model instanceof Branch) {
+      editPart = new BranchEditPart();
+    } else if (model instanceof Path) {
+      editPart = new PathEditPart();
+    } else if (model instanceof Node) {
+      editPart = new RevisionEditPart();
+    }
+    if (editPart == null)
+      throw new RuntimeException(
+          "cannot create EditPart for " + model.getClass().getName() + " class");
+    else editPart.setModel(model);
+    return editPart;
+  }
 }

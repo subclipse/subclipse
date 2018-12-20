@@ -12,26 +12,35 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 
 public class JobUtility {
-	
-	public static Job scheduleJob(String jobName, final Runnable runnable, final ISchedulingRule schedulingRule, boolean system) {
-		Job job = new Job(jobName) {
-			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-						public void run(IProgressMonitor monitor) throws CoreException {
-							runnable.run();
-						}
-					}, this.getRule(), IWorkspace.AVOID_UPDATE, monitor);
-				} catch (CoreException e) {
-					SVNProviderPlugin.log(Status.ERROR, e.getMessage(), e);
-				}
-				return Status.OK_STATUS;
-			}			
-		};
-		job.setRule(schedulingRule);
-		job.setSystem(system);
-		job.schedule();
-		return job;
-	}
 
+  public static Job scheduleJob(
+      String jobName,
+      final Runnable runnable,
+      final ISchedulingRule schedulingRule,
+      boolean system) {
+    Job job =
+        new Job(jobName) {
+          protected IStatus run(IProgressMonitor monitor) {
+            try {
+              ResourcesPlugin.getWorkspace()
+                  .run(
+                      new IWorkspaceRunnable() {
+                        public void run(IProgressMonitor monitor) throws CoreException {
+                          runnable.run();
+                        }
+                      },
+                      this.getRule(),
+                      IWorkspace.AVOID_UPDATE,
+                      monitor);
+            } catch (CoreException e) {
+              SVNProviderPlugin.log(Status.ERROR, e.getMessage(), e);
+            }
+            return Status.OK_STATUS;
+          }
+        };
+    job.setRule(schedulingRule);
+    job.setSystem(system);
+    job.schedule();
+    return job;
+  }
 }

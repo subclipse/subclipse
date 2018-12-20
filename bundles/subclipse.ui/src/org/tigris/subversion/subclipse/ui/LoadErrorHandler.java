@@ -6,27 +6,30 @@ import org.tigris.subversion.clientadapter.ISVNClientWrapper;
 import org.tigris.subversion.subclipse.ui.dialogs.LoadErrorDialog;
 
 public class LoadErrorHandler implements ILoadErrorHandler {
-	private static boolean loadErrorHandled = false;
+  private static boolean loadErrorHandled = false;
 
-	public void handleLoadError(ISVNClientWrapper clientWrapper) {
-		String svnInterface = SVNUIPlugin.getPlugin().getPreferenceStore().getString(ISVNUIConstants.PREF_SVNINTERFACE);
-		if (svnInterface != null && !svnInterface.equals("javahl")) {
-			return;
-		}		
-		final String loadErrors = clientWrapper.getLoadErrors();
-		loadErrorHandled = true;
-		if (!SVNUIPlugin.TEST_MODE) {
-			Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					LoadErrorDialog dialog = new LoadErrorDialog(Display.getDefault().getActiveShell(), loadErrors);
-					dialog.open();
-				}			
-			});
-		}
-	}
-	
-	public static boolean loadErrorHandled() {
-		return loadErrorHandled;
-	}
+  public void handleLoadError(ISVNClientWrapper clientWrapper) {
+    String svnInterface =
+        SVNUIPlugin.getPlugin().getPreferenceStore().getString(ISVNUIConstants.PREF_SVNINTERFACE);
+    if (svnInterface != null && !svnInterface.equals("javahl")) {
+      return;
+    }
+    final String loadErrors = clientWrapper.getLoadErrors();
+    loadErrorHandled = true;
+    if (!SVNUIPlugin.TEST_MODE) {
+      Display.getDefault()
+          .syncExec(
+              new Runnable() {
+                public void run() {
+                  LoadErrorDialog dialog =
+                      new LoadErrorDialog(Display.getDefault().getActiveShell(), loadErrors);
+                  dialog.open();
+                }
+              });
+    }
+  }
 
+  public static boolean loadErrorHandled() {
+    return loadErrorHandled;
+  }
 }

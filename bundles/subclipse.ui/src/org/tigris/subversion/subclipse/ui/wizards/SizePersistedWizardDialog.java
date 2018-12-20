@@ -7,57 +7,58 @@ import org.eclipse.swt.widgets.Shell;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 public class SizePersistedWizardDialog extends ClosableWizardDialog {
-	private String sizeKey;
-	private IDialogSettings settings;
+  private String sizeKey;
+  private IDialogSettings settings;
 
-	public SizePersistedWizardDialog(Shell parentShell, IWizard newWizard, String sizeKey) {
-		super(parentShell, newWizard);
-		this.sizeKey = sizeKey;
-		settings = SVNUIPlugin.getPlugin().getDialogSettings();
-	}
-	
-    protected void cancelPressed() {
-        saveLocation();
-        super.cancelPressed();
+  public SizePersistedWizardDialog(Shell parentShell, IWizard newWizard, String sizeKey) {
+    super(parentShell, newWizard);
+    this.sizeKey = sizeKey;
+    settings = SVNUIPlugin.getPlugin().getDialogSettings();
+  }
+
+  protected void cancelPressed() {
+    saveLocation();
+    super.cancelPressed();
+  }
+
+  public void finishPressed() {
+    saveLocation();
+    super.finishPressed();
+  }
+
+  protected void okPressed() {
+    saveLocation();
+    super.okPressed();
+  }
+
+  protected Point getInitialLocation(Point initialSize) {
+    try {
+      int x = settings.getInt(sizeKey + ".location.x"); // $NON-NLS-1$
+      int y = settings.getInt(sizeKey + ".location.y"); // $NON-NLS-1$
+      return new Point(x, y);
+    } catch (NumberFormatException e) {
     }
+    return super.getInitialLocation(initialSize);
+  }
 
-    public void finishPressed() {
-        saveLocation();
-        super.finishPressed();
+  protected Point getInitialSize() {
+    try {
+      int x = settings.getInt(sizeKey + ".size.x"); // $NON-NLS-1$
+      int y = settings.getInt(sizeKey + ".size.y"); // $NON-NLS-1$
+      return new Point(x, y);
+    } catch (NumberFormatException e) {
     }
+    return super.getInitialSize();
+  }
 
-    protected void okPressed() {
-        saveLocation();
-        super.okPressed();
-    }
-    
-	protected Point getInitialLocation(Point initialSize) {
-	    try {
-	        int x = settings.getInt(sizeKey + ".location.x"); //$NON-NLS-1$
-	        int y = settings.getInt(sizeKey + ".location.y"); //$NON-NLS-1$
-	        return new Point(x, y);
-	    } catch (NumberFormatException e) {}
-	    return super.getInitialLocation(initialSize);
-	}
-	
-	protected Point getInitialSize() {
-	    try {
-	        int x = settings.getInt(sizeKey + ".size.x"); //$NON-NLS-1$
-	        int y = settings.getInt(sizeKey + ".size.y"); //$NON-NLS-1$
-	        return new Point(x, y);
-	    } catch (NumberFormatException e) {}		
-		 return super.getInitialSize();
-	}
-	
-	protected void saveLocation() {
-        int x = getShell().getLocation().x;
-        int y = getShell().getLocation().y;
-        settings.put(sizeKey + ".location.x", x); //$NON-NLS-1$
-        settings.put(sizeKey + ".location.y", y); //$NON-NLS-1$  
-        x = getShell().getSize().x;
-        y = getShell().getSize().y; 
-        settings.put(sizeKey + ".size.x", x); //$NON-NLS-1$
-        settings.put(sizeKey + ".size.y", y); //$NON-NLS-1$    
-	}
-
+  protected void saveLocation() {
+    int x = getShell().getLocation().x;
+    int y = getShell().getLocation().y;
+    settings.put(sizeKey + ".location.x", x); // $NON-NLS-1$
+    settings.put(sizeKey + ".location.y", y); // $NON-NLS-1$
+    x = getShell().getSize().x;
+    y = getShell().getSize().y;
+    settings.put(sizeKey + ".size.x", x); // $NON-NLS-1$
+    settings.put(sizeKey + ".size.y", y); // $NON-NLS-1$
+  }
 }

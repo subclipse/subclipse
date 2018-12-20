@@ -10,46 +10,45 @@ import org.eclipse.gef.editpolicies.SelectionEditPolicy;
 import org.tigris.subversion.subclipse.graph.cache.Path;
 
 public class PathEditPart extends AbstractGraphicalEditPart {
-	private BranchFigure branchFigure;
+  private BranchFigure branchFigure;
 
-	public PathEditPart() {
-		super();
-	}
+  public PathEditPart() {
+    super();
+  }
 
-	protected IFigure createFigure() {
-		Figure f = new Figure();
-		f.setBackgroundColor(ColorConstants.white);
-		f.setOpaque(true);
-		BorderLayout layout = new BorderLayout();
-		f.setLayoutManager(layout);
-		
-		Path path = (Path)getModel();
-		GraphEditPart graphEditPart = (GraphEditPart)getParent().getParent();
-		branchFigure = graphEditPart.getBranchFigure(path.getPath());
-		
-		f.add(branchFigure, BorderLayout.CENTER);
-		
-		return f;
-	}
+  protected IFigure createFigure() {
+    Figure f = new Figure();
+    f.setBackgroundColor(ColorConstants.white);
+    f.setOpaque(true);
+    BorderLayout layout = new BorderLayout();
+    f.setLayoutManager(layout);
 
+    Path path = (Path) getModel();
+    GraphEditPart graphEditPart = (GraphEditPart) getParent().getParent();
+    branchFigure = graphEditPart.getBranchFigure(path.getPath());
 
+    f.add(branchFigure, BorderLayout.CENTER);
 
-	protected void refreshVisuals() {
-		getFigure().setSize(220, 30);
-		
-		super.refreshVisuals();
-	}
+    return f;
+  }
 
-	protected void createEditPolicies() {
-		installEditPolicy(EditPolicy.SELECTION_FEEDBACK_ROLE, new SelectionEditPolicy() {
-			protected void hideSelection() {
-//				System.out.println("hide path");
-			}
+  protected void refreshVisuals() {
+    getFigure().setSize(220, 30);
 
-			protected void showSelection() {
-//				System.out.println("show path");
-			}			
-		});
-	}
+    super.refreshVisuals();
+  }
 
+  protected void createEditPolicies() {
+    installEditPolicy(
+        EditPolicy.SELECTION_FEEDBACK_ROLE,
+        new SelectionEditPolicy() {
+          protected void hideSelection() {
+            //				System.out.println("hide path");
+          }
+
+          protected void showSelection() {
+            //				System.out.println("show path");
+          }
+        });
+  }
 }

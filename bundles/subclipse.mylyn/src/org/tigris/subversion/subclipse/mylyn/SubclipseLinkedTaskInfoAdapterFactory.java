@@ -1,14 +1,12 @@
-/*******************************************************************************
- * Copyright (c) 2006 Subclipse project and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/**
+ * ***************************************************************************** Copyright (c) 2006
+ * Subclipse project and others. All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     Eugene Kuleshov - initial API and implementation
- ******************************************************************************/
-
+ * <p>Contributors: Eugene Kuleshov - initial API and implementation
+ * ****************************************************************************
+ */
 package org.tigris.subversion.subclipse.mylyn;
 
 import org.eclipse.core.resources.IResource;
@@ -18,34 +16,32 @@ import org.eclipse.team.internal.core.subscribers.CheckedInChangeSet;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.ui.subscriber.SVNChangeSetCollector;
 
-
 /**
- * <code>AdapterFactory</code> for adapting to <code>AbstractTaskReference</code>. 
- * 
+ * <code>AdapterFactory</code> for adapting to <code>AbstractTaskReference</code>.
+ *
  * @author Eugene Kuleshov
  */
 public class SubclipseLinkedTaskInfoAdapterFactory implements IAdapterFactory {
 
-  private static final Class[] ADAPTER_TYPES = new Class[] { AbstractTaskReference.class };
-
+  private static final Class[] ADAPTER_TYPES = new Class[] {AbstractTaskReference.class};
 
   public Class[] getAdapterList() {
     return ADAPTER_TYPES;
   }
-  
+
   public Object getAdapter(Object object, Class adapterType) {
-    if(adapterType != AbstractTaskReference.class) {
+    if (adapterType != AbstractTaskReference.class) {
       return null;
     }
-    
-    if(object instanceof LogEntry) {
+
+    if (object instanceof LogEntry) {
       return adaptSubclipseLogEntry((LogEntry) object);
     }
-    
-    if(object instanceof SVNChangeSetCollector.SVNCheckedInChangeSet) {
+
+    if (object instanceof SVNChangeSetCollector.SVNCheckedInChangeSet) {
       return adaptSubclipseChangeset((CheckedInChangeSet) object);
     }
-    
+
     return null;
   }
 
@@ -58,6 +54,4 @@ public class SubclipseLinkedTaskInfoAdapterFactory implements IAdapterFactory {
     IResource res = resources[0];
     return new SubclipseLinkedTaskInfo(res, set);
   }
-  
 }
-

@@ -18,58 +18,47 @@ import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class OverviewOutlinePage extends Page implements IContentOutlinePage {
-	
-	private Canvas overview;
-	private ScalableRootEditPart rootEditPart;
-	private Thumbnail thumbnail;
 
-	public OverviewOutlinePage(ScalableRootEditPart rootEditPart) {
-		super();
-		this.rootEditPart = rootEditPart;
-	}
+  private Canvas overview;
+  private ScalableRootEditPart rootEditPart;
+  private Thumbnail thumbnail;
 
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		
-	}
+  public OverviewOutlinePage(ScalableRootEditPart rootEditPart) {
+    super();
+    this.rootEditPart = rootEditPart;
+  }
 
-	public void createControl(Composite parent) {
-		// create canvas and lws
-		overview = new Canvas(parent, SWT.NONE);
-		LightweightSystem lws = new LightweightSystem(overview);
-		// create thumbnail
-		thumbnail =
-			new ScrollableThumbnail((Viewport) rootEditPart.getFigure());
-		thumbnail.setBorder(new MarginBorder(3));
-		thumbnail.setSource(
-				rootEditPart.getLayer(LayerConstants.PRINTABLE_LAYERS));
-		lws.setContents(thumbnail);
-	}
+  public void addSelectionChangedListener(ISelectionChangedListener listener) {}
 
-	public void dispose() {
-		if (null != thumbnail)
-			thumbnail.deactivate();
-		super.dispose();
-	}
+  public void createControl(Composite parent) {
+    // create canvas and lws
+    overview = new Canvas(parent, SWT.NONE);
+    LightweightSystem lws = new LightweightSystem(overview);
+    // create thumbnail
+    thumbnail = new ScrollableThumbnail((Viewport) rootEditPart.getFigure());
+    thumbnail.setBorder(new MarginBorder(3));
+    thumbnail.setSource(rootEditPart.getLayer(LayerConstants.PRINTABLE_LAYERS));
+    lws.setContents(thumbnail);
+  }
 
-	public Control getControl() {
-		return overview;
-	}
+  public void dispose() {
+    if (null != thumbnail) thumbnail.deactivate();
+    super.dispose();
+  }
 
-	public ISelection getSelection() {
-		return StructuredSelection.EMPTY;
-	}
+  public Control getControl() {
+    return overview;
+  }
 
-	public void removeSelectionChangedListener(
-			ISelectionChangedListener listener) {
-		
-	}
+  public ISelection getSelection() {
+    return StructuredSelection.EMPTY;
+  }
 
-	public void setFocus() {
-		if (getControl() != null)
-			getControl().setFocus();
-	}
+  public void removeSelectionChangedListener(ISelectionChangedListener listener) {}
 
-	public void setSelection(ISelection selection) {
-		
-	}
+  public void setFocus() {
+    if (getControl() != null) getControl().setFocus();
+  }
+
+  public void setSelection(ISelection selection) {}
 }
