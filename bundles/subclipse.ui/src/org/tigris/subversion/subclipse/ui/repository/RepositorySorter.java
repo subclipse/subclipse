@@ -93,7 +93,7 @@ public class RepositorySorter extends ViewerSorter {
 			} catch (Exception e) { 
 				// Ignore.  Don't crash over an unexpected sorting error.
 			}
-			return s1.compareTo(s2);
+			return s1.compareToIgnoreCase(s2);
 		}
 		
 	};

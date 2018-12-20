@@ -20,8 +20,10 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DecoratingLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -49,8 +51,12 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
@@ -76,6 +82,7 @@ import org.tigris.subversion.subclipse.ui.WorkspacePathValidator;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
 import org.tigris.subversion.subclipse.ui.actions.RemoteResourceTransfer;
 import org.tigris.subversion.subclipse.ui.actions.SVNAction;
+import org.tigris.subversion.subclipse.ui.editor.RemoteFileEditorInput;
 import org.tigris.subversion.subclipse.ui.repository.model.AllRootsElement;
 import org.tigris.subversion.subclipse.ui.repository.model.RemoteContentProvider;
 import org.tigris.subversion.subclipse.ui.wizards.ClosableWizardDialog;
@@ -338,9 +345,24 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 		MenuManager sub = new MenuManager(Policy.bind("RepositoriesView.newSubmenu"), IWorkbenchActionConstants.GROUP_ADD); //$NON-NLS-1$
 		sub.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		manager.add(sub);
-		
-        // File actions go first (view file)
-        manager.add(new Separator(IWorkbenchActionConstants.GROUP_FILE));
+
+		IStructuredSelection selection = (IStructuredSelection)getViewer().getSelection();
+
+		// File actions go first (view file)
+		manager.add(new Separator(IWorkbenchActionConstants.GROUP_FILE));
+
+    if (selection.size() == 1 && selection.getFirstElement() instanceof ISVNRemoteFile) {
+      ISVNRemoteFile file = (ISVNRemoteFile) selection.getFirstElement();
+      MenuManager submenu = new MenuManager(Policy.bind("TreeConflictsView.openWith")); //$NON-NLS-1$
+      IWorkbench workbench = SVNUIPlugin.getPlugin().getWorkbench();
+      IEditorRegistry registry = workbench.getEditorRegistry();
+      IEditorDescriptor[] descriptors = registry.getEditors(file.getName());
+      for (IEditorDescriptor descriptor : descriptors) {
+        submenu.add(new OpenWithAction(file, descriptor));
+      }
+      manager.add(submenu);
+    }
+
         // Misc additions
         manager.add(new Separator("historyGroup")); //$NON-NLS-1$
         manager.add(new Separator("checkoutGroup")); //$NON-NLS-1$
@@ -351,8 +373,6 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
 
         manager.add(refreshPopupAction);
 
-	
-		IStructuredSelection selection = (IStructuredSelection)getViewer().getSelection();
  		removeRootAction.selectionChanged(selection);
 		if(removeRootAction.isEnabled()) {
 			manager.add(removeRootAction);
@@ -600,4 +620,40 @@ public class RepositoriesView extends ViewPart implements ISelectionListener {
         treeViewer = null;
     }
 
+    private class OpenWithAction extends Action {
+      private ISVNRemoteFile file;
+      private IEditorDescriptor editorDescriptor;
+
+      public OpenWithAction(ISVNRemoteFile file, IEditorDescriptor editorDescriptor) {
+        super();
+        this.file = file;
+        this.editorDescriptor = editorDescriptor;
+      }
+
+      @Override
+      public String getText() {
+        return editorDescriptor.getLabel();
+      }
+
+      @Override
+      public ImageDescriptor getImageDescriptor() {
+        return editorDescriptor.getImageDescriptor();
+      }
+
+      @Override
+      public void run() {
+        RemoteFileEditorInput input = new RemoteFileEditorInput(file, null);
+        try {
+          if (editorDescriptor.isOpenExternal()) {
+            input.writeToTempFile();
+          }
+          IWorkbench workbench = SVNUIPlugin.getPlugin().getWorkbench();
+          IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+          page.openEditor(input, editorDescriptor.getId());
+        } catch (Exception e) {
+          MessageDialog.openError(getShell(), Policy.bind("OpenRemoteFileAction.0"), e.getMessage());  //$NON-NLS-1$
+        }
+      }
+
+    }
 }

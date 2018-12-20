@@ -253,6 +253,8 @@ public abstract class TeamAction extends ActionDelegate implements IObjectAction
 			}
 		}
 		if (sel instanceof ITextSelection){
+			IWorkbenchPage page = getTargetPage();
+			if (page != null) {
 				IEditorPart part = getTargetPage().getActiveEditor();
 				if (part != null) {
 					IEditorInput input = part.getEditorInput();
@@ -268,6 +270,7 @@ public abstract class TeamAction extends ActionDelegate implements IObjectAction
 						}
 					}	//	set selection to current editor file;
 				}
+			}
 		}
 	}
 	
@@ -368,7 +371,11 @@ public abstract class TeamAction extends ActionDelegate implements IObjectAction
 	 * @return IWorkbenchPage
 	 */
 	protected IWorkbenchPage getTargetPage() {
-		if (getTargetPart() == null) return SVNUIPlugin.getActivePage();
+		if ((getTargetPart() == null) ||
+			(getTargetPart().getSite() == null) ||
+			(getTargetPart().getSite().getPage() == null)) {
+			return SVNUIPlugin.getActivePage();
+		}
 		return getTargetPart().getSite().getPage();
 	}
 	
