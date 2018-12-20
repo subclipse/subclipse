@@ -4,6 +4,11 @@
 * Expose all JavaHL packages [#60](https://github.com/subclipse/subclipse/issues/60)
 * add peg revision to URL in pinned externals [#68](https://github.com/subclipse/svnclientadapter/pull/68)
 * Support SVNKit 1.9.x [#76](https://github.com/subclipse/subclipse/issues/76)
+* Fix NPE on branch switch [#75](https://github.com/subclipse/subclipse/issues/75)
+* Case-insensitive repository sorting [#36](https://github.com/subclipse/subclipse/issues/36)
+* 'Open With' menu for remote files [#73](https://github.com/subclipse/subclipse/issues/73) [#54](https://github.com/subclipse/subclipse/issues/54)
+* Fix NPE on TeamAction.selectionChanged when target part is disposed [#77](https://github.com/subclipse/subclipse/issues/77)
+* Fix NPE on branch switch when workspace has project with null location [#74](https://github.com/subclipse/subclipse/issues/74)
 
 ## Version 4.2.4
 April 26, 2018
