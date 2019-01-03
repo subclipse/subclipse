@@ -9,6 +9,7 @@
 * 'Open With' menu for remote files [#73](https://github.com/subclipse/subclipse/issues/73) [#54](https://github.com/subclipse/subclipse/issues/54)
 * Fix NPE on TeamAction.selectionChanged when target part is disposed [#77](https://github.com/subclipse/subclipse/issues/77)
 * Fix NPE on branch switch when workspace has project with null location [#74](https://github.com/subclipse/subclipse/issues/74)
+* Fix pre-merge best practices check so that a file external does not cause 'Working copy at a single revision' failure [#66](https://github.com/subclipse/subclipse/issues/66)
 
 ## Version 4.2.4
 April 26, 2018
