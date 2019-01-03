@@ -151,6 +151,7 @@ public interface ISVNUIConstants {
   public final String PREF_LOG_ENTRIES_TO_FETCH = "pref_log_entries_to_fetch"; // $NON-NLS-1$
   public final String PREF_STOP_ON_COPY = "pref_stop_on_copy"; // $NON-NLS-1$
   public final String PREF_INCLUDE_MERGED_REVISIONS = "include_merged_revisions"; // $NON-NLS-1$
+  public final String PREF_COMPARE_TO_PREVIOUS = "compare_to_previous"; // $NON-NLS-1$
   public final String PREF_USE_JAVAHL_COMMIT_HACK = "pref_use_javahl_commit_hack"; // $NON-NLS-1$
   public final String PREF_MERGE_PROVIDER = "pref_merge_provider"; // $NON-NLS-1$
   public final String PREF_SUGGEST_MERGE_SOURCES = "pref_suggest_merge_sources"; // $NON-NLS-1$

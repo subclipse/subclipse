@@ -13,12 +13,14 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -122,6 +124,7 @@ import org.tigris.subversion.subclipse.core.history.ILogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntry;
 import org.tigris.subversion.subclipse.core.history.LogEntryChangePath;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
+import org.tigris.subversion.subclipse.core.resources.RemoteFile;
 import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.RemoteResource;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -130,6 +133,7 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
+import org.tigris.subversion.subclipse.ui.actions.CompareRemoteResourcesAction;
 import org.tigris.subversion.subclipse.ui.actions.ExportRemoteFolderAction;
 import org.tigris.subversion.subclipse.ui.actions.GenerateChangeLogAction;
 import org.tigris.subversion.subclipse.ui.actions.OpenRemoteFileAction;
@@ -214,11 +218,14 @@ public class SVNHistoryPage extends HistoryPage
   private IAction getAllAction;
   private IAction toggleStopOnCopyAction;
   private IAction toggleIncludeMergedRevisionsAction;
+  private IAction toggleCompareToPreviousAction;
   private IAction toggleShowComments;
   private IAction toggleWrapCommentsAction;
   private IAction toggleShowAffectedPathsAction;
 
   private IAction openAction;
+  private IAction compareWithPreviousAction;
+  private IAction compareWithPreviousChangedPathAction;
   private IAction getContentsAction;
   private IAction updateToRevisionAction;
   private IAction openChangedPathAction;
@@ -702,7 +709,11 @@ public class SVNHistoryPage extends HistoryPage
             SWT.DefaultSelection,
             new Listener() {
               public void handleEvent(Event e) {
-                getOpenRemoteFileAction().run();
+                if (toggleCompareToPreviousAction.isChecked()) {
+                  getCompareWithPreviousAction().run();
+                } else {
+                  getOpenRemoteFileAction().run();
+                }
               }
             });
 
@@ -851,7 +862,11 @@ public class SVNHistoryPage extends HistoryPage
             SWT.DefaultSelection,
             new Listener() {
               public void handleEvent(Event e) {
-                getOpenChangedPathAction().run();
+                if (toggleCompareToPreviousAction.isChecked()) {
+                  getCompareWithPreviousChangedPathAction().run();
+                } else {
+                  getOpenChangedPathAction().run();
+                }
               }
             });
 
@@ -1089,6 +1104,18 @@ public class SVNHistoryPage extends HistoryPage
     toggleIncludeMergedRevisionsAction.setChecked(
         store.getBoolean(ISVNUIConstants.PREF_INCLUDE_MERGED_REVISIONS));
 
+    // Toggle compare to previous action
+    toggleCompareToPreviousAction =
+        new Action(Policy.bind("HistoryView.compareToPrevious")) { // $NON-NLS-1$
+          public void run() {
+            store.setValue(
+                ISVNUIConstants.PREF_COMPARE_TO_PREVIOUS,
+                toggleCompareToPreviousAction.isChecked());
+          }
+        };
+    toggleCompareToPreviousAction.setChecked(
+        store.getBoolean(ISVNUIConstants.PREF_COMPARE_TO_PREVIOUS));
+
     IHistoryPageSite parentSite = getHistoryPageSite();
     IPageSite pageSite = parentSite.getWorkbenchPageSite();
     IActionBars actionBars = pageSite.getActionBars();
@@ -1099,6 +1126,7 @@ public class SVNHistoryPage extends HistoryPage
     actionBarsMenu.add(getGetAllAction());
     actionBarsMenu.add(toggleStopOnCopyAction);
     actionBarsMenu.add(toggleIncludeMergedRevisionsAction);
+    actionBarsMenu.add(toggleCompareToPreviousAction);
     actionBarsMenu.add(new Separator());
     actionBarsMenu.add(toggleWrapCommentsAction);
     actionBarsMenu.add(new Separator());
@@ -1298,6 +1326,177 @@ public class SVNHistoryPage extends HistoryPage
           };
     }
     return openAction;
+  }
+
+  private IAction getCompareWithPreviousAction() {
+    if (compareWithPreviousAction == null) {
+      compareWithPreviousAction =
+          new Action() {
+            public void run() {
+              CompareRemoteResourcesAction delegate = new CompareRemoteResourcesAction();
+              delegate.init(this);
+              ILogEntry logEntry =
+                  (ILogEntry)
+                      ((IStructuredSelection) tableHistoryViewer.getSelection()).getFirstElement();
+              int from = Integer.parseInt(logEntry.getRevision().toString());
+              from--;
+              String to = Integer.toString(from);
+              SVNRevision toRevision = null;
+              try {
+                toRevision = SVNRevision.getRevision(to);
+              } catch (ParseException e) {
+              }
+              ISVNRemoteResource[] remoteResources = new ISVNRemoteResource[2];
+              ISVNRemoteResource remoteResource1;
+              ISVNRemoteResource remoteResource2;
+              if (logEntry.getResource().getResource() instanceof IContainer) {
+                remoteResource1 =
+                    new RemoteFolder(
+                        null,
+                        logEntry.getResource().getRepository(),
+                        logEntry.getResource().getUrl(),
+                        logEntry.getRevision(),
+                        logEntry.getRevision(),
+                        null,
+                        null);
+                remoteResource2 =
+                    new RemoteFolder(
+                        null,
+                        logEntry.getResource().getRepository(),
+                        logEntry.getResource().getUrl(),
+                        (SVNRevision.Number) toRevision,
+                        (SVNRevision.Number) toRevision,
+                        null,
+                        null);
+              } else {
+                remoteResource1 =
+                    new RemoteFile(
+                        null,
+                        logEntry.getResource().getRepository(),
+                        logEntry.getResource().getUrl(),
+                        logEntry.getRevision(),
+                        logEntry.getRevision(),
+                        null,
+                        null);
+                remoteResource2 =
+                    new RemoteFile(
+                        null,
+                        logEntry.getResource().getRepository(),
+                        logEntry.getResource().getUrl(),
+                        (SVNRevision.Number) toRevision,
+                        (SVNRevision.Number) toRevision,
+                        null,
+                        null);
+              }
+              remoteResources[0] = remoteResource1;
+              remoteResources[1] = remoteResource2;
+              delegate.selectionChanged(this, new StructuredSelection(remoteResources));
+              delegate.setRemoteResources(remoteResources);
+              delegate.setLocalResource(getResource());
+              delegate.setLocalResources(remoteResources);
+              delegate.run(this);
+            }
+          };
+    }
+    return compareWithPreviousAction;
+  }
+
+  private IAction getCompareWithPreviousChangedPathAction() {
+    if (compareWithPreviousChangedPathAction == null) {
+      compareWithPreviousChangedPathAction =
+          new Action() {
+            public void run() {
+              CompareRemoteResourcesAction delegate = new CompareRemoteResourcesAction();
+              delegate.init(this);
+              ISVNRemoteResource remoteResource1 = null;
+              Object firstSelection =
+                  ((IStructuredSelection) changePathsViewer.getSelection()).getFirstElement();
+              if (firstSelection instanceof LogEntryChangePath) {
+                LogEntryChangePath logEntryChangePath = (LogEntryChangePath) firstSelection;
+                try {
+                  remoteResource1 = logEntryChangePath.getRemoteResource();
+                } catch (SVNException e1) {
+                  SVNUIPlugin.openError(
+                      getSite().getShell(), null, null, e1, SVNUIPlugin.LOG_TEAM_EXCEPTIONS);
+                  return;
+                }
+              } else if (firstSelection instanceof HistoryFolder) {
+                HistoryFolder historyFolder = (HistoryFolder) firstSelection;
+                Object[] children = historyFolder.getChildren();
+                if (children != null
+                    && children.length > 0
+                    && children[0] instanceof LogEntryChangePath) {
+                  LogEntryChangePath logEntryChangePath = (LogEntryChangePath) children[0];
+                  try {
+                    SVNUrl svnUrl =
+                        logEntryChangePath
+                            .getRemoteResource()
+                            .getRepository()
+                            .getRemoteFolder(historyFolder.getPath())
+                            .getUrl();
+                    SVNRevision.Number selectedRevision =
+                        (SVNRevision.Number) getSelectedRevision();
+                    remoteResource1 =
+                        new RemoteFolder(
+                            null,
+                            logEntryChangePath.getLogEntry().getRemoteResource().getRepository(),
+                            svnUrl,
+                            selectedRevision,
+                            selectedRevision,
+                            null,
+                            null);
+                  } catch (Exception e) {
+                  }
+                }
+              }
+              if (remoteResource1 == null) {
+                return;
+              }
+              int from = Integer.parseInt(remoteResource1.getRevision().toString());
+              from--;
+              String to = Integer.toString(from);
+              SVNRevision toRevision = null;
+              try {
+                toRevision = SVNRevision.getRevision(to);
+              } catch (ParseException e) {
+              }
+              ISVNRemoteResource[] remoteResources = new ISVNRemoteResource[2];
+              ISVNRemoteResource remoteResource2;
+              if (firstSelection instanceof HistoryFolder
+                  || remoteResource1.getResource() instanceof IContainer) {
+                remoteResource2 =
+                    new RemoteFolder(
+                        null,
+                        remoteResource1.getRepository(),
+                        remoteResource1.getUrl(),
+                        (SVNRevision.Number) toRevision,
+                        (SVNRevision.Number) toRevision,
+                        null,
+                        null);
+              } else {
+                remoteResource2 =
+                    new RemoteFile(
+                        null,
+                        remoteResource1.getRepository(),
+                        remoteResource1.getUrl(),
+                        (SVNRevision.Number) toRevision,
+                        (SVNRevision.Number) toRevision,
+                        null,
+                        null);
+              }
+              remoteResources[0] = remoteResource1;
+              remoteResources[1] = remoteResource2;
+              delegate.selectionChanged(this, new StructuredSelection(remoteResources));
+              delegate.setRemoteResources(remoteResources);
+              delegate.setLocalResource(remoteResource1.getResource());
+              delegate.setLocalResources(remoteResources);
+              SVNRevision[] pegRevisions = {remoteResource1.getRevision()};
+              delegate.setPegRevisions(pegRevisions);
+              delegate.run(this);
+            }
+          };
+    }
+    return compareWithPreviousChangedPathAction;
   }
 
   private boolean isFile() {

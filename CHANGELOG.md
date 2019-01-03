@@ -10,6 +10,7 @@
 * Fix NPE on TeamAction.selectionChanged when target part is disposed [#77](https://github.com/subclipse/subclipse/issues/77)
 * Fix NPE on branch switch when workspace has project with null location [#74](https://github.com/subclipse/subclipse/issues/74)
 * Fix pre-merge best practices check so that a file external does not cause 'Working copy at a single revision' failure [#66](https://github.com/subclipse/subclipse/issues/66)
+* Option to compare history view revision or changed path to previous revision on double click [#15](https://github.com/subclipse/subclipse/issues/15)
 
 ## Version 4.2.4
 April 26, 2018
