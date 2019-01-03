@@ -180,6 +180,7 @@ public class MergeWizardBestPracticesPage extends MergeWizardWarningPage {
                               SVNWorkspaceRoot.getResourceFor(resources[i], statuses[j]));
                         }
                         if (!statuses[j].getTextStatus().equals(SVNStatusKind.EXTERNAL)
+                            && !statuses[j].isFileExternal()
                             && statuses[j].getRevision() != null) {
                           if (!statuses[j].getRevision().equals(status.getRevision())) {
                             mixedRevisions = true;
