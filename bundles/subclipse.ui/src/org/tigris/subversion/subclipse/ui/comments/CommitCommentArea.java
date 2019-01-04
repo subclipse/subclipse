@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -48,8 +49,6 @@ import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.AnnotationModel;
 import org.eclipse.jface.text.source.AnnotationPainter;
-import org.eclipse.jface.text.source.AnnotationRulerColumn;
-import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.IAnnotationAccess;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -120,19 +119,12 @@ public class CommitCommentArea extends DialogArea {
       AnnotationModel annotationModel = new AnnotationModel();
       IAnnotationAccess annotationAccess = new DefaultMarkerAnnotationAccess();
 
-      AnnotationRulerColumn annotationRuler =
-          new AnnotationRulerColumn(annotationModel, 16, annotationAccess);
-
-      CompositeRuler compositeRuler = new CompositeRuler();
-      compositeRuler.setModel(annotationModel);
-      compositeRuler.addDecorator(0, annotationRuler);
-
       Composite cc = new Composite(composite, SWT.BORDER);
       cc.setLayout(new FillLayout());
       cc.setLayoutData(new GridData(GridData.FILL_BOTH));
 
       SourceViewer sourceViewer =
-          new SourceViewer(cc, compositeRuler, null, true, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+          new SourceViewer(cc, null, null, true, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 
       if (modifyListener != null) {
         sourceViewer.getTextWidget().addModifyListener(modifyListener);
