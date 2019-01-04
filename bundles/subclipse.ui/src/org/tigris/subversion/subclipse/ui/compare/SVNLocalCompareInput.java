@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.eclipse.compare.CompareConfiguration;
-import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.internal.BufferedResourceNode;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
+import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.team.ui.ISaveableWorkbenchPart;
+import org.eclipse.team.ui.synchronize.SaveableCompareEditorInput;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -63,7 +64,8 @@ import org.tigris.subversion.svnclientadapter.utils.SVNStatusUtils;
  * A compare input for comparing local resource with its remote revision Perform textual check on: -
  * any local modification - revision numbers don't match
  */
-public class SVNLocalCompareInput extends CompareEditorInput implements ISaveableWorkbenchPart {
+public class SVNLocalCompareInput extends SaveableCompareEditorInput
+    implements ISaveableWorkbenchPart {
   private Object fRoot;
   private final SVNRevision remoteRevision;
   private ISVNLocalResource resource;
@@ -86,7 +88,7 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
    */
   public SVNLocalCompareInput(ISVNLocalResource resource, SVNRevision revision, boolean readOnly)
       throws SVNException, SVNClientException {
-    super(new CompareConfiguration());
+    super(new CompareConfiguration(), SVNUIPlugin.getActivePage());
     this.remoteRevision = revision;
     this.readOnly = readOnly;
     this.resource = resource;
@@ -136,11 +138,18 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
   public SVNLocalCompareInput(
       ISVNLocalResource resource, ISVNRemoteResource remoteResource, SVNRevision pegRevision)
       throws SVNException {
-    super(new CompareConfiguration());
+    super(new CompareConfiguration(), SVNUIPlugin.getActivePage());
     this.resource = resource;
     this.remoteResource = remoteResource;
     this.remoteRevision = remoteResource.getRevision();
     this.pegRevision = pegRevision;
+  }
+
+  protected void fireInputChange() {
+    Object compareResult = getCompareResult();
+    if (compareResult instanceof BaseDiffNode) {
+      ((BaseDiffNode) compareResult).fireChange();
+    }
   }
 
   /** initialize the labels : the title, the lft label and the right one */
@@ -171,8 +180,13 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
     cc.setRightLabel(rightLabel);
   }
 
-  /** Runs the compare operation and returns the compare result. */
-  protected Object prepareInput(IProgressMonitor monitor) throws InterruptedException {
+  /**
+   * Runs the compare operation and returns the compare result.
+   *
+   * @throws InterruptedException
+   */
+  protected ICompareInput prepareCompareInput(IProgressMonitor monitor)
+      throws InterruptedException {
 
     initLabels();
 
@@ -269,11 +283,12 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
             return null;
           }
         }
-        return result[0];
+        return (ICompareInput) result[0];
       } catch (OperationCanceledException e) {
         throw new InterruptedException(e.getMessage());
       } catch (Exception e) {
-        return e.getMessage();
+        SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
+        return null;
       } finally {
         monitor.done();
       }
@@ -293,16 +308,20 @@ public class SVNLocalCompareInput extends CompareEditorInput implements ISaveabl
       } catch (CoreException e) {
         SVNUIPlugin.log(IStatus.ERROR, e.getMessage(), e);
       }
-
+      ICompareInput compareInput;
       if (SVNRevision.BASE.equals(remoteRevision)) {
-        fRoot =
-            new StatusAwareDifferencer().findDifferences(false, monitor, null, null, left, right);
-        return fRoot;
+        compareInput =
+            (ICompareInput)
+                new StatusAwareDifferencer()
+                    .findDifferences(false, monitor, null, null, left, right);
+      } else {
+        compareInput =
+            (ICompareInput)
+                new RevisionAwareDifferencer(
+                        (SVNLocalResourceNode) left, right, diffFile, pegRevision)
+                    .findDifferences(false, monitor, null, null, left, right);
       }
-      fRoot =
-          new RevisionAwareDifferencer((SVNLocalResourceNode) left, right, diffFile, pegRevision)
-              .findDifferences(false, monitor, null, null, left, right);
-      return fRoot;
+      return compareInput;
     }
   }
 

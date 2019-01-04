@@ -165,7 +165,7 @@ public class SVNFolderCompareEditorInput extends SVNAbstractCompareEditorInput {
       // do the diff
       monitor.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 30); // $NON-NLS-1$
       IProgressMonitor sub = new SubProgressMonitor(monitor, 30);
-      sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); // $NON-NLS-1$		
+      sub.beginTask(Policy.bind("SVNCompareEditorInput.comparing"), 100); // $NON-NLS-1$	
       try {
         svnClient = folder1.getRepository().getSVNClient();
         SVNDiffSummary[] diffSummary = null;

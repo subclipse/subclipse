@@ -1,6 +1,8 @@
 package org.tigris.subversion.subclipse.ui.compare;
 
+import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.structuremergeviewer.Differencer;
+import org.eclipse.compare.structuremergeviewer.IDiffContainer;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 
@@ -28,5 +30,15 @@ public class StatusAwareDifferencer extends Differencer {
     }
 
     return super.contentsEqual(left, right);
+  }
+
+  @Override
+  protected Object visit(Object data, int result, Object ancestor, Object left, Object right) {
+    return new BaseDiffNode(
+        (IDiffContainer) data,
+        result,
+        (ITypedElement) ancestor,
+        (ITypedElement) left,
+        (ITypedElement) right);
   }
 }
