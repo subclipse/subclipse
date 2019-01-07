@@ -69,7 +69,7 @@ public class SVNLocalBranchTagCompareInput extends CompareEditorInput
     CompareConfiguration cc = getCompareConfiguration();
     setTitle("Compare <workspace> and versions");
     cc.setLeftEditable(true);
-    cc.setRightEditable(false);
+    cc.setRightEditable(true);
     String leftLabel = "<workspace>";
     cc.setLeftLabel(leftLabel);
     String rightLabel = "Repository";

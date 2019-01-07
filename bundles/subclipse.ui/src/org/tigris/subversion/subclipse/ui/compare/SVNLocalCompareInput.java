@@ -161,7 +161,7 @@ public class SVNLocalCompareInput extends SaveableCompareEditorInput
             "SVNCompareRevisionsInput.compareResourceAndVersions",
             new Object[] {resourceName})); // $NON-NLS-1$
     cc.setLeftEditable(!readOnly);
-    cc.setRightEditable(false);
+    cc.setRightEditable(!readOnly);
 
     String leftLabel =
         Policy.bind(

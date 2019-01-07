@@ -276,7 +276,7 @@ public class SVNCompareRevisionsInput extends CompareEditorInput implements ISav
             "SVNCompareRevisionsInput.compareResourceAndVersions",
             new Object[] {resourceName})); // $NON-NLS-1$
     cc.setLeftEditable(true);
-    cc.setRightEditable(false);
+    cc.setRightEditable(true);
 
     String leftLabel =
         Policy.bind(

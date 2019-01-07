@@ -104,7 +104,7 @@ public class SVNLocalBaseCompareInput extends CompareEditorInput implements ISav
   private void initLabels() {
     CompareConfiguration cc = getCompareConfiguration();
     cc.setLeftEditable(!readOnly);
-    cc.setRightEditable(false);
+    cc.setRightEditable(!readOnly);
     String title;
     String leftLabel;
     String rightLabel;

@@ -13,6 +13,7 @@
 * Option to compare history view revision or changed path to previous revision on double click [#15](https://github.com/subclipse/subclipse/issues/15)
 * Fix CommitCommentArea so that commit dialog, commit properties dialog, and other dialogs that use it will respect theme colors [#44](https://github.com/subclipse/subclipse/issues/44) [#45](https://github.com/subclipse/subclipse/issues/45)
 * Detect edits made from compare editor [#8](https://github.com/subclipse/subclipse/issues/8)
+* Fix compare editor save when left and right sides are swapped [#23](https://github.com/subclipse/subclipse/issues/23)
 
 ## Version 4.2.4
 April 26, 2018
