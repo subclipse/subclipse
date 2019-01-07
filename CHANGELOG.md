@@ -14,6 +14,7 @@
 * Fix CommitCommentArea so that commit dialog, commit properties dialog, and other dialogs that use it will respect theme colors [#44](https://github.com/subclipse/subclipse/issues/44) [#45](https://github.com/subclipse/subclipse/issues/45)
 * Detect edits made from compare editor [#8](https://github.com/subclipse/subclipse/issues/8)
 * Fix compare editor save when left and right sides are swapped [#23](https://github.com/subclipse/subclipse/issues/23)
+* Enable Compare with Version option for folders [#7](https://github.com/subclipse/subclipse/issues/7)
 
 ## Version 4.2.4
 April 26, 2018

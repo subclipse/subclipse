@@ -329,7 +329,7 @@ public class SVNLocalCompareInput extends SaveableCompareEditorInput
   @Override
   public String getTitle() {
     if (resource != null && remoteResource != null) {
-      return "Compare" + resource.getName() + " <workspace> and v" + remoteResource.getRevision();
+      return "Compare " + resource.getName() + " <workspace> and v" + remoteResource.getRevision();
     }
     return super.getTitle();
   }
