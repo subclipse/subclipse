@@ -325,6 +325,15 @@ public class SVNLocalCompareInput extends SaveableCompareEditorInput
     }
   }
 
+
+  @Override
+  public String getTitle() {
+    if (resource != null && remoteResource != null) {
+      return "Compare" + resource.getName() + " <workspace> and v" + remoteResource.getRevision();
+    }
+    return super.getTitle();
+  }
+
   private void getUnadded(ISVNClientAdapter client, ISVNLocalResource resource, File file)
       throws SVNClientException, SVNException {
     ISVNStatus[] statuses = client.getStatus(file, true, true);

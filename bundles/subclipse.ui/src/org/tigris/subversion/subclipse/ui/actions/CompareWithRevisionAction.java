@@ -10,6 +10,7 @@
 package org.tigris.subversion.subclipse.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -22,16 +23,20 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.team.core.TeamException;
 import org.eclipse.team.ui.SaveablePartDialog;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
+import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
+import org.tigris.subversion.subclipse.core.ISVNRemoteResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.commands.GetLogsCommand;
 import org.tigris.subversion.subclipse.core.history.AliasManager;
 import org.tigris.subversion.subclipse.core.history.ILogEntry;
+import org.tigris.subversion.subclipse.core.resources.RemoteFolder;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.compare.SVNCompareRevisionsInput;
+import org.tigris.subversion.subclipse.ui.compare.SVNLocalCompareInput;
+import org.tigris.subversion.subclipse.ui.dialogs.HistoryDialog;
 import org.tigris.subversion.svnclientadapter.SVNRevision;
 import org.tigris.subversion.svnclientadapter.utils.Depth;
 
@@ -39,14 +44,12 @@ import org.tigris.subversion.svnclientadapter.utils.Depth;
 public class CompareWithRevisionAction extends WorkbenchWindowAction {
   private boolean refresh;
 
-  /** Returns the selected remote file */
-  protected ISVNRemoteFile getSelectedRemoteFile() {
+  /** Returns the selected remote resource */
+  protected ISVNRemoteResource getSelectedRemoteResource() {
     IResource[] resources = getSelectedResources();
     if (resources.length != 1) return null;
-    if (!(resources[0] instanceof IFile)) return null;
-    IFile file = (IFile) resources[0];
     try {
-      return (ISVNRemoteFile) SVNWorkspaceRoot.getBaseResourceFor(file);
+      return SVNWorkspaceRoot.getBaseResourceFor(resources[0]);
     } catch (TeamException e) {
       handle(e, null, null);
       return null;
@@ -60,21 +63,21 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
     refresh = false;
 
     // Setup holders
-    final ISVNRemoteFile[] file = new ISVNRemoteFile[] {null};
+    final ISVNRemoteResource[] resource = new ISVNRemoteResource[] {null};
     final ILogEntry[][] entries = new ILogEntry[][] {null};
 
-    // Get the selected file
+    // Get the selected resource
     run(
         new IRunnableWithProgress() {
           public void run(IProgressMonitor monitor) {
-            file[0] = getSelectedRemoteFile();
+            resource[0] = getSelectedRemoteResource();
           }
         },
         false /* cancelable */,
         PROGRESS_BUSYCURSOR);
 
-    if (file[0] == null) {
-      // No revisions for selected file
+    if (resource[0] == null) {
+      // No revisions for selected resource
       MessageDialog.openWarning(
           getShell(),
           Policy.bind("CompareWithRevisionAction.noRevisions"),
@@ -82,7 +85,8 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
       return;
     }
 
-    if (!file[0].getResource().isSynchronized(Depth.immediates)) {
+    if (resource[0] instanceof IFile &&
+        !resource[0].getResource().isSynchronized(Depth.immediates)) {
       refresh =
           MessageDialog.openQuestion(
               getShell(),
@@ -103,7 +107,7 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
               if (resources.length == 1) tagManager = new AliasManager(resources[0]);
               GetLogsCommand logCmd =
                   new GetLogsCommand(
-                      file[0],
+                      resource[0],
                       SVNRevision.HEAD,
                       SVNRevision.HEAD,
                       new SVNRevision.Number(0),
@@ -123,6 +127,35 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
         PROGRESS_DIALOG);
 
     if (entries[0] == null) return;
+    final IResource selectedResource = getSelectedResources()[0];
+    if (!(selectedResource instanceof IFile)) {
+      HistoryDialog dialog = new HistoryDialog(getShell(), resource[0]);
+      if (dialog.open() == HistoryDialog.CANCEL) {
+        return;
+      }
+      ILogEntry[] selectedEntries = dialog.getSelectedLogEntries();
+      if (selectedEntries.length == 0) {
+        return;
+      }
+
+      ISVNRemoteFolder remoteFolder =
+        new RemoteFolder(resource[0].getRepository(),
+                         selectedEntries[0].getResource().getUrl(),
+                         selectedEntries[0].getRevision());
+      ((RemoteFolder) remoteFolder).setPegRevision(selectedEntries[0].getRevision());
+      ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(selectedResource);
+      try {
+        SVNLocalCompareInput compareInput =
+          new SVNLocalCompareInput(localResource, remoteFolder, SVNRevision.HEAD);
+        CompareUI.openCompareEditorOnPage(compareInput, getTargetPage());
+      } catch (SVNException e) {
+        MessageDialog.openError(getShell(),
+                                getErrorTitle(),
+                                e.getMessage());
+      }
+
+      return;
+    }
 
     // Show the compare viewer
     run(
@@ -130,7 +163,7 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
           public void run(IProgressMonitor monitor)
               throws InvocationTargetException, InterruptedException {
             SVNCompareRevisionsInput input =
-                new SVNCompareRevisionsInput((IFile) getSelectedResources()[0], entries[0]);
+                new SVNCompareRevisionsInput((IFile) selectedResource, entries[0]);
             if (SVNUIPlugin.getPlugin()
                 .getPreferenceStore()
                 .getBoolean(ISVNUIConstants.PREF_SHOW_COMPARE_REVISION_IN_DIALOG)) {
@@ -157,14 +190,6 @@ public class CompareWithRevisionAction extends WorkbenchWindowAction {
   /** @see org.tigris.subversion.subclipse.ui.actions.SVNAction#getErrorTitle() */
   protected String getErrorTitle() {
     return Policy.bind("CompareWithRevisionAction.compare"); // $NON-NLS-1$
-  }
-
-  /**
-   * @see
-   *     org.tigris.subversion.subclipse.ui.actions.WorkspaceAction#isEnabledForSVNResource(org.tigris.subversion.subclipse.core.ISVNResource)
-   */
-  protected boolean isEnabledForSVNResource(ISVNLocalResource svnResource) throws SVNException {
-    return (!svnResource.isFolder() && super.isEnabledForSVNResource(svnResource));
   }
 
   /**
