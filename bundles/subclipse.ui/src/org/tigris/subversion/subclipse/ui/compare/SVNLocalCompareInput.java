@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.internal.BufferedResourceNode;
@@ -363,7 +364,16 @@ public class SVNLocalCompareInput extends SaveableCompareEditorInput
   private SVNDiffSummary[] getDiffSummaryWithSubfolders(SVNDiffSummary[] diffSummary) {
     ArrayList paths = new ArrayList();
     ArrayList diffs = new ArrayList();
+    String rootPath = resource == null ? null : resource.getIResource().getProjectRelativePath().toString() + "/";
     for (int i = 0; i < diffSummary.length; i++) {
+      if (rootPath != null &&
+        diffSummary[i].getPath().startsWith(rootPath)) {
+        diffSummary[i] =
+          new SVNDiffSummary(diffSummary[i].getPath().substring(rootPath.length()),
+                             SVNDiffKind.NORMAL,
+                             false,
+                             diffSummary[i].getNodeKind());
+      }
       paths.add(diffSummary[i].getPath());
       diffs.add(diffSummary[i]);
     }
