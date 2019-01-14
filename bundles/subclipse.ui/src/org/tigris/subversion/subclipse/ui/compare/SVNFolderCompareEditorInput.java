@@ -181,8 +181,8 @@ public class SVNFolderCompareEditorInput extends SVNAbstractCompareEditorInput {
                     svnClient.diffSummarize(
                         folder1.getUrl(),
                         pegRevision,
-                        folder1.getRevision(),
                         folder2.getRevision(),
+                        folder1.getRevision(),
                         Depth.infinity,
                         true);
               }
@@ -192,8 +192,8 @@ public class SVNFolderCompareEditorInput extends SVNAbstractCompareEditorInput {
                 svnClient.diffSummarize(
                     folder1.getUrl(),
                     SVNRevision.HEAD,
-                    folder1.getRevision(),
                     folder2.getRevision(),
+                    folder1.getRevision(),
                     Depth.infinity,
                     true);
           }
