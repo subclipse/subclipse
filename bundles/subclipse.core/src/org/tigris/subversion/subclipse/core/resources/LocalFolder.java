@@ -9,6 +9,8 @@
  */
 package org.tigris.subversion.subclipse.core.resources;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.resources.IContainer;
@@ -162,7 +164,8 @@ public class LocalFolder extends LocalResource implements ISVNLocalFolder {
     for (int i = 0; i < children.length; i++) {
       if (children[i].isDirty()
           || children[i].getStatusFromCache().isMissing()
-          || (children[i].exists() && !children[i].isManaged())) {
+          || (children[i].exists() && !children[i].isManaged() &&
+              !LocalResource.isSymLink(children[i]))) {
         // if a child resource is dirty consider the parent dirty as
         // well, there is no need to continue checking other siblings.
         return true;

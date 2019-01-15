@@ -47,6 +47,7 @@ import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.resources.LocalResource;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.subclipse.core.util.Util;
@@ -274,7 +275,6 @@ public class SVNLightweightDecorator extends LabelProvider
       if (!svnResource.exists()) return false;
       if (svnResource.getIResource().getType() == IResource.FILE) {
         // for files, we want that only modified files to be considered as dirty
-        //            	LocalResourceStatus status = svnResource.getStatusFromCache();
         return ((status.isTextModified()
                 || status.isPropModified()
                 || status.isReplaced()
@@ -569,7 +569,12 @@ public class SVNLightweightDecorator extends LabelProvider
         if (svnResource.exists()) {
           boolean isNewResource = false;
           if (!svnResource.isManaged()) {
-            isNewResource = true;
+            if (svnResource.getParent() == null ||
+                !svnResource.getParent().isManaged() ||
+                !LocalResource.isSymLink(svnResource.getParent()) ||
+                !LocalResource.isSymLink(svnResource)) {
+              isNewResource = true;
+            }
           }
           if (isNewResource) {
             return newResource;

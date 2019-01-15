@@ -570,4 +570,18 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
   public int hashCode() {
     return 23 * resource.getFullPath().hashCode();
   }
+
+  public static boolean isSymLink(ISVNLocalResource resource) {
+    File file = resource.getFile();
+    try {
+      if (!file.exists()) return true;
+      else {
+        String cnnpath = file.getCanonicalPath();
+        String abspath = file.getAbsolutePath();
+        return !abspath.equals(cnnpath);
+      }
+    } catch (IOException ex) {
+      return true;
+    }
+  }
 }
