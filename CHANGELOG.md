@@ -15,6 +15,8 @@
 * Detect edits made from compare editor [#8](https://github.com/subclipse/subclipse/issues/8)
 * Fix compare editor save when left and right sides are swapped [#23](https://github.com/subclipse/subclipse/issues/23)
 * Enable Compare with Version option for folders [#7](https://github.com/subclipse/subclipse/issues/7)
+* Fix folder/project revision comparison so that adds/deletes not reversed [#6](https://github.com/subclipse/subclipse/issues/6)
+* Fix status decoration for symbolic links [#84](https://github.com/subclipse/subclipse/issues/84)
 
 ## Version 4.2.4
 April 26, 2018
