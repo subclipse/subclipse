@@ -9,7 +9,8 @@
     <children size='4'>
        <child location='../${TRAVIS_TAG}'/>
        <child location='../../javahl/1.10.x/'/>
-       <child location='https://dl.bintray.com/subclipse/svnkit-updates/1.9.3/'/>
+       <child location='../../javahl/1.11.x/'/>
+       <child location='https://dl.bintray.com/subclipse/svnkit-updates/1.10.0/'/>
        <child location='../../m2e/latest/'/>
     </children>
 </repository>
