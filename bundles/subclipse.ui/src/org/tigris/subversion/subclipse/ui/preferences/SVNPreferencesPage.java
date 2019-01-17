@@ -65,6 +65,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
   private Button warnOnCommitToTagPath;
   private Button ignoreHiddenChanges;
   private Button ignoreManagedDerivedResources;
+  private Button ignoreRefreshSvnStatusCache;
   private Button removeOnReplace;
   private Text logEntriesToFetchText;
   private Button defaultConfigLocationRadio;
@@ -209,6 +210,9 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 
     ignoreManagedDerivedResources =
         createCheckBox(composite, Policy.bind("SVNPreferencesPage.1")); // $NON-NLS-1$
+
+    ignoreRefreshSvnStatusCache =
+        createCheckBox(composite, Policy.bind("SVNPreferencesPage.2")); // $NON-NLS-1$
 
     createLabel(composite, "", 2); // $NON-NLS-1$
 
@@ -377,6 +381,11 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
             .getPluginPreferences()
             .getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES));
 
+    ignoreRefreshSvnStatusCache.setSelection(
+        SVNProviderPlugin.getPlugin()
+            .getPluginPreferences()
+            .getBoolean(ISVNCoreConstants.PREF_IGNORE_REFRESH_SVN_STATUS_CACHE));
+
     removeOnReplace.setSelection(
         store.getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE));
 
@@ -483,6 +492,12 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
         .setValue(
             ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES,
             ignoreManagedDerivedResources.getSelection());
+
+    SVNProviderPlugin.getPlugin()
+        .getPluginPreferences()
+        .setValue(
+            ISVNCoreConstants.PREF_IGNORE_REFRESH_SVN_STATUS_CACHE,
+            ignoreRefreshSvnStatusCache.getSelection());
 
     //		store.setValue(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT,
     // showUnadded.getSelection());

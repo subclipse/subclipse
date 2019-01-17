@@ -17,6 +17,7 @@ public interface ISVNCoreConstants {
   String PREF_SHARE_NESTED_PROJECTS = "share_nested_projects";
   String PREF_IGNORE_HIDDEN_CHANGES = "ignore_hidden_changes";
   String PREF_IGNORE_MANAGED_DERIVED_RESOURCES = "ignore_managed_derived_resources";
+  String PREF_IGNORE_REFRESH_SVN_STATUS_CACHE = "ignore_refresh_svn_status_cache";
   String PREF_SHOW_READ_ONLY = "show_read_only";
 
   public final int DEPTH_UNKNOWN = 0;

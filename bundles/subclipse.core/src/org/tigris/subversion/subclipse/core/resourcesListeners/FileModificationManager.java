@@ -56,6 +56,10 @@ public class FileModificationManager
       SVNProviderPlugin.getPlugin()
           .getPluginPreferences()
           .getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES);
+  private boolean ignoreRefreshSvnStatusCache =
+      SVNProviderPlugin.getPlugin()
+          .getPluginPreferences()
+          .getBoolean(ISVNCoreConstants.PREF_IGNORE_REFRESH_SVN_STATUS_CACHE);
 
   // consider the following changes types and ignore the others (e.g. marker and description changes
   // are ignored)
@@ -166,8 +170,8 @@ public class FileModificationManager
                   return true;
                 }
               });
-
-      if (!modifiedResources.isEmpty() || !modifiedInfiniteDepthResources.isEmpty()) {
+      if (!ignoreRefreshSvnStatusCache &&
+          (!modifiedResources.isEmpty() || !modifiedInfiniteDepthResources.isEmpty())) {
         List<IProject> projects = new ArrayList<IProject>();
         if (!modifiedResources.isEmpty()) {
           IResource[] resources =
@@ -333,6 +337,11 @@ public class FileModificationManager
           SVNProviderPlugin.getPlugin()
               .getPluginPreferences()
               .getBoolean(ISVNCoreConstants.PREF_IGNORE_MANAGED_DERIVED_RESOURCES);
+    } else if (event.getProperty().equals(ISVNCoreConstants.PREF_IGNORE_REFRESH_SVN_STATUS_CACHE)) {
+      ignoreRefreshSvnStatusCache =
+          SVNProviderPlugin.getPlugin()
+              .getPluginPreferences()
+              .getBoolean(ISVNCoreConstants.PREF_IGNORE_REFRESH_SVN_STATUS_CACHE);
     }
   }
 
