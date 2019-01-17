@@ -1,4 +1,5 @@
-## master
+## Version 4.3.0
+January 17, 2019
 
 * Reorganize JavaHL into a separate feature so we can support either SVN 1.10 or 1.11
 * Expose all JavaHL packages [#60](https://github.com/subclipse/subclipse/issues/60)
@@ -17,6 +18,7 @@
 * Enable Compare with Version option for folders [#7](https://github.com/subclipse/subclipse/issues/7)
 * Fix folder/project revision comparison so that adds/deletes not reversed [#6](https://github.com/subclipse/subclipse/issues/6)
 * Fix status decoration for symbolic links [#84](https://github.com/subclipse/subclipse/issues/84)
+* Add preference to disable refresh of status cache [#48](https://github.com/subclipse/subclipse/issues/48)
 
 ## Version 4.2.4
 April 26, 2018
