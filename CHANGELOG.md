@@ -1,3 +1,7 @@
+## master
+
+* Revert SVNKit update site URL to 1.8.x [#86](https://github.com/subclipse/subclipse/issues/86)
+
 ## Version 4.3.0
 January 17, 2019
 

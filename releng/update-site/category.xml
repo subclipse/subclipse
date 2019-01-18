@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.tigris.subversion.subclipse_4.3.0.qualifier.jar" id="org.tigris.subversion.subclipse" version="4.3.0.qualifier">
+   <feature url="features/org.tigris.subversion.subclipse_4.3.1.qualifier.jar" id="org.tigris.subversion.subclipse" version="4.3.1.qualifier">
       <category name="Subclipse"/>
    </feature>
    <feature url="features/org.tigris.subversion.subclipse.graph.feature_4.2.0.1.jar" id="org.tigris.subversion.subclipse.graph.feature" version="4.2.0.1">
