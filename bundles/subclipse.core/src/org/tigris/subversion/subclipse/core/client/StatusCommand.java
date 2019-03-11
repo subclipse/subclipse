@@ -112,7 +112,7 @@ public class StatusCommand {
     }
 
     protected String getPath() {
-      return path;
+      return path + "/test";
     }
 
     protected SVNRevision.Number getRevision() {

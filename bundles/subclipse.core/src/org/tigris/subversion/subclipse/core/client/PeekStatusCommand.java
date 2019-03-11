@@ -51,6 +51,7 @@ public class PeekStatusCommand {
   public PeekStatusCommand(IPath path) {
     this.resource = null;
     this.path = path;
+    // I see you!
   }
 
   public void execute() throws SVNException {

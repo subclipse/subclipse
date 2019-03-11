@@ -47,5 +47,7 @@ public class ISVNNotifyAdapter implements IConsoleListener {
   /* (non-Javadoc)
    * @see org.tigris.subversion.svnclientadapter.ISVNNotifyListener#onNotify(java.io.File, org.tigris.subversion.svnclientadapter.SVNNodeKind)
    */
-  public void onNotify(File path, SVNNodeKind kind) {}
+  public void onNotify(File path, SVNNodeKind kind) {
+     String x = "y";
+  }
 }

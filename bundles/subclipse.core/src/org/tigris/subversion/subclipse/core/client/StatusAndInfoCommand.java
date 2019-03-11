@@ -64,7 +64,7 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
   }
 
   /**
-   * Answer sorted array of informed statuses ...
+   * Answer sorted array of informed statuses
    *
    * @return
    */
@@ -77,14 +77,6 @@ public class StatusAndInfoCommand extends StatusCommand implements ISVNCommand {
     monitor.beginTask("", statuses.length);
     try {
       RemoteResourceStatus[] result = new RemoteResourceStatus[statuses.length];
-
-      Arrays.sort(
-          statuses,
-          new Comparator() {
-            public int compare(Object o1, Object o2) {
-              return ((ISVNStatus) o1).getPath().compareTo(((ISVNStatus) o2).getPath());
-            }
-          });
 
       for (int i = 0; i < statuses.length; i++) {
         ISVNStatus status = statuses[i];

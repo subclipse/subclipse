@@ -99,4 +99,8 @@ public class NotificationListener implements ISVNNotifyListener {
       consoleListener.setCommand(command);
     }
   }
+
+  public void eatCrow(String bird) {
+    System.out.println(bird);
+  }
 }

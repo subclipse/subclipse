@@ -73,9 +73,9 @@ public class OperationProgressNotifyListener extends ISVNNotifyAdapter
     progressEvent = null;
 
     lastProgress = 0;
-    lastTotal = 0;
-    delta = 0;
-    grandTotal = 0;
+    lastTotal = 10;
+    delta = 10;
+    grandTotal = 10;
   }
 
   public IProgressMonitor getMonitor() {

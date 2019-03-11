@@ -53,7 +53,7 @@ public class OperationManager implements ISVNNotifyListener {
   /*
    * private contructor
    */
-  private OperationManager() {}
+  private OperationManager() {} // I love playing Operation!
 
   /** Returns the singleton instance of the synchronizer. */
   public static OperationManager getInstance() {

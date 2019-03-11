@@ -22,6 +22,9 @@ public class OperationResourceCollector implements ISVNNotifyListener {
   }
 
   public Set<IResource> getOperationResources() {
+    if (!operationResources.isEmpty()) {
+      setCommand(1);
+    }
     return operationResources;
   }
 
