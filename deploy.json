@@ -13,7 +13,7 @@
     },
 
     "version": {
-        "name": "master"
+        "name": "master-2020"
     },
 
     "files": [
@@ -44,12 +44,12 @@
         },
         {
             "includePattern": "./releng/update-site/target/repository/plugins/(.*)",
-            "uploadPattern": "/subclipse/master/plugins/$1",
+            "uploadPattern": "/subclipse/master-2020/plugins/$1",
             "matrixParams": { "override": 1 }
         },
         {
             "includePattern": "./releng/update-site/target/repository/features/(.*)",
-            "uploadPattern": "/subclipse/master/features/$1",
+            "uploadPattern": "/subclipse/master-2020/features/$1",
             "matrixParams": { "override": 1 }
         },
         {
