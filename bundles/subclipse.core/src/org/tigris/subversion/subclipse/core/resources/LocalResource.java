@@ -117,6 +117,9 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     if (isParentInSvnIgnore()) {
       return true;
     }
+    if (isParentSymlink()) {
+    	return true;
+    }
 
     LocalResourceStatus status = getStatusFromCache();
 
@@ -182,6 +185,20 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     }
     // It's not under svn:ignore (at least according to cached statuses)
     return false;
+  }
+  
+  /**
+   * Checks whether the parent is a symbolic link.
+   * 
+   * @return true if the parent is a symlink
+   * @throws SVNException
+   */
+  protected boolean isParentSymlink() throws SVNException {
+  	ISVNLocalFolder parent = getParent();
+  	if (parent != null) {
+  		return LocalResource.isSymLink(parent);
+  	}
+  	return false;
   }
 
   /* (non-Javadoc)
