@@ -118,7 +118,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
       return true;
     }
     if (isParentSymlink()) {
-    	return true;
+      return true;
     }
 
     LocalResourceStatus status = getStatusFromCache();
@@ -194,11 +194,11 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
    * @throws SVNException
    */
   protected boolean isParentSymlink() throws SVNException {
-  	ISVNLocalFolder parent = getParent();
-  	if (parent != null) {
-  		return LocalResource.isSymLink(parent);
-  	}
-  	return false;
+    ISVNLocalFolder parent = getParent();
+    if (parent != null) {
+      return LocalResource.isSymLink(parent);
+    }
+    return false;
   }
 
   /* (non-Javadoc)
