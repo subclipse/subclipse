@@ -11,6 +11,9 @@ package org.tigris.subversion.subclipse.core.resources;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -117,7 +120,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     if (isParentInSvnIgnore()) {
       return true;
     }
-    if (isParentSymlink()) {
+    if (hasSymlinkParent()) {
       return true;
     }
 
@@ -187,18 +190,23 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     return false;
   }
   
-  /**
-   * Checks whether the parent is a symbolic link.
-   * 
-   * @return true if the parent is a symlink
-   * @throws SVNException
+  /* (non-Javadoc)
+   * @see org.tigris.subversion.subclipse.core.ISVNLocalResource#hasSymlinkParent()
    */
-  protected boolean isParentSymlink() throws SVNException {
+  public boolean hasSymlinkParent() throws SVNException {
     ISVNLocalFolder parent = getParent();
-    if (parent != null) {
-      return LocalResource.isSymLink(parent);
+    if (parent == null) {
+    	return false;
     }
-    return false;
+    // stop checking at the project root (it may be a link or beneath one, which is fine)
+    if (parent.equals(getWorkspaceRoot().getLocalRoot())) {
+    	return false;
+    }
+    if (LocalResource.isSymLink(parent)) {
+    	return true;
+    }
+    // any other parent can be a symlink, too
+    return parent.hasSymlinkParent();
   }
 
   /* (non-Javadoc)
@@ -588,17 +596,13 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     return 23 * resource.getFullPath().hashCode();
   }
 
-  public static boolean isSymLink(ISVNLocalResource resource) {
-    File file = resource.getFile();
-    try {
-      if (!file.exists()) return true;
-      else {
-        String cnnpath = file.getCanonicalPath();
-        String abspath = file.getAbsolutePath();
-        return !abspath.equals(cnnpath);
-      }
-    } catch (IOException ex) {
-      return true;
-    }
-  }
+	public static boolean isSymLink(ISVNLocalResource resource) {
+		try {
+			File file = resource.getFile();
+			Path path = file.toPath();
+			return Files.isSymbolicLink(path);
+		} catch (InvalidPathException e) {
+			return false;
+		}
+	}
 }
