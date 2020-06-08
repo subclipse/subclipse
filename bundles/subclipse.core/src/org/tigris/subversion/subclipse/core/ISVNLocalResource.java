@@ -79,7 +79,13 @@ public interface ISVNLocalResource extends ISVNResource, IAdaptable {
   /** @return the parent of this local resource */
   public ISVNLocalFolder getParent();
 
-  /** @return the underlaying resource */
+  /**
+   * @return true if any parent is a symbolic link
+   * @throws SVNException
+   */
+  public boolean hasSymlinkParent() throws SVNException;
+  
+  /** @return the underlying resource */
   public IResource getIResource();
 
   /** @return the file corresponding to the resource */
