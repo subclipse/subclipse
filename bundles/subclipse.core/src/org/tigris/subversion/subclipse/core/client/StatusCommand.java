@@ -35,7 +35,7 @@ public class StatusCommand {
 
   /**
    * List storing RevisionsCache objects as reported by logRevision() They have to be sorted in
-   * descending order, so more specific (deeper in the tree) is looked up first
+   * descending orderly, so more specific (deeper in the tree) is looked up first
    */
   protected List<RevisionsCache> revisions = new ArrayList<StatusCommand.RevisionsCache>();
 
