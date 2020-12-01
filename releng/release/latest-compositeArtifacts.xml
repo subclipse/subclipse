@@ -6,10 +6,11 @@
      <property name="p2.compressed" value="true"/>
      <property name="p2.timestamp" value="${BUILD_TIME}000"/>
   </properties>
-  <children size='4'>
-     <child location='../${TRAVIS_TAG}'/>
+  <children size='5'>
+     <child location='../${BRANCH_NAME}'/>
      <child location='../../javahl/1.10.x/'/>
      <child location='../../javahl/1.11.x/'/>
+     <child location='../../javahl/1.14.x/'/>
      <child location='https://dl.bintray.com/subclipse/svnkit-updates/'/>
      <child location='../../m2e/latest/'/>
   </children>
