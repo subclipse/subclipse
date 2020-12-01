@@ -4,10 +4,19 @@ on:
   pull_request:
     branches: [ master ]
 
+  push:
+    branches: [ master ]
+
+  release:
+    types: [ published ]
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+      BINTRAY_TOKEN: ${{ secrets.BINTRAY_TOKEN }}
 
     steps:
     - uses: actions/checkout@v2
@@ -26,3 +35,11 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+
+    - name: Publish Build
+      if: github.event_name == 'push'
+      run: ./publishBuild.sh subclipse snapshots subclipse master-2020 ./releng/update-site/target/repository
+
+    - name: Publish Release
+      if: github.event_name == 'release'
+      run: ./publishRelease.sh
