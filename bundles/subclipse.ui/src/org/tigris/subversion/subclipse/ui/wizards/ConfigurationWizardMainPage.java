@@ -22,21 +22,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.forms.events.HyperlinkAdapter;
-import org.eclipse.ui.forms.events.HyperlinkEvent;
-import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.ui.IHelpContextIds;
-import org.tigris.subversion.subclipse.ui.ISVNRepositorySourceProvider;
 import org.tigris.subversion.subclipse.ui.Policy;
-import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.svnclientadapter.SVNUrl;
 
 /**
@@ -149,34 +142,6 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
     urlCombo.addListener(SWT.Selection, listener);
     urlCombo.addListener(SWT.Modify, listener);
 
-    ISVNRepositorySourceProvider[] repositorySourceProviders = null;
-    try {
-      repositorySourceProviders = SVNUIPlugin.getRepositorySourceProviders();
-    } catch (Exception e) {
-    }
-    if (repositorySourceProviders == null || repositorySourceProviders.length == 0) {
-      new Label(g, SWT.NONE);
-      Label repositoryProviderLabel = new Label(g, SWT.WRAP);
-      GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_HORIZONTAL);
-      data.widthHint = 200;
-      repositoryProviderLabel.setLayoutData(data);
-      repositoryProviderLabel.setText(
-          "Tired of typing in long URL's?  Your repository provider might provide a plug-in that would allow you to select your repository from a list.");
-      new Label(g, SWT.NONE);
-      Hyperlink repositoryProviderLink = new Hyperlink(g, SWT.NONE);
-      repositoryProviderLink.setUnderlined(true);
-      repositoryProviderLink.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
-      repositoryProviderLink.setText("Click here to see the list of available providers.");
-      repositoryProviderLink.setToolTipText(
-          ConfigurationWizardRepositorySourceProviderPage.REPOSITORY_PROVIDERS_WIKI_URL);
-      repositoryProviderLink.addHyperlinkListener(
-          new HyperlinkAdapter() {
-            public void linkActivated(HyperlinkEvent evt) {
-              ConfigurationWizardRepositorySourceProviderPage.showAvailableProviders();
-            }
-          });
-    }
-
     if (showCredentials) {
       g =
           createGroup(
@@ -194,12 +159,6 @@ public class ConfigurationWizardMainPage extends SVNWizardPage {
       passwordText = createTextField(g);
       passwordText.setEchoChar('*');
     }
-
-    Composite cloudForgeComposite = new CloudForgeComposite(composite, SWT.NONE);
-    GridData data =
-        new GridData(GridData.VERTICAL_ALIGN_END | GridData.GRAB_VERTICAL | GridData.FILL_VERTICAL);
-    data.horizontalSpan = 2;
-    cloudForgeComposite.setLayoutData(data);
 
     initializeValues();
     validateFields();

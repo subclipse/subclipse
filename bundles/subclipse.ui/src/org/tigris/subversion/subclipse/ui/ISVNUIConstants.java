@@ -78,7 +78,6 @@ public interface ISVNUIConstants {
 
   // wizards
   public final String IMG_NEWLOCATION = "wizards/newlocation_wiz.gif"; // $NON-NLS-1$
-  public final String IMG_CLOUDFORGE = "wizards/cloudforge.png"; // $NON-NLS-1$
 
   // pending
   public final String IMG_FILEADD_PENDING = "pending16/fileadd_pending.gif"; // $NON-NLS-1$

@@ -41,7 +41,6 @@ import org.tigris.subversion.subclipse.ui.IHelpContextIds;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 import org.tigris.subversion.subclipse.ui.util.AdaptableList;
-import org.tigris.subversion.subclipse.ui.wizards.CloudForgeComposite;
 import org.tigris.subversion.subclipse.ui.wizards.SVNWizardPage;
 
 /**
@@ -145,11 +144,6 @@ public class RepositorySelectionPage extends SVNWizardPage {
 
     useNewRepo.addSelectionListener(selectionListener);
     useExistingRepo.addSelectionListener(selectionListener);
-
-    Composite cloudForgeComposite = new CloudForgeComposite(composite, SWT.NONE);
-    GridData data =
-        new GridData(GridData.VERTICAL_ALIGN_END | GridData.GRAB_VERTICAL | GridData.FILL_VERTICAL);
-    cloudForgeComposite.setLayoutData(data);
 
     setControl(composite);
 

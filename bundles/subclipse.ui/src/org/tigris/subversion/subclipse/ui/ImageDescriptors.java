@@ -72,7 +72,6 @@ public class ImageDescriptors {
     createImageDescriptor(ISVNUIConstants.IMG_EXPAND_ALL, baseURL);
     createImageDescriptor(ISVNUIConstants.IMG_EXPAND_ALL_ENABLED, baseURL);
     createImageDescriptor(ISVNUIConstants.IMG_NEWLOCATION, baseURL);
-    createImageDescriptor(ISVNUIConstants.IMG_CLOUDFORGE, baseURL);
     //        createImageDescriptor(ISVNUIConstants.IMG_NEWFOLDER, baseURL);
     createImageDescriptor(ISVNUIConstants.IMG_BRANCH, baseURL);
     //        createImageDescriptor(ISVNUIConstants.IMG_MODULE, baseURL);

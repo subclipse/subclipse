@@ -1,9 +1,7 @@
 package org.tigris.subversion.subclipse.ui.wizards;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -19,11 +17,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.forms.events.HyperlinkAdapter;
-import org.eclipse.ui.forms.events.HyperlinkEvent;
-import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.tigris.subversion.subclipse.ui.ISVNRepositorySourceProvider;
 import org.tigris.subversion.subclipse.ui.ISVNUIConstants;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
@@ -32,9 +25,6 @@ public class ConfigurationWizardRepositorySourceProviderPage extends WizardPage 
   private ISVNRepositorySourceProvider[] repositorySourceProviders;
   private TreeViewer treeViewer;
   private ISVNRepositorySourceProvider selectedRepositorySourceProvider;
-
-  public static final String REPOSITORY_PROVIDERS_WIKI_URL =
-      "http://subclipse.tigris.org/wiki/RepositoryProviders";
 
   public ConfigurationWizardRepositorySourceProviderPage(
       String pageName,
@@ -89,40 +79,11 @@ public class ConfigurationWizardRepositorySourceProviderPage extends WizardPage 
           }
         });
 
-    Hyperlink repositoryProviderLink = new Hyperlink(treeGroup, SWT.NONE);
-    repositoryProviderLink.setUnderlined(true);
-    repositoryProviderLink.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
-    repositoryProviderLink.setText("Click here to see the list of available providers.");
-    repositoryProviderLink.setToolTipText(REPOSITORY_PROVIDERS_WIKI_URL);
-    repositoryProviderLink.addHyperlinkListener(
-        new HyperlinkAdapter() {
-          public void linkActivated(HyperlinkEvent evt) {
-            showAvailableProviders();
-          }
-        });
-
-    Composite cloudForgeComposite = new CloudForgeComposite(outerContainer, SWT.NONE);
-    GridData data =
-        new GridData(GridData.VERTICAL_ALIGN_END | GridData.GRAB_VERTICAL | GridData.FILL_VERTICAL);
-    cloudForgeComposite.setLayoutData(data);
-
     setControl(outerContainer);
   }
 
   public ISVNRepositorySourceProvider getSelectedRepositorySourceProvider() {
     return selectedRepositorySourceProvider;
-  }
-
-  public static void showAvailableProviders() {
-    try {
-      PlatformUI.getWorkbench()
-          .getBrowserSupport()
-          .getExternalBrowser()
-          .openURL(new URL(REPOSITORY_PROVIDERS_WIKI_URL));
-    } catch (Exception e) {
-      MessageDialog.openError(
-          Display.getDefault().getActiveShell(), "Available Repository Providers", e.getMessage());
-    }
   }
 
   class RepositorySourceLabelProvider extends LabelProvider {
