@@ -11,9 +11,11 @@ package org.tigris.subversion.subclipse.ui.operations;
 
 import java.lang.reflect.Method;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -214,6 +216,7 @@ public class ShowAnnotationOperation extends SVNOperation {
     IResource resource = remoteFile.getResource();
     if (resource == null) return null;
 
+    List<IEditorPart> openEditors = new ArrayList<IEditorPart>();
     for (int i = 0; i < references.length; i++) {
       IEditorReference reference = references[i];
       try {
@@ -222,18 +225,25 @@ public class ShowAnnotationOperation extends SVNOperation {
           IEditorPart editor = reference.getEditor(false);
           if (editor instanceof ITextEditorExtension4) return (ITextEditorExtension4) editor;
           else {
+            openEditors.add(editor);
             // editor opened is not a text editor - reopen file using the defualt text editor
-            IEditorPart part =
-                getPart()
-                    .getSite()
-                    .getPage()
-                    .openEditor(
-                        new FileEditorInput((IFile) resource),
-                        IDEWorkbenchPlugin.DEFAULT_TEXT_EDITOR_ID,
-                        true,
-                        IWorkbenchPage.MATCH_NONE);
-            if (part != null && part instanceof AbstractDecoratedTextEditor)
-              return (AbstractDecoratedTextEditor) part;
+            IWorkbenchPart workbenchPart = getPart();
+            if (workbenchPart != null &&
+                workbenchPart.getSite() != null &&
+                workbenchPart.getSite().getPage() != null) {
+              IEditorPart part =
+                  workbenchPart
+                      .getSite()
+                      .getPage()
+                      .openEditor(
+                          new FileEditorInput((IFile) resource),
+                          IDEWorkbenchPlugin.DEFAULT_TEXT_EDITOR_ID,
+                          true,
+                          IWorkbenchPage.MATCH_NONE);
+              if (part != null && part instanceof AbstractDecoratedTextEditor) {
+                return (AbstractDecoratedTextEditor) part;
+              }
+            }
           }
         }
       } catch (PartInitException e) {
@@ -251,8 +261,10 @@ public class ShowAnnotationOperation extends SVNOperation {
           if (part instanceof AbstractDecoratedTextEditor)
             return (AbstractDecoratedTextEditor) part;
 
-          // editor opened is not a text editor - close it
-          getPart().getSite().getPage().closeEditor(part, false);
+          // editor opened is not a text editor and was not already open - close it
+          if (!openEditors.contains(part)) {
+            getPart().getSite().getPage().closeEditor(part, false);
+          }
         }
         // open file in default text editor
         IEditorPart part =
