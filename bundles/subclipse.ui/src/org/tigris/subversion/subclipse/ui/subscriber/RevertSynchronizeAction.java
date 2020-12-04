@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -124,6 +125,21 @@ public class RevertSynchronizeAction extends SynchronizeModelAction {
     } else {
       topSelectionArray = new IResource[topSelection.size()];
       topSelection.toArray(topSelectionArray);
+    }
+
+    for (IResource resource : resources) {
+      ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
+      if (svnResource != null) {
+        try {
+          if (resource instanceof IContainer) {
+            statusMap.put(resource, svnResource.getStatus().getPropStatus());
+          } else {
+            statusMap.put(resource, svnResource.getStatus().getTextStatus());
+          }
+        } catch (SVNException e) {
+          // ignore
+        }
+      }
     }
 
     RevertSynchronizeOperation revertOperation =

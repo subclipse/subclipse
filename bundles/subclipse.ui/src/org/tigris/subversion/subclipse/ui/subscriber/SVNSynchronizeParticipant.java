@@ -37,6 +37,7 @@ import org.eclipse.team.ui.synchronize.SynchronizePageActionGroup;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -75,6 +76,7 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant
   /** A custom label decorator that will show the remote mapped path for each file. */
   private class SVNParticipantLabelDecorator extends LabelProvider implements ILabelDecorator {
     ResourceSelectionTreeDecorator resourceDecorator = new ResourceSelectionTreeDecorator();
+    WorkbenchLabelProvider labelProvider = new WorkbenchLabelProvider();
 
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.ILabelDecorator#decorateImage(org.eclipse.swt.graphics.Image, java.lang.Object)
@@ -86,6 +88,10 @@ public class SVNSynchronizeParticipant extends ScopableSubscriberParticipant
         if (resource == null) return null;
         ISVNLocalResource svnResource = SVNWorkspaceRoot.getSVNResourceFor(resource);
         try {
+          if (!svnResource.getStatus().isManaged()) {
+            image = labelProvider.getImage(resource);
+            image = resourceDecorator.getImage(image, ResourceSelectionTreeDecorator.UNVERSIONED);
+          }
           if (svnResource.getStatus().hasTreeConflict()) {
             image = resourceDecorator.getImage(image, ResourceSelectionTreeDecorator.TREE_CONFLICT);
           } else if (svnResource.getStatus().isTextConflicted()) {
