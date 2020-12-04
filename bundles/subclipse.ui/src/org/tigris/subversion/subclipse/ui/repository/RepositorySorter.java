@@ -40,7 +40,7 @@ public class RepositorySorter extends ViewerSorter {
               // preVersion* is anything found before the version for this iteration
               String preVersion1 = s1.substring(beginningS1, m1.start());
               String preVersion2 = s2.substring(beginningS2, m2.start());
-              if (preVersion1.compareTo(preVersion2) != 0) {
+              if (preVersion1.compareToIgnoreCase(preVersion2) != 0) {
                 // if a non-version portion of the string is different, perform normal string
                 // comparison.
                 break;
@@ -66,7 +66,7 @@ public class RepositorySorter extends ViewerSorter {
                   }
 
                   if (versionsMax[i].length() > 5 || versionsMin[i].length() > 5) {
-                    return s1.compareTo(s2);
+                    return s1.compareToIgnoreCase(s2);
                   }
 
                   Integer digit1 = Integer.parseInt(versionsMax[i]);
