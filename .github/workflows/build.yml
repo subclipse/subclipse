@@ -37,7 +37,7 @@ jobs:
       run: |
         mvn -B package --file pom.xml
         ARTIFACT_PATHNAME=$(ls ./releng/update-site/target/*.zip | head -n 1)
-        ARTIFACT_NAME=$(basename $ARTIFACT_PATHNAME)
+        ARTIFACT_NAME=$(basename $ARTIFACT_PATHNAME .zip)
         echo ARTIFACT_PATHNAME=$ARTIFACT_PATHNAME >> $GITHUB_ENV
         echo ARTIFACT_NAME=$ARTIFACT_NAME >> $GITHUB_ENV
 
