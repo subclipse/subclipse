@@ -1,6 +1,14 @@
-## master
+## Version 4.3.1
+December 9, 2020
 
-* Revert SVNKit update site URL to 1.8.x [#86](https://github.com/subclipse/subclipse/issues/86)
+* Update SVNKit to 1.10.2
+* Support JavaHL 1.14
+* Remove deprecated Assert class [#144](https://github.com/subclipse/subclipse/issues/144)
+* Null proof Show Annotations check for open editor that can be used [#139](https://github.com/subclipse/subclipse/issues/139)
+* Fixes to decorators in Sync view  [#137](https://github.com/subclipse/subclipse/issues/137)
+* Fix repo sorter so that comparison is consistently case insensitive [#135](https://github.com/subclipse/subclipse/issues/135)
+* Remove references to CloudForge and tigris.org
+* Move build/release process from Travis to Github Actions
 
 ## Version 4.3.0
 January 17, 2019
