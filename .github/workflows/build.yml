@@ -36,6 +36,12 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
+    - name: Archive Update Site
+      uses: actions/upload-artifact@v2
+      with:
+        name: zipped-update-site
+        path: ./releng/update-site/target/*.zip
+
     - name: Publish Build
       if: github.event_name == 'push'
       run: ./publishBuild.sh subclipse snapshots subclipse master-2020 ./releng/update-site/target/repository
