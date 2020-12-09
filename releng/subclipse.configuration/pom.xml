@@ -2,7 +2,7 @@
  <modelVersion>4.0.0</modelVersion>
  <groupId>org.tigris.subclipse</groupId>
  <artifactId>org.tigris.subclipse.configuration</artifactId>
- <version>4.3.1-SNAPSHOT</version>
+ <version>4.3.2-SNAPSHOT</version>
  <packaging>pom</packaging>
 
  <properties>
