@@ -1,7 +1,4 @@
-## master
-
-
-## Version 4.3.1
+## Version 4.3.2
 December 9, 2020
 
 * Update SVNKit to 1.10.2
@@ -12,6 +9,7 @@ December 9, 2020
 * Fix repo sorter so that comparison is consistently case insensitive [#135](https://github.com/subclipse/subclipse/issues/135)
 * Remove references to CloudForge and tigris.org
 * Move build/release process from Travis to Github Actions
+* Store zipped update site with release
 
 ## Version 4.3.0
 January 17, 2019
