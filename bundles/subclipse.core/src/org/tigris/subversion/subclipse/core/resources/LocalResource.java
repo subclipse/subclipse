@@ -199,7 +199,7 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
     	return false;
     }
     // stop checking at the project root (it may be a link or beneath one, which is fine)
-    if (parent.equals(getWorkspaceRoot().getLocalRoot())) {
+    if (getWorkspaceRoot() != null && parent.equals(getWorkspaceRoot().getLocalRoot())) {
     	return false;
     }
     if (LocalResource.isSymLink(parent)) {
