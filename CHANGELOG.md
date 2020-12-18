@@ -1,4 +1,8 @@
-## master
+## Version 4.3.3
+December 18, 2020
+
+* Fix NPE in Share Project [#151](https://github.com/subclipse/subclipse/issues/151)
+
 
 ## Version 4.3.2
 December 9, 2020
