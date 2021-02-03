@@ -14,12 +14,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    env:
-      BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-      BINTRAY_TOKEN: ${{ secrets.BINTRAY_TOKEN }}
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
 
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
@@ -49,11 +48,28 @@ jobs:
 
     - name: Publish Build
       if: github.event_name == 'push'
-      run: ./publishBuild.sh subclipse snapshots subclipse master-2020 ./releng/update-site/target/repository
+      uses: JamesIves/github-pages-deploy-action@3.7.1
+      with:
+        ACCESS_TOKEN: ${{ secrets.SUBCLIPSE_TOKEN }}
+        REPOSITORY_NAME: subclipse/snapshots
+        BRANCH: main
+        FOLDER: ./releng/update-site/target/repository
+        TARGET_FOLDER: subclipse
+        CLEAN: false
+        SINGLE_COMMIT: false
+        
 
     - name: Publish Release
       if: github.event_name == 'release'
-      run: ./publishRelease.sh
+      uses: JamesIves/github-pages-deploy-action@3.7.1
+      with:
+        ACCESS_TOKEN: ${{ secrets.SUBCLIPSE_TOKEN }}
+        REPOSITORY_NAME: subclipse/updates
+        BRANCH: main
+        FOLDER: ./releng/update-site/target/repository
+        TARGET_FOLDER: subclipse/${{ github.event.release.tag_name }}
+        CLEAN: false
+        SINGLE_COMMIT: false
 
     - name: Attach Zipped Site to Release
       uses: actions/upload-release-asset@v1.0.2
