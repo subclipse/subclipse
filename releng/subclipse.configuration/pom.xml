@@ -8,8 +8,8 @@
  <properties>
   <tycho.version>0.25.0</tycho.version>
   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  <juno-repo.url>http://download.eclipse.org/releases/juno</juno-repo.url>
-  <svnkit-repo.url>https://dl.bintray.com/subclipse/svnkit-updates</svnkit-repo.url>
+  <juno-repo.url>https://download.eclipse.org/releases/juno</juno-repo.url>
+  <svnkit-repo.url>https://subclipse.github.io/svnkit-updates/1.8.12</svnkit-repo.url>
  </properties>
 
  <repositories>
