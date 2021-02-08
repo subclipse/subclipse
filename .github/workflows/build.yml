@@ -26,7 +26,7 @@ jobs:
         java-version: 1.8
 
     - name: Cache Maven packages
-      uses: actions/cache@v2.1.4
+      uses: actions/cache@v2
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -50,13 +50,13 @@ jobs:
       if: github.event_name == 'push'
       uses: JamesIves/github-pages-deploy-action@4.0.0
       with:
-        ACCESS_TOKEN: ${{ secrets.SUBCLIPSE_TOKEN }}
-        REPOSITORY_NAME: subclipse/snapshots
-        BRANCH: main
-        FOLDER: ./releng/update-site/target/repository
-        TARGET_FOLDER: subclipse
-        CLEAN: false
-        SINGLE_COMMIT: false
+        token: ${{ secrets.SUBCLIPSE_TOKEN }}
+        repository-name: subclipse/snapshots
+        branch: main
+        folder: ./releng/update-site/target/repository
+        target-folder: subclipse
+        clean: false
+        single-commit: false
         
 
     - name: Publish Release
