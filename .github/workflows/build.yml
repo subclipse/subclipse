@@ -48,7 +48,7 @@ jobs:
 
     - name: Publish Build
       if: github.event_name == 'push'
-      uses: JamesIves/github-pages-deploy-action@3.7.1
+      uses: JamesIves/github-pages-deploy-action@4.0.0
       with:
         ACCESS_TOKEN: ${{ secrets.SUBCLIPSE_TOKEN }}
         REPOSITORY_NAME: subclipse/snapshots
@@ -61,7 +61,7 @@ jobs:
 
     - name: Publish Release
       if: github.event_name == 'release'
-      uses: JamesIves/github-pages-deploy-action@3.7.1
+      uses: JamesIves/github-pages-deploy-action@4.0.0
       with:
         ACCESS_TOKEN: ${{ secrets.SUBCLIPSE_TOKEN }}
         REPOSITORY_NAME: subclipse/updates
