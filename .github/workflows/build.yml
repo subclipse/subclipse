@@ -48,7 +48,7 @@ jobs:
 
     - name: Publish Build
       if: github.event_name == 'push'
-      uses: JamesIves/github-pages-deploy-action@3.7.1
+      uses: JamesIves/github-pages-deploy-action@4.0.0
       with:
         ACCESS_TOKEN: ${{ secrets.SUBCLIPSE_TOKEN }}
         REPOSITORY_NAME: subclipse/snapshots
@@ -61,15 +61,15 @@ jobs:
 
     - name: Publish Release
       if: github.event_name == 'release'
-      uses: JamesIves/github-pages-deploy-action@3.7.1
+      uses: JamesIves/github-pages-deploy-action@4.0.0
       with:
-        ACCESS_TOKEN: ${{ secrets.SUBCLIPSE_TOKEN }}
-        REPOSITORY_NAME: subclipse/updates
-        BRANCH: main
-        FOLDER: ./releng/update-site/target/repository
-        TARGET_FOLDER: subclipse/${{ github.event.release.tag_name }}
-        CLEAN: false
-        SINGLE_COMMIT: false
+        token: ${{ secrets.SUBCLIPSE_TOKEN }}
+        repository-name: subclipse/updates
+        branch: main
+        folder: ./releng/update-site/target/repository
+        target-folder: subclipse/${{ github.event.release.tag_name }}
+        clean: false
+        single-commit: false
 
     - name: Attach Zipped Site to Release
       uses: actions/upload-release-asset@v1.0.2
