@@ -104,5 +104,7 @@ public class SVNUIPreferenceInitializer extends AbstractPreferenceInitializer {
     node.putInt(ISVNUIConstants.PREF_MENU_ICON_SET, ISVNUIConstants.MENU_ICON_SET_DEFAULT);
 
     node.putInt(ISVNUIConstants.PREF_COMMENTS_TO_SAVE, 10);
+
+    node.putBoolean(ISVNUIConstants.PREF_COMMIT_ONLY_CHANGESET_RESOURCES, true);
   }
 }
