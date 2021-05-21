@@ -524,6 +524,11 @@ public class CommitAction extends WorkbenchWindowAction {
   }
 
   private IResource[] getChangeSetResources(IResource[] allResources) {
+    IPreferenceStore preferenceStore = SVNUIPlugin.getPlugin().getPreferenceStore();
+    if (!preferenceStore.getBoolean(ISVNUIConstants.PREF_COMMIT_ONLY_CHANGESET_RESOURCES)) {
+      return allResources;
+    }
+    
     ActiveChangeSet changeSet = SVNProviderPlugin.getPlugin().getChangeSetManager().getDefaultSet();
     if (changeSet != null && !("<No Active Task>".equals(changeSet.getName()))) {
       List<IResource> changeSetResourceList = new ArrayList<IResource>();

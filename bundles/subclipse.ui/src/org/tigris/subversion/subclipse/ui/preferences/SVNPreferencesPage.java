@@ -72,6 +72,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
   private Button useDirectoryLocationRadio;
   private Text directoryLocationText;
   private Button browseConfigDirButton;
+  private Button commitOnlyChangesetResources;
 
   private Button quickDiffAnnotateYes;
   private Button quickDiffAnnotateNo;
@@ -213,6 +214,7 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
 
     ignoreRefreshSvnStatusCache =
         createCheckBox(composite, Policy.bind("SVNPreferencesPage.2")); // $NON-NLS-1$
+    commitOnlyChangesetResources = createCheckBox(composite, Policy.bind("SVNPreferencesPage.3")); // $NON-NLS-1$
 
     createLabel(composite, "", 2); // $NON-NLS-1$
 
@@ -386,6 +388,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
             .getPluginPreferences()
             .getBoolean(ISVNCoreConstants.PREF_IGNORE_REFRESH_SVN_STATUS_CACHE));
 
+    commitOnlyChangesetResources.setSelection(store.getBoolean(ISVNUIConstants.PREF_COMMIT_ONLY_CHANGESET_RESOURCES));
+
     removeOnReplace.setSelection(
         store.getBoolean(ISVNUIConstants.PREF_REMOVE_UNADDED_RESOURCES_ON_REPLACE));
 
@@ -498,6 +502,8 @@ public class SVNPreferencesPage extends PreferencePage implements IWorkbenchPref
         .setValue(
             ISVNCoreConstants.PREF_IGNORE_REFRESH_SVN_STATUS_CACHE,
             ignoreRefreshSvnStatusCache.getSelection());
+
+    store.setValue(ISVNUIConstants.PREF_COMMIT_ONLY_CHANGESET_RESOURCES, commitOnlyChangesetResources.getSelection());
 
     //		store.setValue(ISVNUIConstants.PREF_SHOW_UNADDED_RESOURCES_ON_COMMIT,
     // showUnadded.getSelection());
