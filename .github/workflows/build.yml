@@ -42,7 +42,7 @@ jobs:
         echo ARTIFACT_NAME=$ARTIFACT_NAME >> $GITHUB_ENV
 
     - name: Archive Update Site
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.ARTIFACT_PATHNAME }}
