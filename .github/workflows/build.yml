@@ -27,7 +27,7 @@ jobs:
         distribution: 'adopt'
 
     - name: Cache Maven packages
-      uses: actions/cache@v3.2.4
+      uses: actions/cache@v3
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -49,7 +49,7 @@ jobs:
 
     - name: Publish Build
       if: github.event_name == 'push'
-      uses: JamesIves/github-pages-deploy-action@v4.4.1
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
         token: ${{ secrets.SUBCLIPSE_TOKEN }}
         repository-name: subclipse/snapshots
@@ -62,7 +62,7 @@ jobs:
 
     - name: Publish Release
       if: github.event_name == 'release'
-      uses: JamesIves/github-pages-deploy-action@v4.4.1
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
         token: ${{ secrets.SUBCLIPSE_TOKEN }}
         repository-name: subclipse/updates
@@ -73,7 +73,7 @@ jobs:
         single-commit: false
 
     - name: Attach Zipped Site to Release
-      uses: actions/upload-release-asset@v1.0.2
+      uses: actions/upload-release-asset@v1
       if: github.event_name == 'release'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
