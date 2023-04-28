@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.model.WorkbenchViewerSorter;
-import org.eclipse.ui.views.navigator.ResourceSorter;
+import org.eclipse.ui.views.navigator.ResourceComparator;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
 /** Common superclass for SVN wizard pages. Provides convenience methods for widget creation. */
@@ -275,7 +275,7 @@ public abstract class SVNWizardPage extends WizardPage {
         new DecoratingLabelProvider(
             new WorkbenchLabelProvider(),
             SVNUIPlugin.getPlugin().getWorkbench().getDecoratorManager().getLabelDecorator()));
-    tree.setSorter(new ResourceSorter(ResourceSorter.NAME));
+    tree.setComparator(new ResourceComparator(ResourceComparator.NAME));
 
     GridData data = new GridData(GridData.FILL_BOTH | GridData.GRAB_VERTICAL);
     data.heightHint = LIST_HEIGHT_HINT;

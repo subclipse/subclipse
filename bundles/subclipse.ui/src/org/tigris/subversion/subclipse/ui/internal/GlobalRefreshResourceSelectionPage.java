@@ -48,7 +48,7 @@ import org.eclipse.ui.dialogs.IWorkingSetSelectionDialog;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-import org.eclipse.ui.views.navigator.ResourceSorter;
+import org.eclipse.ui.views.navigator.ResourceComparator;
 import org.tigris.subversion.subclipse.ui.Policy;
 import org.tigris.subversion.subclipse.ui.SVNUIPlugin;
 
@@ -177,7 +177,7 @@ public class GlobalRefreshResourceSelectionPage extends WizardPage {
             updateOKStatus();
           }
         });
-    fViewer.setSorter(new ResourceSorter(ResourceSorter.NAME));
+    fViewer.setComparator(new ResourceComparator(ResourceComparator.NAME));
     fViewer.setInput(resources);
 
     Composite selectGroup = new Composite(top, SWT.NULL);
