@@ -34,7 +34,7 @@ public class SVNPerspective implements IPerspectiveFactory {
     layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file"); // $NON-NLS-1$
 
     // Add "show views". They will be present in "show view" menu
-    layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
+    layout.addShowViewShortcut(IPageLayout.ID_PROJECT_EXPLORER);
     layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
     layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
     layout.addShowViewShortcut(ISVNUIConstants.HISTORY_VIEW_ID);
