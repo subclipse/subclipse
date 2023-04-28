@@ -12,6 +12,7 @@ package org.tigris.subversion.subclipse.ui.repository;
 import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFile;
 import org.tigris.subversion.subclipse.core.ISVNRemoteFolder;
@@ -23,14 +24,18 @@ public class RepositorySorter extends ViewerSorter {
   private static final int REPO_ROOT_CATEGORY = 1;
   private static final int REMOTE_FOLDER_CATEGORY = 2;
   private static final int REMOTE_FILE_CATEGORY = 3;
-  private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+\\.?)+");
-  private static final Pattern VERSION_SEPARATOR_PATTERN = Pattern.compile("\\.");
+  private static final boolean SORT_BY_VERSION = Boolean.parseBoolean(System.getProperty("subclipse.ui.repository.sortByRevision", "true"));
+  private static final Pattern VERSION_PATTERN = SORT_BY_VERSION ? Pattern.compile("(\\d+\\.?)+") : null;
+  private static final Pattern VERSION_SEPARATOR_PATTERN = SORT_BY_VERSION ? Pattern.compile("\\.") : null;
   private static final Comparator COMPARATOR =
       new Comparator() {
 
         public int compare(Object o1, Object o2) {
           String s1 = (String) o1;
           String s2 = (String) o2;
+          if (!SORT_BY_VERSION) {
+            return s1.compareToIgnoreCase(s2);
+          }
           try {
             Matcher m1 = VERSION_PATTERN.matcher(s1);
             Matcher m2 = VERSION_PATTERN.matcher(s2);
@@ -52,7 +57,7 @@ public class RepositorySorter extends ViewerSorter {
                 String[] versionsMin = VERSION_SEPARATOR_PATTERN.split(version2);
                 int inverter = 1;
                 // invert if max an min are flipped.
-                if (Math.max(versionsMax.length, versionsMin.length) != versionsMax.length) {
+                if (versionsMax.length < versionsMin.length) {
                   String[] temp;
                   temp = versionsMax;
                   versionsMax = versionsMin;
@@ -64,15 +69,14 @@ public class RepositorySorter extends ViewerSorter {
                     // smaller version string means it's a smaller version
                     return 1 * inverter;
                   }
-
-                  if (versionsMax[i].length() > 5 || versionsMin[i].length() > 5) {
-                    return s1.compareToIgnoreCase(s2);
+                  
+                  int res = Integer.compare(versionsMax[i].length(), versionsMin[i].length()); 
+                  if (res != 0) {
+                    return res * inverter;
                   }
-
-                  Integer digit1 = Integer.parseInt(versionsMax[i]);
-                  Integer digit2 = Integer.parseInt(versionsMin[i]);
-                  if (digit1.compareTo(digit2) != 0) {
-                    return digit1.compareTo(digit2) * inverter;
+                  res = versionsMax[i].compareToIgnoreCase(versionsMin[i]);
+                  if (res != 0) {
+                    return res * inverter;
                   }
                   // else move to the next version digit
                 }
@@ -93,6 +97,7 @@ public class RepositorySorter extends ViewerSorter {
   /* (non-Javadoc)
    * @see org.eclipse.jface.viewers.ViewerSorter#category(java.lang.Object)
    */
+  @Override
   public int category(Object element) {
     if (element instanceof ISVNRepositoryLocation) {
       return REPO_ROOT_CATEGORY;
@@ -114,14 +119,8 @@ public class RepositorySorter extends ViewerSorter {
    *
    * @return the comparator used to sort strings
    */
+  @Override
   protected Comparator getComparator() {
-    //
-    //	if(SVNUIPlugin.getPlugin().getPreferenceStore().getBoolean(ISVNUIConstants.PREF_SORT_BY_VERSION))
-    //		{
-    //			return COMPARATOR;
-    //		}
-    //		return super.getComparator();
-
     return COMPARATOR;
   }
 }
