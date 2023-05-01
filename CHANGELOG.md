@@ -1,6 +1,7 @@
 ## master
 
-* Publish builds to GH Pages
+* Replace deprecated resource view and classes [#262](https://github.com/subclipse/subclipse/issues/262)
+* Fixed bug in RepositorySorter when branch name contains more than 6 consecutive digits [#265](https://github.com/subclipse/subclipse/pull/265)
 
 ## Version 4.3.3
 December 18, 2020
