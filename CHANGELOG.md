@@ -1,4 +1,5 @@
-## master
+## Version 4.3.4
+June 19, 2023
 
 * Replace deprecated resource view and classes [#262](https://github.com/subclipse/subclipse/issues/262)
 * Fixed bug in RepositorySorter when branch name contains more than 6 consecutive digits [#265](https://github.com/subclipse/subclipse/pull/265)
