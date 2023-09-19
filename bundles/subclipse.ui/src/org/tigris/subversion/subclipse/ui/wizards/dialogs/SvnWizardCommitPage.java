@@ -387,6 +387,8 @@ public class SvnWizardCommitPage extends SvnWizardDialogPage {
               toolbarManager.add(new Separator());
               for (int i = 0; i < toolbarActions.length; i++) {
                 SVNPluginAction action = toolbarActions[i];
+                // Give delegate a chance to adjust enable state
+                action.selectionChanged(StructuredSelection.EMPTY);
                 toolbarManager.add(action);
               }
             }
