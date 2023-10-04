@@ -129,4 +129,20 @@ public abstract class SVNSynchronizeOperation extends SynchronizeModelOperation 
    */
   protected abstract void run(SVNTeamProvider provider, SyncInfoSet set, IProgressMonitor monitor)
       throws InvocationTargetException, InterruptedException;
+  
+  @Override
+  protected boolean canRunAsJob() {
+    return true;
+  }
+  
+  @Override
+  protected String getJobName() {
+    return Policy.bind("SynchronizeWizard.title");
+  }
+  
+  @Override
+  public boolean isUserInitiated() {
+    return false;
+  }
+  
 }
