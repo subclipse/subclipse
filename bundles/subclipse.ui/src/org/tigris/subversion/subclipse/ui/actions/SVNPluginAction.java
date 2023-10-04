@@ -90,9 +90,6 @@ public class SVNPluginAction extends Action
         setImageDescriptor(desc);
       }
     }
-
-    // Give delegate a chance to adjust enable state
-    selectionChanged(StructuredSelection.EMPTY);
   }
 
   private static int getStyleFromElement(IConfigurationElement element) {
