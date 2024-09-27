@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.team.core.Team;
 import org.tigris.subversion.subclipse.core.ISVNCoreConstants;
@@ -58,6 +59,7 @@ import org.tigris.subversion.svnclientadapter.SVNUrl;
  * @see LocalFile
  */
 public abstract class LocalResource implements ISVNLocalResource, Comparable {
+  public static final QualifiedName SVN_IS_SYM_LINK = new QualifiedName(SVNProviderPlugin.ID, "svn-is-sym-link");
 
   /** The local resource represented by this handle */
   protected IResource resource;
@@ -597,12 +599,41 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
   }
 
 	public static boolean isSymLink(ISVNLocalResource resource) {
+		IResource wsResource = resource.getIResource();
+		Boolean isSymLink = getSymLinkSessionProperty(wsResource);
+		if (isSymLink != null) {
+			return isSymLink;
+		}
 		try {
 			File file = resource.getFile();
 			Path path = file.toPath();
-			return Files.isSymbolicLink(path);
+			isSymLink = Files.isSymbolicLink(path);
+			setSymLinkSessionProperty(wsResource, isSymLink);
+			return isSymLink;
 		} catch (InvalidPathException e) {
 			return false;
 		}
 	}
+
+  private static Boolean getSymLinkSessionProperty(IResource resource) {
+    if (resource == null) {
+      return null;
+    }
+    try {
+      return (Boolean) resource.getSessionProperty(SVN_IS_SYM_LINK);
+    } catch (CoreException e) {
+      SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
+      return null;
+    }
+  }
+
+  private static void setSymLinkSessionProperty(IResource resource, Boolean isSymLink) {
+    if (resource != null) {
+      try {
+        resource.setSessionProperty(SVN_IS_SYM_LINK, isSymLink);
+      } catch (CoreException e) {
+        SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
+      }
+    }
+  }
 }
