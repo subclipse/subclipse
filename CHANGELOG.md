@@ -2,6 +2,7 @@
 
 * SVNPluginAction delegates not notified of selection change after first instance of commit dialog [#279](https://github.com/subclipse/subclipse/pull/279)
 * UI-Deadlock during commit of multiple files [#280](https://github.com/subclipse/subclipse/pull/280)
+* Cache symbolic link flag of local SVN resource as session property [#295](https://github.com/subclipse/subclipse/pull/295)
 
 ## Version 4.3.4
 June 19, 2023
