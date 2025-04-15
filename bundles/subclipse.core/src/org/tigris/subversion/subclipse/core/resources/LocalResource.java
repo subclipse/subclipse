@@ -600,6 +600,9 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 
 	public static boolean isSymLink(ISVNLocalResource resource) {
 		IResource wsResource = resource.getIResource();
+		if (wsResource == null || !wsResource.exists()) {
+			return false;
+		}
 		Boolean isSymLink = getSymLinkSessionProperty(wsResource);
 		if (isSymLink != null) {
 			return isSymLink;
@@ -616,9 +619,6 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
 	}
 
   private static Boolean getSymLinkSessionProperty(IResource resource) {
-    if (resource == null) {
-      return null;
-    }
     try {
       return (Boolean) resource.getSessionProperty(SVN_IS_SYM_LINK);
     } catch (CoreException e) {
@@ -628,12 +628,10 @@ public abstract class LocalResource implements ISVNLocalResource, Comparable {
   }
 
   private static void setSymLinkSessionProperty(IResource resource, Boolean isSymLink) {
-    if (resource != null) {
-      try {
-        resource.setSessionProperty(SVN_IS_SYM_LINK, isSymLink);
-      } catch (CoreException e) {
-        SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
-      }
+    try {
+      resource.setSessionProperty(SVN_IS_SYM_LINK, isSymLink);
+    } catch (CoreException e) {
+      SVNProviderPlugin.log(IStatus.ERROR, e.getMessage(), e);
     }
   }
 }
